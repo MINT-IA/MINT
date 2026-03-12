@@ -424,14 +424,14 @@ class _DataBlockEnrichmentScreenState
 
   String? _enrichmentRoute(String type) {
     const routes = {
-      'revenu': '/profile/bilan',
+      'revenu': '/onboarding/smart',
       'lpp': '/document-scan',
       'avs': '/document-scan/avs-guide',
-      '3a': '/profile/bilan',
+      '3a': '/simulator/3a',
       'patrimoine': '/profile/bilan',
-      'fiscalite': '/document-scan?type=taxDeclaration',
-      'objectifRetraite': '/profile/bilan',
-      'compositionMenage': '/profile/bilan',
+      'fiscalite': '/fiscal',
+      'objectifRetraite': '/coach/cockpit',
+      'compositionMenage': '/household',
     };
     return routes[type] ?? '/profile/bilan';
   }
@@ -525,7 +525,7 @@ class _DataBlockEnrichmentScreenState
               'Ton salaire brut est la base de toutes les projections : '
               'prévoyance, impôts, budget. Plus il est précis, plus tes '
               'résultats seront fiables.',
-          ctaLabel: 'Mettre à jour mon revenu',
+          ctaLabel: 'Préciser mon revenu',
         ),
       'lpp' => const _BlockMeta(
           title: 'Prévoyance LPP',
@@ -549,7 +549,7 @@ class _DataBlockEnrichmentScreenState
               "Tes comptes 3a s'ajoutent à ta prévoyance et offrent un "
               'avantage fiscal. Renseigne les soldes actuels pour une vue '
               'complète.',
-          ctaLabel: 'Saisir mes soldes 3a',
+          ctaLabel: 'Simuler mon 3a',
         ),
       'patrimoine' => const _BlockMeta(
           title: 'Patrimoine',
@@ -560,20 +560,20 @@ class _DataBlockEnrichmentScreenState
           ctaLabel: 'Renseigner mon patrimoine',
         ),
       'fiscalite' => const _BlockMeta(
-          title: 'Fiscalite',
+          title: 'Fiscalité',
           description:
-              'Ta commune, ton revenu imposable et ta fortune determinent '
-              'ton taux marginal d\'imposition. Une declaration fiscale '
-              'ou un avis de taxation donne un taux reel plutot qu\'estime '
+              'Ta commune, ton revenu imposable et ta fortune déterminent '
+              'ton taux marginal d\'imposition. Une déclaration fiscale '
+              'ou un avis de taxation donne un taux réel plutôt qu\'estimé '
               '(coefficient communal 60%-130%).',
-          ctaLabel: 'Scanner ma declaration fiscale',
+          ctaLabel: 'Comparer ma fiscalité',
         ),
       'objectifRetraite' => const _BlockMeta(
           title: 'Objectif retraite',
           description: 'À quel âge souhaites-tu arrêter de travailler ? '
               "Un objectif clair permet de calculer l'effort d'épargne "
               'nécessaire et les options (anticipation, retraite partielle).',
-          ctaLabel: 'Définir mon objectif',
+          ctaLabel: 'Voir ma projection',
         ),
       'compositionMenage' => const _BlockMeta(
           title: 'Composition du ménage',
@@ -581,7 +581,7 @@ class _DataBlockEnrichmentScreenState
               'En couple, les projections changent : AVS plafonnée pour '
               'les mariés (LAVS art. 35), rente de survivant (LPP art. 19), '
               'optimisation fiscale à deux.',
-          ctaLabel: 'Compléter le profil couple',
+          ctaLabel: 'Gérer mon ménage',
         ),
       'unknown' => const _BlockMeta(
           title: 'Données',

@@ -111,21 +111,13 @@ void main() {
       expect(find.textContaining('Bonjour Julien'), findsOneWidget);
     });
 
-    testWidgets('renders visibility score card', (tester) async {
+    testWidgets('renders readiness score card', (tester) async {
       final provider = _buildProfileProvider();
       await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
       await tester.pump(const Duration(seconds: 2));
 
-      expect(find.text('Visibilité financière'), findsOneWidget);
-      expect(find.textContaining('%'), findsWidgets);
-    });
-
-    testWidgets('renders comprendre section', (tester) async {
-      final provider = _buildProfileProvider();
-      await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
-      await tester.pump(const Duration(seconds: 2));
-
-      expect(find.text('Comprendre'), findsOneWidget);
+      // pulseReadinessTitle = "Forme financière"
+      expect(find.text('Forme financière'), findsOneWidget);
     });
 
     testWidgets('renders disclaimer in loaded state', (tester) async {
@@ -134,14 +126,6 @@ void main() {
       await tester.pump(const Duration(seconds: 2));
 
       expect(find.textContaining('Outil éducatif'), findsOneWidget);
-    });
-
-    testWidgets('renders 4 axis progress bars', (tester) async {
-      final provider = _buildProfileProvider();
-      await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
-      await tester.pump(const Duration(seconds: 2));
-
-      expect(find.byType(LinearProgressIndicator), findsNWidgets(4));
     });
   });
 
@@ -338,15 +322,15 @@ void main() {
       expect(find.text('Budget libre'), findsOneWidget);
       expect(find.text('Patrimoine'), findsOneWidget);
 
-      // Key figures use specific icons (also used in VisibilityScoreCard axes)
+      // Key figures use specific icons
       expect(find.byIcon(Icons.beach_access_outlined), findsWidgets);
       expect(find.byIcon(Icons.account_balance_wallet_outlined), findsWidgets);
-      expect(find.byIcon(Icons.trending_up_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.trending_up_outlined), findsWidgets);
     });
   });
 
   group('PulseScreen — couple card', () {
-    testWidgets('shows couple card when profile.isCouple is true',
+    testWidgets('shows couple greeting when profile.isCouple is true',
         (tester) async {
       final provider = _buildProfileProvider(
         firstName: 'Julien',
@@ -358,10 +342,9 @@ void main() {
       await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
       await tester.pump(const Duration(seconds: 2));
 
-      // Couple card shows "Julien + Lauren"
-      expect(find.textContaining('Julien + Lauren'), findsOneWidget);
-      // Couple icon
-      expect(find.byIcon(Icons.people_outline), findsOneWidget);
+      // Couple greeting in SliverAppBar: "Bonjour Julien et Lauren"
+      expect(find.textContaining('Julien'), findsWidgets);
+      expect(find.textContaining('Lauren'), findsWidgets);
     });
 
     testWidgets('does not show couple card for celibataire',

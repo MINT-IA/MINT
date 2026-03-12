@@ -44,6 +44,31 @@ class FeatureFlags {
   /// When true, narratives use templates-only degraded mode.
   static bool safeModeDegraded = false;
 
+  // ── V1 screen gating ───────────────────────────────────────
+  // Set to true to enable post-V1 features.
+  // All default false — only V1-essential routes are accessible.
+
+  /// Coach Phase 2: agir, refresh, succession, decaissement
+  static bool enableCoachPhase2 = false;
+
+  /// Life event screens: mariage, divorce, naissance, concubinage, etc.
+  static bool enableLifeEventScreens = false;
+
+  /// Advanced simulators: compound, leasing, credit, disability
+  static bool enableAdvancedSimulators = false;
+
+  /// Mortgage tools: affordability, amortization, EPL, etc.
+  static bool enableMortgageTools = false;
+
+  /// Self-employed tools: AVS cotisations, IJM, 3a indep, etc.
+  static bool enableIndependantTools = false;
+
+  /// Open banking screens: hub, transactions, consents
+  static bool enableOpenBanking = false;
+
+  /// Admin screens: observability, analytics
+  static bool enableAdminScreens = false;
+
   /// Apply flags from a backend response map.
   static void applyFromMap(Map<String, dynamic> data) {
     if (data.containsKey('enableCouplePlusTier')) {
@@ -60,6 +85,28 @@ class FeatureFlags {
     }
     if (data.containsKey('safeModeDegraded')) {
       safeModeDegraded = data['safeModeDegraded'] == true;
+    }
+    // V1 screen gating flags
+    if (data.containsKey('enableCoachPhase2')) {
+      enableCoachPhase2 = data['enableCoachPhase2'] == true;
+    }
+    if (data.containsKey('enableLifeEventScreens')) {
+      enableLifeEventScreens = data['enableLifeEventScreens'] == true;
+    }
+    if (data.containsKey('enableAdvancedSimulators')) {
+      enableAdvancedSimulators = data['enableAdvancedSimulators'] == true;
+    }
+    if (data.containsKey('enableMortgageTools')) {
+      enableMortgageTools = data['enableMortgageTools'] == true;
+    }
+    if (data.containsKey('enableIndependantTools')) {
+      enableIndependantTools = data['enableIndependantTools'] == true;
+    }
+    if (data.containsKey('enableOpenBanking')) {
+      enableOpenBanking = data['enableOpenBanking'] == true;
+    }
+    if (data.containsKey('enableAdminScreens')) {
+      enableAdminScreens = data['enableAdminScreens'] == true;
     }
   }
 

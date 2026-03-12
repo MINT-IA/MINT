@@ -1074,6 +1074,11 @@ class CoachProfile {
   /// en fin d'onboarding. Backward-compatible : absent → beginner.
   final FinancialLiteracyLevel financialLiteracyLevel;
 
+  /// User's primary focus/intention — drives adaptive Pulse hero.
+  /// Set during onboarding FocusSelector, changeable from Pulse.
+  /// Format: '{category}_{subcategory}' e.g. 'proteger_retraite'.
+  final String? primaryFocus;
+
   CoachProfile({
     this.firstName,
     required this.birthYear,
@@ -1109,6 +1114,7 @@ class CoachProfile {
     DateTime? createdAt,
     DateTime? updatedAt,
     this.financialLiteracyLevel = FinancialLiteracyLevel.beginner,
+    this.primaryFocus,
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now(),
         dataSources = _resolveDataSources(dataSources, prevoyance);
@@ -1367,6 +1373,7 @@ class CoachProfile {
     DateTime? createdAt,
     DateTime? updatedAt,
     FinancialLiteracyLevel? financialLiteracyLevel,
+    String? primaryFocus,
   }) {
     return CoachProfile(
       firstName: firstName ?? this.firstName,
@@ -1405,6 +1412,7 @@ class CoachProfile {
       updatedAt: updatedAt ?? this.updatedAt,
       financialLiteracyLevel:
           financialLiteracyLevel ?? this.financialLiteracyLevel,
+      primaryFocus: primaryFocus ?? this.primaryFocus,
     );
   }
 
@@ -1600,6 +1608,7 @@ class CoachProfile {
         (e) => e.name == json['financialLiteracyLevel'],
         orElse: () => FinancialLiteracyLevel.beginner,
       ),
+      primaryFocus: json['primaryFocus'] as String?,
     );
   }
 
@@ -1640,6 +1649,7 @@ class CoachProfile {
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
         'financialLiteracyLevel': financialLiteracyLevel.name,
+        'primaryFocus': primaryFocus,
       };
 
   // ════════════════════════════════════════════════════════════════
@@ -2201,6 +2211,13 @@ class CoachProfile {
           savedCreatedAt != null ? DateTime.tryParse(savedCreatedAt) : null,
       dataSources: restoredDataSources,
       dataTimestamps: initialTimestamps,
+      financialLiteracyLevel: FinancialLiteracyLevel.values.firstWhere(
+        (e) =>
+            e.name ==
+            answers['_coach_financial_literacy_level'],
+        orElse: () => FinancialLiteracyLevel.beginner,
+      ),
+      primaryFocus: answers['q_primary_focus'] as String?,
     );
   }
 

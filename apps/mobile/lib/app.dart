@@ -188,6 +188,7 @@ final _router = GoRouter(
     GoRoute(
       path: '/coach/agir',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableCoachPhase2 ? null : '/',
       builder: (context, state) => const CoachAgirScreen(),
     ),
     GoRoute(
@@ -206,6 +207,7 @@ final _router = GoRouter(
     GoRoute(
       path: '/coach/refresh',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableCoachPhase2 ? null : '/',
       builder: (context, state) => const AnnualRefreshScreen(),
     ),
     GoRoute(
@@ -217,11 +219,13 @@ final _router = GoRouter(
     GoRoute(
       path: '/coach/decaissement',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableCoachPhase2 ? null : '/',
       builder: (context, state) => const OptimisationDecaissementScreen(),
     ),
     GoRoute(
       path: '/coach/succession',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableCoachPhase2 ? null : '/',
       builder: (context, state) => const SuccessionPatrimoineScreen(),
     ),
     // Feature Routes (Full Screen)
@@ -249,10 +253,12 @@ final _router = GoRouter(
       routes: [
         GoRoute(
           path: 'admin-observability',
+          redirect: (context, state) => FeatureFlags.enableAdminScreens ? null : '/',
           builder: (context, state) => const AdminObservabilityScreen(),
         ),
         GoRoute(
           path: 'admin-analytics',
+          redirect: (context, state) => FeatureFlags.enableAdminScreens ? null : '/',
           builder: (context, state) => const AdminAnalyticsScreen(),
         ),
         GoRoute(
@@ -334,11 +340,13 @@ final _router = GoRouter(
     GoRoute(
       path: '/simulator/compound',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableAdvancedSimulators ? null : '/',
       builder: (context, state) => const SimulatorCompoundScreen(),
     ),
     GoRoute(
       path: '/simulator/leasing',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableAdvancedSimulators ? null : '/',
       builder: (context, state) => const SimulatorLeasingScreen(),
     ),
     GoRoute(
@@ -349,6 +357,7 @@ final _router = GoRouter(
     GoRoute(
       path: '/simulator/credit',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableAdvancedSimulators ? null : '/',
       builder: (context, state) => const ConsumerCreditSimulatorScreen(),
     ),
     GoRoute(
@@ -366,16 +375,19 @@ final _router = GoRouter(
     GoRoute(
       path: '/disability/gap',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const DisabilityGapScreen(),
     ),
     GoRoute(
       path: '/disability/insurance',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const DisabilityInsuranceScreen(),
     ),
     GoRoute(
       path: '/disability/self-employed',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const DisabilitySelfEmployedScreen(),
     ),
     GoRoute(
@@ -387,11 +399,13 @@ final _router = GoRouter(
     GoRoute(
       path: '/life-event/divorce',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const DivorceSimulatorScreen(),
     ),
     GoRoute(
       path: '/life-event/succession',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const SuccessionSimulatorScreen(),
     ),
     GoRoute(
@@ -452,11 +466,13 @@ final _router = GoRouter(
     GoRoute(
       path: '/segments/frontalier',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const FrontalierScreen(),
     ),
     GoRoute(
       path: '/segments/independant',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableIndependantTools ? null : '/',
       builder: (context, state) => const IndependantScreen(),
     ),
     // Assurances
@@ -474,16 +490,19 @@ final _router = GoRouter(
     GoRoute(
       path: '/open-banking',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableOpenBanking ? null : '/',
       builder: (context, state) => const OpenBankingHubScreen(),
     ),
     GoRoute(
       path: '/open-banking/transactions',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableOpenBanking ? null : '/',
       builder: (context, state) => const TransactionListScreen(),
     ),
     GoRoute(
       path: '/open-banking/consents',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableOpenBanking ? null : '/',
       builder: (context, state) => const ConsentScreen(),
     ),
     // LPP Deep (Sprint S15 — Chantier 4)
@@ -506,26 +525,31 @@ final _router = GoRouter(
     GoRoute(
       path: '/independants/avs',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableIndependantTools ? null : '/',
       builder: (context, state) => const AvsCotisationsScreen(),
     ),
     GoRoute(
       path: '/independants/ijm',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableIndependantTools ? null : '/',
       builder: (context, state) => const IjmScreen(),
     ),
     GoRoute(
       path: '/independants/3a',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableIndependantTools ? null : '/',
       builder: (context, state) => const Pillar3aIndepScreen(),
     ),
     GoRoute(
       path: '/independants/dividende-salaire',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableIndependantTools ? null : '/',
       builder: (context, state) => const DividendeVsSalaireScreen(),
     ),
     GoRoute(
       path: '/independants/lpp-volontaire',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableIndependantTools ? null : '/',
       builder: (context, state) => const LppVolontaireScreen(),
     ),
     // Chomage + Premier emploi (Sprint S19)
@@ -562,33 +586,39 @@ final _router = GoRouter(
     GoRoute(
       path: '/mariage',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const MariageScreen(),
     ),
     GoRoute(
       path: '/naissance',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const NaissanceScreen(),
     ),
     GoRoute(
       path: '/concubinage',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const ConcubinageScreen(),
     ),
     // Expatriation (Sprint S23)
     GoRoute(
       path: '/expatriation',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const ExpatScreen(),
     ),
     // Housing Sale + Donation (Sprint S24)
     GoRoute(
       path: '/life-event/housing-sale',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const HousingSaleScreen(),
     ),
     GoRoute(
       path: '/life-event/donation',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const DonationScreen(),
     ),
     // Education Hub
@@ -609,42 +639,50 @@ final _router = GoRouter(
     GoRoute(
       path: '/mortgage/affordability',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableMortgageTools ? null : '/',
       builder: (context, state) => const AffordabilityScreen(),
     ),
     GoRoute(
       path: '/mortgage/amortization',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableMortgageTools ? null : '/',
       builder: (context, state) => const AmortizationScreen(),
     ),
     GoRoute(
       path: '/mortgage/epl-combined',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableMortgageTools ? null : '/',
       builder: (context, state) => const EplCombinedScreen(),
     ),
     GoRoute(
       path: '/mortgage/imputed-rental',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableMortgageTools ? null : '/',
       builder: (context, state) => const ImputedRentalScreen(),
     ),
     GoRoute(
       path: '/mortgage/saron-vs-fixed',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableMortgageTools ? null : '/',
       builder: (context, state) => const SaronVsFixedScreen(),
     ),
     // Pillar 3a Deep (Sprint S17)
     GoRoute(
       path: '/3a-deep/comparator',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableAdvancedSimulators ? null : '/',
       builder: (context, state) => const ProviderComparatorScreen(),
     ),
     GoRoute(
       path: '/3a-deep/real-return',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableAdvancedSimulators ? null : '/',
       builder: (context, state) => const RealReturnScreen(),
     ),
     GoRoute(
       path: '/3a-deep/staggered-withdrawal',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableAdvancedSimulators ? null : '/',
       builder: (context, state) => const StaggeredWithdrawalScreen(),
     ),
     // Debt Prevention (Sprint S13)

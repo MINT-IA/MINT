@@ -5,7 +5,7 @@
 ///   - Chat responses (BYOK / mock fallback)
 ///
 /// Priority chain (privacy-first):
-///   1. SLM on-device (Gemma 3n) — timeout 10s, zero network, privacy total
+///   1. SLM on-device (Gemma 3n) — timeout 30s, zero network, privacy total
 ///   2. BYOK cloud LLM            — timeout 30s, user opt-in, RAG-grounded
 ///   3. FallbackTemplates         — always available, zero LLM dependency
 ///
@@ -117,7 +117,7 @@ class CoachOrchestrator {
   /// [componentType] selects the prompt template and word limit.
   /// [byokConfig] is optional; if null or has no key, BYOK is skipped.
   ///
-  /// Fallback chain: SLM (10s) → BYOK (30s) → FallbackTemplates.
+  /// Fallback chain: SLM (30s) → BYOK (30s) → FallbackTemplates.
   /// ComplianceGuard applied on each tier's output.
   static Future<OrchestratorOutput> generateNarrativeComponent({
     required ComponentType componentType,
@@ -160,7 +160,7 @@ class CoachOrchestrator {
 
   /// Generate a chat response.
   ///
-  /// Chat surface fallback chain: SLM (10s) → BYOK (30s) → mock template.
+  /// Chat surface fallback chain: SLM (30s) → BYOK (30s) → mock template.
   /// ComplianceGuard applied centrally on all outputs.
   static Future<CoachResponse> generateChat({
     required String userMessage,
@@ -220,6 +220,46 @@ class CoachOrchestrator {
         !FeatureFlags.safeModeDegraded;
   }
 
+  /// Cached init future — prevents concurrent [_ensureInitialized] calls
+  /// from spawning multiple init sequences. If init is already in flight,
+  /// subsequent callers share the same future.
+  static Future<bool>? _initFuture;
+
+  /// Ensure the SLM engine is initialized before inference.
+  ///
+  /// Handles re-initialization after [SlmEngine.dispose] — when the user
+  /// leaves the coach screen and returns, the engine is disposed to free
+  /// ~2 GB of RAM. This method transparently re-initializes it.
+  ///
+  /// Uses a cached future to deduplicate concurrent calls: if init is
+  /// already in progress, all callers await the same future.
+  ///
+  /// Returns true if the engine is ready for inference, false otherwise.
+  static Future<bool> _ensureInitialized() {
+    return _initFuture ??=
+        _doEnsureInitialized().whenComplete(() => _initFuture = null);
+  }
+
+  /// Internal init logic, called only via [_ensureInitialized].
+  static Future<bool> _doEnsureInitialized() async {
+    final engine = SlmEngine.instance;
+
+    // Already running — nothing to do.
+    if (engine.isAvailable) return true;
+
+    // Re-initialize (handles both first-init and post-dispose cases).
+    try {
+      final ok = await engine.initialize().timeout(_slmTimeout);
+      if (!ok) {
+        debugPrint('[Orchestrator] SLM (re-)init returned false');
+      }
+      return ok;
+    } catch (e) {
+      debugPrint('[Orchestrator] SLM (re-)init failed: $e');
+      return false;
+    }
+  }
+
   /// Attempt SLM generation with [_slmTimeout].
   ///
   /// Returns null if:
@@ -233,19 +273,10 @@ class CoachOrchestrator {
     required CoachContext ctx,
     required ComponentType componentType,
   }) async {
-    final engine = SlmEngine.instance;
+    // Ensure SLM is initialized (handles first-init and post-dispose re-init).
+    if (!await _ensureInitialized()) return null;
 
-    // Initialize if not already running (checks model download internally).
-    if (!engine.isAvailable) {
-      bool initialized;
-      try {
-        initialized = await engine.initialize().timeout(_slmTimeout);
-      } catch (e) {
-        debugPrint('[Orchestrator] SLM init failed: $e');
-        return null;
-      }
-      if (!initialized) return null;
-    }
+    final engine = SlmEngine.instance;
 
     // Truncate prompt to context window.
     final truncatedPrompt = _truncateToContextWindow(userPrompt);
@@ -480,6 +511,8 @@ class CoachOrchestrator {
   }
 
   /// Safe chat fallback — honest message when no LLM is available.
+  // TODO(i18n): migrate hardcoded FR strings to S.of(context) — needs
+  // context parameter or a static localisation accessor (Phase 1.3).
   static CoachResponse _chatFallback() {
     return CoachResponse(
       message: 'Le coach IA n\'est pas disponible pour le moment.\n\n'
@@ -501,6 +534,9 @@ class CoachOrchestrator {
   ///
   /// Returns null if SLM is not eligible or not available.
   /// Caller should fall back to [generateChat] for BYOK / fallback.
+  ///
+  /// Handles re-initialization after dispose — when the user leaves the
+  /// coach screen and returns, the engine is transparently re-initialized.
   static Stream<String>? streamChat({
     required String userMessage,
     required List<ChatMessage> history,
@@ -509,13 +545,44 @@ class CoachOrchestrator {
     if (!_slmEligible()) return null;
 
     final engine = SlmEngine.instance;
-    if (!engine.isAvailable) return null;
+
+    // If engine was disposed (user left coach screen), we need async re-init.
+    // Wrap the entire flow in an async* generator that ensures init first.
+    if (!engine.isAvailable) {
+      return _streamChatWithReInit(
+        userMessage: userMessage,
+        history: history,
+        ctx: ctx,
+      );
+    }
 
     final systemPrompt = PromptRegistry.baseSystemPrompt;
     final conversationCtx = _buildConversationContext(history, userMessage);
     final truncated = _truncateToContextWindow(conversationCtx);
 
     return engine.generateStream(
+      systemPrompt: systemPrompt,
+      userPrompt: truncated,
+    );
+  }
+
+  /// Internal: stream chat with async re-initialization before streaming.
+  ///
+  /// Used when [SlmEngine] was disposed and needs re-init before generating.
+  static Stream<String> _streamChatWithReInit({
+    required String userMessage,
+    required List<ChatMessage> history,
+    required CoachContext ctx,
+  }) async* {
+    final ok = await _ensureInitialized();
+    if (!ok) return;
+
+    final engine = SlmEngine.instance;
+    final systemPrompt = PromptRegistry.baseSystemPrompt;
+    final conversationCtx = _buildConversationContext(history, userMessage);
+    final truncated = _truncateToContextWindow(conversationCtx);
+
+    yield* engine.generateStream(
       systemPrompt: systemPrompt,
       userPrompt: truncated,
     );
@@ -569,6 +636,10 @@ class CoachOrchestrator {
   }
 
   /// Get the appropriate FallbackTemplate for a component type.
+  ///
+  /// For [ComponentType.tip], selects a context-aware template based on the
+  /// user's archetype and life situation. Falls back to the generic
+  /// [FallbackTemplates.tipNarrative] when no specialized template matches.
   static String _fallbackForComponent(
     ComponentType type,
     CoachContext ctx,
@@ -579,7 +650,7 @@ class CoachOrchestrator {
       case ComponentType.scoreSummary:
         return FallbackTemplates.scoreSummary(ctx);
       case ComponentType.tip:
-        return FallbackTemplates.tipNarrative(ctx);
+        return _contextualTip(ctx);
       case ComponentType.chiffreChoc:
         return FallbackTemplates.chiffreChocReframe(ctx);
       case ComponentType.enrichmentGuide:
@@ -588,6 +659,42 @@ class CoachOrchestrator {
       case ComponentType.general:
         return FallbackTemplates.scoreSummary(ctx);
     }
+  }
+
+  /// Select the most relevant tip template based on user context.
+  ///
+  /// Priority:
+  ///   1. FATCA guidance for expat_us archetype
+  ///   2. Disability bridge for users < 55 with no disability data
+  ///   3. Libre passage for users in job transition
+  ///   4. Succession planning for users > 50
+  ///   5. Generic tip narrative (default)
+  static String _contextualTip(CoachContext ctx) {
+    // FATCA: highest priority for US taxpayers (complex obligations)
+    if (ctx.archetype == 'expat_us') {
+      return FallbackTemplates.fatcaGuidance(ctx);
+    }
+
+    // Disability: flag coverage gaps for working-age users
+    final hasDisabilityData =
+        ctx.dataReliability.keys.any((k) => k.contains('invalidit'));
+    if (ctx.age < 55 && !hasDisabilityData) {
+      return FallbackTemplates.disabilityBridge(ctx);
+    }
+
+    // Libre passage: relevant during job transitions
+    final lifeEvent = ctx.knownValues['last_life_event']?.toString() ?? '';
+    if (lifeEvent == 'jobLoss' || lifeEvent == 'newJob') {
+      return FallbackTemplates.librePassageGuide(ctx);
+    }
+
+    // Succession: relevant for 50+ (estate planning horizon)
+    if (ctx.age >= 50) {
+      return FallbackTemplates.successionPlanning(ctx);
+    }
+
+    // Default: generic personalized tip
+    return FallbackTemplates.tipNarrative(ctx);
   }
 
   /// Map [LlmProvider] to the string expected by [RagService].

@@ -152,42 +152,145 @@ class FallbackTemplates {
     final name = ctx.firstName;
     return switch (blockType) {
       'lpp' =>
-        '$name, connais-tu ton avoir LPP actuel? '
-        'Ton certificat de prevoyance (2e pilier) indique le montant exact. '
-        'Avec ton salaire et ton age, l\'estimation pourrait varier '
-        'significativement du reel. Un scan du certificat affinerait '
+        '$name, connais-tu ton avoir LPP actuel ? '
+        'Ton certificat de prévoyance (2e pilier) indique le montant exact. '
+        'Avec ton salaire et ton âge, l\'estimation pourrait varier '
+        'significativement du réel. Un scan du certificat affinerait '
         'tes projections de +18 points de confiance.',
       'avs' =>
-        '$name, as-tu deja demande ton extrait de compte AVS? '
-        'Il confirme tes annees de cotisation effectives. '
-        '${ctx.archetype.contains('expat') ? 'En tant qu\'expatrie, des lacunes sont probables. ' : ''}'
+        '$name, as-tu déjà demandé ton extrait de compte AVS ? '
+        'Il confirme tes années de cotisation effectives. '
+        '${ctx.archetype.contains('expat') ? 'En tant qu\'expatrié, des lacunes sont probables. ' : ''}'
         'Commander un extrait est gratuit sur le site de ta caisse de compensation.',
       '3a' =>
-        '$name, combien de comptes 3a as-tu et chez quel provider? '
-        'Connaitre les soldes exacts permet de calculer ton avantage fiscal '
-        'et de projeter ta prevoyance complete.',
+        '$name, combien de comptes 3a as-tu et chez quel provider ? '
+        'Connaître les soldes exacts permet de calculer ton avantage fiscal '
+        'et de projeter ta prévoyance complète.',
       'patrimoine' =>
-        '$name, as-tu de l\'epargne en dehors de la prevoyance? '
-        'Comptes courants, investissements, immobilier — ces donnees '
-        'completent ton Financial Resilience Index.',
+        '$name, as-tu de l\'épargne en dehors de la prévoyance ? '
+        'Comptes courants, investissements, immobilier — ces données '
+        'complètent ton Financial Resilience Index.',
       'fiscalite' =>
-        '$name, dans quelle commune habites-tu? '
-        'Le coefficient communal varie de 60% a 130% et impacte '
-        'directement ton taux d\'imposition reel. '
-        'Une declaration fiscale ou un avis de taxation donnerait un calcul precis.',
+        '$name, dans quelle commune habites-tu ? '
+        'Le coefficient communal varie de 60% à 130% et impacte '
+        'directement ton taux d\'imposition réel. '
+        'Une déclaration fiscale ou un avis de taxation donnerait un calcul précis.',
       'objectifRetraite' =>
-        '$name, a quel age souhaiterais-tu arreter de travailler? '
-        'Entre 58 et 70 ans, chaque annee change la donne : '
-        'rente reduite avant 65 ans, majoree apres.',
+        '$name, à quel âge souhaiterais-tu arrêter de travailler ? '
+        'Entre 58 et 70 ans, chaque année change la donne : '
+        'rente réduite avant 65 ans, majorée après.',
       'compositionMenage' =>
-        '$name, es-tu en couple? '
+        '$name, es-tu en couple ? '
         'Si oui, les projections changent significativement : '
-        'AVS plafonnee pour les maries, rente de survivant LPP, '
-        'et possibilites d\'optimisation fiscale a deux.',
+        'AVS plafonnée pour les mariés, rente de survivant LPP, '
+        'et possibilités d\'optimisation fiscale à deux.',
       _ =>
-        '$name, continue a enrichir ton profil. '
-        'Chaque donnee ajoutee ameliore la precision de tes projections.',
+        '$name, continue à enrichir ton profil. '
+        'Chaque donnée ajoutée améliore la précision de tes projections.',
     };
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // FATCA Guidance — max 120 words (ComponentType.tip)
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Generates educational content about FATCA obligations for US
+  /// citizens/residents in Switzerland. Falls back to a generic
+  /// nationality-awareness message for non-US archetypes.
+  static String fatcaGuidance(CoachContext ctx) {
+    if (ctx.archetype != 'expat_us') {
+      return '${ctx.firstName}, certaines règles de prévoyance '
+          'dépendent de ta nationalité et de ton parcours. '
+          'Vérifie les conventions bilatérales qui pourraient '
+          's\'appliquer à ta situation auprès d\'un·e spécialiste.';
+    }
+
+    return '${ctx.firstName}, en tant que contribuable US en Suisse, '
+        'quelques points éducatifs à connaître. '
+        'Le FATCA (Foreign Account Tax Compliance Act) impose '
+        'une déclaration annuelle de tes comptes suisses à l\'IRS. '
+        'Tes investissements en fonds suisses pourraient être '
+        'classés PFIC, avec un traitement fiscal US spécifique. '
+        'La convention de double imposition CH-US prévoit des '
+        'mécanismes pour éviter une double taxation sur tes '
+        'versements 3a et prestations LPP. '
+        'Il serait utile de consulter un·e spécialiste '
+        'en fiscalité transfrontalière CH-US. '
+        'Réf. : Convention de double imposition CH-US, FATCA.';
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Succession Planning — max 120 words (ComponentType.tip)
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Generates educational content about Swiss succession law,
+  /// pillar beneficiary rules, and cantonal tax implications.
+  static String successionPlanning(CoachContext ctx) {
+    final cantonNote = ctx.canton.isNotEmpty
+        ? 'Dans le canton de ${ctx.canton}, les droits de succession '
+            'varient selon le lien de parenté. '
+        : '';
+
+    return '${ctx.firstName}, le droit successoral suisse '
+        '(CC art. 457 ss.) prévoit des réserves héréditaires '
+        'pour le conjoint et les descendants. '
+        'La quotité disponible dépend de ta situation familiale '
+        'et de ton régime matrimonial (participation aux acquêts '
+        'ou séparation de biens). '
+        '$cantonNote'
+        'En prévoyance, ton 2e pilier (LPP art. 20a) désigne '
+        'un ordre de bénéficiaires : conjoint·e, puis enfants, '
+        'puis parents. Le 3a suit un ordre similaire. '
+        'Il serait utile d\'envisager une vérification '
+        'de tes clauses bénéficiaires. '
+        'Réf. : CC art. 457 ss., LPP art. 20a.';
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Libre Passage Guide — max 120 words (ComponentType.tip)
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Generates educational content about libre passage accounts
+  /// after job change or unemployment.
+  static String librePassageGuide(CoachContext ctx) {
+    return '${ctx.firstName}, lors d\'un changement d\'emploi '
+        'ou d\'une période sans activité, ton avoir LPP est '
+        'transféré sur un compte de libre passage (LFLP art. 4). '
+        'Tu peux choisir entre une fondation de libre passage '
+        '(capital préservé) ou un compte bancaire avec options '
+        'de placement. '
+        'Un retrait anticipé (EPL) pourrait être possible pour '
+        'l\'achat d\'un logement, le passage à l\'indépendance '
+        'ou le départ définitif de Suisse (LPP art. 30c-30f). '
+        'Attention : après un EPL, un rachat LPP n\'est possible '
+        'qu\'une fois le retrait remboursé (blocage 3 ans). '
+        'Réf. : LFLP art. 4, OLP art. 10, LPP art. 30c-30f.';
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Disability Bridge — max 120 words (ComponentType.tip)
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Generates educational content about disability insurance (AI),
+  /// LPP disability benefits, and prevoyance gaps.
+  static String disabilityBridge(CoachContext ctx) {
+    final ageNote = ctx.age < 55
+        ? 'À ${ctx.age} ans, une lacune de prévoyance en cas '
+            'd\'invalidité pourrait être significative. '
+        : '';
+
+    return '${ctx.firstName}, l\'assurance invalidité (AI) prévoit '
+        'une rente après un délai de carence d\'environ 1 an '
+        '(LAI art. 28-28a). Le degré d\'invalidité détermine '
+        'le montant : dès 40% pour une rente partielle. '
+        'Ta caisse LPP verse aussi une rente d\'invalidité '
+        '(LPP art. 23-26), coordonnée avec l\'AI. '
+        '$ageNote'
+        'Côté 3a, une invalidité pourrait donner droit à une '
+        'libération des primes si ton contrat le prévoit. '
+        'Il serait utile de vérifier ta couverture actuelle '
+        'et d\'identifier d\'éventuelles lacunes. '
+        'Réf. : LAI art. 28-28a, LPP art. 23-26.';
   }
 
   // ═══════════════════════════════════════════════════════════════

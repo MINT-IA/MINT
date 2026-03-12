@@ -351,6 +351,8 @@ class CoachProfileProvider extends ChangeNotifier {
     /// Year since which the user contributed to Swiss AVS/LPP (if hasLivedAbroad
     /// or non-Swiss). Used to derive yearsAbroad for the wizard answers.
     int? arrivalYear,
+    /// User's primary focus/intention from FocusSelector.
+    String? primaryFocus,
   }) {
     // Convert gross annual → net monthly
     // Net monthly = (grossSalary / 12) × (1 - 0.13) (charges sociales ~13%)
@@ -410,6 +412,7 @@ class CoachProfileProvider extends ChangeNotifier {
     }
 
     final answers = <String, dynamic>{
+      if (firstName != null && firstName.isNotEmpty) 'q_firstname': firstName,
       'q_birth_year': birthYear,
       'q_canton': canton,
       'q_net_income_period_chf': netMonthly,
@@ -428,6 +431,7 @@ class CoachProfileProvider extends ChangeNotifier {
       'q_cash_total': minimal.currentSavings,
       // Nationality for archetype detection (see CLAUDE.md archetype table)
       if (nationality != null) 'q_nationality': nationality,
+      if (primaryFocus != null) 'q_primary_focus': primaryFocus,
     };
 
     // Returning Swiss: inject lacunes and arrivalYear so fromWizardAnswers
@@ -492,6 +496,21 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
     // Persist housing fields into wizard answers for reload
     _persistHousingFields(updated);
+  }
+
+  /// Update the user's primary focus/intention from Pulse screen.
+  /// Does NOT trigger full profile recomputation — only persists the new focus.
+  void updatePrimaryFocus(String focus) {
+    if (_profile == null) return;
+    _profile = _profile!.copyWith(
+      primaryFocus: focus,
+      updatedAt: DateTime.now(),
+    );
+    // Persist to wizard answers for survival across app restart.
+    _lastAnswers['q_primary_focus'] = focus;
+    _profileUpdatedSinceBudget = true;
+    notifyListeners();
+    ReportPersistenceService.saveAnswers(_lastAnswers);
   }
 
   Future<void> _persistHousingFields(CoachProfile profile) async {

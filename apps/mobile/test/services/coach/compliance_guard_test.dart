@@ -631,4 +631,126 @@ void main() {
       expect(result.violations, isEmpty);
     });
   });
+
+  // ═══════════════════════════════════════════════════════════
+  // Layer 1d: Plural banned terms (GAP #1 coverage)
+  // ═══════════════════════════════════════════════════════════
+
+  group('Layer 1d — Plural banned terms', () {
+    test('catches "garantis" (masculine plural)', () {
+      final result = ComplianceGuard.validate(
+        'Les rendements garantis sont impossibles.',
+      );
+      expect(result.violations, anyElement(contains('garantis')));
+    });
+
+    test('catches "garanties" (feminine plural)', () {
+      final result = ComplianceGuard.validate(
+        'Ces valeurs garanties ne sont pas réalistes.',
+      );
+      expect(result.violations, anyElement(contains('garanties')));
+    });
+
+    test('catches "assurés" (masculine plural)', () {
+      final result = ComplianceGuard.validate(
+        'Les placements assurés n\'existent pas.',
+      );
+      expect(result.violations, anyElement(contains('assurés')));
+    });
+
+    test('catches "assurées" (feminine plural)', () {
+      final result = ComplianceGuard.validate(
+        'Les performances assurées augmentent.',
+      );
+      expect(result.violations, anyElement(contains('assurées')));
+    });
+
+    test('catches "optimaux" (masculine plural)', () {
+      final result = ComplianceGuard.validate(
+        'Les résultats optimaux varient.',
+      );
+      expect(result.violations, anyElement(contains('optimaux')));
+    });
+
+    test('catches "optimales" (feminine plural)', () {
+      final result = ComplianceGuard.validate(
+        'Les solutions optimales dépendent.',
+      );
+      expect(result.violations, anyElement(contains('optimales')));
+    });
+
+    test('catches "meilleurs" (masculine plural)', () {
+      final result = ComplianceGuard.validate(
+        'Les meilleurs rendements fluctuent.',
+      );
+      expect(result.violations, anyElement(contains('meilleurs')));
+    });
+
+    test('catches "meilleures" (feminine plural)', () {
+      final result = ComplianceGuard.validate(
+        'Les meilleures performances changent.',
+      );
+      expect(result.violations, anyElement(contains('meilleures')));
+    });
+
+    test('catches "parfaits" (masculine plural)', () {
+      final result = ComplianceGuard.validate(
+        'Les placements parfaits n\'existent pas.',
+      );
+      expect(result.violations, anyElement(contains('parfaits')));
+    });
+
+    test('catches "parfaites" (feminine plural)', () {
+      final result = ComplianceGuard.validate(
+        'Les conditions parfaites sont rares.',
+      );
+      expect(result.violations, anyElement(contains('parfaites')));
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // Layer 2b: Social comparison patterns (GAP #2 coverage)
+  // ═══════════════════════════════════════════════════════════
+
+  group('Layer 2b — Social comparison patterns', () {
+    test('catches "top 10%" ranking', () {
+      final result = ComplianceGuard.validate(
+        'Tu es dans le top 10% des épargnants.',
+      );
+      expect(result.violations, anyElement(contains('prescriptif')));
+      expect(result.useFallback, isTrue);
+    });
+
+    test('catches "meilleur que 80%" comparison', () {
+      final result = ComplianceGuard.validate(
+        'Tu es meilleur que 80% des Suisses.',
+      );
+      expect(result.violations, isNotEmpty);
+    });
+
+    test('catches "devant 60% des" ranking', () {
+      final result = ComplianceGuard.validate(
+        'Tu es devant 60% des investisseurs.',
+      );
+      expect(result.violations, anyElement(contains('prescriptif')));
+      expect(result.useFallback, isTrue);
+    });
+
+    test('catches "parmi les meilleurs" comparison', () {
+      final result = ComplianceGuard.validate(
+        'Tu es parmi les meilleurs épargnants.',
+      );
+      // Caught by banned term "meilleurs" and/or prescriptive pattern
+      expect(result.isCompliant, isFalse);
+      expect(result.violations, isNotEmpty);
+    });
+
+    test('catches "au-dessus de la moyenne" comparison', () {
+      final result = ComplianceGuard.validate(
+        'Ton score est au-dessus de la moyenne.',
+      );
+      expect(result.violations, anyElement(contains('prescriptif')));
+      expect(result.useFallback, isTrue);
+    });
+  });
 }

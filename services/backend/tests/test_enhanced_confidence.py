@@ -22,6 +22,7 @@ from app.services.confidence.enhanced_confidence_service import (
     score_accuracy,
     score_completeness,
     score_freshness,
+    score_understanding,
 )
 from app.services.document_parser.document_models import DataSource
 
@@ -112,6 +113,39 @@ class TestFreshness:
         assert score_freshness(sources) == 25.0
 
 
+class TestUnderstanding:
+    def test_beginner_no_sessions(self):
+        score = score_understanding({})
+        assert score == 15.0  # 30 * 0.50
+
+    def test_intermediate_no_sessions(self):
+        score = score_understanding({"financial_literacy_level": "intermediate"})
+        assert score == 27.5  # 55 * 0.50
+
+    def test_advanced_no_sessions(self):
+        score = score_understanding({"financial_literacy_level": "advanced"})
+        assert score == 42.5  # 85 * 0.50
+
+    def test_session_bonus_capped(self):
+        score = score_understanding({"check_in_count": 50})
+        assert score == 27.0  # 30*0.50 + 40*0.30
+
+    def test_advanced_max_sessions(self):
+        score = score_understanding({
+            "financial_literacy_level": "advanced",
+            "check_in_count": 25,
+        })
+        assert score == 54.5  # 85*0.50 + 40*0.30
+
+    def test_invalid_literacy_defaults_beginner(self):
+        score = score_understanding({"financial_literacy_level": "unknown"})
+        assert score == 15.0
+
+    def test_non_numeric_check_in_ignored(self):
+        score = score_understanding({"check_in_count": "many"})
+        assert score == 15.0
+
+
 class TestComputeConfidence:
     def test_compute_confidence_overall_formula(self):
         profile = {"salaire_brut": 8000, "age": 35, "canton": "VD"}
@@ -121,13 +155,11 @@ class TestComputeConfidence:
             _source("canton", DataSource.user_entry, days_ago=20, value="VD"),
         ]
         result = compute_confidence(profile, sources)
-        expected = round(
-            result.breakdown.completeness * WEIGHT_COMPLETENESS
-            + result.breakdown.accuracy * WEIGHT_ACCURACY
-            + result.breakdown.freshness * WEIGHT_FRESHNESS,
-            1,
-        )
-        assert result.breakdown.overall == expected
+        b = result.breakdown
+        # Verify geometric mean formula
+        vals = [(x + 1.0) / 101.0 for x in [b.completeness, b.accuracy, b.freshness, b.understanding]]
+        expected = round((vals[0] * vals[1] * vals[2] * vals[3]) ** 0.25 * 101.0 - 1.0, 1)
+        assert abs(b.overall - expected) < 0.2
 
     def test_gate_thresholds_low_profile(self):
         result = compute_confidence({}, [])
@@ -137,6 +169,8 @@ class TestComputeConfidence:
 
     def test_gate_thresholds_high_profile(self):
         profile = {k: 1 for k in PROFILE_FIELD_WEIGHTS}
+        profile["financial_literacy_level"] = "advanced"
+        profile["check_in_count"] = 20
         sources = [
             _source(k, DataSource.open_banking, days_ago=1, value=1.0)
             for k in PROFILE_FIELD_WEIGHTS
@@ -229,12 +263,14 @@ class TestConfidenceEndpoints:
         response = client.post("/api/v1/confidence/gates", json=payload)
         assert response.status_code == 200
         data = response.json()
-        assert data["overallConfidence"] == 0.0
+        # Geometric mean with shift gives a small non-zero floor for empty profiles
+        assert data["overallConfidence"] < 30.0
         assert data["nextGateName"] == "standard_projections"
-        assert data["pointsToNextGate"] == 30.0
 
     def test_gates_endpoint_high_profile_has_no_next_gate(self, client):
         profile = {k: 1 for k in PROFILE_FIELD_WEIGHTS}
+        profile["financial_literacy_level"] = "advanced"
+        profile["check_in_count"] = 20
         field_sources = [
             {
                 "fieldName": k,

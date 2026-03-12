@@ -4055,7 +4055,7 @@
         "type": "object"
       },
       "ConfidenceBreakdownSchema": {
-        "description": "Score de confiance sur 3 axes.",
+        "description": "Score de confiance sur 4 axes.",
         "properties": {
           "accuracy": {
             "description": "Qualite des sources de donnees (0-100)",
@@ -4079,10 +4079,17 @@
             "type": "number"
           },
           "overall": {
-            "description": "Score global pondere: 40% completeness + 35% accuracy + 25% freshness",
+            "description": "Score global: 4 axes geometric mean",
             "maximum": 100.0,
             "minimum": 0.0,
             "title": "Overall",
+            "type": "number"
+          },
+          "understanding": {
+            "description": "Comprehension financiere de l'utilisateur (0-100)",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Understanding",
             "type": "number"
           }
         },
@@ -4090,6 +4097,7 @@
           "completeness",
           "accuracy",
           "freshness",
+          "understanding",
           "overall"
         ],
         "title": "ConfidenceBreakdownSchema",
@@ -21986,7 +21994,7 @@
     },
     "/api/v1/confidence/score": {
       "post": {
-        "description": "Calcule le score de confiance complet sur 3 axes.\n\nCombine completeness (40%), accuracy (35%) et freshness (25%)\nen un score global. Genere les feature gates et classe les\nenrichment prompts par impact decroissant.\n\nReturns:\n    ConfidenceScoreResponse avec breakdown, enrichment_prompts,\n    feature_gates, disclaimer et sources legales.",
+        "description": "Calcule le score de confiance complet sur 4 axes.\n\nCombine completeness, accuracy, freshness et understanding\nvia une moyenne geometrique. Genere les feature gates et classe les\nenrichment prompts par impact decroissant.\n\nReturns:\n    ConfidenceScoreResponse avec breakdown, enrichment_prompts,\n    feature_gates, disclaimer et sources legales.",
         "operationId": "score_confidence_api_v1_confidence_score_post",
         "requestBody": {
           "content": {

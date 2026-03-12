@@ -1,259 +1,148 @@
 # CLAUDE.md — MINT Project Context (auto-loaded)
 
-> This file is automatically loaded by Claude Code at every session start.
-> It ensures every agent (main session or spawned teammate) has full project context.
+> Loaded automatically at every session start. Single source of truth for all agents.
+> For conflict resolution: `rules.md` (tier 1) > this file (tier 2). See § HIERARCHY.
 
 ---
 
-## IDENTITY
+## 1. IDENTITY
 
 **MINT** — Swiss financial education app (Flutter + FastAPI).
 **Mission**: "Juste quand il faut: une explication, une action, un rappel."
-**Primary Target (V1)**: 45-60 yo Swiss residents preparing retirement (couple focus: Julien 50 + Lauren 45, US/FATCA).
-**Secondary Target**: 22-45 yo Swiss residents navigating financial complexity (3a, LPP, taxes, mortgage, debt).
+**Target V1**: 45-60 yo Swiss residents preparing retirement (couple focus). Secondary: 22-45 yo.
+**Design for ALL ages**: UX, copy, and features MUST work for 22-65+. Never design screens, landing pages, or flows that exclude an age group. Segment by life event, not demographics.
 **Model**: Read-only, education-first. No money movement. No investment advice.
 
 ---
 
-## ARCHITECTURE
+## 2. ARCHITECTURE
 
 ```
-apps/mobile/          # Flutter (Dart) — iOS/Android/Web
+apps/mobile/              # Flutter (Dart) — iOS/Android/Web
   lib/
-    screens/          # Screens organized by module (advisor/, budget/, mortgage/, independants/, etc.)
-    services/         # Pure Dart calculators (mirror backend logic)
-      financial_core/ # ★ SHARED CALCULATORS — single source of truth (see below)
-    widgets/          # Reusable widgets + educational inserts
-    models/           # Data models (age_band_policy, session, etc.)
-    theme/colors.dart # MintColors palette
-    providers/        # Provider state management
+    screens/              # Screens by module
+    services/
+      financial_core/     # ★ SHARED CALCULATORS — single source of truth
+    widgets/              # Reusable widgets + educational inserts
+    models/               # Data models
+    theme/colors.dart     # MintColors palette
+    providers/            # Provider state management
+    l10n/                 # ARB files (6 languages)
 
-services/backend/     # FastAPI (Python)
+services/backend/         # FastAPI (Python)
   app/
-    api/v1/endpoints/ # REST endpoints by module
-    services/         # Business logic services (pure functions, dataclasses)
-    schemas/          # Pydantic v2 schemas (camelCase alias)
-  tests/              # pytest test suite
+    api/v1/endpoints/     # REST endpoints
+    services/             # Business logic (pure functions, dataclasses)
+    schemas/              # Pydantic v2 (camelCase alias)
+  tests/                  # pytest suite
 
-docs/                 # Strategy, roadmaps, plans
-visions/              # Product vision documents (7 files)
-education/inserts/    # Educational content by wizard question
-decisions/            # ADR (Architecture Decision Records)
+docs/                     # Strategy & specs (VISION_V1, CICD_ARCHITECTURE)
+decisions/                # ADR (Architecture Decision Records)
+visions/                  # Product vision (4 files)
+education/inserts/        # Educational content (18 concept files)
+legal/                    # CGU, Privacy, Disclaimer, Mentions légales
+.claude/skills/           # Agent-specific skill files
 ```
 
-### Financial Core Library (`services/financial_core/`)
+### Financial Core Library (`lib/services/financial_core/`)
 
 > **ADR**: `decisions/ADR-20260223-unified-financial-engine.md`
 
 **All AVS, LPP, and tax calculations MUST use these centralized calculators.**
-Never duplicate calculation logic in service-specific files.
 
-| File | Methods | Source |
-|------|---------|--------|
+| Calculator | Key Methods | Source |
+|-----------|-------------|--------|
 | `avs_calculator.dart` | `computeMonthlyRente()`, `renteFromRAMD()`, `computeCouple()` | LAVS art. 21-40 |
 | `lpp_calculator.dart` | `projectToRetirement()`, `projectOneMonth()`, `blendedMonthly()` | LPP art. 14-16 |
 | `tax_calculator.dart` | `capitalWithdrawalTax()`, `progressiveTax()`, `estimateMonthlyIncomeTax()` | LIFD art. 38 |
-| `confidence_scorer.dart` | `ConfidenceScorer.score(profile)` | Profile completeness |
-| `financial_core.dart` | Barrel export | — |
+| `confidence_scorer.dart` | `ConfidenceScorer.score(profile)` — 3-axis: completeness × accuracy × freshness | Profile completeness |
 
-**Consumers** (all must import `financial_core.dart`, never reimplement):
-- `retirement_projection_service.dart` — main retirement engine
-- `forecaster_service.dart` — dashboard 3-scenario projections
-- `lpp_deep_service.dart` — EPL simulator, LPP comparison
-- `rente_vs_capital_calculator.dart` — rente vs capital breakeven
-- `expat_service.dart` — AVS gap analysis
-- `financial_report_service.dart` — comprehensive financial report
+**Consumers** (must import `financial_core.dart`, never reimplement):
+`retirement_projection_service`, `forecaster_service`, `lpp_deep_service`, `rente_vs_capital_calculator`, `expat_service`, `financial_report_service`
 
 ---
 
-## COMMANDS
+## 3. COMMANDS
 
-### Backend (in `services/backend/`)
 ```bash
+# Backend (in services/backend/)
 python3 -m pytest tests/ -q          # Run all tests
-python3 -m pytest tests/test_X.py -v # Run specific test file
 uvicorn app.main:app --reload        # Dev server
-```
 
-### Flutter (in `apps/mobile/`)
-```bash
-flutter analyze                       # Static analysis (must be 0 errors)
+# Flutter (in apps/mobile/)
+flutter analyze                       # Must be 0 errors
 flutter test                          # Run tests
-flutter run                           # Run app
+flutter gen-l10n                      # Regenerate i18n after ARB changes
 ```
 
 ---
 
-## GIT SYNC PROTOCOL (NON-NEGOTIABLE)
+## 4. DEV RULES
 
-### At the START of every task/sprint/session
-```bash
-git fetch --all
-git status
-git pull --rebase origin main
-# If on a feature branch:
-git pull --rebase origin <current-branch>
-# If conflicts exist → STOP, report to user, do NOT auto-resolve.
+### Git Protocol (NON-NEGOTIABLE)
+- **Start of session**: `git fetch --all && git status && git pull --rebase origin main`
+- **Before code changes**: confirm branch (`git branch --show-current`) + clean tree (`git status`)
+- **Dirty tree** → ask user: stash, commit, or discard
+- **Commits**: `git add <only relevant files>` → `git status` → `git commit -m "S{XX}: <desc>"`
+- **Branches**: `feature/S{XX}-<slug>` from latest `main`. Delete after merge.
+- **BANNED**: `git push --force`, auto-merge without user approval
+- **ALWAYS**: `--rebase` on pull, show `git status` before commit
+
+### CI/CD
+- **CI**: `.github/workflows/ci.yml` — triggers on push to staging/main + PRs
+- **Deploy**: `.github/workflows/deploy-backend.yml` — Railway staging (PR merge → staging) + prod (merge → main)
+- **TestFlight**: `.github/workflows/testflight.yml` — manual `workflow_dispatch`, dual-track staging/production
+- **Full reference**: `docs/CICD_ARCHITECTURE.md`
+
+### Testing
+- **Service files**: minimum 10 unit tests (edge cases + compliance)
+- **Screens/widgets**: widget tests (render, empty, error states)
+- **Golden couple**: Julien + Lauren tested against known expected values
+- **Before merge**: `flutter analyze` (0 issues) + `flutter test` + `pytest tests/ -q`
+
+### Backend Conventions
+- **Pure functions** for all calculations (deterministic, testable)
+- **Pydantic v2**: `ConfigDict(populate_by_name=True)`, `alias_generator = to_camel`
+- **Backend = source of truth** for constants and formulas. Flutter mirrors, never invents.
+- **Contract change** → update `tools/openapi/` + `SOT.md`
+
+---
+
+## 5. BUSINESS RULES
+
+### Key Constants (2025/2026)
+
+**Pillar 3a**: Salarié LPP: **7'258 CHF/an** | Indépendant sans LPP: **20% revenu net, max 36'288 CHF/an**
+
+**LPP**: Seuil d'accès: **22'680** (art. 7) | Coordination: **26'460** (art. 8) | Min coordonné: **3'780** | Conversion: **6.8%** (art. 14) | Bonif.: 7% (25-34), 10% (35-44), 15% (45-54), 18% (55-65) | EPL min: **20'000** (OPP2 art. 5) | EPL blocage: **3 ans** (art. 79b al. 3)
+
+**AVS**: Taux total: **10.60%** (5.30+5.30) | Rente max: **30'240 CHF/an** | Cotisation min indép.: **530 CHF/an**
+
+**Mortgage** (FINMA/ASB): Taux théorique: **5%** | Amortissement: **1%/an** | Frais: **1%/an** | Charges max: **1/3 revenu brut** | Fonds propres: **20%** (max 10% du 2e pilier)
+
+**Capital withdrawal tax** (progressive):
+`0-100k: ×1.00 | 100-200k: ×1.15 | 200-500k: ×1.30 | 500k-1M: ×1.50 | 1M+: ×1.70`
+
+### Financial Archetypes (8 types)
+
+> **ADR**: `decisions/ADR-20260223-archetype-driven-retirement.md`
+
+Every projection MUST account for archetype. NEVER assume "Swiss native salarié".
+
+| Archetype | Detection | Key difference |
+|-----------|-----------|----------------|
+| `swiss_native` | CH + arrivé < 22 | Modèle par défaut |
+| `expat_eu` | EU + arrivé > 20 | Totalisation périodes EU |
+| `expat_non_eu` | Hors EU + arrivé > 20 | Pas de convention |
+| `expat_us` | US citizen/green card | FATCA, PFIC, double taxation |
+| `independent_with_lpp` | Indép. + LPP déclarée | Rachat possible |
+| `independent_no_lpp` | Indép. + pas de LPP | 3a max 36'288 |
+| `cross_border` | Permis G / frontalier | Impôt source |
+| `returning_swiss` | CH + séjour étranger | Rachat avantageux |
+
+### Life Events (18 — definitive enum)
 ```
-
-### At the END of every task/sprint/session
-```bash
-git add <only sprint-relevant files>
-git status  # show user what will be committed
-git commit -m "S{XX}: <description concise>"
-git push origin <current-branch>
-```
-
-### Branch convention
-- Feature work: `feature/S{XX}-<slug>` (e.g. `feature/S35-slm-coach`)
-- Hotfix: `hotfix/<description>`
-- Always branch from latest `main`
-- Never commit directly to `main` without explicit user approval
-
-### Before ANY code modification
-1. Confirm current branch with `git branch --show-current`
-2. Confirm no uncommitted changes with `git status`
-3. If dirty working tree → ask user whether to stash, commit, or discard
-
-### Rules
-- **NEVER** force push (`git push --force` is BANNED)
-- **NEVER** auto-merge branches without user approval
-- **ALWAYS** use `--rebase` on pull (no merge commits)
-- **ALWAYS** show `git status` output before committing
-- **ALWAYS** delete feature branches after merge (`git branch -d <branch>` local + `git push origin --delete <branch>` remote)
-
----
-
-## COMPLIANCE RULES (NON-NEGOTIABLE)
-
-### Banned terms (never use in user-facing text)
-- "garanti", "certain", "assuré", "sans risque"
-- "optimal", "meilleur", "parfait" (as absolutes)
-- "conseiller" → use "specialiste" (inclusive)
-
-### Required in every calculator/service output
-- `disclaimer: str` — Must mention "outil educatif", "ne constitue pas un conseil", "LSFin"
-- `sources: List[str]` — Legal references (LPP art. X, LIFD art. Y, etc.)
-- `chiffre_choc` — One impactful number with explanatory text
-- `alertes: List[str]` — Warnings when thresholds are crossed
-
-### Swiss law references (cite these)
-- LPP (Loi sur la prévoyance professionnelle) — 2nd pillar
-- LAVS (Loi sur l'AVS) — 1st pillar
-- OPP3 (Ordonnance 3e pilier) — Pillar 3a
-- LIFD (Loi sur l'impôt fédéral direct) — Federal taxes
-- LAMal (Loi sur l'assurance-maladie) — Health insurance
-- CO (Code des obligations) — Employment law
-- CC (Code civil) — Family/succession law
-- FINMA circulars — Banking regulation
-
-### Language
-- All user-facing text in French (informal "tu")
-- Inclusive: "un·e spécialiste", "salarié·e"
-- Educational tone, never prescriptive
-
----
-
-## DESIGN SYSTEM (Flutter)
-
-- **Fonts**: GoogleFonts — Montserrat (headings), Inter (body)
-- **Colors**: `MintColors` from `lib/theme/colors.dart` — NEVER hardcode hex values, always use `MintColors.*`
-- **Navigation**: GoRouter
-- **State**: Provider
-- **i18n**: `flutter_localizations` + `intl` — see below
-- **AppBar**: SliverAppBar with gradient from MintColors.primary
-- **Material 3** design
-- **Responsive layout**
-- **CustomPainter** for charts and visualizations
-
-### Internationalization (i18n) — NON-NEGOTIABLE
-
-> **ARB files**: `apps/mobile/lib/l10n/app_{fr,de,en,es,it,pt}.arb` (6 languages)
-
-**ALL user-facing strings MUST go through `AppLocalizations`.**
-NEVER hardcode user-facing text in Dart files. This includes:
-- Screen titles, subtitles, section headers
-- Button labels, CTA text
-- Disclaimers, tooltips, error messages
-- Card titles, descriptions, chiffre-choc labels
-- Narrative text, coaching tips, micro-action descriptions
-- Axis labels (Liquidité, Fiscalité, Retraite, Sécurité)
-
-**How to add a string:**
-1. Add the key + French text (with proper accents) to `app_fr.arb`
-2. Add translations to other `.arb` files (at minimum `app_fr.arb`)
-3. Use `AppLocalizations.of(context)!.yourKey` in widgets
-4. For services that don't have `BuildContext`, pass localized strings as parameters
-
-**Why this matters:**
-- ARB files handle accents correctly (é, è, ê, ô, ù, etc.)
-- Hardcoded ASCII strings lose French diacritics → broken UX
-- Multi-language support is a V2 requirement for Swiss market (FR/DE/IT/EN)
-- Single source of truth for all user-facing text
-
----
-
-## BACKEND CONVENTIONS
-
-- **Pure functions** for all financial calculations (deterministic, testable)
-- **Dataclasses** for internal models
-- **Pydantic v2** for API schemas: `model_config = ConfigDict(populate_by_name=True)`, `alias_generator = to_camel`
-- **Backend = source of truth** for all constants and formulas (Flutter must align)
-- Every service in its own module directory under `app/services/`
-- Tests: at least 10 tests per service, edge cases, compliance checks
-
----
-
-## PROGRESS & CI/CD
-
-> Full sprint history: `docs/SPRINT_TRACKER.md` | CI/CD details: `docs/CICD_REFERENCE.md`
-
-**S0-S30 complete** (30 sprints, 1965 backend tests, 0 Flutter errors). See `AGENTS.md` for team workflow.
-
----
-
-## KEY CONSTANTS (Source of Truth)
-
-### Pillar 3a (2025/2026)
-- Salarié affilié LPP: **7'258 CHF/an**
-- Indépendant sans LPP: **20% du revenu net, max 36'288 CHF/an**
-
-### LPP
-- Seuil d'accès: **22'680 CHF/an** (LPP art. 7)
-- Déduction de coordination: **26'460 CHF** (LPP art. 8)
-- Salaire coordonné minimum: **3'780 CHF**
-- Taux de conversion minimum: **6.8%** (part obligatoire, LPP art. 14)
-- Bonification par âge: 7% (25-34), 10% (35-44), 15% (45-54), 18% (55-65)
-- EPL minimum: **20'000 CHF** (OPP2 art. 5)
-- EPL blocage rachat: **3 ans** (LPP art. 79b al. 3)
-
-### AVS (2025/2026)
-- Taux total: **10.60%** (employé 5.30% + employeur 5.30%)
-- Rente maximale individuelle: **30'240 CHF/an**
-- Cotisation minimale indépendant: **530 CHF/an**
-
-### Mortgage (FINMA/ASB)
-- Taux théorique: **5%** (Tragbarkeitsrechnung)
-- Amortissement: **1%/an**
-- Frais accessoires: **1%/an** (sur prix d'achat)
-- Ratio charges max: **1/3** du revenu brut
-- Fonds propres minimum: **20%** (max 10% du 2e pilier)
-
-### Taxation capital withdrawal (progressive brackets)
-```
-0-100k:     base_rate × 1.00
-100k-200k:  base_rate × 1.15
-200k-500k:  base_rate × 1.30
-500k-1M:    base_rate × 1.50
-1M+:        base_rate × 1.70
-```
-
----
-
-## LIFE EVENTS (18 types — definitive enum)
-
-```
-Famille:      marriage, divorce, birth, concubinage, deathOfRelative
+Famille:       marriage, divorce, birth, concubinage, deathOfRelative
 Professionnel: firstJob, newJob, selfEmployment, jobLoss, retirement
 Patrimoine:    housingPurchase, housingSale, inheritance, donation
 Santé:         disability
@@ -261,168 +150,191 @@ Mobilité:      cantonMove, countryMove
 Crise:         debtCrisis
 ```
 
----
-
-## FINANCIAL ARCHETYPES (retirement projections)
-
-> **ADR**: `decisions/ADR-20260223-archetype-driven-retirement.md` — READ THIS for full context.
-
-Every retirement/prevoyance calculation MUST account for the user's archetype.
-Do NOT assume "Swiss native salarié" for all profiles.
-
-| Archetype | Detection | LPP | AVS | Key difference |
-|-----------|-----------|-----|-----|----------------|
-| `swiss_native` | CH + arrivé < 22 | Bonif. depuis 25 ans | Plein | Modèle par défaut |
-| `expat_eu` | EU + arrivé > 20 | Bonif. depuis `arrivalAge` | Partiel + convention bilat. | Totalisation périodes EU |
-| `expat_non_eu` | Hors EU + arrivé > 20 | Bonif. depuis `arrivalAge` | Partiel | Pas de convention |
-| `expat_us` | US citizen/green card | Bonif. depuis `arrivalAge` | Partiel + Social Security | FATCA, PFIC, double taxation |
-| `independent_with_lpp` | Indép. + LPP déclarée | Facultative (solde réel) | Standard | Rachat possible |
-| `independent_no_lpp` | Indép. + pas de LPP | **0** | Standard | 3a max 36'288 |
-| `cross_border` | Permis G / frontalier | LPP suisse standard | Convention bilat. | Impôt source |
-| `returning_swiss` | CH + séjour étranger | Libre passage + bonif. retour | Avec lacunes | Rachat avantageux |
-
-### Confidence Score (mandatory on all projections)
-
-Every projection MUST include:
-- `confidenceScore` (0-100%) based on data completeness for the detected archetype
-- `enrichmentPrompts` — actions the user can take to improve accuracy
+### Confidence Score (mandatory on ALL projections)
+- `confidenceScore` (0-100%) — 3-axis: completeness × accuracy × freshness (geometric mean)
+- `enrichmentPrompts` — actions to improve accuracy
 - Uncertainty band (min/max) when confidence < 70%
+- Data sources: estimated(0.25), userInput(0.60), crossValidated(0.70), certificate(0.95), openBanking(1.00)
 
-### Capital vs Rente taxation (CRITICAL)
-
+### Capital vs Rente Taxation (CRITICAL)
 - **Rente LPP** = revenu imposable annuel (LIFD art. 22)
-- **Capital LPP retiré** = taxé séparément au retrait (LIFD art. 38), retraits SWR = consommation de patrimoine, PAS un revenu imposable
-- NEVER double-tax capital: retrait tax + income tax on SWR withdrawals
+- **Capital retiré** = taxé séparément au retrait (LIFD art. 38)
+- **SWR withdrawals** = consommation de patrimoine, PAS un revenu imposable
+- **NEVER double-tax**: retrait tax + income tax on SWR
 
 ---
 
-## STRATEGIC EVOLUTION
+## 6. COMPLIANCE RULES (NON-NEGOTIABLE)
 
-> **The Pivot**: Catalogue → Coach. Profil persistant → Trajectoire → Coach mensuel → LLM contextuel.
-> Analogy: Strava for Swiss finances. Aggregation + Intelligence + Coaching = 3 stacked moats.
+### Interdictions Absolues
+1. **Read-Only**: No virements, paiements, or bank account modifications
+2. **No-Advice**: No specific product recommendations (no ISINs, no tickers). Asset classes only.
+3. **No-Promise**: No guaranteed returns. Always use scenarios (Bas/Moyen/Haut) + disclaimers.
+4. **No-Ranking**: Arbitrage options shown side-by-side, never ranked.
+5. **No-Social-Comparison**: "top 20% des Suisses" → BANNED. Compare only to user's own past.
+6. **No-LLM-Without-Guard**: All LLM output passes through ComplianceGuard before reaching user.
+7. **Privacy**: Never log identifiable data (IBANs, names, SSN, employer).
 
-**Source docs** (read for full specs):
-- `docs/MINT_COACH_VIVANT_ROADMAP.md` — Tracks A/B/C, S31-S40, ComplianceGuard, Coach Narrative
-- `docs/UX_REDESIGN_COACH.md` — 4-tab dashboard, FRI, Julien+Lauren examples
-- `docs/ONBOARDING_ARBITRAGE_ENGINE.md` — 5 arbitrage modules, onboarding spec, FRI formula
+### Banned Terms (never use in user-facing text)
+- "garanti", "certain", "assuré", "sans risque"
+- "optimal", "meilleur", "parfait" (as absolutes)
+- "conseiller" → use "spécialiste" (inclusive)
 
-**Active chantiers**: See unified plan in `.claude/plans/`
+### Required in Every Calculator/Service Output
+- `disclaimer` — "outil éducatif", "ne constitue pas un conseil", "LSFin"
+- `sources` — Legal references (LPP art. X, LIFD art. Y)
+- `chiffre_choc` — One impactful number with explanatory text
+- `alertes` — Warnings when thresholds are crossed
 
-### Golden Test Couple: Julien + Lauren
+### Swiss Law References
+LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral) | LAMal (assurance maladie) | CO (obligations) | CC (civil) | FINMA circulars
 
-> **Source of truth**: `test/golden/` (xlsx + PDF certificats + JPEG)
+### Language
+- User-facing text in French (informal "tu"), inclusive ("un·e spécialiste")
+- Educational tone, never prescriptive. Conditional language ("pourrait", "envisager").
+- Non-breaking space (`\u00a0`) before `!`, `?`, `:`, `;`, `%`
+
+---
+
+## 7. UX RULES
+
+### Design System (Flutter)
+- **Fonts**: Montserrat (headings), Inter (body) via GoogleFonts
+- **Colors**: `MintColors.*` from `lib/theme/colors.dart` — NEVER hardcode hex
+- **Navigation**: GoRouter — no `Navigator.push`
+- **State**: Provider — no raw StatefulWidget for shared data
+- **Material 3**, responsive layout, CustomPainter for charts
+- **AppBar**: SliverAppBar with gradient from MintColors.primary
+
+### i18n (NON-NEGOTIABLE)
+- **6 languages**: fr (template), en, de, es, it, pt — ARB files in `lib/l10n/`
+- **ALL user-facing strings** → `AppLocalizations.of(context)!.key`
+- **New string**: add to ALL 6 ARB files, add keys at END (before `}`)
+- **Run `flutter gen-l10n`** after modifying ARB files
+- **French diacritics mandatory**: é, è, ê, ô, ù, ç, à — ASCII "e" for accented = bug
+
+### UX Principles (from `rules.md`)
+- Progressive disclosure — no bank connection upfront
+- 1 screen = 1 intention
+- Each recommendation → 1-3 concrete next actions
+- Onboarding minimal: 3 questions max before first chiffre choc
+- Precision progressive: ask data when it matters, not during onboarding
+- Score FRI: never "bon/mauvais", always "progression personnelle"
+
+### Coach & Arbitrage Rules
+- **Coach**: LLM = narrator, never advisor. Fallback templates required (app works without BYOK).
+- **Arbitrage**: Always ≥ 2 options side-by-side. Rente vs Capital: always 3 (full rente, full capital, mixed).
+- **Hypotheses**: Always visible and editable by user.
+- **Sensitivity**: Always shown ("Si rendement passe de X% à Y%, le résultat s'inverse").
+- **Safe Mode**: If toxic debt detected → disable optimizations (3a/LPP), priority = debt reduction.
+- **CoachContext**: NEVER contains exact salary, savings, debts, NPA, or employer.
+
+---
+
+## 8. GOLDEN TEST COUPLE: Julien + Lauren
+
+> Source of truth: `test/golden/` (xlsx + PDF certificats + JPEG)
 
 | | Julien | Lauren |
 |--|--------|--------|
 | Né le | 12.01.1977 | 23.06.1982 |
 | Âge (03.2026) | **49** | **43** |
 | Salaire brut | **122'207 CHF/an** | **67'000 CHF/an** |
-| Salaire mensuel brut | 9'378 (sal 9'078 + alloc 200 + forfait 100) | 4'800 |
 | Canton | **VS** (Sion) | **VS** (Crans-Montana) |
-| Employeur | FMV SA (énergie) | Six Senses (hôtellerie CCNT) |
 | Nationalité | CH | US (FATCA) |
 | Archetype | swiss_native | expat_us |
-| État civil | Marié | Mariée |
-| Caisse LPP | **CPE** (rémunération **5%** en 2026, std 2%) | **HOTELA** |
-| Avoir LPP actuel | **70'377 CHF** | **19'620 CHF** |
+| Caisse LPP | **CPE** (rémun. 5%) | **HOTELA** |
+| Avoir LPP | **70'377 CHF** | **19'620 CHF** |
 | Rachat max LPP | **539'414 CHF** | **52'949 CHF** |
-| LPP projeté à 65 | 677'847 (rente ~33'892/an) | ~153'000 |
-| Pilier 3a capital | 32'000 | 14'000 |
-| Investissements marché | 77'000 (+ 1'500/mois) | **380'000** (+ 200/mois) |
-| Assurance maladie | 450/mois | 400/mois |
-| Dettes | **Aucune** (pas d'hypothèque, pas de crédit) | **Aucune** |
-| Loyer (couple) | 925/mois | 925/mois |
-| Impôts | 708/mois | 304/mois |
+| LPP projeté 65 | 677'847 (rente ~33'892/an) | ~153'000 |
+| 3a capital | 32'000 | 14'000 |
 | AVS couple | 2'500 CHF/mois |
-| **Taux de remplacement** | **65.5%** (~8'505 vs 12'978 net/mois) |
-
-Golden data files: `test/golden/julien_lauren.xlsx`, `test/golden/Julien/` (6 PDF), `test/golden/Lauren/` (1 JPEG)
+| Taux remplacement | **65.5%** (~8'505 vs 12'978 net/mois) |
 
 ---
 
-## VISION DOCUMENTS (read for strategic context)
+## 9. ANTI-PATTERNS (never do)
 
-- `visions/vision_product.md` — Core promise, acquisition strategy, North Star metric
-- `visions/vision_features.md` — Feature specs, screen contracts
-- `visions/vision_compliance.md` — Legal framework, FINMA, LPD
-- `visions/vision_tech_stack.md` — Technical choices
+1. **Code without reading existing code** — understand before modifying
+2. **Diverge backend vs Flutter constants** — backend is source of truth
+3. **Use banned terms** in user-facing text
+4. **Skip tests** — always run before committing
+5. **Create files unnecessarily** — prefer editing existing
+6. **Promise returns** — use scenarios + disclaimers
+7. **Commit non-sprint files** — surgical `git add`
+8. **Assume Swiss native** — always check archetype
+9. **Projection without confidence score** — always include uncertainty band
+10. **Double-tax capital** — capital taxed at withdrawal (LIFD art. 38), SWR ≠ income
+11. **Duplicate calculation logic** — NEVER create `_calculate*()` in services. Use `financial_core/`.
+12. **Ignore future AVS years** — `AvsCalculator` adds future years. Don't use raw `contributionYears / 44`.
+13. **Apply married AVS cap to concubins** — LAVS art. 35 cap (150%) = married only.
+14. **Hardcode strings** — ALL user-facing text in ARB files via `AppLocalizations`
+15. **Hardcode colors** — NEVER `Color(0xFF...)`, always `MintColors.*`
 
 ---
 
-## HIERARCHY OF TRUTH
+## 10. AGENT TEAM WORKFLOW
+
+### Team Structure
+- **Team Lead** (Opus): orchestrate, review, merge. Doesn't code (except urgency).
+- **dart-agent** (Sonnet): `apps/mobile/` only. Skill: `.claude/skills/mint-flutter-dev/`
+- **python-agent** (Sonnet): `services/backend/` only. Skill: `.claude/skills/mint-backend-dev/`
+- **swiss-brain** (Opus): transversal review, specs, compliance. Skill: `.claude/skills/mint-swiss-compliance/`
+
+### Workflow: Swiss-Brain validates BEFORE devs implement
+```
+Swiss-Brain (spec + test cases) → Python-Agent (backend) → Dart-Agent (UI) → Team Lead (review + merge)
+```
+
+### Cross-modification rules
+| Agent | Can modify | Cannot modify |
+|-------|-----------|---------------|
+| dart-agent | `apps/mobile/` | `services/backend/`, `tools/openapi/` |
+| python-agent | `services/backend/`, `tools/openapi/`, `SOT.md` | `apps/mobile/` |
+| swiss-brain | `docs/`, `education/`, `decisions/`, `visions/` | Code (`*.dart`, `*.py`) |
+
+### Skills Index
+| Skill | File | For |
+|-------|------|-----|
+| mint-flutter-dev | `.claude/skills/mint-flutter-dev/SKILL.md` | dart-agent |
+| mint-backend-dev | `.claude/skills/mint-backend-dev/SKILL.md` | python-agent |
+| mint-swiss-compliance | `.claude/skills/mint-swiss-compliance/SKILL.md` | swiss-brain |
+| mint-test-suite | `.claude/skills/mint-test-suite/SKILL.md` | all agents |
+| mint-commit | `.claude/skills/mint-commit/SKILL.md` | team-lead |
+
+---
+
+## 11. HIERARCHY OF TRUTH
 
 In case of conflict, priority order:
 1. `rules.md` — Non-negotiable technical + ethical rules
-2. `.claude/CLAUDE.md` (this file) — Project context, constants, compliance, anti-patterns
-3. `AGENTS.md` — Team workflow, roles, sprint tracker
-4. `.claude/skills/` — Agent-specific conventions and patterns
-5. `LEGAL_RELEASE_CHECK.md` — Wording compliance checklist
-6. `visions/` — Product vision + limits
-7. `docs/` (evolution specs) — ONBOARDING_ARBITRAGE_ENGINE, COACH_VIVANT_ROADMAP, DATA_ACQUISITION
-8. `decisions/` (ADR) — Architecture decisions
-9. `SOT.md` + OpenAPI — Data contracts
-10. Code — Implementation follows documents
+2. `CLAUDE.md` (this file) — Project context, constants, compliance
+3. `.claude/skills/` — Agent-specific conventions
+4. `LEGAL_RELEASE_CHECK.md` — Wording compliance checklist
+5. `visions/` — Product vision + limits
+6. `decisions/` (ADR) — Architecture decisions
+7. `docs/` — Strategy specs
+8. `SOT.md` + OpenAPI — Data contracts
+9. Code — Implementation follows documents
 
-Archived docs: `docs/archive/`, `visions/archive/`, `.claude/archive/` — historique, accessible via git.
-
----
-
-## PROD-READY QUALITY STANDARDS (NON-NEGOTIABLE)
-
-> Every feature merge MUST meet ALL these gates. No "acceptable for V1" shortcuts.
-
-### Code Quality
-- **Zero `flutter analyze` errors** — no warnings, no infos suppressed
-- **All tests pass** — `flutter test` + `python3 -m pytest` green before merge
-- **French diacritics everywhere** — `é`, `è`, `ê`, `ô`, `ù`, `ç`, `à` in all user-facing strings. ASCII "e" for accented letters = bug, not cosmetic
-- **Non-breaking spaces** before `!`, `?`, `:`, `;`, `%` in French text (`\u00a0`)
-- **No orphan logic** — every financial calculation delegates to `financial_core/`. If you write `_calculate*()`, `_estimate*()`, `_compute*()` in a service file, you're doing it wrong
-
-### Test Coverage
-- **Service files** — minimum 10 unit tests per service (edge cases, compliance)
-- **Screen/widget files** — widget tests for every stateful screen (render, empty state, error state)
-- **Golden couple** — Julien + Lauren data must be tested against known expected values
-- **Confidence score** — every projection test must assert `confidenceScore` + `enrichmentPrompts`
-
-### Compliance (Swiss Law)
-- **Disclaimer present** in every financial output (screen, service return, API response)
-- **Sources cited** — `LPP art. X`, `LIFD art. Y`, `LAVS art. Z` in service docstrings
-- **No banned terms** — scan all user-facing text before commit
-- **Capital ≠ income** — NEVER double-tax: retrait taxé (LIFD art. 38), SWR = consommation patrimoine
-
-### Architecture
-- **Backend = source of truth** — Flutter mirrors but never invents calculations
-- **financial_core/ = single calculator library** — all AVS, LPP, tax calculations go through it
-- **Provider for state** — no raw StatefulWidget state for shared data
-- **GoRouter for navigation** — no Navigator.push
-- **MintColors for all colors** — no hex literals
-- **ARB keys for all strings** — add to `app_fr.arb` even if i18n generation isn't wired yet
-
-### Before Every Merge
-```bash
-flutter analyze          # Must be 0 issues
-flutter test             # Must be 100% pass
-cd services/backend && python3 -m pytest tests/ -q  # Must pass
-grep -rn "garanti\|certain\|assure\|sans risque\|optimal\|meilleur\|parfait" apps/mobile/lib/  # Must be 0 hits
-```
+If code contradicts 1-8: fix the code OR write an ADR.
 
 ---
 
-## ANTI-PATTERNS (never do)
+## 12. REFERENCE DOCUMENTS
 
-1. **Code without reading existing code first** — Always understand before modifying
-2. **Diverge backend vs Flutter constants** — Backend is source of truth
-3. **Use banned terms** in any user-facing text
-4. **Skip tests** — Always run before committing
-5. **Create files unnecessarily** — Prefer editing existing files
-6. **Promise returns** — Use scenarios (Bas/Moyen/Haut) + disclaimers
-7. **Ignore audit findings** — Fix all CRIT divergences before committing
-8. **Commit non-sprint files** — Surgical git add, only relevant files
-9. **Assume Swiss native for all profiles** — Always check archetype (see ADR-20260223)
-10. **Show projection without confidence score** — Always include uncertainty band + enrichment prompts
-11. **Double-tax capital withdrawals** — Capital taxed at withdrawal (LIFD art. 38), SWR = not income
-12. **Duplicate calculation logic** — NEVER create private `_calculateTax()`, `_estimateAvs()`, etc. in service files. Always use `financial_core/` calculators. If a method doesn't exist, add it to the appropriate calculator class.
-13. **Ignore future AVS contribution years** — `AvsCalculator.computeMonthlyRente()` correctly adds future years until retirement. Don't use raw `contributionYears / 44` as reduction factor.
-14. **Apply married couple AVS cap to concubins** — LAVS art. 35 cap (150% = 3780 CHF) applies ONLY to married couples. Always pass `isMarried: true/false` to `AvsCalculator.computeCouple()`.
-15. **Hardcode user-facing strings in Dart** — NEVER write `'Ton texte ici'` in widgets or services. ALL user-facing text goes in `app_fr.arb` and is accessed via `AppLocalizations.of(context)!.key`. Hardcoded strings lose accents, break i18n, and are unmaintainable.
-16. **Hardcode colors as hex values** — NEVER use `Color(0xFFXXXXXX)` in widgets or models. Always use `MintColors.*` from `lib/theme/colors.dart`. If a color doesn't exist, add it to `MintColors`.
+| Document | Purpose |
+|----------|---------|
+| `rules.md` | Tier 1: fintech-grade principles, UX rules, workflow |
+| `SOT.md` | Data contracts: Profile, SessionReport |
+| `LEGAL_RELEASE_CHECK.md` | Pre-release compliance gate |
+| `DefinitionOfDone.md` | Sprint completion criteria |
+| `docs/VISION_V1.md` | Strategic direction V1 (~25 screens, 3 tabs) |
+| `docs/CICD_ARCHITECTURE.md` | Full CI/CD pipeline reference |
+| `docs/ONBOARDING_ARBITRAGE_ENGINE.md` | Onboarding + arbitrage specs |
+| `docs/DATA_ACQUISITION_STRATEGY.md` | OCR, guided entry, Open Banking |
+| `visions/vision_product.md` | Core promise, acquisition strategy |
+| `visions/vision_compliance.md` | LSFin, FINMA, nLPD framework |
+| `visions/vision_tech_stack.md` | Technical choices |
+| `legal/DISCLAIMER.md` | User-facing educational disclaimer |
+| `legal/CGU.md` | Terms of service |

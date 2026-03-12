@@ -218,4 +218,378 @@ void main() {
       expect(coord, equals(53540));
     });
   });
+
+  // ═══════════════════════════════════════════════════════════════
+  //  PHASE 2: Survivor Pension (LPP art. 19-20)
+  // ═══════════════════════════════════════════════════════════════
+
+  group('LppCalculator.computeSurvivorPension', () {
+    test('married 50yo, 10y marriage, 2 children → conjoint 60% + orphan 20%', () {
+      final result = LppCalculator.computeSurvivorPension(
+        projectedAnnualRente: 36000,
+        isMarried: true,
+        numberOfChildren: 2,
+        conjointAge: 50,
+        marriageDurationYears: 10,
+      );
+      expect(result.conjointGetsRente, isTrue);
+      // Total uncapped: 60% + 2×20% = 100% → no cap needed
+      expect(result.conjointMonthly, closeTo(1800, 1));
+      expect(result.orphanMonthlyPerChild, closeTo(600, 1));
+      expect(result.orphanMonthlyTotal, closeTo(1200, 1));
+      expect(result.totalMonthly, closeTo(3000, 1));
+      expect(result.conjointLumpSum, equals(0));
+    });
+
+    test('concubin → no conjoint pension (LPP art. 19)', () {
+      final result = LppCalculator.computeSurvivorPension(
+        projectedAnnualRente: 36000,
+        isMarried: false,
+        numberOfChildren: 1,
+      );
+      expect(result.conjointMonthly, equals(0));
+      expect(result.conjointLumpSum, equals(0));
+      expect(result.orphanMonthlyPerChild, closeTo(600, 1));
+      expect(result.totalMonthly, closeTo(600, 1));
+    });
+
+    test('concubin no children → all zeros', () {
+      final result = LppCalculator.computeSurvivorPension(
+        projectedAnnualRente: 36000,
+        isMarried: false,
+        numberOfChildren: 0,
+      );
+      expect(result.totalMonthly, equals(0));
+      expect(result.conjointLumpSum, equals(0));
+      expect(result.orphanMonthlyPerChild, equals(0));
+    });
+
+    test('married no children, age 50, 10y → conjoint rente', () {
+      final result = LppCalculator.computeSurvivorPension(
+        projectedAnnualRente: 24000,
+        isMarried: true,
+        numberOfChildren: 0,
+        conjointAge: 50,
+        marriageDurationYears: 10,
+      );
+      expect(result.conjointGetsRente, isTrue);
+      expect(result.conjointMonthly, closeTo(1200, 1));
+      expect(result.orphanMonthlyPerChild, equals(0));
+      expect(result.totalMonthly, closeTo(1200, 1));
+    });
+
+    test('LPP art. 19 al. 2: young spouse, short marriage, no children → lump sum', () {
+      final result = LppCalculator.computeSurvivorPension(
+        projectedAnnualRente: 36000,
+        isMarried: true,
+        numberOfChildren: 0,
+        conjointAge: 35, // < 45
+        marriageDurationYears: 2, // < 5
+      );
+      expect(result.conjointGetsRente, isFalse);
+      expect(result.conjointMonthly, equals(0));
+      // Lump sum = 3× annual conjoint pension = 3 × 36000 × 0.60 = 64800
+      expect(result.conjointLumpSum, closeTo(64800, 1));
+      expect(result.totalMonthly, equals(0));
+    });
+
+    test('LPP art. 19 al. 2: young spouse BUT has children → rente (exception)', () {
+      final result = LppCalculator.computeSurvivorPension(
+        projectedAnnualRente: 36000,
+        isMarried: true,
+        numberOfChildren: 1,
+        conjointAge: 30,
+        marriageDurationYears: 1,
+      );
+      expect(result.conjointGetsRente, isTrue);
+      expect(result.conjointMonthly, greaterThan(0));
+    });
+
+    test('LPP art. 19 al. 3: 1 conjoint + 3 orphans → capped at 100%', () {
+      // 60% + 3×20% = 120% → must be scaled to 100%
+      final result = LppCalculator.computeSurvivorPension(
+        projectedAnnualRente: 36000,
+        isMarried: true,
+        numberOfChildren: 3,
+        conjointAge: 50,
+        marriageDurationYears: 10,
+      );
+      // Total capped at 36000/12 = 3000/mois
+      expect(result.totalMonthly, closeTo(3000, 1));
+      // Scale factor = 100/120 = 0.8333
+      expect(result.conjointMonthly, closeTo(1800 * 100 / 120, 1));
+      expect(result.orphanMonthlyPerChild, closeTo(600 * 100 / 120, 1));
+    });
+
+    test('zero rente → zero survivor pensions', () {
+      final result = LppCalculator.computeSurvivorPension(
+        projectedAnnualRente: 0,
+        isMarried: true,
+        numberOfChildren: 3,
+      );
+      expect(result.totalMonthly, equals(0));
+    });
+
+    test('golden couple Julien → Lauren at 43, 15y marriage → lump sum (age < 45)', () {
+      // Lauren is 43 < 45: does NOT meet art. 19 al. 2 age condition
+      // despite 15y marriage. No children → lump sum, not rente.
+      final result = LppCalculator.computeSurvivorPension(
+        projectedAnnualRente: 33892,
+        isMarried: true,
+        numberOfChildren: 0,
+        conjointAge: 43,
+        marriageDurationYears: 15,
+      );
+      expect(result.conjointGetsRente, isFalse);
+      expect(result.conjointMonthly, equals(0));
+      // Lump sum = 3 × 33892 × 0.60 = 61005.6
+      expect(result.conjointLumpSum, closeTo(61005.6, 1));
+    });
+
+    test('golden couple Julien → Lauren at 46, 15y marriage → rente', () {
+      // In a few years, Lauren turns 46 → meets age condition
+      final result = LppCalculator.computeSurvivorPension(
+        projectedAnnualRente: 33892,
+        isMarried: true,
+        numberOfChildren: 0,
+        conjointAge: 46,
+        marriageDurationYears: 18,
+      );
+      expect(result.conjointGetsRente, isTrue);
+      expect(result.conjointMonthly, closeTo(1694.6, 5));
+    });
+
+    test('default conjointAge/marriageDuration → meets conditions (backward compat)', () {
+      // When not provided, defaults are 45 and 5 → meets art. 19 al. 2
+      final result = LppCalculator.computeSurvivorPension(
+        projectedAnnualRente: 36000,
+        isMarried: true,
+        numberOfChildren: 0,
+      );
+      expect(result.conjointGetsRente, isTrue);
+      expect(result.conjointMonthly, closeTo(1800, 1));
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  //  PHASE 2: EPL Repayment Impact (LPP art. 30d)
+  // ═══════════════════════════════════════════════════════════════
+
+  group('LppCalculator.computeEplImpact', () {
+    test('EPL creates gap between with/without rente', () {
+      final result = LppCalculator.computeEplImpact(
+        currentBalance: 200000,
+        eplAmount: 50000,
+        eplRepaid: 0,
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 100000,
+        caisseReturn: 0.02,
+        conversionRate: 0.068,
+      );
+      expect(result.renteWithoutEpl, greaterThan(result.renteWithEplOutstanding));
+      expect(result.monthlyGapFromEpl, greaterThan(0));
+    });
+
+    test('fully repaid EPL → gap is zero', () {
+      final result = LppCalculator.computeEplImpact(
+        currentBalance: 250000,
+        eplAmount: 50000,
+        eplRepaid: 50000,
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 100000,
+        caisseReturn: 0.02,
+        conversionRate: 0.068,
+      );
+      expect(result.renteWithoutEpl, closeTo(result.renteWithEplOutstanding, 0.01));
+      expect(result.monthlyGapFromEpl, closeTo(0, 0.01));
+    });
+
+    test('partial repayment reduces gap', () {
+      final noRepay = LppCalculator.computeEplImpact(
+        currentBalance: 200000,
+        eplAmount: 50000,
+        eplRepaid: 0,
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 100000,
+        caisseReturn: 0.02,
+        conversionRate: 0.068,
+      );
+      final halfRepay = LppCalculator.computeEplImpact(
+        currentBalance: 200000,
+        eplAmount: 50000,
+        eplRepaid: 25000,
+        currentAge: 45,
+        retirementAge: 65,
+        grossAnnualSalary: 100000,
+        caisseReturn: 0.02,
+        conversionRate: 0.068,
+      );
+      expect(halfRepay.monthlyGapFromEpl, lessThan(noRepay.monthlyGapFromEpl));
+      expect(halfRepay.monthlyGapFromEpl, greaterThan(0));
+    });
+
+    test('C1 fix: with eplAge, renteIfFullyRepaid < renteWithoutEpl', () {
+      // EPL taken 10 years ago → compound interest lost
+      final result = LppCalculator.computeEplImpact(
+        currentBalance: 200000,
+        eplAmount: 50000,
+        eplRepaid: 0,
+        currentAge: 50,
+        retirementAge: 65,
+        grossAnnualSalary: 80000,
+        caisseReturn: 0.02,
+        conversionRate: 0.068,
+        eplAge: 40, // taken 10 years ago
+      );
+      // renteWithoutEpl includes 10y compound growth on 50k
+      // renteIfFullyRepaid only adds 50k nominal (no compound from gap)
+      expect(result.renteWithoutEpl, greaterThan(result.renteIfFullyRepaid));
+    });
+
+    test('no eplAge → renteIfFullyRepaid == renteWithoutEpl (backward compat)', () {
+      final result = LppCalculator.computeEplImpact(
+        currentBalance: 200000,
+        eplAmount: 50000,
+        eplRepaid: 0,
+        currentAge: 50,
+        retirementAge: 65,
+        grossAnnualSalary: 80000,
+        caisseReturn: 0.015,
+        conversionRate: 0.068,
+        // no eplAge → defaults to currentAge → no compound gap
+      );
+      expect(result.renteIfFullyRepaid, closeTo(result.renteWithoutEpl, 0.01));
+    });
+
+    test('zero EPL → no impact', () {
+      final result = LppCalculator.computeEplImpact(
+        currentBalance: 300000,
+        eplAmount: 0,
+        eplRepaid: 0,
+        currentAge: 50,
+        retirementAge: 65,
+        grossAnnualSalary: 100000,
+        caisseReturn: 0.02,
+        conversionRate: 0.068,
+      );
+      expect(result.monthlyGapFromEpl, closeTo(0, 0.01));
+    });
+
+    test('eplRepaid > eplAmount → clamped to 0 outstanding', () {
+      final result = LppCalculator.computeEplImpact(
+        currentBalance: 300000,
+        eplAmount: 50000,
+        eplRepaid: 60000, // overpaid
+        currentAge: 50,
+        retirementAge: 65,
+        grossAnnualSalary: 100000,
+        caisseReturn: 0.02,
+        conversionRate: 0.068,
+      );
+      expect(result.monthlyGapFromEpl, closeTo(0, 0.01));
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  //  PHASE 2: Couple Retirement Sequencing (LIFD art. 38)
+  // ═══════════════════════════════════════════════════════════════
+
+  group('LppCalculator.compareRetirementSequencing', () {
+    test('staggered < same year tax (progressive brackets)', () {
+      final result = LppCalculator.compareRetirementSequencing(
+        userCapital: 500000,
+        conjointCapital: 300000,
+        canton: 'VS',
+        isMarried: true,
+      );
+      expect(result.taxStaggered, lessThanOrEqualTo(result.taxSameYear));
+      expect(result.taxSaving, greaterThanOrEqualTo(0));
+    });
+
+    test('large capitals → significant tax saving + recommendation', () {
+      final result = LppCalculator.compareRetirementSequencing(
+        userCapital: 700000,
+        conjointCapital: 400000,
+        canton: 'ZH',
+        isMarried: true,
+      );
+      expect(result.taxSaving, greaterThan(1000));
+      expect(result.recommendation, contains('Étaler'));
+      expect(result.recommendation, contains('LIFD art. 38'));
+    });
+
+    test('small capitals → minimal saving', () {
+      final result = LppCalculator.compareRetirementSequencing(
+        userCapital: 50000,
+        conjointCapital: 30000,
+        canton: 'GE',
+        isMarried: true,
+      );
+      expect(result.taxSaving, lessThan(1000));
+    });
+
+    test('equal capitals → staggered still better due to progressivity', () {
+      final result = LppCalculator.compareRetirementSequencing(
+        userCapital: 400000,
+        conjointCapital: 400000,
+        canton: 'VD',
+        isMarried: true,
+      );
+      expect(result.taxStaggered, lessThanOrEqualTo(result.taxSameYear));
+    });
+
+    test('married discount applied', () {
+      final single = LppCalculator.compareRetirementSequencing(
+        userCapital: 500000,
+        conjointCapital: 300000,
+        canton: 'ZH',
+        isMarried: false,
+      );
+      final married = LppCalculator.compareRetirementSequencing(
+        userCapital: 500000,
+        conjointCapital: 300000,
+        canton: 'ZH',
+        isMarried: true,
+      );
+      expect(married.taxSameYear, lessThan(single.taxSameYear));
+    });
+
+    test('M2 fix: zero capital → early return, no recommendation', () {
+      final result = LppCalculator.compareRetirementSequencing(
+        userCapital: 0,
+        conjointCapital: 0,
+        canton: 'ZH',
+        isMarried: true,
+      );
+      expect(result.taxSameYear, equals(0));
+      expect(result.taxStaggered, equals(0));
+      expect(result.taxSaving, equals(0));
+      expect(result.recommendation, contains('Aucun capital'));
+    });
+
+    test('one spouse zero capital → still computes correctly', () {
+      final result = LppCalculator.compareRetirementSequencing(
+        userCapital: 500000,
+        conjointCapital: 0,
+        canton: 'ZH',
+        isMarried: true,
+      );
+      // Staggered: only user pays tax = same as sameYear (conjoint adds 0)
+      expect(result.taxSameYear, closeTo(result.taxStaggered, 1));
+    });
+
+    test('golden couple Julien+Lauren VS → staggering saves tax', () {
+      final result = LppCalculator.compareRetirementSequencing(
+        userCapital: 677847,
+        conjointCapital: 153000,
+        canton: 'VS',
+        isMarried: true,
+      );
+      expect(result.taxSaving, greaterThan(0));
+      expect(result.taxSameYear, greaterThan(result.taxStaggered));
+    });
+  });
 }

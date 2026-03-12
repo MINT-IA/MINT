@@ -56,8 +56,10 @@ jobs:
 
     steps:
       # ── Resolve API URL + branch from environment input ──
+      # Note: these steps run BEFORE checkout, so override working-directory
       - name: Resolve environment config
         id: env-config
+        working-directory: .
         run: |
           if [ "${{ github.event.inputs.environment }}" = "staging" ]; then
             echo "branch=staging" >> "$GITHUB_OUTPUT"
@@ -70,6 +72,7 @@ jobs:
           fi
 
       - name: Validate API URL
+        working-directory: .
         run: |
           API_URL="${{ steps.env-config.outputs.api_url }}"
           if [ -z "$API_URL" ]; then

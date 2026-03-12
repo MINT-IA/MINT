@@ -17,6 +17,7 @@ import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/lpp_certificate_parser.dart';
 import 'package:mint_mobile/services/document_parser/salary_certificate_parser.dart';
 import 'package:mint_mobile/services/document_parser/tax_declaration_parser.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -280,10 +281,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             ),
             label: Text(
               _isProcessing
-                  ? 'Extraction en cours...'
+                  ? S.of(context)!.documentScanExtracting
                   : kIsWeb
-                      ? 'Importer un fichier'
-                      : 'Prendre une photo',
+                      ? S.of(context)!.documentScanImportFile
+                      : S.of(context)!.documentScanTakePhoto,
               style: GoogleFonts.inter(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -478,8 +479,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   Future<void> _onPasteTextPressed() async {
     await _requestManualOcrText(
-      title: 'Texte OCR',
-      hint: 'Colle le texte extrait du document pour lancer le parsing.',
+      title: S.of(context)!.documentScanOcrTitle,
+      hint: S.of(context)!.documentScanOcrHint,
     );
   }
 
@@ -616,14 +617,14 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(ctx).pop(false),
-                      child: const Text('Annuler'),
+                      child: Text(S.of(context)!.documentScanCancel),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: FilledButton(
                       onPressed: () => Navigator.of(ctx).pop(true),
-                      child: const Text('Analyser'),
+                      child: Text(S.of(context)!.documentScanAnalyze),
                     ),
                   ),
                 ],
@@ -727,7 +728,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                     _onCameraPressed();
                   },
                   icon: const Icon(Icons.camera_alt_outlined),
-                  label: const Text('Prendre une photo'),
+                  label: Text(S.of(context)!.documentScanTakePhoto),
                 ),
               ),
               const SizedBox(height: 8),
@@ -737,13 +738,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   onPressed: () {
                     Navigator.of(ctx).pop();
                     _requestManualOcrText(
-                      title: 'Texte OCR',
-                      hint:
-                          'Colle le texte OCR extrait de ton PDF pour continuer.',
+                      title: S.of(context)!.documentScanOcrTitle,
+                      hint: S.of(context)!.documentScanOcrHint,
                     );
                   },
                   icon: const Icon(Icons.text_snippet_outlined),
-                  label: const Text('Coller un texte OCR'),
+                  label: Text(S.of(context)!.documentScanPasteOcr),
                 ),
               ),
             ],
@@ -770,7 +770,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Connexion requise pour le PDF',
+                S.of(context)!.documentScanPdfAuthTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -779,8 +779,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'L’analyse PDF automatique passe par le backend et nécessite '
-                'un compte connecté. Sans compte, tu peux scanner une photo.',
+                S.of(context)!.documentScanPdfAuthContent,
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   color: MintColors.textSecondary,
@@ -796,7 +795,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                     context.go('/auth/register');
                   },
                   icon: const Icon(Icons.person_add_alt_1_outlined),
-                  label: const Text('Créer un compte'),
+                  label: Text(S.of(context)!.documentScanCreateAccount),
                 ),
               ),
               const SizedBox(height: 8),
@@ -808,7 +807,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                     _onCameraPressed();
                   },
                   icon: const Icon(Icons.camera_alt_outlined),
-                  label: const Text('Prendre une photo'),
+                  label: Text(S.of(context)!.documentScanTakePhoto),
                 ),
               ),
             ],
@@ -897,7 +896,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                     _onCameraPressed();
                   },
                   icon: const Icon(Icons.camera_alt_outlined),
-                  label: const Text('Reprendre une photo'),
+                  label: Text(S.of(context)!.documentScanRetakePhoto),
                 ),
               ),
               const SizedBox(height: 8),
@@ -907,13 +906,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   onPressed: () {
                     Navigator.of(ctx).pop();
                     _requestManualOcrText(
-                      title: 'Texte OCR',
-                      hint:
-                          'Colle le texte OCR extrait si la photo reste illisible.',
+                      title: S.of(context)!.documentScanOcrTitle,
+                      hint: S.of(context)!.documentScanOcrRetryHint,
                     );
                   },
                   icon: const Icon(Icons.text_snippet_outlined),
-                  label: const Text('Coller un texte OCR'),
+                  label: Text(S.of(context)!.documentScanPasteOcr),
                 ),
               ),
             ],

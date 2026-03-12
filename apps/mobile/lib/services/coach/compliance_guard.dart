@@ -42,6 +42,19 @@ class ComplianceGuard {
     'meilleure',
     'parfaite',
     'conseillère',
+    // Plural forms (GAP #1: inflection bypass via plurals)
+    'garantis',
+    'garanties',
+    'assurés',
+    'assurées',
+    'certains',
+    'certaines',
+    'optimaux',
+    'optimales',
+    'meilleurs',
+    'meilleures',
+    'parfaits',
+    'parfaites',
     // Prescriptive phrases
     'tu devrais',
     'tu dois',
@@ -69,6 +82,19 @@ class ComplianceGuard {
     'meilleure': 'pertinente',
     'parfaite': 'adaptée',
     'conseillère': 'spécialiste',
+    // Plural forms
+    'garantis': 'possibles dans ce scénario',
+    'garanties': 'possibles dans ce scénario',
+    'assurés': 'envisageables',
+    'assurées': 'envisageables',
+    'certains': 'probables',
+    'certaines': 'probables',
+    'optimaux': 'adaptés',
+    'optimales': 'adaptées',
+    'meilleurs': 'pertinents',
+    'meilleures': 'pertinentes',
+    'parfaits': 'adaptés',
+    'parfaites': 'adaptées',
     // Prescriptive phrases
     'tu devrais': 'tu pourrais envisager de',
     'tu dois': 'il serait utile de',
@@ -93,10 +119,16 @@ class ComplianceGuard {
     RegExp(r'prends?\s+le\s+capital', caseSensitive: false),
     RegExp(r'investis?\s+dans', caseSensitive: false),
     RegExp(r'priorit[ée]\s+absolue', caseSensitive: false),
-    RegExp(r"c[''\u2018\u2019]est\s+plus\s+important\s+que", caseSensitive: false),
+    RegExp("c['\u2018\u2019]est\\s+plus\\s+important\\s+que", caseSensitive: false),
     RegExp(r'souscris\b', caseSensitive: false),
     RegExp(r'rach[eè]te\b', caseSensitive: false),
     RegExp(r'transf[eè]re\b', caseSensitive: false),
+    // Social comparison patterns (GAP #2: ranking users against others)
+    RegExp(r'top\s+\d+\s*%', caseSensitive: false),
+    RegExp(r'meilleur\s+que\s+\d+\s*%', caseSensitive: false),
+    RegExp(r'devant\s+\d+\s*%\s+des', caseSensitive: false),
+    RegExp(r'parmi\s+les\s+meilleurs', caseSensitive: false),
+    RegExp(r'au-dessus\s+de\s+la\s+moyenne', caseSensitive: false),
   ];
 
   // Fuzzy banned pattern for "sans ... risque" variants
@@ -253,7 +285,7 @@ class ComplianceGuard {
   }
 
   /// CRIT #5 fix: use word-boundary regex for single-word banned terms
-  /// to avoid false positives on "incertain", "certains", "parfaitement".
+  /// to avoid false positives on "incertain", "parfaitement".
   /// Text is lowercased before matching to handle accented uppercase
   /// (Dart caseSensitive:false only folds ASCII a-z/A-Z, not À-ÿ).
   static List<String> _checkBannedTerms(String text) {

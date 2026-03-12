@@ -45,5 +45,13 @@ apps/mobile/ios/fastlane/README.md
 # Golden test data (local only — personal documents)
 test/golden/
 
+# macOS Finder duplicate artifacts
+*\ 2.dart
+*\ 3.dart
+*\ 2.md
+*\ 3.md
+*\ 2.py
+*\ 3.py
+
 # Claude Code worktrees
 .claude/worktrees/

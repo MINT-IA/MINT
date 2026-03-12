@@ -157,4 +157,268 @@ class LppCalculator {
     return (grossAnnualSalary - lppDeductionCoordination)
         .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
   }
+
+  // ════════════════════════════════════════════════════════════════
+  //  SURVIVOR PENSION — LPP art. 19-20
+  // ════════════════════════════════════════════════════════════════
+
+  /// Conjoint survivor pension rate (LPP art. 19 al. 1).
+  /// 60% of the insured's projected annual rente.
+  static const double survivorSpouseRate = 0.60;
+
+  /// Orphan pension rate per child (LPP art. 20).
+  /// 20% of the insured's projected annual rente.
+  static const double survivorOrphanRate = 0.20;
+
+  /// Compute survivor pensions (LPP art. 19-20).
+  ///
+  /// Returns monthly amounts for conjoint and orphans.
+  /// The conjoint rente requires marriage or registered partnership
+  /// (concubins have NO legal right to LPP survivor pension).
+  ///
+  /// **LPP art. 19 al. 2**: the surviving spouse receives a rente only if
+  /// at least one condition is met:
+  ///   (a) they have dependent children, OR
+  ///   (b) they are aged >= 45 AND the marriage lasted >= 5 years.
+  /// If neither condition is met, the spouse receives a lump sum equal to
+  /// 3× the annual pension (returned in [conjointLumpSum]).
+  ///
+  /// **LPP art. 19 al. 3**: total survivor pensions are capped at 100%
+  /// of the insured's projected rente.
+  ///
+  /// [projectedAnnualRente]: the insured's projected LPP annual rente at 65.
+  /// [isMarried]: true for married/registered partnership only.
+  /// [numberOfChildren]: dependent children under 18 (or 25 if in education).
+  /// [conjointAge]: surviving spouse's age (for art. 19 al. 2 check).
+  /// [marriageDurationYears]: years of marriage (for art. 19 al. 2 check).
+  static ({
+    double conjointMonthly,
+    double conjointLumpSum,
+    double orphanMonthlyPerChild,
+    double orphanMonthlyTotal,
+    double totalMonthly,
+    bool conjointGetsRente,
+  }) computeSurvivorPension({
+    required double projectedAnnualRente,
+    required bool isMarried,
+    int numberOfChildren = 0,
+    int? conjointAge,
+    int? marriageDurationYears,
+  }) {
+    // LPP art. 19 al. 2: conjoint rente conditions
+    final hasChildren = numberOfChildren > 0;
+    final meetsAgeAndDuration =
+        (conjointAge ?? 45) >= 45 && (marriageDurationYears ?? 5) >= 5;
+    final conjointGetsRente =
+        isMarried && (hasChildren || meetsAgeAndDuration);
+
+    double conjointAnnual;
+    double conjointLumpSum;
+    if (!isMarried) {
+      conjointAnnual = 0;
+      conjointLumpSum = 0;
+    } else if (conjointGetsRente) {
+      conjointAnnual = projectedAnnualRente * survivorSpouseRate;
+      conjointLumpSum = 0;
+    } else {
+      // LPP art. 19 al. 2: lump sum = 3× annual rente
+      conjointAnnual = 0;
+      conjointLumpSum = projectedAnnualRente * survivorSpouseRate * 3;
+    }
+
+    final orphanAnnualPerChild = projectedAnnualRente * survivorOrphanRate;
+    final orphanAnnualTotal = orphanAnnualPerChild * numberOfChildren;
+
+    // LPP art. 19 al. 3: cap total survivor pensions at 100% of rente
+    var totalAnnual = conjointAnnual + orphanAnnualTotal;
+    double scaleFactor = 1.0;
+    if (totalAnnual > projectedAnnualRente && projectedAnnualRente > 0) {
+      scaleFactor = projectedAnnualRente / totalAnnual;
+      totalAnnual = projectedAnnualRente;
+    }
+
+    return (
+      conjointMonthly: conjointAnnual * scaleFactor / 12,
+      conjointLumpSum: conjointLumpSum,
+      orphanMonthlyPerChild: numberOfChildren > 0
+          ? orphanAnnualPerChild * scaleFactor / 12
+          : 0.0,
+      orphanMonthlyTotal: orphanAnnualTotal * scaleFactor / 12,
+      totalMonthly: totalAnnual / 12,
+      conjointGetsRente: conjointGetsRente,
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  EPL REPAYMENT IMPACT — LPP art. 30d, OPP2 art. 5
+  // ════════════════════════════════════════════════════════════════
+
+  /// Compute the impact of an EPL (early withdrawal) on the projected
+  /// LPP rente at retirement, and the effect of repaying the EPL.
+  ///
+  /// LPP art. 30d: repayment restores the insured's benefits.
+  /// LPP art. 79b al. 3: buyback blocked for 3 years after EPL repayment.
+  ///
+  /// **Compound interest modeling**: `renteWithoutEpl` estimates what the
+  /// rente would have been if the EPL was never taken (compound interest
+  /// on the outstanding amount since [eplAge]). `renteIfFullyRepaid`
+  /// estimates what happens if the outstanding is repaid NOW (compound
+  /// interest lost during the gap period is gone). These differ when
+  /// [eplAge] < [currentAge].
+  ///
+  /// [currentBalance]: current LPP balance (after EPL was taken).
+  /// [eplAmount]: the EPL amount that was withdrawn.
+  /// [eplRepaid]: how much of the EPL has been repaid so far.
+  /// [eplAge]: age at which the EPL was originally taken. If null,
+  ///   defaults to [currentAge] (conservative: no compound interest gap).
+  /// [currentAge], [retirementAge], [grossAnnualSalary], [caisseReturn],
+  /// [conversionRate]: same params as [projectToRetirement].
+  ///
+  /// Returns: rente without EPL (hypothetical), rente with EPL outstanding,
+  /// rente if EPL fully repaid now, and the monthly gap.
+  static ({
+    double renteWithoutEpl,
+    double renteWithEplOutstanding,
+    double renteIfFullyRepaid,
+    double monthlyGapFromEpl,
+  }) computeEplImpact({
+    required double currentBalance,
+    required double eplAmount,
+    required double eplRepaid,
+    required int currentAge,
+    required int retirementAge,
+    required double grossAnnualSalary,
+    required double caisseReturn,
+    required double conversionRate,
+    int? eplAge,
+  }) {
+    final outstanding = (eplAmount - eplRepaid).clamp(0.0, double.infinity);
+    final effectiveEplAge = eplAge ?? currentAge;
+    final yearsWithoutCapital = (currentAge - effectiveEplAge).clamp(0, 70);
+
+    // Compound interest the outstanding would have earned inside the LPP
+    // between eplAge and currentAge (lost forever, even if repaid now).
+    double compoundGrowth = outstanding;
+    for (int i = 0; i < yearsWithoutCapital; i++) {
+      compoundGrowth *= (1 + caisseReturn);
+    }
+
+    // Rente with current balance (EPL already deducted)
+    final renteWithEpl = projectToRetirement(
+      currentBalance: currentBalance,
+      currentAge: currentAge,
+      retirementAge: retirementAge,
+      grossAnnualSalary: grossAnnualSalary,
+      caisseReturn: caisseReturn,
+      conversionRate: conversionRate,
+    );
+
+    // Rente if EPL had never been taken: balance + outstanding WITH
+    // compound interest from eplAge to now (the money would have grown).
+    final renteWithoutEpl = projectToRetirement(
+      currentBalance: currentBalance + compoundGrowth,
+      currentAge: currentAge,
+      retirementAge: retirementAge,
+      grossAnnualSalary: grossAnnualSalary,
+      caisseReturn: caisseReturn,
+      conversionRate: conversionRate,
+    );
+
+    // Rente if EPL is fully repaid NOW: balance + outstanding (nominal),
+    // but the compound interest from eplAge→now is lost.
+    final renteIfRepaid = projectToRetirement(
+      currentBalance: currentBalance + outstanding,
+      currentAge: currentAge,
+      retirementAge: retirementAge,
+      grossAnnualSalary: grossAnnualSalary,
+      caisseReturn: caisseReturn,
+      conversionRate: conversionRate,
+    );
+
+    return (
+      renteWithoutEpl: renteWithoutEpl,
+      renteWithEplOutstanding: renteWithEpl,
+      renteIfFullyRepaid: renteIfRepaid,
+      monthlyGapFromEpl: (renteWithoutEpl - renteWithEpl) / 12,
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  COUPLE RETIREMENT SEQUENCING — fiscal optimization
+  // ════════════════════════════════════════════════════════════════
+
+  /// Compare different retirement sequencing strategies for a couple.
+  ///
+  /// Swiss tax law taxes capital withdrawals progressively (LIFD art. 38).
+  /// Splitting withdrawals across two different tax years reduces the
+  /// effective rate. This method compares 3 strategies:
+  ///
+  /// 1. **Same year**: both retire and withdraw capital the same year
+  /// 2. **Staggered**: withdrawals spread across 2+ tax years
+  /// 3. **Optimal**: the strategy with the lowest total tax
+  ///
+  /// [userCapital], [conjointCapital]: LPP capital to withdraw.
+  /// [canton]: for cantonal tax rate lookup.
+  /// [isMarried]: affects married couple capital tax discount.
+  static ({
+    double taxSameYear,
+    double taxStaggered,
+    double taxSaving,
+    String recommendation,
+  }) compareRetirementSequencing({
+    required double userCapital,
+    required double conjointCapital,
+    required String canton,
+    required bool isMarried,
+  }) {
+    // Guard: no capital to withdraw → no tax optimization possible
+    final combinedCapital = userCapital + conjointCapital;
+    if (combinedCapital <= 0) {
+      return (
+        taxSameYear: 0,
+        taxStaggered: 0,
+        taxSaving: 0,
+        recommendation: 'Aucun capital LPP à retirer dans cette configuration.',
+      );
+    }
+
+    final cantonCode = canton.isNotEmpty ? canton.toUpperCase() : 'ZH';
+    final baseRate = tauxImpotRetraitCapital[cantonCode] ?? 0.065;
+    final effectiveRate =
+        isMarried ? baseRate * marriedCapitalTaxDiscount : baseRate;
+
+    // Strategy 1: same year — combined capital taxed together
+    final taxSameYear =
+        RetirementTaxCalculator.progressiveTax(combinedCapital, effectiveRate);
+
+    // Strategy 2: staggered — each taxed separately in different years
+    final taxUser =
+        RetirementTaxCalculator.progressiveTax(userCapital, effectiveRate);
+    final taxConjoint =
+        RetirementTaxCalculator.progressiveTax(conjointCapital, effectiveRate);
+    final taxStaggered = taxUser + taxConjoint;
+
+    final saving = taxSameYear - taxStaggered;
+
+    String recommendation;
+    if (saving > 1000) {
+      recommendation = 'Étaler les retraits sur 2 années fiscales '
+          'pourrait réduire l\'impôt d\'environ CHF ${saving.round()}. '
+          'Réf. : LIFD art. 38.';
+    } else if (saving > 0) {
+      recommendation = 'L\'écart fiscal entre les deux stratégies est '
+          'faible (CHF ${saving.round()}). D\'autres facteurs pourraient '
+          'être plus déterminants.';
+    } else {
+      recommendation = 'Dans cette configuration, le timing du retrait '
+          'a peu d\'impact fiscal.';
+    }
+
+    return (
+      taxSameYear: taxSameYear,
+      taxStaggered: taxStaggered,
+      taxSaving: saving.clamp(0, double.infinity),
+      recommendation: recommendation,
+    );
+  }
 }
