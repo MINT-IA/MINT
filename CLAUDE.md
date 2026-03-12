@@ -10,6 +10,7 @@
 **MINT** — Swiss financial education app (Flutter + FastAPI).
 **Mission**: "Juste quand il faut: une explication, une action, un rappel."
 **Target V1**: 45-60 yo Swiss residents preparing retirement (couple focus). Secondary: 22-45 yo.
+**Design for ALL ages**: UX, copy, and features MUST work for 22-65+. Never design screens, landing pages, or flows that exclude an age group. Segment by life event, not demographics.
 **Model**: Read-only, education-first. No money movement. No investment advice.
 
 ---
