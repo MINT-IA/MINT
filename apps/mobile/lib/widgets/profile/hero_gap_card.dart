@@ -55,7 +55,7 @@ class HeroGapCard extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 15,
               fontWeight: FontWeight.w500,
-              color: Colors.white70,
+              color: MintColors.white70,
             ),
             textAlign: TextAlign.center,
           ),
@@ -75,7 +75,7 @@ class HeroGapCard extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 13,
               fontStyle: FontStyle.italic,
-              color: Colors.white70,
+              color: MintColors.white70,
             ),
             textAlign: TextAlign.center,
           ),
@@ -108,14 +108,14 @@ class HeroGapCard extends StatelessWidget {
             style: GoogleFonts.montserrat(
               fontSize: 36,
               fontWeight: FontWeight.w900,
-              color: Colors.white,
+              color: MintColors.white,
             ),
           ),
           Text(
             s.heroGapPerMonth,
             style: GoogleFonts.inter(
               fontSize: 16,
-              color: Colors.white70,
+              color: MintColors.white70,
             ),
           ),
         ],
@@ -130,7 +130,7 @@ class HeroGapCard extends StatelessWidget {
         _miniCard(s, s.heroGapToday, formatChf(currentMonthlyNet)),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 12),
-          child: Icon(Icons.arrow_forward, color: Colors.white70, size: 20),
+          child: Icon(Icons.arrow_forward, color: MintColors.white70, size: 20),
         ),
         _miniCard(s, s.heroGapRetirement, formatChf(projectedMonthlyRetirement)),
       ],
@@ -141,7 +141,7 @@ class HeroGapCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
+        color: MintColors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -151,7 +151,7 @@ class HeroGapCard extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: Colors.white70,
+              color: MintColors.white70,
             ),
           ),
           const SizedBox(height: 4),
@@ -160,7 +160,7 @@ class HeroGapCard extends StatelessWidget {
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: Colors.white,
+              color: MintColors.white,
             ),
           ),
         ],
@@ -186,7 +186,7 @@ class HeroGapCard extends StatelessWidget {
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.w500,
-            color: Colors.white70,
+            color: MintColors.white70,
           ),
         ),
         const SizedBox(height: 6),
@@ -195,8 +195,8 @@ class HeroGapCard extends StatelessWidget {
           child: LinearProgressIndicator(
             value: pct / 100,
             minHeight: 6,
-            backgroundColor: Colors.white30,
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+            backgroundColor: MintColors.white30,
+            valueColor: const AlwaysStoppedAnimation<Color>(MintColors.white),
           ),
         ),
       ],
@@ -209,16 +209,16 @@ class HeroGapCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.document_scanner, color: Colors.white, size: 18),
+          const Icon(Icons.document_scanner, color: MintColors.white, size: 18),
           const SizedBox(width: 8),
           Text(
             s.heroGapScanCta,
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: Colors.white,
+              color: MintColors.white,
               decoration: TextDecoration.underline,
-              decorationColor: Colors.white70,
+              decorationColor: MintColors.white70,
             ),
           ),
           if (confidenceBoostPercent != null) ...[
@@ -226,7 +226,7 @@ class HeroGapCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: MintColors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
@@ -234,7 +234,7 @@ class HeroGapCard extends StatelessWidget {
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: MintColors.white,
                 ),
               ),
             ),

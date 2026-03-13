@@ -27,15 +27,13 @@ from __future__ import annotations
 import re
 from typing import Optional
 
-from app.constants.social_insurance import AVS_RAMD_MIN, AVS_RAMD_MAX
+from app.constants.social_insurance import AVS_RAMD_MIN
 from app.services.document_parser.document_models import (
     DocumentType,
     ExtractedField,
     ExtractionResult,
 )
 from app.services.document_parser.lpp_certificate_parser import (
-    parse_swiss_number,
-    _AMOUNT_RE,
     _extract_amount_near,
 )
 

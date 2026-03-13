@@ -291,7 +291,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
       pinned: true,
       backgroundColor: MintColors.primary,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.white),
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -309,7 +309,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
-            color: Colors.white,
+            color: MintColors.white,
           ),
         ),
         centerTitle: false,
@@ -647,7 +647,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
         onPressed: _isSubmitting ? null : _onSubmit,
         style: ElevatedButton.styleFrom(
           backgroundColor: MintColors.coachAccent,
-          foregroundColor: Colors.white,
+          foregroundColor: MintColors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
@@ -658,7 +658,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                 width: 22,
                 height: 22,
                 child: CircularProgressIndicator(
-                  color: Colors.white,
+                  color: MintColors.white,
                   strokeWidth: 2.5,
                 ),
               )
@@ -762,7 +762,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                     border: Border.all(color: MintColors.lightBorder),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withAlpha(8),
+                        color: MintColors.black.withAlpha(8),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -834,7 +834,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                     onPressed: () => context.go('/home'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: MintColors.coachAccent,
-                      foregroundColor: Colors.white,
+                      foregroundColor: MintColors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
@@ -907,7 +907,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(5),
+            color: MintColors.black.withAlpha(5),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

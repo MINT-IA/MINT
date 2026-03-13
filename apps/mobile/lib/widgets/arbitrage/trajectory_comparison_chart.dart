@@ -340,7 +340,7 @@ class _TrajectoryPainter extends CustomPainter {
 
     // Draw trajectory lines
     for (int i = 0; i < options.length; i++) {
-      final color = i < colors.length ? colors[i] : Colors.grey;
+      final color = i < colors.length ? colors[i] : MintColors.greyMedium;
       _drawLine(canvas, options[i].trajectory, color, chartLeft, chartWidth,
           chartTop, chartHeight, maxLen, yMin, yMax);
     }
@@ -499,7 +499,7 @@ class _TrajectoryPainter extends CustomPainter {
         final val = options[i].trajectory[yearIndex].netPatrimony;
         final yFraction = (val - yMin) / (yMax - yMin);
         final y = chartTop + chartHeight * (1 - yFraction);
-        final color = i < colors.length ? colors[i] : Colors.grey;
+        final color = i < colors.length ? colors[i] : MintColors.greyMedium;
         canvas.drawCircle(
           Offset(x, y),
           5,
@@ -508,7 +508,7 @@ class _TrajectoryPainter extends CustomPainter {
         canvas.drawCircle(
           Offset(x, y),
           3,
-          Paint()..color = Colors.white,
+          Paint()..color = MintColors.white,
         );
       }
     }

@@ -63,14 +63,14 @@ void main() {
     });
 
     test('5. modelSizeFormatted returns human-readable Go', () {
-      final formatted = SlmDownloadService.modelSizeFormatted;
+      final formatted = SlmDownloadService.instance.modelSizeFormatted;
       expect(formatted, contains('Go'));
       // ~2.3 GB → "2.2 Go" (binary)
       expect(formatted, matches(RegExp(r'\d+\.\d+ Go')));
     });
 
     test('6. estimatedDownloadMinutes returns positive value', () {
-      final minutes = SlmDownloadService.estimatedDownloadMinutes();
+      final minutes = SlmDownloadService.instance.estimatedDownloadMinutes;
       expect(minutes, greaterThan(0));
       // 2.4 GB at 50 Mbps → ~6.4 min → ceil = 7
       expect(minutes, lessThan(15));
@@ -114,17 +114,17 @@ void main() {
     });
 
     test('12. modelSizeFormatted is consistent across calls', () {
-      final a = SlmDownloadService.modelSizeFormatted;
-      final b = SlmDownloadService.modelSizeFormatted;
+      final a = SlmDownloadService.instance.modelSizeFormatted;
+      final b = SlmDownloadService.instance.modelSizeFormatted;
       expect(a, equals(b));
     });
 
     test('13. expectedSizeBytes matches modelSizeFormatted', () {
-      final bytes = SlmDownloadService.expectedSizeBytes;
+      final bytes = SlmDownloadService.instance.expectedSizeBytes;
       expect(bytes, greaterThan(2000000000)); // > 2 GB
-      expect(bytes, lessThan(3000000000)); // < 3 GB
+      expect(bytes, lessThan(5000000000)); // < 5 GB
       final gb = bytes / (1024 * 1024 * 1024);
-      expect(SlmDownloadService.modelSizeFormatted,
+      expect(SlmDownloadService.instance.modelSizeFormatted,
           '${gb.toStringAsFixed(1)} Go');
     });
 

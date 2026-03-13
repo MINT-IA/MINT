@@ -60,11 +60,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: MintColors.white,
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.06),
+                          color: MintColors.black.withValues(alpha: 0.06),
                           blurRadius: 20,
                           offset: const Offset(0, 4),
                         ),
@@ -189,7 +189,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
+                                AlwaysStoppedAnimation<Color>(MintColors.white),
                           ),
                         )
                       : Text(
@@ -205,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: authProvider.isLoading
                       ? null
                       : () {
-                          context.go('/onboarding/smart');
+                          context.go('/onboarding/quick');
                         },
                   child: Text(
                     'Continuer en mode local',

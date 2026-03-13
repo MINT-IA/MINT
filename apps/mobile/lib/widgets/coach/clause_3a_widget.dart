@@ -51,7 +51,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
       label: 'Clause 3a bénéficiaire OPP3 succession',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),
@@ -215,7 +215,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.12) : Colors.white,
+          color: isSelected ? color.withValues(alpha: 0.12) : MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? color : MintColors.lightBorder,
@@ -329,7 +329,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
                   child: Center(
                     child: Text(
                       '${e.key + 1}',
-                      style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white),
+                      style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: MintColors.white),
                     ),
                   ),
                 ),

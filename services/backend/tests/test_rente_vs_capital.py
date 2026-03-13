@@ -23,19 +23,7 @@ import pytest
 
 from app.services.arbitrage.rente_vs_capital import (
     compare_rente_vs_capital,
-    _estimate_income_tax_on_rente,
     _get_capital_tax,
-    _calculate_breakeven,
-)
-from app.services.arbitrage.arbitrage_models import (
-    YearlySnapshot,
-    TrajectoireOption,
-    ArbitrageResult,
-)
-from app.constants.social_insurance import (
-    LPP_TAUX_CONVERSION_MIN,
-    TAUX_IMPOT_RETRAIT_CAPITAL,
-    calculate_progressive_capital_tax,
 )
 
 

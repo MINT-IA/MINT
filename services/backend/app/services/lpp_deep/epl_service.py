@@ -12,14 +12,14 @@ Sources:
 Sprint S15 — Chantier 4: LPP approfondi.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List, Optional
 
 from app.constants.social_insurance import (
     EPL_MONTANT_MINIMUM,
     EPL_BLOCAGE_RACHAT_ANNEES,
     TAUX_IMPOT_RETRAIT_CAPITAL,
-    RETRAIT_CAPITAL_TRANCHES,
+    TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT,
     calculate_progressive_capital_tax,
 )
 
@@ -31,7 +31,7 @@ DISCLAIMER = (
     "avant toute demande de retrait."
 )
 
-_DEFAULT_TAUX_RETRAIT = 0.065
+_DEFAULT_TAUX_RETRAIT = TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT
 
 
 @dataclass

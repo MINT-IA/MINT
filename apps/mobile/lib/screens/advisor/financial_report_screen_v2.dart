@@ -56,7 +56,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Ton Plan Mint'),
         backgroundColor: MintColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: MintColors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () => context.go('/home'),
@@ -75,7 +75,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           PdfService.generateFinancialReportPdf(report);
         },
         backgroundColor: MintColors.primary,
-        child: const Icon(Icons.picture_as_pdf, color: Colors.white),
+        child: const Icon(Icons.picture_as_pdf, color: MintColors.white),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -243,7 +243,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             Text(
               'Bonjour ${profile.firstName ?? ""}!',
               style: const TextStyle(
-                color: Colors.white,
+                color: MintColors.white,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
@@ -251,7 +251,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               '${profile.age} ans \u2022 ${profile.canton} \u2022 ${profile.civilStatus}',
-              style: const TextStyle(color: Colors.white70, fontSize: 14),
+              style: const TextStyle(color: MintColors.white70, fontSize: 14),
             ),
             const SizedBox(height: 20),
             // Contextual status phrase (replaces XX/100 score)
@@ -281,7 +281,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
       style: GoogleFonts.inter(
         fontSize: 15,
         fontWeight: FontWeight.w600,
-        color: Colors.white,
+        color: MintColors.white,
       ),
       textAlign: TextAlign.center,
     );
@@ -667,16 +667,16 @@ class FinancialReportScreenV2 extends StatelessWidget {
     Color priorityColor;
     switch (action.priority) {
       case ActionPriority.critical:
-        priorityColor = Colors.red.shade600;
+        priorityColor = MintColors.redDeep;
         break;
       case ActionPriority.high:
-        priorityColor = Colors.orange.shade600;
+        priorityColor = MintColors.warning;
         break;
       case ActionPriority.medium:
-        priorityColor = Colors.blue.shade600;
+        priorityColor = MintColors.categoryBlue;
         break;
       case ActionPriority.low:
-        priorityColor = Colors.grey.shade600;
+        priorityColor = MintColors.textSecondary;
         break;
     }
 
@@ -684,7 +684,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: priorityColor, width: 2),
         boxShadow: [
@@ -714,7 +714,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade50,
+                    color: MintColors.successBg,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -722,7 +722,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: Colors.green.shade700,
+                      color: MintColors.greenDark,
                     ),
                   ),
                 ),
@@ -758,7 +758,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
               label: const Text('Commencer'),
               style: FilledButton.styleFrom(
                 backgroundColor: priorityColor,
-                foregroundColor: Colors.white,
+                foregroundColor: MintColors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
@@ -789,10 +789,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.green.shade50, Colors.teal.shade50],
+            colors: [MintColors.successBg, MintColors.accentPastel],
           ),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.green.shade200, width: 2),
+          border: Border.all(color: MintColors.greenLight, width: 2),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -809,7 +809,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
               '\u00c9conomie fiscale totale : CHF ${strategy.totalTaxSavings.toStringAsFixed(0)}',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.green.shade700,
+                color: MintColors.greenDark,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -818,7 +818,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: MintColors.white,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -842,7 +842,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.green.shade100,
+                          color: MintColors.successBg,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -850,7 +850,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: Colors.green.shade700,
+                            color: MintColors.greenDark,
                           ),
                         ),
                       ),
@@ -867,7 +867,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 strategy.totalBuybackAvailable,
                 marginalRate,
               ),
-              accentColor: Colors.green.shade700,
+              accentColor: MintColors.greenDark,
             ),
           ],
         ),
@@ -885,7 +885,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: MintColors.border),
         ),

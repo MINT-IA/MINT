@@ -3,7 +3,6 @@ Tests for household management endpoints (Couple+ billing, P6.4 + P6.5).
 """
 
 from datetime import datetime, timedelta
-from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
@@ -364,7 +363,7 @@ def test_e9_accept_on_full_household(client: TestClient):
     )
 
     # Create a third user
-    third_token = _register_and_token(auth_client, "hh-third@example.com")
+    _register_and_token(auth_client, "hh-third@example.com")
 
     # Try to invite third user (should fail: household at max)
     invite_resp = auth_client.post(

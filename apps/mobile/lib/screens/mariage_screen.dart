@@ -116,7 +116,7 @@ class _MariageScreenState extends State<MariageScreen>
       expandedHeight: 160,
       backgroundColor: MintColors.primary,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.white),
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -126,7 +126,7 @@ class _MariageScreenState extends State<MariageScreen>
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
-            color: Colors.white,
+            color: MintColors.white,
           ),
         ),
         background: Container(
@@ -144,10 +144,10 @@ class _MariageScreenState extends State<MariageScreen>
       ),
       bottom: TabBar(
         controller: _tabController,
-        indicatorColor: Colors.white,
+        indicatorColor: MintColors.white,
         indicatorWeight: 3,
-        labelColor: Colors.white,
-        unselectedLabelColor: Colors.white60,
+        labelColor: MintColors.white,
+        unselectedLabelColor: MintColors.white60,
         labelStyle: GoogleFonts.inter(
           fontSize: 13,
           fontWeight: FontWeight.w600,
@@ -202,7 +202,7 @@ class _MariageScreenState extends State<MariageScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
@@ -323,7 +323,7 @@ class _MariageScreenState extends State<MariageScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -479,7 +479,7 @@ class _MariageScreenState extends State<MariageScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -605,7 +605,7 @@ class _MariageScreenState extends State<MariageScreen>
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: MintColors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
                 color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
@@ -712,7 +712,7 @@ class _MariageScreenState extends State<MariageScreen>
         decoration: BoxDecoration(
           color: isSelected
               ? MintColors.primary.withValues(alpha: 0.04)
-              : Colors.white,
+              : MintColors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? MintColors.primary : MintColors.lightBorder,
@@ -779,7 +779,7 @@ class _MariageScreenState extends State<MariageScreen>
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child:
-                    const Icon(Icons.check, size: 14, color: Colors.white),
+                    const Icon(Icons.check, size: 14, color: MintColors.white),
               ),
           ],
         ),
@@ -869,7 +869,7 @@ class _MariageScreenState extends State<MariageScreen>
             style: GoogleFonts.montserrat(
               fontSize: 28,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: MintColors.white,
             ),
           ),
           const SizedBox(height: 6),
@@ -879,7 +879,7 @@ class _MariageScreenState extends State<MariageScreen>
                 : S.of(context)!.mariageChiffreChocCommunaute,
             style: GoogleFonts.inter(
               fontSize: 13,
-              color: Colors.white70,
+              color: MintColors.white70,
               height: 1.4,
             ),
             textAlign: TextAlign.center,
@@ -935,7 +935,7 @@ class _MariageScreenState extends State<MariageScreen>
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: MintColors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
                 color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
@@ -989,7 +989,7 @@ class _MariageScreenState extends State<MariageScreen>
                 style: GoogleFonts.montserrat(
                   fontSize: 28,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: MintColors.white,
                 ),
               ),
               const SizedBox(height: 6),
@@ -997,7 +997,7 @@ class _MariageScreenState extends State<MariageScreen>
                 S.of(context)!.mariageSurvivorMonthly,
                 style: GoogleFonts.inter(
                   fontSize: 13,
-                  color: Colors.white70,
+                  color: MintColors.white70,
                   height: 1.4,
                 ),
                 textAlign: TextAlign.center,
@@ -1050,7 +1050,7 @@ class _MariageScreenState extends State<MariageScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -1114,7 +1114,7 @@ class _MariageScreenState extends State<MariageScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -1222,7 +1222,7 @@ class _MariageScreenState extends State<MariageScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -1322,7 +1322,7 @@ class _MariageScreenState extends State<MariageScreen>
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: MintColors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: MintColors.lightBorder),
           ),
@@ -1403,7 +1403,7 @@ class _MariageScreenState extends State<MariageScreen>
         decoration: BoxDecoration(
           color: isChecked
               ? MintColors.success.withValues(alpha: 0.04)
-              : Colors.white,
+              : MintColors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isChecked
@@ -1452,7 +1452,7 @@ class _MariageScreenState extends State<MariageScreen>
                         ),
                         child: isChecked
                             ? const Icon(Icons.check,
-                                size: 15, color: Colors.white)
+                                size: 15, color: MintColors.white)
                             : null,
                       ),
                     ),
@@ -1705,21 +1705,21 @@ class _MariageScreenState extends State<MariageScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               S.of(context)!.mariageDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),
@@ -1778,7 +1778,7 @@ class _PieChartPainter extends CustomPainter {
 
     // White center hole
     final holePaint = Paint()
-      ..color = Colors.white
+      ..color = MintColors.white
       ..style = PaintingStyle.fill;
     canvas.drawCircle(center, radius * 0.55, holePaint);
   }

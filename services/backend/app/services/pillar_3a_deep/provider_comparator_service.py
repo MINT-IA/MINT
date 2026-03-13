@@ -19,6 +19,8 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 from enum import Enum
 
+from app.constants.social_insurance import PILIER_3A_PLAFOND_SANS_LPP
+
 
 DISCLAIMER = (
     "Estimation a titre indicatif. MINT est un outil educatif et ne constitue "
@@ -197,7 +199,7 @@ class ProviderComparatorService:
             ProviderComparisonResult with all projections.
         """
         age = max(18, min(70, age))
-        versement_annuel = max(0.0, min(36_288, versement_annuel))
+        versement_annuel = max(0.0, min(PILIER_3A_PLAFOND_SANS_LPP, versement_annuel))
         duree = max(1, min(50, duree))
 
         if profil_risque not in ("prudent", "equilibre", "dynamique"):

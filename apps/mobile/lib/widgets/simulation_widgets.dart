@@ -21,7 +21,7 @@ class SimulationScenario {
   static const prudence = SimulationScenario(
     label: 'Prudence',
     rate: 0.5,
-    color: Colors.orange,
+    color: MintColors.warning,
     description: 'Compte épargne (0.5%)',
   );
 
@@ -109,18 +109,18 @@ class CompoundInterestChart extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.orange.shade50,
+              color: MintColors.warningBg,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.orange.shade200),
+              border: Border.all(color: MintColors.orangeRetroWarm),
             ),
             child: Row(
               children: [
-                const Icon(Icons.info_outline, size: 16, color: Colors.orange),
+                const Icon(Icons.info_outline, size: 16, color: MintColors.warning),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Hypothèses pédagogiques (inflation $inflation%). Les rendements passés ne garantissent pas les rendements futurs.',
-                    style: const TextStyle(fontSize: 11, color: Colors.orange),
+                    style: const TextStyle(fontSize: 11, color: MintColors.warning),
                   ),
                 ),
               ],
@@ -288,36 +288,36 @@ class LppBuybackSimulation extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.orange.shade50,
+              color: MintColors.warningBg,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.orange.shade200),
+              border: Border.all(color: MintColors.orangeRetroWarm),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.info_outline, size: 16, color: Colors.orange),
+                    Icon(Icons.info_outline, size: 16, color: MintColors.warning),
                     SizedBox(width: 8),
                     Text(
                       'Hypothèses :',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.orange),
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: MintColors.warning),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Text(
                   '• Taux marginal : ${marginalTaxRate.toStringAsFixed(0)}% (estimé selon canton/revenu)',
-                  style: const TextStyle(fontSize: 11, color: Colors.orange),
+                  style: const TextStyle(fontSize: 11, color: MintColors.warning),
                 ),
                 Text(
                   '• Taux de conversion LPP : ${conversionRate.toStringAsFixed(1)}% (hypothèse actuelle)',
-                  style: const TextStyle(fontSize: 11, color: Colors.orange),
+                  style: const TextStyle(fontSize: 11, color: MintColors.warning),
                 ),
                 const SizedBox(height: 4),
                 const Text(
                   'Vérifie avec ton certificat LPP et un·e spécialiste en fiscalité.',
-                  style: TextStyle(fontSize: 10, color: Colors.orange, fontStyle: FontStyle.italic),
+                  style: TextStyle(fontSize: 10, color: MintColors.warning, fontStyle: FontStyle.italic),
                 ),
               ],
             ),
@@ -335,7 +335,7 @@ class LppBuybackSimulation extends StatelessWidget {
             'Économie fiscale immédiate',
             'CHF ${taxSavings.toStringAsFixed(0)}',
             Icons.savings,
-            Colors.green,
+            MintColors.success,
           ),
           const SizedBox(height: 16),
           _buildMetric(

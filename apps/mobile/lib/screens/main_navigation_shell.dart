@@ -161,10 +161,10 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     final isCompact = MediaQuery.of(context).size.height <= 760;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: MintColors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),

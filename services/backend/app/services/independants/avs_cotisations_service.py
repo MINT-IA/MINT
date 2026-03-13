@@ -19,29 +19,11 @@ Sprint S18 — Module Independants complet.
 from dataclasses import dataclass, field
 from typing import List
 
-
-# ---------------------------------------------------------------------------
-# Constants — RAVS art. 21, bareme 2025/2026
-# ---------------------------------------------------------------------------
-
-AVS_BAREME = [
-    (0,       10_100,  0.05371),
-    (10_100,  17_600,  0.05828),
-    (17_600,  22_200,  0.06542),
-    (22_200,  27_200,  0.07158),
-    (27_200,  32_300,  0.07773),
-    (32_300,  37_800,  0.08386),
-    (37_800,  43_200,  0.09002),
-    (43_200,  48_800,  0.09610),
-    (48_800,  54_300,  0.10222),
-    (54_300,  60_500,  0.10413),
-    (60_500,  float('inf'), 0.10600),
-]
-
-COTISATION_MINIMALE = 530.0
-
-# Employee share for comparison: half of the full 10.6% rate
-TAUX_SALARIE = 0.053  # ~5.3%
+from app.constants.social_insurance import (
+    AVS_BAREME_INDEPENDANT,
+    AVS_COTISATION_MIN_INDEPENDANT,
+    AVS_COTISATION_SALARIE,
+)
 
 DISCLAIMER = (
     "MINT est un outil educatif. Ce simulateur ne constitue pas un conseil "
@@ -84,11 +66,11 @@ def _find_rate(revenu_net: float) -> float:
     Uses the RAVS art. 21 progressive scale. Each bracket applies
     a single rate to the entire income (not marginal/stacked).
     """
-    for lower, upper, rate in AVS_BAREME:
+    for lower, upper, rate in AVS_BAREME_INDEPENDANT:
         if lower <= revenu_net < upper:
             return rate
     # Fallback (should not happen with float('inf'))
-    return AVS_BAREME[-1][2]
+    return AVS_BAREME_INDEPENDANT[-1][2]
 
 
 def calculer_cotisation_avs(revenu_net_activite: float) -> AvsCotisationResult:
@@ -115,12 +97,12 @@ def calculer_cotisation_avs(revenu_net_activite: float) -> AvsCotisationResult:
 
     taux = _find_rate(revenu_net_activite)
     cotisation_brute = round(revenu_net_activite * taux, 2)
-    cotisation = max(cotisation_brute, COTISATION_MINIMALE)
+    cotisation = max(cotisation_brute, AVS_COTISATION_MIN_INDEPENDANT)
     taux_effectif = round(cotisation / revenu_net_activite, 5) if revenu_net_activite > 0 else 0.0
 
     # Comparison: what an employee would pay on same gross income
     # Employee pays only half the full 10.6% rate
-    cotisation_salarie = round(revenu_net_activite * TAUX_SALARIE, 2)
+    cotisation_salarie = round(revenu_net_activite * AVS_COTISATION_SALARIE, 2)
     difference = round(cotisation - cotisation_salarie, 2)
 
     chiffre_choc = (

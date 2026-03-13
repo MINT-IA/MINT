@@ -30,9 +30,9 @@ Limite de l'analogie : le robinet ne tient pas compte de combien tu as économis
 - Possible jusqu'à **70 ans** (5 ans d'ajournement maximum).
 - Majoration progressive :
   - 1 an : +5.2%
-  - 2 ans : +10.8%
-  - 3 ans : +17.1%
-  - 4 ans : +24.0%
+  - 2 ans : +10.6%
+  - 3 ans : +16.4%
+  - 4 ans : +22.7%
   - 5 ans : +31.5%
 - Les cotisations versées durant l'ajournement n'améliorent plus la rente (elles cessent d'être prises en compte après 65 ans).
 
@@ -41,7 +41,7 @@ Exemple comparé (rente de base : CHF 2'520/mois) :
 |----------|----------------|
 | Départ à 63 ans (−13.6%) | CHF 2'177/mois |
 | Départ à 65 ans (standard) | CHF 2'520/mois |
-| Départ à 67 ans (+10.8%) | CHF 2'792/mois |
+| Départ à 67 ans (+10.6%) | CHF 2'787/mois |
 | Départ à 70 ans (+31.5%) | CHF 3'314/mois |
 
 Le 2e pilier suit ses propres règles d'anticipation (souvent dès 58 ans selon le règlement de caisse) et d'ajournement (jusqu'à 70 ans pour les indépendants affiliés volontairement).

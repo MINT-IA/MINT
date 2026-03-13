@@ -74,7 +74,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
       label: 'Film premier salaire 5 actes AVS LPP 3a LAMal douche froide',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),
@@ -168,7 +168,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: selected ? Colors.white : MintColors.textSecondary,
+                  color: selected ? MintColors.white : MintColors.textSecondary,
                 ),
               ),
             ),
@@ -225,7 +225,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
                   alignment: Alignment.center,
                   child: Text(
                     '${(netRatio * 100).round()}% net',
-                    style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white),
+                    style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w800, color: MintColors.white),
                   ),
                 ),
               ),
@@ -467,7 +467,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
 
   Widget _buildAct5() {
     final checklist = [
-      (week: 'Semaine 1', emoji: '🏦', task: 'Ouvrir un compte 3a (PostFinance, VIAC, Finpension)'),
+      (week: 'Semaine 1', emoji: '🏦', task: 'Ouvrir un compte 3a (banque ou fintech)'),
       (week: 'Semaine 1', emoji: '⚙️', task: 'Mettre en place un virement automatique mensuel'),
       (week: 'Semaine 2', emoji: '🏥', task: 'Choisir ta franchise LAMal (recommandé : CHF 1\'500)'),
       (week: 'Semaine 2', emoji: '🛡️', task: 'Vérifier ta RC privée (env. CHF 100/an)'),

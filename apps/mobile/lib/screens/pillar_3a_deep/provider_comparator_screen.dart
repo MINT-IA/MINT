@@ -42,8 +42,8 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             expandedHeight: 100,
             pinned: true,
             backgroundColor: MintColors.primary,
-            foregroundColor: Colors.white,
-            iconTheme: const IconThemeData(color: Colors.white),
+            foregroundColor: MintColors.white,
+            iconTheme: const IconThemeData(color: MintColors.white),
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
@@ -62,7 +62,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: MintColors.white,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -103,10 +103,10 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.green.shade50, Colors.green.shade100],
+          colors: [MintColors.successBg, MintColors.successBg],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.green.shade300, width: 2),
+        border: Border.all(color: MintColors.greenLight, width: 2),
       ),
       child: Column(
         children: [
@@ -115,7 +115,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: Colors.green.shade800,
+              color: MintColors.greenForest,
             ),
           ),
           const SizedBox(height: 8),
@@ -124,7 +124,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 32,
               fontWeight: FontWeight.w800,
-              color: Colors.green.shade700,
+              color: MintColors.greenDark,
             ),
           ),
           const SizedBox(height: 4),
@@ -132,7 +132,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             'entre le provider le plus et le moins performant',
             style: TextStyle(
               fontSize: 12,
-              color: Colors.green.shade600,
+              color: MintColors.categoryGreen,
             ),
           ),
         ],
@@ -144,7 +144,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -253,7 +253,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: isSelected
-                          ? Colors.white
+                          ? MintColors.white
                           : MintColors.textSecondary,
                     ),
                   ),
@@ -342,17 +342,17 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
     final isBest = result.badge != null &&
         result.badge!.contains('Rendement le plus eleve');
 
-    Color bgColor = Colors.white;
+    Color bgColor = MintColors.white;
     Color borderColor = MintColors.border;
     double borderWidth = 1;
 
     if (isBest) {
-      bgColor = Colors.green.shade50;
-      borderColor = Colors.green.shade300;
+      bgColor = MintColors.successBg;
+      borderColor = MintColors.greenLight;
       borderWidth = 2;
     } else if (isWarning) {
-      bgColor = Colors.red.shade50;
-      borderColor = Colors.red.shade200;
+      bgColor = MintColors.urgentBg;
+      borderColor = MintColors.redBg;
       borderWidth = 2;
     }
 
@@ -396,7 +396,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade600,
+                    color: MintColors.categoryGreen,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -404,7 +404,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                         ? result.badge!.substring(0, 20)
                         : result.badge!,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: MintColors.white,
                       fontSize: 9,
                       fontWeight: FontWeight.bold,
                     ),
@@ -415,13 +415,13 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.red.shade600,
+                    color: MintColors.redDeep,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
                     'WARNING',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: MintColors.white,
                       fontSize: 9,
                       fontWeight: FontWeight.bold,
                     ),
@@ -473,9 +473,9 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
                       color: isBest
-                          ? Colors.green.shade700
+                          ? MintColors.greenDark
                           : isWarning
-                              ? Colors.red.shade700
+                              ? MintColors.redMedium
                               : MintColors.textPrimary,
                     ),
                   ),
@@ -490,7 +490,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.red.shade100,
+                color: MintColors.redBg,
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -498,7 +498,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: Colors.red.shade700,
+                  color: MintColors.redMedium,
                 ),
               ),
             ),
@@ -521,10 +521,10 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.red.shade50, Colors.red.shade100],
+              colors: [MintColors.urgentBg, MintColors.redBg],
             ),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.red.shade300, width: 2),
+            border: Border.all(color: MintColors.coralLight, width: 2),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -532,7 +532,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
               Row(
                 children: [
                   Icon(Icons.warning_amber_rounded,
-                      color: Colors.red.shade700, size: 24),
+                      color: MintColors.redMedium, size: 24),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -540,7 +540,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                       style: GoogleFonts.montserrat(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: Colors.red.shade800,
+                        color: MintColors.redDark,
                       ),
                     ),
                   ),
@@ -551,7 +551,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                 w.warningMessage!,
                 style: TextStyle(
                   fontSize: 13,
-                  color: Colors.red.shade700,
+                  color: MintColors.redMedium,
                   height: 1.5,
                 ),
               ),
@@ -562,7 +562,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                 'contrat les rendent defavorables pour les jeunes epargnants.',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.red.shade600,
+                  color: MintColors.redDeep,
                   height: 1.4,
                 ),
               ),
@@ -578,21 +578,21 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 20),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.4,
               ),
             ),

@@ -77,7 +77,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
             backgroundColor: theme.color,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back_ios_new,
-                  color: Colors.white, size: 20),
+                  color: MintColors.white, size: 20),
               onPressed: () => context.pop(),
             ),
             actions: [
@@ -86,20 +86,20 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: MintColors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.schedule, color: Colors.white, size: 14),
+                    const Icon(Icons.schedule, color: MintColors.white, size: 14),
                     const SizedBox(width: 4),
                     Text(
                       '${theme.estimatedMinutes} min',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: MintColors.white,
                       ),
                     ),
                   ],
@@ -132,11 +132,11 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: MintColors.white.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               child: Icon(theme.icon,
-                                  color: Colors.white, size: 28),
+                                  color: MintColors.white, size: 28),
                             ),
                             const SizedBox(height: 12),
                             Text(
@@ -144,7 +144,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                               style: GoogleFonts.montserrat(
                                 fontSize: 24,
                                 fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                                color: MintColors.white,
                                 height: 1.2,
                               ),
                             ),
@@ -153,7 +153,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                               theme.question,
                               style: GoogleFonts.inter(
                                 fontSize: 14,
-                                color: Colors.white.withOpacity(0.85),
+                                color: MintColors.white.withOpacity(0.85),
                                 height: 1.4,
                               ),
                             ),
@@ -316,12 +316,12 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
       margin: const EdgeInsets.fromLTRB(20, 24, 20, 0),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: MintColors.black.withOpacity(0.03),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -439,11 +439,11 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Colors.purple.withOpacity(0.1),
+                  color: MintColors.purple.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(Icons.quiz_outlined,
-                    size: 18, color: Colors.purple),
+                    size: 18, color: MintColors.purple),
               ),
               const SizedBox(width: 10),
               Text(
@@ -474,7 +474,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
             final isCorrect = idx == quiz.correctIndex;
             final showResult = _quizAnswered;
 
-            Color bgColor = Colors.white;
+            Color bgColor = MintColors.white;
             Color borderColor = MintColors.border;
             Color textColor = MintColors.textPrimary;
             IconData? trailingIcon;
@@ -644,7 +644,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
       margin: const EdgeInsets.fromLTRB(20, 24, 20, 0),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -704,8 +704,8 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: MintColors.lightBorder),
         ),
-        backgroundColor: Colors.white,
-        collapsedBackgroundColor: Colors.white,
+        backgroundColor: MintColors.white,
+        collapsedBackgroundColor: MintColors.white,
         leading: const Icon(Icons.gavel_outlined,
             size: 18, color: MintColors.textMuted),
         title: Text(

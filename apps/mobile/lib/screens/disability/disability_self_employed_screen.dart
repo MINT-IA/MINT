@@ -114,7 +114,7 @@ class _DisabilitySelfEmployedScreenState
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.white24,
+                      color: MintColors.white24,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -122,7 +122,7 @@ class _DisabilitySelfEmployedScreenState
                       style: GoogleFonts.montserrat(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: MintColors.white,
                         letterSpacing: 1,
                       ),
                     ),
@@ -133,7 +133,7 @@ class _DisabilitySelfEmployedScreenState
                     style: GoogleFonts.montserrat(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                      color: MintColors.white,
                     ),
                   ),
                 ],
@@ -147,7 +147,7 @@ class _DisabilitySelfEmployedScreenState
         style: GoogleFonts.montserrat(
           fontSize: 15,
           fontWeight: FontWeight.w700,
-          color: Colors.white,
+          color: MintColors.white,
         ),
       ),
     );
@@ -156,7 +156,7 @@ class _DisabilitySelfEmployedScreenState
   Widget _buildRevenueSlider() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.redBg),
       ),
@@ -223,7 +223,7 @@ class _DisabilitySelfEmployedScreenState
   Widget _buildPerteDegainToggle() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),

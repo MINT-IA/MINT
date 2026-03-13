@@ -52,7 +52,7 @@ class RecommendationCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                      color: MintColors.white,
                       letterSpacing: 0.5,
                     ),
                   ),

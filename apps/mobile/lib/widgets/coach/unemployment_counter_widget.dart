@@ -56,7 +56,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
       label: 'Compteur jours chômage capital temps',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),

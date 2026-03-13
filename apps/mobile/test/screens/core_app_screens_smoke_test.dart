@@ -14,7 +14,7 @@ import 'package:mint_mobile/screens/bank_import_screen.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
 import 'package:mint_mobile/screens/ask_mint_screen.dart';
 import 'package:mint_mobile/screens/main_navigation_shell.dart';
-import 'package:mint_mobile/screens/onboarding/smart_onboarding_screen.dart';
+import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
 
 // Providers
 import 'package:mint_mobile/providers/profile_provider.dart';
@@ -139,7 +139,7 @@ void main() {
     });
 
     testWidgets(
-        'navigates to smart onboarding from FactFind CTAs (no grey error screen)',
+        'navigates to quick start onboarding from FactFind CTAs (no grey error screen)',
         (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
@@ -157,11 +157,11 @@ void main() {
           ),
           GoRoute(
             path: '/advisor/wizard',
-            redirect: (context, state) => '/onboarding/smart',
+            redirect: (context, state) => '/onboarding/quick',
           ),
           GoRoute(
-            path: '/onboarding/smart',
-            builder: (context, state) => const SmartOnboardingScreen(),
+            path: '/onboarding/quick',
+            builder: (context, state) => const QuickStartScreen(),
           ),
         ],
       );
@@ -223,8 +223,8 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
-      final foundSmart = find.byType(SmartOnboardingScreen).evaluate().isNotEmpty;
-      expect(foundSmart, isTrue);
+      final foundQuick = find.byType(QuickStartScreen).evaluate().isNotEmpty;
+      expect(foundQuick, isTrue);
       expect(find.textContaining('Cette page n'), findsNothing);
     });
   });

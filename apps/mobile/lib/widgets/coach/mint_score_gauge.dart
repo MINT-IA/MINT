@@ -40,9 +40,6 @@ class MintScoreGauge extends StatefulWidget {
   /// Callback au tap
   final VoidCallback? onTap;
 
-  /// Peer benchmark: "Mieux que X% des 45-55 ans" (P1-H).
-  final int? peerPercentile;
-
   /// Recent score gains (P1-H gamification).
   /// Each entry: {'label': 'description', 'points': int}
   final List<Map<String, dynamic>>? recentGains;
@@ -60,7 +57,6 @@ class MintScoreGauge extends StatefulWidget {
     this.trend = 'stable',
     this.previousScore,
     this.onTap,
-    this.peerPercentile,
     this.recentGains,
     this.nextActions,
   });
@@ -166,7 +162,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
               width: constraints.maxWidth,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: MintColors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: MintColors.lightBorder),
                 boxShadow: [
@@ -183,11 +179,6 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                   _buildHeader(),
                   const SizedBox(height: 20),
                   _buildGauge(constraints.maxWidth),
-                  // P1-H: Peer benchmark
-                  if (widget.peerPercentile != null) ...[
-                    const SizedBox(height: 12),
-                    _buildPeerBenchmark(),
-                  ],
                   const SizedBox(height: 24),
                   _buildSubScores(),
                   // P1-H: Gamification panels
@@ -463,35 +454,6 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
     if (score >= 60) return MintColors.scoreBon;
     if (score >= 40) return MintColors.scoreAttention;
     return MintColors.scoreCritique;
-  }
-
-  // ────────────────────────────────────────────────────────────
-  //  P1-H: PEER BENCHMARK
-  // ────────────────────────────────────────────────────────────
-
-  Widget _buildPeerBenchmark() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: MintColors.primary.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.people_outline, size: 14, color: MintColors.primary),
-          const SizedBox(width: 6),
-          Text(
-            'Mieux que ${widget.peerPercentile}% des profils similaires',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: MintColors.primary,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   // ────────────────────────────────────────────────────────────

@@ -44,14 +44,14 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             expandedHeight: 100,
             pinned: true,
             backgroundColor: MintColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 'RENDEMENT REEL 3A',
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: MintColors.white,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -99,10 +99,10 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.green.shade50, Colors.green.shade100],
+          colors: [MintColors.successBg, MintColors.successBg],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.green.shade300, width: 2),
+        border: Border.all(color: MintColors.greenLight, width: 2),
       ),
       child: Column(
         children: [
@@ -111,7 +111,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: Colors.green.shade800,
+              color: MintColors.greenForest,
             ),
           ),
           const SizedBox(height: 8),
@@ -120,7 +120,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 36,
               fontWeight: FontWeight.w800,
-              color: Colors.green.shade700,
+              color: MintColors.greenDark,
             ),
           ),
           const SizedBox(height: 4),
@@ -128,7 +128,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             'vs ${result.rendementNominal.toStringAsFixed(1)}% taux net 3a (brut - frais)',
             style: TextStyle(
               fontSize: 13,
-              color: Colors.green.shade600,
+              color: MintColors.categoryGreen,
             ),
           ),
           const SizedBox(height: 8),
@@ -137,7 +137,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 11,
-              color: Colors.green.shade700,
+              color: MintColors.greenDark,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -150,7 +150,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -293,7 +293,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -357,7 +357,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -396,12 +396,12 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.green.shade50,
+              color: MintColors.successBg,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               children: [
-                Icon(Icons.trending_up, color: Colors.green.shade700, size: 20),
+                Icon(Icons.trending_up, color: MintColors.greenDark, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -409,7 +409,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: Colors.green.shade800,
+                      color: MintColors.greenForest,
                     ),
                   ),
                 ),
@@ -465,7 +465,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -541,21 +541,21 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 20),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.4,
               ),
             ),

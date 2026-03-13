@@ -52,7 +52,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
           style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
         ),
         backgroundColor: MintColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: MintColors.white,
       ),
       body: !auth.isLoggedIn
           ? _buildLoginPrompt(context)
@@ -71,7 +71,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.lock_outline, size: 64, color: Colors.grey.shade400),
+            Icon(Icons.lock_outline, size: 64, color: MintColors.greyBorderLight),
             const SizedBox(height: 16),
             Text(
               'Couple+',
@@ -84,7 +84,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             Text(
               S.of(context)!.householdUpsellDescription,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey.shade600),
+              style: GoogleFonts.inter(fontSize: 14, color: MintColors.textSecondary),
             ),
             const SizedBox(height: 24),
             FilledButton(
@@ -107,11 +107,11 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.people_outline, size: 64, color: Colors.grey.shade400),
+            Icon(Icons.people_outline, size: 64, color: MintColors.greyBorderLight),
             const SizedBox(height: 16),
             Text(
               S.of(context)!.householdLoginPrompt,
-              style: GoogleFonts.inter(fontSize: 16, color: Colors.grey.shade600),
+              style: GoogleFonts.inter(fontSize: 16, color: MintColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -163,12 +163,12 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline, size: 48, color: Colors.red.shade300),
+            Icon(Icons.error_outline, size: 48, color: MintColors.coralLight),
             const SizedBox(height: 16),
             Text(
               household.error!,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(color: Colors.red.shade600),
+              style: GoogleFonts.inter(color: MintColors.redDeep),
             ),
             const SizedBox(height: 16),
             OutlinedButton(
@@ -203,7 +203,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             Text(
               S.of(context)!.householdEmptyDescription,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey.shade600),
+              style: GoogleFonts.inter(fontSize: 14, color: MintColors.textSecondary),
             ),
             const SizedBox(height: 20),
             FilledButton.icon(
@@ -231,7 +231,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
           children: [
             CircleAvatar(
               backgroundColor: MintColors.primary,
-              child: const Icon(Icons.home, color: Colors.white),
+              child: const Icon(Icons.home, color: MintColors.white),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -249,7 +249,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
                     S.of(context)!.householdMemberCount(household.activeMemberCount),
                     style: GoogleFonts.inter(
                       fontSize: 13,
-                      color: Colors.grey.shade600,
+                      color: MintColors.textSecondary,
                     ),
                   ),
                 ],
@@ -259,7 +259,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
               Chip(
                 label: Text(
                   S.of(context)!.householdOwnerBadge,
-                  style: GoogleFonts.inter(fontSize: 11, color: Colors.white),
+                  style: GoogleFonts.inter(fontSize: 11, color: MintColors.white),
                 ),
                 backgroundColor: MintColors.primary,
                 side: BorderSide.none,
@@ -311,11 +311,11 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
       contentPadding: EdgeInsets.zero,
       leading: CircleAvatar(
         backgroundColor: isPending
-            ? Colors.orange.shade100
+            ? MintColors.warningBg
             : MintColors.primary.withValues(alpha: 0.15),
         child: Icon(
           isPending ? Icons.hourglass_top : Icons.person,
-          color: isPending ? Colors.orange.shade700 : MintColors.primary,
+          color: isPending ? MintColors.warning : MintColors.primary,
         ),
       ),
       title: Text(
@@ -326,12 +326,12 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
         isPending ? S.of(context)!.householdPendingStatus : S.of(context)!.householdActiveStatus,
         style: GoogleFonts.inter(
           fontSize: 12,
-          color: isPending ? Colors.orange.shade600 : Colors.green.shade600,
+          color: isPending ? MintColors.warning : MintColors.categoryGreen,
         ),
       ),
       trailing: household.isOwner && isPartner
           ? IconButton(
-              icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+              icon: const Icon(Icons.remove_circle_outline, color: MintColors.error),
               tooltip: S.of(context)!.householdRemoveTooltip,
               onPressed: () => _confirmRevoke(context, household, member),
             )
@@ -359,7 +359,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: MintColors.error),
             child: Text(S.of(context)!.householdRemove),
           ),
         ],
@@ -391,7 +391,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             const SizedBox(height: 8),
             Text(
               S.of(context)!.householdInviteInfo,
-              style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade600),
+              style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
             ),
             const SizedBox(height: 12),
             _buildInviteForm(context, household),
@@ -435,7 +435,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
                     width: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.white,
+                      color: MintColors.white,
                     ),
                   )
                 : Text(S.of(context)!.householdSendInvitation),
@@ -448,28 +448,28 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
   Widget _buildInviteCodeCard(
       BuildContext context, HouseholdProvider household) {
     return Card(
-      color: Colors.green.shade50,
+      color: MintColors.successBg,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Icon(Icons.check_circle, size: 40, color: Colors.green.shade600),
+            Icon(Icons.check_circle, size: 40, color: MintColors.categoryGreen),
             const SizedBox(height: 8),
             Text(
               S.of(context)!.householdInviteSentTitle,
               style: GoogleFonts.montserrat(
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
-                color: Colors.green.shade700,
+                color: MintColors.greenDark,
               ),
             ),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: MintColors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.green.shade200),
+                border: Border.all(color: MintColors.greenLight),
               ),
               child: Text(
                 household.pendingInviteCode!,
@@ -515,7 +515,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
               S.of(context)!.householdValidFor,
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.grey.shade500,
+                color: MintColors.greyMedium,
               ),
             ),
           ],

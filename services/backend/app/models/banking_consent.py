@@ -11,7 +11,7 @@ Sources:
 
 from datetime import datetime, timezone
 from uuid import uuid4
-from sqlalchemy import Column, String, Text, DateTime, Boolean, ForeignKey, Index
+from sqlalchemy import Column, String, Text, DateTime, ForeignKey, Index
 
 from app.core.database import Base
 

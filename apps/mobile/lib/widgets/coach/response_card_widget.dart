@@ -62,7 +62,7 @@ class ResponseCardWidget extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: MintColors.black.withValues(alpha: 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -257,7 +257,7 @@ class ResponseCardWidget extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (card.cta.icon != null) ...[
-                    Icon(_ctaIcon, size: 14, color: Colors.white),
+                    Icon(_ctaIcon, size: 14, color: MintColors.white),
                     const SizedBox(width: 6),
                   ],
                   Flexible(
@@ -266,7 +266,7 @@ class ResponseCardWidget extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: MintColors.white,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

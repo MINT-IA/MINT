@@ -138,7 +138,7 @@ class CoachGate extends StatelessWidget {
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: MintColors.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: MintColors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),

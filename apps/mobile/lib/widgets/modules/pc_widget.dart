@@ -103,7 +103,7 @@ class _PCWidgetState extends State<PCWidget> {
                 label: Text("Trouver l'office PC (${widget.canton})"),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: MintColors.success,
-                  foregroundColor: Colors.white,
+                  foregroundColor: MintColors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),

@@ -4,7 +4,7 @@
 /// Privacy-first: zero network traffic during inference.
 ///
 /// Architecture:
-///   - Model stored locally (~2.3 GB on disk)
+///   - Model stored locally (~4.4 GB on disk)
 ///   - Inference runs on-device (GPU preferred, CPU fallback)
 ///   - No data leaves the device
 ///   - ComplianceGuard validates ALL output before display
@@ -22,9 +22,10 @@ library;
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter_gemma/flutter_gemma.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
+import 'package:mint_mobile/services/slm/slm_model_tier.dart';
 
 /// Status of the SLM engine.
 enum SlmStatus {
@@ -67,7 +68,7 @@ class SlmResult {
 /// ## Privacy guarantee (no-network contract)
 ///
 /// This engine runs ENTIRELY on-device. Zero network traffic during
-/// inference. The model file (~2.3 GB) is downloaded once, then all
+/// inference. The model file (~4.4 GB) is downloaded once, then all
 /// subsequent inference is local.
 ///
 /// Assertions enforced:
@@ -112,8 +113,9 @@ class SlmEngine {
   /// (derived from the URL filename, e.g. 'gemma3n-E4B-it-multi.task').
   static String get modelId => SlmDownloadService.modelId;
 
-  /// Model display name.
-  static const String modelDisplayName = 'Gemma 3n 4B (on-device)';
+  /// Model display name — delegates to the active tier config.
+  static String get modelDisplayName =>
+      SlmDownloadService.instance.activeTierConfig.displayName;
 
   /// Maximum context window (tokens).
   /// Set to 2048 for compatibility with 4 GB RAM devices (iPhone 13 mini).
@@ -147,27 +149,29 @@ class SlmEngine {
   /// If init is in progress, subsequent callers await the same future.
   Completer<bool>? _initCompleter;
 
-  /// Check whether the device has enough RAM to run the SLM.
+  /// Check whether the device has enough resources to run the SLM.
   ///
-  /// Uses [Platform.numberOfProcessors] (CPU core count) as a proxy for
-  /// device RAM capability. There is no reliable cross-platform way to
-  /// query total physical RAM in Dart without native plugins.
+  /// Uses [Platform.numberOfProcessors] (CPU core count) as a rough proxy.
+  /// The [tierConfig] parameter controls the minimum core threshold:
+  /// - E4B needs >= 6 cores (proxy for ~6 GB RAM)
+  /// - E2B needs >= 4 cores (proxy for ~4 GB RAM)
   ///
-  /// ProcessInfo.maxRss is NOT usable here — it reports the current
-  /// process's resident set size, not total device RAM, so it will
-  /// always be far below the 6 GB threshold we need.
+  /// The iOS entitlements (increased-memory-limit + extended-virtual-addressing)
+  /// handle the actual memory allocation on iOS.
   ///
-  /// Core-count heuristic (empirically correlated with device RAM):
-  ///   - <= 4 cores → reject (iPhone SE/Mini, older Android: 3-4 GB RAM)
-  ///   - 5 cores → reject (conservative, edge case)
-  ///   - >= 6 cores → accept (iPhone 12 Pro+, modern Android: 6-8 GB+ RAM)
+  /// TODO: Replace with device_info_plus for actual RAM measurement.
   ///
   /// Returns true if the device is deemed capable of running the SLM.
-  static bool _checkDeviceCapability() {
+  static bool _checkDeviceCapability({SlmTierConfig? tierConfig}) {
+    if (kIsWeb) {
+      debugPrint('[SLM] Web platform — skipping SLM');
+      return false;
+    }
     final cores = Platform.numberOfProcessors;
-    if (cores < 6) {
+    final minCores = tierConfig?.minCores ?? 4;
+    if (cores < minCores) {
       debugPrint(
-        '[SLM] Device likely low-RAM ($cores cores, need >= 6) — skipping SLM',
+        '[SLM] Device likely low-RAM ($cores cores, need >= $minCores) — skipping SLM',
       );
       return false;
     }
@@ -210,8 +214,9 @@ class SlmEngine {
     _disposed = false;
 
     // RAM guard: skip SLM entirely on low-RAM devices to prevent OOM crash.
-    // Gemma 3n 4B needs ~6 GB total device RAM (model + KV cache + OS).
-    if (!_checkDeviceCapability()) {
+    // Uses the active tier's minCores as the capability threshold.
+    final tierConfig = SlmDownloadService.instance.activeTierConfig;
+    if (!_checkDeviceCapability(tierConfig: tierConfig)) {
       _status = SlmStatus.error;
       debugPrint('[SLM] Skipping init — device does not meet RAM requirements');
       return false;

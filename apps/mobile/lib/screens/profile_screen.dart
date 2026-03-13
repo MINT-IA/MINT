@@ -257,7 +257,7 @@ class ProfileScreen extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Icon(Icons.bar_chart_rounded, color: Colors.white, size: 22),
+            const Icon(Icons.bar_chart_rounded, color: MintColors.white, size: 22),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -268,7 +268,7 @@ class ProfileScreen extends StatelessWidget {
                     style: GoogleFonts.montserrat(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: MintColors.white,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -278,13 +278,13 @@ class ProfileScreen extends StatelessWidget {
                         : 'Complète ton profil pour voir tes chiffres',
                     style: GoogleFonts.inter(
                       fontSize: 11,
-                      color: Colors.white70,
+                      color: MintColors.white70,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.white54, size: 20),
+            const Icon(Icons.chevron_right, color: MintColors.white54, size: 20),
           ],
         ),
       ),
@@ -316,10 +316,10 @@ class ProfileScreen extends StatelessWidget {
             children: [
               Text(s?.profilePrecisionIndex ?? 'Precision Index',
                   style: const TextStyle(
-                      color: Colors.white70, fontWeight: FontWeight.bold)),
+                      color: MintColors.white70, fontWeight: FontWeight.bold)),
               Text('${(precision * 100).toInt()}%',
                   style: const TextStyle(
-                      color: Colors.white,
+                      color: MintColors.white,
                       fontSize: 24,
                       fontWeight: FontWeight.bold)),
             ],
@@ -327,8 +327,8 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 16),
           LinearProgressIndicator(
             value: precision,
-            backgroundColor: Colors.white24,
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+            backgroundColor: MintColors.white24,
+            valueColor: const AlwaysStoppedAnimation<Color>(MintColors.white),
             borderRadius: BorderRadius.circular(4),
             minHeight: 8,
           ),
@@ -533,34 +533,34 @@ class ProfileScreen extends StatelessWidget {
         child: Row(
           children: [
             Icon(icon,
-                size: 16, color: isComplete ? Colors.white : Colors.white38),
+                size: 16, color: isComplete ? MintColors.white : MintColors.white38),
             const SizedBox(width: 10),
             Expanded(
               child: Text(label,
                   style: TextStyle(
-                    color: isComplete ? Colors.white : Colors.white54,
+                    color: isComplete ? MintColors.white : MintColors.white54,
                     fontSize: 13,
                     decoration: isComplete ? TextDecoration.none : null,
                   )),
             ),
             if (isComplete)
-              const Icon(Icons.check_circle, size: 16, color: Colors.white)
+              const Icon(Icons.check_circle, size: 16, color: MintColors.white)
             else if (reward != null)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.white24,
+                  color: MintColors.white24,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(reward,
                     style: const TextStyle(
-                        color: Colors.white,
+                        color: MintColors.white,
                         fontSize: 10,
                         fontWeight: FontWeight.bold)),
               )
             else
               const Icon(Icons.radio_button_unchecked,
-                  size: 16, color: Colors.white38),
+                  size: 16, color: MintColors.white38),
           ],
         ),
       ),
@@ -583,7 +583,7 @@ class ProfileScreen extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: MintColors.white,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: MintColors.border),
           ),
@@ -682,7 +682,7 @@ class ProfileScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -831,7 +831,7 @@ class ProfileScreen extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MintColors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: MintColors.border),
             ),
@@ -908,12 +908,12 @@ class ProfileScreen extends StatelessWidget {
             if (kIsWeb) {
               // On web, navigate to onboarding so the user sees a clean slate.
               // loadFromWizard() above already confirmed _profile = null.
-              context.go('/onboarding/smart');
+              context.go('/onboarding/quick');
             } else {
               context.go('/');
             }
           },
-          style: TextButton.styleFrom(foregroundColor: Colors.red),
+          style: TextButton.styleFrom(foregroundColor: MintColors.error),
           child: Text(
             s?.profileDeleteData ?? 'Supprimer mes données locales',
           ),
@@ -982,7 +982,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: valid ? () => Navigator.pop(ctx, true) : null,
-                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                  style: TextButton.styleFrom(foregroundColor: MintColors.error),
                   child: Text(s?.profileResetDialogAction ?? 'Réinitialiser'),
                 ),
               ],

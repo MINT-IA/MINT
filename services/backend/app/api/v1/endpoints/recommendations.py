@@ -5,7 +5,6 @@ Recommendations endpoint - preview personalized recommendations.
 from datetime import datetime
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import UUID4
 from sqlalchemy.orm import Session
 from app.schemas.recommendation import Recommendation, RecommendationPreviewRequest
 from app.schemas.profile import Profile, HouseholdType, Goal

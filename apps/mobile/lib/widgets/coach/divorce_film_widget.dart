@@ -57,7 +57,7 @@ class DivorceFilmWidget extends StatelessWidget {
       label: 'Film du divorce LPP partage impôts pensions actes CC LIFD',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),
@@ -179,7 +179,7 @@ class DivorceFilmWidget extends StatelessWidget {
                     style: GoogleFonts.inter(
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                      color: MintColors.white,
                     ),
                   ),
                 ),

@@ -41,9 +41,6 @@ from app.services.fri.fri_service import FriInput, FriService
 from app.services.fri.fri_display_service import (
     FriDisplayService,
     FriDisplayResult,
-    DISCLAIMER,
-    SOURCES,
-    DISPLAY_CONFIDENCE_THRESHOLD,
 )
 
 

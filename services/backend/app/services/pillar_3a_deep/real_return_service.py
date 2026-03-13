@@ -20,6 +20,11 @@ Sprint S16 — Gap G1: 3a Deep.
 from dataclasses import dataclass, field
 from typing import Callable, List
 
+from app.constants.social_insurance import (
+    PILIER_3A_PLAFOND_AVEC_LPP,
+    PILIER_3A_PLAFOND_SANS_LPP,
+)
+
 
 DISCLAIMER = (
     "Estimation a titre indicatif. MINT est un outil educatif et ne constitue "
@@ -28,9 +33,9 @@ DISCLAIMER = (
     "Consultez un ou une specialiste pour une analyse personnalisee."
 )
 
-# 3a annual contribution limits (2025/2026)
-PLAFOND_3A_SALARIE = 7_258       # Salarie affilie LPP
-PLAFOND_3A_INDEPENDANT = 36_288  # Independant sans LPP (20% du revenu net, max)
+# 3a annual contribution limits (imported from social_insurance)
+PLAFOND_3A_SALARIE = PILIER_3A_PLAFOND_AVEC_LPP
+PLAFOND_3A_INDEPENDANT = PILIER_3A_PLAFOND_SANS_LPP
 
 # Default savings account rate (for comparison)
 TAUX_EPARGNE_DEFAUT = 0.015  # 1.5% — typical Swiss savings account 2025/2026

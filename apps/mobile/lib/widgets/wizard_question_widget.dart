@@ -287,11 +287,11 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
             width: isSelected ? 1.5 : 1,
           ),
           borderRadius: BorderRadius.circular(20),
-          color: isSelected ? MintColors.selectionBg : Colors.white,
+          color: isSelected ? MintColors.selectionBg : MintColors.white,
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: MintColors.black.withOpacity(0.04),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   )
@@ -374,11 +374,11 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
                   decoration: BoxDecoration(
                     color: isSelected
                         ? MintColors.primary.withOpacity(0.1)
-                        : Colors.white,
+                        : MintColors.white,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color:
-                          isSelected ? MintColors.primary : Colors.grey.shade300,
+                          isSelected ? MintColors.primary : MintColors.greyBorder,
                       width: isSelected ? 2 : 1,
                     ),
                   ),
@@ -389,18 +389,18 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
                         width: 24,
                         height: 24,
                         decoration: BoxDecoration(
-                          color: isSelected ? MintColors.primary : Colors.white,
+                          color: isSelected ? MintColors.primary : MintColors.white,
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(
                             color: isSelected
                                 ? MintColors.primary
-                                : Colors.grey.shade400,
+                                : MintColors.greyBorderLight,
                             width: 2,
                           ),
                         ),
                         child: isSelected
                             ? const Icon(Icons.check,
-                                color: Colors.white, size: 16)
+                                color: MintColors.white, size: 16)
                             : null,
                       ),
                       const SizedBox(width: 16),
@@ -580,7 +580,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
                 width: isSelected ? 2 : 1,
               ),
               borderRadius: BorderRadius.circular(12),
-              color: isSelected ? MintColors.accentPastel : Colors.white,
+              color: isSelected ? MintColors.accentPastel : MintColors.white,
             ),
             alignment: Alignment.center,
             child: Text(

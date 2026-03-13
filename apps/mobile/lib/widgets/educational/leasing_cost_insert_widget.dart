@@ -120,20 +120,20 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MintColors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.grey.shade300),
+              border: Border.all(color: MintColors.greyBorder),
             ),
             child: Column(
               children: [
                 // Coût leasing
                 _buildCostRow(
                   icon: Icons.directions_car,
-                  iconColor: Colors.orange,
+                  iconColor: MintColors.warning,
                   label: 'Tu vas encore payer',
                   sublabel: 'et tu ne seras pas propriétaire',
                   amount: _totalRemaining,
-                  amountColor: Colors.orange.shade700,
+                  amountColor: MintColors.warning,
                 ),
                 
                 const Padding(
@@ -143,7 +143,7 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
                       Expanded(child: Divider()),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Text('VS', style: TextStyle(color: Colors.grey)),
+                        child: Text('VS', style: TextStyle(color: MintColors.greyMedium)),
                       ),
                       Expanded(child: Divider()),
                     ],
@@ -153,11 +153,11 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
                 // Alternative occasion
                 _buildCostRow(
                   icon: Icons.car_rental,
-                  iconColor: Colors.green,
+                  iconColor: MintColors.success,
                   label: 'Véhicule d\'occasion équivalent',
                   sublabel: 'tu en es propriétaire',
                   amount: _occasionEquivalent,
-                  amountColor: Colors.green.shade700,
+                  amountColor: MintColors.greenDark,
                 ),
                 
                 const SizedBox(height: 16),
@@ -166,19 +166,19 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade50,
+                    color: MintColors.successBg,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.savings, color: Colors.green.shade700, size: 20),
+                      Icon(Icons.savings, color: MintColors.greenDark, size: 20),
                       const SizedBox(width: 12),
                       Text(
                         'Économie potentielle: ${_currencyFormat.format(_totalRemaining - _occasionEquivalent)}',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Colors.green.shade700,
+                          color: MintColors.greenDark,
                         ),
                       ),
                     ],
@@ -194,18 +194,18 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.amber.shade50,
+              color: MintColors.disclaimerBg,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.info_outline, color: Colors.amber.shade700, size: 20),
+                Icon(Icons.info_outline, color: MintColors.warningText, size: 20),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'À la fin du leasing, tu n\'es pas propriétaire du véhicule. Pense à anticiper la fin de contrat.',
-                    style: TextStyle(fontSize: 13, color: Colors.amber.shade900),
+                    style: TextStyle(fontSize: 13, color: MintColors.amberDark),
                   ),
                 ),
               ],
@@ -240,7 +240,7 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-              Text(sublabel, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+              Text(sublabel, style: TextStyle(fontSize: 12, color: MintColors.textSecondary)),
             ],
           ),
         ),

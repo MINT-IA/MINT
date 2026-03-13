@@ -19,7 +19,7 @@ status: "READY"
 
 ## Outputs
 - Economie d'impot estimee par tranche de rachat
-- Plan d'echelonnement optimal (3-5 ans)
+- Plan d'échelonnement adapté (3-5 ans)
 - Avertissement si blocage EPL applicable
 
 ## Hypothèses

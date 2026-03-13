@@ -202,12 +202,12 @@ class _IndependantScreenState extends State<IndependantScreen> {
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Colors.amber.shade50,
+            color: MintColors.disclaimerBg,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(
             Icons.business_center,
-            color: Colors.amber.shade700,
+            color: MintColors.warningText,
             size: 28,
           ),
         ),
@@ -447,7 +447,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -529,7 +529,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
       ),
@@ -692,7 +692,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: statusColor.withOpacity(0.3),
@@ -779,7 +779,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -809,7 +809,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
           ),
           const SizedBox(height: 20),
 
-          _buildCostRow(S.of(context)!.independantCostAvs, cost.avsMensuel, Colors.teal.shade700),
+          _buildCostRow(S.of(context)!.independantCostAvs, cost.avsMensuel, MintColors.tealLight),
           const SizedBox(height: 10),
           if (!_hasIjm)
             _buildCostRow(S.of(context)!.independantCostIjm, cost.ijmMensuel, MintColors.error),
@@ -907,7 +907,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.teal.shade50,
+        color: MintColors.accentPastel,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -915,14 +915,14 @@ class _IndependantScreenState extends State<IndependantScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.people_outline, color: Colors.teal.shade700, size: 20),
+              Icon(Icons.people_outline, color: MintColors.tealLight, size: 20),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.independantAvsTitle,
                 style: GoogleFonts.outfit(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.teal.shade900,
+                  color: MintColors.tealDark,
                 ),
               ),
             ],
@@ -932,14 +932,14 @@ class _IndependantScreenState extends State<IndependantScreen> {
             S.of(context)!.independantAvsBody(IndependantService.formatChf(result.cotisationAvsAnnuelle)),
             style: GoogleFonts.inter(
               fontSize: 13,
-              color: Colors.teal.shade800,
+              color: MintColors.tealDark,
               height: 1.5,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             S.of(context)!.independantAvsSource,
-            style: GoogleFonts.inter(fontSize: 11, color: Colors.teal.shade600),
+            style: GoogleFonts.inter(fontSize: 11, color: MintColors.teal),
           ),
         ],
       ),
@@ -1025,7 +1025,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
             child: Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: MintColors.white,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
               ),
@@ -1269,21 +1269,21 @@ class _IndependantScreenState extends State<IndependantScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               S.of(context)!.independantDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),

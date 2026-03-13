@@ -258,7 +258,7 @@ class LifeEventSuggestionsSection extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: MintColors.white,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: suggestion.color.withValues(alpha: 0.20),

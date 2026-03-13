@@ -92,7 +92,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
       expandedHeight: 120,
       backgroundColor: MintColors.primary,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.white),
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -102,7 +102,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
-            color: Colors.white,
+            color: MintColors.white,
           ),
         ),
         background: Container(
@@ -160,7 +160,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -210,7 +210,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -276,7 +276,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -385,7 +385,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 36,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: MintColors.white,
             ),
           ),
           const SizedBox(height: 8),
@@ -394,7 +394,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
             'd\'impôts de plus qu\'un\u00B7e salarié\u00B7e grâce au grand 3a',
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.9),
+              color: MintColors.white.withValues(alpha: 0.9),
               height: 1.5,
             ),
             textAlign: TextAlign.center,
@@ -411,7 +411,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -473,7 +473,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -507,7 +507,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
                     style: GoogleFonts.montserrat(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: MintColors.white,
                     ),
                   ),
                 ),
@@ -727,7 +727,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: MintColors.white,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, size: 18, color: MintColors.primary),
@@ -769,14 +769,14 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -786,7 +786,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
               'Consulte un\u00B7e spécialiste pour un calcul personnalisé.',
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),

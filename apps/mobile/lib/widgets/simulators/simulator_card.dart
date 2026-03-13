@@ -27,7 +27,7 @@ class SimulatorCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(24),
         // Premium glass-like shadow "Float" effect
         boxShadow: [

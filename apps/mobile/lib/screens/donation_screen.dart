@@ -182,11 +182,11 @@ class _DonationScreenState extends State<DonationScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.indigo.shade600.withOpacity(0.1),
+              color: MintColors.indigo.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(Icons.card_giftcard,
-                color: Colors.indigo.shade600, size: 24),
+                color: MintColors.indigo, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -222,17 +222,17 @@ class _DonationScreenState extends State<DonationScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.indigo.shade600.withOpacity(0.06),
+        color: MintColors.indigo.withOpacity(0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.indigo.shade600.withOpacity(0.15),
+          color: MintColors.indigo.withOpacity(0.15),
         ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.lightbulb_outline,
-              size: 20, color: Colors.indigo.shade600.withOpacity(0.8)),
+              size: 20, color: MintColors.indigo.withOpacity(0.8)),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -255,7 +255,7 @@ class _DonationScreenState extends State<DonationScreen> {
       title: S.of(context)!.donationSectionTitle,
       subtitle: S.of(context)!.donationSectionSubtitle,
       icon: Icons.card_giftcard,
-      accentColor: Colors.indigo.shade600,
+      accentColor: MintColors.indigo,
       child: Column(
         children: [
           _buildSlider(
@@ -302,7 +302,7 @@ class _DonationScreenState extends State<DonationScreen> {
       title: S.of(context)!.donationContexteSuccessoral,
       subtitle: S.of(context)!.donationContexteSubtitle,
       icon: Icons.family_restroom,
-      accentColor: Colors.indigo.shade600,
+      accentColor: MintColors.indigo,
       child: Column(
         children: [
           _buildSlider(
@@ -367,12 +367,12 @@ class _DonationScreenState extends State<DonationScreen> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: selected
-                      ? Colors.indigo.shade600.withOpacity(0.1)
+                      ? MintColors.indigo.withOpacity(0.1)
                       : MintColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: selected
-                        ? Colors.indigo.shade600
+                        ? MintColors.indigo
                         : MintColors.border,
                     width: selected ? 1.5 : 1,
                   ),
@@ -383,7 +383,7 @@ class _DonationScreenState extends State<DonationScreen> {
                     fontSize: 12,
                     fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                     color: selected
-                        ? Colors.indigo.shade600
+                        ? MintColors.indigo
                         : MintColors.textSecondary,
                   ),
                 ),
@@ -420,12 +420,12 @@ class _DonationScreenState extends State<DonationScreen> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: selected
-                      ? Colors.indigo.shade600.withOpacity(0.1)
+                      ? MintColors.indigo.withOpacity(0.1)
                       : MintColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: selected
-                        ? Colors.indigo.shade600
+                        ? MintColors.indigo
                         : MintColors.border,
                     width: selected ? 1.5 : 1,
                   ),
@@ -436,7 +436,7 @@ class _DonationScreenState extends State<DonationScreen> {
                     fontSize: 12,
                     fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                     color: selected
-                        ? Colors.indigo.shade600
+                        ? MintColors.indigo
                         : MintColors.textSecondary,
                   ),
                 ),
@@ -475,12 +475,12 @@ class _DonationScreenState extends State<DonationScreen> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: selected
-                      ? Colors.indigo.shade600.withOpacity(0.1)
+                      ? MintColors.indigo.withOpacity(0.1)
                       : MintColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: selected
-                        ? Colors.indigo.shade600
+                        ? MintColors.indigo
                         : MintColors.border,
                     width: selected ? 1.5 : 1,
                   ),
@@ -491,7 +491,7 @@ class _DonationScreenState extends State<DonationScreen> {
                     fontSize: 12,
                     fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                     color: selected
-                        ? Colors.indigo.shade600
+                        ? MintColors.indigo
                         : MintColors.textSecondary,
                   ),
                 ),
@@ -519,7 +519,7 @@ class _DonationScreenState extends State<DonationScreen> {
         ),
         style: FilledButton.styleFrom(
           backgroundColor: MintColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: MintColors.white,
           padding: const EdgeInsets.symmetric(vertical: 18),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -536,11 +536,11 @@ class _DonationScreenState extends State<DonationScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: (hasTax ? Colors.indigo.shade600 : MintColors.success)
+        color: (hasTax ? MintColors.indigo : MintColors.success)
             .withOpacity(0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: (hasTax ? Colors.indigo.shade600 : MintColors.success)
+          color: (hasTax ? MintColors.indigo : MintColors.success)
               .withOpacity(0.15),
         ),
       ),
@@ -551,7 +551,7 @@ class _DonationScreenState extends State<DonationScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 11,
               fontWeight: FontWeight.w700,
-              color: hasTax ? Colors.indigo.shade600 : MintColors.success,
+              color: hasTax ? MintColors.indigo : MintColors.success,
               letterSpacing: 1,
             ),
           ),
@@ -561,7 +561,7 @@ class _DonationScreenState extends State<DonationScreen> {
             style: GoogleFonts.outfit(
               fontSize: 36,
               fontWeight: FontWeight.w700,
-              color: hasTax ? Colors.indigo.shade600 : MintColors.success,
+              color: hasTax ? MintColors.indigo : MintColors.success,
             ),
           ),
           if (hasTax) ...[
@@ -686,7 +686,7 @@ class _DonationScreenState extends State<DonationScreen> {
                           style: GoogleFonts.inter(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                            color: MintColors.white,
                           ),
                         )
                       : null,
@@ -704,7 +704,7 @@ class _DonationScreenState extends State<DonationScreen> {
                           style: GoogleFonts.inter(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                            color: MintColors.white,
                           ),
                         )
                       : null,
@@ -935,7 +935,7 @@ class _DonationScreenState extends State<DonationScreen> {
       title: S.of(context)!.lifeEventActionsTitle,
       subtitle: S.of(context)!.lifeEventChecklistSubtitle,
       icon: Icons.checklist,
-      accentColor: Colors.indigo.shade600,
+      accentColor: MintColors.indigo,
       child: Column(
         children: List.generate(r.checklist.length, (index) {
           return Padding(
@@ -1075,14 +1075,14 @@ class _DonationScreenState extends State<DonationScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 18, color: Colors.orange.shade700),
+          Icon(Icons.info_outline, size: 18, color: MintColors.warning),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -1093,7 +1093,7 @@ class _DonationScreenState extends State<DonationScreen> {
                       '(notaire) pour ta situation.',
               style: GoogleFonts.inter(
                 fontSize: 11,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),
@@ -1131,7 +1131,7 @@ class _DonationScreenState extends State<DonationScreen> {
                 fontSize: 14,
                 color: MintColors.textPrimary,
               ),
-              dropdownColor: Colors.white,
+              dropdownColor: MintColors.white,
               items: _cantons.map((c) {
                 return DropdownMenuItem(
                   value: c,

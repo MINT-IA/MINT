@@ -105,7 +105,6 @@ class TestAutoIngestRag:
             with patch("app.main.os.path.isdir", return_value=True):
                 _auto_ingest_rag()
         # No ingest_directory call since count > 0
-        mock_ingester = MagicMock()
         # The ingester should NOT have been called to ingest
 
     def test_auto_ingest_rag_performs_ingest(self):
@@ -224,8 +223,6 @@ class TestRateLimitModule:
     @patch.dict(os.environ, {"REDIS_URL": "redis://localhost:6379"}, clear=False)
     def test_rate_limit_redis_config(self):
         """When REDIS_URL is set, storage_uri is configured."""
-        import importlib
-        import app.core.rate_limit as rl_module
 
         # Re-read the env var logic
         redis_url = os.getenv("REDIS_URL", "")

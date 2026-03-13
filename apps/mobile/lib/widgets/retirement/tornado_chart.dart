@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Diagramme Tornado — analyse de sensibilite du revenu de retraite.
 ///
@@ -331,7 +332,7 @@ class _TornadoPainter extends CustomPainter {
 
   void _drawBaseCaseHeader(Canvas canvas, Size size, double centerX) {
     final suffix = baseCaseSuffix.isEmpty ? '' : baseCaseSuffix;
-    final text = '${_formatChf(baseCase)}$suffix (base)';
+    final text = '${formatChfWithPrefix(baseCase)}$suffix (base)';
     final tp = TextPainter(
       text: TextSpan(
         text: text,
@@ -570,16 +571,6 @@ class _TornadoPainter extends CustomPainter {
   }
 
   // ── Number formatting ───────────────────────────────────────
-
-  /// Format a CHF amount with Swiss apostrophe thousands separator.
-  static String _formatChf(double amount) {
-    final abs = amount.abs().round();
-    final formatted = abs.toString().replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+$)'),
-      (m) => "${m[1]}'",
-    );
-    return amount >= 0 ? "CHF\u00A0$formatted" : "-CHF\u00A0$formatted";
-  }
 
   /// Format a delta with sign prefix: "+CHF 800" or "-CHF 400".
   static String _formatDelta(double delta) {

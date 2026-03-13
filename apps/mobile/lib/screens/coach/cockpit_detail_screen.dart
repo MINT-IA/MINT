@@ -494,7 +494,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
       expandedHeight: 80,
       backgroundColor: MintColors.primary,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.white),
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -516,7 +516,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
           style: GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: MintColors.white,
           ),
         ),
       ),

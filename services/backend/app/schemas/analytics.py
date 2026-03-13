@@ -3,7 +3,7 @@ Analytics schemas for event tracking and analytics queries.
 """
 
 from datetime import datetime
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict
 from pydantic import BaseModel, ConfigDict, field_validator
 
 

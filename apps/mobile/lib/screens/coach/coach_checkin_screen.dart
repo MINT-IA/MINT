@@ -732,7 +732,7 @@ Reponds uniquement avec le texte final.
               padding: EdgeInsets.fromLTRB(
                   24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
               decoration: const BoxDecoration(
-                color: Colors.white,
+                color: MintColors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: Column(
@@ -953,7 +953,7 @@ Reponds uniquement avec le texte final.
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: MintColors.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: MintColors.white,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14)),
                         elevation: 0,
@@ -1116,7 +1116,7 @@ Reponds uniquement avec le texte final.
         onPressed: _onSubmit,
         style: ElevatedButton.styleFrom(
           backgroundColor: MintColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: MintColors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -1221,7 +1221,7 @@ Reponds uniquement avec le texte final.
           onPressed: () => Navigator.of(context).pop(),
           style: ElevatedButton.styleFrom(
             backgroundColor: MintColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: MintColors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
@@ -1640,7 +1640,7 @@ class _ContributionRow extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: MintColors.white,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: MintColors.lightBorder),
             boxShadow: [

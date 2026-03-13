@@ -51,7 +51,7 @@ class DisabilityResetWidget extends StatelessWidget {
       label: 'Reset silencieux invalidité LPP ancienneté',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),

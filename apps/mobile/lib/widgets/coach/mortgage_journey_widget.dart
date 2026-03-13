@@ -115,7 +115,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
       label: 'Parcours fléché achat immobilier 7 étapes hypothèque fonds propres FINMA LPP',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),
@@ -219,7 +219,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
                     color: isDone
                         ? MintColors.primary
                         : isActive
-                            ? Colors.white
+                            ? MintColors.white
                             : MintColors.lightBorder.withValues(alpha: 0.4),
                     border: isActive
                         ? Border.all(color: MintColors.primary, width: 2)
@@ -227,7 +227,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
                   ),
                   child: Center(
                     child: isDone
-                        ? const Icon(Icons.check, size: 14, color: Colors.white)
+                        ? const Icon(Icons.check, size: 14, color: MintColors.white)
                         : Text(
                             '${i + 1}',
                             style: GoogleFonts.inter(
@@ -364,7 +364,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
             label: const Icon(Icons.arrow_forward_rounded, size: 16),
             style: ElevatedButton.styleFrom(
               backgroundColor: MintColors.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: MintColors.white,
               padding:
                   const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               textStyle: GoogleFonts.inter(
@@ -385,7 +385,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
-                color: Colors.white,
+                color: MintColors.white,
               ),
             ),
           ),

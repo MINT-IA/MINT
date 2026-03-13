@@ -25,8 +25,8 @@ from typing import List, Optional, Dict
 from datetime import date
 
 from app.constants.social_insurance import (
-    AVS_RENTE_MAX_MENSUELLE as _AVS_RENTE_MAX_MENSUELLE,
-    AVS_RENTE_MIN_MENSUELLE as _AVS_RENTE_MIN_MENSUELLE,
+    AVS_RENTE_MAX_MENSUELLE,
+    AVS_RENTE_MIN_MENSUELLE,
     AVS_VOLONTAIRE_COTISATION_MIN,
     AVS_VOLONTAIRE_COTISATION_MAX,
     AVS_DUREE_COTISATION_COMPLETE,
@@ -187,15 +187,8 @@ CDI_PARTENAIRES = {
 # Rente AVS — imported from app.constants.social_insurance:
 #   _AVS_RENTE_MAX_MENSUELLE, _AVS_RENTE_MIN_MENSUELLE, AVS_DUREE_COTISATION_COMPLETE
 
-# Local aliases for backward compatibility within this module
-AVS_COTISATION_MIN_VOLONTAIRE = AVS_VOLONTAIRE_COTISATION_MIN
-AVS_COTISATION_MAX_VOLONTAIRE = AVS_VOLONTAIRE_COTISATION_MAX
-AVS_RENTE_MAX_MENSUELLE = _AVS_RENTE_MAX_MENSUELLE
-AVS_RENTE_MIN_MENSUELLE = _AVS_RENTE_MIN_MENSUELLE
-AVS_ANNEES_COTISATION_PLEINES = AVS_DUREE_COTISATION_COMPLETE
-
 # Reduction de rente par annee de lacune (LAVS art. 29ter, 52c)
-AVS_REDUCTION_PAR_ANNEE_LACUNE = round(AVS_RENTE_MAX_MENSUELLE / AVS_ANNEES_COTISATION_PLEINES, 2)
+AVS_REDUCTION_PAR_ANNEE_LACUNE = round(AVS_RENTE_MAX_MENSUELLE / AVS_DUREE_COTISATION_COMPLETE, 2)
 
 # ---------------------------------------------------------------------------
 # Libre passage LPP
@@ -646,10 +639,10 @@ class ExpatService:
             AVSGapResult avec l'estimation de la lacune.
         """
         annees_totales = years_abroad + years_in_ch
-        annees_manquantes = max(0, AVS_ANNEES_COTISATION_PLEINES - years_in_ch)
+        annees_manquantes = max(0, AVS_DUREE_COTISATION_COMPLETE - years_in_ch)
 
         # Rente estimee = rente max * (annees_ch / 44)
-        ratio = min(1.0, years_in_ch / AVS_ANNEES_COTISATION_PLEINES) if AVS_ANNEES_COTISATION_PLEINES > 0 else 0.0
+        ratio = min(1.0, years_in_ch / AVS_DUREE_COTISATION_COMPLETE) if AVS_DUREE_COTISATION_COMPLETE > 0 else 0.0
         rente_estimee = round(AVS_RENTE_MAX_MENSUELLE * ratio, 2)
         # Minimum si au moins 1 an de cotisation
         if years_in_ch > 0 and rente_estimee < AVS_RENTE_MIN_MENSUELLE:
@@ -672,7 +665,7 @@ class ExpatService:
             if cotisation_volontaire:
                 recommandation += (
                     f" Si tu es de nationalite suisse, tu peux cotiser a l'AVS facultative "
-                    f"(CHF {AVS_COTISATION_MIN_VOLONTAIRE:,.0f} a CHF {AVS_COTISATION_MAX_VOLONTAIRE:,.0f}/an)."
+                    f"(CHF {AVS_VOLONTAIRE_COTISATION_MIN:,.0f} a CHF {AVS_VOLONTAIRE_COTISATION_MAX:,.0f}/an)."
                 )
         else:
             recommandation = (
@@ -698,8 +691,8 @@ class ExpatService:
             reduction_mensuelle=reduction_mensuelle,
             reduction_annuelle=reduction_annuelle,
             cotisation_volontaire_possible=cotisation_volontaire,
-            cotisation_min=AVS_COTISATION_MIN_VOLONTAIRE,
-            cotisation_max=AVS_COTISATION_MAX_VOLONTAIRE,
+            cotisation_min=AVS_VOLONTAIRE_COTISATION_MIN,
+            cotisation_max=AVS_VOLONTAIRE_COTISATION_MAX,
             recommandation=recommandation,
             sources=sources,
         )

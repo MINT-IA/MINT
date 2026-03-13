@@ -76,7 +76,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
       label: 'Bulletin couverture invalidité notes A-F',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),

@@ -137,7 +137,7 @@ class _ForfaitFiscalCompareState extends State<ForfaitFiscalCompare>
               width: constraints.maxWidth,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: MintColors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: MintColors.lightBorder),
                 boxShadow: [
@@ -537,7 +537,7 @@ class _ForfaitBarPainter extends CustomPainter {
             style: GoogleFonts.inter(
               fontSize: 8,
               fontWeight: FontWeight.w600,
-              color: Colors.white.withValues(alpha: 0.9),
+              color: MintColors.white.withValues(alpha: 0.9),
             ),
           ),
           textDirection: TextDirection.ltr,
@@ -555,7 +555,7 @@ class _ForfaitBarPainter extends CustomPainter {
             style: GoogleFonts.montserrat(
               fontSize: 9,
               fontWeight: FontWeight.w700,
-              color: Colors.white,
+              color: MintColors.white,
             ),
           ),
           textDirection: TextDirection.ltr,

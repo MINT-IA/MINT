@@ -154,7 +154,7 @@ class PrecisionPromptCard extends StatelessWidget {
                     ),
                     style: FilledButton.styleFrom(
                       backgroundColor: MintColors.info,
-                      foregroundColor: Colors.white,
+                      foregroundColor: MintColors.white,
                       padding: const EdgeInsets.symmetric(vertical: 11),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),

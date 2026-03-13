@@ -107,7 +107,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     final dropPct = current > 0 ? ((current - total) / current * 100).round() : 0;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -273,7 +273,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Colors.white,
+                            color: MintColors.white,
                           ),
                         )
                       : Text(

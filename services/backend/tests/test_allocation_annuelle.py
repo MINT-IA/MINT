@@ -24,10 +24,7 @@ from app.services.arbitrage.allocation_annuelle import (
     compare_allocation_annuelle,
     _build_3a_option,
     _build_rachat_lpp_option,
-    _build_amortissement_indirect_option,
-    _build_investissement_libre_option,
 )
-from app.services.arbitrage.arbitrage_models import ArbitrageResult
 from app.constants.social_insurance import (
     PILIER_3A_PLAFOND_AVEC_LPP,
 )

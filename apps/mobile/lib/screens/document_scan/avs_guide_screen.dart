@@ -258,7 +258,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: MintColors.white,
                 ),
               ),
             ),
@@ -313,7 +313,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
         ),
         style: FilledButton.styleFrom(
           backgroundColor: MintColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: MintColors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
@@ -409,7 +409,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
                     ),
                     style: FilledButton.styleFrom(
                       backgroundColor: MintColors.purple,
-                      foregroundColor: Colors.white,
+                      foregroundColor: MintColors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

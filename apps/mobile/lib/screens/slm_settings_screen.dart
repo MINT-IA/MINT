@@ -4,6 +4,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
+import 'package:mint_mobile/services/slm/slm_model_tier.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:provider/provider.dart';
 
@@ -48,6 +49,8 @@ class SlmSettingsScreen extends StatelessWidget {
               delegate: SliverChildListDelegate([
                 _buildPrivacyBanner(context),
                 const SizedBox(height: 16),
+                _buildTierSelector(context, slm),
+                const SizedBox(height: 16),
                 _buildModelCard(context, slm),
                 const SizedBox(height: 16),
                 _buildStatusCard(context, slm),
@@ -88,6 +91,144 @@ class SlmSettingsScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildTierSelector(BuildContext context, SlmProvider slm) {
+    final recommended = slm.recommendedTier;
+    final active = slm.activeTier;
+    final isDownloading = slm.downloadState == DownloadState.downloading;
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Choisis ton mod\u00e8le',
+              style: GoogleFonts.montserrat(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Deux tailles disponibles selon ton appareil',
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: MintColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            for (final config in SlmTierConfig.allTiers) ...[
+              _buildTierOption(
+                context,
+                config: config,
+                isActive: active == config.tier,
+                isRecommended: recommended == config.tier,
+                isDisabled: isDownloading || slm.isProcessing,
+                onTap: () => slm.selectTier(config.tier),
+              ),
+              if (config.tier != SlmTierConfig.allTiers.last.tier)
+                const SizedBox(height: 10),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTierOption(
+    BuildContext context, {
+    required SlmTierConfig config,
+    required bool isActive,
+    required bool isRecommended,
+    required bool isDisabled,
+    required VoidCallback onTap,
+  }) {
+    final borderColor = isActive
+        ? MintColors.primary
+        : MintColors.border;
+    final bgColor = isActive
+        ? MintColors.primary.withValues(alpha: 0.06)
+        : Colors.transparent;
+
+    return GestureDetector(
+      onTap: isDisabled ? null : onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: borderColor, width: isActive ? 2 : 1),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isActive ? Icons.radio_button_checked : Icons.radio_button_off,
+              color: isActive ? MintColors.primary : MintColors.textMuted,
+              size: 22,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          config.displayName,
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: isActive
+                                ? MintColors.primary
+                                : MintColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                      if (isRecommended) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: MintColors.success.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            'Recommand\u00e9',
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: MintColors.success,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${config.modelSizeFormatted} \u2022 ~${config.estimatedDownloadMinutes} min \u2022 ${config.compatibilityHint}',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: MintColors.textMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildModelCard(BuildContext context, SlmProvider slm) {
     if (slm.modelInfo == null) {
       return const Card(
@@ -119,9 +260,9 @@ class SlmSettingsScreen extends StatelessWidget {
                           ? Icons.error_outline
                           : Icons.cloud_download,
                   color: info.isReady
-                      ? Colors.green
+                      ? MintColors.success
                       : isFailed
-                          ? Colors.red
+                          ? MintColors.error
                           : MintColors.primary,
                   size: 24,
                 ),
@@ -139,13 +280,13 @@ class SlmSettingsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Taille : ${SlmDownloadService.modelSizeFormatted}',
-              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600]),
+              'Taille : ${SlmDownloadService.instance.modelSizeFormatted}',
+              style: GoogleFonts.inter(fontSize: 14, color: MintColors.textSecondary),
             ),
             const SizedBox(height: 4),
             Text(
               'Version : ${info.version}',
-              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600]),
+              style: GoogleFonts.inter(fontSize: 14, color: MintColors.textSecondary),
             ),
             const SizedBox(height: 16),
 
@@ -156,23 +297,23 @@ class SlmSettingsScreen extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.10),
+                  color: MintColors.warning.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(8),
                   border:
-                      Border.all(color: Colors.orange.withValues(alpha: 0.35)),
+                      Border.all(color: MintColors.warning.withValues(alpha: 0.35)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Icon(Icons.lock_outline,
-                        color: Colors.orange, size: 20),
+                        color: MintColors.warning, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         slm.prerequisiteWarning!,
                         style: GoogleFonts.inter(
                           fontSize: 13,
-                          color: Colors.orange[900],
+                          color: MintColors.warningText,
                         ),
                       ),
                     ),
@@ -211,7 +352,7 @@ class SlmSettingsScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
                   value: slm.downloadProgress,
-                  backgroundColor: Colors.grey[200],
+                  backgroundColor: MintColors.lightBorder,
                   color: MintColors.primary,
                   minHeight: 8,
                 ),
@@ -231,14 +372,14 @@ class SlmSettingsScreen extends StatelessWidget {
                   Text(
                     _formatDownloadedSize(slm.downloadProgress),
                     style: GoogleFonts.inter(
-                        fontSize: 12, color: Colors.grey[600]),
+                        fontSize: 12, color: MintColors.textSecondary),
                   ),
                 ],
               ),
               const SizedBox(height: 4),
               Text(
-                '~${SlmDownloadService.estimatedDownloadMinutes()} min sur WiFi',
-                style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
+                '~${SlmDownloadService.instance.estimatedDownloadMinutes} min sur WiFi',
+                style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
               ),
               const SizedBox(height: 14),
               SizedBox(
@@ -256,15 +397,15 @@ class SlmSettingsScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.red.withValues(alpha: 0.08),
+                  color: MintColors.error.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                  border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Icon(Icons.error_outline,
-                        color: Colors.red, size: 20),
+                        color: MintColors.error, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -273,7 +414,7 @@ class SlmSettingsScreen extends StatelessWidget {
                                 'Vérifie ta connexion WiFi et '
                                 'l\'espace disponible sur ton appareil.',
                         style: GoogleFonts.inter(
-                            fontSize: 13, color: Colors.red[700]),
+                            fontSize: 13, color: MintColors.redMedium),
                       ),
                     ),
                   ],
@@ -313,7 +454,7 @@ class SlmSettingsScreen extends StatelessWidget {
                       slm.canAttemptDownload ? Icons.download : Icons.lock),
                   label: Text(
                     slm.canAttemptDownload
-                        ? 'Télécharger (${SlmDownloadService.modelSizeFormatted})'
+                        ? 'Télécharger (${SlmDownloadService.instance.modelSizeFormatted})'
                         : 'Téléchargement indisponible sur ce build',
                   ),
                   style: FilledButton.styleFrom(
@@ -330,13 +471,13 @@ class SlmSettingsScreen extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed:
                       slm.isProcessing ? null : () => _deleteModel(context, slm),
-                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  icon: const Icon(Icons.delete_outline, color: MintColors.error),
                   label: Text(
                     S.of(context)!.slmDeleteModelButton,
-                    style: const TextStyle(color: Colors.red),
+                    style: const TextStyle(color: MintColors.error),
                   ),
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.red),
+                    side: const BorderSide(color: MintColors.error),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                 ),
@@ -357,7 +498,7 @@ class SlmSettingsScreen extends StatelessWidget {
                 'Ce build ne permet pas le téléchargement du modèle.',
             style: GoogleFonts.inter(),
           ),
-          backgroundColor: Colors.red,
+          backgroundColor: MintColors.error,
           duration: const Duration(seconds: 6),
         ),
       );
@@ -372,11 +513,11 @@ class SlmSettingsScreen extends StatelessWidget {
           style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
         ),
         content: Text(
-          'Le modèle fait ${SlmDownloadService.modelSizeFormatted}. '
-          'Assure-toi d\'être connecté en WiFi pour éviter '
-          'une consommation importante de données mobiles.\n\n'
-          '~${SlmDownloadService.estimatedDownloadMinutes()} min sur WiFi. '
-          'Compatible\u00a0: iPhone 13+ / Pixel 7+.',
+          'Le mod\u00e8le fait ${SlmDownloadService.instance.modelSizeFormatted}. '
+          'Assure-toi d\'\u00eatre connect\u00e9 en WiFi pour \u00e9viter '
+          'une consommation importante de donn\u00e9es mobiles.\n\n'
+          '~${SlmDownloadService.instance.estimatedDownloadMinutes} min sur WiFi. '
+          'Compatible\u00a0: ${slm.activeTierConfig.compatibilityHint}.',
           style: GoogleFonts.inter(),
         ),
         actions: [
@@ -407,12 +548,12 @@ class SlmSettingsScreen extends StatelessWidget {
             'Échec du téléchargement. $reason',
             style: GoogleFonts.inter(),
           ),
-          backgroundColor: Colors.red,
+          backgroundColor: MintColors.error,
           duration: const Duration(seconds: 6),
           action: slm.canAttemptDownload
               ? SnackBarAction(
                   label: 'Réessayer',
-                  textColor: Colors.white,
+                  textColor: MintColors.white,
                   onPressed: () => _startDownload(context, slm),
                 )
               : null,
@@ -430,7 +571,7 @@ class SlmSettingsScreen extends StatelessWidget {
           style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
         ),
         content: Text(
-          S.of(context)!.slmDeleteModelContent(SlmDownloadService.modelSizeFormatted),
+          S.of(context)!.slmDeleteModelContent(SlmDownloadService.instance.modelSizeFormatted),
           style: GoogleFonts.inter(),
         ),
         actions: [
@@ -440,7 +581,7 @@ class SlmSettingsScreen extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: MintColors.error),
             child: Text(S.of(context)!.slmDelete),
           ),
         ],
@@ -454,8 +595,8 @@ class SlmSettingsScreen extends StatelessWidget {
   /// Format downloaded size as "X Mo / 2.3 Go".
   static String _formatDownloadedSize(double progress) {
     final downloaded =
-        progress.clamp(0.0, 1.0) * SlmDownloadService.expectedSizeBytes;
-    final totalGo = SlmDownloadService.expectedSizeBytes / (1024 * 1024 * 1024);
+        progress.clamp(0.0, 1.0) * SlmDownloadService.instance.expectedSizeBytes;
+    final totalGo = SlmDownloadService.instance.expectedSizeBytes / (1024 * 1024 * 1024);
     if (downloaded < 1024 * 1024) {
       return '${(downloaded / 1024).toStringAsFixed(0)} Ko / '
           '${totalGo.toStringAsFixed(1)} Go';
@@ -479,15 +620,15 @@ class SlmSettingsScreen extends StatelessWidget {
     switch (engineStatus) {
       case SlmStatus.running:
         statusText = 'Prêt — le coach utilise l\'IA on-device';
-        statusColor = Colors.green;
+        statusColor = MintColors.success;
         statusIcon = Icons.check_circle;
       case SlmStatus.ready:
         statusText = 'Modèle téléchargé — initialisation requise';
-        statusColor = Colors.orange;
+        statusColor = MintColors.warning;
         statusIcon = Icons.pending;
       case SlmStatus.error:
         statusText = 'Erreur — appareil non compatible ou mémoire insuffisante';
-        statusColor = Colors.red;
+        statusColor = MintColors.error;
         statusIcon = Icons.error;
       case SlmStatus.downloading:
         statusText = 'Téléchargement en cours...';
@@ -497,7 +638,7 @@ class SlmSettingsScreen extends StatelessWidget {
         statusText = isReady
             ? 'Modèle prêt — lance l\'initialisation'
             : 'Modèle non téléchargé';
-        statusColor = Colors.grey;
+        statusColor = MintColors.greyMedium;
         statusIcon = Icons.cloud_off;
     }
 
@@ -554,7 +695,7 @@ class SlmSettingsScreen extends StatelessWidget {
                           height: 18,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Colors.white,
+                            color: MintColors.white,
                           ),
                         )
                       : const Icon(Icons.play_arrow),
@@ -595,7 +736,7 @@ class SlmSettingsScreen extends StatelessWidget {
             const SizedBox(height: 12),
             _buildInfoRow(
               Icons.download,
-              'Télécharge le modèle une fois (~${SlmDownloadService.estimatedDownloadMinutes()} min sur WiFi)',
+              'Télécharge le modèle une fois (~${SlmDownloadService.instance.estimatedDownloadMinutes} min sur WiFi)',
             ),
             _buildInfoRow(
               Icons.phone_android,
@@ -625,11 +766,12 @@ class SlmSettingsScreen extends StatelessWidget {
                   : 'Authentification HuggingFace : non configurée (download impossible si URL Gemma gated)',
             ),
             Text(
-              'Compatibilité : iPhone 13+ / Pixel 7+ / équivalent récent.\n'
-              'Le modèle nécessite ~3 Go d\'espace disque et ~2 Go de RAM.',
+              'Compatibilit\u00e9\u00a0: ${slm.activeTierConfig.compatibilityHint}.\n'
+              'Le mod\u00e8le n\u00e9cessite ${slm.activeTierConfig.modelSizeFormatted} d\'espace disque '
+              'et ~${slm.activeTierConfig.minRamGb} Go de RAM.',
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.grey[600],
+                color: MintColors.textSecondary,
               ),
             ),
           ],

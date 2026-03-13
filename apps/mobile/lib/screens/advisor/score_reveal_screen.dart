@@ -265,17 +265,17 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                 end: Alignment.bottomCenter,
                 colors: [
                   Color.lerp(
-                    Colors.white,
+                    MintColors.white,
                     MintColors.nearBlack,
                     _backgroundOpacity.value,
                   )!,
                   Color.lerp(
-                    Colors.white,
+                    MintColors.white,
                     MintColors.darkNight,
                     _backgroundOpacity.value,
                   )!,
                   Color.lerp(
-                    Colors.white,
+                    MintColors.white,
                     MintColors.darkDeep,
                     _backgroundOpacity.value,
                   )!,
@@ -339,7 +339,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
               style: GoogleFonts.inter(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
-                color: Colors.white.withValues(alpha: 0.6),
+                color: MintColors.white.withValues(alpha: 0.6),
                 letterSpacing: 0.5,
               ),
             ),
@@ -351,7 +351,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
               style: GoogleFonts.outfit(
                 fontSize: 34,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: MintColors.white,
                 height: 1.15,
                 letterSpacing: -0.8,
               ),
@@ -415,7 +415,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                   style: GoogleFonts.montserrat(
                     fontSize: 56,
                     fontWeight: FontWeight.w800,
-                    color: Colors.white,
+                    color: MintColors.white,
                     height: 1.0,
                   ),
                 ),
@@ -425,7 +425,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                   style: GoogleFonts.inter(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white.withValues(alpha: 0.5),
+                    color: MintColors.white.withValues(alpha: 0.5),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -474,10 +474,10 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.06),
+          color: MintColors.white.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.08),
+            color: MintColors.white.withValues(alpha: 0.08),
           ),
         ),
         child: Column(
@@ -526,7 +526,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
       offset: Offset(slideOffset, 0),
       child: Row(
         children: [
-          Icon(icon, size: 16, color: Colors.white.withValues(alpha: 0.5)),
+          Icon(icon, size: 16, color: MintColors.white.withValues(alpha: 0.5)),
           const SizedBox(width: 10),
           SizedBox(
             width: 82,
@@ -535,7 +535,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
-                color: Colors.white.withValues(alpha: 0.7),
+                color: MintColors.white.withValues(alpha: 0.7),
               ),
             ),
           ),
@@ -550,7 +550,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                     // Track
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.08),
+                        color: MintColors.white.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -625,10 +625,10 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: MintColors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.06),
+            color: MintColors.white.withValues(alpha: 0.06),
           ),
         ),
         child: Row(
@@ -652,7 +652,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
               child: const Icon(
                 Icons.auto_awesome,
                 size: 18,
-                color: Colors.white,
+                color: MintColors.white,
               ),
             ),
             const SizedBox(width: 14),
@@ -675,7 +675,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
-                      color: Colors.white.withValues(alpha: 0.85),
+                      color: MintColors.white.withValues(alpha: 0.85),
                       height: 1.5,
                     ),
                   ),
@@ -705,7 +705,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                   : null,
               style: FilledButton.styleFrom(
                 backgroundColor: _scoreColor,
-                foregroundColor: Colors.white,
+                foregroundColor: MintColors.white,
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -717,7 +717,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                 style: GoogleFonts.inter(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: MintColors.white,
                 ),
               ),
             ),
@@ -733,7 +733,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Colors.white.withValues(alpha: 0.5),
+                color: MintColors.white.withValues(alpha: 0.5),
               ),
             ),
           ),
@@ -754,7 +754,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
         textAlign: TextAlign.center,
         style: GoogleFonts.inter(
           fontSize: 10,
-          color: Colors.white.withValues(alpha: 0.25),
+          color: MintColors.white.withValues(alpha: 0.25),
           fontStyle: FontStyle.italic,
         ),
       ),
@@ -794,7 +794,7 @@ class _RevealGaugePainter extends CustomPainter {
 
     // ── Background track (very subtle on dark bg) ──
     final trackPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.06)
+      ..color = MintColors.white.withValues(alpha: 0.06)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
@@ -861,7 +861,7 @@ class _RevealGaugePainter extends CustomPainter {
 
       // Inner bright core
       final corePaint = Paint()
-        ..color = Colors.white.withValues(alpha: 0.8);
+        ..color = MintColors.white.withValues(alpha: 0.8);
       canvas.drawCircle(glowCenter, 2.5, corePaint);
     }
   }
@@ -889,7 +889,7 @@ class _RevealGaugePainter extends CustomPainter {
       );
 
       final tickPaint = Paint()
-        ..color = Colors.white.withValues(alpha: 0.15)
+        ..color = MintColors.white.withValues(alpha: 0.15)
         ..strokeWidth = 1.5
         ..strokeCap = StrokeCap.round;
 

@@ -241,7 +241,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
             style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 12,
-              color: isSelected ? Colors.white : MintColors.textSecondary,
+              color: isSelected ? MintColors.white : MintColors.textSecondary,
             ),
           ),
         ),
@@ -259,7 +259,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
       'low' => (MintColors.success, S.of(context)!.debtCheckRiskLow, Icons.check_circle_outline),
       'medium' => (MintColors.warning, S.of(context)!.debtCheckRiskMedium, Icons.warning_amber_rounded),
       'high' => (MintColors.error, S.of(context)!.debtCheckRiskHigh, Icons.error_outline),
-      _ => (Colors.grey, S.of(context)!.debtCheckRiskUnknown, Icons.help_outline),
+      _ => (MintColors.greyMedium, S.of(context)!.debtCheckRiskUnknown, Icons.help_outline),
     };
 
     return Column(
@@ -341,18 +341,18 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.purple.withOpacity(0.05),
+        color: MintColors.purple.withOpacity(0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.purple.withOpacity(0.1)),
+        border: Border.all(color: MintColors.purple.withOpacity(0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.support_agent_outlined, color: Colors.purple),
+              const Icon(Icons.support_agent_outlined, color: MintColors.purple),
               const SizedBox(width: 12),
-              Text(S.of(context)!.debtCheckGamblingSupportTitle, style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.purple)),
+              Text(S.of(context)!.debtCheckGamblingSupportTitle, style: const TextStyle(fontWeight: FontWeight.w600, color: MintColors.purple)),
             ],
           ),
           const SizedBox(height: 12),
@@ -362,7 +362,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
             width: double.infinity,
             child: OutlinedButton(
               onPressed: () => _launchUrl('https://www.sos-jeu.ch/'),
-              style: OutlinedButton.styleFrom(foregroundColor: Colors.purple, side: const BorderSide(color: Colors.purple)),
+              style: OutlinedButton.styleFrom(foregroundColor: MintColors.purple, side: const BorderSide(color: MintColors.purple)),
               child: Text(S.of(context)!.debtCheckGamblingSupportCta),
             ),
           ),

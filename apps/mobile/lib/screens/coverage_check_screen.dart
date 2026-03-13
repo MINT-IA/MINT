@@ -149,16 +149,16 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.blue.shade50,
+          color: MintColors.neutralBg,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.blue.shade200),
+          border: Border.all(color: MintColors.neutralBg),
         ),
         child: Text(
           'MODE DÉMO',
           style: GoogleFonts.montserrat(
             fontSize: 10,
             fontWeight: FontWeight.w700,
-            color: Colors.blue.shade700,
+            color: MintColors.blueDark,
             letterSpacing: 1,
           ),
         ),
@@ -174,12 +174,12 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Colors.indigo.shade50,
+            color: MintColors.indigoBg,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(
             Icons.verified_user,
-            color: Colors.indigo.shade700,
+            color: MintColors.indigoDeep,
             size: 28,
           ),
         ),
@@ -217,7 +217,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -312,7 +312,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
           style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-            color: isSelected ? Colors.white : MintColors.textSecondary,
+            color: isSelected ? MintColors.white : MintColors.textSecondary,
           ),
         ),
       ),
@@ -345,7 +345,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -438,7 +438,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -528,7 +528,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: MintColors.white,
                       ),
                     ),
                   ),
@@ -584,7 +584,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
       ),
@@ -742,7 +742,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MintColors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
             ),
@@ -766,14 +766,14 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -783,7 +783,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
               'spécialiste en assurances pour une évaluation complète.',
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),

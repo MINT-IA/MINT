@@ -25,7 +25,7 @@ References:
 import math
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 
 from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
 
@@ -229,17 +229,17 @@ class FriService:
         Returns:
             FriBreakdown with L, F, R, S components and total.
         """
-        l = cls.compute_liquidity(inp)
-        f = cls.compute_fiscal(inp)
-        r = cls.compute_retirement(inp)
-        s = cls.compute_structural_risk(inp)
+        liq = cls.compute_liquidity(inp)
+        fis = cls.compute_fiscal(inp)
+        ret = cls.compute_retirement(inp)
+        stru = cls.compute_structural_risk(inp)
 
         return FriBreakdown(
-            liquidite=round(l, 2),
-            fiscalite=round(f, 2),
-            retraite=round(r, 2),
-            risque=round(s, 2),
-            total=round(l + f + r + s, 2),
+            liquidite=round(liq, 2),
+            fiscalite=round(fis, 2),
+            retraite=round(ret, 2),
+            risque=round(stru, 2),
+            total=round(liq + fis + ret + stru, 2),
             model_version=cls.MODEL_VERSION,
             confidence_score=confidence_score,
         )

@@ -18,7 +18,7 @@ class MentorFAB extends StatelessWidget {
       onPressed: () => _showCoachSheet(context),
       backgroundColor: MintColors.primary,
       elevation: 4,
-      child: const Icon(Icons.auto_awesome, color: Colors.white, size: 22),
+      child: const Icon(Icons.auto_awesome, color: MintColors.white, size: 22),
     );
   }
 
@@ -57,7 +57,7 @@ class _CoachQuickSheet extends StatelessWidget {
       icon: Icons.calculate_outlined,
       title: 'Simuler un scenario',
       subtitle: '3a, rachat LPP, hypotheque...',
-      color: Colors.orange,
+      color: MintColors.warning,
       route: '/tools',
     );
     const rapport = _CoachAction(
@@ -94,7 +94,7 @@ class _CoachQuickSheet extends StatelessWidget {
     final actions = _actionsForTab();
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SafeArea(

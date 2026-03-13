@@ -16,7 +16,6 @@ Sources:
     - FINMA Tragbarkeitsrechnung
 """
 
-import pytest
 
 from app.services.arbitrage.location_vs_propriete import compare_location_vs_propriete
 

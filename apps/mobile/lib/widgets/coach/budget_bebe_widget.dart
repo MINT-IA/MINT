@@ -61,7 +61,7 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
       label: 'Budget 50 30 20 bébé impact mensuel',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),

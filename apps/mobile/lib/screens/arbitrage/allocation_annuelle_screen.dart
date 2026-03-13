@@ -133,14 +133,14 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
             expandedHeight: 100,
             pinned: true,
             backgroundColor: MintColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 'Ou placer tes CHF ?',
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: MintColors.white,
                 ),
               ),
               background: Container(
@@ -448,7 +448,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
               onPressed: _recalculate,
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: MintColors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
