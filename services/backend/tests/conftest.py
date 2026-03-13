@@ -55,27 +55,6 @@ def override_get_db():
 def setup_test_database():
     """Create database tables once for all tests."""
     # Import models to ensure they're registered before creating tables
-    from app.models import (
-        User,
-        ProfileModel,
-        SessionModel,
-        AnalyticsEvent,
-        AuditEventModel,
-        LoginSecurityStateModel,
-        PasswordResetTokenModel,
-        EmailVerificationTokenModel,
-        SubscriptionModel,
-        EntitlementModel,
-        BillingTransactionModel,
-        BillingWebhookEventModel,
-        HouseholdModel,
-        HouseholdMemberModel,
-        AdminAuditEventModel,
-        SnapshotModel,
-        ConsentModel,
-    )
-    from app.models.banking_consent import BankingConsentModel
-    from app.models.external_data_source import ExternalDataSourceModel
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)

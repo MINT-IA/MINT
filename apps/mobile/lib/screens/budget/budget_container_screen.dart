@@ -23,13 +23,39 @@ class BudgetContainerScreen extends StatelessWidget {
 
   Widget _buildEmptyState(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(S.of(context)?.budgetTitle ?? 'Budget')),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 120,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                S.of(context)?.budgetTitle ?? 'Budget',
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: MintColors.white,
+                ),
+              ),
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [MintColors.primary, MintColors.primaryLight],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -76,6 +102,9 @@ class BudgetContainerScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+          ),
+        ],
       ),
     );
   }

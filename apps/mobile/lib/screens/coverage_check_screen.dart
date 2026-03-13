@@ -190,7 +190,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             children: [
               Text(
                 'Check-up couverture',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.montserrat(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
                   color: MintColors.textPrimary,
@@ -234,7 +234,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         children: [
           Text(
             'Ton profil',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,
@@ -362,7 +362,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         children: [
           Text(
             'Ma couverture actuelle',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,
@@ -454,7 +454,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         children: [
           Text(
             'Score de couverture',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,
@@ -485,7 +485,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
                   children: [
                     Text(
                       '$score',
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.montserrat(
                         fontSize: 36,
                         fontWeight: FontWeight.w800,
                         color: color,
@@ -598,7 +598,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
               Expanded(
                 child: Text(
                   item.title,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: MintColors.textPrimary,

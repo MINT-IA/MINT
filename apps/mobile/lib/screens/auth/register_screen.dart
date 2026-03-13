@@ -105,7 +105,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 // Title
                 Text(
                   S.of(context)?.authRegisterTitle ?? 'Créer ton compte',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 32,
                     fontWeight: FontWeight.w700,
                     color: MintColors.textPrimary,

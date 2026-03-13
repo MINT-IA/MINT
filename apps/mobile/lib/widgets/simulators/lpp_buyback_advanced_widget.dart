@@ -156,7 +156,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
           const SizedBox(height: 8),
           Text(
             "CHF ${result.finalCapital.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}\'')}",
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 32,
               fontWeight: FontWeight.bold,
               color: MintColors.white,
@@ -224,7 +224,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
             const SizedBox(height: 4),
             Text(
               value,
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.montserrat(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: color,
@@ -399,7 +399,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
                     const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
             Text(
               "${value.toInt()} $unit",
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
                 color: MintColors.primary,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -571,13 +572,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     if (!mounted) return;
 
     // Navigate to impact screen with real confidence values
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => DocumentImpactScreen(
-          result: confirmedResult,
-          previousConfidence: previousConfidence,
-        ),
-      ),
-    );
+    context.push('/document-scan/impact', extra: {
+      'result': confirmedResult,
+      'previousConfidence': previousConfidence,
+    });
   }
 }

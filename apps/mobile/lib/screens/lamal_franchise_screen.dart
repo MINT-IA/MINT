@@ -179,7 +179,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
             children: [
               Text(
                 'Optimiseur franchise LAMal',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.montserrat(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
                   color: MintColors.textPrimary,
@@ -347,7 +347,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               Expanded(
                 child: Text(
                   'Prime mensuelle (franchise 300)',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: MintColors.textPrimary,
@@ -430,7 +430,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               Expanded(
                 child: Text(
                   'Frais de sante annuels estimes',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: MintColors.textPrimary,
@@ -545,7 +545,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                 children: [
                   Text(
                     'CHF\u00A0${c.franchiseLevel}',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.montserrat(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: MintColors.textPrimary,
@@ -653,7 +653,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               const SizedBox(width: 8),
               Text(
                 'Seuils de rentabilite',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.montserrat(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: MintColors.textPrimary,

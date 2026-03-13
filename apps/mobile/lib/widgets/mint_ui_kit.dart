@@ -90,7 +90,7 @@ class MintHeader extends StatelessWidget {
         ],
         Text(
           title,
-          style: GoogleFonts.outfit(
+          style: GoogleFonts.montserrat(
             fontSize: isLarge ? 34 : 24,
             fontWeight: FontWeight.w600,
             color: textColor ?? MintColors.textPrimary,
@@ -261,7 +261,7 @@ class MintPremiumButton extends StatelessWidget {
                       children: [
                         Text(
                           title,
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.montserrat(
                             fontSize: 17,
                             fontWeight: FontWeight.w700,
                             color: MintColors.white,

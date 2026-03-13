@@ -107,61 +107,87 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      appBar: AppBar(
-        title: Text(S.of(context)!.divorceAppBarTitle),
-      ),
-      body: SingleChildScrollView(
+      body: CustomScrollView(
         controller: _scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 24),
-            _buildIntroCard(),
-            const SizedBox(height: 24),
-            _buildSituationFamilialeSection(),
-            const SizedBox(height: 12),
-            _buildRevenusSection(),
-            const SizedBox(height: 12),
-            _buildPrevoyanceSection(),
-            const SizedBox(height: 12),
-            _buildPatrimoineSection(),
-            const SizedBox(height: 24),
-            _buildSimulateButton(),
-            const SizedBox(height: 24),
-            if (_result != null) ...[
-              Container(key: _resultsKey),
-              _buildLppSplitCard(),
-              const SizedBox(height: 24),
-              _buildTaxImpactCard(),
-              const SizedBox(height: 24),
-              _buildPatrimoineSplitCard(),
-              const SizedBox(height: 24),
-              _buildPensionAlimentaireCard(),
-              const SizedBox(height: 24),
-              if (_result!.alerts.isNotEmpty) ...[
-                _buildAlertsSection(),
-                const SizedBox(height: 24),
-              ],
-              _buildChecklistSection(),
-              const SizedBox(height: 24),
-            ],
-            _buildEducationalFooter(),
-            const SizedBox(height: 24),
-            _buildMintDivorceSection(),
-            const SizedBox(height: 24),
-            // ── P8-B : Prix du silence — concubin vs marié·e ──
-            PrixDuSilenceWidget(
-              patrimoine: _fortuneCommune > 0 ? _fortuneCommune : 200000,
-              marriedTaxRate: 0,
-              concubinTaxRate: 24,
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 120,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                S.of(context)!.divorceAppBarTitle,
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: MintColors.white,
+                ),
+              ),
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [MintColors.primary, MintColors.primaryLight],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
             ),
-            const SizedBox(height: 24),
-            _buildDisclaimer(),
-            const SizedBox(height: 40),
-          ],
-        ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 24),
+                  _buildIntroCard(),
+                  const SizedBox(height: 24),
+                  _buildSituationFamilialeSection(),
+                  const SizedBox(height: 12),
+                  _buildRevenusSection(),
+                  const SizedBox(height: 12),
+                  _buildPrevoyanceSection(),
+                  const SizedBox(height: 12),
+                  _buildPatrimoineSection(),
+                  const SizedBox(height: 24),
+                  _buildSimulateButton(),
+                  const SizedBox(height: 24),
+                  if (_result != null) ...[
+                    Container(key: _resultsKey),
+                    _buildLppSplitCard(),
+                    const SizedBox(height: 24),
+                    _buildTaxImpactCard(),
+                    const SizedBox(height: 24),
+                    _buildPatrimoineSplitCard(),
+                    const SizedBox(height: 24),
+                    _buildPensionAlimentaireCard(),
+                    const SizedBox(height: 24),
+                    if (_result!.alerts.isNotEmpty) ...[
+                      _buildAlertsSection(),
+                      const SizedBox(height: 24),
+                    ],
+                    _buildChecklistSection(),
+                    const SizedBox(height: 24),
+                  ],
+                  _buildEducationalFooter(),
+                  const SizedBox(height: 24),
+                  _buildMintDivorceSection(),
+                  const SizedBox(height: 24),
+                  // ── P8-B : Prix du silence — concubin vs marié·e ──
+                  PrixDuSilenceWidget(
+                    patrimoine: _fortuneCommune > 0 ? _fortuneCommune : 200000,
+                    marriedTaxRate: 0,
+                    concubinTaxRate: 24,
+                  ),
+                  const SizedBox(height: 24),
+                  _buildDisclaimer(),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -192,7 +218,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
               children: [
                 Text(
                   S.of(context)!.divorceHeaderTitle,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                     color: MintColors.textPrimary,
@@ -775,7 +801,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           const SizedBox(height: 16),
           Text(
             '${_chfFmt(r.pensionAlimentaireMonthly)}/mois',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 28,
               fontWeight: FontWeight.w700,
               color: MintColors.textPrimary,

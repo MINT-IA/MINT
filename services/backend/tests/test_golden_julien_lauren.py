@@ -27,6 +27,7 @@ Sources:
 
 from app.services.onboarding.minimal_profile_service import compute_minimal_profile
 from app.services.onboarding.onboarding_models import MinimalProfileInput
+from app.services.lpp_deep.rachat_echelonne_service import RachatEchelonneService
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -346,3 +347,44 @@ class TestGoldenJulienLauren:
             f"With only total_debts=100k, impact should be 100k*0.005=500.0. "
             f"Got {result.monthly_debt_impact}"
         )
+
+    # ── 11. Lauren rachat max LPP = 52'949 CHF ────────────────────────────
+
+    def test_lauren_rachat_max_lpp(self):
+        """Lauren's rachat max LPP from golden couple = 52'949 CHF.
+
+        Validates that the RachatEchelonneService correctly processes
+        Lauren's known certificate value:
+          - avoir_lpp: 19'620 CHF
+          - rachat_max: 52'949 CHF (from HOTELA certificate)
+          - salaire brut: 67'000 CHF
+          - canton: VS
+          - archetype: expat_us
+
+        The stepped plan total must equal the rachat_max input (52'949 CHF)
+        and the plan should produce positive tax savings over 3 years.
+        """
+        service = RachatEchelonneService()
+        result = service.simulate(
+            avoir_actuel=19_620.0,
+            rachat_max=52_949.0,
+            revenu_imposable=67_000.0,
+            taux_marginal_estime=None,
+            canton="VS",
+            horizon_rachat_annees=3,
+        )
+
+        assert result.total_rachat == 52_949.0, (
+            f"Lauren's total rachat should equal her certificate value 52'949, "
+            f"got {result.total_rachat}"
+        )
+        assert len(result.plan) == 3, (
+            f"3-year horizon should produce 3 entries, got {len(result.plan)}"
+        )
+        assert result.total_economie_fiscale > 0, (
+            f"Tax savings on 52'949 rachat should be positive, "
+            f"got {result.total_economie_fiscale}"
+        )
+        # Each yearly amount should be roughly 52949/3 ≈ 17'650
+        for entry in result.plan:
+            assert entry.montant_rachat > 0, "Each yearly buyback must be > 0"

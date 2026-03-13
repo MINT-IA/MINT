@@ -458,7 +458,7 @@ class _PulseScreenState extends State<PulseScreen> {
         titlePadding: const EdgeInsets.only(left: 20, bottom: 14),
         title: Text(
           greeting,
-          style: GoogleFonts.outfit(
+          style: GoogleFonts.montserrat(
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: MintColors.white,
@@ -494,7 +494,7 @@ class _PulseScreenState extends State<PulseScreen> {
             titlePadding: const EdgeInsets.only(left: 20, bottom: 14),
             title: Text(
               l.pulseWelcome,
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.montserrat(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: MintColors.white,
@@ -526,7 +526,7 @@ class _PulseScreenState extends State<PulseScreen> {
                   const SizedBox(height: 20),
                   Text(
                     l.pulseEmptyTitle,
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.montserrat(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                       color: MintColors.textPrimary,
@@ -639,7 +639,7 @@ class _HeroCard extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             hero.title,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 28,
               fontWeight: FontWeight.w800,
               color: MintColors.white,
@@ -738,7 +738,7 @@ class _PastilleCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               value,
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: MintColors.textPrimary,

@@ -81,21 +81,29 @@ class _BudgetScreenState extends State<BudgetScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(S.of(context)!.budgetMonthlyTitle),
-      ),
       body: Consumer<BudgetProvider>(
         builder: (context, provider, child) {
           final plan = provider.plan;
 
           if (plan == null) {
-            return const Center(child: CircularProgressIndicator());
+            return CustomScrollView(
+              slivers: [
+                _buildSliverAppBar(),
+                const SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              ],
+            );
           }
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+          return CustomScrollView(
+            slivers: [
+              _buildSliverAppBar(),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _staggeredEntry(
                   index: 0,
@@ -251,8 +259,37 @@ class _BudgetScreenState extends State<BudgetScreen>
                 ),
               ],
             ),
+          ),
+              ),
+            ],
           );
         },
+      ),
+    );
+  }
+
+  SliverAppBar _buildSliverAppBar() {
+    return SliverAppBar(
+      pinned: true,
+      expandedHeight: 120,
+      flexibleSpace: FlexibleSpaceBar(
+        title: Text(
+          S.of(context)!.budgetMonthlyTitle,
+          style: GoogleFonts.montserrat(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: MintColors.white,
+          ),
+        ),
+        background: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [MintColors.primary, MintColors.primaryLight],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
       ),
     );
   }

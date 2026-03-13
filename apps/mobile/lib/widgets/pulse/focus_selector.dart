@@ -68,7 +68,7 @@ class _FocusSelectorState extends State<FocusSelector> {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
             "Qu'est-ce qui t'occupe ?",
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: MintColors.textPrimary,
@@ -154,7 +154,7 @@ class _FocusSelectorState extends State<FocusSelector> {
             const SizedBox(height: 8),
             Text(
               cat.label,
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: MintColors.textPrimary,

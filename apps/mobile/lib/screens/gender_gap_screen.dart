@@ -154,7 +154,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             children: [
               Text(
                 'Lacune de prevoyance',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.montserrat(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   color: MintColors.textPrimary,
@@ -234,7 +234,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             children: [
               Text(
                 'Taux d\'activite',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: MintColors.textPrimary,
@@ -252,7 +252,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
                 ),
                 child: Text(
                   '${_tauxActivite.round()}%',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: _tauxActivite < 60
@@ -312,7 +312,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         children: [
           Text(
             'Parametres',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,
@@ -402,7 +402,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         children: [
           Text(
             'Rente LPP estimee',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: MintColors.textPrimary,
@@ -454,7 +454,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
                     ),
                     Text(
                       GenderGapService.formatChf(result.lacuneAnnuelle),
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.montserrat(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                         color: MintColors.error,
@@ -556,7 +556,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
               const SizedBox(width: 8),
               Text(
                 'Comprendre la deduction de coordination',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.montserrat(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: MintColors.textPrimary,
@@ -678,7 +678,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
               children: [
                 Text(
                   'Statistique OFS',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: MintColors.purpleDark,
@@ -747,7 +747,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         children: [
           Text(
             rec.title,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 15,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,

@@ -123,48 +123,74 @@ class _DonationScreenState extends State<DonationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      appBar: AppBar(
-        title: Text(S.of(context)!.donationAppBarTitle),
-      ),
-      body: SingleChildScrollView(
+      body: CustomScrollView(
         controller: _scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 24),
-            _buildIntroCard(),
-            const SizedBox(height: 24),
-            _buildDonationSection(),
-            const SizedBox(height: 12),
-            _buildSuccessionContextSection(),
-            const SizedBox(height: 24),
-            _buildSimulateButton(),
-            const SizedBox(height: 24),
-            if (_result != null) ...[
-              Container(key: _resultsKey),
-              _buildTaxCard(),
-              const SizedBox(height: 24),
-              _buildReserveCard(),
-              const SizedBox(height: 24),
-              _buildQuotiteCard(),
-              const SizedBox(height: 24),
-              _buildImpactSuccessionCard(),
-              const SizedBox(height: 24),
-              if (_result!.alerts.isNotEmpty) ...[
-                _buildAlertsSection(),
-                const SizedBox(height: 24),
-              ],
-              _buildChecklistSection(),
-              const SizedBox(height: 24),
-            ],
-            _buildEducationalFooter(),
-            const SizedBox(height: 24),
-            _buildDisclaimer(),
-            const SizedBox(height: 40),
-          ],
-        ),
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 120,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                S.of(context)!.donationAppBarTitle,
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: MintColors.white,
+                ),
+              ),
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [MintColors.primary, MintColors.primaryLight],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 24),
+                  _buildIntroCard(),
+                  const SizedBox(height: 24),
+                  _buildDonationSection(),
+                  const SizedBox(height: 12),
+                  _buildSuccessionContextSection(),
+                  const SizedBox(height: 24),
+                  _buildSimulateButton(),
+                  const SizedBox(height: 24),
+                  if (_result != null) ...[
+                    Container(key: _resultsKey),
+                    _buildTaxCard(),
+                    const SizedBox(height: 24),
+                    _buildReserveCard(),
+                    const SizedBox(height: 24),
+                    _buildQuotiteCard(),
+                    const SizedBox(height: 24),
+                    _buildImpactSuccessionCard(),
+                    const SizedBox(height: 24),
+                    if (_result!.alerts.isNotEmpty) ...[
+                      _buildAlertsSection(),
+                      const SizedBox(height: 24),
+                    ],
+                    _buildChecklistSection(),
+                    const SizedBox(height: 24),
+                  ],
+                  _buildEducationalFooter(),
+                  const SizedBox(height: 24),
+                  _buildDisclaimer(),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -195,7 +221,7 @@ class _DonationScreenState extends State<DonationScreen> {
               children: [
                 Text(
                   S.of(context)!.donationHeaderTitle,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                     color: MintColors.textPrimary,
@@ -558,7 +584,7 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(height: 12),
           Text(
             hasTax ? _chfFmt(r.impotDonation) : S.of(context)!.donationExoneree,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 36,
               fontWeight: FontWeight.w700,
               color: hasTax ? MintColors.indigo : MintColors.success,
@@ -624,7 +650,7 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(height: 16),
           Text(
             _chfFmt(r.reserveHereditaireTotale),
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 28,
               fontWeight: FontWeight.w700,
               color: MintColors.textPrimary,
@@ -763,7 +789,7 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(height: 16),
           Text(
             _chfFmt(r.quotiteDisponible),
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 28,
               fontWeight: FontWeight.w700,
               color: MintColors.textPrimary,

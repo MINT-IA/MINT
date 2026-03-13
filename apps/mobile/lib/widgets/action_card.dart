@@ -123,7 +123,7 @@ class ActionCard extends StatelessWidget {
       children: [
         Text(
           title,
-          style: GoogleFonts.outfit(
+          style: GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.w600,
             color: MintColors.textPrimary,
