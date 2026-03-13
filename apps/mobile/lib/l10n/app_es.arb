@@ -4389,5 +4389,11 @@
   "drawerCeQueTuDois": "Lo que debes",
   "drawerCeQueTuDoisSubtitle": "Deuda total",
   "drawerCeQueTuAuras": "Lo que tendrás",
-  "drawerCeQueTuAurasSubtitle": "Ingreso de jubilación proyectado"
+  "drawerCeQueTuAurasSubtitle": "Ingreso de jubilación proyectado",
+  "apercu3aPlafondLabel": "TOPE",
+  "apercu3aEconomieFiscaleLabel": "AHORRO FISCAL",
+  "apercu3aProjectionLabel": "PROYECCIÓN A 65",
+  "apercu3aProgressionLabel": "Capital actual vs proyección jubilación",
+  "apercu3aSimulerCta": "Simular mi 3a",
+  "apercu3aDisclaimer": "Proyección educativa basada en un rendimiento neto del 2%. No constituye asesoramiento (LSFin)."
 }

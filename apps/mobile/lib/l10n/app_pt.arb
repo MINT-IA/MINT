@@ -4389,5 +4389,11 @@
   "drawerCeQueTuDois": "O que deves",
   "drawerCeQueTuDoisSubtitle": "Dívida total",
   "drawerCeQueTuAuras": "O que terás",
-  "drawerCeQueTuAurasSubtitle": "Rendimento de reforma projetado"
+  "drawerCeQueTuAurasSubtitle": "Rendimento de reforma projetado",
+  "apercu3aPlafondLabel": "TETO",
+  "apercu3aEconomieFiscaleLabel": "ECONOMIA FISCAL",
+  "apercu3aProjectionLabel": "PROJEÇÃO AOS 65",
+  "apercu3aProgressionLabel": "Capital atual vs projeção aposentadoria",
+  "apercu3aSimulerCta": "Simular meu 3a",
+  "apercu3aDisclaimer": "Projeção educativa baseada em rendimento líquido de 2%. Não constitui aconselhamento (LSFin)."
 }

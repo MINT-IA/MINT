@@ -140,7 +140,7 @@ void main() {
       expect(find.byIcon(Icons.chevron_right), findsWidgets);
     });
 
-    testWidgets('uses ListView.builder for scrollable content', (tester) async {
+    testWidgets('uses CustomScrollView for scrollable content', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           locale: const Locale('fr'),
@@ -156,7 +156,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.byType(ListView), findsOneWidget);
+      expect(find.byType(CustomScrollView), findsOneWidget);
     });
 
     testWidgets('shows theme icons from educational data', (tester) async {
@@ -218,14 +218,14 @@ void main() {
       await tester.pump();
 
       // Scroll down
-      await tester.drag(find.byType(ListView), const Offset(0, -300));
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
       await tester.pump();
 
       // Should still find some themes after scrolling
       expect(find.byType(ComprendreHubScreen), findsOneWidget);
     });
 
-    testWidgets('has BackButton in AppBar', (tester) async {
+    testWidgets('has SliverAppBar', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           locale: const Locale('fr'),
@@ -241,7 +241,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.byType(BackButton), findsOneWidget);
+      expect(find.byType(SliverAppBar), findsOneWidget);
     });
   });
 

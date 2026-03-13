@@ -4389,5 +4389,11 @@
   "drawerCeQueTuDois": "What you owe",
   "drawerCeQueTuDoisSubtitle": "Total debt",
   "drawerCeQueTuAuras": "What you'll have",
-  "drawerCeQueTuAurasSubtitle": "Projected retirement income"
+  "drawerCeQueTuAurasSubtitle": "Projected retirement income",
+  "apercu3aPlafondLabel": "CEILING",
+  "apercu3aEconomieFiscaleLabel": "TAX SAVING",
+  "apercu3aProjectionLabel": "PROJECTION AT 65",
+  "apercu3aProgressionLabel": "Current capital vs retirement projection",
+  "apercu3aSimulerCta": "Simulate my 3a",
+  "apercu3aDisclaimer": "Educational projection based on 2% net return. Not financial advice (FinSA)."
 }

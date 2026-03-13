@@ -4265,5 +4265,11 @@
   "drawerCeQueTuDois": "Ce que tu dois",
   "drawerCeQueTuDoisSubtitle": "Dettes totales",
   "drawerCeQueTuAuras": "Ce que tu auras",
-  "drawerCeQueTuAurasSubtitle": "Revenu retraite projeté"
+  "drawerCeQueTuAurasSubtitle": "Revenu retraite projeté",
+  "apercu3aPlafondLabel": "PLAFOND",
+  "apercu3aEconomieFiscaleLabel": "ÉCONOMIE FISCALE",
+  "apercu3aProjectionLabel": "PROJECTION 65 ANS",
+  "apercu3aProgressionLabel": "Capital actuel vs projection retraite",
+  "apercu3aSimulerCta": "Simuler mon 3a",
+  "apercu3aDisclaimer": "Projection éducative basée sur un rendement net de 2\u00a0%. Ne constitue pas un conseil (LSFin)."
 }

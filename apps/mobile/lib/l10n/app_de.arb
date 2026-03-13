@@ -4389,5 +4389,11 @@
   "drawerCeQueTuDois": "Was du schuldest",
   "drawerCeQueTuDoisSubtitle": "Gesamtschulden",
   "drawerCeQueTuAuras": "Was du haben wirst",
-  "drawerCeQueTuAurasSubtitle": "Projiziertes Renteneinkommen"
+  "drawerCeQueTuAurasSubtitle": "Projiziertes Renteneinkommen",
+  "apercu3aPlafondLabel": "OBERGRENZE",
+  "apercu3aEconomieFiscaleLabel": "STEUERERSPARNIS",
+  "apercu3aProjectionLabel": "PROJEKTION MIT 65",
+  "apercu3aProgressionLabel": "Aktuelles Kapital vs Altersprojektion",
+  "apercu3aSimulerCta": "Meine 3a simulieren",
+  "apercu3aDisclaimer": "Bildungsprojektion basierend auf 2% Nettorendite. Keine Finanzberatung (FIDLEG)."
 }
