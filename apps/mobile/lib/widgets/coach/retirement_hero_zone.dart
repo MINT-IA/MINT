@@ -321,9 +321,9 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
     if (total <= 0) return const SizedBox.shrink();
 
     final segments = <_PillarSegment>[
-      _PillarSegment('AVS', avs, MintColors.pillarAvs),
-      _PillarSegment('LPP', lpp, MintColors.pillarLppAccent),
-      _PillarSegment('3a', trois_a, MintColors.pillar3a),
+      _PillarSegment('AVS', avs, MintColors.retirementAvs),
+      _PillarSegment('LPP', lpp, MintColors.retirementLpp),
+      _PillarSegment('3a', trois_a, MintColors.retirement3a),
       if (autre > 0) _PillarSegment('Autre', autre, MintColors.purple),
     ];
 

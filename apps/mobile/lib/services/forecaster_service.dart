@@ -326,7 +326,7 @@ class ForecasterService {
     final milestones = _detectMilestones(scenarioBase.points);
 
     // Confidence scoring (mandatory on all projections — CLAUDE.md §5)
-    final confidence = _computeConfidence(profile);
+    final confidence = ConfidenceScorer.score(profile);
 
     return ProjectionResult(
       prudent: scenarioPrudent,
@@ -464,7 +464,7 @@ class ForecasterService {
     final milestones = _detectMilestones(scenarioBase.points);
 
     // Confidence scoring (mandatory on all projections — CLAUDE.md §5)
-    final confidence = _computeConfidence(profile);
+    final confidence = ConfidenceScorer.score(profile);
 
     return ProjectionResult(
       prudent: scenarioPrudent,
