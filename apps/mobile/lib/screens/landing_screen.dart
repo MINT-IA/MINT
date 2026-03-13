@@ -74,7 +74,7 @@ class _LandingScreenState extends State<LandingScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.white,
       body: Stack(
         children: [
           SafeArea(
@@ -190,14 +190,14 @@ class _LandingScreenState extends State<LandingScreen>
             const SizedBox(height: 4),
             ShaderMask(
               shaderCallback: (bounds) => const LinearGradient(
-                colors: [Color(0xFF1DB954), Color(0xFF0A8F6C)],
+                colors: [MintColors.brandGreen, MintColors.brandGreenDark],
               ).createShader(bounds),
               child: Text(
                 l10n.landingPunchline2,
                 style: GoogleFonts.montserrat(
                   fontSize: 32,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: MintColors.white,
                   height: 1.2,
                   letterSpacing: -0.5,
                 ),
@@ -239,7 +239,7 @@ class _LandingScreenState extends State<LandingScreen>
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
           decoration: BoxDecoration(
-            color: const Color(0xFFF5F6F7),
+            color: MintColors.landingSurface,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
@@ -251,7 +251,7 @@ class _LandingScreenState extends State<LandingScreen>
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     child: Divider(
                       height: 1,
-                      color: Colors.black.withValues(alpha: 0.04),
+                      color: MintColors.black.withValues(alpha: 0.04),
                     ),
                   ),
               ],
@@ -354,7 +354,7 @@ class _LandingScreenState extends State<LandingScreen>
                       style: GoogleFonts.inter(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: MintColors.white,
                       ),
                     ),
                   ),

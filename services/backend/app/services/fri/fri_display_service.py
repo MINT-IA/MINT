@@ -19,7 +19,7 @@ References:
 """
 
 import copy
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Dict, List, Tuple
 
 from app.services.fri.fri_service import FriBreakdown, FriInput, FriService

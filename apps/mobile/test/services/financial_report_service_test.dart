@@ -414,19 +414,19 @@ void main() {
       final projections = report.pillar3aAnalysis!.projectionsByProvider;
 
       expect(projections.containsKey('bank'), isTrue);
-      expect(projections.containsKey('viac'), isTrue);
-      expect(projections.containsKey('finpension'), isTrue);
+      expect(projections.containsKey('fintech'), isTrue);
+      expect(projections.containsKey('fintech_low_fee'), isTrue);
       expect(projections.containsKey('insurance'), isTrue);
     });
 
-    test('viac projection is higher than bank projection', () {
+    test('fintech projection is higher than bank projection', () {
       final answers = _minimalAnswers();
       answers['q_3a_accounts_count'] = 1;
       answers['q_3a_annual_contribution'] = 7258.0;
       final report = service.generateReport(answers);
       final projections = report.pillar3aAnalysis!.projectionsByProvider;
 
-      expect(projections['viac']!, greaterThan(projections['bank']!));
+      expect(projections['fintech']!, greaterThan(projections['bank']!));
     });
 
     test('potential gain vs bank is positive', () {

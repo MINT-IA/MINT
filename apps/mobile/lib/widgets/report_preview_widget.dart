@@ -106,14 +106,14 @@ class ReportPreviewWidget extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.orange.shade50,
+                      color: MintColors.warningBg,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.orange),
+                      border: Border.all(color: MintColors.warning),
                     ),
                     child: Row(
                       children: [
                         const Icon(Icons.shield,
-                            color: Colors.orange, size: 24),
+                            color: MintColors.warning, size: 24),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -124,7 +124,7 @@ class ReportPreviewWidget extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.orange,
+                                  color: MintColors.warning,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -132,7 +132,7 @@ class ReportPreviewWidget extends StatelessWidget {
                                 'Priorité : fonds d\'urgence et remboursement dettes',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Colors.orange.shade700,
+                                  color: MintColors.warningText,
                                 ),
                               ),
                             ],
@@ -343,7 +343,7 @@ class ReportPreviewWidget extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.card,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: MintColors.border),
         ),
@@ -376,7 +376,7 @@ class ReportPreviewWidget extends StatelessWidget {
                       action.blockingReason!,
                       style: const TextStyle(
                         fontSize: 12,
-                        color: Colors.orange,
+                        color: MintColors.warning,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
@@ -404,11 +404,11 @@ class ReportPreviewWidget extends StatelessWidget {
   Color _getActionColor(ActionStatus status) {
     switch (status) {
       case ActionStatus.ready:
-        return Colors.green;
+        return MintColors.success;
       case ActionStatus.pending:
-        return Colors.orange;
+        return MintColors.warning;
       case ActionStatus.blocked:
-        return Colors.red;
+        return MintColors.error;
     }
   }
 }

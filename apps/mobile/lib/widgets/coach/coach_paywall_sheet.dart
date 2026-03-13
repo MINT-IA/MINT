@@ -137,7 +137,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.4),
+                    color: MintColors.white.withValues(alpha: 0.4),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -155,12 +155,12 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                 child: Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.15),
+                    color: MintColors.white.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.close,
-                    color: Colors.white,
+                    color: MintColors.white,
                     size: 20,
                   ),
                 ),
@@ -173,7 +173,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
             style: GoogleFonts.montserrat(
               fontSize: 22,
               fontWeight: FontWeight.w700,
-              color: Colors.white,
+              color: MintColors.white,
             ),
           ),
           const SizedBox(height: 4),
@@ -182,7 +182,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
             style: GoogleFonts.inter(
               fontSize: 15,
               fontWeight: FontWeight.w400,
-              color: Colors.white.withValues(alpha: 0.8),
+              color: MintColors.white.withValues(alpha: 0.8),
             ),
           ),
         ],
@@ -308,7 +308,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                       style: GoogleFonts.inter(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: MintColors.white,
                       ),
                     ),
                   ),
@@ -390,7 +390,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                   color: isSelected ? MintColors.primary : Colors.transparent,
                 ),
                 child: isSelected
-                    ? const Icon(Icons.check, color: Colors.white, size: 14)
+                    ? const Icon(Icons.check, color: MintColors.white, size: 14)
                     : null,
               ),
             ),
@@ -488,7 +488,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: MintColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: MintColors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),

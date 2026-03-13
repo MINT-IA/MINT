@@ -213,7 +213,7 @@ class ConjointInvitationCard extends StatelessWidget {
           onPressed: onTap,
           style: ElevatedButton.styleFrom(
             backgroundColor: MintColors.info,
-            foregroundColor: Colors.white,
+            foregroundColor: MintColors.white,
             elevation: 0,
             padding: const EdgeInsets.symmetric(vertical: 12),
             shape: RoundedRectangleBorder(

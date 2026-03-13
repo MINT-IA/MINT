@@ -70,7 +70,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.compare_arrows,
-                    color: Colors.white, size: 24),
+                    color: MintColors.white, size: 24),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -102,7 +102,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MintColors.white,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: MintColors.border),
             ),
@@ -470,7 +470,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
     bool isWarning = false,
     required NumberFormat currencyFormat,
   }) {
-    Color bgColor = Colors.white;
+    Color bgColor = MintColors.white;
     Color borderColor = MintColors.border;
 
     if (isRecommended) {
@@ -524,7 +524,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                   child: Text(
                     S.of(context)!.pillar3aRecommended,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: MintColors.white,
                       fontSize: 9,
                       fontWeight: FontWeight.bold,
                     ),

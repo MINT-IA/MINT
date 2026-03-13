@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+import uuid
+
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from typing import Dict, Any, List
 from datetime import datetime, timedelta, timezone
@@ -50,6 +52,7 @@ class TimelineItem:
 @router.post("/wizard")
 async def create_wizard_session(
     data: WizardAnswers,
+    request: Request,
     db: DBSession = Depends(get_db),
 ):
     """
@@ -75,8 +78,10 @@ async def create_wizard_session(
         timeline_items = _generate_timeline_items(data.answers)
 
         # 5. Créer la session
+        # Extract user_id from auth header, fallback to generated UUID
+        user_id = request.headers.get("X-User-Id") or str(uuid.uuid4())
         session = Session(
-            user_id=1,  # TODO: Get from auth
+            user_id=user_id,
             created_at=datetime.now(timezone.utc),
             answers=data.answers,
             precision_index=precision_index,

@@ -132,7 +132,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.3)),
         boxShadow: [
@@ -321,10 +321,10 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
     if (total <= 0) return const SizedBox.shrink();
 
     final segments = <_PillarSegment>[
-      _PillarSegment('AVS', avs, const Color(0xFF2563EB)),
-      _PillarSegment('LPP', lpp, const Color(0xFF16A34A)),
-      _PillarSegment('3a', trois_a, const Color(0xFFD97706)),
-      if (autre > 0) _PillarSegment('Autre', autre, const Color(0xFF8B5CF6)),
+      _PillarSegment('AVS', avs, MintColors.retirementAvs),
+      _PillarSegment('LPP', lpp, MintColors.retirementLpp),
+      _PillarSegment('3a', trois_a, MintColors.retirement3a),
+      if (autre > 0) _PillarSegment('Autre', autre, MintColors.purple),
     ];
 
     return Column(
@@ -349,7 +349,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
                             style: GoogleFonts.inter(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              color: MintColors.white,
                             ),
                           )
                         : null,
@@ -676,7 +676,7 @@ class _SparklinePainter extends CustomPainter {
     canvas.drawCircle(
       Offset(dotX, dotY),
       3,
-      Paint()..color = Colors.white,
+      Paint()..color = MintColors.white,
     );
 
     // Retirement age label

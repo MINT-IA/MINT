@@ -48,7 +48,7 @@ hypotheses:
 ### 4. Pédagogique, Pas Conseil
 - Chaque insert doit mentionner: "À titre pédagogique uniquement"
 - Renvoyer vers un professionnel pour les décisions importantes
-- Ne pas remplacer un conseiller fiscal ou financier agréé
+- Ne pas remplacer un spécialiste fiscal ou financier agréé
 
 ### 5. Partner Handoff = Disclosure
 - Si un insert suggère un partenaire (banque 3a, courtier hypothèque):
@@ -59,7 +59,7 @@ hypotheses:
 ### 6. Retraits 3a Échelonnés = Prudence Cantonale
 - Mentionner: "La fiscalité varie selon les cantons"
 - Avertir: "Certains cantons peuvent considérer des retraits trop rapprochés comme optimisation abusive"
-- Renvoyer vers: "Consultez un conseiller fiscal pour votre situation"
+- Renvoyer vers: "Consultez un spécialiste fiscal pour votre situation"
 
 ---
 

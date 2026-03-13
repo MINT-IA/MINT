@@ -18,8 +18,8 @@ Sources:
 Sprint S22+ — Chantier 1: Impot ecclesiastique.
 """
 
-from dataclasses import dataclass, field
-from typing import List, Optional
+from dataclasses import dataclass
+from typing import List
 
 
 # ---------------------------------------------------------------------------
@@ -179,8 +179,8 @@ class ChurchTaxService:
             )
         else:
             chiffre_choc = (
-                f"Avec un impot cantonal de 0 CHF, l'impot ecclesiastique "
-                f"est egalement de 0 CHF."
+                "Avec un impot cantonal de 0 CHF, l'impot ecclesiastique "
+                "est egalement de 0 CHF."
             )
 
         return ChurchTaxEstimate(

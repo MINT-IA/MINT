@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show ChangeNotifier, kIsWeb;
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
+import 'package:mint_mobile/services/slm/slm_model_tier.dart';
 
 /// Reactive provider for SLM (on-device Gemma 3n) state.
 ///
@@ -64,6 +66,41 @@ class SlmProvider extends ChangeNotifier {
 
   /// Whether the HuggingFace auth token is configured.
   bool get hasAuthToken => SlmDownloadService.instance.hasAuthToken;
+
+  /// The active model tier (E4B or E2B).
+  SlmModelTier get activeTier => SlmDownloadService.instance.activeTier;
+
+  /// Configuration for the active model tier.
+  SlmTierConfig get activeTierConfig =>
+      SlmDownloadService.instance.activeTierConfig;
+
+  /// Recommended tier based on device capability.
+  ///
+  /// Returns E4B if device has >= 6 cores (proxy for ~6 GB RAM),
+  /// otherwise E2B for lighter devices.
+  SlmModelTier get recommendedTier {
+    if (kIsWeb) return SlmModelTier.e2b;
+    final cores = Platform.numberOfProcessors;
+    return cores >= 6 ? SlmModelTier.e4b : SlmModelTier.e2b;
+  }
+
+  /// Switch the active model tier.
+  ///
+  /// Disposes the current engine if running (model ID changes),
+  /// persists the choice, and notifies listeners.
+  Future<void> selectTier(SlmModelTier tier) async {
+    if (tier == activeTier) return;
+
+    // Dispose current engine — the model ID will change.
+    if (SlmEngine.instance.isAvailable) {
+      await SlmEngine.instance.dispose();
+      FeatureFlags.slmPluginReady = false;
+    }
+
+    await SlmDownloadService.instance.setActiveTier(tier);
+    await _refreshModelInfo();
+    notifyListeners();
+  }
 
   // ═══════════════════════════════════════════════════════════════
   //  Initialization

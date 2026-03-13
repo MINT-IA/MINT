@@ -410,7 +410,7 @@ class CircleScoringService {
           'Ouvre ton premier compte 3a pour profiter de la déduction fiscale');
     } else if (nb3a == 1) {
       reco.add(
-          '🚀 Ouvre un 2e compte 3a chez VIAC pour optimiser le retrait futur');
+          '🚀 Ouvre un 2e compte 3a auprès d\u2019un prestataire fintech pour optimiser le retrait futur');
     }
 
     final lppBuyback = _parseDouble(answers['q_lpp_buyback_available']);

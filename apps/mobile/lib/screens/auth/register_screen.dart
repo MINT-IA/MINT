@@ -46,7 +46,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
 
     if (mounted && success) {
-      // Persist registration data to profile answers so smart onboarding
+      // Persist registration data to profile answers so onboarding
       // can pre-fill and CoachProfile gets the firstName + birthYear.
       final firstName = _displayNameController.text.trim();
       if (firstName.isNotEmpty || _birthYear != null) {
@@ -84,11 +84,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: MintColors.white,
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.06),
+                          color: MintColors.black.withValues(alpha: 0.06),
                           blurRadius: 20,
                           offset: const Offset(0, 4),
                         ),
@@ -126,7 +126,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: MintColors.white,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: MintColors.primary.withValues(alpha: 0.18),
@@ -355,7 +355,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
+                                AlwaysStoppedAnimation<Color>(MintColors.white),
                           ),
                         )
                       : Text(
@@ -372,7 +372,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onPressed: authProvider.isLoading
                       ? null
                       : () {
-                          context.go('/onboarding/smart');
+                          context.go('/onboarding/quick');
                         },
                   child: Text(
                     'Continuer en mode local',

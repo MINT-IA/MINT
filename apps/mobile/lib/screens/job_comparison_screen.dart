@@ -635,7 +635,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
         ),
         style: FilledButton.styleFrom(
           backgroundColor: MintColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: MintColors.white,
           padding: const EdgeInsets.symmetric(vertical: 18),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -692,14 +692,14 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(verdictIcon, color: Colors.white, size: 14),
+                    Icon(verdictIcon, color: MintColors.white, size: 14),
                     const SizedBox(width: 6),
                     Text(
                       S.of(context)!.jobCompareVerdictLabel,
                       style: GoogleFonts.montserrat(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: MintColors.white,
                         letterSpacing: 1,
                       ),
                     ),
@@ -1138,21 +1138,21 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 18, color: Colors.orange.shade700),
+          Icon(Icons.info_outline, size: 18, color: MintColors.warning),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               S.of(context)!.jobCompareDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 11,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),

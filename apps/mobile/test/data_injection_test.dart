@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
-import 'package:mint_mobile/screens/onboarding/smart_onboarding_viewmodel.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/visibility_score_service.dart';
 
@@ -18,103 +17,7 @@ import 'package:mint_mobile/services/visibility_score_service.dart';
 
 void main() {
   // ────────────────────────────────────────────────────────────
-  //  1. ONBOARDING — Confidence score reflects user inputs
-  // ────────────────────────────────────────────────────────────
-
-  group('SmartOnboardingViewModel — confidence score', () {
-    late SmartOnboardingViewModel vm;
-
-    setUp(() {
-      vm = SmartOnboardingViewModel();
-    });
-
-    test('canCompute requires canton + employmentStatus', () {
-      expect(vm.canCompute, false);
-      vm.setCanton('VD');
-      expect(vm.canCompute, false);
-      vm.setEmploymentStatus('salarie');
-      expect(vm.canCompute, true);
-    });
-
-    test('confidence starts at 0 before compute', () {
-      expect(vm.confidenceScore, 0);
-    });
-
-    test('compute with 3 base fields gives ~37.5% confidence', () {
-      vm.setAge(45);
-      vm.setGrossSalary(100000);
-      vm.setCanton('VS');
-      vm.setEmploymentStatus('salarie');
-      vm.compute();
-      // 3 provided (age, salary, canton) out of 8 total = 37.5%
-      // But estimatedFields might vary — check it's between 25-50%
-      expect(vm.confidenceScore, greaterThan(0));
-      expect(vm.confidenceScore, lessThanOrEqualTo(100));
-      expect(vm.hasResult, true);
-    });
-
-    test('adding enrichment fields increases confidence', () {
-      vm.setAge(45);
-      vm.setGrossSalary(100000);
-      vm.setCanton('VS');
-      vm.setEmploymentStatus('salarie');
-      vm.compute();
-      final baseConfidence = vm.confidenceScore;
-
-      // Add enrichment fields
-      vm.setExistingLpp(70000);
-      final afterLpp = vm.confidenceScore;
-      expect(afterLpp, greaterThanOrEqualTo(baseConfidence),
-          reason: 'Adding LPP should not decrease confidence');
-
-      vm.setExisting3a(32000);
-      final after3a = vm.confidenceScore;
-      expect(after3a, greaterThanOrEqualTo(afterLpp),
-          reason: 'Adding 3a should not decrease confidence');
-
-      vm.setCurrentSavings(50000);
-      final afterSavings = vm.confidenceScore;
-      expect(afterSavings, greaterThanOrEqualTo(after3a),
-          reason: 'Adding savings should not decrease confidence');
-    });
-
-    test('all 8 fields filled gives 100% confidence', () {
-      vm.setAge(50);
-      vm.setGrossSalary(122207);
-      vm.setCanton('VS');
-      vm.setEmploymentStatus('salarie');
-      vm.setNationalityGroup('CH');
-      vm.setHouseholdType('couple');
-      vm.setCurrentSavings(77000);
-      vm.setIsPropertyOwner(false);
-      vm.setExisting3a(32000);
-      vm.setExistingLpp(70377);
-      vm.compute();
-      // With all enrichment fields provided, confidence should be high
-      expect(vm.confidenceScore, greaterThanOrEqualTo(75),
-          reason: 'All fields filled → high confidence');
-    });
-
-    test('chiffreChoc is not null after compute', () {
-      vm.setAge(45);
-      vm.setGrossSalary(100000);
-      vm.setCanton('VS');
-      vm.setEmploymentStatus('salarie');
-      vm.compute();
-      expect(vm.chiffreChoc, isNotNull);
-    });
-
-    test('error state clears on successful compute', () {
-      vm.setCanton('VS');
-      vm.setEmploymentStatus('salarie');
-      vm.compute();
-      expect(vm.error, isNull);
-      expect(vm.profile, isNotNull);
-    });
-  });
-
-  // ────────────────────────────────────────────────────────────
-  //  2. PULSE — Key figures use profile data, not hardcoded values
+  //  1. PULSE — Key figures use profile data, not hardcoded values
   // ────────────────────────────────────────────────────────────
 
   group('ForecasterService — key figures from profile', () {

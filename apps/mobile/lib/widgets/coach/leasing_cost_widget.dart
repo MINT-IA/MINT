@@ -69,7 +69,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
       label: 'Leasing coût caché opportunité investissement comparaison',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),

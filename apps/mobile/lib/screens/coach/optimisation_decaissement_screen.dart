@@ -27,7 +27,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
             expandedHeight: 140,
             pinned: true,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              icon: const Icon(Icons.arrow_back, color: MintColors.white),
               onPressed: () => context.pop(),
             ),
             flexibleSpace: FlexibleSpaceBar(
@@ -38,7 +38,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
-                  color: Colors.white,
+                  color: MintColors.white,
                   height: 1.25,
                 ),
                 maxLines: 2,
@@ -193,7 +193,7 @@ class _ChiffreChocCard extends StatelessWidget {
             style: GoogleFonts.montserrat(
               fontSize: 40,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: MintColors.white,
               height: 1.0,
             ),
           ),
@@ -202,7 +202,7 @@ class _ChiffreChocCard extends StatelessWidget {
             explication,
             style: GoogleFonts.inter(
               fontSize: 13,
-              color: Colors.white.withAlpha(220),
+              color: MintColors.white.withAlpha(220),
               height: 1.5,
             ),
           ),
@@ -416,7 +416,7 @@ class _StepCard extends StatelessWidget {
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: MintColors.white,
                 ),
               ),
             ),

@@ -887,7 +887,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   /// Filter coaching tips by stress type selected during onboarding.
   ///
   /// Maps each stress type to relevant tip categories so the
-  /// onboarding flow (StepTopActions) shows only contextual tips.
+  /// onboarding flow shows only contextual tips.
   static List<CoachingTip> filterByStressType(
     List<CoachingTip> tips,
     String stressType,
@@ -895,7 +895,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     const stressToCategories = {
       'stress_retraite': ['retraite', 'prevoyance'],
       'stress_fiscal': ['fiscalite'],
-      'stress_impots': ['fiscalite'], // alias (StepStressSelector uses this ID)
+      'stress_impots': ['fiscalite'], // alias for stress_fiscal
       'stress_budget': ['budget'],
       'stress_patrimoine': ['prevoyance', 'fiscalite', 'budget'],
       'stress_couple': ['retraite', 'prevoyance', 'fiscalite', 'budget'],

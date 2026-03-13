@@ -131,7 +131,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
       label: 'Avalanche boule de neige remboursement dettes comparaison',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),
@@ -294,7 +294,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: e.key == 0 ? Colors.white : MintColors.textSecondary,
+                    color: e.key == 0 ? MintColors.white : MintColors.textSecondary,
                   ),
                 ),
               ),

@@ -60,7 +60,7 @@ class LppComparisonCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -158,7 +158,7 @@ class LppComparisonCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -273,7 +273,7 @@ class LppComparisonCard extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MintColors.white,
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(
@@ -319,7 +319,7 @@ class LppComparisonCard extends StatelessWidget {
               style: GoogleFonts.montserrat(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: Colors.white,
+                color: MintColors.white,
               ),
             ),
           ),

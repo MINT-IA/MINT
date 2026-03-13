@@ -44,7 +44,7 @@ class ChiffreChocSelector {
       final subtitle = profile.employmentStatus == 'independant'
           ? 'Sans 2e pilier obligatoire, ton ecart de retraite est plus important. '
               'Avec seulement $pct% de remplacement, il te manquerait $gapFormatted/mois. '
-              'Le 3e pilier (max CHF\u00A0${_formatChfPlain(profile.plafond3a)}/an) est ta meilleure arme.'
+              'Le 3e pilier (max CHF\u00A0${_formatChfPlain(profile.plafond3a)}/an) est ton principal levier.'
           : '\u00c0 la retraite, tu pourrais recevoir environ $pct% de ton revenu actuel. '
               'Il te manquerait $gapFormatted chaque mois. '
               'Decouvre comment reduire cet ecart.';

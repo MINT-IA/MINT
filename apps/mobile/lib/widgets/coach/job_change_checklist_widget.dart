@@ -54,7 +54,7 @@ class _JobChangeChecklistWidgetState extends State<JobChangeChecklistWidget> {
       label: 'Checklist nouveau job libre passage LPP actions urgentes',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),
@@ -192,7 +192,7 @@ class _JobChangeChecklistWidgetState extends State<JobChangeChecklistWidget> {
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: isDone ? MintColors.scoreExcellent : Colors.white,
+                color: isDone ? MintColors.scoreExcellent : MintColors.white,
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isDone ? MintColors.scoreExcellent : MintColors.lightBorder,
@@ -200,7 +200,7 @@ class _JobChangeChecklistWidgetState extends State<JobChangeChecklistWidget> {
                 ),
               ),
               child: isDone
-                  ? const Icon(Icons.check, color: Colors.white, size: 14)
+                  ? const Icon(Icons.check, color: MintColors.white, size: 14)
                   : null,
             ),
             const SizedBox(width: 10),

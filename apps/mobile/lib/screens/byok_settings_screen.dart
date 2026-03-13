@@ -230,7 +230,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: isSelected ? Colors.white : MintColors.textPrimary,
+                  color: isSelected ? MintColors.white : MintColors.textPrimary,
                 ),
               ),
               if (isRecommended) ...[
@@ -241,7 +241,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
                     color: isSelected
-                        ? Colors.white70
+                        ? MintColors.white70
                         : MintColors.textMuted,
                   ),
                 ),
@@ -430,12 +430,12 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.12),
+                  color: MintColors.white.withOpacity(0.12),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.auto_awesome,
-                  color: Colors.white,
+                  color: MintColors.white,
                   size: 28,
                 ),
               ),
@@ -446,7 +446,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: MintColors.white,
                   height: 1.3,
                 ),
               ),
@@ -458,7 +458,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.white.withOpacity(0.75),
+                  color: MintColors.white.withOpacity(0.75),
                   height: 1.5,
                 ),
               ),
@@ -470,7 +470,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                   icon: const Icon(Icons.chat_outlined, size: 18),
                   label: Text(s?.byokTryNow ?? 'Essayer maintenant'),
                   style: FilledButton.styleFrom(
-                    backgroundColor: Colors.white,
+                    backgroundColor: MintColors.white,
                     foregroundColor: MintColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(

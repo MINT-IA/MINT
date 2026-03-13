@@ -204,7 +204,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
           return Container(
             width: constraints.maxWidth,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MintColors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
@@ -304,7 +304,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
                   curve: Curves.easeOutCubic,
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.white : Colors.transparent,
+                    color: isSelected ? MintColors.white : Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: isSelected
                         ? [
@@ -646,7 +646,7 @@ class _PieChartPainter extends CustomPainter {
 
     // Thin separator lines at segment boundaries
     final separatorPaint = Paint()
-      ..color = Colors.white
+      ..color = MintColors.white
       ..strokeWidth = 3
       ..strokeCap = StrokeCap.round;
     // Line at boundary 1-2

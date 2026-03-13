@@ -172,14 +172,14 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
             expandedHeight: 100,
             pinned: true,
             backgroundColor: MintColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 'Calendrier de retraits',
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: MintColors.white,
                 ),
               ),
               background: Container(
@@ -327,7 +327,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
               onPressed: _recalculate,
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: MintColors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -614,7 +614,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                 : 'Écart d\'impôt',
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: Colors.white.withAlpha(200),
+              color: MintColors.white.withAlpha(200),
             ),
           ),
           const SizedBox(height: 8),
@@ -623,7 +623,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 36,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: MintColors.white,
               letterSpacing: -1,
             ),
           ),
@@ -634,21 +634,21 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                 : 'entre les deux stratégies',
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: Colors.white.withAlpha(200),
+              color: MintColors.white.withAlpha(200),
             ),
           ),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: Colors.white.withAlpha(25),
+              color: MintColors.white.withAlpha(25),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               _result!.displaySummary,
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.white.withAlpha(200),
+                color: MintColors.white.withAlpha(200),
                 height: 1.4,
               ),
               textAlign: TextAlign.center,
@@ -848,7 +848,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                   decoration: BoxDecoration(
                     color: typeColor,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
+                    border: Border.all(color: MintColors.white, width: 2),
                     boxShadow: [
                       BoxShadow(
                         color: typeColor.withAlpha(40),

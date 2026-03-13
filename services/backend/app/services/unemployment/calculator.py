@@ -64,19 +64,21 @@ DURATION_TABLE: List[Tuple[int, int, int, int]] = [
     # 60+, 22+ -> 520
 ]
 
-# Clean duration table based on actual LACI art. 27
+# Clean duration table based on actual LACI art. 27 al. 2
+# CRITICAL: 25-54 with 22+ months = 400 days (lit. c), NOT 260.
+# 260 is for 12-21 months cotisation only.
 DURATION_RULES: List[Tuple[int, int, int, int]] = [
     # (min_age, max_age, min_months_cotisation, nombre_indemnites)
-    # Under 25: 200 if 12+ months
+    # Under 25: 200 if 12+ months (LACI art. 27 al. 2 lit. a)
     (16, 24, 12, 200),
     # 25-54: 200 if 12-17 months
     (25, 54, 12, 200),
-    # 25-54: 260 if 18+ months (actually up to 400 with special cases)
+    # 25-54: 260 if 18-21 months (LACI art. 27 al. 2 lit. b)
     (25, 54, 18, 260),
-    # 55-59: 400 if 22+ months (LACI art. 27 al. 2)
-    (55, 59, 22, 400),
-    # 60+: 520 if 22+ months (LACI art. 27 al. 3)
-    (60, 99, 22, 520),
+    # 25-54: 400 if 22+ months (LACI art. 27 al. 2 lit. c)
+    (25, 54, 22, 400),
+    # 55+: 520 if 22+ months (LACI art. 27 al. 2 lit. d)
+    (55, 99, 22, 520),
 ]
 
 # ORP links per canton

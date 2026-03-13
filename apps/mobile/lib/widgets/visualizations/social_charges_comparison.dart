@@ -133,7 +133,7 @@ class _SocialChargesComparisonState extends State<SocialChargesComparison>
               width: constraints.maxWidth,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: MintColors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: MintColors.lightBorder),
                 boxShadow: [

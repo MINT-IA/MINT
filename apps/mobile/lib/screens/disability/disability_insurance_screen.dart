@@ -237,14 +237,14 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
                     style: GoogleFonts.montserrat(
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                      color: MintColors.white,
                     ),
                   ),
                   Text(
                     'Bulletin scolaire · Franchise LAMal · AI/APG',
                     style: GoogleFonts.inter(
                       fontSize: 12,
-                      color: Colors.white70,
+                      color: MintColors.white70,
                     ),
                   ),
                 ],
@@ -258,7 +258,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
         style: GoogleFonts.montserrat(
           fontSize: 16,
           fontWeight: FontWeight.w700,
-          color: Colors.white,
+          color: MintColors.white,
         ),
       ),
     );
@@ -267,7 +267,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
   Widget _buildInputsCard() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),

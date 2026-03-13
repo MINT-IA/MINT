@@ -141,7 +141,7 @@ class SmartShortcuts extends StatelessWidget {
         label: 'Rachat LPP',
         icon: Icons.trending_up,
         route: '/lpp-deep/rachat',
-        color: const Color(0xFF16A34A),
+        color: MintColors.retirementLpp,
       ));
     }
 
@@ -151,7 +151,7 @@ class SmartShortcuts extends StatelessWidget {
         label: 'Simulateur 3a',
         icon: Icons.savings_outlined,
         route: '/simulator/3a',
-        color: const Color(0xFFD97706),
+        color: MintColors.retirement3a,
       ));
     }
 
@@ -161,7 +161,7 @@ class SmartShortcuts extends StatelessWidget {
         label: 'Capacité immobilière',
         icon: Icons.home_outlined,
         route: '/mortgage/affordability',
-        color: const Color(0xFF2563EB),
+        color: MintColors.retirementAvs,
       ));
     }
 

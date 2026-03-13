@@ -209,11 +209,11 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.amber.shade700.withOpacity(0.1),
+              color: MintColors.warningText.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(Icons.house_outlined,
-                color: Colors.amber.shade700, size: 24),
+                color: MintColors.warningText, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -249,17 +249,17 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.amber.shade700.withOpacity(0.06),
+        color: MintColors.warningText.withOpacity(0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.amber.shade700.withOpacity(0.15),
+          color: MintColors.warningText.withOpacity(0.15),
         ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.lightbulb_outline,
-              size: 20, color: Colors.amber.shade700.withOpacity(0.8)),
+              size: 20, color: MintColors.warningText.withOpacity(0.8)),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -282,7 +282,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       title: S.of(context)!.housingSaleBienTitle,
       subtitle: S.of(context)!.housingSaleBienSubtitle,
       icon: Icons.home_work_outlined,
-      accentColor: Colors.amber.shade700,
+      accentColor: MintColors.warningText,
       child: Column(
         children: [
           _buildSlider(
@@ -354,7 +354,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       title: S.of(context)!.housingSaleFinancementTitle,
       subtitle: S.of(context)!.housingSaleFinancementSubtitle,
       icon: Icons.account_balance_outlined,
-      accentColor: Colors.amber.shade700,
+      accentColor: MintColors.warningText,
       child: Column(
         children: [
           _buildSlider(
@@ -377,7 +377,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       title: S.of(context)!.housingSaleEplTitle,
       subtitle: S.of(context)!.housingSaleEplSubtitle,
       icon: Icons.savings_outlined,
-      accentColor: Colors.amber.shade700,
+      accentColor: MintColors.warningText,
       child: Column(
         children: [
           _buildSlider(
@@ -410,7 +410,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       title: S.of(context)!.housingSaleRemploiTitle,
       subtitle: S.of(context)!.housingSaleRemploiSubtitle,
       icon: Icons.swap_horiz,
-      accentColor: Colors.amber.shade700,
+      accentColor: MintColors.warningText,
       child: Column(
         children: [
           _buildSwitch(
@@ -451,7 +451,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
         ),
         style: FilledButton.styleFrom(
           backgroundColor: MintColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: MintColors.white,
           padding: const EdgeInsets.symmetric(vertical: 18),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -516,10 +516,10 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.amber.shade700.withOpacity(0.06),
+        color: MintColors.warningText.withOpacity(0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.amber.shade700.withOpacity(0.15),
+          color: MintColors.warningText.withOpacity(0.15),
         ),
       ),
       child: Column(
@@ -528,14 +528,14 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           Row(
             children: [
               Icon(Icons.receipt_long,
-                  color: Colors.amber.shade700, size: 18),
+                  color: MintColors.warningText, size: 18),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.housingSaleImpotGainsCanton(_canton),
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Colors.amber.shade700,
+                  color: MintColors.warningText,
                   letterSpacing: 1,
                 ),
               ),
@@ -801,7 +801,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       title: S.of(context)!.lifeEventActionsTitle,
       subtitle: S.of(context)!.lifeEventChecklistSubtitle,
       icon: Icons.checklist,
-      accentColor: Colors.amber.shade700,
+      accentColor: MintColors.warningText,
       child: Column(
         children: List.generate(r.checklist.length, (index) {
           return Padding(
@@ -941,14 +941,14 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 18, color: Colors.orange.shade700),
+          Icon(Icons.info_outline, size: 18, color: MintColors.warning),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -959,7 +959,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
                       'pour ta situation personnelle.',
               style: GoogleFonts.inter(
                 fontSize: 11,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),
@@ -997,7 +997,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
                 fontSize: 14,
                 color: MintColors.textPrimary,
               ),
-              dropdownColor: Colors.white,
+              dropdownColor: MintColors.white,
               items: _cantons.map((c) {
                 return DropdownMenuItem(
                   value: c,

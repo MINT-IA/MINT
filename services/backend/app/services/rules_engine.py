@@ -8,12 +8,9 @@ from datetime import datetime, timezone
 from typing import List, Optional, Tuple
 
 from app.constants.social_insurance import (
-    AVS_RENTE_MAX_MENSUELLE,
-    AVS_RENTE_MIN_MENSUELLE,
     LPP_TAUX_CONVERSION_MIN,
     MARRIED_CAPITAL_TAX_DISCOUNT,
     PILIER_3A_PLAFOND_AVEC_LPP,
-    RETRAIT_CAPITAL_TRANCHES,
     TAUX_IMPOT_RETRAIT_CAPITAL,
     calculate_progressive_capital_tax,
     get_ai_rente_monthly,

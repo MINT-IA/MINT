@@ -62,7 +62,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
       label: 'Top cantons déménagement économies fiscales comparaison',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),
@@ -183,7 +183,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
                     style: GoogleFonts.montserrat(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
-                      color: isTop ? Colors.white : MintColors.textSecondary,
+                      color: isTop ? MintColors.white : MintColors.textSecondary,
                     ),
                   ),
                 ),

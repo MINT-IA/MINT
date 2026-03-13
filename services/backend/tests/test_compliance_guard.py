@@ -11,7 +11,6 @@ import pytest
 
 from app.services.coach.compliance_guard import ComplianceGuard
 from app.services.coach.coach_models import (
-    ComplianceResult,
     CoachContext,
     ComponentType,
 )

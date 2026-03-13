@@ -71,11 +71,11 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: MintColors.black.withOpacity(0.03),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -89,7 +89,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [MintColors.primary.withOpacity(0.05), Colors.white],
+                colors: [MintColors.primary.withOpacity(0.05), MintColors.white],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
@@ -101,7 +101,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: MintColors.white,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
@@ -173,7 +173,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                           data: SliderTheme.of(context).copyWith(
                             activeTrackColor: MintColors.primary,
                             inactiveTrackColor: MintColors.border,
-                            thumbColor: Colors.white,
+                            thumbColor: MintColors.white,
                             thumbShape: const RoundSliderThumbShape(
                                 enabledThumbRadius: 12, elevation: 4),
                             overlayColor: MintColors.primary.withOpacity(0.1),
@@ -199,7 +199,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: MintColors.white,
                         border: Border.all(color: MintColors.border),
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -219,7 +219,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: MintColors.white,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: MintColors.border),
                     boxShadow: [

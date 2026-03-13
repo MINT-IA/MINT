@@ -99,7 +99,7 @@ class SafeModeGate extends StatelessWidget {
                   onTap: () {
                     showModalBottomSheet<void>(
                       context: context,
-                      backgroundColor: Colors.white,
+                      backgroundColor: MintColors.white,
                       shape: const RoundedRectangleBorder(
                         borderRadius:
                             BorderRadius.vertical(top: Radius.circular(18)),

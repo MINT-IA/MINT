@@ -20,7 +20,6 @@ from typing import List
 from app.constants.social_insurance import (
     LPP_TAUX_CONVERSION_MIN,
     TAUX_IMPOT_RETRAIT_CAPITAL,
-    RETRAIT_CAPITAL_TRANCHES,
     calculate_progressive_capital_tax,
 )
 

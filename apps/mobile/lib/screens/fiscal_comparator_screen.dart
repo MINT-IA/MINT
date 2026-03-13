@@ -202,7 +202,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
       expandedHeight: 160,
       backgroundColor: MintColors.primary,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.white),
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -212,7 +212,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
-            color: Colors.white,
+            color: MintColors.white,
           ),
         ),
         background: Container(
@@ -230,10 +230,10 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
       ),
       bottom: TabBar(
         controller: _tabController,
-        indicatorColor: Colors.white,
+        indicatorColor: MintColors.white,
         indicatorWeight: 3,
-        labelColor: Colors.white,
-        unselectedLabelColor: Colors.white60,
+        labelColor: MintColors.white,
+        unselectedLabelColor: MintColors.white60,
         labelStyle: GoogleFonts.inter(
           fontSize: 13,
           fontWeight: FontWeight.w600,
@@ -282,7 +282,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
@@ -423,7 +423,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               SegmentedButton<String>(
                 style: SegmentedButton.styleFrom(
                   selectedBackgroundColor: MintColors.primary,
-                  selectedForegroundColor: Colors.white,
+                  selectedForegroundColor: MintColors.white,
                   textStyle: GoogleFonts.inter(fontSize: 12),
                 ),
                 segments: [
@@ -613,7 +613,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -698,7 +698,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -950,7 +950,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 style: GoogleFonts.montserrat(
                   fontSize: 28,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: MintColors.white,
                 ),
               ),
               const SizedBox(height: 6),
@@ -958,7 +958,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 S.of(context)!.fiscalGapBetweenCantons,
                 style: GoogleFonts.inter(
                   fontSize: 13,
-                  color: Colors.white70,
+                  color: MintColors.white70,
                   height: 1.4,
                 ),
                 textAlign: TextAlign.center,
@@ -997,7 +997,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: MintColors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: MintColors.lightBorder),
           ),
@@ -1063,7 +1063,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: MintColors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
                 color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
@@ -1200,7 +1200,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -1375,7 +1375,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -1432,7 +1432,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                       ),
                       child: checked
                           ? const Icon(Icons.check,
-                              size: 14, color: Colors.white)
+                              size: 14, color: MintColors.white)
                           : null,
                     ),
                     const SizedBox(width: 12),
@@ -1518,7 +1518,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: MintColors.white,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, size: 18, color: MintColors.primary),
@@ -1638,21 +1638,21 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               S.of(context)!.fiscalDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),

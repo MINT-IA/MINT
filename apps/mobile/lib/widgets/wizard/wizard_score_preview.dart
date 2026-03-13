@@ -226,7 +226,7 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
           child: Container(
             height: 80,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MintColors.white,
               border: Border(
                 top: BorderSide(
                   color: MintColors.lightBorder.withValues(alpha: 0.8),
@@ -489,7 +489,7 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
                     width: 6,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.9),
+                      color: MintColors.white.withValues(alpha: 0.9),
                       boxShadow: [
                         BoxShadow(
                           color: _scoreColor.withValues(alpha: 0.5),
@@ -519,7 +519,7 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
         duration: const Duration(milliseconds: 300),
         width: 1,
         color: completed
-            ? Colors.white.withValues(alpha: 0.6)
+            ? MintColors.white.withValues(alpha: 0.6)
             : MintColors.border.withValues(alpha: 0.3),
       ),
     );

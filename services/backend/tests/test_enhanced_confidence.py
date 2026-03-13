@@ -14,9 +14,6 @@ from datetime import datetime, timedelta, timezone
 from app.services.confidence.enhanced_confidence_models import FieldSource
 from app.services.confidence.enhanced_confidence_service import (
     PROFILE_FIELD_WEIGHTS,
-    WEIGHT_ACCURACY,
-    WEIGHT_COMPLETENESS,
-    WEIGHT_FRESHNESS,
     compute_confidence,
     rank_enrichment_prompts,
     score_accuracy,

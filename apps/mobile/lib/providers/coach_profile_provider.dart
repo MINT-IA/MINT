@@ -323,7 +323,7 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Met a jour le profil depuis le Smart Onboarding (3 questions: age, salaire, canton).
+  /// Met a jour le profil depuis l'onboarding (3 questions: age, salaire, canton).
   ///
   /// Cree un profil partiel minimal immediatement utilisable par le dashboard.
   /// Convertit le salaire brut annuel en net mensuel via le taux de charges
@@ -454,7 +454,7 @@ class CoachProfileProvider extends ChangeNotifier {
       _profile = _profile!.copyWith(firstName: firstName);
     }
 
-    // S47: Stamp initial timestamps for all fields populated by smart onboarding.
+    // S47: Stamp initial timestamps for all fields populated by onboarding.
     // Core fields are userInput quality (age, salary, canton); derived fields
     // (AVS, LPP estimates, savings) are estimated quality but still get timestamps
     // so freshness scoring can track when the profile was last refreshed.
@@ -1523,7 +1523,7 @@ class CoachProfileProvider extends ChangeNotifier {
   }
 
   /// Returns a map of pre-filled values from the existing profile for
-  /// the Smart Onboarding flow. Keys match the onboarding field names.
+  /// the onboarding flow. Keys match the onboarding field names.
   ///
   /// Returns an empty map if no profile exists. Only includes non-null
   /// values so the caller can skip fields without data.

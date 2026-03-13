@@ -292,7 +292,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             ),
             style: FilledButton.styleFrom(
               backgroundColor: MintColors.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: MintColors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
               ),
@@ -570,7 +570,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     final submitted = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
       ),
@@ -691,7 +691,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
     await showModalBottomSheet<void>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
       ),
@@ -758,7 +758,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
     await showModalBottomSheet<void>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
       ),
@@ -826,7 +826,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     final showVision = imageFile != null && _isVisionAvailable(context);
     await showModalBottomSheet<void>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
       ),
@@ -867,7 +867,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                     label: const Text('Analyser via Vision IA'),
                     style: FilledButton.styleFrom(
                       backgroundColor: MintColors.primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: MintColors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),

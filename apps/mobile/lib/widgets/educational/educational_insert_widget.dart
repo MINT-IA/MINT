@@ -29,7 +29,7 @@ class EducationalInsertWidget extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: MintColors.lightBorder,
@@ -37,7 +37,7 @@ class EducationalInsertWidget extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: MintColors.black.withOpacity(0.03),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),

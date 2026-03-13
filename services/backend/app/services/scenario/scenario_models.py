@@ -5,7 +5,6 @@ Pure data containers; no business logic here.
 """
 
 from dataclasses import dataclass, field
-from datetime import date
 from typing import List, Optional
 
 

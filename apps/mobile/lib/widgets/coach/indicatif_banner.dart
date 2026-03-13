@@ -80,7 +80,7 @@ class IndicatifBanner extends StatelessWidget {
                 value: (confidenceScore / 100).clamp(0.0, 1.0),
                 backgroundColor: MintColors.lightBorder,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  confidenceScore >= 40 ? MintColors.accent : Colors.redAccent,
+                  confidenceScore >= 40 ? MintColors.accent : MintColors.error,
                 ),
               ),
             ),

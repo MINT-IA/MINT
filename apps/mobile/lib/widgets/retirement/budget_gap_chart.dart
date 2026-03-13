@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/retirement_projection_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Waterfall / bridge chart showing budget construction at retirement.
 ///
@@ -293,7 +294,7 @@ class _WaterfallPainter extends CustomPainter {
 
       // Amount above/below bar
       if (barProgress > 0.5) {
-        final amtStr = _formatChf(step.value.abs());
+        final amtStr = formatChfCompact(step.value.abs());
         final amtTP = TextPainter(
           text: TextSpan(
             text: amtStr,
@@ -324,13 +325,6 @@ class _WaterfallPainter extends CustomPainter {
         ..color = MintColors.textMuted.withValues(alpha: 0.3)
         ..strokeWidth = 1,
     );
-  }
-
-  String _formatChf(double value) {
-    if (value >= 1000) {
-      return "${(value / 1000).toStringAsFixed(1)}k";
-    }
-    return value.toStringAsFixed(0);
   }
 
   @override

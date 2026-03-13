@@ -79,7 +79,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
       label: 'Franchise LAMal coût pépin long terme',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),

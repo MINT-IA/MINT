@@ -81,7 +81,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
       expandedHeight: 120,
       backgroundColor: MintColors.primary,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.white),
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -91,7 +91,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
-            color: Colors.white,
+            color: MintColors.white,
           ),
         ),
         background: Container(
@@ -148,7 +148,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
         boxShadow: [
@@ -230,7 +230,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 36,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: MintColors.white,
             ),
           ),
           const SizedBox(height: 8),
@@ -240,7 +240,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
             'de plus qu\'un\u00B7e salarié\u00B7e',
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.9),
+              color: MintColors.white.withValues(alpha: 0.9),
               height: 1.5,
             ),
             textAlign: TextAlign.center,
@@ -305,7 +305,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -350,7 +350,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -471,7 +471,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -519,12 +519,12 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
                   width: 24,
                   height: 24,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: MintColors.white,
                     shape: BoxShape.circle,
                     border: Border.all(color: MintColors.primary, width: 3),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
+                        color: MintColors.black.withValues(alpha: 0.2),
                         blurRadius: 4,
                       ),
                     ],
@@ -616,7 +616,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: MintColors.white,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, size: 18, color: MintColors.primary),
@@ -658,14 +658,14 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -675,7 +675,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
               'compensation pour un décompte exact.',
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),

@@ -85,7 +85,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
       label: 'Net réel vente immobilière calculateur cascade déductions',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),
@@ -206,7 +206,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                      color: MintColors.white,
                     ),
                   ),
                 ),

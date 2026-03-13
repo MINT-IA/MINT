@@ -18,8 +18,6 @@ from app.services.reengagement.consent_manager import (
     _clear_consent_store,
 )
 from app.services.reengagement.reengagement_models import (
-    ConsentDashboard,
-    ConsentState,
     ConsentType,
 )
 

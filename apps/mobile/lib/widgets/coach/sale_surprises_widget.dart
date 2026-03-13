@@ -52,7 +52,7 @@ class SaleSurprisesWidget extends StatelessWidget {
       label: 'Surprises vente immobilière impôt gain capital EPL remploi',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),
@@ -179,7 +179,7 @@ class SaleSurprisesWidget extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                        color: MintColors.white,
                       ),
                     ),
                   ),

@@ -179,11 +179,11 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.purple.shade600.withOpacity(0.1),
+              color: MintColors.purple.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(Icons.family_restroom,
-                color: Colors.purple.shade600, size: 24),
+                color: MintColors.purple, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -219,17 +219,17 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.purple.shade600.withOpacity(0.06),
+        color: MintColors.purple.withOpacity(0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.purple.shade600.withOpacity(0.15),
+          color: MintColors.purple.withOpacity(0.15),
         ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.lightbulb_outline,
-              size: 20, color: Colors.purple.shade600.withOpacity(0.8)),
+              size: 20, color: MintColors.purple.withOpacity(0.8)),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -252,7 +252,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       title: S.of(context)!.divorceSituationFamiliale,
       subtitle: S.of(context)!.divorceSituationSubtitle,
       icon: Icons.people_outline,
-      accentColor: Colors.purple.shade600,
+      accentColor: MintColors.purple,
       child: Column(
         children: [
           _buildSlider(
@@ -316,12 +316,12 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: selected
-                      ? Colors.purple.shade600.withOpacity(0.1)
+                      ? MintColors.purple.withOpacity(0.1)
                       : MintColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: selected
-                        ? Colors.purple.shade600
+                        ? MintColors.purple
                         : MintColors.border,
                     width: selected ? 1.5 : 1,
                   ),
@@ -332,7 +332,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                     fontSize: 12,
                     fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                     color: selected
-                        ? Colors.purple.shade600
+                        ? MintColors.purple
                         : MintColors.textSecondary,
                   ),
                 ),
@@ -350,7 +350,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       title: S.of(context)!.divorceRevenus,
       subtitle: S.of(context)!.divorceRevenusSubtitle,
       icon: Icons.payments_outlined,
-      accentColor: Colors.purple.shade600,
+      accentColor: MintColors.purple,
       child: Column(
         children: [
           _buildSlider(
@@ -383,7 +383,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       title: S.of(context)!.divorcePrevoyance,
       subtitle: S.of(context)!.divorcePrevoyanceSubtitle,
       icon: Icons.account_balance_outlined,
-      accentColor: Colors.purple.shade600,
+      accentColor: MintColors.purple,
       child: Column(
         children: [
           _buildSlider(
@@ -436,7 +436,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       title: S.of(context)!.divorcePatrimoine,
       subtitle: S.of(context)!.divorcePatrimoineSubtitle,
       icon: Icons.home_outlined,
-      accentColor: Colors.purple.shade600,
+      accentColor: MintColors.purple,
       child: Column(
         children: [
           _buildSlider(
@@ -479,7 +479,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
         ),
         style: FilledButton.styleFrom(
           backgroundColor: MintColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: MintColors.white,
           padding: const EdgeInsets.symmetric(vertical: 18),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -647,10 +647,10 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.purple.shade600.withOpacity(0.06),
+        color: MintColors.purple.withOpacity(0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.purple.shade600.withOpacity(0.15),
+          color: MintColors.purple.withOpacity(0.15),
         ),
       ),
       child: Column(
@@ -659,14 +659,14 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           Row(
             children: [
               Icon(Icons.pie_chart_outline,
-                  color: Colors.purple.shade600, size: 18),
+                  color: MintColors.purple, size: 18),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.divorcePartagePatrimoine,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Colors.purple.shade600,
+                  color: MintColors.purple,
                   letterSpacing: 1,
                 ),
               ),
@@ -708,14 +708,14 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             Flexible(
               flex: (pct1 * 100).toInt().clamp(1, 99),
               child: Container(
-                color: Colors.purple.shade400,
+                color: MintColors.purpleApple,
                 alignment: Alignment.center,
                 child: Text(
                   'C1',
                   style: GoogleFonts.inter(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: MintColors.white,
                   ),
                 ),
               ),
@@ -723,14 +723,14 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             Flexible(
               flex: ((1 - pct1) * 100).toInt().clamp(1, 99),
               child: Container(
-                color: Colors.purple.shade200,
+                color: MintColors.successionBg,
                 alignment: Alignment.center,
                 child: Text(
                   'C2',
                   style: GoogleFonts.inter(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: Colors.purple.shade800,
+                    color: MintColors.purpleDark,
                   ),
                 ),
               ),
@@ -861,7 +861,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       title: S.of(context)!.divorceActionsTitle,
       subtitle: S.of(context)!.divorceActionsSubtitle,
       icon: Icons.checklist,
-      accentColor: Colors.purple.shade600,
+      accentColor: MintColors.purple,
       child: Column(
         children: List.generate(r.checklist.length, (index) {
           return Padding(
@@ -996,21 +996,21 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 18, color: Colors.orange.shade700),
+          Icon(Icons.info_outline, size: 18, color: MintColors.warning),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               S.of(context)!.divorceDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 11,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),

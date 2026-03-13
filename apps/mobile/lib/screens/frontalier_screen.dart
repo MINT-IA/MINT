@@ -124,7 +124,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       expandedHeight: 160,
       backgroundColor: MintColors.primary,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.white),
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -134,7 +134,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
-            color: Colors.white,
+            color: MintColors.white,
           ),
         ),
         background: Container(
@@ -152,10 +152,10 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       ),
       bottom: TabBar(
         controller: _tabController,
-        indicatorColor: Colors.white,
+        indicatorColor: MintColors.white,
         indicatorWeight: 3,
-        labelColor: Colors.white,
-        unselectedLabelColor: Colors.white60,
+        labelColor: MintColors.white,
+        unselectedLabelColor: MintColors.white60,
         labelStyle: GoogleFonts.inter(
           fontSize: 13,
           fontWeight: FontWeight.w600,
@@ -211,7 +211,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
@@ -319,7 +319,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: _taxMaritalStatus == 0
-                              ? Colors.white
+                              ? MintColors.white
                               : MintColors.textSecondary,
                         ),
                       ),
@@ -355,7 +355,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: _taxMaritalStatus == 1
-                              ? Colors.white
+                              ? MintColors.white
                               : MintColors.textSecondary,
                         ),
                       ),
@@ -410,7 +410,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       duration: const Duration(milliseconds: 300),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
@@ -672,7 +672,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
@@ -745,7 +745,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       duration: const Duration(milliseconds: 400),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: gaugeColor.withValues(alpha: 0.3)),
         boxShadow: [
@@ -959,7 +959,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -1061,7 +1061,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
@@ -1124,7 +1124,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: isSelected
-                              ? Colors.white
+                              ? MintColors.white
                               : MintColors.textSecondary,
                         ),
                       ),
@@ -1153,7 +1153,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MintColors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: MintColors.lightBorder),
             ),
@@ -1192,7 +1192,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MintColors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: MintColors.lightBorder),
             ),
@@ -1326,7 +1326,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -1585,21 +1585,21 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.warning.withOpacity(0.4)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               ExpatService.disclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.orange.shade800,
+                color: MintColors.warningText,
                 height: 1.5,
               ),
             ),

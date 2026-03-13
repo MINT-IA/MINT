@@ -147,7 +147,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: MintColors.black.withValues(alpha: 0.04),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -454,7 +454,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: MintColors.white,
                 ),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
@@ -464,7 +464,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
                   event.label,
                   style: GoogleFonts.inter(
                     fontSize: 9,
-                    color: Colors.white.withValues(alpha: 0.85),
+                    color: MintColors.white.withValues(alpha: 0.85),
                   ),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,

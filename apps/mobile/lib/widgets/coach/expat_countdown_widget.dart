@@ -72,7 +72,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
       label: 'Compte à rebours expatriation deadlines LPP 3a AVS départ',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),
@@ -183,7 +183,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
                 height: 24,
                 margin: const EdgeInsets.only(top: 2),
                 decoration: BoxDecoration(
-                  color: isDone ? MintColors.scoreExcellent : Colors.white,
+                  color: isDone ? MintColors.scoreExcellent : MintColors.white,
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: isDone ? MintColors.scoreExcellent : MintColors.lightBorder,
@@ -191,7 +191,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
                   ),
                 ),
                 child: isDone
-                    ? const Icon(Icons.check, color: Colors.white, size: 14)
+                    ? const Icon(Icons.check, color: MintColors.white, size: 14)
                     : null,
               ),
             ),
@@ -275,7 +275,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
         ),
         child: Text(
           'En retard',
-          style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white),
+          style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: MintColors.white),
         ),
       );
     }

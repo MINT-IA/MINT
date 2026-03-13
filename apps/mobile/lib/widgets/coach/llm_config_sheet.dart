@@ -246,7 +246,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: isSelected ? Colors.white : MintColors.textSecondary,
+              color: isSelected ? MintColors.white : MintColors.textSecondary,
             ),
             textAlign: TextAlign.center,
           ),
@@ -394,7 +394,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
       onPressed: _save,
       style: ElevatedButton.styleFrom(
         backgroundColor: MintColors.coachAccent,
-        foregroundColor: Colors.white,
+        foregroundColor: MintColors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),

@@ -523,7 +523,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           ),
           style: FilledButton.styleFrom(
             backgroundColor: MintColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: MintColors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),

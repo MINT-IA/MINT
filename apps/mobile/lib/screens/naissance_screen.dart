@@ -126,7 +126,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       expandedHeight: 160,
       backgroundColor: MintColors.primary,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.white),
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -136,7 +136,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
-            color: Colors.white,
+            color: MintColors.white,
           ),
         ),
         background: Container(
@@ -154,10 +154,10 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       ),
       bottom: TabBar(
         controller: _tabController,
-        indicatorColor: Colors.white,
+        indicatorColor: MintColors.white,
         indicatorWeight: 3,
-        labelColor: Colors.white,
-        unselectedLabelColor: Colors.white60,
+        labelColor: MintColors.white,
+        unselectedLabelColor: MintColors.white60,
         labelStyle: GoogleFonts.inter(
           fontSize: 13,
           fontWeight: FontWeight.w600,
@@ -218,7 +218,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
@@ -242,7 +242,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               SegmentedButton<bool>(
                 style: SegmentedButton.styleFrom(
                   selectedBackgroundColor: MintColors.primary,
-                  selectedForegroundColor: Colors.white,
+                  selectedForegroundColor: MintColors.white,
                   textStyle: GoogleFonts.inter(fontSize: 12),
                 ),
                 segments: [
@@ -297,7 +297,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -346,7 +346,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                         style: GoogleFonts.montserrat(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          color: MintColors.white,
                         ),
                       ),
                     ),
@@ -400,7 +400,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -496,7 +496,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             style: GoogleFonts.montserrat(
               fontSize: 28,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: MintColors.white,
             ),
           ),
           const SizedBox(height: 6),
@@ -506,7 +506,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             'sur $weeks semaines',
             style: GoogleFonts.inter(
               fontSize: 13,
-              color: Colors.white70,
+              color: MintColors.white70,
               height: 1.4,
             ),
             textAlign: TextAlign.center,
@@ -553,7 +553,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
@@ -655,7 +655,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             style: GoogleFonts.montserrat(
               fontSize: 28,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: MintColors.white,
             ),
           ),
           const SizedBox(height: 6),
@@ -664,7 +664,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.white70,
+              color: MintColors.white70,
             ),
           ),
           const SizedBox(height: 6),
@@ -673,7 +673,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             'pour $_nbEnfantsAlloc enfant${_nbEnfantsAlloc > 1 ? "s" : ""}',
             style: GoogleFonts.inter(
               fontSize: 13,
-              color: Colors.white60,
+              color: MintColors.white60,
               height: 1.4,
             ),
             textAlign: TextAlign.center,
@@ -691,7 +691,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -873,7 +873,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: MintColors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
                 color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
@@ -1170,7 +1170,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -1250,7 +1250,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: MintColors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: MintColors.lightBorder),
           ),
@@ -1331,7 +1331,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         decoration: BoxDecoration(
           color: isChecked
               ? MintColors.success.withValues(alpha: 0.04)
-              : Colors.white,
+              : MintColors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isChecked
@@ -1380,7 +1380,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                         ),
                         child: isChecked
                             ? const Icon(Icons.check,
-                                size: 15, color: Colors.white)
+                                size: 15, color: MintColors.white)
                             : null,
                       ),
                     ),
@@ -1679,21 +1679,21 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               S.of(context)!.naissanceDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),

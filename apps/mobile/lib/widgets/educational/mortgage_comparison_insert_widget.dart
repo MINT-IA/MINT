@@ -74,7 +74,7 @@ class MortgageComparisonInsertWidget extends StatelessWidget {
   Widget _buildComparisonTable() {
     return Table(
       border: TableBorder.all(
-        color: Colors.grey.shade300,
+        color: MintColors.greyBorder,
         borderRadius: BorderRadius.circular(12),
       ),
       children: [
@@ -145,12 +145,12 @@ class MortgageComparisonInsertWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 16, color: Colors.amber.shade700),
+          Icon(icon, size: 16, color: MintColors.warningText),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               text,
-              style: TextStyle(fontSize: 13, color: Colors.amber.shade900),
+              style: TextStyle(fontSize: 13, color: MintColors.amberDark),
             ),
           ),
         ],

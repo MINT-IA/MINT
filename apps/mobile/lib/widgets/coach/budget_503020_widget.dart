@@ -152,7 +152,7 @@ class Budget503020Widget extends StatelessWidget {
                     style: GoogleFonts.montserrat(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: MintColors.white,
                     ),
                   ),
                 ),

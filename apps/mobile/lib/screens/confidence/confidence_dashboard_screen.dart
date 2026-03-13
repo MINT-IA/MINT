@@ -589,7 +589,7 @@ class _ConfidenceGaugePainter extends CustomPainter {
       canvas.drawCircle(tipCenter, 4, tipPaint);
 
       final corePaint = Paint()
-        ..color = Colors.white.withValues(alpha: 0.85);
+        ..color = MintColors.white.withValues(alpha: 0.85);
       canvas.drawCircle(tipCenter, 2, corePaint);
     }
 

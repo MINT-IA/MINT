@@ -155,14 +155,14 @@ class _ConsentScreenState extends State<ConsentScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.amber.shade50,
+        color: MintColors.disclaimerBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.amber.shade300),
+        border: Border.all(color: MintColors.amberWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.lock_outline, color: Colors.amber.shade800, size: 22),
+          Icon(Icons.lock_outline, color: MintColors.amberDark, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -173,7 +173,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Colors.amber.shade900,
+                    color: MintColors.amberDark,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -182,7 +182,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   'Les donnees affichees sont des exemples de demonstration.',
                   style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: Colors.amber.shade800,
+                    color: MintColors.amberDark,
                     height: 1.5,
                   ),
                 ),
@@ -202,16 +202,16 @@ class _ConsentScreenState extends State<ConsentScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.blue.shade50,
+          color: MintColors.neutralBg,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.blue.shade200),
+          border: Border.all(color: MintColors.neutralBg),
         ),
         child: Text(
           'MODE DEMO',
           style: GoogleFonts.montserrat(
             fontSize: 10,
             fontWeight: FontWeight.w700,
-            color: Colors.blue.shade700,
+            color: MintColors.blueDark,
             letterSpacing: 1,
           ),
         ),
@@ -247,7 +247,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -418,9 +418,9 @@ class _ConsentScreenState extends State<ConsentScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.teal.shade50,
+        color: MintColors.accentPastel,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.teal.shade200),
+        border: Border.all(color: MintColors.accentPastel),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -428,14 +428,14 @@ class _ConsentScreenState extends State<ConsentScreen> {
           Row(
             children: [
               Icon(Icons.shield_outlined,
-                  color: Colors.teal.shade700, size: 20),
+                  color: MintColors.tealLight, size: 20),
               const SizedBox(width: 10),
               Text(
                 'Tes droits (nLPD)',
                 style: GoogleFonts.outfit(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: Colors.teal.shade800,
+                  color: MintColors.tealDark,
                 ),
               ),
             ],
@@ -446,7 +446,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
             '(Loi federale sur la protection des donnees) :',
             style: GoogleFonts.inter(
               fontSize: 12,
-              color: Colors.teal.shade700,
+              color: MintColors.tealLight,
               height: 1.5,
             ),
           ),
@@ -475,7 +475,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
         text,
         style: GoogleFonts.inter(
           fontSize: 12,
-          color: Colors.teal.shade800,
+          color: MintColors.tealDark,
           height: 1.5,
         ),
       ),
@@ -519,16 +519,16 @@ class _ConsentScreenState extends State<ConsentScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.blue.shade50,
+              color: MintColors.neutralBg,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.blue.shade200),
+              border: Border.all(color: MintColors.neutralBg),
             ),
             child: Text(
               'MODE DEMO',
               style: GoogleFonts.montserrat(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
-                color: Colors.blue.shade700,
+                color: MintColors.blueDark,
                 letterSpacing: 1,
               ),
             ),
@@ -585,14 +585,14 @@ class _ConsentScreenState extends State<ConsentScreen> {
                     ),
                     child: Center(
                       child: isDone
-                          ? const Icon(Icons.check, color: Colors.white, size: 14)
+                          ? const Icon(Icons.check, color: MintColors.white, size: 14)
                           : Text(
                               '${i + 1}',
                               style: GoogleFonts.inter(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                                 color: isActive
-                                    ? Colors.white
+                                    ? MintColors.white
                                     : MintColors.textMuted,
                               ),
                             ),
@@ -625,7 +625,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border:
             Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
@@ -736,7 +736,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border:
             Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
@@ -891,7 +891,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border:
             Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
@@ -924,9 +924,9 @@ class _ConsentScreenState extends State<ConsentScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.orange.shade50,
+              color: MintColors.warningBg,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.orange.shade200),
+              border: Border.all(color: MintColors.orangeRetroWarm),
             ),
             child: Text(
               'En confirmant, tu autorises MINT a acceder aux '
@@ -935,7 +935,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               'a tout moment.',
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),
@@ -1032,14 +1032,14 @@ class _ConsentScreenState extends State<ConsentScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -1049,7 +1049,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               'a une consultation reglementaire prealable.',
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),

@@ -544,7 +544,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           maxHeight: MediaQuery.of(context).size.height * 0.6,
         ),
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         padding: const EdgeInsets.all(20),
@@ -873,14 +873,14 @@ class _ActionCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: urgencyColor.withValues(alpha: 0.15),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
+              color: MintColors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),

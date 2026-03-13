@@ -45,7 +45,7 @@ class _DeathUrgencyGuideWidgetState extends State<DeathUrgencyGuideWidget> {
       label: 'Guide urgence décès proche checklist phases administratives',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),

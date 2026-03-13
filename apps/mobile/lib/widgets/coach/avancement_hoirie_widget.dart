@@ -44,7 +44,7 @@ class AvancementHoirieWidget extends StatelessWidget {
       label: 'Avancement hoirie donation rapport succession',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),

@@ -2,7 +2,6 @@
 Tests for recommendations endpoint.
 """
 
-import uuid
 
 
 def test_preview_recommendations(client):

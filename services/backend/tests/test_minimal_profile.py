@@ -25,17 +25,12 @@ from app.services.onboarding.minimal_profile_service import (
     _estimate_avs_monthly,
     _project_lpp_capital,
     _estimate_lpp_from_age_25,
-    _compute_marginal_tax_rate,
     _compute_confidence_score,
 )
 from app.services.onboarding.onboarding_models import MinimalProfileInput
 from app.constants.social_insurance import (
     AVS_RENTE_MAX_MENSUELLE,
     AVS_RENTE_MIN_MENSUELLE,
-    AVS_DUREE_COTISATION_COMPLETE,
-    LPP_TAUX_CONVERSION_MIN,
-    PILIER_3A_PLAFOND_AVEC_LPP,
-    TAUX_IMPOT_RETRAIT_CAPITAL,
 )
 
 

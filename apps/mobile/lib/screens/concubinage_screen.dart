@@ -96,7 +96,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       expandedHeight: 160,
       backgroundColor: MintColors.primary,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.white),
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -106,7 +106,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
-            color: Colors.white,
+            color: MintColors.white,
           ),
         ),
         background: Container(
@@ -124,10 +124,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       ),
       bottom: TabBar(
         controller: _tabController,
-        indicatorColor: Colors.white,
+        indicatorColor: MintColors.white,
         indicatorWeight: 3,
-        labelColor: Colors.white,
-        unselectedLabelColor: Colors.white60,
+        labelColor: MintColors.white,
+        unselectedLabelColor: MintColors.white60,
         labelStyle: GoogleFonts.inter(
           fontSize: 13,
           fontWeight: FontWeight.w600,
@@ -191,7 +191,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
@@ -413,7 +413,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                   style: GoogleFonts.montserrat(
                     fontSize: 36,
                     fontWeight: FontWeight.w800,
-                    color: Colors.white,
+                    color: MintColors.white,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -421,7 +421,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                   'avantages',
                   style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: Colors.white60,
+                    color: MintColors.white60,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -430,7 +430,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: MintColors.white,
                   ),
                 ),
               ],
@@ -439,7 +439,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           Container(
             width: 1,
             height: 60,
-            color: Colors.white24,
+            color: MintColors.white24,
           ),
           Expanded(
             child: Column(
@@ -449,7 +449,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                   style: GoogleFonts.montserrat(
                     fontSize: 36,
                     fontWeight: FontWeight.w800,
-                    color: Colors.white,
+                    color: MintColors.white,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -457,7 +457,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                   'avantages',
                   style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: Colors.white60,
+                    color: MintColors.white60,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -466,7 +466,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: MintColors.white,
                   ),
                 ),
               ],
@@ -488,7 +488,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -561,7 +561,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -655,7 +655,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MintColors.white,
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(Icons.balance, size: 18, color: MintColors.primary),
@@ -740,7 +740,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: MintColors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: MintColors.lightBorder),
           ),
@@ -821,7 +821,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         decoration: BoxDecoration(
           color: isChecked
               ? MintColors.success.withValues(alpha: 0.04)
-              : Colors.white,
+              : MintColors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isChecked
@@ -872,7 +872,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                         ),
                         child: isChecked
                             ? const Icon(Icons.check,
-                                size: 15, color: Colors.white)
+                                size: 15, color: MintColors.white)
                             : null,
                       ),
                     ),
@@ -1089,14 +1089,14 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -1106,7 +1106,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               'Consulte un-e specialiste juridique pour un avis personnalise.',
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),

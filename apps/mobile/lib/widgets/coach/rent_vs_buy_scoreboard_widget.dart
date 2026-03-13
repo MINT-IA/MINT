@@ -99,7 +99,7 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
       label: 'Bilan de match louer acheter patrimoine break-even FINMA amortissement',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),
@@ -243,7 +243,7 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
                 style: GoogleFonts.inter(
                   fontSize: 9,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: MintColors.white,
                 ),
               ),
             ),

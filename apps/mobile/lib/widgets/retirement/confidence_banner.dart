@@ -130,7 +130,7 @@ class ConfidenceBanner extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: MintColors.white,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: MintColors.greyBorder),
           ),
@@ -201,7 +201,7 @@ class ConfidenceBanner extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: MintColors.white,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: MintColors.greyBorder),
           ),

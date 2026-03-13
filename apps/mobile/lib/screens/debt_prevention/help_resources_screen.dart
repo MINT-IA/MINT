@@ -30,8 +30,8 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
             expandedHeight: 100,
             pinned: true,
             backgroundColor: MintColors.primary,
-            foregroundColor: Colors.white,
-            iconTheme: const IconThemeData(color: Colors.white),
+            foregroundColor: MintColors.white,
+            iconTheme: const IconThemeData(color: MintColors.white),
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
@@ -50,7 +50,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: MintColors.white,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -74,7 +74,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                   url: 'https://www.dettes.ch',
                   telephone: '0800 40 40 40',
                   icon: Icons.phone_in_talk,
-                  color: Colors.blue,
+                  color: MintColors.info,
                 ),
                 const SizedBox(height: 16),
 
@@ -89,7 +89,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                   url: 'https://www.caritas.ch/dettes',
                   telephone: '0800 708 708',
                   icon: Icons.favorite_outline,
-                  color: Colors.red,
+                  color: MintColors.error,
                 ),
                 const SizedBox(height: 24),
 
@@ -116,7 +116,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -175,7 +175,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color.withOpacity(0.3), width: 2),
       ),
@@ -209,7 +209,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: Colors.green.shade100,
+                        color: MintColors.successBg,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Text(
@@ -217,7 +217,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
-                          color: Colors.green,
+                          color: MintColors.success,
                         ),
                       ),
                     ),
@@ -271,7 +271,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -400,14 +400,14 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50,
+        color: MintColors.neutralBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blue.shade200),
+        border: Border.all(color: MintColors.neutralBg),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.lock_outline, color: Colors.blue.shade700, size: 20),
+          Icon(Icons.lock_outline, color: MintColors.blueDark, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -418,7 +418,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: Colors.blue.shade800,
+                    color: MintColors.blueMaterial900,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -429,7 +429,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                   'confidentielle et n\'est ni enregistrée ni partagée.',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.blue.shade700,
+                    color: MintColors.blueDark,
                     height: 1.4,
                   ),
                 ),
@@ -445,14 +445,14 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 20),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -462,7 +462,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
               'financière, contactez directement les services spécialisés.',
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.4,
               ),
             ),

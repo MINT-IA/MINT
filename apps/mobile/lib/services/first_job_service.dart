@@ -235,8 +235,8 @@ class FirstJobService {
       plafondAnnuel3a: pilier3aPlafondAvecLpp,
       montantMensuelSuggere3a: pilier3aPlafondAvecLpp / 12,
       economieFiscaleEstimee3a: economie3a,
-      alerte3a: 'Evite les 3a lies a une assurance-vie ! '
-          'Privilegie un 3a fintech (VIAC, finpension, frankly) avec frais < 0.5%.',
+      alerte3a: 'Évite les 3a liés à une assurance-vie\u00a0! '
+          'Privilégie un 3a fintech avec frais < 0,5\u00a0%.',
       franchiseOptions: franchiseData.$1,
       franchiseRecommandee: franchiseData.$2,
       economieAnnuelleVs300: franchiseData.$3,

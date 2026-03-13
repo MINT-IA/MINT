@@ -46,7 +46,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showUploadTypeSheet(s),
         backgroundColor: MintColors.primary,
-        child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
+        child: const Icon(Icons.add_rounded, color: MintColors.white, size: 28),
       ),
       body: CustomScrollView(
         slivers: [
@@ -123,7 +123,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       backgroundColor: MintColors.primary,
       leading: IconButton(
         icon:
-            const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+            const Icon(Icons.arrow_back_ios_new, color: MintColors.white, size: 20),
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -145,7 +145,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             fontSize: 14,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.5,
-            color: Colors.white,
+            color: MintColors.white,
           ),
         ),
         centerTitle: true,
@@ -156,27 +156,27 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: MintColors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.star_rounded, color: Colors.white, size: 16),
+                const Icon(Icons.star_rounded, color: MintColors.white, size: 16),
                 const SizedBox(width: 4),
                 Text(
                   s?.vaultPremiumBadge ?? 'Premium',
                   style: GoogleFonts.montserrat(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: MintColors.white,
                   ),
                 ),
               ],
             ),
           ),
         IconButton(
-          icon: const Icon(Icons.info_outline, size: 22, color: Colors.white),
+          icon: const Icon(Icons.info_outline, size: 22, color: MintColors.white),
           onPressed: () => _showInfoDialog(),
         ),
         const SizedBox(width: 8),
@@ -315,7 +315,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
           boxShadow: [
@@ -631,7 +631,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MintColors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: MintColors.border),
             ),
@@ -743,7 +743,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             onPressed: () => _showUploadTypeSheet(s),
             style: FilledButton.styleFrom(
               backgroundColor: MintColors.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: MintColors.white,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
@@ -789,11 +789,11 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: MintColors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.lock_open_rounded,
-                    color: Colors.white, size: 24),
+                    color: MintColors.white, size: 24),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -802,7 +802,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: MintColors.white,
                   ),
                 ),
               ),
@@ -815,7 +815,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                     'et d\u00e9bloquer l\u2019audit de couverture automatique',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.9),
+              color: MintColors.white.withValues(alpha: 0.9),
               height: 1.4,
             ),
           ),
@@ -829,7 +829,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 CoachPaywallSheet.show(context);
               },
               style: FilledButton.styleFrom(
-                backgroundColor: Colors.white,
+                backgroundColor: MintColors.white,
                 foregroundColor: MintColors.primary,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -1038,7 +1038,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -1133,7 +1133,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.info.withValues(alpha: 0.3)),
         ),

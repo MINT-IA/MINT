@@ -169,7 +169,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
   void _showTauxMarginalInfo(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -275,7 +275,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                     style: GoogleFonts.inter(
                         fontSize: 10,
                         color:
-                            highlight ? Colors.white70 : MintColors.textMuted),
+                            highlight ? MintColors.white70 : MintColors.textMuted),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -284,7 +284,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color:
-                            highlight ? Colors.white : MintColors.textPrimary),
+                            highlight ? MintColors.white : MintColors.textPrimary),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -292,7 +292,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                     style: GoogleFonts.inter(
                         fontSize: 11,
                         color: highlight
-                            ? Colors.white70
+                            ? MintColors.white70
                             : MintColors.textSecondary),
                   ),
                 ],

@@ -219,7 +219,7 @@ class TimelineService {
           category: 'pension',
           label: 'Vérifier bénéficiaires',
           description: 'Mettre à jour bénéficiaires LPP/3a/assurances',
-          actionUrl: '/onboarding/smart',
+          actionUrl: '/onboarding/quick',
           priority: ReminderPriority.medium,
           sourceSessionId: sessionId,
         ));

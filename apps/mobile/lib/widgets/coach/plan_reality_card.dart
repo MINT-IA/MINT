@@ -43,7 +43,7 @@ class PlanRealityCard extends StatelessWidget {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Colors.white,
+      color: MintColors.white,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(

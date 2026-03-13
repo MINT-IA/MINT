@@ -11,28 +11,22 @@ Run: cd services/backend && python3 -m pytest tests/test_scenario_narration.py -
 """
 
 import pytest
-import re
 from datetime import date
 
 from fastapi.testclient import TestClient
 
 from app.services.scenario.scenario_models import (
     AnnualRefreshResult,
-    NarratedScenario,
-    RefreshQuestion,
     ScenarioInput,
     ScenarioNarrationResult,
 )
 from app.services.scenario.scenario_narrator_service import (
     BANNED_TERMS,
-    STANDARD_DISCLAIMER,
-    STANDARD_SOURCES,
     ScenarioNarratorService,
     _format_chf,
 )
 from app.services.scenario.annual_refresh_service import (
     AnnualRefreshService,
-    REFRESH_THRESHOLD_MONTHS,
 )
 
 

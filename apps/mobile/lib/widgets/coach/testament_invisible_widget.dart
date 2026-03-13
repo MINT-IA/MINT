@@ -76,7 +76,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
       label: 'Testament invisible distribution succession',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),
@@ -174,7 +174,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: isSelected ? MintColors.primary : Colors.white,
+                  color: isSelected ? MintColors.primary : MintColors.white,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isSelected ? MintColors.primary : MintColors.lightBorder,
@@ -186,7 +186,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: isSelected ? Colors.white : MintColors.textPrimary,
+                    color: isSelected ? MintColors.white : MintColors.textPrimary,
                   ),
                 ),
               ),

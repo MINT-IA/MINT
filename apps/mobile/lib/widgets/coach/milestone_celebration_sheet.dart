@@ -106,8 +106,8 @@ class _MilestoneCelebrationSheetState extends State<MilestoneCelebrationSheet>
               end: Alignment.bottomCenter,
               colors: [
                 milestoneColor.withValues(alpha: 0.08),
-                Colors.white,
-                Colors.white,
+                MintColors.white,
+                MintColors.white,
               ],
               stops: const [0.0, 0.35, 1.0],
             ),
@@ -194,7 +194,7 @@ class _MilestoneCelebrationSheetState extends State<MilestoneCelebrationSheet>
                     onPressed: () => Navigator.of(context).pop(),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: milestoneColor,
-                      foregroundColor: Colors.white,
+                      foregroundColor: MintColors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),

@@ -65,7 +65,7 @@ class LppRescueWidget extends StatelessWidget {
       label: 'Sauvetage LPP 2e pilier libre passage',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),
@@ -235,7 +235,7 @@ class LppRescueWidget extends StatelessWidget {
                     style: GoogleFonts.inter(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: MintColors.white,
                     ),
                   ),
                 ),
