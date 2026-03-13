@@ -47,10 +47,7 @@ class _PulseScreenState extends State<PulseScreen> {
   FinancialFitnessScore? _cachedFri;
   CoachProfile? _lastProfile;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final provider = context.watch<CoachProfileProvider>();
+  void _refreshCaches(CoachProfileProvider provider) {
     if (!provider.hasProfile) {
       if (_lastProfile != null) {
         _lastProfile = null;
@@ -87,6 +84,7 @@ class _PulseScreenState extends State<PulseScreen> {
   @override
   Widget build(BuildContext context) {
     final coachProvider = context.watch<CoachProfileProvider>();
+    _refreshCaches(coachProvider);
 
     if (!coachProvider.hasProfile) {
       return _buildEmptyState(context);

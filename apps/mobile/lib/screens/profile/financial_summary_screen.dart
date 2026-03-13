@@ -16,6 +16,7 @@ import 'package:mint_mobile/widgets/profile/patrimoine_drawer_content.dart';
 import 'package:mint_mobile/widgets/profile/dettes_drawer_content.dart';
 import 'package:mint_mobile/widgets/profile/futur_drawer_content.dart';
 import 'package:mint_mobile/widgets/profile/enrichment_cta.dart';
+import 'package:mint_mobile/widgets/profile/apercu_3a_card.dart';
 
 /// Écran "Mon aperçu" — Le Gap + 3 Tiroirs
 ///
@@ -194,7 +195,13 @@ class FinancialSummaryScreen extends StatelessWidget {
                   ? () => context.push('/document-scan')
                   : null,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
+
+            // ── CARTE 3A ──
+            if (prev.nombre3a > 0 || prev.totalEpargne3a > 0)
+              Apercu3aCard(profile: profile),
+            if (prev.nombre3a > 0 || prev.totalEpargne3a > 0)
+              const SizedBox(height: 16),
 
             // ── TIROIR 1: Ce que tu as ──
             FinancialDrawer(
@@ -415,7 +422,10 @@ class FinancialSummaryScreen extends StatelessWidget {
       );
     }
 
-    showModalBottomSheet<void>(
+    // Capture provider before async gap (StatelessWidget has no mounted check)
+    final provider = context.read<CoachProfileProvider>();
+
+    showModalBottomSheet<Map<String, String>>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -472,8 +482,13 @@ class FinancialSummaryScreen extends StatelessWidget {
               const SizedBox(height: 8),
               FilledButton(
                 onPressed: () {
-                  _applyEdits(context, controllers);
-                  Navigator.of(ctx).pop();
+                  // Capture values before closing sheet to avoid
+                  // TextEditingController disposed-during-rebuild errors.
+                  final values = {
+                    for (final e in controllers.entries)
+                      e.key: e.value.text,
+                  };
+                  Navigator.of(ctx).pop(values);
                 },
                 style: FilledButton.styleFrom(
                   backgroundColor: MintColors.primary,
@@ -496,24 +511,27 @@ class FinancialSummaryScreen extends StatelessWidget {
           ),
         );
       },
-    ).whenComplete(() {
+    ).then((values) {
       for (final c in controllers.values) {
         c.dispose();
+      }
+      if (values != null) {
+        _applyEditsFromValues(provider, values);
       }
     });
   }
 
-  void _applyEdits(
-    BuildContext context,
-    Map<String, TextEditingController> controllers,
+  void _applyEditsFromValues(
+    CoachProfileProvider provider,
+    Map<String, String> values,
   ) {
     double? parseVal(String key) {
-      final raw = controllers[key]?.text.replaceAll(RegExp(r'[^0-9.,]'), '');
+      final raw = values[key]?.replaceAll(RegExp(r'[^0-9.,]'), '');
       if (raw == null || raw.isEmpty) return null;
       return double.tryParse(raw.replaceAll("'", '').replaceAll(',', '.'));
     }
 
-    context.read<CoachProfileProvider>().updateInline(
+    provider.updateInline(
           // Tiroir 1 — Patrimoine
           epargneLiquide: parseVal('epargneLiquide'),
           investissements: parseVal('investissements'),

@@ -38,6 +38,8 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   /// Timestamp when the app was last paused (backgrounded)
   DateTime? _lastPauseTime;
 
+  CoachProfileProvider? _coachProvider;
+
   @override
   void initState() {
     super.initState();
@@ -54,6 +56,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
 
   @override
   void dispose() {
+    _coachProvider?.removeListener(_onProfileChanged);
     NavigationShellState.unregister();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -106,14 +109,26 @@ class _MainNavigationShellState extends State<MainNavigationShell>
       }
     }
 
-    // Auto-sync budget quand le profil change (wizard, annual refresh)
-    final coachProvider = context.watch<CoachProfileProvider>();
-    if (coachProvider.profileUpdatedSinceBudget && coachProvider.hasProfile) {
+    // Register listener for budget auto-sync (once).
+    // NEVER use context.watch() in didChangeDependencies — it causes
+    // _dependents.isEmpty assertion failures in the framework.
+    final newCoachProvider = context.read<CoachProfileProvider>();
+    if (_coachProvider != newCoachProvider) {
+      _coachProvider?.removeListener(_onProfileChanged);
+      _coachProvider = newCoachProvider;
+      _coachProvider!.addListener(_onProfileChanged);
+    }
+  }
+
+  void _onProfileChanged() {
+    final cp = _coachProvider;
+    if (cp == null || !mounted) return;
+    if (cp.profileUpdatedSinceBudget && cp.hasProfile) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           final budgetProv = context.read<BudgetProvider>();
-          budgetProv.refreshFromProfile(coachProvider.profile!);
-          coachProvider.markBudgetSynced();
+          budgetProv.refreshFromProfile(cp.profile!);
+          cp.markBudgetSynced();
         }
       });
     }

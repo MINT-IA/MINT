@@ -88,11 +88,10 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
   //  LIFECYCLE
   // ────────────────────────────────────────────────────────────
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    final provider = context.watch<CoachProfileProvider>();
+  // Refresh cached computations when profile changes.
+  // Called from build() — NEVER use context.watch() in didChangeDependencies()
+  // as it causes _dependents.isEmpty assertion failures.
+  void _refreshCaches(CoachProfileProvider provider) {
     if (!provider.hasProfile) {
       _profile = null;
       _projection = null;
@@ -275,6 +274,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<CoachProfileProvider>();
+    _refreshCaches(provider);
 
     if (!provider.hasProfile || _projection == null || _profile == null) {
       return _buildEmptyState();
