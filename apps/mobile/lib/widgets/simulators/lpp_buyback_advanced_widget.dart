@@ -149,7 +149,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
             "Valeur Finale Capitalisée",
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: Colors.white70,
+              color: MintColors.white70,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -159,20 +159,20 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
             style: GoogleFonts.outfit(
               fontSize: 32,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: MintColors.white,
             ),
           ),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha:0.2),
+              color: MintColors.white.withValues(alpha:0.2),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
               "Rendement Réel : ${(result.realAnnualReturn * 100).toStringAsFixed(1)}% / an",
               style: const TextStyle(
-                color: Colors.white,
+                color: MintColors.white,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
@@ -190,7 +190,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
           "Économie Impôts",
           "CHF ${result.totalTaxSavings.toStringAsFixed(0)}",
           Icons.savings_outlined,
-          Colors.green,
+          MintColors.success,
         ),
         const SizedBox(width: 12),
         _buildSmallMetric(
@@ -261,7 +261,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
               Text(
                 "+ CHF ${result.totalValueGained.toStringAsFixed(0)}",
                 style: const TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.green),
+                    fontWeight: FontWeight.bold, color: MintColors.success),
               ),
             ],
           ),
@@ -287,7 +287,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
               Text(
                   "+${((result.realAnnualReturn - _fundRate) * 100).toStringAsFixed(1)}%",
                   style: const TextStyle(
-                      color: Colors.green,
+                      color: MintColors.success,
                       fontSize: 12,
                       fontWeight: FontWeight.bold)),
             ],
@@ -411,7 +411,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
           data: SliderThemeData(
             activeTrackColor: MintColors.primary,
             inactiveTrackColor: MintColors.border,
-            thumbColor: Colors.white,
+            thumbColor: MintColors.white,
             overlayColor: MintColors.primary.withValues(alpha:0.1),
             thumbShape: const RoundSliderThumbShape(
                 enabledThumbRadius: 6, elevation: 1),

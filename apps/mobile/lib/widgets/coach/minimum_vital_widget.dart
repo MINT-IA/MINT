@@ -52,7 +52,7 @@ class MinimumVitalWidget extends StatelessWidget {
       label: 'Minimum vital LP art 93 bouclier légal insaisissable',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),

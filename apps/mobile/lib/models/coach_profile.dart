@@ -21,7 +21,7 @@ enum CoachCivilStatus { celibataire, marie, divorce, veuf, concubinage }
 
 /// Niveau de culture financiere de l'utilisateur.
 ///
-/// Derive des 3 questions de calibrage en fin de StepQuestions.
+/// Derive des questions de calibrage durant l'onboarding.
 /// Score 0-1 → beginner, 2 → intermediate, 3 → advanced.
 /// Valeur par defaut : beginner (backward-compatible).
 enum FinancialLiteracyLevel { beginner, intermediate, advanced }

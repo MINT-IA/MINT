@@ -107,7 +107,7 @@ class ClarityState {
     if (precisionIndex < 40) return 'Basique';
     if (precisionIndex < 70) return 'Bon';
     if (precisionIndex < 90) return 'Excellent';
-    return 'Parfait';
+    return 'Complet';
   }
 
   Color get precisionColor {

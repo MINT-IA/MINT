@@ -15,7 +15,7 @@ Sources:
     - LPD (Loi sur la protection des donnees) — right to erasure
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 # Valid trigger types for snapshot creation

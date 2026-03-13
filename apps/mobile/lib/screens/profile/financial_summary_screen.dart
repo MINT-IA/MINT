@@ -55,7 +55,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       expandedHeight: 80,
       backgroundColor: MintColors.primary,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.white),
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -78,7 +78,7 @@ class FinancialSummaryScreen extends StatelessWidget {
             fontSize: 14,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.2,
-            color: Colors.white,
+            color: MintColors.white,
           ),
         ),
       ),
@@ -477,7 +477,7 @@ class FinancialSummaryScreen extends StatelessWidget {
                 },
                 style: FilledButton.styleFrom(
                   backgroundColor: MintColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: MintColors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),

@@ -109,7 +109,7 @@ class CantonRankingBar extends StatelessWidget {
               style: GoogleFonts.montserrat(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
-                color: isHighlighted ? Colors.white : color,
+                color: isHighlighted ? MintColors.white : color,
               ),
             ),
           ),

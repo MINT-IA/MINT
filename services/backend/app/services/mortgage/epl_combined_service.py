@@ -24,7 +24,6 @@ from typing import List, Optional
 
 from app.constants.social_insurance import (
     TAUX_IMPOT_RETRAIT_CAPITAL,
-    RETRAIT_CAPITAL_TRANCHES,
     HYPOTHEQUE_FONDS_PROPRES_MIN,
     HYPOTHEQUE_PART_2E_PILIER_MAX,
     calculate_progressive_capital_tax,
@@ -355,7 +354,6 @@ class EplCombinedService:
             )
 
         if prix_cible > 0:
-            fonds_propres_requis = prix_cible * HYPOTHEQUE_FONDS_PROPRES_MIN
             part_2e_pilier_max = prix_cible * HYPOTHEQUE_PART_2E_PILIER_MAX
             if retrait_lpp > part_2e_pilier_max:
                 alertes.append(

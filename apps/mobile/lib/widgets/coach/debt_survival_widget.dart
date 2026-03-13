@@ -42,7 +42,7 @@ class DebtSurvivalWidget extends StatelessWidget {
       label: 'Mode survie dette ratio KPIs actions urgentes Dettes Conseils',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: _isCritical
@@ -117,7 +117,7 @@ class DebtSurvivalWidget extends StatelessWidget {
                     style: GoogleFonts.inter(
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                      color: MintColors.white,
                     ),
                   ),
                 ),

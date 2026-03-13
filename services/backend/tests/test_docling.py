@@ -6,9 +6,6 @@ and RAG integration for document indexing.
 """
 
 import importlib
-import io
-import os
-import tempfile
 
 import pytest
 
@@ -38,8 +35,6 @@ def _make_pdf_bytes(text_content: str) -> bytes:
     This produces a single-page PDF with embedded text.
     """
     # Minimal PDF 1.4 structure
-    text_escaped = text_content.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
-
     # Split text into lines for positioning
     lines = text_content.split("\n")
     text_ops = []
@@ -952,7 +947,6 @@ class TestEdgeCases:
         from app.schemas.document import (
             DocumentUploadResponse,
             DocumentSummary,
-            DocumentListResponse,
             DocumentDeleteResponse,
         )
 

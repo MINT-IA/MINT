@@ -667,6 +667,47 @@ class ApiService {
       const ['breakevenYear', 'breakeven_year'],
     );
 
+    // ── Derive hero fields from trajectory data ──
+    // full_rente (option A) year-1 cashflow = annual net rente
+    // full_capital (option B) year-1 cashflow = annual SWR withdrawal
+    double renteNetMensuelle = 0;
+    double capitalRetraitMensuel = 0;
+    double impotCumulRente = 0;
+    double impotRetraitCapital = 0;
+    double renteReelleAn20 = 0;
+
+    final renteOption = options.where((o) => o.id == 'full_rente').firstOrNull;
+    final capitalOption =
+        options.where((o) => o.id == 'full_capital').firstOrNull;
+
+    if (renteOption != null && renteOption.trajectory.isNotEmpty) {
+      renteNetMensuelle = renteOption.trajectory.first.annualCashflow / 12;
+      impotCumulRente = renteOption.trajectory.last.cumulativeTaxDelta;
+      // Year 20 real rente (if horizon >= 20)
+      if (renteOption.trajectory.length >= 20) {
+        renteReelleAn20 = renteOption.trajectory[19].annualCashflow;
+      }
+    }
+
+    if (capitalOption != null && capitalOption.trajectory.isNotEmpty) {
+      capitalRetraitMensuel =
+          capitalOption.trajectory.first.annualCashflow / 12;
+      impotRetraitCapital = capitalOption.trajectory.first.cumulativeTaxDelta;
+    }
+
+    // Capital exhaustion age
+    int? capitalEpuiseAge;
+    if (capitalOption != null && capitalOption.trajectory.length > 1) {
+      final firstCashflow = capitalOption.trajectory.first.annualCashflow;
+      for (int i = 1; i < capitalOption.trajectory.length; i++) {
+        if (capitalOption.trajectory[i].annualCashflow <
+            firstCashflow * 0.1) {
+          capitalEpuiseAge = capitalOption.trajectory[i].year;
+          break;
+        }
+      }
+    }
+
     return ArbitrageResult(
       options: options,
       breakevenYear: breakeven != null && breakeven >= 0 ? breakeven : null,
@@ -695,6 +736,12 @@ class ApiService {
         const ['confidenceScore', 'confidence_score'],
       ),
       sensitivity: sensitivity,
+      renteNetMensuelle: renteNetMensuelle,
+      capitalRetraitMensuel: capitalRetraitMensuel,
+      capitalEpuiseAge: capitalEpuiseAge,
+      impotCumulRente: impotCumulRente,
+      impotRetraitCapital: impotRetraitCapital,
+      renteReelleAn20: renteReelleAn20,
     );
   }
 

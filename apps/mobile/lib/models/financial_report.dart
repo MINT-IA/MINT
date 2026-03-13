@@ -22,6 +22,14 @@ class FinancialReport {
   final List<String> disclaimers;
   final List<String> sources; // ["LPP art. 14", "LIFD art. 33", ...]
 
+  // Confidence scoring (mandatory on all projections — ADR §5)
+  /// Projection confidence score (0-100). Based on ConfidenceScorer when
+  /// a CoachProfile is available, or a simplified estimate from wizard data.
+  final double confidenceScore;
+
+  /// Actions the user can take to improve projection accuracy.
+  final List<String> enrichmentPrompts;
+
   // Metadata & Traçabilité (Aligned with SOT.md)
   final DateTime generatedAt;
   final String reportVersion;
@@ -40,6 +48,8 @@ class FinancialReport {
     required this.personalizedRoadmap,
     this.disclaimers = const [],
     this.sources = const [],
+    this.confidenceScore = 0,
+    this.enrichmentPrompts = const [],
     required this.generatedAt,
     this.reportVersion = '2.0',
     this.simulationAssumptions,

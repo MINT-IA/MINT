@@ -45,14 +45,14 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
             expandedHeight: 100,
             pinned: true,
             backgroundColor: MintColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 'EPL MULTI-SOURCES',
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: MintColors.white,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -119,7 +119,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color.withOpacity(0.3), width: 2),
       ),
@@ -173,7 +173,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -280,7 +280,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -438,7 +438,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -633,7 +633,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: Colors.white,
+              color: MintColors.white,
             ),
           ),
         ),
@@ -684,22 +684,22 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
             margin: const EdgeInsets.only(bottom: 10),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.amber.shade50,
+              color: MintColors.disclaimerBg,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.amber.shade200),
+              border: Border.all(color: MintColors.yellowGold),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(Icons.warning_amber_rounded,
-                    color: Colors.amber.shade700, size: 20),
+                    color: MintColors.warningText, size: 20),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     alerte,
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.amber.shade900,
+                      color: MintColors.amberDark,
                       height: 1.4,
                     ),
                   ),
@@ -744,14 +744,14 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 20),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -759,7 +759,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
               style: TextStyle(
                 fontSize: 11,
                 fontStyle: FontStyle.italic,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.4,
               ),
             ),
@@ -816,7 +816,7 @@ class _PieChartPainter extends CustomPainter {
 
       // White separator
       final separatorPaint = Paint()
-        ..color = Colors.white
+        ..color = MintColors.white
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2;
 
@@ -833,7 +833,7 @@ class _PieChartPainter extends CustomPainter {
 
     // Center circle (donut hole)
     final holePaint = Paint()
-      ..color = Colors.white
+      ..color = MintColors.white
       ..style = PaintingStyle.fill;
     canvas.drawCircle(center, radius * 0.55, holePaint);
 

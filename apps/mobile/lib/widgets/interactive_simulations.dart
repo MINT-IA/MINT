@@ -123,19 +123,19 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.orange.shade50,
+                color: MintColors.warningBg,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
                   const Icon(Icons.warning_amber,
-                      size: 16, color: Colors.orange),
+                      size: 16, color: MintColors.warning),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Versement annuel (CHF ${_annualContribution.toStringAsFixed(0)}) dépasse le plafond (CHF ${_maxAnnual.toStringAsFixed(0)})',
                       style:
-                          const TextStyle(fontSize: 11, color: Colors.orange),
+                          const TextStyle(fontSize: 11, color: MintColors.warning),
                     ),
                   ),
                 ],
@@ -199,7 +199,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
             'Économie d\'impôts (estimée)',
             'CHF ${_taxSavings.toStringAsFixed(0)}/an',
             Icons.savings,
-            Colors.green,
+            MintColors.success,
           ),
           const SizedBox(height: 16),
           _buildMetric(
@@ -223,7 +223,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
           ),
           const SizedBox(height: 16),
 
-          _buildProjection('Prudence (1%)', prudenceValue, Colors.orange),
+          _buildProjection('Prudence (1%)', prudenceValue, MintColors.warning),
           const SizedBox(height: 8),
           _buildProjection(
               'Central (3%)', centralValue, MintColors.centralScenarioLight),
@@ -235,25 +235,25 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
             'Économies fiscales cumulées ($_years ans)',
             'CHF ${totalTaxSavings.toStringAsFixed(0)}',
             Icons.star,
-            Colors.amber,
+            MintColors.amber,
           ),
 
           const SizedBox(height: 24),
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.orange.shade50,
+              color: MintColors.warningBg,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.orange.shade200),
+              border: Border.all(color: MintColors.orangeRetroWarm),
             ),
             child: const Row(
               children: [
-                Icon(Icons.info_outline, size: 16, color: Colors.orange),
+                Icon(Icons.info_outline, size: 16, color: MintColors.warning),
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Hypothèses pédagogiques. Rendements passés ne garantissent pas rendements futurs.',
-                    style: TextStyle(fontSize: 11, color: Colors.orange),
+                    style: TextStyle(fontSize: 11, color: MintColors.warning),
                   ),
                 ),
               ],
@@ -453,7 +453,7 @@ class _InteractiveLppBuybackSimulationState
             'Économie d\'impôts (estimée)',
             'CHF ${_taxSavings.toStringAsFixed(0)}',
             Icons.savings,
-            Colors.green,
+            MintColors.success,
           ),
           const SizedBox(height: 16),
           _buildMetric(
@@ -480,7 +480,7 @@ class _InteractiveLppBuybackSimulationState
           _buildPensionProjection(
             'Prudence (taux ${_conversionRatePrudence.toStringAsFixed(1)}%)',
             _annualPensionPrudence,
-            Colors.orange,
+            MintColors.warning,
           ),
           const SizedBox(height: 8),
           _buildPensionProjection(
@@ -499,23 +499,23 @@ class _InteractiveLppBuybackSimulationState
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.orange.shade50,
+              color: MintColors.warningBg,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.orange.shade200),
+              border: Border.all(color: MintColors.orangeRetroWarm),
             ),
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Icon(Icons.info_outline, size: 16, color: Colors.orange),
+                    Icon(Icons.info_outline, size: 16, color: MintColors.warning),
                     SizedBox(width: 8),
                     Text(
                       'Hypothèses et limites :',
                       style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: Colors.orange),
+                          color: MintColors.warning),
                     ),
                   ],
                 ),
@@ -524,7 +524,7 @@ class _InteractiveLppBuybackSimulationState
                   '• Déduction fiscale selon règles applicables\n'
                   '• Taux de conversion : hypothèse actuelle, peut baisser\n'
                   '• Vérifier avec certificat LPP et un·e spécialiste en fiscalité',
-                  style: TextStyle(fontSize: 11, color: Colors.orange),
+                  style: TextStyle(fontSize: 11, color: MintColors.warning),
                 ),
               ],
             ),

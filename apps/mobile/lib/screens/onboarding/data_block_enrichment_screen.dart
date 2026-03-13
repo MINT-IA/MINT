@@ -160,7 +160,7 @@ class _DataBlockEnrichmentScreenState
                   },
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: MintColors.white,
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -424,7 +424,7 @@ class _DataBlockEnrichmentScreenState
 
   String? _enrichmentRoute(String type) {
     const routes = {
-      'revenu': '/onboarding/smart',
+      'revenu': '/onboarding/quick',
       'lpp': '/document-scan',
       'avs': '/document-scan/avs-guide',
       '3a': '/simulator/3a',

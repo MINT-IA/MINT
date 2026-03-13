@@ -289,7 +289,6 @@ class ComplianceGuardrails:
         # For French, ComplianceGuard injects disclaimers into the text (Layer 4).
         # We reflect them into disclaimers_added for API consistency.
         if language == "fr":
-            from app.services.coach.compliance_guard import ComplianceGuard as _CG
 
             disclaimers_added.append(self.DISCLAIMERS["fr"]["general"])
             response_lower = response.lower()

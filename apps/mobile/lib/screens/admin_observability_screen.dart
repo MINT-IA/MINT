@@ -312,7 +312,7 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(9),
         border: Border.all(color: MintColors.border),
       ),
@@ -335,7 +335,7 @@ class _Card extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: MintColors.border),
       ),

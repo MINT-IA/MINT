@@ -220,7 +220,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.border),
         ),
@@ -309,8 +309,8 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
       child: OutlinedButton(
         onPressed: _revokeAll,
         style: OutlinedButton.styleFrom(
-          foregroundColor: Colors.red,
-          side: const BorderSide(color: Colors.red),
+          foregroundColor: MintColors.error,
+          side: const BorderSide(color: MintColors.error),
           padding: const EdgeInsets.symmetric(vertical: 14),
         ),
         child: Text(S.of(context)!.consentRevokeAll),

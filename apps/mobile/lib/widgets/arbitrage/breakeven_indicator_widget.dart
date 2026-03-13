@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Breakeven indicator card — shows when/if trajectories cross.
 ///
@@ -95,8 +96,8 @@ class BreakevenIndicatorWidget extends StatelessWidget {
             if (sensitivity!.containsKey('rendement_plus_1') &&
                 sensitivity!.containsKey('rendement_moins_1'))
               Text(
-                'Rendement +1 % : ${_formatChf(sensitivity!['rendement_plus_1']!)} | '
-                'Rendement -1 % : ${_formatChf(sensitivity!['rendement_moins_1']!)}',
+                'Rendement +1 % : ${formatChfWithPrefix(sensitivity!['rendement_plus_1']!)} | '
+                'Rendement -1 % : ${formatChfWithPrefix(sensitivity!['rendement_moins_1']!)}',
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   color: MintColors.textMuted,
@@ -106,8 +107,8 @@ class BreakevenIndicatorWidget extends StatelessWidget {
             if (sensitivity!.containsKey('rendement_marche_plus_1') &&
                 sensitivity!.containsKey('rendement_marche_moins_1'))
               Text(
-                'Marché +1 % : ${_formatChf(sensitivity!['rendement_marche_plus_1']!)} | '
-                'Marché -1 % : ${_formatChf(sensitivity!['rendement_marche_moins_1']!)}',
+                'Marché +1 % : ${formatChfWithPrefix(sensitivity!['rendement_marche_plus_1']!)} | '
+                'Marché -1 % : ${formatChfWithPrefix(sensitivity!['rendement_marche_moins_1']!)}',
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   color: MintColors.textMuted,
@@ -137,14 +138,4 @@ class BreakevenIndicatorWidget extends StatelessWidget {
     return 'Les trajectoires se croisent vers $crossoverCalendarYear.';
   }
 
-  static String _formatChf(double value) {
-    final intVal = value.round().abs();
-    final str = intVal.toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) buffer.write("'");
-      buffer.write(str[i]);
-    }
-    return 'CHF\u00A0${value < 0 ? '-' : ''}${buffer.toString()}';
-  }
 }

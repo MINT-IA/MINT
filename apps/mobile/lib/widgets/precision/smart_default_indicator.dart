@@ -80,7 +80,7 @@ class SmartDefaultIndicator extends StatelessWidget {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -224,7 +224,7 @@ class SmartDefaultIndicator extends StatelessWidget {
                     ),
                     style: FilledButton.styleFrom(
                       backgroundColor: MintColors.primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: MintColors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),

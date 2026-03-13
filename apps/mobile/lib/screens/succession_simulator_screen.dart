@@ -4,27 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/life_events_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
-
-/// Swiss CHF formatter with apostrophe grouping.
-String _formatChfSwiss(double value) {
-  final intVal = value.round();
-  final isNeg = intVal < 0;
-  final str = intVal.abs().toString();
-  final buffer = StringBuffer();
-  for (int i = 0; i < str.length; i++) {
-    if (i > 0 && (str.length - i) % 3 == 0) {
-      buffer.write("'");
-    }
-    buffer.write(str[i]);
-  }
-  return '${isNeg ? '-' : ''}${buffer.toString()}';
-}
-
-/// Swiss CHF formatter with prefix.
-String _chfFmt(double value) {
-  return 'CHF\u00A0${_formatChfSwiss(value)}';
-}
 
 class SuccessionSimulatorScreen extends StatefulWidget {
   const SuccessionSimulatorScreen({super.key});
@@ -173,11 +154,11 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.teal.shade600.withOpacity(0.1),
+              color: MintColors.teal.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(Icons.volunteer_activism,
-                color: Colors.teal.shade600, size: 24),
+                color: MintColors.teal, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -213,17 +194,17 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.teal.shade600.withOpacity(0.06),
+        color: MintColors.teal.withOpacity(0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.teal.shade600.withOpacity(0.15),
+          color: MintColors.teal.withOpacity(0.15),
         ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.lightbulb_outline,
-              size: 20, color: Colors.teal.shade600.withOpacity(0.8)),
+              size: 20, color: MintColors.teal.withOpacity(0.8)),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -246,7 +227,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
       title: S.of(context)!.successionSituationTitle,
       subtitle: S.of(context)!.successionSituationSubtitle2,
       icon: Icons.person_outline,
-      accentColor: Colors.teal.shade600,
+      accentColor: MintColors.teal,
       child: Column(
         children: [
           _buildCivilStatusChips(),
@@ -326,12 +307,12 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: selected
-                      ? Colors.teal.shade600.withOpacity(0.1)
+                      ? MintColors.teal.withOpacity(0.1)
                       : MintColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: selected
-                        ? Colors.teal.shade600
+                        ? MintColors.teal
                         : MintColors.border,
                     width: selected ? 1.5 : 1,
                   ),
@@ -342,7 +323,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
                     fontSize: 12,
                     fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                     color: selected
-                        ? Colors.teal.shade600
+                        ? MintColors.teal
                         : MintColors.textSecondary,
                   ),
                 ),
@@ -360,7 +341,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
       title: S.of(context)!.successionFortuneTitle,
       subtitle: S.of(context)!.successionFortuneSubtitle2,
       icon: Icons.account_balance_wallet_outlined,
-      accentColor: Colors.teal.shade600,
+      accentColor: MintColors.teal,
       child: Column(
         children: [
           _buildSlider(
@@ -369,7 +350,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
             min: 0,
             max: 5000000,
             divisions: 100,
-            format: (v) => _chfFmt(v),
+            format: (v) => formatChfWithPrefix(v),
             onChanged: (v) => setState(() => _fortuneTotale = v),
           ),
           const SizedBox(height: 16),
@@ -379,7 +360,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
             min: 0,
             max: 500000,
             divisions: 100,
-            format: (v) => _chfFmt(v),
+            format: (v) => formatChfWithPrefix(v),
             onChanged: (v) => setState(() => _avoirs3a = v),
           ),
           const SizedBox(height: 16),
@@ -389,7 +370,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
             min: 0,
             max: 500000,
             divisions: 100,
-            format: (v) => _chfFmt(v),
+            format: (v) => formatChfWithPrefix(v),
             onChanged: (v) => setState(() => _capitalDecesLpp = v),
           ),
           const SizedBox(height: 16),
@@ -427,7 +408,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
                 fontSize: 14,
                 color: MintColors.textPrimary,
               ),
-              dropdownColor: Colors.white,
+              dropdownColor: MintColors.background,
               items: _cantons.map((c) {
                 return DropdownMenuItem(
                   value: c,
@@ -450,7 +431,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
       title: S.of(context)!.successionTestamentTitle,
       subtitle: S.of(context)!.successionTestamentSubtitle2,
       icon: Icons.description_outlined,
-      accentColor: Colors.teal.shade600,
+      accentColor: MintColors.teal,
       child: Column(
         children: [
           _buildSwitch(
@@ -500,12 +481,12 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: selected
-                      ? Colors.teal.shade600.withOpacity(0.1)
+                      ? MintColors.teal.withOpacity(0.1)
                       : MintColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: selected
-                        ? Colors.teal.shade600
+                        ? MintColors.teal
                         : MintColors.border,
                     width: selected ? 1.5 : 1,
                   ),
@@ -516,7 +497,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
                     fontSize: 12,
                     fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                     color: selected
-                        ? Colors.teal.shade600
+                        ? MintColors.teal
                         : MintColors.textSecondary,
                   ),
                 ),
@@ -544,7 +525,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
         ),
         style: FilledButton.styleFrom(
           backgroundColor: MintColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: MintColors.white,
           padding: const EdgeInsets.symmetric(vertical: 18),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -560,10 +541,10 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.teal.shade600.withOpacity(0.06),
+        color: MintColors.teal.withOpacity(0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.teal.shade600.withOpacity(0.15),
+          color: MintColors.teal.withOpacity(0.15),
         ),
       ),
       child: Column(
@@ -572,14 +553,14 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           Row(
             children: [
               Icon(Icons.pie_chart_outline,
-                  color: Colors.teal.shade600, size: 18),
+                  color: MintColors.teal, size: 18),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.successionLegalDistribution,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Colors.teal.shade600,
+                  color: MintColors.teal,
                   letterSpacing: 1,
                 ),
               ),
@@ -636,14 +617,14 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
   // --- Distribution Bar ---
   Widget _buildDistributionBar(List<HeirShare> heirs) {
     final colors = [
-      Colors.teal.shade600,
-      Colors.teal.shade400,
-      Colors.teal.shade300,
-      Colors.teal.shade200,
-      Colors.blue.shade400,
-      Colors.blue.shade300,
-      Colors.purple.shade300,
-      Colors.amber.shade400,
+      MintColors.teal,
+      MintColors.tealLight,
+      MintColors.mintLight,
+      MintColors.accentPastel,
+      MintColors.info,
+      MintColors.blueApple,
+      MintColors.purpleApple,
+      MintColors.amberLight,
     ];
 
     return Container(
@@ -669,7 +650,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
                         style: GoogleFonts.inter(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: MintColors.white,
                         ),
                       )
                     : null,
@@ -698,7 +679,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
             ),
           ),
           Text(
-            '${_chfFmt(heir.amount)} (${(heir.percentage * 100).toStringAsFixed(0)}%)',
+            '${formatChfWithPrefix(heir.amount)} (${(heir.percentage * 100).toStringAsFixed(0)}%)',
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -767,7 +748,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
                       ),
                     ),
                     Text(
-                      _chfFmt(heir.reserve),
+                      formatChfWithPrefix(heir.reserve),
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -812,7 +793,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            _chfFmt(r.quotiteDisponible),
+            formatChfWithPrefix(r.quotiteDisponible),
             style: GoogleFonts.outfit(
               fontSize: 28,
               fontWeight: FontWeight.w700,
@@ -853,23 +834,23 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.purple.shade50,
+        color: MintColors.successionBg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.purple.shade200),
+        border: Border.all(color: MintColors.purple.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.receipt_long, color: Colors.purple.shade600, size: 18),
+              Icon(Icons.receipt_long, color: MintColors.purple, size: 18),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.successionFiscaliteCanton(_canton),
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Colors.purple.shade600,
+                  color: MintColors.purple,
                   letterSpacing: 1,
                 ),
               ),
@@ -892,7 +873,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
                     ),
                     Text(
                       entry.value > 0
-                          ? _chfFmt(entry.value)
+                          ? formatChfWithPrefix(entry.value)
                           : S.of(context)!.successionExonereLabel,
                       style: GoogleFonts.inter(
                         fontSize: 13,
@@ -919,7 +900,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
                   ),
                 ),
                 Text(
-                  _chfFmt(totalTax),
+                  formatChfWithPrefix(totalTax),
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -1050,7 +1031,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
       title: S.of(context)!.successionChecklistTitle,
       subtitle: S.of(context)!.lifeEventChecklistSubtitle,
       icon: Icons.checklist,
-      accentColor: Colors.teal.shade600,
+      accentColor: MintColors.teal,
       child: Column(
         children: List.generate(r.checklist.length, (index) {
           return Padding(
@@ -1190,21 +1171,21 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.warning.withOpacity(0.4)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 18, color: Colors.orange.shade700),
+          Icon(Icons.info_outline, size: 18, color: MintColors.warning),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               S.of(context)!.successionDisclaimerText,
               style: GoogleFonts.inter(
                 fontSize: 11,
-                color: Colors.orange.shade800,
+                color: MintColors.warningText,
                 height: 1.5,
               ),
             ),

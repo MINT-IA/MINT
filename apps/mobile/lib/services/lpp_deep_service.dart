@@ -287,7 +287,7 @@ class LibrePassageAdvisor {
 
       recommendations.add(
         'Comparez les taux d\'intérêt des fondations de libre passage '
-        '(ex: Finpension, VIAC, Freizugigkeit.ch).',
+        '(auprès d\'un prestataire de libre passage).',
       );
       recommendations.add(
         'Scinder ton avoir en 2 comptes permet d\'échelonner '

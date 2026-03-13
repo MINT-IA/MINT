@@ -11,7 +11,6 @@ Run: cd services/backend && python3 -m pytest tests/test_coach_narrative.py -v
 """
 
 import pytest
-import re
 
 from app.services.coach.coach_models import (
     CoachContext,

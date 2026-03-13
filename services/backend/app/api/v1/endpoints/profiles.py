@@ -11,7 +11,7 @@ from pydantic import UUID4
 from sqlalchemy.orm import Session
 from app.schemas.profile import Profile, ProfileCreate, ProfileUpdate
 from app.core.database import get_db
-from app.core.auth import get_current_user, require_current_user
+from app.core.auth import get_current_user
 from app.models.user import User
 from app.models.profile_model import ProfileModel
 

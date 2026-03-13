@@ -17,14 +17,20 @@ Sprint S18 — Module Independants complet.
 from dataclasses import dataclass, field
 from typing import List
 
+from app.constants.social_insurance import (
+    PILIER_3A_PLAFOND_AVEC_LPP,
+    PILIER_3A_PLAFOND_SANS_LPP,
+    PILIER_3A_TAUX_REVENU_SANS_LPP,
+)
+
 
 # ---------------------------------------------------------------------------
-# Constants — 2025/2026 limits
+# Constants — 2025/2026 limits (imported from social_insurance)
 # ---------------------------------------------------------------------------
 
-PLAFOND_3A_AVEC_LPP = 7_258.0        # CHF/year (with LPP)
-PLAFOND_3A_SANS_LPP_MAX = 36_288.0   # CHF/year (without LPP, absolute max)
-TAUX_GRAND_3A = 0.20                   # 20% of net income
+PLAFOND_3A_AVEC_LPP = PILIER_3A_PLAFOND_AVEC_LPP
+PLAFOND_3A_SANS_LPP_MAX = PILIER_3A_PLAFOND_SANS_LPP
+TAUX_GRAND_3A = PILIER_3A_TAUX_REVENU_SANS_LPP
 
 DISCLAIMER = (
     "MINT est un outil educatif. Ce simulateur ne constitue pas un conseil "

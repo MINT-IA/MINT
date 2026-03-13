@@ -315,7 +315,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                     style: GoogleFonts.montserrat(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white70,
+                      color: MintColors.white70,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -324,7 +324,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                     style: GoogleFonts.montserrat(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                      color: MintColors.white,
                     ),
                   ),
                 ],
@@ -338,7 +338,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
         style: GoogleFonts.montserrat(
           fontSize: 16,
           fontWeight: FontWeight.w700,
-          color: Colors.white,
+          color: MintColors.white,
         ),
       ),
     );
@@ -347,7 +347,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
   Widget _buildInputsCard() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),

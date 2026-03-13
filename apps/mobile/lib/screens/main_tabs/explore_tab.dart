@@ -523,14 +523,14 @@ class _ExploreTabState extends State<ExploreTab>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Icon(Icons.chat_bubble_outline,
-                      color: Colors.white, size: 24),
+                      color: MintColors.white, size: 24),
                   const SizedBox(height: 10),
                   Text(
                     l10n?.exploreAskMintTitle ?? 'Ask MINT',
                     style: GoogleFonts.montserrat(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: MintColors.white,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -542,7 +542,7 @@ class _ExploreTabState extends State<ExploreTab>
                             'Configure ton IA →',
                     style: GoogleFonts.inter(
                       fontSize: 11,
-                      color: Colors.white.withValues(alpha: 0.8),
+                      color: MintColors.white.withValues(alpha: 0.8),
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -738,7 +738,7 @@ class _ExploreTabState extends State<ExploreTab>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: MintColors.lightBorder),
         ),
@@ -797,7 +797,7 @@ class _ExploreTabState extends State<ExploreTab>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: MintColors.lightBorder),
         ),
@@ -854,7 +854,7 @@ class _ExploreTabState extends State<ExploreTab>
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MintColors.white,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: MintColors.lightBorder),
             ),
@@ -908,7 +908,7 @@ class _ExploreTabState extends State<ExploreTab>
                   color: MintColors.success,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.check, color: Colors.white, size: 10),
+                child: const Icon(Icons.check, color: MintColors.white, size: 10),
               ),
             ),
         ],

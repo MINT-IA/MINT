@@ -195,11 +195,11 @@ class _BankImportScreenState extends State<BankImportScreen> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: MintColors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.account_balance_outlined,
-                    color: Colors.white, size: 24),
+                    color: MintColors.white, size: 24),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -209,7 +209,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: MintColors.white,
                   ),
                 ),
               ),
@@ -221,7 +221,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
                 'CSV ou PDF \u2014 UBS, PostFinance, Raiffeisen, ZKB et autres banques suisses',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.white.withOpacity(0.9),
+              color: MintColors.white.withOpacity(0.9),
               height: 1.4,
             ),
           ),
@@ -231,7 +231,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
             child: FilledButton.icon(
               onPressed: _isUploading ? null : () => _pickAndUpload(),
               style: FilledButton.styleFrom(
-                backgroundColor: Colors.white,
+                backgroundColor: MintColors.white,
                 foregroundColor: MintColors.info,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -369,7 +369,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -458,7 +458,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -542,7 +542,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -629,7 +629,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -752,7 +752,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [

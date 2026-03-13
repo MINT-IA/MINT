@@ -3,10 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/benchmark_service.dart';
 
-/// Displays an anonymous comparison of the user vs Swiss averages.
+/// Displays a personal progress card — user's own evolution over time.
 ///
-/// Uses OFS/BFS public statistics — no user data is shared.
-/// Styled as a subtle insight card integrated into the dashboard.
+/// COMPLIANCE: No social comparison (CLAUDE.md § 6 — "No-Social-Comparison").
+/// No "Top X%", no percentile badge, no "autres Suisses".
+/// Only compares user to their own past values.
 class BenchmarkCard extends StatelessWidget {
   final BenchmarkResult benchmark;
   final String label;
@@ -21,7 +22,7 @@ class BenchmarkCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isAbove = benchmark.percentile >= 50;
+    final isPositiveDelta = benchmark.delta > 0;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -48,29 +49,31 @@ class BenchmarkCard extends StatelessWidget {
                   ),
                 ),
               ),
-              // Percentile badge
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: (isAbove ? MintColors.success : MintColors.warning)
-                      .withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  'Top ${isAbove ? (100 - benchmark.percentile) : benchmark.percentile}%',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: isAbove ? MintColors.success : MintColors.warning,
+              // Personal delta badge (replaces removed "Top X%" percentile badge)
+              if (benchmark.delta != 0)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: (isPositiveDelta
+                            ? MintColors.success
+                            : MintColors.warning)
+                        .withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    '${isPositiveDelta ? '+' : ''}${benchmark.delta.toStringAsFixed(0)}',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: isPositiveDelta
+                          ? MintColors.success
+                          : MintColors.warning,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
-          const SizedBox(height: 10),
-
-          // Comparison bar
-          _buildComparisonBar(isAbove),
           const SizedBox(height: 10),
 
           // Message
@@ -83,50 +86,9 @@ class BenchmarkCard extends StatelessWidget {
             ),
           ),
 
-          // Source
-          const SizedBox(height: 6),
-          Text(
-            'Source : OFS/BFS ${benchmark.bracket} ans',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.textMuted,
-            ),
-          ),
+          // Source removed — no longer referencing OFS/BFS social comparisons
         ],
       ),
-    );
-  }
-
-  Widget _buildComparisonBar(bool isAbove) {
-    return Row(
-      children: [
-        // User value
-        Expanded(
-          flex: benchmark.percentile.clamp(10, 90),
-          child: Container(
-            height: 6,
-            decoration: BoxDecoration(
-              color: isAbove ? MintColors.success : MintColors.warning,
-              borderRadius: const BorderRadius.horizontal(
-                left: Radius.circular(3),
-              ),
-            ),
-          ),
-        ),
-        // Remaining
-        Expanded(
-          flex: (100 - benchmark.percentile).clamp(10, 90),
-          child: Container(
-            height: 6,
-            decoration: BoxDecoration(
-              color: MintColors.lightBorder,
-              borderRadius: const BorderRadius.horizontal(
-                right: Radius.circular(3),
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

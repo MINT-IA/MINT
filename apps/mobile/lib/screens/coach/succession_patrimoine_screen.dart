@@ -30,7 +30,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
             expandedHeight: 140,
             pinned: true,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              icon: const Icon(Icons.arrow_back, color: MintColors.white),
               onPressed: () => context.pop(),
             ),
             flexibleSpace: FlexibleSpaceBar(
@@ -41,7 +41,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
-                  color: Colors.white,
+                  color: MintColors.white,
                   height: 1.25,
                 ),
                 maxLines: 2,

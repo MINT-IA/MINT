@@ -98,10 +98,10 @@ class LppPivotInsertWidget extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color:
-              isSelected ? MintColors.primary.withOpacity(0.1) : Colors.white,
+              isSelected ? MintColors.primary.withOpacity(0.1) : MintColors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? MintColors.primary : Colors.grey.shade300,
+            color: isSelected ? MintColors.primary : MintColors.greyBorder,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -110,12 +110,12 @@ class LppPivotInsertWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isSelected ? MintColors.primary : Colors.grey.shade200,
+                color: isSelected ? MintColors.primary : MintColors.lightBorder,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
-                color: isSelected ? Colors.white : Colors.grey.shade600,
+                color: isSelected ? MintColors.white : MintColors.textSecondary,
                 size: 24,
               ),
             ),
@@ -136,7 +136,7 @@ class LppPivotInsertWidget extends StatelessWidget {
                   ),
                   Text(
                     subtitle,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    style: TextStyle(fontSize: 12, color: MintColors.textSecondary),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -162,7 +162,7 @@ class LppPivotInsertWidget extends StatelessWidget {
                         Text(
                           limitSub,
                           style: TextStyle(
-                              fontSize: 12, color: Colors.grey.shade600),
+                              fontSize: 12, color: MintColors.textSecondary),
                         ),
                       ],
                     ],
@@ -175,7 +175,7 @@ class LppPivotInsertWidget extends StatelessWidget {
                   color: MintColors.primary, size: 24)
             else
               Icon(Icons.radio_button_unchecked,
-                  color: Colors.grey.shade400, size: 24),
+                  color: MintColors.greyBorderLight, size: 24),
           ],
         ),
       ),

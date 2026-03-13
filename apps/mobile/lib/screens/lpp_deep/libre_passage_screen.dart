@@ -46,14 +46,14 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
             expandedHeight: 100,
             pinned: true,
             backgroundColor: MintColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 'LIBRE PASSAGE',
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: MintColors.white,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -151,7 +151,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -208,7 +208,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
         style: TextStyle(
           fontSize: 12,
           fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-          color: selected ? Colors.white : MintColors.textPrimary,
+          color: selected ? MintColors.white : MintColors.textPrimary,
         ),
       ),
       selected: selected,
@@ -225,7 +225,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -312,7 +312,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -417,7 +417,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -521,7 +521,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -545,7 +545,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(Icons.lightbulb_outline,
-                      size: 18, color: Colors.amber.shade700),
+                      size: 18, color: MintColors.warningText),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -577,13 +577,13 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.blue.shade50,
+          color: MintColors.neutralBg,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.blue.shade200),
+          border: Border.all(color: MintColors.neutralBg),
         ),
         child: Row(
           children: [
-            Icon(Icons.search, color: Colors.blue.shade700, size: 24),
+            Icon(Icons.search, color: MintColors.blueDark, size: 24),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -594,7 +594,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.blue.shade800,
+                      color: MintColors.blueMaterial900,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -602,13 +602,13 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                     'Recherchez des avoirs de libre passage oublies',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.blue.shade600,
+                      color: MintColors.categoryBlue,
                     ),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.open_in_new, color: Colors.blue.shade400, size: 18),
+            Icon(Icons.open_in_new, color: MintColors.blueClassic, size: 18),
           ],
         ),
       ),
@@ -647,21 +647,21 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 20),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.4,
               ),
             ),
@@ -674,33 +674,33 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
   Color _urgencyColor(ChecklistUrgency urgency) {
     switch (urgency) {
       case ChecklistUrgency.critique:
-        return Colors.red.shade700;
+        return MintColors.redMedium;
       case ChecklistUrgency.haute:
-        return Colors.orange.shade700;
+        return MintColors.warning;
       case ChecklistUrgency.moyenne:
-        return Colors.blue.shade700;
+        return MintColors.blueDark;
     }
   }
 
   Color _urgencyBgColor(ChecklistUrgency urgency) {
     switch (urgency) {
       case ChecklistUrgency.critique:
-        return Colors.red.shade50;
+        return MintColors.urgentBg;
       case ChecklistUrgency.haute:
-        return Colors.orange.shade50;
+        return MintColors.warningBg;
       case ChecklistUrgency.moyenne:
-        return Colors.blue.shade50;
+        return MintColors.neutralBg;
     }
   }
 
   Color _urgencyBorderColor(ChecklistUrgency urgency) {
     switch (urgency) {
       case ChecklistUrgency.critique:
-        return Colors.red.shade200;
+        return MintColors.redBg;
       case ChecklistUrgency.haute:
-        return Colors.orange.shade200;
+        return MintColors.orangeRetroWarm;
       case ChecklistUrgency.moyenne:
-        return Colors.blue.shade200;
+        return MintColors.neutralBg;
     }
   }
 }

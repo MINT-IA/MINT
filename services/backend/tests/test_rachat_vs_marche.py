@@ -16,7 +16,6 @@ Sources:
     - OPP2 art. 60a (conditions de rachat)
 """
 
-import pytest
 
 from app.services.arbitrage.rachat_vs_marche import compare_rachat_vs_marche
 
@@ -55,7 +54,6 @@ class TestRachatVsMarcheCore:
         """Tax saving from buyback must equal montant * taux_marginal."""
         montant = 50_000
         taux = 0.30
-        expected_saving = montant * taux  # 15'000
         result = compare_rachat_vs_marche(
             montant=montant,
             taux_marginal=taux,

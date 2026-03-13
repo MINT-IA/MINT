@@ -63,7 +63,7 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
       label: 'Super-pouvoir fiscal enfant déduction LIFD',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),

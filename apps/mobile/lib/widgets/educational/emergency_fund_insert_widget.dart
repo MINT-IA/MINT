@@ -62,7 +62,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
           const SizedBox(height: 4),
           Text(
             'Loyer + assurances + abonnements + crédits',
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 12, color: MintColors.textSecondary),
           ),
           const SizedBox(height: 8),
           Row(
@@ -125,8 +125,8 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Minimum', style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
-                Text('Confort', style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
+                Text('Minimum', style: TextStyle(fontSize: 11, color: MintColors.textSecondary)),
+                Text('Confort', style: TextStyle(fontSize: 11, color: MintColors.textSecondary)),
               ],
             ),
           ),
@@ -137,7 +137,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MintColors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
@@ -190,7 +190,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
                       const SizedBox(height: 8),
                       LinearProgressIndicator(
                         value: _currentProgress,
-                        backgroundColor: Colors.grey.shade200,
+                        backgroundColor: MintColors.lightBorder,
                         valueColor: AlwaysStoppedAnimation<Color>(
                           _currentProgress >= 1 ? MintColors.success : MintColors.primary,
                         ),
@@ -201,7 +201,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
                       if (_currentProgress < 1)
                         Text(
                           'Il te manque ${_currencyFormat.format(_targetAmount - widget.currentSavings!)}',
-                          style: TextStyle(fontSize: 13, color: Colors.orange.shade700),
+                          style: TextStyle(fontSize: 13, color: MintColors.warning),
                         )
                       else
                         Row(

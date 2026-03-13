@@ -17,7 +17,6 @@ Covers:
     - Edge cases
 """
 
-import pytest
 
 
 API_URL = "/api/v1/next-steps/calculate"

@@ -63,18 +63,18 @@ class PortfolioScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.red.withOpacity(0.05),
+        color: MintColors.error.withOpacity(0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.red.withOpacity(0.3)),
+        border: Border.all(color: MintColors.error.withOpacity(0.3)),
       ),
       child: const Row(
         children: [
-          Icon(Icons.warning_amber_rounded, color: Colors.red),
+          Icon(Icons.warning_amber_rounded, color: MintColors.error),
           SizedBox(width: 16),
           Expanded(
             child: Text(
               'Alerte Dettes : Ta priorité absolue est le désendettement avant tout réinvestissement.',
-              style: TextStyle(fontSize: 13, color: Colors.red, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 13, color: MintColors.error, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -86,7 +86,7 @@ class PortfolioScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: MintColors.border),
       ),

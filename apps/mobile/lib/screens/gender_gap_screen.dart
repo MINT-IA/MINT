@@ -138,12 +138,12 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Colors.purple.shade50,
+            color: MintColors.successionBg,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(
             Icons.balance,
-            color: Colors.purple.shade700,
+            color: MintColors.categoryPurple,
             size: 28,
           ),
         ),
@@ -214,7 +214,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -303,7 +303,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
       ),
@@ -332,12 +332,12 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.blue.shade50,
+              color: MintColors.neutralBg,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               children: [
-                Icon(Icons.science_outlined, color: Colors.blue.shade600, size: 16),
+                Icon(Icons.science_outlined, color: MintColors.categoryBlue, size: 16),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -345,7 +345,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
                     'pour des resultats personnalises.',
                     style: GoogleFonts.inter(
                       fontSize: 11,
-                      color: Colors.blue.shade700,
+                      color: MintColors.blueDark,
                       height: 1.4,
                     ),
                   ),
@@ -385,7 +385,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -543,7 +543,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
       ),
@@ -552,7 +552,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.school_outlined, color: Colors.purple.shade600, size: 20),
+              Icon(Icons.school_outlined, color: MintColors.purple, size: 20),
               const SizedBox(width: 8),
               Text(
                 'Comprendre la deduction de coordination',
@@ -661,7 +661,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.purple.shade50, Colors.purple.shade100.withOpacity(0.5)],
+          colors: [MintColors.successionBg, MintColors.successionBg.withOpacity(0.5)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -670,7 +670,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.bar_chart, color: Colors.purple.shade700, size: 24),
+          Icon(Icons.bar_chart, color: MintColors.categoryPurple, size: 24),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -681,7 +681,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Colors.purple.shade900,
+                    color: MintColors.purpleDark,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -689,7 +689,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
                   GenderGapService.statistiqueOfs,
                   style: GoogleFonts.inter(
                     fontSize: 13,
-                    color: Colors.purple.shade800,
+                    color: MintColors.purpleDark,
                     height: 1.5,
                   ),
                 ),
@@ -738,7 +738,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
       ),
@@ -778,14 +778,14 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -795,7 +795,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
               'et un professionnel qualifie avant toute decision.',
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),

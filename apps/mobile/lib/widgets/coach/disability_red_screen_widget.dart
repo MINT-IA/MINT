@@ -52,7 +52,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
       label: 'Écran rouge indépendant invalidité filet inexistant',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),
@@ -107,7 +107,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
                   style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
-                    color: Colors.white,
+                    color: MintColors.white,
                   ),
                 ),
               ),
@@ -118,7 +118,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
             'Si tu ne peux plus travailler demain :',
             style: GoogleFonts.inter(
               fontSize: 13,
-              color: Colors.white.withValues(alpha: 0.85),
+              color: MintColors.white.withValues(alpha: 0.85),
             ),
           ),
         ],
@@ -197,7 +197,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: isVoid ? MintColors.scoreCritique.withValues(alpha: 0.08) : Colors.white,
+              color: isVoid ? MintColors.scoreCritique.withValues(alpha: 0.08) : MintColors.white,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: color.withValues(alpha: 0.2)),
             ),
@@ -317,7 +317,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? MintColors.primary : Colors.white,
+          color: isSelected ? MintColors.primary : MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? MintColors.primary : MintColors.lightBorder,
@@ -329,7 +329,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
           style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : MintColors.textPrimary,
+            color: isSelected ? MintColors.white : MintColors.textPrimary,
           ),
         ),
       ),

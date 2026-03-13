@@ -70,12 +70,12 @@ class DocumentScanCta extends StatelessWidget {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
+                        color: MintColors.white.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: const Icon(
                         Icons.document_scanner_outlined,
-                        color: Colors.white,
+                        color: MintColors.white,
                         size: 22,
                       ),
                     ),
@@ -89,7 +89,7 @@ class DocumentScanCta extends StatelessWidget {
                             style: GoogleFonts.montserrat(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                              color: MintColors.white,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -97,7 +97,7 @@ class DocumentScanCta extends StatelessWidget {
                             'Scanne ton certificat de pr\u00e9voyance LPP',
                             style: GoogleFonts.inter(
                               fontSize: 13,
-                              color: Colors.white.withValues(alpha: 0.75),
+                              color: MintColors.white.withValues(alpha: 0.75),
                             ),
                           ),
                         ],
@@ -113,7 +113,7 @@ class DocumentScanCta extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.10),
+                    color: MintColors.white.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -127,7 +127,7 @@ class DocumentScanCta extends StatelessWidget {
                       const SizedBox(width: 10),
                       Icon(
                         Icons.arrow_forward_rounded,
-                        color: Colors.white.withValues(alpha: 0.5),
+                        color: MintColors.white.withValues(alpha: 0.5),
                         size: 16,
                       ),
                       const SizedBox(width: 10),
@@ -147,7 +147,7 @@ class DocumentScanCta extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: MintColors.white,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -191,7 +191,7 @@ class DocumentScanCta extends StatelessWidget {
             label,
             style: GoogleFonts.inter(
               fontSize: 10,
-              color: Colors.white.withValues(alpha: 0.6),
+              color: MintColors.white.withValues(alpha: 0.6),
             ),
           ),
           const SizedBox(height: 4),
@@ -202,7 +202,7 @@ class DocumentScanCta extends StatelessWidget {
               fontWeight: FontWeight.w800,
               color: isActive
                   ? MintColors.success
-                  : Colors.white.withValues(alpha: 0.7),
+                  : MintColors.white.withValues(alpha: 0.7),
             ),
           ),
         ],

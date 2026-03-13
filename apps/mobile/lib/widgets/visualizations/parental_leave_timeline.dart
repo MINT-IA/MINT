@@ -136,7 +136,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
           return Container(
             width: constraints.maxWidth,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MintColors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
@@ -177,7 +177,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
           colors: [
             _themeColor.withValues(alpha: 0.12),
             _themeColorLight.withValues(alpha: 0.3),
-            Colors.white,
+            MintColors.white,
           ],
         ),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
@@ -243,7 +243,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: MintColors.white,
                   ),
                 ),
               );
@@ -555,7 +555,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: ratio,
-              backgroundColor: Colors.white,
+              backgroundColor: MintColors.white,
               color: color,
               minHeight: 10,
             ),

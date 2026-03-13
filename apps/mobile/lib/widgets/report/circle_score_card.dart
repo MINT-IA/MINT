@@ -54,7 +54,7 @@ class CircleScoreCard extends StatelessWidget {
                       child: Text(
                         '${score.circleNumber}',
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: MintColors.white,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -114,7 +114,7 @@ class CircleScoreCard extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: score.percentage / 100,
                   minHeight: 12,
-                  backgroundColor: Colors.grey.shade200,
+                  backgroundColor: MintColors.lightBorder,
                   valueColor: AlwaysStoppedAnimation<Color>(color),
                 ),
               ),
@@ -163,9 +163,9 @@ class CircleScoreCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.amber.shade50,
+                    color: MintColors.disclaimerBg,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.amber.shade200),
+                    border: Border.all(color: MintColors.yellowGold),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,14 +173,14 @@ class CircleScoreCard extends StatelessWidget {
                       Row(
                         children: [
                           Icon(Icons.lightbulb_outline,
-                              size: 16, color: Colors.amber.shade700),
+                              size: 16, color: MintColors.warningText),
                           const SizedBox(width: 8),
                           Text(
                             'Actions recommandées',
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
-                              color: Colors.amber.shade900,
+                              color: MintColors.amberDark,
                             ),
                           ),
                         ],
@@ -193,13 +193,13 @@ class CircleScoreCard extends StatelessWidget {
                               children: [
                                 Text('• ',
                                     style: TextStyle(
-                                        color: Colors.amber.shade700)),
+                                        color: MintColors.warningText)),
                                 Expanded(
                                   child: Text(
                                     reco,
                                     style: TextStyle(
                                       fontSize: 11,
-                                      color: Colors.amber.shade900,
+                                      color: MintColors.amberDark,
                                     ),
                                   ),
                                 ),
@@ -235,15 +235,15 @@ class CircleScoreCard extends StatelessWidget {
   Color _getColorForLevel(ScoreLevel level) {
     switch (level) {
       case ScoreLevel.excellent:
-        return Colors.green.shade600;
+        return MintColors.categoryGreen;
       case ScoreLevel.good:
-        return Colors.lightGreen.shade600;
+        return MintColors.success;
       case ScoreLevel.adequate:
-        return Colors.orange.shade600;
+        return MintColors.warning;
       case ScoreLevel.needsImprovement:
-        return Colors.deepOrange.shade600;
+        return MintColors.deepOrange;
       case ScoreLevel.critical:
-        return Colors.red.shade600;
+        return MintColors.redDeep;
     }
   }
 }

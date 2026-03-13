@@ -20,7 +20,7 @@ Sources:
     - LSFin art. 3 (information financiere)
 """
 
-from typing import Dict, Optional
+from typing import Dict
 
 from app.services.reengagement.reengagement_models import (
     ConsentDashboard,

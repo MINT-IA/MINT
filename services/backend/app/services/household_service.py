@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 from app.models.household import HouseholdModel, HouseholdMemberModel, AdminAuditEventModel
 from app.models.billing import SubscriptionModel
 from app.models.user import User
-from app.services.billing_service import recompute_entitlements, VALID_TIERS
+from app.services.billing_service import recompute_entitlements
 
 
 INVITATION_EXPIRY_HOURS = 72

@@ -130,7 +130,7 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
               width: cardWidth,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: MintColors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: MintColors.lightBorder),
                 boxShadow: [

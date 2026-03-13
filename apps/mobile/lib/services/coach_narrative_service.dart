@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coach/coach_context_builder.dart';
@@ -192,7 +193,9 @@ class CoachNarrativeService {
     FinancialFitnessScore? score;
     try {
       score = FinancialFitnessService.calculate(profile: profile);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('CoachNarrative: $e');
+    }
 
     // FRI delta: not available from check-in history (no score field).
     // The delta is computed dynamically in the dashboard from scoreHistory.
@@ -215,7 +218,9 @@ class CoachNarrativeService {
     try {
       final cs = ConfidenceScorer.score(profile);
       confidence = cs.score;
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('CoachNarrative: $e');
+    }
 
     // Fiscal season
     final now = DateTime.now();
@@ -238,7 +243,9 @@ class CoachNarrativeService {
     int checkInStreak = 0;
     try {
       checkInStreak = StreakService.compute(profile).currentStreak;
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('CoachNarrative: $e');
+    }
 
     // Data sources → string map for CoachContextBuilder
     final dataSources = <String, String>{};
@@ -265,7 +272,9 @@ class CoachNarrativeService {
         final totalMonthly = avsMonthly + lppAnnual / 12;
         replacementRatio = totalMonthly / (salary / 12);
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('CoachNarrative: $e');
+    }
 
     // Archetype detection (Correction 5: all 8 archetypes)
     final archetype = FriComputationService.detectArchetype(profile);
@@ -365,7 +374,8 @@ class CoachNarrativeService {
           scoreHistory: scoreHistory,
           tips: tips,
         );
-      } catch (_) {
+      } catch (e) {
+        debugPrint('CoachNarrative: $e');
         narrative = _generateStatic(
           profile: profile,
           scoreHistory: scoreHistory,
@@ -393,7 +403,8 @@ class CoachNarrativeService {
             tips: tips,
             config: byokConfig,
           );
-        } catch (_) {
+        } catch (e) {
+          debugPrint('CoachNarrative: $e');
           // Resilience: garde le narratif statique deja genere
         }
       }
@@ -470,7 +481,8 @@ class CoachNarrativeService {
       scenarioNarrations = _buildStaticScenarioNarrations(
         projection: projection,
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('CoachNarrative: $e');
       // Optional block: keep null if projection cannot be built
       scenarioNarrations = null;
     }
@@ -536,7 +548,8 @@ class CoachNarrativeService {
           monthlyComparison = briefing.insights.first;
         }
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('CoachNarrative: $e');
       // Non-critical: skip if check-in data is incomplete
     }
 
@@ -674,7 +687,8 @@ class CoachNarrativeService {
         isLlmGenerated: true, // SLM is a local LLM
         generatedAt: DateTime.now(),
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('CoachNarrative: $e');
       // Parsing JSON echoue → fallback statique
       return _generateStatic(
         profile: profile,
@@ -749,7 +763,9 @@ class CoachNarrativeService {
     FinancialFitnessScore? score;
     try {
       score = FinancialFitnessService.calculate(profile: profile);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('CoachNarrative: $e');
+    }
     final scoreValue = score?.global ?? 0;
     final trendText = _computeStaticTrendMessage(scoreHistory);
 
@@ -901,7 +917,9 @@ class CoachNarrativeService {
         final totalMonthly = avsMonthly + lppAnnual / 12;
         replacementRate = totalMonthly / (salary / 12);
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('CoachNarrative: $e');
+    }
 
     buffer.writeln('CONTEXTE RETRAITE :');
     buffer.writeln('- Age de retraite cible : $retirementAge ans');
@@ -1149,7 +1167,9 @@ class CoachNarrativeService {
     try {
       final score = FinancialFitnessService.calculate(profile: profile);
       parts.add('Score fitness : ${score.global}/100');
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('CoachNarrative: $e');
+    }
 
     return {
       'canton': profile.canton,
@@ -1324,7 +1344,8 @@ class CoachNarrativeService {
       if (profile.checkIns.length != cachedCheckInCount) return null;
 
       return CoachNarrative.fromJson(json);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('CoachNarrative: $e');
       return null;
     }
   }
@@ -1345,7 +1366,8 @@ class CoachNarrativeService {
         _cacheModeSignatureKey,
         _modeSignature(slmAvailableNow: slmAvailableNow),
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('CoachNarrative: $e');
       // Silently fail — cache is optional
     }
   }
@@ -1385,7 +1407,8 @@ class CoachNarrativeService {
       }
       await prefs.remove(_cacheCheckInCountKey);
       await prefs.remove(_cacheModeSignatureKey);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('CoachNarrative: $e');
       // Silently fail
     }
   }

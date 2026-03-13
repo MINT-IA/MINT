@@ -54,14 +54,14 @@ class _EplScreenState extends State<EplScreen> {
             expandedHeight: 100,
             pinned: true,
             backgroundColor: MintColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 'RETRAIT EPL',
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: MintColors.white,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -122,7 +122,7 @@ class _EplScreenState extends State<EplScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -157,7 +157,7 @@ class _EplScreenState extends State<EplScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -349,7 +349,7 @@ class _EplScreenState extends State<EplScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -428,10 +428,10 @@ class _EplScreenState extends State<EplScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.red.shade50, Colors.orange.shade50],
+          colors: [MintColors.urgentBg, MintColors.warningBg],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.red.shade200),
+        border: Border.all(color: MintColors.redBg),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -441,7 +441,7 @@ class _EplScreenState extends State<EplScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: Colors.red.shade700,
+              color: MintColors.redMedium,
               letterSpacing: 1,
             ),
           ),
@@ -464,7 +464,7 @@ class _EplScreenState extends State<EplScreen> {
             'montants exacts et les possibilités d\'assurance complémentaire.',
             style: TextStyle(
               fontSize: 11,
-              color: Colors.red.shade600,
+              color: MintColors.redDeep,
               height: 1.4,
             ),
           ),
@@ -480,7 +480,7 @@ class _EplScreenState extends State<EplScreen> {
   }) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: Colors.red.shade600),
+        Icon(icon, size: 20, color: MintColors.redDeep),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
@@ -493,7 +493,7 @@ class _EplScreenState extends State<EplScreen> {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.bold,
-            color: Colors.red.shade700,
+            color: MintColors.redMedium,
           ),
         ),
       ],
@@ -520,10 +520,10 @@ class _EplScreenState extends State<EplScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.orange.shade50, Colors.amber.shade50],
+          colors: [MintColors.warningBg, MintColors.disclaimerBg],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -533,7 +533,7 @@ class _EplScreenState extends State<EplScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: Colors.orange.shade700,
+              color: MintColors.warning,
               letterSpacing: 1,
             ),
           ),
@@ -546,14 +546,14 @@ class _EplScreenState extends State<EplScreen> {
           _buildResultRow(
             'Rente avec EPL',
             'CHF ${formatChf(renteWith)}/mois',
-            color: Colors.orange.shade700,
+            color: MintColors.warning,
           ),
           const Divider(height: 20),
           _buildResultRow(
             'Perte mensuelle',
             '-CHF ${formatChf(perteMensuelle)}/mois',
             isBold: true,
-            color: Colors.red.shade700,
+            color: MintColors.redMedium,
           ),
           const SizedBox(height: 12),
           Text(
@@ -562,7 +562,7 @@ class _EplScreenState extends State<EplScreen> {
             'Le montant réel dépend de ta situation.',
             style: TextStyle(
               fontSize: 11,
-              color: Colors.orange.shade600,
+              color: MintColors.warning,
               height: 1.4,
             ),
           ),
@@ -575,7 +575,7 @@ class _EplScreenState extends State<EplScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -599,7 +599,7 @@ class _EplScreenState extends State<EplScreen> {
           _buildResultRow(
             'Impôt estimé sur le retrait',
             'CHF ${formatChf(result.impotEstime)}',
-            color: Colors.red.shade600,
+            color: MintColors.redDeep,
           ),
           const Divider(height: 20),
           _buildResultRow(
@@ -643,22 +643,22 @@ class _EplScreenState extends State<EplScreen> {
             margin: const EdgeInsets.only(bottom: 10),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.amber.shade50,
+              color: MintColors.disclaimerBg,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.amber.shade200),
+              border: Border.all(color: MintColors.yellowGold),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(Icons.warning_amber_rounded,
-                    color: Colors.amber.shade700, size: 20),
+                    color: MintColors.warningText, size: 20),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     alert,
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.amber.shade900,
+                      color: MintColors.amberDark,
                       height: 1.4,
                     ),
                   ),
@@ -674,21 +674,21 @@ class _EplScreenState extends State<EplScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 20),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.4,
               ),
             ),

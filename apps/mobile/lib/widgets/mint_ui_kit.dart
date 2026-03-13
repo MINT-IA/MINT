@@ -32,16 +32,16 @@ class MintGlassCard extends StatelessWidget {
           child: Container(
             padding: padding ?? const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: (color ?? Colors.white).withOpacity(0.65),
+              color: (color ?? MintColors.white).withOpacity(0.65),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: Colors.white.withOpacity(0.4),
+                color: MintColors.white.withOpacity(0.4),
                 width: 1.0,
               ),
               boxShadow: hasShadow
                   ? [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
+                        color: MintColors.black.withOpacity(0.04),
                         blurRadius: 24,
                         offset: const Offset(0, 8),
                       ),
@@ -212,20 +212,20 @@ class MintPremiumButton extends StatelessWidget {
           boxShadow: [
             // Drop shadow
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: MintColors.black.withOpacity(0.3),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
             // Inner highlight (top bevel)
             BoxShadow(
-              color: Colors.white.withOpacity(0.1),
+              color: MintColors.white.withOpacity(0.1),
               blurRadius: 0,
               offset: const Offset(0, 1),
               spreadRadius: 0,
             ),
           ],
           border: Border.all(
-            color: Colors.white.withOpacity(0.08),
+            color: MintColors.white.withOpacity(0.08),
             width: 1,
           ),
         ),
@@ -240,7 +240,7 @@ class MintPremiumButton extends StatelessWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.white.withOpacity(0.03),
+                      MintColors.white.withOpacity(0.03),
                       Colors.transparent,
                     ],
                     stops: const [0.0, 0.5],
@@ -264,7 +264,7 @@ class MintPremiumButton extends StatelessWidget {
                           style: GoogleFonts.outfit(
                             fontSize: 17,
                             fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                            color: MintColors.white,
                             letterSpacing: -0.5,
                           ),
                         ),
@@ -275,7 +275,7 @@ class MintPremiumButton extends StatelessWidget {
                             style: GoogleFonts.inter(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
-                              color: Colors.white.withOpacity(0.6),
+                              color: MintColors.white.withOpacity(0.6),
                             ),
                           ),
                         ],
@@ -289,11 +289,11 @@ class MintPremiumButton extends StatelessWidget {
                     height: 32,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withOpacity(0.15),
+                      color: MintColors.white.withOpacity(0.15),
                     ),
                     child: Icon(
                       Icons.chevron_right_rounded,
-                      color: Colors.white.withOpacity(0.9),
+                      color: MintColors.white.withOpacity(0.9),
                       size: 20,
                     ),
                   ),
@@ -305,7 +305,7 @@ class MintPremiumButton extends StatelessWidget {
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
-                     color: Colors.black.withOpacity(0.3),
+                     color: MintColors.black.withOpacity(0.3),
                      borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Center(
@@ -314,7 +314,7 @@ class MintPremiumButton extends StatelessWidget {
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        valueColor: AlwaysStoppedAnimation<Color>(MintColors.white),
                       ),
                     ),
                   ),

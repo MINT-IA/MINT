@@ -128,7 +128,7 @@ class _FiscalImpactWaterfallState extends State<FiscalImpactWaterfall>
           return Container(
             width: constraints.maxWidth,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MintColors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [

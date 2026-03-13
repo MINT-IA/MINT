@@ -40,7 +40,7 @@ class HorizonLineWidget extends StatelessWidget {
       label: 'Ligne horizon fin droits chômage',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),

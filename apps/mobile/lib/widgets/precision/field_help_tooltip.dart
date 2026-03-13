@@ -59,7 +59,7 @@ class FieldHelpTooltip extends StatelessWidget {
   void _showHelpSheet(BuildContext context, FieldHelp help) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.white,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),

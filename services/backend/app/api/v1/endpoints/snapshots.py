@@ -10,7 +10,6 @@ Sources:
     - LPD (Loi sur la protection des donnees) — right to erasure
 """
 
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
 

@@ -54,7 +54,7 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
       label: 'Compte à rebours remploi vente immobilière 2 ans LIFD',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),

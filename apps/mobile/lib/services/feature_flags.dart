@@ -7,9 +7,6 @@ import 'package:mint_mobile/services/api_service.dart';
 class FeatureFlags {
   // ── Existing (migration) ──────────────────────────────────
 
-  /// Use the new SmartOnboardingScreen instead of the legacy onboarding.
-  static bool useNewOnboarding = true;
-
   /// Enable SLM-generated narratives (Track B, Phase P3).
   /// Requires ComplianceGuard validation.
   static bool enableSlmNarratives = true;

@@ -357,7 +357,7 @@ class _PulseScreenState extends State<PulseScreen> {
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: MintColors.white,
                   ),
                 ),
               ),
@@ -404,7 +404,7 @@ class _PulseScreenState extends State<PulseScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -461,7 +461,7 @@ class _PulseScreenState extends State<PulseScreen> {
           style: GoogleFonts.outfit(
             fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: Colors.white,
+            color: MintColors.white,
           ),
         ),
         background: Container(
@@ -497,7 +497,7 @@ class _PulseScreenState extends State<PulseScreen> {
               style: GoogleFonts.outfit(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: MintColors.white,
               ),
             ),
             background: Container(
@@ -545,12 +545,12 @@ class _PulseScreenState extends State<PulseScreen> {
                   ),
                   const SizedBox(height: 28),
                   FilledButton.icon(
-                    onPressed: () => context.push('/onboarding/smart'),
+                    onPressed: () => context.push('/onboarding/quick'),
                     icon: const Icon(Icons.arrow_forward),
                     label: Text(l.pulseEmptyCtaStart),
                     style: FilledButton.styleFrom(
                       backgroundColor: MintColors.primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: MintColors.white,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 28, vertical: 14),
                       shape: RoundedRectangleBorder(
@@ -604,7 +604,7 @@ class _HeroCard extends StatelessWidget {
           Row(
             children: [
               Icon(hero.icon,
-                  size: 22, color: Colors.white.withValues(alpha: 0.9)),
+                  size: 22, color: MintColors.white.withValues(alpha: 0.9)),
               const Spacer(),
               GestureDetector(
                 onTap: onChangeFocus,
@@ -612,7 +612,7 @@ class _HeroCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
+                    color: MintColors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
@@ -620,13 +620,13 @@ class _HeroCard extends StatelessWidget {
                     children: [
                       Icon(Icons.tune_rounded,
                           size: 14,
-                          color: Colors.white.withValues(alpha: 0.9)),
+                          color: MintColors.white.withValues(alpha: 0.9)),
                       const SizedBox(width: 4),
                       Text(
                         S.of(context)!.pulseHeroChangeBtn,
                         style: GoogleFonts.inter(
                           fontSize: 11,
-                          color: Colors.white.withValues(alpha: 0.9),
+                          color: MintColors.white.withValues(alpha: 0.9),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -642,7 +642,7 @@ class _HeroCard extends StatelessWidget {
             style: GoogleFonts.outfit(
               fontSize: 28,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: MintColors.white,
               height: 1.1,
             ),
           ),
@@ -651,7 +651,7 @@ class _HeroCard extends StatelessWidget {
             hero.subtitle,
             style: GoogleFonts.inter(
               fontSize: 15,
-              color: Colors.white.withValues(alpha: 0.9),
+              color: MintColors.white.withValues(alpha: 0.9),
               height: 1.3,
             ),
           ),
@@ -661,7 +661,7 @@ class _HeroCard extends StatelessWidget {
               hero.detail!,
               style: GoogleFonts.inter(
                 fontSize: 13,
-                color: Colors.white.withValues(alpha: 0.7),
+                color: MintColors.white.withValues(alpha: 0.7),
                 height: 1.3,
               ),
             ),
@@ -673,7 +673,7 @@ class _HeroCard extends StatelessWidget {
               padding:
                   const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: MintColors.white,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -720,12 +720,12 @@ class _PastilleCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
+              color: MintColors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),

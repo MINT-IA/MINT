@@ -166,14 +166,14 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             expandedHeight: 100,
             pinned: true,
             backgroundColor: MintColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 'RACHAT LPP ECHELONNE',
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: MintColors.white,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -251,7 +251,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -316,7 +316,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             children: [
               Icon(
                 showSavings ? Icons.savings_outlined : Icons.info_outline,
-                color: Colors.white.withAlpha(180),
+                color: MintColors.white.withAlpha(180),
                 size: 32,
               ),
               const SizedBox(height: 12),
@@ -327,7 +327,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 style: GoogleFonts.montserrat(
                   fontSize: 36,
                   fontWeight: FontWeight.w900,
-                  color: Colors.white,
+                  color: MintColors.white,
                   letterSpacing: -1,
                 ),
               ),
@@ -339,7 +339,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Colors.white.withAlpha(220),
+                  color: MintColors.white.withAlpha(220),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -358,7 +358,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -430,7 +430,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -624,7 +624,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                         style: GoogleFonts.montserrat(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
-                          color: Colors.white,
+                          color: MintColors.white,
                         ),
                       ),
                     ),
@@ -715,7 +715,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: selected ? Colors.white : MintColors.textSecondary,
+            color: selected ? MintColors.white : MintColors.textSecondary,
           ),
         ),
       ),
@@ -725,7 +725,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   void _showTauxMarginalInfo(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -785,7 +785,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                         'chaque tranche reste dans un taux marginal élevé.',
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.green.shade800,
+                          color: MintColors.greenForest,
                           fontStyle: FontStyle.italic,
                           height: 1.4,
                         ),
@@ -809,7 +809,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -931,7 +931,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 title: 'TOUT EN 1 AN',
                 subtitle: 'Rachat bloc',
                 amount: result.economieBlocTotal,
-                color: Colors.orange,
+                color: MintColors.warning,
                 isWinner: result.delta <= 0,
               ),
             ),
@@ -961,7 +961,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isWinner ? color : MintColors.border,
@@ -1036,7 +1036,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -1079,7 +1079,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegendDot(Colors.orange, 'Bloc'),
+              _buildLegendDot(MintColors.warning, 'Bloc'),
               const SizedBox(width: 24),
               _buildLegendDot(MintColors.success, 'Echelonne'),
             ],
@@ -1129,7 +1129,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -1183,7 +1183,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: Colors.green.shade700,
+                        color: MintColors.greenDark,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -1242,7 +1242,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                       style: GoogleFonts.montserrat(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                        color: MintColors.white,
                       ),
                     ),
                   ),
@@ -1302,7 +1302,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
-                          color: Colors.green.shade700,
+                          color: MintColors.greenDark,
                         ),
                       ),
                     ],
@@ -1322,7 +1322,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                         'Economie fiscale',
                         style: TextStyle(
                           fontSize: 11,
-                          color: Colors.green.shade400,
+                          color: MintColors.greenPastel,
                         ),
                       ),
                     ],
@@ -1373,14 +1373,14 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.red.shade50,
+        color: MintColors.urgentBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.red.shade200),
+        border: Border.all(color: MintColors.redBg),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.gavel, color: Colors.red.shade700, size: 22),
+          Icon(Icons.gavel, color: MintColors.redMedium, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -1391,7 +1391,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
-                    color: Colors.red.shade800,
+                    color: MintColors.redDark,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -1401,7 +1401,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                   'Planifie en consequence si un achat immobilier est prevu.',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.red.shade700,
+                    color: MintColors.redMedium,
                     height: 1.4,
                   ),
                 ),
@@ -1421,21 +1421,21 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 20),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.4,
               ),
             ),
@@ -1530,7 +1530,7 @@ class _WaterfallPainter extends CustomPainter {
       deduction: blocDeduction,
       chartTop: chartTop,
       chartBottom: chartBottom,
-      color: Colors.orange,
+      color: MintColors.warning,
     );
 
     // Draw echelonne bar (green) — shorter bar

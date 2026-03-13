@@ -16,7 +16,7 @@ status: "READY"
 - Age de l'utilisateur
 
 ## Outputs
-- Nombre optimal de comptes recommande (4-5)
+- Nombre recommandé de comptes (4-5)
 - Economie d'impot estimee grace a l'echelonnement
 - Calendrier de retrait suggere
 
@@ -25,7 +25,7 @@ status: "READY"
 - Taux d'imposition du retrait en capital estime selon le canton.
 
 ## Limites
-- Le nombre optimal depend du montant total et du canton (taux progressif variable).
+- Le nombre recommandé dépend du montant total et du canton (taux progressif variable).
 - Les retraits anticipes (achat immobilier, independance) ne sont pas pris en compte ici.
 
 ## Chiffre Choc

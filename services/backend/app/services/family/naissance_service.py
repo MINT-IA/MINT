@@ -19,7 +19,11 @@ Sprint S22 — Evenements de vie : Famille.
 from dataclasses import dataclass, field
 from typing import Dict, List
 
-from app.constants.social_insurance import get_lpp_bonification_rate
+from app.constants.social_insurance import (
+    LPP_DEDUCTION_COORDINATION,
+    PILIER_3A_PLAFOND_AVEC_LPP,
+    get_lpp_bonification_rate,
+)
 
 
 
@@ -77,24 +81,8 @@ DEDUCTION_FRAIS_GARDE_MAX = 25_500.0  # CHF
 
 # ---------------------------------------------------------------------------
 # Impact LPP (LPP art. 7-8, OPP2)
+# Constantes importees depuis app.constants.social_insurance
 # ---------------------------------------------------------------------------
-
-# Seuil d'entree LPP (salaire annuel minimum, 2025)
-LPP_SEUIL_ENTREE = 22_680.0  # CHF/an
-
-# Deduction de coordination (2025)
-LPP_DEDUCTION_COORDINATION = 26_460.0  # CHF/an
-
-# Taux de bonification LPP par tranche d'age (LPP art. 16)
-LPP_BONIFICATION_TAUX = {
-    (25, 34): 0.07,   # 7% du salaire coordonne
-    (35, 44): 0.10,   # 10%
-    (45, 54): 0.15,   # 15%
-    (55, 65): 0.18,   # 18%
-}
-
-# Plafond 3a employe (2025)
-PLAFOND_3A = 7_258.0  # CHF/an
 
 
 @dataclass
@@ -381,8 +369,8 @@ class NaissanceService:
         # 3a: si interruption, pas de revenu = pas de versement possible
         # (le 3a necessite un revenu soumis AVS)
         annees_interruption = duree_interruption_mois / 12
-        perte_3a_annuelle = PLAFOND_3A
-        perte_3a_totale = round(PLAFOND_3A * annees_interruption, 2)
+        perte_3a_annuelle = PILIER_3A_PLAFOND_AVEC_LPP
+        perte_3a_totale = round(PILIER_3A_PLAFOND_AVEC_LPP * annees_interruption, 2)
 
         # Perte de revenu
         perte_revenu_totale = round(salaire_annuel * duree_interruption_mois / 12, 2)
@@ -398,7 +386,7 @@ class NaissanceService:
             "LPP art. 16 (bonifications de vieillesse: 7-18% du salaire coordonne)",
             "LPP art. 8 (salaire coordonne = salaire - deduction de coordination)",
             f"OPP2 (deduction de coordination 2025: CHF {LPP_DEDUCTION_COORDINATION:,.0f})",
-            f"LIFD (plafond 3a 2025: CHF {PLAFOND_3A:,.0f})",
+            f"LIFD (plafond 3a 2025: CHF {PILIER_3A_PLAFOND_AVEC_LPP:,.0f})",
         ]
 
         return CareerGapProjection(
@@ -495,13 +483,13 @@ class NaissanceService:
         if civil_status == "marie" and has_3a:
             priorite_basse.append(
                 "Couple marie avec 3a : les deux conjoints peuvent cotiser au 3e pilier "
-                f"(CHF {PLAFOND_3A:,.0f} chacun si salarie·e avec LPP), "
+                f"(CHF {PILIER_3A_PLAFOND_AVEC_LPP:,.0f} chacun si salarie·e avec LPP), "
                 "ce qui double les deductions fiscales"
             )
         elif not has_3a:
             priorite_basse.append(
                 "Envisager l'ouverture d'un 3e pilier — les deductions fiscales "
-                f"(max CHF {PLAFOND_3A:,.0f}/an) aident a compenser les depenses supplementaires"
+                f"(max CHF {PILIER_3A_PLAFOND_AVEC_LPP:,.0f}/an) aident a compenser les depenses supplementaires"
             )
 
         priorite_basse.append(

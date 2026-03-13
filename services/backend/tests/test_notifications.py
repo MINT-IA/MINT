@@ -14,9 +14,8 @@ Sources:
     - LSFin art. 3 (obligation d'information)
 """
 
-from datetime import date, datetime
+from datetime import date
 
-import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app

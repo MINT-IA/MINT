@@ -63,7 +63,7 @@ Le capital retire du 2e et 3e pilier est impose **separement** du revenu ordinai
 - Delai : annonce le retrait en capital a ta caisse de pension au moins **3 ans** avant la retraite (certaines caisses demandent plus).
 
 ### Lacunes AVS : chaque annee compte
-- Pour la rente AVS maximale, il faut avoir cotise **44 annees** (homme) ou **43 annees** (femme, des 2025).
+- Pour la rente AVS maximale, il faut avoir cotise **44 annees** de cotisation completes (homme et femme). La reforme AVS 21 harmonise l'age de reference a 65 ans pour les femmes (progressivement 2025-2028), mais la duree de cotisation reste 44 ans pour tous (LAVS art. 29ter).
 - Chaque annee manquante reduit ta rente d'environ **1/44e** (soit ~CHF 688/an de rente en moins).
 - Tu peux racheter les lacunes des **5 dernieres annees** aupres de ta caisse cantonale AVS (LAVS art. 16).
 

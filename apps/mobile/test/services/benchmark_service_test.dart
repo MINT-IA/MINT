@@ -3,18 +3,17 @@ import 'package:mint_mobile/services/benchmark_service.dart';
 
 void main() {
   // =========================================================================
-  // BENCHMARK SERVICE — Unit tests
+  // BENCHMARK SERVICE — Unit tests (personal progression, no social comparison)
   // =========================================================================
   //
-  // Tests the anonymous financial benchmark comparison service:
-  //   - compareSavings: savings rate vs Swiss median (OFS EBM 2022)
-  //   - compare3a: 3a participation & contributions vs Swiss average
-  //   - compareEmergencyFund: emergency fund months vs Swiss median
+  // Tests the personal financial progress tracking service:
+  //   - compareSavings: savings vs own previous values
+  //   - compare3a: 3a contribution progress
+  //   - compareEmergencyFund: emergency fund progress vs personal target
   //   - Age bracket mapping
-  //   - Percentile estimation
   //   - Edge cases (zero income, extreme values, boundary ages)
   //
-  // Sources: OFS EBM 2022, OFS SILC 2023, OFS/ASA Prévoyance privée 2023.
+  // COMPLIANCE: No social comparison (CLAUDE.md § 6).
   // =========================================================================
 
   group('compareSavings - structure du resultat', () {
@@ -25,32 +24,11 @@ void main() {
         monthlySavings: 650,
       );
 
-      expect(result.percentile, isA<int>());
-      expect(result.medianValue, isA<double>());
       expect(result.userValue, isA<double>());
+      expect(result.previousValue, isA<double>());
       expect(result.delta, isA<double>());
       expect(result.bracket, isA<String>());
       expect(result.message, isA<String>());
-    });
-
-    test('percentile is clamped between 1 and 99', () {
-      // Extremely high savings rate
-      final highResult = BenchmarkService.compareSavings(
-        age: 30,
-        monthlyNetIncome: 5000,
-        monthlySavings: 5000, // 100% savings rate
-      );
-      expect(highResult.percentile, lessThanOrEqualTo(99));
-      expect(highResult.percentile, greaterThanOrEqualTo(1));
-
-      // Zero savings
-      final lowResult = BenchmarkService.compareSavings(
-        age: 30,
-        monthlyNetIncome: 5000,
-        monthlySavings: 0,
-      );
-      expect(lowResult.percentile, lessThanOrEqualTo(99));
-      expect(lowResult.percentile, greaterThanOrEqualTo(1));
     });
 
     test('userValue equals input monthlySavings', () {
@@ -62,14 +40,24 @@ void main() {
       expect(result.userValue, 800);
     });
 
-    test('delta equals user savings minus median savings', () {
+    test('delta equals current minus previous savings', () {
+      final result = BenchmarkService.compareSavings(
+        age: 30,
+        monthlyNetIncome: 5400,
+        monthlySavings: 650,
+        previousMonthlySavings: 500,
+      );
+      expect(result.delta, closeTo(150, 0.01));
+    });
+
+    test('default previousMonthlySavings is 0', () {
       final result = BenchmarkService.compareSavings(
         age: 30,
         monthlyNetIncome: 5400,
         monthlySavings: 650,
       );
-      // median for 25-34 = 5400 * 0.12 = 648
-      expect(result.delta, closeTo(650 - 648, 0.01));
+      expect(result.previousValue, 0);
+      expect(result.delta, closeTo(650, 0.01));
     });
   });
 
@@ -130,145 +118,154 @@ void main() {
   });
 
   group('compareSavings - edge cases', () {
-    test('zero income returns percentile without division error', () {
+    test('zero income returns result without division error', () {
       final result = BenchmarkService.compareSavings(
         age: 30,
         monthlyNetIncome: 0,
         monthlySavings: 0,
       );
-      expect(result.percentile, isA<int>());
-      expect(result.percentile, greaterThanOrEqualTo(1));
-      expect(result.percentile, lessThanOrEqualTo(99));
+      expect(result.userValue, 0);
+      expect(result.message, isA<String>());
     });
 
-    test('negative savings returns low percentile', () {
+    test('negative savings returns negative delta', () {
       final result = BenchmarkService.compareSavings(
         age: 30,
         monthlyNetIncome: 5000,
         monthlySavings: -500,
+        previousMonthlySavings: 200,
       );
-      expect(result.percentile, lessThan(50));
+      expect(result.delta, lessThan(0));
     });
 
-    test('very high saver gets high percentile', () {
-      final result = BenchmarkService.compareSavings(
-        age: 30,
-        monthlyNetIncome: 5000,
-        monthlySavings: 2500, // 50% savings rate
-      );
-      expect(result.percentile, greaterThan(75));
-    });
-  });
-
-  group('compareSavings - messages en francais', () {
-    test('high saver gets positive message', () {
+    test('positive progression shows encouraging message', () {
       final result = BenchmarkService.compareSavings(
         age: 30,
         monthlyNetIncome: 5000,
         monthlySavings: 2500,
+        previousMonthlySavings: 1000,
       );
-      expect(result.message, contains('plus que'));
-      expect(result.message, contains('25-34'));
+      expect(result.delta, 1500);
+      expect(result.message, contains('plus'));
+    });
+  });
+
+  group('compareSavings - messages en francais', () {
+    test('positive delta shows progression message', () {
+      final result = BenchmarkService.compareSavings(
+        age: 30,
+        monthlyNetIncome: 5000,
+        monthlySavings: 2500,
+        previousMonthlySavings: 1000,
+      );
+      expect(result.message, contains('plus'));
     });
 
-    test('average saver gets neutral message', () {
-      // median rate for 25-34 is 0.12, so ~600 on 5000
+    test('no previous data shows current amount', () {
       final result = BenchmarkService.compareSavings(
         age: 30,
         monthlyNetIncome: 5000,
         monthlySavings: 600,
       );
-      expect(result.message, contains('25-34'));
+      expect(result.message, contains('600'));
+    });
+
+    test('no social comparison terms in message', () {
+      final result = BenchmarkService.compareSavings(
+        age: 30,
+        monthlyNetIncome: 5000,
+        monthlySavings: 2500,
+      );
+      expect(result.message, isNot(contains('Suisse')));
+      expect(result.message, isNot(contains('médiane')));
+      expect(result.message, isNot(contains('Top')));
+      expect(result.message, isNot(contains('%  des')));
     });
   });
 
   group('compare3a - avec et sans 3a', () {
-    test('no 3a returns adoption rate message', () {
+    test('no 3a returns encouragement message', () {
       final result = BenchmarkService.compare3a(
         age: 30,
         has3a: false,
         annualContribution: 0,
       );
       expect(result.userValue, 0);
-      expect(result.message, contains('3e pilier'));
-      expect(result.message, contains('25-34'));
+      expect(result.message, contains('3a'));
     });
 
-    test('has 3a with high contribution gets high percentile', () {
+    test('has 3a with high contribution returns current value', () {
       final result = BenchmarkService.compare3a(
         age: 30,
         has3a: true,
-        annualContribution: 7258, // max 3a
+        annualContribution: 7258,
       );
-      expect(result.percentile, greaterThan(50));
       expect(result.userValue, 7258);
     });
 
-    test('has 3a with low contribution gets low percentile', () {
+    test('has 3a with progression shows delta', () {
       final result = BenchmarkService.compare3a(
         age: 30,
         has3a: true,
-        annualContribution: 1000,
+        annualContribution: 5500,
+        previousAnnualContribution: 3000,
       );
-      expect(result.percentile, lessThan(50));
+      expect(result.delta, closeTo(2500, 0.01));
     });
 
-    test('3a median comparison uses CHF 5500', () {
+    test('3a message never contains social comparison', () {
       final result = BenchmarkService.compare3a(
         age: 30,
         has3a: true,
         annualContribution: 5500,
       );
-      // At the median, delta should be ~0
-      expect(result.delta, closeTo(0, 0.01));
-      expect(result.medianValue, 5500);
+      expect(result.message, isNot(contains('cotisant·e·s suisses')));
+      expect(result.message, isNot(contains('Top')));
     });
 
-    test('no 3a percentile reflects adoption rate inverse', () {
-      // For 25-34, adoption = 52%, so percentile = (1-0.52)*100 = 48
+    test('no 3a message encourages without social pressure', () {
       final result = BenchmarkService.compare3a(
         age: 30,
         has3a: false,
         annualContribution: 0,
       );
-      expect(result.percentile, closeTo(48, 1));
+      expect(result.message, isNot(contains('% des')));
+      expect(result.message, isNot(contains('en Suisse')));
     });
   });
 
   group('compareEmergencyFund', () {
-    test('returns correct bracket and median', () {
+    test('returns correct bracket', () {
       final result = BenchmarkService.compareEmergencyFund(
         age: 30,
         emergencyFundMonths: 2.0,
       );
       expect(result.bracket, '25-34');
-      // Median for 25-34 is 1.5 months
-      expect(result.medianValue, 1.5);
     });
 
-    test('high fund months gets high percentile', () {
+    test('high fund months shows positive message', () {
       final result = BenchmarkService.compareEmergencyFund(
         age: 30,
         emergencyFundMonths: 6.0,
       );
-      expect(result.percentile, greaterThan(75));
+      expect(result.message, contains('3-6 mois'));
     });
 
-    test('zero fund months gets low percentile', () {
+    test('zero fund months returns result', () {
       final result = BenchmarkService.compareEmergencyFund(
         age: 30,
         emergencyFundMonths: 0,
       );
-      expect(result.percentile, lessThan(50));
+      expect(result.userValue, 0);
     });
 
-    test('3+ months shows positive message', () {
+    test('3+ months shows comfort zone message', () {
       final result = BenchmarkService.compareEmergencyFund(
         age: 30,
         emergencyFundMonths: 4.0,
       );
       expect(result.message, contains('mois'));
-      expect(result.message, contains('couvre'));
+      expect(result.message, contains('confort'));
     });
 
     test('under 3 months shows recommendation message', () {
@@ -280,18 +277,14 @@ void main() {
       expect(result.message, contains('recommandation'));
     });
 
-    test('elderly bracket has higher median', () {
-      final resultYoung = BenchmarkService.compareEmergencyFund(
+    test('progression tracked via delta', () {
+      final result = BenchmarkService.compareEmergencyFund(
         age: 30,
-        emergencyFundMonths: 3.0,
+        emergencyFundMonths: 4.0,
+        previousEmergencyFundMonths: 2.0,
       );
-      final resultOld = BenchmarkService.compareEmergencyFund(
-        age: 60,
-        emergencyFundMonths: 3.0,
-      );
-      // At 3 months, younger should rank higher than older
-      // because older has higher median (5.0 vs 1.5)
-      expect(resultYoung.percentile, greaterThan(resultOld.percentile));
+      expect(result.delta, closeTo(2.0, 0.01));
+      expect(result.message, contains('+'));
     });
   });
 }

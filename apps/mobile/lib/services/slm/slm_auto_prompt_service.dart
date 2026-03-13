@@ -165,7 +165,7 @@ class _SlmDownloadSheet extends StatelessWidget {
                     size: 16, color: MintColors.textMuted),
                 const SizedBox(width: 6),
                 Text(
-                  SlmDownloadService.modelSizeFormatted,
+                  SlmDownloadService.instance.modelSizeFormatted,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textMuted,
@@ -175,7 +175,7 @@ class _SlmDownloadSheet extends StatelessWidget {
                 const Icon(Icons.wifi, size: 16, color: MintColors.textMuted),
                 const SizedBox(width: 6),
                 Text(
-                  '~${SlmDownloadService.estimatedDownloadMinutes()} min en WiFi',
+                  '~${SlmDownloadService.instance.estimatedDownloadMinutes} min en WiFi',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textMuted,

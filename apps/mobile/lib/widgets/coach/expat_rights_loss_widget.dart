@@ -46,7 +46,7 @@ class ExpatRightsLossWidget extends StatelessWidget {
       label: 'Expatriation droits perdus AVS LPP 3a LAMal avant après',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),
@@ -188,7 +188,7 @@ class ExpatRightsLossWidget extends StatelessWidget {
                                 style: GoogleFonts.inter(
                                   fontSize: 9,
                                   fontWeight: FontWeight.w800,
-                                  color: Colors.white,
+                                  color: MintColors.white,
                                 ),
                               ),
                             ),

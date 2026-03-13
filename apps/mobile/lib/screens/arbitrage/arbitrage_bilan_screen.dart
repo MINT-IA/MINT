@@ -62,7 +62,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
     final summary = ArbitrageSummaryService.compute(profile);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.white,
       body: CustomScrollView(
         slivers: [
           // ── AppBar ──
@@ -93,7 +93,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
                           style: GoogleFonts.montserrat(
                             fontSize: 22,
                             fontWeight: FontWeight.w800,
-                            color: Colors.white,
+                            color: MintColors.white,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -102,7 +102,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
                             '${formatChfWithPrefix(summary.aggregateMonthlyImpact)}/mois de potentiel identifie',
                             style: GoogleFonts.inter(
                               fontSize: 14,
-                              color: Colors.white.withValues(alpha: 0.85),
+                              color: MintColors.white.withValues(alpha: 0.85),
                             ),
                           ),
                       ],
@@ -321,12 +321,12 @@ class _ArbitrageItemCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: MintColors.lightBorder),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: MintColors.black.withValues(alpha: 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),

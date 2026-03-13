@@ -16,12 +16,14 @@ import pytest
 
 from app.services.retirement.avs_estimation_service import (
     AvsEstimationService,
-    AVS_MAX_RENTE_MENSUELLE,
     AVS_MAX_RENTE_COUPLE_FACTOR,
     AVS_RETIREMENT_AGE,
-    AVS_ANTICIPATION_PENALTY_PER_YEAR,
-    AVS_DEFERRAL_BONUS,
-    AVS_FULL_CONTRIBUTION_YEARS,
+)
+from app.constants.social_insurance import (
+    AVS_RENTE_MAX_MENSUELLE as AVS_MAX_RENTE_MENSUELLE,
+    AVS_REDUCTION_ANTICIPATION as AVS_ANTICIPATION_PENALTY_PER_YEAR,
+    AVS_SUPPLEMENT_AJOURNEMENT as AVS_DEFERRAL_BONUS,
+    AVS_DUREE_COTISATION_COMPLETE as AVS_FULL_CONTRIBUTION_YEARS,
 )
 from app.services.retirement.lpp_conversion_service import (
     LppConversionService,

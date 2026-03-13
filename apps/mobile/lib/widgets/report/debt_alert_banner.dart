@@ -70,7 +70,7 @@ class DebtAlertBanner extends StatelessWidget {
               ),
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.error,
-                foregroundColor: Colors.white,
+                foregroundColor: MintColors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),

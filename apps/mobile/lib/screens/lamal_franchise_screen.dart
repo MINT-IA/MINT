@@ -138,16 +138,16 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.blue.shade50,
+          color: MintColors.neutralBg,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.blue.shade200),
+          border: Border.all(color: MintColors.neutralBg),
         ),
         child: Text(
           'MODE DEMO',
           style: GoogleFonts.montserrat(
             fontSize: 10,
             fontWeight: FontWeight.w700,
-            color: Colors.blue.shade700,
+            color: MintColors.blueDark,
             letterSpacing: 1,
           ),
         ),
@@ -163,12 +163,12 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Colors.teal.shade50,
+            color: MintColors.accentPastel,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(
             Icons.health_and_safety,
-            color: Colors.teal.shade700,
+            color: MintColors.tealLight,
             size: 28,
           ),
         ),
@@ -254,12 +254,12 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: !_isChild ? Colors.white : Colors.transparent,
+                  color: !_isChild ? MintColors.white : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: !_isChild
                       ? [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: MintColors.black.withOpacity(0.05),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -290,12 +290,12 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: _isChild ? Colors.white : Colors.transparent,
+                  color: _isChild ? MintColors.white : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: _isChild
                       ? [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: MintColors.black.withOpacity(0.05),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -326,7 +326,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -409,7 +409,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -529,7 +529,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: c.isOptimal ? MintColors.success : MintColors.border.withOpacity(0.6),
@@ -640,7 +640,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
       ),
@@ -649,7 +649,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.swap_vert, color: Colors.teal.shade600, size: 18),
+              Icon(Icons.swap_vert, color: MintColors.teal, size: 18),
               const SizedBox(width: 8),
               Text(
                 'Seuils de rentabilite',
@@ -672,7 +672,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                   height: 6,
                   margin: const EdgeInsets.only(top: 6),
                   decoration: BoxDecoration(
-                    color: Colors.teal.shade400,
+                    color: MintColors.teal,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -727,7 +727,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MintColors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
             ),
@@ -751,14 +751,14 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.teal.shade50,
+        color: MintColors.accentPastel,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.teal.shade200),
+        border: Border.all(color: MintColors.accentPastel),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.event, color: Colors.teal.shade700, size: 20),
+          Icon(Icons.event, color: MintColors.tealLight, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -766,7 +766,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               '30 novembre de chaque annee pour l\'annee suivante.',
               style: GoogleFonts.inter(
                 fontSize: 13,
-                color: Colors.teal.shade800,
+                color: MintColors.tealDark,
                 height: 1.5,
                 fontWeight: FontWeight.w500,
               ),
@@ -783,14 +783,14 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -799,7 +799,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               'Consulte ta caisse maladie pour des chiffres exacts.',
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),

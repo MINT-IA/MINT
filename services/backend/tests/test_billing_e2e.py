@@ -5,7 +5,6 @@ ALL 13 must pass before merge to main.
 """
 
 from datetime import datetime, timedelta
-from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
@@ -166,7 +165,7 @@ def test_e2_owner_invites_partner(client: TestClient):
     """E2: Owner invites partner -> partner receives invitation code."""
     auth_client = _auth_client(client)
     owner_token = _register_and_token(auth_client, "e2e-e2-owner@example.com")
-    partner_token = _register_and_token(auth_client, "e2e-e2-partner@example.com")
+    _register_and_token(auth_client, "e2e-e2-partner@example.com")
     owner_id = _get_user_id(auth_client, owner_token)
 
     # Activate couple_plus for owner

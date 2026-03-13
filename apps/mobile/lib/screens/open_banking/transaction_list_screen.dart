@@ -154,14 +154,14 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.amber.shade50,
+        color: MintColors.disclaimerBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.amber.shade300),
+        border: Border.all(color: MintColors.amberWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.lock_outline, color: Colors.amber.shade800, size: 22),
+          Icon(Icons.lock_outline, color: MintColors.amberDark, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -172,7 +172,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Colors.amber.shade900,
+                    color: MintColors.amberDark,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -181,7 +181,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                   'Les données affichées sont des exemples de démonstration.',
                   style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: Colors.amber.shade800,
+                    color: MintColors.amberDark,
                     height: 1.5,
                   ),
                 ),
@@ -201,16 +201,16 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.blue.shade50,
+          color: MintColors.neutralBg,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.blue.shade200),
+          border: Border.all(color: MintColors.neutralBg),
         ),
         child: Text(
           'MODE DEMO',
           style: GoogleFonts.montserrat(
             fontSize: 10,
             fontWeight: FontWeight.w700,
-            color: Colors.blue.shade700,
+            color: MintColors.blueDark,
             letterSpacing: 1,
           ),
         ),
@@ -248,7 +248,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-            color: isSelected ? Colors.white : MintColors.textSecondary,
+            color: isSelected ? MintColors.white : MintColors.textSecondary,
           ),
         ),
       ),
@@ -323,7 +323,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(14),
         border:
             Border.all(color: MintColors.border.withOpacity(0.5), width: 0.8),
@@ -379,18 +379,18 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
 
   Widget _buildCategoryAvatar(String category) {
     final (IconData iconData, Color color) = switch (category) {
-      'alimentation' => (Icons.shopping_cart, Colors.orange),
-      'transport' => (Icons.directions_bus, Colors.blue),
-      'logement' => (Icons.home, Colors.brown),
-      'telecom' => (Icons.phone_android, Colors.indigo),
-      'assurances' => (Icons.health_and_safety, Colors.teal),
-      'energie' => (Icons.bolt, Colors.amber),
-      'sante' => (Icons.local_pharmacy, Colors.red),
-      'loisirs' => (Icons.movie, Colors.purple),
-      'impots' => (Icons.receipt_long, Colors.grey),
-      'epargne' => (Icons.savings, Colors.green),
-      'revenu' => (Icons.account_balance_wallet, Colors.green),
-      _ => (Icons.receipt, Colors.grey),
+      'alimentation' => (Icons.shopping_cart, MintColors.warning),
+      'transport' => (Icons.directions_bus, MintColors.info),
+      'logement' => (Icons.home, MintColors.brownWarm),
+      'telecom' => (Icons.phone_android, MintColors.indigo),
+      'assurances' => (Icons.health_and_safety, MintColors.teal),
+      'energie' => (Icons.bolt, MintColors.amber),
+      'sante' => (Icons.local_pharmacy, MintColors.error),
+      'loisirs' => (Icons.movie, MintColors.purple),
+      'impots' => (Icons.receipt_long, MintColors.greyMedium),
+      'epargne' => (Icons.savings, MintColors.success),
+      'revenu' => (Icons.account_balance_wallet, MintColors.success),
+      _ => (Icons.receipt, MintColors.greyMedium),
     };
 
     return Container(
@@ -451,7 +451,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -537,14 +537,14 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -554,7 +554,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
               'à une consultation réglementaire préalable.',
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),
