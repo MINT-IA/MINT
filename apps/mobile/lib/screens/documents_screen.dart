@@ -224,7 +224,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   children: [
                     Text(
                       s?.vaultHeaderTitle ?? 'Ton coffre-fort financier',
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.montserrat(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: MintColors.textPrimary,
@@ -341,7 +341,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             const SizedBox(height: 8),
             Text(
               label,
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
                 color: MintColors.textPrimary,
@@ -485,7 +485,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               Expanded(
                 child: Text(
                   title,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: MintColors.textPrimary,
@@ -581,7 +581,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               const SizedBox(width: 8),
               Text(
                 typeLabel,
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: MintColors.textPrimary,
@@ -721,7 +721,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           const SizedBox(height: 16),
           Text(
             s?.vaultEmptyTitle ?? 'Aucun document',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: MintColors.textPrimary,
@@ -799,7 +799,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               Expanded(
                 child: Text(
                   s?.vaultPremiumTitle ?? 'Coffre-fort Premium',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: MintColors.white,
@@ -1335,7 +1335,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   s?.vaultUploadTitle ?? 'Quel type de document ?',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                     color: MintColors.textPrimary,
@@ -1464,7 +1464,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           s?.vaultTitle ?? 'Coffre-fort',
-          style: GoogleFonts.outfit(
+          style: GoogleFonts.montserrat(
             fontSize: 20,
             fontWeight: FontWeight.w700,
           ),

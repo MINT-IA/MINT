@@ -51,7 +51,7 @@ class SafeModeGate extends StatelessWidget {
               children: [
                 Text(
                   lockedTitle,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: MintColors.textSecondary,
@@ -112,7 +112,7 @@ class SafeModeGate extends StatelessWidget {
                           children: [
                             Text(
                               'Pourquoi c’est bloqué',
-                              style: GoogleFonts.outfit(
+                              style: GoogleFonts.montserrat(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
                                 color: MintColors.textPrimary,

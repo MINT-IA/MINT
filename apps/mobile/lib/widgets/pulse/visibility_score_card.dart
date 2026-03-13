@@ -41,7 +41,7 @@ class VisibilityScoreCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   l.pulseVisibilityTitle,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: MintColors.textPrimary,
@@ -85,7 +85,7 @@ class VisibilityScoreCard extends StatelessWidget {
       ),
       child: Text(
         '${score.percentage}%',
-        style: GoogleFonts.outfit(
+        style: GoogleFonts.montserrat(
           fontSize: 22,
           fontWeight: FontWeight.w700,
           color: color,

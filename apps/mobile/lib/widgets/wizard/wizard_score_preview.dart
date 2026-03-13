@@ -406,7 +406,7 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
           // Animated score number
           Text(
             '$displayScore',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: _currentScore > 0 ? _scoreColor : MintColors.textMuted,

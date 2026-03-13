@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -51,42 +52,68 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      appBar: AppBar(
-        title: const Text('Analyse Anti-Leasing'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.picture_as_pdf_outlined),
-            onPressed: _exportPdf,
-            tooltip: 'Exporter mon bilan',
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildCoachSection(),
-            const SizedBox(height: 32),
-            _buildInputSection(),
-            const SizedBox(height: 32),
-            if (_result != null) _buildResultSection(),
-            const SizedBox(height: 32),
-            // ── P10-D : Le vrai coût du leasing ─────────────────
-            LeasingCostWidget(
-              vehiclePrice: _monthlyPayment * _durationMonths / 0.55,
-              monthlyLeasing: _monthlyPayment,
-              leasingDurationMonths: _durationMonths,
-              annualReturnRate: _alternativeRate / 100,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 120,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.picture_as_pdf_outlined, color: MintColors.white),
+                onPressed: _exportPdf,
+                tooltip: 'Exporter mon bilan',
+              ),
+              const SizedBox(width: 8),
+            ],
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                'Analyse Anti-Leasing',
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: MintColors.white,
+                ),
+              ),
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [MintColors.primary, MintColors.primaryLight],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
             ),
-            const SizedBox(height: 32),
-            _buildAlternativesSection(),
-            const SizedBox(height: 48),
-            _buildDisclaimer(),
-            const SizedBox(height: 40),
-          ],
-        ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildCoachSection(),
+                  const SizedBox(height: 32),
+                  _buildInputSection(),
+                  const SizedBox(height: 32),
+                  if (_result != null) _buildResultSection(),
+                  const SizedBox(height: 32),
+                  // ── P10-D : Le vrai coût du leasing ─────────────────
+                  LeasingCostWidget(
+                    vehiclePrice: _monthlyPayment * _durationMonths / 0.55,
+                    monthlyLeasing: _monthlyPayment,
+                    leasingDurationMonths: _durationMonths,
+                    annualReturnRate: _alternativeRate / 100,
+                  ),
+                  const SizedBox(height: 32),
+                  _buildAlternativesSection(),
+                  const SizedBox(height: 48),
+                  _buildDisclaimer(),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

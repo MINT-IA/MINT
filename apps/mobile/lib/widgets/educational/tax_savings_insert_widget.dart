@@ -120,7 +120,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                     children: [
                       Text(
                         'Optimisation 3a',
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.montserrat(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: MintColors.textPrimary,
@@ -205,7 +205,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                       ),
                       child: Text(
                         _currencyFormat.format(_monthlyIncome),
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.montserrat(
                             fontWeight: FontWeight.bold,
                             color: MintColors.textPrimary),
                       ),
@@ -262,7 +262,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                       // Hero Number - Clean Anthracite
                       Text(
                         '~${_currencyFormat.format((_taxSavingsMin + _taxSavingsMax) / 2)}',
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.montserrat(
                           fontSize: 38,
                           fontWeight: FontWeight.bold,
                           color: MintColors.textPrimary,

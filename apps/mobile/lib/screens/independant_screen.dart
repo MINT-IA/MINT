@@ -218,7 +218,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
             children: [
               Text(
                 S.of(context)!.independantTitle,
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.montserrat(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   color: MintColors.textPrimary,
@@ -464,7 +464,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
         children: [
           Text(
             S.of(context)!.independantRevenueTitle,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,
@@ -476,7 +476,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
             children: [
               Text(
                 IndependantService.formatChf(_revenuNet),
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.montserrat(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
                   color: MintColors.textPrimary,
@@ -538,7 +538,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
         children: [
           Text(
             S.of(context)!.independantCoverageTitle,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,
@@ -724,7 +724,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
                   children: [
                     Text(
                       gap.label,
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.montserrat(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: MintColors.textPrimary,
@@ -796,7 +796,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
         children: [
           Text(
             S.of(context)!.independantProtectionCostTitle,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: MintColors.textPrimary,
@@ -828,7 +828,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
             children: [
               Text(
                 S.of(context)!.independantTotalMonthly,
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: MintColors.textPrimary,
@@ -836,7 +836,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               ),
               Text(
                 IndependantService.formatChf(cost.totalMensuel),
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.montserrat(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                   color: MintColors.primary,
@@ -919,7 +919,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.independantAvsTitle,
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: MintColors.tealDark,
@@ -965,7 +965,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.independant3aTitle,
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: MintColors.indigoDark,

@@ -117,7 +117,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
             const SizedBox(height: 24),
             Text(
               s?.askMintConfigureTitle ?? 'Configure ton IA',
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.montserrat(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
                 color: MintColors.textPrimary,
@@ -325,7 +325,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
           Text(
             s?.askMintEmptyTitle ?? 'Pose-moi ta question',
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 24,
               fontWeight: FontWeight.w700,
               color: MintColors.textPrimary,

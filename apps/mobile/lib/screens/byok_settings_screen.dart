@@ -68,7 +68,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                   // Header
                   Text(
                     s?.byokTitle ?? 'Intelligence artificielle',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.montserrat(
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
                       letterSpacing: -0.5,

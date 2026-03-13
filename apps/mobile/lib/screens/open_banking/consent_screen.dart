@@ -170,7 +170,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               children: [
                 Text(
                   'Fonctionnalite en preparation',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: MintColors.amberDark,
@@ -269,7 +269,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               Expanded(
                 child: Text(
                   consent.bankName,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: MintColors.textPrimary,
@@ -432,7 +432,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               const SizedBox(width: 10),
               Text(
                 'Tes droits (nLPD)',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.montserrat(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: MintColors.tealDark,
@@ -635,7 +635,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
         children: [
           Text(
             'Choisir une banque',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,
@@ -705,7 +705,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 children: [
                   Text(
                     bank['name']!,
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.montserrat(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: MintColors.textPrimary,
@@ -746,7 +746,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
         children: [
           Text(
             'Choisir les autorisations',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,
@@ -901,7 +901,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
         children: [
           Text(
             'Confirmation',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,

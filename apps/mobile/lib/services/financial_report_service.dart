@@ -1,6 +1,8 @@
 import 'dart:math' show pow;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 import '../models/financial_report.dart';
@@ -11,8 +13,15 @@ import 'circle_scoring_service.dart';
 class FinancialReportService {
   final CircleScoringService _scoringService = CircleScoringService();
 
-  /// Génère le rapport complet à partir des réponses du wizard
-  FinancialReport generateReport(Map<String, dynamic> answers) {
+  /// Génère le rapport complet à partir des réponses du wizard.
+  ///
+  /// When [coachProfile] is provided, the confidence score is computed
+  /// using the full 3-axis [ConfidenceScorer]. Otherwise, a simplified
+  /// estimate is derived from the wizard answers completeness.
+  FinancialReport generateReport(
+    Map<String, dynamic> answers, {
+    CoachProfile? coachProfile,
+  }) {
     // 1. Profil utilisateur
     final profile = _buildUserProfile(answers);
 
@@ -52,6 +61,10 @@ class FinancialReportService {
       lppStrategy: lppStrategy,
     );
 
+    // 11. Confidence scoring (mandatory on all projections — CLAUDE.md §5)
+    final (:confidenceScore, :enrichmentPrompts) =
+        _computeConfidence(answers, coachProfile);
+
     return FinancialReport(
       profile: profile,
       healthScore: healthScore,
@@ -63,6 +76,8 @@ class FinancialReportService {
       personalizedRoadmap: roadmap,
       disclaimers: disclaimers,
       sources: sources,
+      confidenceScore: confidenceScore,
+      enrichmentPrompts: enrichmentPrompts,
       generatedAt: DateTime.now(),
       reportVersion: '2.0',
     );
@@ -603,6 +618,92 @@ class FinancialReportService {
         actions: [], // À compléter selon contexte
       ),
     ]);
+  }
+
+  // ===== CONFIDENCE SCORING =====
+
+  /// Computes confidence score for the report.
+  ///
+  /// If a [CoachProfile] is available, delegates to [ConfidenceScorer]
+  /// for the full 3-axis scoring. Otherwise, estimates from wizard answers
+  /// completeness (each key field contributes proportionally).
+  ({double confidenceScore, List<String> enrichmentPrompts})
+      _computeConfidence(
+    Map<String, dynamic> answers,
+    CoachProfile? coachProfile,
+  ) {
+    // Full scoring when CoachProfile is available
+    if (coachProfile != null) {
+      try {
+        final result = ConfidenceScorer.score(coachProfile);
+        return (
+          confidenceScore: result.score,
+          enrichmentPrompts: result.prompts.map((p) => p.label).toList(),
+        );
+      } catch (_) {
+        // Fall through to simplified scoring
+      }
+    }
+
+    // Simplified scoring from wizard answers completeness
+    double score = 0;
+    final prompts = <String>[];
+
+    // Income (15 pts)
+    if (_parseDouble(answers['q_net_income_period_chf']) != null &&
+        _parseDouble(answers['q_net_income_period_chf'])! > 0) {
+      score += 15;
+    } else {
+      prompts.add('Ajoute ton salaire');
+    }
+
+    // Age + Canton (10 pts)
+    if (_parseInt(answers['q_birth_year']) != null) score += 5;
+    if (answers['q_canton'] != null) {
+      score += 5;
+    } else {
+      prompts.add('Indique ton canton');
+    }
+
+    // Civil status (10 pts)
+    if (answers['q_civil_status'] != null) score += 10;
+
+    // LPP capital (15 pts)
+    if (_parseDouble(answers['q_current_lpp_capital']) != null &&
+        _parseDouble(answers['q_current_lpp_capital'])! > 0) {
+      score += 15;
+    } else {
+      prompts.add('Ajoute ton solde LPP');
+    }
+
+    // LPP buyback (10 pts)
+    if (_parseDouble(answers['q_lpp_buyback_available']) != null) score += 10;
+
+    // 3a (10 pts)
+    if (_parseDouble(answers['q_3a_annual_contribution']) != null) {
+      score += 10;
+    } else {
+      prompts.add('Ajoute tes versements 3a');
+    }
+
+    // AVS data (15 pts)
+    if (answers['q_avs_lacunes_status'] != null ||
+        _parseInt(answers['q_avs_contribution_years']) != null) {
+      score += 15;
+    } else {
+      prompts.add('Commande ton extrait AVS');
+    }
+
+    // Employment status (5 pts)
+    if (answers['q_employment_status'] != null) score += 5;
+
+    // Children (5 pts)
+    if (answers['q_children'] != null) score += 5;
+
+    return (
+      confidenceScore: score.clamp(0, 100),
+      enrichmentPrompts: prompts,
+    );
   }
 
   // ===== HELPERS =====

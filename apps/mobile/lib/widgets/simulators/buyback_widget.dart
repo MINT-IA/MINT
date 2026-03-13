@@ -70,7 +70,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                     .toList(),
                 onChanged: (v) => setState(() => _years = v!),
                 underline: Container(), // clean look
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: MintColors.primary),
@@ -110,7 +110,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                 const SizedBox(width: 8),
                 Text(
                   "Gain estimé: + CHF ${result.delta.toStringAsFixed(0)}",
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: MintColors.success),
@@ -280,7 +280,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                   const SizedBox(height: 4),
                   Text(
                     "${(amount / 1000).toStringAsFixed(1)}k",
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.montserrat(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color:

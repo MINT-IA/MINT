@@ -548,11 +548,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       }
 
       if (!mounted) return;
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => ExtractionReviewScreen(result: result),
-        ),
-      );
+      context.push('/document-scan/extraction-review', extra: result);
     } catch (e) {
       _showErrorSnack('Parsing impossible pour ce document: $e');
     } finally {
@@ -1029,11 +1025,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         );
       }
       if (!mounted) return const _PdfParseResult(success: true);
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => ExtractionReviewScreen(result: extraction),
-        ),
-      );
+      context.push('/document-scan/extraction-review', extra: extraction);
       return const _PdfParseResult(success: true);
     } on DocumentServiceException catch (e) {
       final lower = e.message.toLowerCase();
@@ -1247,11 +1239,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         sources: const ['Extraction Vision IA (BYOK)'],
       );
 
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => ExtractionReviewScreen(result: result),
-        ),
-      );
+      if (!mounted) return;
+      context.push('/document-scan/extraction-review', extra: result);
     } on RagApiException catch (e) {
       _showErrorSnack(e.message);
     } catch (e) {

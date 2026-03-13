@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/services/life_events_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -87,56 +88,82 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      appBar: AppBar(
-        title: Text(S.of(context)!.successionAppBarTitle),
-      ),
-      body: SingleChildScrollView(
+      body: CustomScrollView(
         controller: _scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 24),
-            _buildIntroCard(),
-            const SizedBox(height: 24),
-            _buildSituationPersonnelleSection(),
-            const SizedBox(height: 12),
-            _buildFortuneSection(),
-            const SizedBox(height: 12),
-            _buildTestamentSection(),
-            const SizedBox(height: 24),
-            _buildSimulateButton(),
-            const SizedBox(height: 24),
-            if (_result != null) ...[
-              Container(key: _resultsKey),
-              _buildLegalDistributionCard(),
-              const SizedBox(height: 24),
-              if (_result!.testamentDistribution != null) ...[
-                _buildTestamentDistributionCard(),
-                const SizedBox(height: 24),
-              ],
-              _buildReservesCard(),
-              const SizedBox(height: 24),
-              _buildQuotiteDisponibleCard(),
-              const SizedBox(height: 24),
-              _buildFiscaliteCard(),
-              const SizedBox(height: 24),
-              _build3aOpp3Card(),
-              const SizedBox(height: 24),
-              if (_result!.alerts.isNotEmpty) ...[
-                _buildAlertsSection(),
-                const SizedBox(height: 24),
-              ],
-              _buildChecklistSection(),
-              const SizedBox(height: 24),
-            ],
-            _buildEducationalFooter(),
-            const SizedBox(height: 24),
-            _buildDisclaimer(),
-            const SizedBox(height: 40),
-          ],
-        ),
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 120,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                S.of(context)!.successionAppBarTitle,
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: MintColors.white,
+                ),
+              ),
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [MintColors.primary, MintColors.primaryLight],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 24),
+                  _buildIntroCard(),
+                  const SizedBox(height: 24),
+                  _buildSituationPersonnelleSection(),
+                  const SizedBox(height: 12),
+                  _buildFortuneSection(),
+                  const SizedBox(height: 12),
+                  _buildTestamentSection(),
+                  const SizedBox(height: 24),
+                  _buildSimulateButton(),
+                  const SizedBox(height: 24),
+                  if (_result != null) ...[
+                    Container(key: _resultsKey),
+                    _buildLegalDistributionCard(),
+                    const SizedBox(height: 24),
+                    if (_result!.testamentDistribution != null) ...[
+                      _buildTestamentDistributionCard(),
+                      const SizedBox(height: 24),
+                    ],
+                    _buildReservesCard(),
+                    const SizedBox(height: 24),
+                    _buildQuotiteDisponibleCard(),
+                    const SizedBox(height: 24),
+                    _buildFiscaliteCard(),
+                    const SizedBox(height: 24),
+                    _build3aOpp3Card(),
+                    const SizedBox(height: 24),
+                    if (_result!.alerts.isNotEmpty) ...[
+                      _buildAlertsSection(),
+                      const SizedBox(height: 24),
+                    ],
+                    _buildChecklistSection(),
+                    const SizedBox(height: 24),
+                  ],
+                  _buildEducationalFooter(),
+                  const SizedBox(height: 24),
+                  _buildDisclaimer(),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -167,7 +194,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
               children: [
                 Text(
                   S.of(context)!.successionHeaderTitle,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                     color: MintColors.textPrimary,
@@ -794,7 +821,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           const SizedBox(height: 16),
           Text(
             formatChfWithPrefix(r.quotiteDisponible),
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 28,
               fontWeight: FontWeight.w700,
               color: MintColors.textPrimary,

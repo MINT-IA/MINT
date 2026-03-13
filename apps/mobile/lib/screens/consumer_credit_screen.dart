@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -56,62 +57,88 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      appBar: AppBar(
-        title: const Text('Crédit à la Consommation'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.picture_as_pdf_outlined),
-            onPressed: _exportPdf,
-            tooltip: 'Exporter mon bilan',
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildCoachSection(),
-            const SizedBox(height: 32),
-            _buildInputSection(),
-            const SizedBox(height: 32),
-            if (_result != null) _buildResultSection(),
-            const SizedBox(height: 32),
-            _buildGuidanceSection(),
-            const SizedBox(height: 32),
-            // ── P10-B : Avalanche vs Boule de neige ──────────────
-            DebtRepaymentWidget(
-              debts: const [
-                DebtEntry(
-                  label: 'Carte de crédit',
-                  emoji: '💳',
-                  balance: 2000,
-                  monthlyRate: 0.015, // 1.5%/mois = 18%/an
-                  minimumPayment: 80,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 120,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.picture_as_pdf_outlined, color: MintColors.white),
+                onPressed: _exportPdf,
+                tooltip: 'Exporter mon bilan',
+              ),
+              const SizedBox(width: 8),
+            ],
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                'Crédit à la Consommation',
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: MintColors.white,
                 ),
-                DebtEntry(
-                  label: 'Crédit conso',
-                  emoji: '🏦',
-                  balance: 8000,
-                  monthlyRate: 0.008, // 0.8%/mois ≈ 9.9%/an
-                  minimumPayment: 200,
+              ),
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [MintColors.primary, MintColors.primaryLight],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
-                DebtEntry(
-                  label: 'BNPL (paiement différé)',
-                  emoji: '🛍️',
-                  balance: 1200,
-                  monthlyRate: 0.0, // 0% pendant période franchise
-                  minimumPayment: 100,
-                ),
-              ],
-              extraMonthly: 150,
+              ),
             ),
-            const SizedBox(height: 48),
-            _buildDisclaimer(),
-            const SizedBox(height: 40),
-          ],
-        ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildCoachSection(),
+                  const SizedBox(height: 32),
+                  _buildInputSection(),
+                  const SizedBox(height: 32),
+                  if (_result != null) _buildResultSection(),
+                  const SizedBox(height: 32),
+                  _buildGuidanceSection(),
+                  const SizedBox(height: 32),
+                  // ── P10-B : Avalanche vs Boule de neige ──────────────
+                  DebtRepaymentWidget(
+                    debts: const [
+                      DebtEntry(
+                        label: 'Carte de crédit',
+                        emoji: '💳',
+                        balance: 2000,
+                        monthlyRate: 0.015, // 1.5%/mois = 18%/an
+                        minimumPayment: 80,
+                      ),
+                      DebtEntry(
+                        label: 'Crédit conso',
+                        emoji: '🏦',
+                        balance: 8000,
+                        monthlyRate: 0.008, // 0.8%/mois ≈ 9.9%/an
+                        minimumPayment: 200,
+                      ),
+                      DebtEntry(
+                        label: 'BNPL (paiement différé)',
+                        emoji: '🛍️',
+                        balance: 1200,
+                        monthlyRate: 0.0, // 0% pendant période franchise
+                        minimumPayment: 100,
+                      ),
+                    ],
+                    extraMonthly: 150,
+                  ),
+                  const SizedBox(height: 48),
+                  _buildDisclaimer(),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -12,44 +12,59 @@ class ComprendreHubScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      appBar: AppBar(
-        title: Text(
-          S.of(context)?.eduHubTitle ?? "J'Y COMPRENDS RIEN",
-          style: GoogleFonts.montserrat(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.5,
-            color: MintColors.textPrimary,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: MintColors.background,
-        elevation: 0,
-        leading: BackButton(color: MintColors.textPrimary),
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(20),
-        itemCount: EducationData.themes.length + 1, // +1 for header
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 24.0),
-              child: Text(
-                S.of(context)?.eduHubSubtitle ?? "Pas de panique. Choisis un sujet, on t'explique l'essentiel et on te donne une action simple.",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: MintColors.textMuted,
-                  height: 1.5,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 120,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                S.of(context)?.eduHubTitle ?? "J'Y COMPRENDS RIEN",
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  letterSpacing: 1.5,
+                  color: MintColors.white,
                 ),
               ),
-            );
-          }
-          final theme = EducationData.themes[index - 1].localized(S.of(context));
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: _ThemeCard(theme: theme),
-          );
-        },
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [MintColors.primary, MintColors.primaryLight],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.all(20),
+            sliver: SliverList.builder(
+              itemCount: EducationData.themes.length + 1, // +1 for header
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 24.0),
+                    child: Text(
+                      S.of(context)?.eduHubSubtitle ?? "Pas de panique. Choisis un sujet, on t'explique l'essentiel et on te donne une action simple.",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: MintColors.textMuted,
+                        height: 1.5,
+                      ),
+                    ),
+                  );
+                }
+                final theme = EducationData.themes[index - 1].localized(S.of(context));
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: _ThemeCard(theme: theme),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

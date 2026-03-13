@@ -46,21 +46,52 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
     final sub = context.watch<SubscriptionProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          S.of(context)!.householdTitle,
-          style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
-        ),
-        backgroundColor: MintColors.primary,
-        foregroundColor: MintColors.white,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 120,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                S.of(context)!.householdTitle,
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: MintColors.white,
+                ),
+              ),
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [MintColors.primary, MintColors.primaryLight],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          if (!auth.isLoggedIn)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: _buildLoginPrompt(context),
+            )
+          else if (!sub.isPaid)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: _buildUpsellCard(context),
+            )
+          else if (household.isLoading && !household.hasHousehold)
+            const SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else
+            SliverToBoxAdapter(
+              child: _buildContent(context, household),
+            ),
+        ],
       ),
-      body: !auth.isLoggedIn
-          ? _buildLoginPrompt(context)
-          : !sub.isPaid
-              ? _buildUpsellCard(context)
-              : household.isLoading && !household.hasHousehold
-                  ? const Center(child: CircularProgressIndicator())
-                  : _buildContent(context, household),
     );
   }
 

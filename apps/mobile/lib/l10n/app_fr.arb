@@ -133,7 +133,7 @@
   "advisorReadinessToComplete": "À compléter",
   "advisorMiniCoachIntroTitle": "Ton coach MINT",
   "advisorMiniCoachIntroControl": "Tu as maintenant un plan concret. On avance en 3 priorités sur 7 jours, puis on ajuste avec ton coach.",
-  "advisorMiniWelcomeTitle": "Bienvenue !",
+  "advisorMiniWelcomeTitle": "Bienvenue\u00a0!",
   "advisorMiniWelcomeBody": "Ton espace financier est prêt. Découvre ce que ton coach a préparé.",
   "advisorMiniCoachIntroWarmth": "On y va ensemble. Chaque semaine, je t'aide à avancer sur un point concret.",
   "advisorMiniCoachPriorityBaseline": "Confirmer ton score et ta trajectoire de départ",
@@ -504,7 +504,7 @@
   "byokTesting": "Test en cours...",
   "byokSaveButton": "Sauvegarder",
   "byokSaved": "Clé sauvegardée avec succès",
-  "byokTestSuccess": "Connexion réussie ! Ton IA est prête.",
+  "byokTestSuccess": "Connexion réussie\u00a0! Ton IA est prête.",
   "byokPrivacyTitle": "Ta clé, tes données",
   "byokPrivacyBody": "Ta clé API est stockée de manière chiffrée sur ton appareil. Elle est transmise de façon sécurisée (HTTPS) à notre serveur pour communiquer avec le fournisseur IA, puis immédiatement supprimée — jamais stockée côté serveur.",
   "byokPrivacyShort": "Clé chiffrée localement, jamais stockée sur nos serveurs",
@@ -794,7 +794,7 @@
   "successionChecklistSubtitle": "Actions à entreprendre",
   "successionEduQuotite": "Qu'est-ce que la quotité disponible ?",
   "successionEduQuotiteBody": "La quotité disponible est la part de votre succession que vous pouvez librement attribuer par testament. Depuis 2023, la réserve des descendants est de 1/2.",
-  "successionEdu3a": "Le 3a et la succession : attention !",
+  "successionEdu3a": "Le 3a et la succession\u00a0: attention\u00a0!",
   "successionEdu3aBody": "Le 3e pilier est versé directement selon l'OPP3, pas selon votre testament.",
   "successionEduConcubin": "Les concubins et la succession",
   "successionEduConcubinBody": "Les concubins n'ont aucun droit successoral légal. Sans testament, ils ne reçoivent rien.",
@@ -811,7 +811,7 @@
   "coachingFilterPrevoyance": "Prévoyance",
   "coachingFilterBudget": "Budget",
   "coachingFilterRetraite": "Retraite",
-  "coachingNoTips": "Votre profil est complet et bien géré. Bravo !",
+  "coachingNoTips": "Votre profil est complet et bien géré. Bravo\u00a0!",
   "coachingImpact": "Impact estimé : {amount}",
   "@coachingImpact": {
     "placeholders": {
@@ -1598,7 +1598,7 @@
   "checkinNoteHint": "Ex: Mois compliqué, dépense imprévue pour la voiture...",
   "checkinSubmit": "Valider le check-in",
   "checkinInvalidAmount": "Montant invalide",
-  "checkinSuccessTitle": "Bravo ! Check-in {month} complété",
+  "checkinSuccessTitle": "Bravo\u00a0! Check-in {month} complété",
   "@checkinSuccessTitle": {
     "placeholders": {
       "month": {
@@ -1625,7 +1625,7 @@
     }
   },
   "checkinStreakLabel": "Série en cours",
-  "checkinStreakCount": "{count} mois consécutifs on-track !",
+  "checkinStreakCount": "{count} mois consécutifs on-track\u00a0!",
   "@checkinStreakCount": {
     "placeholders": {
       "count": {
@@ -1807,7 +1807,7 @@
   "soaDisclaimer2": "Les montants sont basés sur les informations déclarées.",
   "soaDisclaimer3": "'Disponible' = Revenus - Logement - Dettes - Impôts - LAMal - Charges fixes.",
   "commonCancel": "Annuler",
-  "profileCompleteBanner": "Profil complet ! Ton coach dispose de toutes les données pour des conseils fiables.",
+  "profileCompleteBanner": "Profil complet\u00a0! Ton coach dispose de toutes les données pour des conseils fiables.",
   "profileAnnualRefreshTitle": "Mise à jour annuelle",
   "profileAnnualRefreshBody": "Tes données datent de plus de 10 mois. Un check-up rapide (2 min) fiabilise ton plan.",
   "profileAnnualRefreshCta": "Lancer le check-up",
@@ -2325,7 +2325,7 @@
   "agirPerYear": "/an",
   "agirCoachPulseWhyDefault": "Commence par une action simple pour enclencher ta dynamique.",
   "checkinScoreTitle": "Ton score financier",
-  "checkinScorePositive": "+{delta} pts — tes actions portent leurs fruits !",
+  "checkinScorePositive": "+{delta} pts — tes actions portent leurs fruits\u00a0!",
   "@checkinScorePositive": {
     "placeholders": {
       "delta": {
@@ -2619,7 +2619,7 @@
   "naissanceCanton": "Canton",
   "naissanceNbEnfants": "Nombre d'enfants",
   "naissanceRanking26": "CLASSEMENT 26 CANTONS",
-  "naissanceBestCanton": "{canton} offre parmi les allocations familiales les plus avantageuses de Suisse !",
+  "naissanceBestCanton": "{canton} offre parmi les allocations familiales les plus avantageuses de Suisse\u00a0!",
   "@naissanceBestCanton": {
     "placeholders": {
       "canton": {
@@ -2857,7 +2857,7 @@
   "unemploymentTsunamiTitle": "Ton tsunami financier en 3 vagues",
   "unemploymentDisclaimer": "Estimations éducatives — ne constitue pas un conseil au sens de la LSFin — LACI/LPP/OPP3. Les montants présentés sont approximatifs et dépendent de ta situation personnelle. Consulte un·e spécialiste ou l'ORP de ton canton.",
   "firstJobTitle": "Premier emploi",
-  "firstJobHeaderDesc": "Comprends ta fiche de salaire ! On te montre où vont tes cotisations, ce que ton employeur paie en plus, et les premiers réflexes financiers à adopter.",
+  "firstJobHeaderDesc": "Comprends ta fiche de salaire\u00a0! On te montre où vont tes cotisations, ce que ton employeur paie en plus, et les premiers réflexes financiers à adopter.",
   "firstJobSalaryTitle": "Salaire brut mensuel",
   "firstJobActivityRate": "Taux d'activité",
   "firstJob3aHeader": "PILIER 3A — À OUVRIR MAINTENANT",
@@ -3284,7 +3284,7 @@
   "successionFiscalTitle": "FISCALITÉ SUCCESSORALE",
   "successionExempt": "Exonéré",
   "successionEduQuotiteTitle": "Qu'est-ce que la quotité disponible ?",
-  "successionEdu3aTitle": "Le 3a et la succession : attention !",
+  "successionEdu3aTitle": "Le 3a et la succession\u00a0: attention\u00a0!",
   "successionEduConcubinTitle": "Les concubins et la succession",
   "successionCantonLabel": "Canton",
   "debtCheckTitle": "Check-up Santé Financière",
@@ -3492,7 +3492,7 @@
   "fiscalChecklistTitle": "CHECKLIST DÉMÉNAGEMENT",
   "fiscalGoodToKnow": "BON À SAVOIR",
   "fiscalEduDateTitle": "Date de référence : 31 décembre",
-  "fiscalEduDateBody": "Tu es imposé dans le canton où tu résidais au 31 décembre de l'année fiscale. Un déménagement au 30 décembre compte pour toute l'année !",
+  "fiscalEduDateBody": "Tu es imposé dans le canton où tu résidais au 31 décembre de l'année fiscale. Un déménagement au 30 décembre compte pour toute l'année\u00a0!",
   "fiscalEduProrataTitle": "Prorata temporis",
   "fiscalEduProrataBody": "L'impôt fédéral est toujours le même. Seuls les impôts cantonaux et communaux changent. Le prorata s'applique l'année du déménagement.",
   "fiscalEduRentTitle": "Loyers et coût de la vie",
@@ -3536,7 +3536,7 @@
   "expatAvsCompleteness": "COMPLÉTUDE AVS",
   "expatOfPension": "de rente",
   "expatEstimatedPension": "Rente estimée",
-  "expatAvsComplete": "Félicitations ! Tu as tes 44 années complètes de cotisation. Ta rente AVS ne devrait pas être réduite.",
+  "expatAvsComplete": "Félicitations\u00a0! Tu as tes 44 années complètes de cotisation. Ta rente AVS ne devrait pas être réduite.",
   "expatPensionImpact": "IMPACT SUR TA RENTE",
   "expatMissingYears": "Années manquantes",
   "expatEstimatedReduction": "Réduction estimée",
@@ -3660,7 +3660,7 @@
   "@conjointDeclaredStatus": { "placeholders": { "name": { "type": "String" } } },
   "conjointInvitedStatus": "Invitation envoyée à {name}. En attente de réponse.",
   "@conjointInvitedStatus": { "placeholders": { "name": { "type": "String" } } },
-  "conjointLinkedStatus": "✅ Profils liés ! Les données de {name} sont synchronisées.",
+  "conjointLinkedStatus": "✅ Profils liés\u00a0! Les données de {name} sont synchronisées.",
   "@conjointLinkedStatus": { "placeholders": { "name": { "type": "String" } } },
   "conjointInviteLabel": "Inviter {name} (5 questions, sans compte)",
   "@conjointInviteLabel": { "placeholders": { "name": { "type": "String" } } },
@@ -4122,7 +4122,7 @@
   "pillar3aDurationYears": "{years} ans (jusqu'à 65 ans)",
   "@pillar3aDurationYears": {"placeholders": {"years": {"type": "int"}}},
   "pillar3aViacGainLabel": "Avec VIAC au lieu d'une banque :",
-  "pillar3aMoreAtRetirement": "de plus à la retraite !",
+  "pillar3aMoreAtRetirement": "de plus à la retraite\u00a0!",
   "pillar3aDisclaimer": "Hypothèses pédagogiques basées sur rendements historiques moyens. Rendements passés ne garantissent pas rendements futurs.",
   "pillar3aCapitalEvolution": "Évolution de ton capital 3a",
   "pillar3aYearLabel": "Année",
@@ -4130,7 +4130,7 @@
   "pillar3aViac45": "VIAC 4.5%",
   "pillar3aYearN": "Année {n}",
   "@pillar3aYearN": {"placeholders": {"n": {"type": "int"}}},
-  "pillar3aCompoundTip": "Les dernières années font +50% du gain total grâce aux intérêts composés !",
+  "pillar3aCompoundTip": "Les dernières années font +50% du gain total grâce aux intérêts composés\u00a0!",
   "pillar3aRecommended": "RECOMMANDÉ",
   "pillar3aVsBank": "{amount} vs Banque",
   "@pillar3aVsBank": {"placeholders": {"amount": {"type": "String"}}},

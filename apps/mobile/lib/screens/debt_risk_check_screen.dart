@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/domain/calculators.dart';
@@ -54,21 +55,47 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      appBar: AppBar(
-        title: Text(S.of(context)!.debtCheckTitle),
-        actions: [
-          if (_showResults)
-            IconButton(
-              icon: const Icon(Icons.picture_as_pdf_outlined),
-              onPressed: _exportPdf,
-              tooltip: S.of(context)!.debtCheckExportTooltip,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 120,
+            actions: [
+              if (_showResults)
+                IconButton(
+                  icon: const Icon(Icons.picture_as_pdf_outlined, color: MintColors.white),
+                  onPressed: _exportPdf,
+                  tooltip: S.of(context)!.debtCheckExportTooltip,
+                ),
+              const SizedBox(width: 8),
+            ],
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                S.of(context)!.debtCheckTitle,
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: MintColors.white,
+                ),
+              ),
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [MintColors.primary, MintColors.primaryLight],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
             ),
-          const SizedBox(width: 8),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: _showResults ? _buildResults() : _buildQuestionnaire(),
+            ),
+          ),
         ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: _showResults ? _buildResults() : _buildQuestionnaire(),
       ),
     );
   }

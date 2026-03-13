@@ -28,7 +28,7 @@ class LetterGeneratorSheet extends StatelessWidget {
           Text(
             "Secrétariat Automatique",
             style:
-                GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold),
+                GoogleFonts.montserrat(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
@@ -105,7 +105,7 @@ class LetterGeneratorSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title,
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.montserrat(
                           fontSize: 16, fontWeight: FontWeight.w600)),
                   Text(subtitle,
                       style: GoogleFonts.inter(

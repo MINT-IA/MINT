@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Title
                 Text(
                   S.of(context)?.authLoginTitle ?? 'Connexion',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 32,
                     fontWeight: FontWeight.w700,
                     color: MintColors.textPrimary,

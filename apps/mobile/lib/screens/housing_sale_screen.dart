@@ -108,15 +108,38 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      appBar: AppBar(
-        title: Text(S.of(context)!.housingSaleAppBarTitle),
-      ),
-      body: SingleChildScrollView(
+      body: CustomScrollView(
         controller: _scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 120,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                S.of(context)!.housingSaleAppBarTitle,
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: MintColors.white,
+                ),
+              ),
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [MintColors.primary, MintColors.primaryLight],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
             _buildHeader(),
             const SizedBox(height: 24),
             _buildIntroCard(),
@@ -188,10 +211,13 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
               ),
               const SizedBox(height: 24),
             ],
-            _buildDisclaimer(),
-            const SizedBox(height: 40),
-          ],
-        ),
+                  _buildDisclaimer(),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -222,7 +248,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
               children: [
                 Text(
                   S.of(context)!.housingSaleHeaderTitle,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                     color: MintColors.textPrimary,
@@ -598,7 +624,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           const SizedBox(height: 16),
           Text(
             _chfFmt(r.remploiReport),
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 28,
               fontWeight: FontWeight.w700,
               color: MintColors.success,
@@ -711,7 +737,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           const SizedBox(height: 12),
           Text(
             _chfFmt(r.produitNet),
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 36,
               fontWeight: FontWeight.w700,
               color: isPositive ? MintColors.primary : MintColors.error,
