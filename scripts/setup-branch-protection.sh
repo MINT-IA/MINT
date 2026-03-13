@@ -58,19 +58,19 @@ gh api \
   --field required_status_checks=null
 echo "  Done: dev branch allows direct push, force-push blocked."
 
-# ─── Auto-delete head branches ────────────────────────────────
+# ─── Repo settings: auto-delete + auto-merge ─────────────────
 echo ""
-echo "Enabling auto-delete of merged branches..."
+echo "Enabling auto-delete of merged branches + auto-merge..."
 
 gh api \
   --method PATCH \
   "repos/${REPO}" \
-  --field delete_branch_on_merge=true
+  --field delete_branch_on_merge=true \
+  --field allow_auto_merge=true
 
 echo ""
-echo "Done. Protection rules on dev, staging, main:"
+echo "Done. Protection rules:"
 echo "  - dev: direct push allowed, force-push blocked"
 echo "  - staging/main: PR required, CI Gate must pass, force-push blocked"
+echo "  - Auto-merge enabled (gh pr merge --auto --squash)"
 echo "  - Merged branches auto-deleted"
-echo ""
-echo "To test: try 'git push origin dev' directement — il doit passer (force-push toujours bloqué)."
