@@ -158,8 +158,12 @@ Rules:
 - **Direct commits** to `staging` or `main` are BANNED (always via PR)
 - **Direct commits** to `dev` are allowed but PRs from feature branches are preferred
 - **Promotion PRs** (`dev→staging`, `staging→main`): only create when user explicitly requests it
-- **Auto-merge `dev→staging`**: Use `gh pr merge --auto --squash` so the PR merges automatically once CI Gate passes
+- **Auto-merge `dev→staging`**: Use `gh pr merge --auto --merge` so the PR merges automatically once CI Gate passes
 - **Manual merge `staging→main`**: Create the PR but do NOT auto-merge. The user must approve and merge manually (production deploy)
+- **Merge strategy**:
+  - `feature→dev`: **squash merge** (clean history, 1 commit per feature)
+  - `dev→staging`: **merge commit** (`--merge`, not `--squash`) — preserves SHAs, no resync needed
+  - `staging→main`: **merge commit** — same reason: avoids SHA divergence between branches
 - Before creating a PR `staging→main`: verify the last Smoke Staging run is green (ask user to confirm if unsure)
 - After merge to `main`: backend deploy, TestFlight (if mobile changed), and Web App (if web changed) trigger automatically — do NOT manually trigger these workflows unless user asks
 
