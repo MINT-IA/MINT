@@ -151,14 +151,14 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.warning_amber, color: Colors.white, size: 28),
+                      const Icon(Icons.warning_amber, color: MintColors.white, size: 28),
                       const SizedBox(width: 12),
                       Text(
                         'Cout total des interets',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white.withOpacity(0.9),
+                          color: MintColors.white.withOpacity(0.9),
                         ),
                       ),
                     ],
@@ -169,7 +169,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                     style: const TextStyle(
                       fontSize: 42,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: MintColors.white,
                       letterSpacing: 1,
                     ),
                   ),
@@ -177,7 +177,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: MintColors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -185,7 +185,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white.withOpacity(0.95),
+                        color: MintColors.white.withOpacity(0.95),
                       ),
                     ),
                   ),

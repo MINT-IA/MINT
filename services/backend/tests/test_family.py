@@ -24,6 +24,7 @@ from app.services.family.mariage_service import (
     LPP_SURVIVOR_FACTOR,
     DISCLAIMER as MARIAGE_DISCLAIMER,
 )
+from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP as PLAFOND_3A
 from app.services.family.naissance_service import (
     NaissanceService,
     APG_TAUX,
@@ -33,7 +34,6 @@ from app.services.family.naissance_service import (
     DEDUCTION_PAR_ENFANT as DEDUCTION_ENFANT_NAISSANCE,
     DEDUCTION_FRAIS_GARDE_MAX,
     LPP_DEDUCTION_COORDINATION,
-    PLAFOND_3A,
     DISCLAIMER as NAISSANCE_DISCLAIMER,
 )
 from app.services.family.concubinage_service import (

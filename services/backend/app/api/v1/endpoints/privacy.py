@@ -22,7 +22,6 @@ from app.schemas.privacy import (
     DataDeletionRequest,
     DataDeletionResponse,
     DeletionCategoryDetail,
-    ConsentStatusRequest,
     ConsentStatusResponse,
     ConsentCategoryStatus,
     ConsentUpdateRequest,

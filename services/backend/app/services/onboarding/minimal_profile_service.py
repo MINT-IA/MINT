@@ -44,6 +44,8 @@ from app.constants.social_insurance import (
     LPP_TAUX_INTERET_MIN,
     PILIER_3A_PLAFOND_AVEC_LPP,
     TAUX_IMPOT_RETRAIT_CAPITAL,
+    TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT,
+    LPP_CONVERSION_RATE_COMPLEMENTAIRE,
     get_lpp_bonification_rate,
 )
 
@@ -79,9 +81,8 @@ _LPP_INTEREST_RATE: float = LPP_TAUX_INTERET_MIN / 100.0  # 0.0125
 # LPP conversion rate
 _LPP_CONVERSION_RATE: float = LPP_TAUX_CONVERSION_MIN / 100.0  # 0.068
 
-# LPP blended conversion rate for "complementaire" caisses
-# Conservative estimate: ~60% obligatoire at 6.8% + ~40% surobligatoire at ~4.3%
-_LPP_CONVERSION_RATE_COMPLEMENTAIRE: float = 0.058
+# LPP blended conversion rate for "complementaire" caisses — from social_insurance.py
+_LPP_CONVERSION_RATE_COMPLEMENTAIRE: float = LPP_CONVERSION_RATE_COMPLEMENTAIRE
 
 # Debt: monthly estimation factor when only total_debts is provided
 # Assumes ~0.5% of total debt as monthly service (conservative proxy)
@@ -247,7 +248,7 @@ def _compute_marginal_tax_rate(gross_salary: float, canton: str) -> float:
     Returns:
         Estimated marginal tax rate (0.0 - 0.50).
     """
-    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), 0.065)
+    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT)
 
     # Scale from capital withdrawal rate to income tax approximation
     # Capital withdrawal rates are ~5-8%, income marginal rates are ~15-40%

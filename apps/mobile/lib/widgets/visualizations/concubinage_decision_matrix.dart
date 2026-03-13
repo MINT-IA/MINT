@@ -104,7 +104,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
           return Container(
             width: constraints.maxWidth,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MintColors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
@@ -435,14 +435,14 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                       style: GoogleFonts.montserrat(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                        color: MintColors.white,
                       ),
                     ),
                     Text(
                       'Mariage',
                       style: GoogleFonts.inter(
                         fontSize: 11,
-                        color: Colors.white.withValues(alpha: 0.7),
+                        color: MintColors.white.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -452,7 +452,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
               Container(
                 width: 1,
                 height: 40,
-                color: Colors.white.withValues(alpha: 0.2),
+                color: MintColors.white.withValues(alpha: 0.2),
               ),
               // Concubinage score
               Expanded(
@@ -463,14 +463,14 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                       style: GoogleFonts.montserrat(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                        color: MintColors.white,
                       ),
                     ),
                     Text(
                       'Concubinage',
                       style: GoogleFonts.inter(
                         fontSize: 11,
-                        color: Colors.white.withValues(alpha: 0.7),
+                        color: MintColors.white.withValues(alpha: 0.7),
                       ),
                     ),
                   ],

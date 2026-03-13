@@ -114,8 +114,6 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 
 import 'package:mint_mobile/providers/user_activity_provider.dart';
-// Onboarding Redesign (Sprint S31)
-import 'package:mint_mobile/screens/onboarding/smart_onboarding_screen.dart';
 // Quick Start (Sprint S45 — Dashboard-First)
 import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
@@ -231,7 +229,7 @@ final _router = GoRouter(
     // Feature Routes (Full Screen)
     GoRoute(
       path: '/advisor',
-      redirect: (context, state) => '/onboarding/smart',
+      redirect: (context, state) => '/onboarding/quick',
       builder: (context, state) => const SizedBox.shrink(),
     ),
     GoRoute(
@@ -243,8 +241,8 @@ final _router = GoRouter(
       path: '/advisor/wizard',
       redirect: (context, state) {
         final section = state.uri.queryParameters['section'];
-        if (section == null || section.isEmpty) return '/onboarding/smart';
-        return '/onboarding/smart?section=$section';
+        if (section == null || section.isEmpty) return '/onboarding/quick';
+        return '/onboarding/quick?section=$section';
       },
     ),
     GoRoute(
@@ -701,10 +699,9 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RepaymentScreen(),
     ),
-    // === Route Compatibility Layer (migration P0) ===
-    // Old routes redirect to new smart onboarding flow.
-    // Keep /advisor/plan-30-days as-is (still active).
-    // S45: Quick Start — 1-screen onboarding (dashboard-first flow)
+    // === Onboarding ===
+    // Quick Start is the sole onboarding entry point.
+    // Legacy routes (/onboarding/smart, /onboarding/minimal) redirect here.
     GoRoute(
       path: '/onboarding/quick',
       parentNavigatorKey: _rootNavigatorKey,
@@ -713,13 +710,12 @@ final _router = GoRouter(
     GoRoute(
       path: '/onboarding/smart',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const SmartOnboardingScreen(),
+      redirect: (context, state) => '/onboarding/quick',
     ),
-    // Onboarding Redesign (Sprint S31)
     GoRoute(
       path: '/onboarding/minimal',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => '/onboarding/smart',
+      redirect: (context, state) => '/onboarding/quick',
     ),
     GoRoute(
       path: '/onboarding/chiffre-choc',

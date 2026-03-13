@@ -71,7 +71,7 @@ class MoveSavingsCard extends StatelessWidget {
                 style: GoogleFonts.montserrat(
                   fontSize: 32,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: MintColors.white,
                 ),
               ),
               const SizedBox(height: 8),
@@ -79,7 +79,7 @@ class MoveSavingsCard extends StatelessWidget {
                 chiffreChoc,
                 style: GoogleFonts.inter(
                   fontSize: 14,
-                  color: Colors.white.withValues(alpha: 0.9),
+                  color: MintColors.white.withValues(alpha: 0.9),
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,
@@ -93,7 +93,7 @@ class MoveSavingsCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: MintColors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: MintColors.lightBorder),
           ),

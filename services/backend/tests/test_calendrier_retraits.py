@@ -18,7 +18,6 @@ Sources:
     - LPP art. 13 (retraite anticipee des 58 ans)
 """
 
-import pytest
 
 from app.services.arbitrage.calendrier_retraits import (
     compare_calendrier_retraits,

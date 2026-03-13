@@ -153,7 +153,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
               width: constraints.maxWidth,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: MintColors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: MintColors.lightBorder),
                 boxShadow: [
@@ -427,7 +427,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
               style: GoogleFonts.inter(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: Colors.white.withValues(alpha: 0.7),
+                color: MintColors.white.withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 4),
@@ -472,7 +472,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
             label,
             style: GoogleFonts.inter(
               fontSize: 10,
-              color: Colors.white.withValues(alpha: 0.6),
+              color: MintColors.white.withValues(alpha: 0.6),
             ),
           ),
           const Spacer(),
@@ -481,7 +481,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
             style: GoogleFonts.montserrat(
               fontSize: 11,
               fontWeight: FontWeight.w700,
-              color: Colors.white,
+              color: MintColors.white,
             ),
           ),
         ],
@@ -1236,7 +1236,7 @@ class _TrajectoryPainter extends CustomPainter {
       canvas.drawCircle(Offset(x, y), 3.5, dotPaint);
 
       // White inner
-      final innerPaint = Paint()..color = Colors.white;
+      final innerPaint = Paint()..color = MintColors.white;
       canvas.drawCircle(Offset(x, y), 1.5, innerPaint);
     }
   }
@@ -1313,7 +1313,7 @@ class _TrajectoryPainter extends CustomPainter {
     canvas.drawCircle(center, 5, dotPaint);
 
     // White inner
-    final innerPaint = Paint()..color = Colors.white;
+    final innerPaint = Paint()..color = MintColors.white;
     canvas.drawCircle(center, 2, innerPaint);
   }
 
@@ -1401,7 +1401,7 @@ class _TrajectoryPainter extends CustomPainter {
 
       final dotPaint = Paint()..color = color;
       canvas.drawCircle(Offset(x, y), 4, dotPaint);
-      final innerPaint = Paint()..color = Colors.white;
+      final innerPaint = Paint()..color = MintColors.white;
       canvas.drawCircle(Offset(x, y), 2, innerPaint);
     }
   }

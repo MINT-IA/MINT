@@ -22,14 +22,11 @@ import pytest
 from app.services.fiscal.wealth_tax_service import (
     WealthTaxService,
     WealthTaxEstimate,
-    WealthTaxRanking,
     WealthTaxMoveSimulation,
     EFFECTIVE_WEALTH_TAX_RATES_500K,
     WEALTH_TAX_EXEMPTIONS,
     WEALTH_ADJUSTMENT,
     CANTON_NAMES,
-    DISCLAIMER as WEALTH_DISCLAIMER,
-    SOURCES as WEALTH_SOURCES,
     estimer_impot_fortune,
     comparer_fortune_cantons,
 )
@@ -39,8 +36,6 @@ from app.services.fiscal.church_tax_service import (
     ChurchTaxEstimate,
     CHURCH_TAX_RATES,
     NO_MANDATORY_CHURCH_TAX,
-    DISCLAIMER as CHURCH_DISCLAIMER,
-    SOURCES as CHURCH_SOURCES,
     estimer_impot_eglise,
 )
 

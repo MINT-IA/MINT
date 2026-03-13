@@ -193,4 +193,24 @@ class MintColors {
   static const Color orangeFF = Color(0xFFFF9800); // Orange-500
   static const Color nearBlack = Color(0xFF0A0A0F); // Near-black overlay
   static const Color blueMaterial900 = Color(0xFF0D47A1); // Blue-900
+
+  // Core neutrals
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color black = Color(0xFF000000);
+  static const Color white70 = Color(0xB3FFFFFF); // 70% white
+  static const Color white60 = Color(0x99FFFFFF); // 60% white
+  static const Color white54 = Color(0x8AFFFFFF); // 54% white
+  static const Color white38 = Color(0x61FFFFFF); // 38% white
+  static const Color white30 = Color(0x4DFFFFFF); // 30% white
+  static const Color white24 = Color(0x3DFFFFFF); // 24% white
+  static const Color black87 = Color(0xDD000000); // 87% black
+  static const Color black54 = Color(0x8A000000); // 54% black
+  static const Color black45 = Color(0x73000000); // 45% black
+  static const Color black26 = Color(0x42000000); // 26% black
+  static const Color black12 = Color(0x1F000000); // 12% black
+
+  // Landing / branding gradient
+  static const Color brandGreen = Color(0xFF1DB954); // Spotify-style green
+  static const Color brandGreenDark = Color(0xFF0A8F6C); // Dark brand green
+  static const Color landingSurface = Color(0xFFF5F6F7); // Landing page background
 }

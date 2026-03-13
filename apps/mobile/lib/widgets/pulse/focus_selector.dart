@@ -123,7 +123,7 @@ class _FocusSelectorState extends State<FocusSelector> {
         decoration: BoxDecoration(
           color: isExpanded
               ? cat.color.withValues(alpha: 0.08)
-              : Colors.white,
+              : MintColors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isExpanded
@@ -134,7 +134,7 @@ class _FocusSelectorState extends State<FocusSelector> {
           boxShadow: [
             if (!isExpanded)
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
+                color: MintColors.black.withValues(alpha: 0.03),
                 blurRadius: 6,
                 offset: const Offset(0, 2),
               ),
@@ -302,7 +302,7 @@ class _FocusSelectorState extends State<FocusSelector> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: MintColors.border.withValues(alpha: 0.4),

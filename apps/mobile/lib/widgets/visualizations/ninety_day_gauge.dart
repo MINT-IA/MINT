@@ -114,7 +114,7 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
               width: cardWidth,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: MintColors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: MintColors.lightBorder),
                 boxShadow: [
@@ -319,7 +319,7 @@ class _NinetyDayGaugePainter extends CustomPainter {
     // ── Needle pivot dot ──
     final pivotPaint = Paint()..color = MintColors.textPrimary;
     canvas.drawCircle(center, 6, pivotPaint);
-    final pivotInner = Paint()..color = Colors.white;
+    final pivotInner = Paint()..color = MintColors.white;
     canvas.drawCircle(center, 3, pivotInner);
   }
 

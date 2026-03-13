@@ -30,6 +30,7 @@ from typing import List, Dict
 
 from app.constants.social_insurance import (
     TAUX_IMPOT_RETRAIT_CAPITAL,
+    TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT,
     MARRIED_CAPITAL_TAX_DISCOUNT,
     LPP_TAUX_CONVERSION_MIN,
     calculate_progressive_capital_tax,
@@ -126,7 +127,7 @@ def _get_capital_tax(capital: float, canton: str, is_married: bool) -> float:
     Returns:
         Tax amount (CHF).
     """
-    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), 0.065)
+    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT)
     if is_married:
         base_rate *= MARRIED_CAPITAL_TAX_DISCOUNT
     return calculate_progressive_capital_tax(capital, base_rate)

@@ -315,7 +315,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
             ),
             child: const Icon(
               Icons.auto_awesome,
-              color: Colors.white,
+              color: MintColors.white,
               size: 32,
             ),
           ),
@@ -465,7 +465,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
             message.text,
             style: const TextStyle(
               fontSize: 15,
-              color: Colors.white,
+              color: MintColors.white,
               height: 1.4,
             ),
           ),
@@ -687,10 +687,10 @@ class _AskMintScreenState extends State<AskMintScreen> {
         bottom: MediaQuery.of(context).padding.bottom + 12,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: MintColors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -750,7 +750,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
               icon: Icon(
                 Icons.arrow_upward,
                 color: _inputController.text.trim().isNotEmpty && !_isLoading
-                    ? Colors.white
+                    ? MintColors.white
                     : MintColors.textMuted,
                 size: 20,
               ),

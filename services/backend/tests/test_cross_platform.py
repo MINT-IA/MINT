@@ -22,7 +22,6 @@ Sources:
 """
 
 import json
-from pathlib import Path
 
 import pytest
 
@@ -34,7 +33,6 @@ from app.constants.social_insurance import (
     LPP_SALAIRE_MAX,
     LPP_TAUX_CONVERSION_MIN,
     LPP_TAUX_INTERET_MIN,
-    LPP_BONIFICATIONS_VIEILLESSE,
     AVS_RENTE_MAX_MENSUELLE,
     AVS_RENTE_MIN_MENSUELLE,
     AVS_RENTE_COUPLE_MAX_MENSUELLE,

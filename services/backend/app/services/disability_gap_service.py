@@ -22,14 +22,11 @@ Regles ethiques:
     - Disclaimer obligatoire sur chaque resultat
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List
 
 from app.constants.social_insurance import (
-    AI_RENTE_ENTIERE,
-    AI_RENTE_DEMI,
-    AI_BAREME,
     get_ai_rente_monthly,
 )
 

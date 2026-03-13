@@ -127,14 +127,14 @@ class OpenBankingHubScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.amber.shade50,
+        color: MintColors.disclaimerBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.amber.shade300),
+        border: Border.all(color: MintColors.amberWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.lock_outline, color: Colors.amber.shade800, size: 22),
+          Icon(Icons.lock_outline, color: MintColors.amberDark, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -145,7 +145,7 @@ class OpenBankingHubScreen extends StatelessWidget {
                   style: GoogleFonts.outfit(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Colors.amber.shade900,
+                    color: MintColors.amberDark,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -154,7 +154,7 @@ class OpenBankingHubScreen extends StatelessWidget {
                   'Les donnees affichees sont des exemples de demonstration.',
                   style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: Colors.amber.shade800,
+                    color: MintColors.amberDark,
                     height: 1.5,
                   ),
                 ),
@@ -174,16 +174,16 @@ class OpenBankingHubScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.blue.shade50,
+          color: MintColors.neutralBg,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.blue.shade200),
+          border: Border.all(color: MintColors.neutralBg),
         ),
         child: Text(
           'MODE DEMO',
           style: GoogleFonts.montserrat(
             fontSize: 10,
             fontWeight: FontWeight.w700,
-            color: Colors.blue.shade700,
+            color: MintColors.blueDark,
             letterSpacing: 1,
           ),
         ),
@@ -199,12 +199,12 @@ class OpenBankingHubScreen extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Colors.teal.shade50,
+            color: MintColors.accentPastel,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(
             Icons.account_balance,
-            color: Colors.teal.shade700,
+            color: MintColors.tealLight,
             size: 28,
           ),
         ),
@@ -264,7 +264,7 @@ class OpenBankingHubScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -360,23 +360,23 @@ class OpenBankingHubScreen extends StatelessWidget {
   Color _bankColor(String bankId) {
     switch (bankId) {
       case 'ubs':
-        return Colors.red.shade700;
+        return MintColors.redMedium;
       case 'postfinance':
-        return Colors.yellow.shade800;
+        return MintColors.warningText;
       case 'raiffeisen':
-        return Colors.orange.shade700;
+        return MintColors.warning;
       case 'credit_suisse':
-        return Colors.blue.shade800;
+        return MintColors.blueMaterial900;
       case 'bcv':
-        return Colors.green.shade700;
+        return MintColors.greenDark;
       case 'bcge':
-        return Colors.teal.shade700;
+        return MintColors.tealLight;
       case 'zkb':
-        return Colors.blue.shade600;
+        return MintColors.categoryBlue;
       case 'neon':
-        return Colors.cyan.shade700;
+        return MintColors.cyan;
       case 'yuh':
-        return Colors.purple.shade700;
+        return MintColors.categoryPurple;
       default:
         return MintColors.textMuted;
     }
@@ -413,7 +413,7 @@ class OpenBankingHubScreen extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Icon(Icons.lock_outline,
-                  color: Colors.amber.shade700, size: 16),
+                  color: MintColors.warningText, size: 16),
             ],
           ),
         ),
@@ -480,7 +480,7 @@ class OpenBankingHubScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border:
             Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
@@ -586,7 +586,7 @@ class OpenBankingHubScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border:
             Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
@@ -664,7 +664,7 @@ class OpenBankingHubScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(16),
           border:
               Border.all(color: MintColors.border.withOpacity(0.5), width: 0.8),
@@ -674,10 +674,10 @@ class OpenBankingHubScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.teal.shade50,
+                color: MintColors.accentPastel,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, color: Colors.teal.shade700, size: 22),
+              child: Icon(icon, color: MintColors.tealLight, size: 22),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -739,14 +739,14 @@ class OpenBankingHubScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -756,7 +756,7 @@ class OpenBankingHubScreen extends StatelessWidget {
               'a une consultation reglementaire prealable.',
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),
@@ -770,15 +770,15 @@ class OpenBankingHubScreen extends StatelessWidget {
 
   Widget _categoryIcon(String category) {
     final (IconData iconData, Color color) = switch (category) {
-      'alimentation' => (Icons.shopping_cart, Colors.orange.shade700),
-      'transport' => (Icons.directions_bus, Colors.blue.shade700),
-      'logement' => (Icons.home, Colors.brown.shade700),
-      'telecom' => (Icons.phone_android, Colors.indigo.shade700),
-      'assurances' => (Icons.health_and_safety, Colors.teal.shade700),
-      'energie' => (Icons.bolt, Colors.amber.shade700),
-      'sante' => (Icons.local_pharmacy, Colors.red.shade700),
-      'loisirs' => (Icons.movie, Colors.purple.shade700),
-      'impots' => (Icons.receipt_long, Colors.grey.shade700),
+      'alimentation' => (Icons.shopping_cart, MintColors.warning),
+      'transport' => (Icons.directions_bus, MintColors.blueDark),
+      'logement' => (Icons.home, MintColors.brownWarm),
+      'telecom' => (Icons.phone_android, MintColors.indigoDeep),
+      'assurances' => (Icons.health_and_safety, MintColors.tealLight),
+      'energie' => (Icons.bolt, MintColors.warningText),
+      'sante' => (Icons.local_pharmacy, MintColors.redMedium),
+      'loisirs' => (Icons.movie, MintColors.categoryPurple),
+      'impots' => (Icons.receipt_long, MintColors.greyDark),
       'epargne' => (Icons.savings, MintColors.success),
       'revenu' => (Icons.account_balance_wallet, MintColors.success),
       _ => (Icons.receipt, MintColors.textMuted),

@@ -30,7 +30,7 @@ class MintSelectableCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color:
-              isSelected ? selectedColor.withValues(alpha: 0.08) : Colors.white,
+              isSelected ? selectedColor.withValues(alpha: 0.08) : MintColors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected ? selectedColor : MintColors.lightBorder,
@@ -109,7 +109,7 @@ class MintQuickPickChips<T> extends StatelessWidget {
             decoration: BoxDecoration(
               color: isSelected
                   ? MintColors.primary.withValues(alpha: 0.10)
-                  : Colors.white,
+                  : MintColors.white,
               borderRadius: BorderRadius.circular(999),
               border: Border.all(
                 color: isSelected ? MintColors.primary : MintColors.lightBorder,

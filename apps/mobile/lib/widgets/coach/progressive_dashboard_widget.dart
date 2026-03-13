@@ -111,7 +111,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
       label: 'Dashboard progressif retraite 3 niveaux confiance novice expert',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),
@@ -214,7 +214,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: selected ? Colors.white : MintColors.textSecondary,
+                      color: selected ? MintColors.white : MintColors.textSecondary,
                     ),
                   ),
                 ),

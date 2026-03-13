@@ -12,7 +12,6 @@ from sqlalchemy import (
     ForeignKey,
     UniqueConstraint,
     CheckConstraint,
-    Integer,
     Text,
 )
 from sqlalchemy.orm import relationship

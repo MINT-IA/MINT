@@ -22,6 +22,7 @@ Sources:
 from datetime import date
 from typing import List, Optional
 
+from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
 from app.services.reengagement.reengagement_models import (
     ReengagementMessage,
     ReengagementTrigger,
@@ -104,12 +105,13 @@ class ReengagementEngine:
         days_left = _days_until_year_end(today)
 
         # January: new year, new ceilings
+        plafond_3a_str = _format_chf(PILIER_3A_PLAFOND_AVEC_LPP)
         if month == 1:
             messages.append(ReengagementMessage(
                 trigger=ReengagementTrigger.new_year,
-                title="Nouveaux plafonds 3a: CHF 7'258",
+                title=f"Nouveaux plafonds 3a: CHF {plafond_3a_str}",
                 body=(
-                    f"Nouveaux plafonds 3a: CHF 7'258. "
+                    f"Nouveaux plafonds 3a: CHF {plafond_3a_str}. "
                     f"Ton economie potentielle : CHF {saving_str}."
                 ),
                 deeplink="/3a",

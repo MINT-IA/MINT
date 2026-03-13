@@ -245,7 +245,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: MintColors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -355,7 +355,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         ),
         style: FilledButton.styleFrom(
           backgroundColor: MintColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: MintColors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),

@@ -93,7 +93,7 @@ class _IjmScreenState extends State<IjmScreen> {
       expandedHeight: 120,
       backgroundColor: MintColors.primary,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.white),
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -103,7 +103,7 @@ class _IjmScreenState extends State<IjmScreen> {
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
-            color: Colors.white,
+            color: MintColors.white,
           ),
         ),
         background: Container(
@@ -207,7 +207,7 @@ class _IjmScreenState extends State<IjmScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -270,7 +270,7 @@ class _IjmScreenState extends State<IjmScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -333,7 +333,7 @@ class _IjmScreenState extends State<IjmScreen> {
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: isSelected ? Colors.white : MintColors.textPrimary,
+                  color: isSelected ? MintColors.white : MintColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 2),
@@ -342,7 +342,7 @@ class _IjmScreenState extends State<IjmScreen> {
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   color: isSelected
-                      ? Colors.white.withValues(alpha: 0.8)
+                      ? MintColors.white.withValues(alpha: 0.8)
                       : MintColors.textMuted,
                 ),
               ),
@@ -370,7 +370,7 @@ class _IjmScreenState extends State<IjmScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 36,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: MintColors.white,
             ),
           ),
           const SizedBox(height: 8),
@@ -380,7 +380,7 @@ class _IjmScreenState extends State<IjmScreen> {
             'pendant le délai de carence de ${r.delaiCarence} jours',
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.9),
+              color: MintColors.white.withValues(alpha: 0.9),
               height: 1.5,
             ),
             textAlign: TextAlign.center,
@@ -492,7 +492,7 @@ class _IjmScreenState extends State<IjmScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -532,7 +532,7 @@ class _IjmScreenState extends State<IjmScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -714,7 +714,7 @@ class _IjmScreenState extends State<IjmScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: MintColors.white,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, size: 18, color: MintColors.primary),
@@ -756,14 +756,14 @@ class _IjmScreenState extends State<IjmScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -773,7 +773,7 @@ class _IjmScreenState extends State<IjmScreen> {
               'Demande un devis personnalisé à un\u00B7e spécialiste.',
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),

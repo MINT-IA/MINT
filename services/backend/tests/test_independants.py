@@ -17,10 +17,12 @@ Run: cd services/backend && python3 -m pytest tests/test_independants.py -v
 
 import re
 
+from app.constants.social_insurance import (
+    AVS_BAREME_INDEPENDANT,
+    AVS_COTISATION_MIN_INDEPENDANT,
+)
 from app.services.independants.avs_cotisations_service import (
     calculer_cotisation_avs,
-    AVS_BAREME,
-    COTISATION_MINIMALE,
     DISCLAIMER as AVS_DISCLAIMER,
     SOURCES as AVS_SOURCES,
 )
@@ -71,7 +73,7 @@ class TestAvsCotisations:
     def test_very_low_income_gets_minimum_contribution(self):
         """Income below first bracket should use minimum contribution."""
         result = calculer_cotisation_avs(5000.0)
-        assert result.cotisation_avs_ai_apg == COTISATION_MINIMALE
+        assert result.cotisation_avs_ai_apg == AVS_COTISATION_MIN_INDEPENDANT
 
     def test_income_at_first_bracket_boundary(self):
         """Income at the first bracket boundary (10'100) should use correct rate."""
@@ -95,7 +97,7 @@ class TestAvsCotisations:
 
     def test_bareme_progression_is_monotonic(self):
         """The AVS bareme rates should be monotonically increasing."""
-        rates = [rate for _, _, rate in AVS_BAREME]
+        rates = [rate for _, _, rate in AVS_BAREME_INDEPENDANT]
         for i in range(1, len(rates)):
             assert rates[i] >= rates[i - 1], (
                 f"Rate at bracket {i} ({rates[i]}) is less than bracket {i-1} ({rates[i-1]})"
@@ -103,9 +105,9 @@ class TestAvsCotisations:
 
     def test_bareme_brackets_are_contiguous(self):
         """The AVS bareme brackets should be contiguous (no gaps)."""
-        for i in range(1, len(AVS_BAREME)):
-            prev_upper = AVS_BAREME[i - 1][1]
-            curr_lower = AVS_BAREME[i][0]
+        for i in range(1, len(AVS_BAREME_INDEPENDANT)):
+            prev_upper = AVS_BAREME_INDEPENDANT[i - 1][1]
+            curr_lower = AVS_BAREME_INDEPENDANT[i][0]
             assert prev_upper == curr_lower, (
                 f"Gap between bracket {i-1} upper ({prev_upper}) and "
                 f"bracket {i} lower ({curr_lower})"

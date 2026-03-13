@@ -58,7 +58,7 @@ class DisabilityCliffWidget extends StatelessWidget {
       label: 'La Falaise timeline invalidité 3 actes',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),

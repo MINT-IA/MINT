@@ -455,7 +455,7 @@ class ProviderComparator {
   /// IDENTIQUES au backend (provider_comparator_service.py).
   static const List<Provider3a> _providers = [
     Provider3a(
-      nom: 'VIAC',
+      nom: 'Fintech A',
       type: 'fintech',
       rendementParProfil: {
         ProfilRisque.prudent: 0.025,
@@ -467,7 +467,7 @@ class ProviderComparator {
           'App mobile, strategies passives indexees, gestion automatisee',
     ),
     Provider3a(
-      nom: 'Finpension',
+      nom: 'Fintech B',
       type: 'fintech',
       rendementParProfil: {
         ProfilRisque.prudent: 0.030,
@@ -478,7 +478,7 @@ class ProviderComparator {
       description: 'Frais parmi les plus bas, strategies globales, flexibilite',
     ),
     Provider3a(
-      nom: 'Frankly (ZKB)',
+      nom: 'Fintech C',
       type: 'fintech',
       rendementParProfil: {
         ProfilRisque.prudent: 0.020,
@@ -486,7 +486,7 @@ class ProviderComparator {
         ProfilRisque.dynamique: 0.040,
       },
       fraisGestion: 0.0044,
-      description: 'Solution digitale de la Zurcher Kantonalbank',
+      description: 'Solution digitale d\'une banque cantonale',
     ),
     Provider3a(
       nom: 'Banque classique (compte 3a)',
@@ -566,9 +566,9 @@ class ProviderComparator {
       String? warningMsg;
       if (provider.type == 'assurance' && clampedAge < 35) {
         hasWarning = true;
-        // Compare vs Finpension (meilleur fintech) au meme profil de risque
+        // Compare vs meilleur fintech au meme profil de risque
         final fintechRendement =
-            _providers[1].rendementPour(profilRisque); // Finpension
+            _providers[1].rendementPour(profilRisque); // Fintech B (best fees)
         final capitalFintech = _futureValue(
           clampedVersement,
           fintechRendement - 0.0039,

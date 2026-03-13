@@ -142,7 +142,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: MintColors.error),
             child: Text(cta),
           ),
         ],
@@ -342,12 +342,12 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Icon(Icons.check_circle,
-                                    color: Colors.white, size: 24),
+                                    color: MintColors.white, size: 24),
                                 const SizedBox(width: 8),
                                 Text(
                                   S.of(context)!.agirSwipeDone,
                                   style: const TextStyle(
-                                    color: Colors.white,
+                                    color: MintColors.white,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 14,
                                   ),
@@ -368,14 +368,14 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                                 Text(
                                   S.of(context)!.agirSwipeSnooze,
                                   style: const TextStyle(
-                                    color: Colors.white,
+                                    color: MintColors.white,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 14,
                                   ),
                                 ),
                                 const SizedBox(width: 8),
                                 const Icon(Icons.schedule,
-                                    color: Colors.white, size: 24),
+                                    color: MintColors.white, size: 24),
                               ],
                             ),
                           ),
@@ -505,7 +505,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.check,
-                        color: Colors.white, size: 14),
+                        color: MintColors.white, size: 14),
                   ),
               ],
             ),
@@ -575,12 +575,12 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                         style: GoogleFonts.inter(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          color: MintColors.white,
                         ),
                       ),
                       const SizedBox(width: 6),
                       const Icon(Icons.arrow_forward,
-                          color: Colors.white, size: 16),
+                          color: MintColors.white, size: 16),
                     ],
                   ),
                 ),
@@ -801,7 +801,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: MintColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: MintColors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
@@ -892,7 +892,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: MintColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: MintColors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -949,7 +949,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
               onPressed: () => context.push('/coach/checkin'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: MintColors.coachAccent,
-                foregroundColor: Colors.white,
+                foregroundColor: MintColors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -1137,7 +1137,7 @@ class _MonthlyContributionRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
@@ -1300,7 +1300,7 @@ class _TimelineItem extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: MintColors.white,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: MintColors.lightBorder),
                   boxShadow: [
@@ -1444,7 +1444,7 @@ class _TimelineItem extends StatelessWidget {
 
     if (event.isCompleted) {
       dotColor = MintColors.positive;
-      dotChild = const Icon(Icons.check, size: 10, color: Colors.white);
+      dotChild = const Icon(Icons.check, size: 10, color: MintColors.white);
     } else if (event.isPast) {
       dotColor = MintColors.greyNeutral;
     } else if (daysUntil <= 30 && daysUntil >= 0) {
@@ -1502,7 +1502,7 @@ class _CoachingTipCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: MintColors.lightBorder),
           boxShadow: [

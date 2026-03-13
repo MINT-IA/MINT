@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -241,7 +242,7 @@ class PulseHeroEngine {
   // ── Optimiser ───────────────────────────────────────────
 
   static PulseHero _heroOptFiscal(CoachProfile p) {
-    final saving3a = (7258 * 0.25).round(); // ~25% marginal rate estimate
+    final saving3a = (pilier3aPlafondAvecLpp * 0.25).round(); // ~25% marginal rate estimate
     return PulseHero(
       title: 'CHF ~${saving3a + 1500}/an',
       subtitle: 'laissés au fisc chaque année.',
@@ -317,7 +318,7 @@ class PulseHeroEngine {
       return const PulseHero(
         title: 'Acheter un bien',
         subtitle: 'Calcule ta capacité d\'achat.',
-        detail: 'Ton 3a et ton LPP = ta meilleure mise de fonds.',
+        detail: 'Ton 3a et ton LPP = ta principale mise de fonds.',
         ctaLabel: 'Simuler',
         ctaRoute: '/mortgage/affordability',
         icon: Icons.home_outlined,
@@ -329,7 +330,7 @@ class PulseHeroEngine {
     return PulseHero(
       title: 'CHF ~${capacity}k',
       subtitle: 'Le bien que tu pourrais viser.',
-      detail: 'Ton 3a et ton LPP = ta meilleure mise de fonds.',
+      detail: 'Ton 3a et ton LPP = ta principale mise de fonds.',
       ctaLabel: 'Simuler mon achat',
       ctaRoute: '/mortgage/affordability',
       icon: Icons.home_outlined,

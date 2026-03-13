@@ -13,7 +13,7 @@ Sources:
     - LPD (Loi sur la protection des donnees) — right to erasure
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Field, ConfigDict
 from pydantic.alias_generators import to_camel

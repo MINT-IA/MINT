@@ -145,9 +145,9 @@ class _EducationalExplanationWidgetState
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.orange.shade50,
+                color: MintColors.warningBg,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.orange.shade200),
+                border: Border.all(color: MintColors.orangeRetroWarm),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,14 +155,14 @@ class _EducationalExplanationWidgetState
                   Row(
                     children: [
                       Icon(Icons.calculate,
-                          color: Colors.orange.shade700, size: 16),
+                          color: MintColors.warning, size: 16),
                       const SizedBox(width: 6),
                       Text(
                         'Exemple concret',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: Colors.orange.shade900,
+                          color: MintColors.deepOrange,
                         ),
                       ),
                     ],
@@ -173,7 +173,7 @@ class _EducationalExplanationWidgetState
                     style: TextStyle(
                       fontSize: 13,
                       height: 1.4,
-                      color: Colors.orange.shade900,
+                      color: MintColors.deepOrange,
                     ),
                   ),
                 ],
@@ -192,8 +192,8 @@ class _EducationalExplanationWidgetState
                       Icon(
                         point.isPositive ? Icons.check_circle : Icons.warning,
                         color: point.isPositive
-                            ? Colors.green.shade600
-                            : Colors.orange.shade600,
+                            ? MintColors.categoryGreen
+                            : MintColors.warning,
                         size: 18,
                       ),
                       const SizedBox(width: 8),

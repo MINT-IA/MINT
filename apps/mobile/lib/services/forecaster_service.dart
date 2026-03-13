@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -185,6 +186,14 @@ class ProjectionResult {
   final String disclaimer;
   final List<String> sources;
 
+  /// Projection confidence score (0-100) — mandatory on all projections.
+  /// 3-axis: completeness x accuracy x freshness (geometric mean).
+  /// See ConfidenceScorer for details.
+  final double confidenceScore;
+
+  /// Actions the user can take to improve projection accuracy.
+  final List<String> enrichmentPrompts;
+
   const ProjectionResult({
     required this.prudent,
     required this.base,
@@ -193,6 +202,8 @@ class ProjectionResult {
     required this.milestones,
     required this.disclaimer,
     required this.sources,
+    this.confidenceScore = 0,
+    this.enrichmentPrompts = const [],
   });
 
   Map<String, dynamic> toJson() => {
@@ -203,6 +214,8 @@ class ProjectionResult {
         'milestones': milestones.map((m) => m.toJson()).toList(),
         'disclaimer': disclaimer,
         'sources': sources,
+        'confidenceScore': confidenceScore,
+        'enrichmentPrompts': enrichmentPrompts,
       };
 
   /// Reconstruct a [ProjectionResult] from a JSON map (e.g. stored snapshot).
@@ -237,6 +250,12 @@ class ProjectionResult {
       milestones: const [], // milestones are not persisted in snapshots
       disclaimer: json['disclaimer'] as String? ?? '',
       sources: (json['sources'] as List<dynamic>?)
+              ?.map((s) => s as String)
+              .toList() ??
+          const [],
+      confidenceScore:
+          (json['confidenceScore'] as num?)?.toDouble() ?? 0,
+      enrichmentPrompts: (json['enrichmentPrompts'] as List<dynamic>?)
               ?.map((s) => s as String)
               .toList() ??
           const [],
@@ -306,6 +325,9 @@ class ForecasterService {
     // Milestones
     final milestones = _detectMilestones(scenarioBase.points);
 
+    // Confidence scoring (mandatory on all projections — CLAUDE.md §5)
+    final confidence = ConfidenceScorer.score(profile);
+
     return ProjectionResult(
       prudent: scenarioPrudent,
       base: scenarioBase,
@@ -323,6 +345,9 @@ class ForecasterService {
         'OPP3 art. 7 (plafond 3a)',
         'LPP art. 79b (rachat)',
       ],
+      confidenceScore: confidence.score,
+      enrichmentPrompts:
+          confidence.prompts.map((p) => p.label).toList(),
     );
   }
 
@@ -438,6 +463,9 @@ class ForecasterService {
 
     final milestones = _detectMilestones(scenarioBase.points);
 
+    // Confidence scoring (mandatory on all projections — CLAUDE.md §5)
+    final confidence = ConfidenceScorer.score(profile);
+
     return ProjectionResult(
       prudent: scenarioPrudent,
       base: scenarioBase,
@@ -454,6 +482,9 @@ class ForecasterService {
         'OPP3 art. 7 (plafond 3a)',
         'LPP art. 79b (rachat)',
       ],
+      confidenceScore: confidence.score,
+      enrichmentPrompts:
+          confidence.prompts.map((p) => p.label).toList(),
     );
   }
 

@@ -28,7 +28,6 @@ from app.constants.social_insurance import (
     AVS_DUREE_COTISATION_COMPLETE,
     AVS_REDUCTION_ANTICIPATION,
     AVS_SUPPLEMENT_AJOURNEMENT,
-    AVS_SURVIVOR_FACTOR,
 )
 
 
@@ -38,25 +37,12 @@ DISCLAIMER = (
     "Ne constitue pas un conseil en prevoyance (LSFin). Consulte un ou une specialiste."
 )
 
-# AVS Constants (2025/2026) — imported from app.constants.social_insurance
-AVS_MAX_RENTE_MENSUELLE = AVS_RENTE_MAX_MENSUELLE
+# Derived constants
 AVS_MAX_RENTE_ANNUELLE = AVS_RENTE_MAX_MENSUELLE * 12
 AVS_MAX_RENTE_COUPLE_FACTOR = AVS_RENTE_COUPLE_MAX_MENSUELLE / AVS_RENTE_MAX_MENSUELLE
 AVS_RETIREMENT_AGE = 65
 AVS_MIN_ANTICIPATION_AGE = 63      # can start at 63 (1 or 2 years early)
 AVS_MAX_DEFERRAL_YEARS = 5         # can defer up to 5 years (to age 70)
-
-# Full contribution period: 44 years (age 21 to 64 inclusive)
-AVS_FULL_CONTRIBUTION_YEARS = AVS_DUREE_COTISATION_COMPLETE
-
-# Anticipation penalty (LAVS art. 21bis): -6.8% per year
-AVS_ANTICIPATION_PENALTY_PER_YEAR = AVS_REDUCTION_ANTICIPATION
-
-# Deferral bonus (LAVS art. 21ter): cumulative rates
-AVS_DEFERRAL_BONUS = AVS_SUPPLEMENT_AJOURNEMENT
-
-# Survivor rente (LAVS art. 24)
-AVS_SURVIVOR_RENTE_FACTOR = AVS_SURVIVOR_FACTOR
 
 
 @dataclass
@@ -113,25 +99,25 @@ class AvsEstimationService:
         if retirement_age < AVS_RETIREMENT_AGE:
             scenario = "anticipation"
             years_early = AVS_RETIREMENT_AGE - retirement_age
-            factor = 1.0 - (AVS_ANTICIPATION_PENALTY_PER_YEAR * years_early)
-            penalty_pct = -(AVS_ANTICIPATION_PENALTY_PER_YEAR * years_early * 100)
+            factor = 1.0 - (AVS_REDUCTION_ANTICIPATION * years_early)
+            penalty_pct = -(AVS_REDUCTION_ANTICIPATION * years_early * 100)
         elif retirement_age > AVS_RETIREMENT_AGE:
             scenario = "ajournement"
             years_late = min(retirement_age - AVS_RETIREMENT_AGE, AVS_MAX_DEFERRAL_YEARS)
-            factor = 1.0 + AVS_DEFERRAL_BONUS.get(years_late, AVS_DEFERRAL_BONUS[5])
-            penalty_pct = AVS_DEFERRAL_BONUS.get(years_late, AVS_DEFERRAL_BONUS[5]) * 100
+            factor = 1.0 + AVS_SUPPLEMENT_AJOURNEMENT.get(years_late, AVS_SUPPLEMENT_AJOURNEMENT[5])
+            penalty_pct = AVS_SUPPLEMENT_AJOURNEMENT.get(years_late, AVS_SUPPLEMENT_AJOURNEMENT[5]) * 100
         else:
             scenario = "normal"
             factor = 1.0
             penalty_pct = 0.0
 
         # 2. Apply contribution gaps reduction
-        effective_years = AVS_FULL_CONTRIBUTION_YEARS - annees_lacunes
+        effective_years = AVS_DUREE_COTISATION_COMPLETE - annees_lacunes
         effective_years = max(0, effective_years)
-        gap_factor = effective_years / AVS_FULL_CONTRIBUTION_YEARS if effective_years > 0 else 0
+        gap_factor = effective_years / AVS_DUREE_COTISATION_COMPLETE if effective_years > 0 else 0
 
         # 3. Calculate rente
-        base_rente = AVS_MAX_RENTE_MENSUELLE * gap_factor
+        base_rente = AVS_RENTE_MAX_MENSUELLE * gap_factor
         rente_mensuelle = round(base_rente * factor, 2)
         # Annual rente includes 13th rente if active (13 × monthly instead of 12)
         nb_rentes = AVS_NOMBRE_RENTES_PAR_AN if AVS_13EME_RENTE_ACTIVE else 12
@@ -143,7 +129,7 @@ class AvsEstimationService:
             rente_couple = round(
                 min(
                     rente_mensuelle * 2,
-                    AVS_MAX_RENTE_MENSUELLE * AVS_MAX_RENTE_COUPLE_FACTOR,
+                    AVS_RENTE_MAX_MENSUELLE * AVS_MAX_RENTE_COUPLE_FACTOR,
                 ),
                 2,
             )
@@ -160,7 +146,7 @@ class AvsEstimationService:
         # 7. Chiffre choc
         if scenario == "anticipation":
             perte_totale = round(
-                (AVS_MAX_RENTE_MENSUELLE * gap_factor - rente_mensuelle) * nb_rentes * duree, 0
+                (AVS_RENTE_MAX_MENSUELLE * gap_factor - rente_mensuelle) * nb_rentes * duree, 0
             )
             chiffre_choc = (
                 f"Anticiper de {AVS_RETIREMENT_AGE - retirement_age} an(s) = "
@@ -169,7 +155,7 @@ class AvsEstimationService:
             )
         elif scenario == "ajournement":
             gain_total = round(
-                (rente_mensuelle - AVS_MAX_RENTE_MENSUELLE * gap_factor) * nb_rentes * duree, 0
+                (rente_mensuelle - AVS_RENTE_MAX_MENSUELLE * gap_factor) * nb_rentes * duree, 0
             )
             chiffre_choc = (
                 f"Ajourner de {retirement_age - AVS_RETIREMENT_AGE} an(s) = "
@@ -233,7 +219,7 @@ class AvsEstimationService:
         if scenario == "normal":
             return None
 
-        normal_rente_mensuelle = AVS_MAX_RENTE_MENSUELLE * gap_factor
+        normal_rente_mensuelle = AVS_RENTE_MAX_MENSUELLE * gap_factor
 
         # Compare cumulative amounts year by year
         cumul_scenario = 0.0

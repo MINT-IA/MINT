@@ -50,7 +50,7 @@ class CrisisDashboardWidget extends StatelessWidget {
       label: 'Tableau de bord crise chômage LPP budget réserves indicateurs vitaux',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
         ),
@@ -130,7 +130,7 @@ class CrisisDashboardWidget extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: MintColors.white,
                   ),
                 ),
               ),
@@ -185,7 +185,7 @@ class CrisisDashboardWidget extends StatelessWidget {
                   style: GoogleFonts.montserrat(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: Colors.white,
+                    color: MintColors.white,
                   ),
                 ),
               ),

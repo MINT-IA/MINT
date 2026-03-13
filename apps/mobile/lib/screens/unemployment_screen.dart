@@ -142,7 +142,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
       expandedHeight: 120,
       backgroundColor: MintColors.primary,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.white),
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -152,7 +152,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
-            color: Colors.white,
+            color: MintColors.white,
           ),
         ),
         background: Container(
@@ -268,7 +268,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
@@ -338,7 +338,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
@@ -477,7 +477,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
             style: GoogleFonts.montserrat(
               fontSize: 36,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: MintColors.white,
             ),
           ),
           const SizedBox(height: 8),
@@ -485,7 +485,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
             r.chiffreChoc,
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.9),
+              color: MintColors.white.withValues(alpha: 0.9),
               height: 1.5,
             ),
             textAlign: TextAlign.center,
@@ -505,7 +505,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -617,7 +617,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -654,7 +654,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -783,7 +783,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
                         style: GoogleFonts.inter(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          color: MintColors.white,
                         ),
                       ),
                     ),
@@ -833,7 +833,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
@@ -890,7 +890,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
                       ),
                       child: checked
                           ? const Icon(Icons.check,
-                              size: 14, color: Colors.white)
+                              size: 14, color: MintColors.white)
                           : null,
                     ),
                     const SizedBox(width: 12),
@@ -981,7 +981,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: MintColors.white,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, size: 18, color: MintColors.primary),

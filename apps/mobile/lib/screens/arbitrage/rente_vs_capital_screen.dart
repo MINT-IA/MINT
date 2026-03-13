@@ -373,14 +373,14 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             expandedHeight: 100,
             pinned: true,
             backgroundColor: MintColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 'Rente ou capital : ta décision',
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: MintColors.white,
                 ),
               ),
               background: Container(
@@ -552,7 +552,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   void _showExplanation(String term, String text) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),

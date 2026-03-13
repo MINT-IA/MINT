@@ -433,7 +433,7 @@ class DocumentDetailScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),

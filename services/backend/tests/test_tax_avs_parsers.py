@@ -30,8 +30,6 @@ from fastapi.testclient import TestClient
 
 from app.services.document_parser.document_models import (
     DocumentType,
-    ExtractedField,
-    ExtractionResult,
 )
 from app.services.document_parser.tax_declaration_parser import (
     parse_tax_declaration,

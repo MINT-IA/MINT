@@ -153,7 +153,7 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: isSelected
-                    ? Colors.white
+                    ? MintColors.white
                     : enabled
                         ? MintColors.textSecondary
                         : MintColors.textMuted,

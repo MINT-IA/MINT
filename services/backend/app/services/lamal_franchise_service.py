@@ -357,7 +357,6 @@ class LamalFranchiseOptimizer:
         All recommendations include a legal source reference.
         """
         recommandations = []
-        category = "enfant" if is_child else "adulte"
 
         if not is_child:
             if depenses < 500:

@@ -113,14 +113,14 @@ class TestLiquidity:
     def test_one_month_reserve(self):
         inp = FriInput(liquid_assets=3000, monthly_fixed_costs=3000)
         # sqrt(1/6) ≈ 0.408 → 25 * 0.408 ≈ 10.2
-        l = FriService.compute_liquidity(inp)
-        assert 10 < l < 11
+        liq = FriService.compute_liquidity(inp)
+        assert 10 < liq < 11
 
     def test_three_months_reserve(self):
         inp = FriInput(liquid_assets=9000, monthly_fixed_costs=3000)
         # sqrt(3/6) = sqrt(0.5) ≈ 0.707 → 25 * 0.707 ≈ 17.7
-        l = FriService.compute_liquidity(inp)
-        assert 17 < l < 18
+        liq = FriService.compute_liquidity(inp)
+        assert 17 < liq < 18
 
     def test_six_months_full_score(self):
         inp = FriInput(liquid_assets=18000, monthly_fixed_costs=3000)

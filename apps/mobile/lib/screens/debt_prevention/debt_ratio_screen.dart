@@ -48,7 +48,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     final result = _result;
 
     final isSafeMode = result.niveau == DebtRiskLevel.rouge;
-    final appBarColor = isSafeMode ? Colors.orange.shade700 : MintColors.primary;
+    final appBarColor = isSafeMode ? MintColors.warning : MintColors.primary;
 
     return Scaffold(
       backgroundColor: MintColors.surface,
@@ -58,14 +58,14 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
             expandedHeight: 100,
             pinned: true,
             backgroundColor: appBarColor,
-            foregroundColor: Colors.white,
+            foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 'DIAGNOSTIC DETTE',
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: MintColors.white,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -124,7 +124,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -215,7 +215,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -367,10 +367,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isMenace ? Colors.red.shade50 : Colors.white,
+        color: isMenace ? MintColors.urgentBg : MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isMenace ? Colors.red.shade300 : MintColors.border,
+          color: isMenace ? MintColors.coralLight : MintColors.border,
           width: isMenace ? 2 : 1,
         ),
       ),
@@ -382,7 +382,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: isMenace ? Colors.red.shade700 : MintColors.textMuted,
+              color: isMenace ? MintColors.redMedium : MintColors.textMuted,
               letterSpacing: 1,
             ),
           ),
@@ -405,13 +405,13 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.red.shade100,
+                color: MintColors.redBg,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
                   Icon(Icons.warning_amber_rounded,
-                      color: Colors.red.shade700, size: 20),
+                      color: MintColors.redMedium, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -419,7 +419,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                       'Contactez un service d\'aide professionnelle.',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.red.shade800,
+                        color: MintColors.redDark,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -464,7 +464,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -512,24 +512,24 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.red.shade50, Colors.orange.shade50],
+          colors: [MintColors.urgentBg, MintColors.warningBg],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.red.shade200, width: 2),
+        border: Border.all(color: MintColors.redBg, width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.support_agent, color: Colors.red.shade700, size: 24),
+              Icon(Icons.support_agent, color: MintColors.redMedium, size: 24),
               const SizedBox(width: 12),
               Text(
                 'AIDE PROFESSIONNELLE',
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: Colors.red.shade800,
+                  color: MintColors.redDark,
                 ),
               ),
             ],
@@ -569,7 +569,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: MintColors.border),
         ),
@@ -620,21 +620,21 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 20),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.4,
               ),
             ),
@@ -668,7 +668,7 @@ class _GaugePainter extends CustomPainter {
 
     // Background arc (gray)
     final bgPaint = Paint()
-      ..color = Colors.grey.shade200
+      ..color = MintColors.lightBorder
       ..style = PaintingStyle.stroke
       ..strokeWidth = 16
       ..strokeCap = StrokeCap.round;

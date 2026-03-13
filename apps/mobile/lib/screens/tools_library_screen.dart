@@ -823,7 +823,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
             border: Border.all(color: MintColors.lightBorder),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
+                color: MintColors.black.withValues(alpha: 0.03),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),

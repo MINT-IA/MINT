@@ -88,7 +88,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700,
                   fontSize: 20,
-                  color: Colors.white,
+                  color: MintColors.white,
                 ),
               ),
               background: Container(

@@ -1,14 +1,15 @@
 /// SLM Download Service — manages on-device model lifecycle.
 ///
-/// Handles downloading, verifying, and managing the Gemma 3n E4B model
-/// for on-device inference via flutter_gemma.
+/// Handles downloading, verifying, and managing the Gemma 3n models
+/// (E4B premium and E2B accessible) for on-device inference via flutter_gemma.
 ///
 /// Privacy guarantee: model runs 100% on-device, zero network
 /// traffic during inference.
 ///
 /// References:
 ///   - flutter_gemma 0.12.x (pub.dev/packages/flutter_gemma)
-///   - Gemma 3n E4B IT model (~2.3 GB)
+///   - Gemma 3n E4B IT model (~4.4 GB)
+///   - Gemma 3n E2B IT model (~3.0 GB)
 ///   - HuggingFace model hosting
 library;
 
@@ -16,6 +17,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
+import 'package:mint_mobile/services/slm/slm_model_tier.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Download progress callback.
@@ -51,7 +53,7 @@ class ModelInfo {
   /// Human-readable name.
   final String displayName;
 
-  /// Model file size in bytes (~2.3 GB).
+  /// Model file size in bytes (~4.4 GB).
   final int sizeBytes;
 
   /// Model version tag.
@@ -97,11 +99,6 @@ class SlmDownloadService {
   //  Constants
   // ═══════════════════════════════════════════════════════════════
 
-  /// HuggingFace model URL (Gemma 3n E4B IT in .task format).
-  /// In production, configure via remote config.
-  static const String _defaultModelUrl =
-      'https://huggingface.co/google/gemma-3n-E4B-it-litert-preview/resolve/main/gemma-3n-E4B-it-int4.task';
-
   /// Build-time override for the model URL (CI/CD).
   ///
   /// Example:
@@ -115,19 +112,14 @@ class SlmDownloadService {
   static const String _buildHfToken =
       String.fromEnvironment('HUGGINGFACE_TOKEN');
 
-  /// Model identifier as registered by flutter_gemma.
-  ///
-  /// Derived from the URL filename to stay in sync automatically:
-  ///   Uri.parse(url).pathSegments.last → 'gemma3n-E4B-it-multi.task'
-  /// This MUST match the URL filename for isModelInstalled() to work.
+  /// Model URL — build-time override takes precedence, else active tier's URL.
   static String get modelUrl => _buildModelUrl.trim().isNotEmpty
       ? _buildModelUrl.trim()
-      : _defaultModelUrl;
+      : instance.activeTierConfig.hfUrl;
 
+  /// Model identifier derived from the URL filename.
+  /// This MUST match the URL filename for isModelInstalled() to work.
   static String get modelId => Uri.parse(modelUrl).pathSegments.last;
-
-  /// Expected model size (~2.3 GB).
-  static const int _expectedSizeBytes = 2400000000;
 
   /// Model version for cache invalidation.
   static const String _modelVersion = '1.0.0';
@@ -135,8 +127,63 @@ class SlmDownloadService {
   /// SharedPreferences key for model version tracking.
   static const String _prefKeyVersion = 'slm_model_version';
 
+  /// SharedPreferences key for persisting the active model tier.
+  static const String _prefKeyTier = 'slm_active_tier';
+
   // ═══════════════════════════════════════════════════════════════
-  //  State
+  //  Tier state
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Active model tier. Defaults to E4B for backward compatibility.
+  SlmModelTier _activeTier = SlmModelTier.e4b;
+
+  /// The active model tier.
+  SlmModelTier get activeTier => _activeTier;
+
+  /// Configuration for the active model tier.
+  SlmTierConfig get activeTierConfig => SlmTierConfig.forTier(_activeTier);
+
+  /// Expected model size in bytes (delegates to active tier).
+  int get expectedSizeBytes => activeTierConfig.expectedSizeBytes;
+
+  /// Human-readable model size (delegates to active tier).
+  String get modelSizeFormatted => activeTierConfig.modelSizeFormatted;
+
+  /// Estimated download time in minutes (delegates to active tier).
+  int get estimatedDownloadMinutes => activeTierConfig.estimatedDownloadMinutes;
+
+  /// Switch the active model tier.
+  ///
+  /// Persists the choice to SharedPreferences. Does NOT auto-delete
+  /// the old model (user might want both cached).
+  Future<void> setActiveTier(SlmModelTier tier) async {
+    _activeTier = tier;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_prefKeyTier, tier.name);
+    debugPrint('[SLM] Active tier set to: ${tier.name}');
+  }
+
+  /// Restore persisted tier choice from SharedPreferences.
+  ///
+  /// Called from [initializePlugin]. Defaults to E4B if nothing saved.
+  Future<void> loadSavedTier() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString(_prefKeyTier);
+    if (saved != null) {
+      for (final tier in SlmModelTier.values) {
+        if (tier.name == saved) {
+          _activeTier = tier;
+          debugPrint('[SLM] Restored saved tier: ${tier.name}');
+          return;
+        }
+      }
+    }
+    // Default to E4B (backward compatibility).
+    _activeTier = SlmModelTier.e4b;
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  Download state
   // ═══════════════════════════════════════════════════════════════
 
   DownloadState _state = DownloadState.notStarted;
@@ -187,9 +234,6 @@ class SlmDownloadService {
         'Demande un build avec HUGGINGFACE_TOKEN ou une URL CDN publique.';
   }
 
-  /// Expected model size in bytes (for UI display).
-  static int get expectedSizeBytes => _expectedSizeBytes;
-
   /// Active cancel token for in-progress downloads.
   CancelToken? _cancelToken;
 
@@ -203,6 +247,7 @@ class SlmDownloadService {
   Future<bool> initializePlugin({String? huggingFaceToken}) async {
     if (_pluginInitialized) return true;
     try {
+      await loadSavedTier();
       final token = _resolveToken(huggingFaceToken);
       _runtimeHfToken = token;
       await FlutterGemma.initialize(
@@ -259,8 +304,8 @@ class SlmDownloadService {
 
     return ModelInfo(
       modelId: modelId,
-      displayName: 'Gemma 3n 4B (on-device)',
-      sizeBytes: _expectedSizeBytes,
+      displayName: activeTierConfig.displayName,
+      sizeBytes: activeTierConfig.expectedSizeBytes,
       version: version,
       isReady: installed,
       localPath: installed ? modelId : null,
@@ -311,8 +356,9 @@ class SlmDownloadService {
       }
 
       debugPrint('[SLM] Starting model download from: $url');
+      debugPrint('[SLM] Active tier: ${_activeTier.name}');
       debugPrint('[SLM] Expected size: $modelSizeFormatted');
-      debugPrint('[SLM] Estimated time: ~${estimatedDownloadMinutes()} min');
+      debugPrint('[SLM] Estimated time: ~$estimatedDownloadMinutes min');
 
       // Use flutter_gemma's built-in model installer.
       // Handles chunked download, resume support, and verification.
@@ -323,8 +369,9 @@ class SlmDownloadService {
           .fromNetwork(url, token: token)
           .withProgress((percentInt) {
             _progress = percentInt / 100.0;
-            final downloadedBytes = (_progress * _expectedSizeBytes).toInt();
-            onProgress?.call(_progress, downloadedBytes, _expectedSizeBytes);
+            final sizeBytes = activeTierConfig.expectedSizeBytes;
+            final downloadedBytes = (_progress * sizeBytes).toInt();
+            onProgress?.call(_progress, downloadedBytes, sizeBytes);
           })
           .withCancelToken(_cancelToken!)
           .install();
@@ -368,7 +415,7 @@ class SlmDownloadService {
     // State transition happens in downloadModel() catch block.
   }
 
-  /// Delete the downloaded model to free disk space (~2.3 GB).
+  /// Delete the downloaded model to free disk space (~4.4 GB).
   ///
   /// Uses [FlutterGemma.uninstallModel] to remove both model files
   /// and flutter_gemma metadata. Also clears our version tracking.
@@ -399,23 +446,6 @@ class SlmDownloadService {
       debugPrint('[SLM] Model state clear failed: $e');
       return false;
     }
-  }
-
-  /// Estimated download time based on typical Swiss connection speeds.
-  ///
-  /// Assumes ~50 Mbps average (Swisscom/Sunrise typical).
-  /// Returns duration in minutes.
-  static int estimatedDownloadMinutes() {
-    const bitsPerSecond = 50 * 1000 * 1000; // 50 Mbps
-    const bytesPerSecond = bitsPerSecond / 8;
-    const seconds = _expectedSizeBytes / bytesPerSecond;
-    return (seconds / 60).ceil();
-  }
-
-  /// Human-readable model size.
-  static String get modelSizeFormatted {
-    const gb = _expectedSizeBytes / (1024 * 1024 * 1024);
-    return '${gb.toStringAsFixed(1)} Go';
   }
 
   String? _resolveToken(String? overrideToken) {

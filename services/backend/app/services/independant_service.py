@@ -23,24 +23,33 @@ Ethical requirements:
 from dataclasses import dataclass
 from typing import List
 
+from app.constants.social_insurance import (
+    AVS_AGE_REFERENCE_HOMME as RETIREMENT_AGE,
+    AVS_BAREME_DEGRESSIF_PLAFOND as AVS_DEGRESSIVE_UPPER,
+    AVS_COTISATION_MIN_INDEPENDANT as AVS_MINIMUM_CONTRIBUTION,
+    AVS_COTISATION_TOTAL as AVS_FULL_RATE,
+    AVS_SEUIL_REVENU_MIN_INDEPENDANT as AVS_MINIMUM_INCOME_THRESHOLD,
+    PILIER_3A_PLAFOND_AVEC_LPP as PLAFOND_3A_SALARIE,
+    PILIER_3A_PLAFOND_SANS_LPP as PLAFOND_3A_INDEPENDANT_MAX,
+    PILIER_3A_TAUX_REVENU_SANS_LPP as PLAFOND_3A_INDEPENDANT_TAUX,
+)
+
 
 # ---------------------------------------------------------------------------
-# Constants
+# Local estimation constants (not legal constants — keep here)
 # ---------------------------------------------------------------------------
 
-# AVS contribution rate for self-employed (LAVS art. 8)
-# Full rate: 10.6% (combined old age + survivors + disability)
-# Degressive scale applies for low incomes (< 58'800 CHF)
-AVS_FULL_RATE = 0.106
+# IJM (indemnite journaliere maladie) estimated cost
+# Typical: ~1-3% of insured salary for 720 days coverage
+IJM_ESTIMATE_RATE = 0.02  # 2% as middle estimate
 
-# Degressive scale thresholds (LAVS art. 8, simplified)
-# Below 9'800 CHF: minimum contribution (CHF 514/year)
-AVS_MINIMUM_CONTRIBUTION = 514.0
-AVS_MINIMUM_INCOME_THRESHOLD = 9_800.0
-# Degressive scale between 9'800 and 58'800
-AVS_DEGRESSIVE_UPPER = 58_800.0
+# LAA (accident insurance) estimated cost
+# Typical: ~1-2% of insured salary for non-professional accident
+LAA_ESTIMATE_RATE = 0.015  # 1.5% estimate
 
-# Degressive rates (simplified brackets)
+# Degressive rates (simplified brackets for independant AVS calculation)
+# Kept local because AVS_BAREME_INDEPENDANT in social_insurance.py uses
+# a different (more precise) bracket structure with non-marginal rates.
 AVS_DEGRESSIVE_BRACKETS = [
     (9_800, 17_600, 0.048),
     (17_601, 21_400, 0.051),
@@ -53,24 +62,6 @@ AVS_DEGRESSIVE_BRACKETS = [
     (47_801, 52_600, 0.080),
     (52_601, 58_800, 0.092),
 ]
-
-# 3a grand plafond (OPP3 art. 7)
-PLAFOND_3A_INDEPENDANT_TAUX = 0.20  # 20% of net income
-PLAFOND_3A_INDEPENDANT_MAX = 35_280.0
-
-# 3a salarie plafond for reference
-PLAFOND_3A_SALARIE = 7_056.0
-
-# IJM (indemnite journaliere maladie) estimated cost
-# Typical: ~1-3% of insured salary for 720 days coverage
-IJM_ESTIMATE_RATE = 0.02  # 2% as middle estimate
-
-# LAA (accident insurance) estimated cost
-# Typical: ~1-2% of insured salary for non-professional accident
-LAA_ESTIMATE_RATE = 0.015  # 1.5% estimate
-
-# Retirement age
-RETIREMENT_AGE = 65
 
 
 # ---------------------------------------------------------------------------

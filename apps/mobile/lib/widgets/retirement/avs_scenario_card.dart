@@ -40,7 +40,7 @@ class AvsScenarioCard extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: isSelected ? config.color.withValues(alpha: 0.06) : Colors.white,
+          color: isSelected ? config.color.withValues(alpha: 0.06) : MintColors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? config.color : MintColors.lightBorder,

@@ -568,11 +568,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           'Coach MINT',
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: MintColors.white,
           ),
         ),
         backgroundColor: MintColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: MintColors.white,
       ),
       body: Center(
         child: Padding(
@@ -581,7 +581,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.chat_bubble_outline,
-                  size: 64, color: Colors.grey),
+                  size: 64, color: MintColors.greyMedium),
               const SizedBox(height: 16),
               Text(
                 'Complète ton diagnostic pour discuter avec ton coach',
@@ -627,7 +627,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           child: Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                icon: const Icon(Icons.arrow_back, color: MintColors.white),
                 onPressed: () => Navigator.of(context).maybePop(),
               ),
               const SizedBox(width: 8),
@@ -640,7 +640,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                       style: GoogleFonts.montserrat(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: MintColors.white,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -650,12 +650,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               ),
               if (_messages.any((m) => m.isUser))
                 IconButton(
-                  icon: const Icon(Icons.share, color: Colors.white),
+                  icon: const Icon(Icons.share, color: MintColors.white),
                   tooltip: 'Exporter la conversation',
                   onPressed: _exportConversation,
                 ),
               IconButton(
-                icon: const Icon(Icons.settings_outlined, color: Colors.white),
+                icon: const Icon(Icons.settings_outlined, color: MintColors.white),
                 tooltip: 'Paramètres IA',
                 onPressed: () => context.push('/profile/byok'),
               ),
@@ -685,14 +685,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
     return Row(
       children: [
-        Icon(icon, size: 12, color: Colors.white.withValues(alpha: 0.7)),
+        Icon(icon, size: 12, color: MintColors.white.withValues(alpha: 0.7)),
         const SizedBox(width: 4),
         Text(
           label,
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.w400,
-            color: Colors.white.withValues(alpha: 0.7),
+            color: MintColors.white.withValues(alpha: 0.7),
           ),
         ),
       ],
@@ -756,7 +756,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
-                  color: Colors.white,
+                  color: MintColors.white,
                 ),
               ),
             ),
@@ -788,7 +788,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 ),
                 child: const Icon(
                   Icons.psychology,
-                  color: Colors.white,
+                  color: MintColors.white,
                   size: 18,
                 ),
               ),
@@ -882,7 +882,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                         color: MintColors.coachAccent,
                       ),
                     ),
-                    backgroundColor: Colors.white,
+                    backgroundColor: MintColors.white,
                     side: BorderSide(
                       color: MintColors.coachAccent.withValues(alpha: 0.3),
                     ),
@@ -976,7 +976,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             ),
             child: const Icon(
               Icons.psychology,
-              color: Colors.white,
+              color: MintColors.white,
               size: 18,
             ),
           ),
@@ -1196,7 +1196,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 ),
                 child: IconButton(
                   icon:
-                      const Icon(Icons.send, color: Colors.white, size: 20),
+                      const Icon(Icons.send, color: MintColors.white, size: 20),
                   onPressed: _isStreaming
                       ? null
                       : () => _sendMessage(_controller.text),

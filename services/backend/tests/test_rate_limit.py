@@ -8,11 +8,9 @@ Vérifie:
 3. _get_real_client_ip extracts correct IP from X-Forwarded-For.
 """
 
-import os
-import pytest
 from datetime import datetime, timezone, timedelta
 from fastapi.testclient import TestClient
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 
 # Force rate limiting ON for these tests (conftest sets TESTING=1 which disables it)
 # We override the limiter's enabled flag directly in each test that needs it.

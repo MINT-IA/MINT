@@ -48,7 +48,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
           style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
         ),
         backgroundColor: MintColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: MintColors.white,
       ),
       body: Padding(
         padding: const EdgeInsets.all(24),
@@ -80,7 +80,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
           textAlign: TextAlign.center,
           style: GoogleFonts.inter(
             fontSize: 14,
-            color: Colors.grey.shade600,
+            color: MintColors.textSecondary,
           ),
         ),
         const SizedBox(height: 32),
@@ -99,7 +99,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
               fontSize: 28,
               fontWeight: FontWeight.w300,
               letterSpacing: 6,
-              color: Colors.grey.shade300,
+              color: MintColors.greyBorder,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
@@ -117,7 +117,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 13,
-              color: Colors.red.shade600,
+              color: MintColors.redDeep,
             ),
           ),
         ],
@@ -143,7 +143,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
                   width: 20,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Colors.white,
+                    color: MintColors.white,
                   ),
                 )
               : Text(
@@ -166,13 +166,13 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.green.shade50,
+              color: MintColors.successBg,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.check_circle,
               size: 72,
-              color: Colors.green.shade600,
+              color: MintColors.categoryGreen,
             ),
           ),
           const SizedBox(height: 24),
@@ -190,7 +190,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: Colors.grey.shade600,
+              color: MintColors.textSecondary,
             ),
           ),
           const SizedBox(height: 32),

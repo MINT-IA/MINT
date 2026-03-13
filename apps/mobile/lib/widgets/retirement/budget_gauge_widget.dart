@@ -97,7 +97,7 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),

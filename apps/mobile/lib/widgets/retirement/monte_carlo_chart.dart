@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Graphique en eventail (fan/ribbon chart) — projection stochastique
 /// du revenu de retraite sur 25-30 ans.
@@ -205,14 +206,14 @@ class MonteCarloChart extends StatelessWidget {
             // ── M\u00e9diane \u00e0 l'\u00e2ge de retraite ────────────────
             _summaryRow(
               'M\u00e9diane \u00e0 ${result.retirementAge} ans',
-              '${_formatChf(result.medianAt65)}/mois',
+              '${formatChfWithPrefix(result.medianAt65)}/mois',
             ),
             const SizedBox(height: 10),
 
             // ── Intervalle probable ─────────────────────────
             _summaryRow(
               'Intervalle probable\n(P10 \u2014 P90)',
-              '${_formatChf(result.p10At65)} \u2014 ${_formatChf(result.p90At65)}',
+              '${formatChfWithPrefix(result.p10At65)} \u2014 ${formatChfWithPrefix(result.p90At65)}',
             ),
             const SizedBox(height: 10),
 
@@ -323,19 +324,6 @@ class MonteCarloChart extends StatelessWidget {
     );
   }
 
-  // ════════════════════════════════════════════════════════════════
-  //  NUMBER FORMATTING
-  // ════════════════════════════════════════════════════════════════
-
-  /// Swiss formatting: apostrophe thousands separator.
-  static String _formatChf(double amount) {
-    final rounded = amount.round().abs();
-    final formatted = rounded.toString().replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+$)'),
-      (m) => "${m[1]}'",
-    );
-    return "CHF\u00A0$formatted";
-  }
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -496,7 +484,7 @@ class _MonteCarloFanPainter extends CustomPainter {
       );
 
       // Y-axis label
-      final label = _formatAxisChf(v);
+      final label = formatChfWithPrefix(v);
       final tp = TextPainter(
         text: TextSpan(
           text: label,
@@ -597,7 +585,7 @@ class _MonteCarloFanPainter extends CustomPainter {
     }
 
     // Small label on right
-    final label = _formatAxisChf(value);
+    final label = formatChfWithPrefix(value);
     final tp = TextPainter(
       text: TextSpan(
         text: label,
@@ -617,7 +605,7 @@ class _MonteCarloFanPainter extends CustomPainter {
       Rect.fromLTWH(labelX - 3, labelY - 1, tp.width + 6, tp.height + 2),
       const Radius.circular(3),
     );
-    canvas.drawRRect(bgRect, Paint()..color = Colors.white.withValues(alpha: 0.85));
+    canvas.drawRRect(bgRect, Paint()..color = MintColors.white.withValues(alpha: 0.85));
     tp.paint(canvas, Offset(labelX, labelY));
   }
 
@@ -743,18 +731,6 @@ class _MonteCarloFanPainter extends CustomPainter {
         usedYRanges.add((labelY, labelBottom));
       }
     }
-  }
-
-  // ── Number formatting helpers ───────────────────────────────
-
-  /// Compact CHF formatting for axis labels.
-  static String _formatAxisChf(double amount) {
-    final rounded = amount.round().abs();
-    final formatted = rounded.toString().replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+$)'),
-      (m) => "${m[1]}'",
-    );
-    return "CHF\u00A0$formatted";
   }
 
   /// Determine a "nice" step value for grid lines.

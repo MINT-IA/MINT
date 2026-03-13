@@ -192,12 +192,19 @@ class TestDuration:
         )
         assert result["nombre_indemnites"] == 260
 
+    def test_duration_age_25_54_22months(self, calculator):
+        """25-54 with 22+ months -> 400 indemnities (LACI art. 27 al. 2 lit. c)."""
+        result = calculator.calculate(
+            gain_assure_mensuel=6000, age=35, annees_cotisation=24,
+        )
+        assert result["nombre_indemnites"] == 400
+
     def test_duration_age_55_59(self, calculator):
-        """55-59 with 22+ months -> 400 indemnities."""
+        """55+ with 22+ months -> 520 indemnities (LACI art. 27 al. 2 lit. d)."""
         result = calculator.calculate(
             gain_assure_mensuel=8000, age=57, annees_cotisation=22,
         )
-        assert result["nombre_indemnites"] == 400
+        assert result["nombre_indemnites"] == 520
 
     def test_duration_age_60_plus(self, calculator):
         """60+ with 22+ months -> 520 indemnities."""
@@ -215,11 +222,11 @@ class TestDuration:
         assert result["duree_mois"] == expected
 
     def test_edge_case_age_55_boundary(self, calculator):
-        """Age exactly 55 with 22+ months -> 400."""
+        """Age exactly 55 with 22+ months -> 520 (LACI art. 27 al. 2 lit. d)."""
         result = calculator.calculate(
             gain_assure_mensuel=8000, age=55, annees_cotisation=22,
         )
-        assert result["nombre_indemnites"] == 400
+        assert result["nombre_indemnites"] == 520
 
     def test_edge_case_max_duration_520(self, calculator):
         """Maximum duration should be 520 indemnities."""

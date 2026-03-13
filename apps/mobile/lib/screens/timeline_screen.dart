@@ -241,7 +241,7 @@ const _quickActions = <_QuickAction>[
     title: 'Check-up financier',
     subtitle: 'Lancer le diagnostic complet',
     icon: Icons.shield_outlined,
-    route: '/onboarding/smart',
+    route: '/onboarding/quick',
     color: MintColors.primary,
   ),
   _QuickAction(
@@ -388,7 +388,7 @@ class TimelineScreen extends StatelessWidget {
         width: 150,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: MintColors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: action.color.withValues(alpha: 0.25)),
           boxShadow: [
@@ -501,7 +501,7 @@ class TimelineScreen extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: MintColors.white,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: MintColors.lightBorder),
           ),

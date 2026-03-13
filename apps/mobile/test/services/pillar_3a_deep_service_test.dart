@@ -514,13 +514,13 @@ void main() {
         duree: 20,
         profilRisque: ProfilRisque.equilibre,
       );
-      final finpension = result.providers.firstWhere(
-        (p) => p.provider.nom == 'Finpension',
+      final fintech = result.providers.firstWhere(
+        (p) => p.provider.nom == 'Fintech B',
       );
       final banque = result.providers.firstWhere(
         (p) => p.provider.type == 'banque',
       );
-      expect(finpension.capitalFinal, greaterThan(banque.capitalFinal));
+      expect(fintech.capitalFinal, greaterThan(banque.capitalFinal));
     });
 
     test('assurance 3a a un warning pour les jeunes (< 35 ans)', () {
@@ -575,10 +575,10 @@ void main() {
       );
       // Finpension capital should be higher in dynamique
       final finpPrudent = prudent.providers.firstWhere(
-        (p) => p.provider.nom == 'Finpension',
+        (p) => p.provider.nom == 'Fintech B',
       );
       final finpDynamique = dynamique.providers.firstWhere(
-        (p) => p.provider.nom == 'Finpension',
+        (p) => p.provider.nom == 'Fintech B',
       );
       expect(
         finpDynamique.capitalFinal,

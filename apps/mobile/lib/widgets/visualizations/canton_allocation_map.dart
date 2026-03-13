@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CANTON FAMILY ALLOCATIONS HEATMAP (BUBBLE TREEMAP)
@@ -33,17 +34,6 @@ class CantonAllocation {
 /// Sort mode for canton display.
 enum CantonSortMode { byAmount, alphabetical }
 
-/// Format a number with Swiss apostrophe thousands separator.
-String _formatChf(double value) {
-  final abs = value.abs().round();
-  final str = abs.toString();
-  final buffer = StringBuffer();
-  for (var i = 0; i < str.length; i++) {
-    if (i > 0 && (str.length - i) % 3 == 0) buffer.write("'");
-    buffer.write(str[i]);
-  }
-  return 'CHF $buffer';
-}
 
 class CantonAllocationMap extends StatefulWidget {
   final List<CantonAllocation> cantons;
@@ -161,7 +151,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
           return Container(
             width: constraints.maxWidth,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: MintColors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
@@ -280,7 +270,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
           style: GoogleFonts.inter(
             fontSize: 11,
             fontWeight: FontWeight.w600,
-            color: isActive ? Colors.white : MintColors.textMuted,
+            color: isActive ? MintColors.white : MintColors.textMuted,
           ),
         ),
       ),
@@ -321,7 +311,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
                 style: GoogleFonts.montserrat(
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: MintColors.white,
                 ),
               ),
             ),
@@ -351,7 +341,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
             ),
           ),
           Text(
-            _formatChf(canton.allocationPerChild),
+            formatChfWithPrefix(canton.allocationPerChild),
             style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -369,7 +359,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
       child: Row(
         children: [
           Text(
-            _formatChf(_minAllocation),
+            formatChfWithPrefix(_minAllocation),
             style: GoogleFonts.inter(
               fontSize: 10,
               color: MintColors.textMuted,
@@ -394,7 +384,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
           ),
           const SizedBox(width: 8),
           Text(
-            _formatChf(_maxAllocation),
+            formatChfWithPrefix(_maxAllocation),
             style: GoogleFonts.inter(
               fontSize: 10,
               color: MintColors.textMuted,
@@ -479,7 +469,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
                         style: GoogleFonts.montserrat(
                           fontSize: bubbleSize > 50 ? 13 : 10,
                           fontWeight: FontWeight.w800,
-                          color: Colors.white,
+                          color: MintColors.white,
                         ),
                       ),
                       if (bubbleSize > 50)
@@ -488,7 +478,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
                           style: GoogleFonts.montserrat(
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white.withValues(alpha: 0.85),
+                            color: MintColors.white.withValues(alpha: 0.85),
                           ),
                         ),
                     ],

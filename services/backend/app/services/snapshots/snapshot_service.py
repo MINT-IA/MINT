@@ -19,7 +19,7 @@ Sources:
 
 import uuid
 from datetime import datetime, timezone
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
 
 from app.services.snapshots.snapshot_models import (
     FinancialSnapshot,

@@ -24,18 +24,15 @@ Sources:
     - LIFD art. 38 (imposition du capital de prevoyance)
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from app.constants.social_insurance import (
     LPP_SEUIL_ENTREE,
     LPP_DEDUCTION_COORDINATION,
     LPP_SALAIRE_COORDONNE_MIN,
     LPP_TAUX_INTERET_MIN,
-    LPP_BONIFICATIONS_VIEILLESSE,
     AVS_DUREE_COTISATION_COMPLETE,
     PILIER_3A_PLAFOND_AVEC_LPP,
-    PILIER_3A_PLAFOND_SANS_LPP,
-    TAUX_IMPOT_RETRAIT_CAPITAL,
     get_lpp_bonification_rate,
 )
 
@@ -44,7 +41,6 @@ from app.services.precision.precision_models import (
     CrossValidationAlert,
     SmartDefault,
     PrecisionPrompt,
-    PrecisionResult,
 )
 
 

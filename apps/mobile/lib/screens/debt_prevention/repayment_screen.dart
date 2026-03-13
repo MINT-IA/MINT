@@ -64,14 +64,14 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             expandedHeight: 100,
             pinned: true,
             backgroundColor: MintColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 'PLAN DE REMBOURSEMENT',
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: MintColors.white,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -186,7 +186,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -272,7 +272,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
               ),
               IconButton(
                 icon: Icon(Icons.delete_outline,
-                    color: Colors.red.shade400, size: 20),
+                    color: MintColors.redMaterial, size: 20),
                 onPressed: () => setState(() => _dettes.removeAt(index)),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
@@ -387,7 +387,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -553,7 +553,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isWinner ? MintColors.success : MintColors.border,
@@ -600,7 +600,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             'CHF ${formatChf(interets)} interets',
             style: TextStyle(
               fontSize: 11,
-              color: Colors.red.shade600,
+              color: MintColors.redDeep,
             ),
           ),
         ],
@@ -656,7 +656,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -751,7 +751,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
@@ -778,21 +778,21 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 20),
+          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.4,
               ),
             ),

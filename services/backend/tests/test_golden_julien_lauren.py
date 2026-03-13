@@ -24,7 +24,6 @@ Sources:
     - LIFD art. 38 (imposition du capital de prevoyance)
 """
 
-import pytest
 
 from app.services.onboarding.minimal_profile_service import compute_minimal_profile
 from app.services.onboarding.onboarding_models import MinimalProfileInput

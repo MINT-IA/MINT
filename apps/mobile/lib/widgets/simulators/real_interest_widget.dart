@@ -236,7 +236,7 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
           data: SliderThemeData(
             activeTrackColor: MintColors.primary,
             inactiveTrackColor: MintColors.border,
-            thumbColor: Colors.white,
+            thumbColor: MintColors.white,
             overlayColor: MintColors.primary.withOpacity(0.1),
             thumbShape: const RoundSliderThumbShape(
                 enabledThumbRadius: 8, elevation: 2),

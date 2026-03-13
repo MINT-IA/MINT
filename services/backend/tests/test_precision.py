@@ -22,10 +22,6 @@ import pytest
 
 from app.services.precision.precision_models import (
     FieldHelp,
-    CrossValidationAlert,
-    SmartDefault,
-    PrecisionPrompt,
-    PrecisionResult,
 )
 from app.services.precision.precision_service import (
     get_field_help,

@@ -333,23 +333,23 @@ class FinancialReportService {
     final projections = <String, double>{
       'bank':
           _futureValue(contribution, 0.015, profile.yearsToRetirement), // 1.5%
-      'viac':
+      'fintech':
           _futureValue(contribution, 0.045, profile.yearsToRetirement), // 4.5%
-      'finpension':
+      'fintech_low_fee':
           _futureValue(contribution, 0.055, profile.yearsToRetirement), // 5.5%
       'insurance':
           _futureValue(contribution, 0.01, profile.yearsToRetirement), // 1%
     };
 
-    final potentialGain = projections['viac']! - projections['bank']!;
+    final potentialGain = projections['fintech']! - projections['bank']!;
 
     // Optimisation retrait (si multiple comptes)
     double? taxSingle;
     double? taxMultiple;
     double? savingsMultiple;
 
-    if (nb3aAccounts == 1 && projections['viac']! > 100000) {
-      final totalCapital = projections['viac']!;
+    if (nb3aAccounts == 1 && projections['fintech']! > 100000) {
+      final totalCapital = projections['fintech']!;
       taxSingle = totalCapital * 0.08; // ~ 8% impôt capital Swiss moyenne
       taxMultiple =
           (totalCapital / 2) * 0.05 * 2; // Échelonné sur 2 ans = taux plus bas
@@ -485,7 +485,7 @@ class FinancialReportService {
         potentialGainChf: 1500,
         category: ActionCategory.pillar3a,
         steps: const [
-          '1. Compare les offres (VIAC, Finpension, banque)',
+          '1. Compare les offres (fintech, banque)',
           '2. Ouvre ton compte en 10 minutes',
           '3. Configure un versement automatique',
           '4. Choisis une stratégie adaptée à ton horizon',
@@ -501,14 +501,14 @@ class FinancialReportService {
       final computedGain = totalGain > 0 ? totalGain : 12000.0;
 
       return ActionItem(
-        title: 'Ouvre un 2e compte 3a chez VIAC',
+        title: 'Ouvre un 2e compte 3a fintech',
         description:
             'Optimise ta fiscalité au retrait et diversifie tes placements.',
         priority: ActionPriority.high,
         potentialGainChf: computedGain,
         category: ActionCategory.pillar3a,
         steps: const [
-          '1. Va sur viac.ch',
+          '1. Compare les prestataires 3a en ligne',
           '2. Crée ton compte (10 min)',
           '3. Choisis stratégie 60% actions',
           '4. Configure versement automatique',

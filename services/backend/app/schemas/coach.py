@@ -13,7 +13,7 @@ Sources:
     - LPD art. 6 (protection des donnees)
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from pydantic import BaseModel, Field, ConfigDict
 from pydantic.alias_generators import to_camel

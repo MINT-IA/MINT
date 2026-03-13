@@ -35,7 +35,7 @@ class InfoTooltip extends StatelessWidget {
   void _showDefinition(BuildContext context, GlossaryTerm term) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),

@@ -91,13 +91,13 @@ class GenderGapService {
   // ── Constants ──────────────────────────────────────────────
 
   /// LPP coordination deduction (art. 8). NOT prorated.
-  static const double deductionCoordination = 26460;
+  static const double deductionCoordination = lppDeductionCoordination;
 
   /// Maximum coordinated salary (LPP).
   static const double maxSalaireCoordonne = lppSalaireCoordMax;
 
   /// Minimum coordinated salary (LPP).
-  static const double minSalaireCoordonne = 3780;
+  static const double minSalaireCoordonne = lppSalaireCoordMin;
 
   /// Conversion rate at retirement (LPP art. 14).
   static const double tauxConversion = 0.068;

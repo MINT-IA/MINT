@@ -15,6 +15,26 @@ References:
 import re
 from typing import List
 
+from app.constants.social_insurance import (
+    AC_PLAFOND_SALAIRE_ASSURE,
+    AVS_FRANCHISE_RETRAITE_MENSUELLE,
+    AVS_COTISATION_MIN_INDEPENDANT,
+    AVS_RAMD_MAX,
+    AVS_RAMD_MIN,
+    AVS_RENTE_MAX_ANNUELLE,
+    AVS_RENTE_MAX_MENSUELLE,
+    AVS_RENTE_MIN_MENSUELLE,
+    AVS_VOLONTAIRE_COTISATION_MAX,
+    AVS_VOLONTAIRE_COTISATION_MIN,
+    EPL_MONTANT_MINIMUM,
+    LPP_DEDUCTION_COORDINATION,
+    LPP_SALAIRE_COORDONNE_MAX,
+    LPP_SALAIRE_COORDONNE_MIN,
+    LPP_SALAIRE_MAX,
+    LPP_SEUIL_ENTREE,
+    PILIER_3A_PLAFOND_AVEC_LPP,
+    PILIER_3A_PLAFOND_SANS_LPP,
+)
 from app.services.coach.coach_models import HallucinatedNumber
 
 
@@ -42,28 +62,28 @@ class HallucinationDetector:
 
     LEGAL_CONSTANTS_CHF: set[float] = {
         # Pilier 3a (OPP3 art. 7)
-        7258.0,    # Plafond 3a salarié affilié LPP
-        36288.0,   # Plafond 3a indépendant sans LPP
+        PILIER_3A_PLAFOND_AVEC_LPP,    # Plafond 3a salarié affilié LPP
+        PILIER_3A_PLAFOND_SANS_LPP,    # Plafond 3a indépendant sans LPP
         # LPP (art. 7, 8)
-        22680.0,   # Seuil d'entrée LPP
-        26460.0,   # Déduction de coordination
-        3780.0,    # Salaire coordonné minimum / Rente couple max mensuelle
-        64260.0,   # Salaire coordonné maximum
-        90720.0,   # Salaire maximum assuré LPP
+        LPP_SEUIL_ENTREE,              # Seuil d'entrée LPP
+        LPP_DEDUCTION_COORDINATION,    # Déduction de coordination
+        LPP_SALAIRE_COORDONNE_MIN,     # Salaire coordonné minimum / Rente couple max mensuelle
+        LPP_SALAIRE_COORDONNE_MAX,     # Salaire coordonné maximum
+        LPP_SALAIRE_MAX,               # Salaire maximum assuré LPP
         # AVS (LAVS art. 34)
-        2520.0,    # Rente AVS max mensuelle
-        1260.0,    # Rente AVS min mensuelle
-        30240.0,   # Rente AVS max annuelle
-        530.0,     # Cotisation min indépendant
+        AVS_RENTE_MAX_MENSUELLE,       # Rente AVS max mensuelle
+        AVS_RENTE_MIN_MENSUELLE,       # Rente AVS min mensuelle
+        AVS_RENTE_MAX_ANNUELLE,        # Rente AVS max annuelle
+        AVS_COTISATION_MIN_INDEPENDANT,  # Cotisation min indépendant
         # EPL (OPP2 art. 5)
-        20000.0,   # EPL minimum
+        EPL_MONTANT_MINIMUM,           # EPL minimum
         # AC / AVS extended
-        148200.0,  # AC plafond salaire assuré
-        14700.0,   # AVS RAMD min
-        88200.0,   # AVS RAMD max
-        1400.0,    # AVS franchise retraite mensuelle
-        514.0,     # AVS volontaire cotisation min
-        25700.0,   # AVS volontaire cotisation max
+        AC_PLAFOND_SALAIRE_ASSURE,     # AC plafond salaire assuré
+        AVS_RAMD_MIN,                  # AVS RAMD min
+        AVS_RAMD_MAX,                  # AVS RAMD max
+        AVS_FRANCHISE_RETRAITE_MENSUELLE,  # AVS franchise retraite mensuelle
+        AVS_VOLONTAIRE_COTISATION_MIN,     # AVS volontaire cotisation min
+        AVS_VOLONTAIRE_COTISATION_MAX,     # AVS volontaire cotisation max
     }
 
     LEGAL_CONSTANTS_PCT: set[float] = {

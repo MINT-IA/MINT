@@ -33,9 +33,6 @@ from app.services.document_parser.document_models import (
     ExtractionResult,
 )
 from app.services.document_parser.lpp_certificate_parser import (
-    parse_swiss_number,
-    _AMOUNT_RE,
-    _RATE_RE,
     _extract_amount_near,
     _extract_rate_near,
 )

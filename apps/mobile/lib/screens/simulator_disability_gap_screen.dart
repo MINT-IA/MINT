@@ -487,7 +487,7 @@ class _SimulatorDisabilityGapScreenState
                               style: GoogleFonts.inter(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.white,
+                                color: MintColors.white,
                               ),
                             )
                           : null,
@@ -549,7 +549,7 @@ class _SimulatorDisabilityGapScreenState
                   style: GoogleFonts.montserrat(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: MintColors.white,
                     letterSpacing: 1,
                   ),
                 ),
@@ -886,21 +886,21 @@ class _SimulatorDisabilityGapScreenState
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.orangeRetroWarm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 18, color: Colors.orange.shade700),
+          Icon(Icons.info_outline, size: 18, color: MintColors.warning),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               S.of(context)!.disabilityGapDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 11,
-                color: Colors.orange.shade800,
+                color: MintColors.deepOrange,
                 height: 1.5,
               ),
             ),

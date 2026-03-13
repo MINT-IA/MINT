@@ -373,6 +373,12 @@ HYPOTHEQUE_PART_2E_PILIER_MAX: float = 0.10
 """Part maximale du 2e pilier dans les fonds propres (10% du prix d'achat)."""
 
 
+LPP_CONVERSION_RATE_COMPLEMENTAIRE: float = 0.058
+"""Taux de conversion blended pour caisses complementaires (~60% oblig. a 6.8% + ~40% suroblig. a ~4.3%)."""
+
+TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT: float = 0.065
+"""Taux par defaut de l'impot sur le retrait de capital (fallback quand le canton est inconnu)."""
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # LAMal — Assurance-maladie obligatoire
@@ -392,8 +398,36 @@ LAMAL_QUOTE_PART_CAP_CHILD: float = 350.0
 AVS_COTISATION_MIN_INDEPENDANT: float = 530.0
 """Cotisation AVS minimale annuelle pour independants (LAVS art. 8)."""
 
-AVS_RENTE_MAX_ANNUELLE: float = 30_240.0
-"""Rente AVS maximale individuelle annuelle (= 12 x 2'520)."""
+AVS_SEUIL_REVENU_MIN_INDEPENDANT: float = 9_800.0
+"""Seuil de revenu en dessous duquel la cotisation minimale s'applique (LAVS art. 8).
+En dessous de ce seuil, l'independant paie la cotisation minimale forfaitaire."""
+
+AVS_BAREME_DEGRESSIF_PLAFOND: float = 58_800.0
+"""Plafond du bareme degressif AVS independants (LAVS art. 8).
+Au-dessus de ce montant, le taux plein de 10.6% s'applique.
+Note: le bareme detaille AVS_BAREME_INDEPENDANT utilise 60'500 comme seuil
+du taux plein. Cette constante est conservee pour compatibilite."""
+
+# AVS_RENTE_MAX_ANNUELLE already defined above (line ~102) as AVS_RENTE_MAX_MENSUELLE * 12
+
+AVS_BAREME_INDEPENDANT: List[Tuple[float, float, float]] = [
+    (0,       10_100,  0.05371),
+    (10_100,  17_600,  0.05828),
+    (17_600,  22_200,  0.06542),
+    (22_200,  27_200,  0.07158),
+    (27_200,  32_300,  0.07773),
+    (32_300,  37_800,  0.08386),
+    (37_800,  43_200,  0.09002),
+    (43_200,  48_800,  0.09610),
+    (48_800,  54_300,  0.10222),
+    (54_300,  60_500,  0.10413),
+    (60_500,  float('inf'), 0.10600),
+]
+"""Bareme degressif AVS/AI/APG pour independants (LAVS art. 8, RAVS art. 21-23).
+
+Chaque tranche applique un taux unique sur la totalite du revenu (pas marginal).
+Valeurs 2025/2026. Le taux final (10.6%) correspond au taux plein AVS/AI/APG.
+"""
 
 
 # ══════════════════════════════════════════════════════════════════════════════
