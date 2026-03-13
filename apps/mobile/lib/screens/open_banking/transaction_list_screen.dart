@@ -169,7 +169,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
               children: [
                 Text(
                   'Fonctionnalite en preparation',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: MintColors.amberDark,
@@ -340,7 +340,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
               children: [
                 Text(
                   tx.merchant,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: MintColors.textPrimary,
@@ -434,7 +434,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           const SizedBox(height: 16),
           Text(
             'Aucune transaction',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: MintColors.textMuted,
@@ -469,7 +469,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
         children: [
           Text(
             'Synthese du mois',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,

@@ -131,6 +131,8 @@ import 'package:mint_mobile/services/confidence/enhanced_confidence_service.dart
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
 import 'package:mint_mobile/screens/document_scan/avs_guide_screen.dart';
+import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart';
+import 'package:mint_mobile/screens/document_scan/document_impact_screen.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 // Household / Couple+ (P6)
 import 'package:mint_mobile/providers/household_provider.dart';
@@ -309,6 +311,25 @@ final _router = GoRouter(
       path: '/document-scan/avs-guide',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AvsGuideScreen(),
+    ),
+    GoRoute(
+      path: '/document-scan/extraction-review',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final result = state.extra as ExtractionResult;
+        return ExtractionReviewScreen(result: result);
+      },
+    ),
+    GoRoute(
+      path: '/document-scan/impact',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>;
+        return DocumentImpactScreen(
+          result: extra['result'] as ExtractionResult,
+          previousConfidence: extra['previousConfidence'] as int,
+        );
+      },
     ),
     // Bank Import
     GoRoute(
@@ -891,7 +912,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
 }
 
 ThemeData _buildPremiumTheme() {
-  // Inter for UI, Outfit for Headlines (Premium Modern combination)
+  // Inter for body, Montserrat for Headlines (MINT design system)
   final textTheme = GoogleFonts.interTextTheme(ThemeData.light().textTheme);
 
   return ThemeData(
@@ -909,21 +930,21 @@ ThemeData _buildPremiumTheme() {
       outline: MintColors.border,
     ),
     textTheme: textTheme.copyWith(
-      displayLarge: GoogleFonts.outfit(
+      displayLarge: GoogleFonts.montserrat(
         textStyle: textTheme.displayLarge?.copyWith(
           fontWeight: FontWeight.w700,
           letterSpacing: -1.5,
           color: MintColors.textPrimary,
         ),
       ),
-      headlineLarge: GoogleFonts.outfit(
+      headlineLarge: GoogleFonts.montserrat(
         textStyle: textTheme.headlineLarge?.copyWith(
           fontWeight: FontWeight.w700,
           letterSpacing: -1.0,
           color: MintColors.textPrimary,
         ),
       ),
-      headlineMedium: GoogleFonts.outfit(
+      headlineMedium: GoogleFonts.montserrat(
         textStyle: textTheme.headlineMedium?.copyWith(
           fontWeight: FontWeight.w600,
           letterSpacing: -0.5,
@@ -952,7 +973,7 @@ ThemeData _buildPremiumTheme() {
       centerTitle: false, // Apple style left-aligned
       titleTextStyle: TextStyle(
         fontWeight: FontWeight.w700,
-        fontFamily: 'Outfit',
+        fontFamily: 'Montserrat',
         color: MintColors.textPrimary,
         fontSize: 20,
         letterSpacing: -0.5,

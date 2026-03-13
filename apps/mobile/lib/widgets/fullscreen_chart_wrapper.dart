@@ -45,16 +45,16 @@ class FullscreenChartWrapper extends StatelessWidget {
   }
 
   void _openFullscreen(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        fullscreenDialog: true,
-        builder: (_) => _FullscreenChartPage(
-          title: title,
-          child: child,
-          disclaimer: disclaimer,
-          legend: legend,
-          allowLandscape: allowLandscape,
-        ),
+    showGeneralDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.transparent,
+      pageBuilder: (_, __, ___) => _FullscreenChartPage(
+        title: title,
+        child: child,
+        disclaimer: disclaimer,
+        legend: legend,
+        allowLandscape: allowLandscape,
       ),
     );
   }

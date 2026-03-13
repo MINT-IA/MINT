@@ -889,6 +889,26 @@ class ForecasterService {
   }
 
   // ════════════════════════════════════════════════════════════════
+  //  CONFIDENCE SCORING
+  // ════════════════════════════════════════════════════════════════
+
+  /// Computes projection confidence via [ConfidenceScorer].
+  /// Wraps in try/catch to ensure projections always return
+  /// (even if scorer fails on edge-case profiles).
+  static ProjectionConfidence _computeConfidence(CoachProfile profile) {
+    try {
+      return ConfidenceScorer.score(profile);
+    } catch (_) {
+      return const ProjectionConfidence(
+        score: 0,
+        level: 'low',
+        prompts: [],
+        assumptions: ['Erreur lors du calcul de confiance'],
+      );
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════════
   //  MILESTONE DETECTION
   // ════════════════════════════════════════════════════════════════
 

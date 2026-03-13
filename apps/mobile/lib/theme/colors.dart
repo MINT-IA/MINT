@@ -213,4 +213,9 @@ class MintColors {
   static const Color brandGreen = Color(0xFF1DB954); // Spotify-style green
   static const Color brandGreenDark = Color(0xFF0A8F6C); // Dark brand green
   static const Color landingSurface = Color(0xFFF5F6F7); // Landing page background
+
+  // Pillar accent (retirement hero, shortcuts)
+  static const Color pillarAvs = Color(0xFF2563EB); // AVS blue (categoryBlue alias)
+  static const Color pillar3a = Color(0xFFD97706); // 3a amber (categoryAmber alias)
+  static const Color pillarLppAccent = Color(0xFF16A34A); // LPP green-600
 }

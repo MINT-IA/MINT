@@ -131,14 +131,37 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      appBar: AppBar(
-        title: Text(S.of(context)!.jobCompareTitle),
-      ),
-      body: SingleChildScrollView(
+      body: CustomScrollView(
         controller: _scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 120,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                S.of(context)!.jobCompareTitle,
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: MintColors.white,
+                ),
+              ),
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [MintColors.primary, MintColors.primaryLight],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildHeader(),
             const SizedBox(height: 24),
@@ -279,6 +302,9 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
           ],
         ),
       ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -308,7 +334,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               children: [
                 Text(
                   S.of(context)!.jobCompareTitle,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                     color: MintColors.textPrimary,
@@ -711,7 +737,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
           const SizedBox(height: 16),
           Text(
             r.verdictDetail,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: MintColors.textPrimary,
@@ -935,7 +961,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
           const SizedBox(height: 12),
           Text(
             S.of(context)!.jobCompareLifetime20Years(_chfFmt(r.lifetimePensionDelta.abs())),
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: MintColors.info,

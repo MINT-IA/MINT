@@ -84,34 +84,60 @@ class _SimulatorDisabilityGapScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      appBar: AppBar(
-        title: Text(S.of(context)!.disabilityGapTitle),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 24),
-            _buildInputsSection(),
-            const SizedBox(height: 24),
-            if (_result != null) ...[
-              _buildStackedBarChart(),
-              const SizedBox(height: 24),
-              _buildGapAlertCard(),
-              const SizedBox(height: 24),
-              _buildPhaseDetailCards(),
-              const SizedBox(height: 24),
-              _buildActionsSection(),
-              const SizedBox(height: 24),
-            ],
-            _buildEducationSection(),
-            const SizedBox(height: 24),
-            _buildDisclaimer(),
-            const SizedBox(height: 40),
-          ],
-        ),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 120,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                S.of(context)!.disabilityGapTitle,
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: MintColors.white,
+                ),
+              ),
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [MintColors.primary, MintColors.primaryLight],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 24),
+                  _buildInputsSection(),
+                  const SizedBox(height: 24),
+                  if (_result != null) ...[
+                    _buildStackedBarChart(),
+                    const SizedBox(height: 24),
+                    _buildGapAlertCard(),
+                    const SizedBox(height: 24),
+                    _buildPhaseDetailCards(),
+                    const SizedBox(height: 24),
+                    _buildActionsSection(),
+                    const SizedBox(height: 24),
+                  ],
+                  _buildEducationSection(),
+                  const SizedBox(height: 24),
+                  _buildDisclaimer(),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -142,7 +168,7 @@ class _SimulatorDisabilityGapScreenState
               children: [
                 Text(
                   S.of(context)!.disabilityGapTitle,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                     color: MintColors.textPrimary,
@@ -569,7 +595,7 @@ class _SimulatorDisabilityGapScreenState
           const SizedBox(height: 6),
           Text(
             '${_chf.format(maxGap)} CHF/mois',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 36,
               fontWeight: FontWeight.w800,
               color: riskColor,

@@ -16,45 +16,65 @@ class PortfolioScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: MintColors.background,
-      appBar: AppBar(
-        title: Text(
-          'Mon Patrimoine',
-          style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, fontSize: 16, letterSpacing: 1),
-        ),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: MintColors.background,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (hasDebt) ...[
-              _buildSafeModeWarning(),
-              const SizedBox(height: 24),
-            ],
-            _buildWealthSummary(),
-            const SizedBox(height: 32),
-            _buildReadinessIndex(profile),
-            const SizedBox(height: 32),
-            _buildSectionHeader('Répartition par Enveloppe'),
-            const SizedBox(height: 12),
-            _buildAccountItem('Libre (Compte Placement)', 'CHF 73\'508.90', icon: Icons.trending_up, color: MintColors.primary),
-            _buildAccountItem('Lié (Pilier 3a)', 'CHF 18\'369.74', icon: Icons.savings_outlined, color: MintColors.success),
-            _buildAccountItem('Réservé (Fonds d\'urgence)', 'CHF 10\'800.00', icon: Icons.account_balance_wallet_outlined, color: MintColors.warning),
-            const SizedBox(height: 32),
-            SafeModeGate(
-              hasDebt: hasDebt,
-              lockedTitle: 'Priorite au desendettement',
-              lockedMessage:
-                  'Les conseils d\'allocation sont desactives en mode protection. '
-                  'Ta priorite est de reduire tes dettes avant de reequilibrer ton patrimoine.',
-              child: _buildCoachAdvice(),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 120,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                'Mon Patrimoine',
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: MintColors.white,
+                ),
+              ),
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [MintColors.primary, MintColors.primaryLight],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
             ),
-            const SizedBox(height: 100),
-          ],
-        ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (hasDebt) ...[
+                    _buildSafeModeWarning(),
+                    const SizedBox(height: 24),
+                  ],
+                  _buildWealthSummary(),
+                  const SizedBox(height: 32),
+                  _buildReadinessIndex(profile),
+                  const SizedBox(height: 32),
+                  _buildSectionHeader('Répartition par Enveloppe'),
+                  const SizedBox(height: 12),
+                  _buildAccountItem('Libre (Compte Placement)', 'CHF 73\'508.90', icon: Icons.trending_up, color: MintColors.primary),
+                  _buildAccountItem('Lié (Pilier 3a)', 'CHF 18\'369.74', icon: Icons.savings_outlined, color: MintColors.success),
+                  _buildAccountItem('Réservé (Fonds d\'urgence)', 'CHF 10\'800.00', icon: Icons.account_balance_wallet_outlined, color: MintColors.warning),
+                  const SizedBox(height: 32),
+                  SafeModeGate(
+                    hasDebt: hasDebt,
+                    lockedTitle: 'Priorite au desendettement',
+                    lockedMessage:
+                        'Les conseils d\'allocation sont desactives en mode protection. '
+                        'Ta priorite est de reduire tes dettes avant de reequilibrer ton patrimoine.',
+                    child: _buildCoachAdvice(),
+                  ),
+                  const SizedBox(height: 100),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

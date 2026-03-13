@@ -84,7 +84,7 @@ class DocumentDetailScreen extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               s?.documentsEmpty ?? 'Aucun document',
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.montserrat(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: MintColors.textMuted,

@@ -182,12 +182,12 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
         child: Column(
           children: [
             Text(title,
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.montserrat(
                     fontSize: 12, color: MintColors.textSecondary)),
             const SizedBox(height: 8),
             Text(
               "CHF ${(scenario.totalCapital / 1000).toStringAsFixed(1)}k",
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.montserrat(
                 fontSize: isMain ? 18 : 16,
                 fontWeight: FontWeight.bold,
                 color: color,
@@ -225,7 +225,7 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
                     fontSize: 12, fontWeight: FontWeight.w500)),
             Text(
               "${value.toInt()} $unit",
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                   color: MintColors.primary),

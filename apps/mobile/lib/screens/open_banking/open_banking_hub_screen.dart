@@ -142,7 +142,7 @@ class OpenBankingHubScreen extends StatelessWidget {
               children: [
                 Text(
                   'Fonctionnalite en preparation',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: MintColors.amberDark,
@@ -215,7 +215,7 @@ class OpenBankingHubScreen extends StatelessWidget {
             children: [
               Text(
                 'Open Banking',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.montserrat(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
                   color: MintColors.textPrimary,
@@ -306,7 +306,7 @@ class OpenBankingHubScreen extends StatelessWidget {
               children: [
                 Text(
                   '${account.bankName} \u2022 ${account.accountName}',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: MintColors.textPrimary,
@@ -596,7 +596,7 @@ class OpenBankingHubScreen extends StatelessWidget {
         children: [
           Text(
             'Top 3 depenses',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,
@@ -686,7 +686,7 @@ class OpenBankingHubScreen extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.montserrat(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: MintColors.textPrimary,

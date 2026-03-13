@@ -151,7 +151,7 @@ class _AnalyticsConsentBannerState extends State<AnalyticsConsentBanner>
                       Expanded(
                         child: Text(
                           s?.analyticsConsentTitle ?? 'Statistiques anonymes',
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.montserrat(
                             fontSize: 17,
                             fontWeight: FontWeight.w600,
                             color: MintColors.textPrimary,

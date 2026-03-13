@@ -60,7 +60,7 @@ class ComprendreSection extends StatelessWidget {
         children: [
           Text(
             l.pulseComprendreTitle,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,

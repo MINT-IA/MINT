@@ -53,23 +53,6 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: MintColors.surface,
-      appBar: AppBar(
-        title: const Text('Ton Plan Mint'),
-        backgroundColor: MintColors.primary,
-        foregroundColor: MintColors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new),
-          onPressed: () => context.go('/home'),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: () {
-              PdfService.generateFinancialReportPdf(report);
-            },
-          ),
-        ],
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           PdfService.generateFinancialReportPdf(report);
@@ -77,10 +60,47 @@ class FinancialReportScreenV2 extends StatelessWidget {
         backgroundColor: MintColors.primary,
         child: const Icon(Icons.picture_as_pdf, color: MintColors.white),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 120,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new, color: MintColors.white),
+              onPressed: () => context.go('/home'),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.share, color: MintColors.white),
+                onPressed: () {
+                  PdfService.generateFinancialReportPdf(report);
+                },
+              ),
+            ],
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                'Ton Plan Mint',
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: MintColors.white,
+                ),
+              ),
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [MintColors.primary, MintColors.primaryLight],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
             // Header personnalisé (greeting + status summary)
             _buildHeader(report.profile, report.healthScore),
 
@@ -213,6 +233,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
             const SizedBox(height: 40),
           ],
         ),
+          ),
+        ],
       ),
     );
   }

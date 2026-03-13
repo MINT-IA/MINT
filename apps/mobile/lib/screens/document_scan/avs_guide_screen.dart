@@ -533,11 +533,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
 
     // Navigate to extraction review
     if (!mounted) return;
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ExtractionReviewScreen(result: result),
-      ),
-    );
+    context.push('/document-scan/extraction-review', extra: result);
   }
 }
 

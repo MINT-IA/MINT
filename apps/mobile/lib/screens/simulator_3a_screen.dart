@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -99,51 +100,77 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.background,
-      appBar: AppBar(
-        title: const Text('Optimiseur Pilier 3a'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.picture_as_pdf_outlined),
-            onPressed: _exportPdf,
-            tooltip: 'Exporter mon bilan',
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildCoachSection(),
-            const SizedBox(height: 32),
-            _buildInputSection(),
-            const SizedBox(height: 32),
-            if (_result != null)
-              SafeModeGate(
-                hasDebt: hasDebt,
-                lockedTitle: 'Priorite au desendettement',
-                lockedMessage:
-                    'En mode protection, les recommandations d\'action 3a sont desactivees. '
-                    'La priorite est de stabiliser ta situation financiere avant de verser dans le 3a.',
-                child: _buildResultSection(),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 120,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.picture_as_pdf_outlined, color: MintColors.white),
+                onPressed: _exportPdf,
+                tooltip: 'Exporter mon bilan',
               ),
-            const SizedBox(height: 32),
-            SafeModeGate(
-              hasDebt: hasDebt,
-              lockedTitle: 'Strategie bloquee',
-              lockedMessage:
-                  'Les strategies d\'investissement 3a sont desactivees tant que tu as des dettes actives. '
-                  'Rembourser tes dettes est un rendement plus eleve que tout placement.',
-              child: _buildEducationSection(),
+              const SizedBox(width: 8),
+            ],
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                'Optimiseur Pilier 3a',
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: MintColors.white,
+                ),
+              ),
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [MintColors.primary, MintColors.primaryLight],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
             ),
-            const SizedBox(height: 48),
-            _buildDisclaimer(),
-            const SizedBox(height: 24),
-            _buildCountdown3a(),
-            const SizedBox(height: 40),
-          ],
-        ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildCoachSection(),
+                  const SizedBox(height: 32),
+                  _buildInputSection(),
+                  const SizedBox(height: 32),
+                  if (_result != null)
+                    SafeModeGate(
+                      hasDebt: hasDebt,
+                      lockedTitle: 'Priorite au desendettement',
+                      lockedMessage:
+                          'En mode protection, les recommandations d\'action 3a sont desactivees. '
+                          'La priorite est de stabiliser ta situation financiere avant de verser dans le 3a.',
+                      child: _buildResultSection(),
+                    ),
+                  const SizedBox(height: 32),
+                  SafeModeGate(
+                    hasDebt: hasDebt,
+                    lockedTitle: 'Strategie bloquee',
+                    lockedMessage:
+                        'Les strategies d\'investissement 3a sont desactivees tant que tu as des dettes actives. '
+                        'Rembourser tes dettes est un rendement plus eleve que tout placement.',
+                    child: _buildEducationSection(),
+                  ),
+                  const SizedBox(height: 48),
+                  _buildDisclaimer(),
+                  const SizedBox(height: 24),
+                  _buildCountdown3a(),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

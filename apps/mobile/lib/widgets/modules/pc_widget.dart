@@ -135,7 +135,7 @@ class _PCWidgetState extends State<PCWidget> {
                   fontSize: 11, color: MintColors.textSecondary)),
           Text(
             "${(value).toInt()}",
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: MintColors.textPrimary),
