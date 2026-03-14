@@ -10,6 +10,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
 
@@ -18,6 +19,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.background,
       body: CustomScrollView(
@@ -34,7 +36,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
               titlePadding:
                   const EdgeInsets.only(left: 56, bottom: 16, right: 24),
               title: Text(
-                'Ordre de retrait 3a',
+                s.optimDecaissementTitle,
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
@@ -61,44 +63,40 @@ class OptimisationDecaissementScreen extends StatelessWidget {
               delegate: SliverChildListDelegate([
                 // ── Chiffre choc ─────────────────────────────
                 _ChiffreChocCard(
-                  chiffre: '+CHF 3\'500',
-                  explication:
-                      'C\'est l\'impôt supplémentaire payé quand on retire 2 comptes 3a la même année plutôt que de les étaler sur 2 ans fiscales différentes — selon LIFD art. 38.',
+                  chiffre: s.optimDecaissementChiffreChoc,
+                  explication: s.optimDecaissementChiffreChocExplication,
                 ),
                 const SizedBox(height: 24),
 
                 // ── Principe ─────────────────────────────────
-                EduSectionTitle(text: 'Le principe de l\'échelonnement'),
+                EduSectionTitle(text: s.optimDecaissementPrincipeTitle),
                 const SizedBox(height: 12),
                 _InfoCard(
                   icon: Icons.calendar_today_outlined,
-                  title: '1 compte 3a par année fiscale',
-                  body:
-                      'Le retrait du 3a est imposé séparément du revenu ordinaire (LIFD art. 38), mais le taux augmente avec le montant retiré. En fractionnant sur plusieurs années, chaque retrait reste dans une tranche basse.',
+                  title: s.optimDecaissementInfo1Title,
+                  body: s.optimDecaissementInfo1Body,
                 ),
                 const SizedBox(height: 10),
                 _InfoCard(
                   icon: Icons.account_tree_outlined,
-                  title: 'Jusqu\'à 10 comptes 3a simultanés',
-                  body:
-                      'Depuis 2026, tu peux détenir plusieurs comptes 3a simultanément (révision OPP3 2026). En les ouvrant progressivement, tu peux échelonner les retraits sur 3 à 10 ans selon ton plan.',
+                  title: s.optimDecaissementInfo2Title,
+                  body: s.optimDecaissementInfo2Body,
                 ),
                 const SizedBox(height: 10),
                 _InfoCard(
                   icon: Icons.map_outlined,
-                  title: 'La fiscalité varie par canton',
-                  body:
-                      'Plusieurs cantons offrent des abattements supplémentaires. Le choix du canton de résidence au moment du retrait influence directement l\'imposition.',
+                  title: s.optimDecaissementInfo3Title,
+                  body: s.optimDecaissementInfo3Body,
                 ),
                 const SizedBox(height: 24),
 
                 // ── Tableau illustratif ───────────────────────
-                EduSectionTitle(text: 'Illustration : CHF 150\'000 en 3a'),
+                EduSectionTitle(text: s.optimDecaissementTableTitle),
                 const SizedBox(height: 12),
-                _WithdrawalTable(),
+                _WithdrawalTable(s: s),
                 const SizedBox(height: 8),
                 Text(
-                  '* Estimations indicatives basées sur un taux cantonal moyen (ZH). Varie selon le canton et la situation fiscale individuelle.',
+                  s.optimDecaissementTableFootnote,
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: MintColors.textMuted,
@@ -108,27 +106,24 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Plan d'action ────────────────────────────
-                EduSectionTitle(text: 'Comment planifier ton décaissement'),
+                EduSectionTitle(text: s.optimDecaissementPlanTitle),
                 const SizedBox(height: 12),
                 _StepCard(
                   number: '1',
-                  title: 'Inventaire de tes comptes 3a',
-                  body:
-                      'Liste chaque compte 3a avec son solde et son établissement. Note les années prévues de retraite pour chaque retrait.',
+                  title: s.optimDecaissementStep1Title,
+                  body: s.optimDecaissementStep1Body,
                 ),
                 const SizedBox(height: 10),
                 _StepCard(
                   number: '2',
-                  title: 'Simule l\'impact fiscal par scénario',
-                  body:
-                      'Compare : tout retirer en 1 an vs. étaler sur 3, 5 ou 7 ans. L\'écart peut représenter plusieurs milliers de francs.',
+                  title: s.optimDecaissementStep2Title,
+                  body: s.optimDecaissementStep2Body,
                 ),
                 const SizedBox(height: 10),
                 _StepCard(
                   number: '3',
-                  title: 'Coordinate avec ta retraite LPP',
-                  body:
-                      'Attendre 1 à 2 ans après le retrait du capital LPP pour le premier 3a réduit la charge fiscale totale sur l\'année de départ.',
+                  title: s.optimDecaissementStep3Title,
+                  body: s.optimDecaissementStep3Body,
                 ),
                 const SizedBox(height: 24),
 
@@ -136,24 +131,20 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 EduSpecialistCta(
                   icon: Icons.person_outline,
                   color: MintColors.withdrawalOptim,
-                  title: 'Consulter un·e spécialiste',
-                  body: 'Un·e spécialiste en prévoyance peut modéliser ton plan de décaissement précis selon ta situation.',
+                  title: s.optimDecaissementCtaTitle,
+                  body: s.optimDecaissementCtaBody,
                 ),
                 const SizedBox(height: 24),
 
                 // ── Sources légales ───────────────────────────
                 EduLegalSources(
-                  sources: '• LIFD art. 38 — Imposition séparée des prestations en capital\n'
-                      '• OPP3 art. 3 — Conditions de retrait anticipé du pilier 3a\n'
-                      '• OPP3 art. 7 — Plafonds de déduction\n'
-                      '• OPP3 (révision 2026) — Possibilité de détenir plusieurs comptes 3a',
+                  sources: s.optimDecaissementSources,
                 ),
                 const SizedBox(height: 16),
 
                 // ── Disclaimer LSFin ──────────────────────────
                 EduDisclaimer(
-                  text:
-                      'Information à caractère éducatif, ne constitue pas un conseil fiscal au sens de la LSFin. Les montants illustrés sont indicatifs. L\'impact exact dépend de ton canton de résidence, de tes autres revenus et de ta situation fiscale individuelle. Consulte un·e spécialiste avant toute décision de retrait.',
+                  text: s.optimDecaissementDisclaimer,
                 ),
                 const SizedBox(height: 32),
               ]),
@@ -264,14 +255,15 @@ class _InfoCard extends StatelessWidget {
 }
 
 class _WithdrawalTable extends StatelessWidget {
-  const _WithdrawalTable();
+  final S s;
+  const _WithdrawalTable({required this.s});
 
   @override
   Widget build(BuildContext context) {
-    const rows = [
-      ('1 an', 'CHF 150\'000', '~CHF 12\'500'),
-      ('3 ans', 'CHF 50\'000/an', '~CHF 3\'200/an'),
-      ('5 ans', 'CHF 30\'000/an', '~CHF 1\'700/an'),
+    final rows = [
+      (s.optimDecaissementRow1Period, s.optimDecaissementRow1Amount, s.optimDecaissementRow1Tax),
+      (s.optimDecaissementRow2Period, s.optimDecaissementRow2Amount, s.optimDecaissementRow2Tax),
+      (s.optimDecaissementRow3Period, s.optimDecaissementRow3Amount, s.optimDecaissementRow3Tax),
     ];
 
     return Container(
@@ -294,7 +286,7 @@ class _WithdrawalTable extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Étalement',
+                    s.optimDecaissementHeaderSpread,
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -304,7 +296,7 @@ class _WithdrawalTable extends StatelessWidget {
                 ),
                 Expanded(
                   child: Text(
-                    'Montant/retrait',
+                    s.optimDecaissementHeaderAmount,
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -314,7 +306,7 @@ class _WithdrawalTable extends StatelessWidget {
                 ),
                 Expanded(
                   child: Text(
-                    'Impôt est.*',
+                    s.optimDecaissementHeaderTax,
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
