@@ -328,14 +328,7 @@ void main() {
         max3a: 7258,
         replacementRatio: 0.70,
       ));
-      // Fiscal should be weakest (no 3a)
-      final _ = {
-        'L': result.liquidite,
-        'F': result.fiscalite,
-        'R': result.retraite,
-        'S': result.risque,
-      };
-      // F should be low because no 3a contributions
+      // Fiscal should be weakest (no 3a contributions)
       expect(result.fiscalite, lessThan(result.liquidite));
     });
   });
