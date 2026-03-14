@@ -152,16 +152,16 @@ class StaggeredWithdrawalSimulator {
       planAnnuel: plan,
       chiffreChoc: ChiffreChoc(
         montant: economie,
-        texte: 'Economie : CHF ${formatChf(economie)}',
+        texte: 'Économie\u00a0: CHF ${formatChf(economie)}. Compare l\'échelonnement sur plusieurs années.',
         isPositive: economie > 0,
       ),
       disclaimer:
-          'Simulation pedagogique a titre indicatif. L\'impot sur le retrait '
-          'en capital depend du canton, de la commune, de la situation '
-          'personnelle et du montant total retire dans l\'annee fiscale. '
-          'Les taux utilises sont des moyennes cantonales simplifiees. '
-          'Base legale : OPP3, LIFD art. 38. '
-          'Consultez un ou une specialiste en prevoyance avant toute decision.',
+          'Simulation pédagogique à titre indicatif. L\'impôt sur le retrait '
+          'en capital dépend du canton, de la commune, de la situation '
+          'personnelle et du montant total retiré dans l\'année fiscale. '
+          'Les taux utilisés sont des moyennes cantonales simplifiées. '
+          'Base légale\u00a0: OPP3, LIFD art. 38. '
+          'Consulte un·e spécialiste en prévoyance avant toute décision.',
     );
   }
 
@@ -297,8 +297,9 @@ class RealReturnCalculator {
       gainVsEpargne: gainVsEpargne,
       chiffreChoc: ChiffreChoc(
         montant: gainVsEpargne,
-        texte: 'Rendement reel : ${rendReelPct.toStringAsFixed(1)}% vs '
-            '${rendNominal.toStringAsFixed(1)}% sans avantage fiscal',
+        texte: 'Rendement réel\u00a0: ${rendReelPct.toStringAsFixed(1)}\u00a0% vs '
+            '${rendNominal.toStringAsFixed(1)}\u00a0% sans avantage fiscal. '
+            'Calcule ton taux marginal exact.',
         isPositive: gainVsEpargne > 0,
       ),
       disclaimer:
@@ -617,16 +618,16 @@ class ProviderComparator {
       chiffreChoc: ChiffreChoc(
         montant: difference,
         texte:
-            'Difference sur $clampedDuree ans : CHF ${formatChf(difference)}',
+            'Différence sur $clampedDuree ans\u00a0: CHF ${formatChf(difference)}. Compare les frais.',
         isPositive: true,
       ),
-      disclaimer: 'Rendements passes ne prejugent pas des rendements futurs. '
-          'Les frais et rendements moyens sont bases sur des donnees '
-          'historiques simplifiees a titre pedagogique. '
-          'Le choix d\'un prestataire 3a depend de ta situation personnelle, '
+      disclaimer: 'Rendements passés ne préjugent pas des rendements futurs. '
+          'Les frais et rendements moyens sont basés sur des données '
+          'historiques simplifiées à titre pédagogique. '
+          'Le choix d\'un prestataire 3a dépend de ta situation personnelle, '
           'de ton profil de risque et de ton horizon de placement. '
-          'MINT n\'est pas un intermediaire financier et ne fournit aucun '
-          'conseil en placement. Consultez un ou une specialiste.',
+          'MINT n\'est pas un intermédiaire financier et ne fournit aucun '
+          'conseil en placement. Consulte un·e spécialiste.',
     );
   }
 
