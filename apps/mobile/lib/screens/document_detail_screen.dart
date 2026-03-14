@@ -123,18 +123,18 @@ class DocumentDetailScreen extends StatelessWidget {
               s?.documentsFieldAvoirObligatoire ??
                   'Avoir de vieillesse obligatoire',
               lppFields?.avoirObligatoire,
-              'Montant accumul\u00e9 dans la part obligatoire LPP',
+              s?.docExplAvoirObligatoire ?? 'Montant accumul\u00e9 dans la part obligatoire LPP',
             ),
             _field(
               s?.documentsFieldAvoirSurobligatoire ??
                   'Avoir de vieillesse surobligatoire',
               lppFields?.avoirSurobligatoire,
-              'Part au-del\u00e0 du minimum l\u00e9gal',
+              s?.docExplAvoirSurobligatoire ?? 'Part au-del\u00e0 du minimum l\u00e9gal',
             ),
             _field(
               s?.documentsFieldAvoirTotal ?? 'Avoir de vieillesse total',
               lppFields?.avoirVieillesseTotal,
-              'Total de ton capital de vieillesse',
+              s?.docExplAvoirTotal ?? 'Total de ton capital de vieillesse',
             ),
           ],
         ),
@@ -150,18 +150,18 @@ class DocumentDetailScreen extends StatelessWidget {
             _field(
               s?.documentsFieldSalaireAssure ?? 'Salaire assur\u00e9',
               lppFields?.salaireAssure,
-              'Salaire sur lequel les cotisations sont calcul\u00e9es',
+              s?.docExplSalaireAssure ?? 'Salaire sur lequel les cotisations sont calcul\u00e9es',
             ),
             _field(
               s?.documentsFieldSalaireAvs ?? 'Salaire AVS',
               lppFields?.salaireAvs,
-              'Salaire d\u00e9terminant pour l\'AVS',
+              s?.docExplSalaireAvs ?? 'Salaire d\u00e9terminant pour l\'AVS',
             ),
             _field(
               s?.documentsFieldDeductionCoordination ??
                   'D\u00e9duction de coordination',
               lppFields?.deductionCoordination,
-              'Montant d\u00e9duit pour coordonner avec l\'AVS',
+              s?.docExplDeductionCoordination ?? 'Montant d\u00e9duit pour coordonner avec l\'AVS',
             ),
           ],
         ),
@@ -178,19 +178,19 @@ class DocumentDetailScreen extends StatelessWidget {
               s?.documentsFieldTauxObligatoire ??
                   'Taux de conversion obligatoire',
               lppFields?.tauxConversionObligatoire,
-              'L\u00e9gal minimum : 6.8%',
+              s?.docExplTauxObligatoire ?? 'L\u00e9gal minimum\u00a0: 6.8\u00a0%',
             ),
             _fieldPercent(
               s?.documentsFieldTauxSurobligatoire ??
                   'Taux de conversion surobligatoire',
               lppFields?.tauxConversionSurobligatoire,
-              'Fix\u00e9 par ta caisse de pension',
+              s?.docExplTauxSurobligatoire ?? 'Fix\u00e9 par ta caisse de pension',
             ),
             _fieldPercent(
               s?.documentsFieldTauxEnveloppe ??
                   'Taux de conversion enveloppe',
               lppFields?.tauxConversionEnveloppe,
-              'Taux moyen pond\u00e9r\u00e9',
+              s?.docExplTauxEnveloppe ?? 'Taux moyen pond\u00e9r\u00e9',
             ),
           ],
         ),
@@ -207,23 +207,23 @@ class DocumentDetailScreen extends StatelessWidget {
               s?.documentsFieldRenteInvalidite ??
                   'Rente d\'invalidit\u00e9 annuelle',
               lppFields?.renteInvalidite,
-              'Rente en cas d\'incapacit\u00e9 de travail',
+              s?.docExplRenteInvalidite ?? 'Rente en cas d\'incapacit\u00e9 de travail',
             ),
             _field(
               s?.documentsFieldCapitalDeces ?? 'Capital-d\u00e9c\u00e8s',
               lppFields?.capitalDeces,
-              'Montant vers\u00e9 aux b\u00e9n\u00e9ficiaires en cas de d\u00e9c\u00e8s',
+              s?.docExplCapitalDeces ?? 'Montant vers\u00e9 aux b\u00e9n\u00e9ficiaires en cas de d\u00e9c\u00e8s',
             ),
             _fieldYearly(
               s?.documentsFieldRenteConjoint ??
                   'Rente de conjoint annuelle',
               lppFields?.renteConjoint,
-              'Rente vers\u00e9e au conjoint survivant',
+              s?.docExplRenteConjoint ?? 'Rente vers\u00e9e au conjoint survivant',
             ),
             _fieldYearly(
               s?.documentsFieldRenteEnfant ?? 'Rente d\'enfant annuelle',
               lppFields?.renteEnfant,
-              'Rente vers\u00e9e par enfant',
+              s?.docExplRenteEnfant ?? 'Rente vers\u00e9e par enfant',
             ),
           ],
         ),
@@ -239,7 +239,7 @@ class DocumentDetailScreen extends StatelessWidget {
             _field(
               s?.documentsFieldRachatMax ?? 'Rachat maximum possible',
               lppFields?.rachatMaximum,
-              'Montant pouvant \u00eatre rachet\u00e9 pour optimiser ta pr\u00e9voyance',
+              s?.docExplRachatMax ?? 'Montant pouvant \u00eatre rachet\u00e9 pour optimiser ta pr\u00e9voyance',
             ),
           ],
         ),
@@ -256,13 +256,13 @@ class DocumentDetailScreen extends StatelessWidget {
               s?.documentsFieldCotisationEmploye ??
                   'Cotisation employ\u00e9 annuelle',
               lppFields?.cotisationEmploye,
-              'Ta contribution annuelle',
+              s?.docExplCotisationEmploye ?? 'Ta contribution annuelle',
             ),
             _fieldYearly(
               s?.documentsFieldCotisationEmployeur ??
                   'Cotisation employeur annuelle',
               lppFields?.cotisationEmployeur,
-              'Contribution de ton employeur',
+              s?.docExplCotisationEmployeur ?? 'Contribution de ton employeur',
             ),
           ],
         ),
@@ -282,7 +282,7 @@ class DocumentDetailScreen extends StatelessWidget {
               // TODO: Update profile with extracted fields
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: const Text('Profil mis \u00e0 jour avec succ\u00e8s'),
+                  content: Text(s?.docDetailProfileUpdated ?? 'Profil mis \u00e0 jour avec succ\u00e8s'),
                   backgroundColor: MintColors.success,
                   behavior: SnackBarBehavior.floating,
                   shape: RoundedRectangleBorder(
@@ -368,7 +368,7 @@ class DocumentDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${result.fieldsFound} champs extraits sur ${result.fieldsTotal}',
+                  s?.docDetailFieldsExtracted(result.fieldsFound.toString(), result.fieldsTotal.toString()) ?? '${result.fieldsFound} champs extraits sur ${result.fieldsTotal}',
                   style: const TextStyle(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -552,7 +552,7 @@ class DocumentDetailScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Annuler'),
+            child: Text(s?.docDetailCancel ?? 'Annuler'),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
