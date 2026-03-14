@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -46,10 +47,11 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final reportService = FinancialReportService();
     final report = reportService.generateReport(wizardAnswers);
     final hasDebt = WizardService.isSafeModeActive(wizardAnswers);
-    final safeModeReasons = _buildSafeModeReasons(wizardAnswers);
+    final safeModeReasons = _buildSafeModeReasons(l10n, wizardAnswers);
 
     return Scaffold(
       backgroundColor: MintColors.surface,
@@ -79,7 +81,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ],
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Ton Plan Mint',
+                l10n.reportV2Title,
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -102,7 +104,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
             // Header personnalisé (greeting + status summary)
-            _buildHeader(report.profile, report.healthScore),
+            _buildHeader(l10n, report.profile, report.healthScore),
 
             const SizedBox(height: 24),
 
@@ -152,12 +154,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
             // ── Top 3 Priorities ──
             SafeModeGate(
               hasDebt: hasDebt,
-              lockedTitle: 'Priorit\u00e9 au d\u00e9sendettement',
-              lockedMessage:
-                  'Tes actions prioritaires sont remplac\u00e9es par un plan de d\u00e9sendettement. '
-                  'Stabilise ta situation avant d\'explorer les recommandations.',
+              lockedTitle: l10n.reportV2DebtPriorityTitle,
+              lockedMessage: l10n.reportV2DebtPriorityMessage,
               reasons: safeModeReasons,
-              child: _buildTopPriorities(context, report.priorityActions),
+              child: _buildTopPriorities(context, l10n, report.priorityActions),
             ),
 
             const SizedBox(height: 24),
@@ -167,7 +167,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  'Optimise ton 3a',
+                  l10n.reportV2Optimize3a,
                   style: GoogleFonts.montserrat(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -179,10 +179,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: SafeModeGate(
                   hasDebt: hasDebt,
-                  lockedTitle: 'Priorit\u00e9 au d\u00e9sendettement',
-                  lockedMessage:
-                      'Le comparateur 3a est d\u00e9sactiv\u00e9e tant que tu as des dettes actives. '
-                      'Rembourser tes dettes est prioritaire avant toute \u00e9pargne 3a.',
+                  lockedTitle: l10n.reportV2DebtPriorityTitle,
+                  lockedMessage: l10n.reportV2Debt3aLockedMessage,
                   reasons: safeModeReasons,
                   child: Pillar3aComparatorWidget(
                     monthlyIncome: report.profile.monthlyNetIncome,
@@ -198,12 +196,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
             if (report.lppBuybackStrategy != null)
               SafeModeGate(
                 hasDebt: hasDebt,
-                lockedTitle: 'Rachat LPP bloqu\u00e9',
-                lockedMessage:
-                    'Le rachat LPP est d\u00e9sactiv\u00e9 en mode protection. '
-                    'Rembourser tes dettes avant de bloquer de la liquidit\u00e9 dans la pr\u00e9voyance.',
+                lockedTitle: l10n.reportV2LppBuybackLocked,
+                lockedMessage: l10n.reportV2LppBuybackLockedMessage,
                 reasons: safeModeReasons,
-                child: _buildLppBuybackSection(report.lppBuybackStrategy!, report.profile),
+                child: _buildLppBuybackSection(l10n, report.lppBuybackStrategy!, report.profile),
               ),
 
             const SizedBox(height: 24),
@@ -211,6 +207,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             // ── Life event suggestions based on profile ──
             LifeEventSuggestionsSection(
               suggestions: buildLifeEventSuggestions(
+                context: context,
                 age: report.profile.age,
                 civilStatus: report.profile.civilStatus,
                 childrenCount: report.profile.childrenCount,
@@ -223,12 +220,12 @@ class FinancialReportScreenV2 extends StatelessWidget {
             const SizedBox(height: 32),
 
             // ── SoA Compliance Section ──
-            _buildSoaComplianceSection(report),
+            _buildSoaComplianceSection(l10n, report),
 
             const SizedBox(height: 24),
 
             // ── Disclaimer Footer ──
-            _buildDisclaimerFooter(),
+            _buildDisclaimerFooter(l10n),
 
             const SizedBox(height: 40),
           ],
@@ -243,7 +240,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  HEADER — Greeting + contextual status (replaces numeric score)
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildHeader(UserProfile profile, FinancialHealthScore healthScore) {
+  Widget _buildHeader(AppLocalizations l10n, UserProfile profile, FinancialHealthScore healthScore) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -263,7 +260,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Bonjour ${profile.firstName ?? ""}!',
+              l10n.reportV2Greeting(profile.firstName ?? ''),
               style: const TextStyle(
                 color: MintColors.white,
                 fontSize: 24,
@@ -272,30 +269,30 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '${profile.age} ans \u2022 ${profile.canton} \u2022 ${profile.civilStatus}',
+              l10n.reportV2ProfileSummary(profile.age, profile.canton, profile.civilStatus),
               style: const TextStyle(color: MintColors.white70, fontSize: 14),
             ),
             const SizedBox(height: 20),
             // Contextual status phrase (replaces XX/100 score)
-            _buildStatusSummary(healthScore),
+            _buildStatusSummary(l10n, healthScore),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStatusSummary(FinancialHealthScore healthScore) {
+  Widget _buildStatusSummary(AppLocalizations l10n, FinancialHealthScore healthScore) {
     final level = healthScore.overallScore;
     String message;
     String emoji;
     if (level >= 70) {
-      message = 'Ta base est solide, continue ainsi !';
+      message = l10n.reportV2StatusGood;
       emoji = '\ud83d\udfe2'; // green circle
     } else if (level >= 40) {
-      message = 'Quelques ajustements pour \u00eatre serein';
+      message = l10n.reportV2StatusMedium;
       emoji = '\ud83d\udfe1'; // yellow circle
     } else {
-      message = 'Priorit\u00e9 : stabilise ta situation';
+      message = l10n.reportV2StatusLow;
       emoji = '\ud83d\udd34'; // red circle
     }
     return Text(
@@ -352,14 +349,15 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ? CardStatus.aRenforcer
             : CardStatus.alerte;
 
+    final l10n = AppLocalizations.of(context)!;
     return ThematicCard(
       emoji: '\ud83d\udcb0', // money bag
-      title: 'Ton Budget',
+      title: l10n.reportV2BudgetTitle,
       status: status,
       keyNumber:
           'CHF ${available.clamp(0, double.infinity).toStringAsFixed(0)}',
-      keyNumberLabel: 'Reste à vivre (après fixes)',
-      actionLabel: 'Configurer mes enveloppes',
+      keyNumberLabel: l10n.reportV2BudgetKeyLabel,
+      actionLabel: l10n.reportV2BudgetAction,
       onActionTap: () => context.push('/budget'),
       children: [
         BudgetWaterfall(
@@ -395,32 +393,30 @@ class FinancialReportScreenV2 extends StatelessWidget {
     return baseAdult * adults;
   }
 
-  List<String> _buildSafeModeReasons(Map<String, dynamic> answers) {
+  List<String> _buildSafeModeReasons(AppLocalizations l10n, Map<String, dynamic> answers) {
     final reasons = <String>[];
 
-    if (answers['q_has_consumer_credit'] == 'yes' ||
-        answers['q_has_consumer_debt'] == 'yes') {
-      reasons.add('Dette à la consommation active.');
+    if (answers[‘q_has_consumer_credit’] == ‘yes’ ||
+        answers[‘q_has_consumer_debt’] == ‘yes’) {
+      reasons.add(l10n.reportV2DebtConsumer);
     }
-    if (answers['q_has_leasing'] == 'yes') {
-      reasons.add('Leasing actif avec charge mensuelle.');
+    if (answers[‘q_has_leasing’] == ‘yes’) {
+      reasons.add(l10n.reportV2LeasingActive);
     }
 
     final debtPayment =
-        (answers['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0;
+        (answers[‘q_debt_payments_period_chf’] as num?)?.toDouble() ?? 0;
     if (debtPayment > 0) {
-      reasons.add(
-          'Remboursements de dette: CHF ${debtPayment.toStringAsFixed(0)} / mois.');
+      reasons.add(l10n.reportV2DebtPayments(debtPayment.toStringAsFixed(0)));
     }
 
-    final emergencyFund = answers['q_emergency_fund'] as String?;
-    if (emergencyFund == null || emergencyFund == 'no') {
-      reasons.add('Fonds d’urgence insuffisant (< 3 mois).');
+    final emergencyFund = answers[‘q_emergency_fund’] as String?;
+    if (emergencyFund == null || emergencyFund == ‘no’) {
+      reasons.add(l10n.reportV2EmergencyFundInsufficient);
     }
 
     if (reasons.isEmpty) {
-      reasons.add(
-          'Signal de fragilité détecté: priorité à la stabilité budgétaire.');
+      reasons.add(l10n.reportV2FragilitySignal);
     }
 
     return reasons;
@@ -445,15 +441,16 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ? '3-6'
             : '< 3';
 
+    final l10n = AppLocalizations.of(context)!;
     return ThematicCard(
       emoji: '\ud83d\udee1\ufe0f', // shield
-      title: 'Ta Protection',
+      title: l10n.reportV2ProtectionTitle,
       status: fundStatus,
-      keyNumber: '$fundMonths mois',
-      keyNumberLabel: 'Fonds d\'urgence (cible : 6 mois)',
-      source: 'Source : LP art. 93 \u2014 Minimum vital',
+      keyNumber: l10n.reportV2EmergencyFundMonths(fundMonths),
+      keyNumberLabel: l10n.reportV2EmergencyFundTarget,
+      source: l10n.reportV2SourceLpArt93,
       actionLabel: fundStatus != CardStatus.serein
-          ? 'Constituer mon fonds d\'urgence'
+          ? l10n.reportV2BuildEmergencyFund
           : null,
       onActionTap: () => context.push('/budget'),
     );
@@ -511,31 +508,33 @@ class FinancialReportScreenV2 extends StatelessWidget {
     final nb3a =
         int.tryParse(answers['q_3a_accounts_count']?.toString() ?? '0') ?? 0;
 
+    final l10n = AppLocalizations.of(context)!;
     final String threeAText;
     if (!has3a || nb3a == 0) {
-      threeAText =
-          'Pas encore de 3a \u2014 jusqu\'\u00e0 CHF 7\'258/an de d\u00e9duction fiscale possible';
+      threeAText = l10n.reportV2No3aYet;
     } else if (nb3a == 1) {
-      threeAText = '1 compte 3a \u2014 ouvre un 2e pour optimiser le retrait';
+      threeAText = l10n.reportV2One3aAccount;
     } else {
-      threeAText = '$nb3a comptes 3a \u2014 bonne diversification';
+      threeAText = l10n.reportV2Multiple3aAccounts(nb3a);
     }
 
     // LPP sub-section
     final lppBuyback = report.lppBuybackStrategy;
     String? lppText;
     if (lppBuyback != null) {
-      lppText =
-          'Rachat LPP disponible : CHF ${lppBuyback.totalBuybackAvailable.toStringAsFixed(0)} \u2014 \u00e9conomie fiscale estim\u00e9e : CHF ${lppBuyback.totalTaxSavings.toStringAsFixed(0)}';
+      lppText = l10n.reportV2LppBuybackAvailable(
+        lppBuyback.totalBuybackAvailable.toStringAsFixed(0),
+        lppBuyback.totalTaxSavings.toStringAsFixed(0),
+      );
     }
 
     return ThematicCard(
       emoji: '\ud83c\udfe6', // bank
-      title: 'Ta Retraite',
+      title: l10n.reportV2RetirementTitle,
       status: status,
-      keyNumber: 'CHF ${projection.totalMonthlyIncome.toStringAsFixed(0)}/mois',
-      keyNumberLabel: 'Revenu estim\u00e9 \u00e0 65 ans',
-      source: 'Sources : LPP art. 14, OPP3, LAVS',
+      keyNumber: l10n.reportV2RetirementKeyNumber(projection.totalMonthlyIncome.toStringAsFixed(0)),
+      keyNumberLabel: l10n.reportV2RetirementKeyLabel,
+      source: l10n.reportV2RetirementSource,
       children: [
         RetirementProjectionCard(
           projection: projection,
@@ -570,26 +569,26 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ? CardStatus.aRenforcer
             : CardStatus.alerte;
 
+    final l10n = AppLocalizations.of(context)!;
     return ThematicCard(
       emoji: '\ud83d\udcca', // bar chart
-      title: 'Tes Imp\u00f4ts',
+      title: l10n.reportV2TaxTitle,
       status: status,
-      keyNumber: 'CHF ${tax.totalTax.toStringAsFixed(0)}/an',
-      keyNumberLabel:
-          'Imp\u00f4ts estim\u00e9s (taux effectif : ${(tax.effectiveRate * 100).toStringAsFixed(1)}%)',
-      actionLabel: 'Comparer 26 cantons',
+      keyNumber: l10n.reportV2TaxKeyNumber(tax.totalTax.toStringAsFixed(0)),
+      keyNumberLabel: l10n.reportV2TaxKeyLabel((tax.effectiveRate * 100).toStringAsFixed(1)),
+      actionLabel: l10n.reportV2CompareCantons,
       onActionTap: () => context.push('/fiscal'),
-      source: 'Source : LIFD art. 33',
+      source: l10n.reportV2SourceLifdArt33,
       children: [
         _taxRow(
-            'Revenu imposable', 'CHF ${tax.taxableIncome.toStringAsFixed(0)}'),
+            l10n.reportV2TaxableIncome, 'CHF ${tax.taxableIncome.toStringAsFixed(0)}'),
         if (tax.totalDeductions > 0) ...[
           const SizedBox(height: 4),
-          _taxRow('D\u00e9ductions',
+          _taxRow(l10n.reportV2Deductions,
               '\u2013 CHF ${tax.totalDeductions.toStringAsFixed(0)}'),
         ],
         const Divider(height: 16),
-        _taxRow('Imp\u00f4ts estim\u00e9s',
+        _taxRow(l10n.reportV2EstimatedTaxes,
             'CHF ${tax.totalTax.toStringAsFixed(0)}',
             isBold: true),
         if (tax.taxSavingsFromBuyback != null &&
@@ -597,7 +596,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           const SizedBox(height: 8),
           _buildInfoChip(
             Icons.lightbulb_outline,
-            '\u00c9conomie possible avec rachat LPP : CHF ${tax.taxSavingsFromBuyback!.toStringAsFixed(0)}/an',
+            l10n.reportV2LppBuybackSavings(tax.taxSavingsFromBuyback!.toStringAsFixed(0)),
             MintColors.success,
           ),
         ],
@@ -661,7 +660,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  TOP PRIORITIES (kept from original)
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildTopPriorities(BuildContext context, List<ActionItem> actions) {
+  Widget _buildTopPriorities(BuildContext context, AppLocalizations l10n, List<ActionItem> actions) {
     if (actions.isEmpty) return const SizedBox.shrink();
 
     return Padding(
@@ -670,14 +669,14 @@ class FinancialReportScreenV2 extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '\ud83c\udfaf Tes 3 Actions Prioritaires',
+            '\ud83c\udfaf ${l10n.reportV2TopPriorities}',
             style: GoogleFonts.montserrat(
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 16),
-          ...actions.map((action) => _buildActionCard(context, action)),
+          ...actions.map((action) => _buildActionCard(context, l10n, action)),
         ],
       ),
     );
@@ -685,7 +684,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
   // _getActionRoute removed — use _routeForCategory(action.category) instead
 
-  Widget _buildActionCard(BuildContext context, ActionItem action) {
+  Widget _buildActionCard(BuildContext context, AppLocalizations l10n, ActionItem action) {
     Color priorityColor;
     switch (action.priority) {
       case ActionPriority.critical:
@@ -777,7 +776,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             child: FilledButton.icon(
               onPressed: () => context.push(_routeForCategory(action.category)),
               icon: const Icon(Icons.arrow_forward, size: 16),
-              label: const Text('Commencer'),
+              label: Text(l10n.reportV2StartAction),
               style: FilledButton.styleFrom(
                 backgroundColor: priorityColor,
                 foregroundColor: MintColors.white,
@@ -796,7 +795,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  LPP BUYBACK SECTION (kept from original)
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildLppBuybackSection(LppBuybackStrategy strategy, UserProfile profile) {
+  Widget _buildLppBuybackSection(AppLocalizations l10n, LppBuybackStrategy strategy, UserProfile profile) {
     // Taux marginal estimé selon canton + revenu (LIFD + ICC)
     final double marginalRate = profile.canton.isNotEmpty && profile.canton != 'CH'
         ? TaxEstimatorService.estimateMarginalTaxRate(
@@ -820,7 +819,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '\ud83d\udcb0 Strat\u00e9gie Rachat LPP',
+              '\ud83d\udcb0 ${l10n.reportV2LppBuybackStrategy}',
               style: GoogleFonts.montserrat(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -828,7 +827,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '\u00c9conomie fiscale totale : CHF ${strategy.totalTaxSavings.toStringAsFixed(0)}',
+              l10n.reportV2TotalTaxSavings(strategy.totalTaxSavings.toStringAsFixed(0)),
               style: TextStyle(
                 fontSize: 14,
                 color: MintColors.greenDark,
@@ -850,12 +849,12 @@ class FinancialReportScreenV2 extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Ann\u00e9e ${buyback.year}',
+                            l10n.reportV2BuybackYear(buyback.year),
                             style: const TextStyle(
                                 fontSize: 13, fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            'Rachat: CHF ${buyback.amount.toStringAsFixed(0)}',
+                            l10n.reportV2BuybackAmount(buyback.amount.toStringAsFixed(0)),
                             style: const TextStyle(fontSize: 12),
                           ),
                         ],
@@ -868,7 +867,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          '\u00c9conomie: CHF ${buyback.estimatedTaxSavings.toStringAsFixed(0)}',
+                          l10n.reportV2BuybackSavingsAmount(buyback.estimatedTaxSavings.toStringAsFixed(0)),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
@@ -882,9 +881,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
             // Widget d'explication p\u00e9dagogique
             EducationalExplanationWidget(
-              title: 'Comment \u00e7a marche ?',
-              shortExplanation:
-                  'Comprends pourquoi \u00e9chelonner tes rachats LPP te fait \u00e9conomiser des milliers de francs suppl\u00e9mentaires.',
+              title: l10n.reportV2HowItWorks,
+              shortExplanation: l10n.reportV2LppBuybackExplanation,
               sections: FinancialExplanations.lppBuybackExplanation(
                 strategy.totalBuybackAvailable,
                 marginalRate,
@@ -901,7 +899,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  SOA COMPLIANCE SECTION — Transparence reglementaire
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildSoaComplianceSection(FinancialReport report) {
+  Widget _buildSoaComplianceSection(AppLocalizations l10n, FinancialReport report) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
@@ -919,7 +917,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 const Icon(Icons.verified_outlined, size: 20, color: MintColors.info),
                 const SizedBox(width: 8),
                 Text(
-                  'Transparence et conformit\u00e9',
+                  l10n.reportV2TransparencyTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -932,22 +930,22 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
             // Nature du service
             _buildSoaRow(
-              'Nature du service',
+              l10n.reportV2ServiceNature,
               report.personalizedRoadmap.phases.isNotEmpty
-                  ? '\u00c9ducation financi\u00e8re \u2014 ${report.personalizedRoadmap.phases.length} phases identifi\u00e9es'
-                  : '\u00c9ducation financi\u00e8re personnalis\u00e9e',
+                  ? l10n.reportV2EducationWithPhases(report.personalizedRoadmap.phases.length)
+                  : l10n.reportV2EducationPersonalized,
             ),
             const SizedBox(height: 12),
 
             // Hypoth\u00e8ses de travail
             _buildSoaSubSection(
-              'Hypoth\u00e8ses de travail',
+              l10n.reportV2WorkingHypotheses,
               Icons.settings_suggest_outlined,
               [
-                'Revenus d\u00e9clar\u00e9s stables sur la p\u00e9riode',
-                'Taux de conversion LPP obligatoire : 6.8%',
-                'Plafond 3a salari\u00e9 : 7\'258 CHF/an',
-                'Rente AVS maximale : 30\'240 CHF/an',
+                l10n.reportV2HypothesisStableIncome,
+                l10n.reportV2HypothesisLppRate,
+                l10n.reportV2Hypothesis3aCeiling,
+                l10n.reportV2HypothesisAvsMax,
                 if (report.simulationAssumptions != null)
                   ...report.simulationAssumptions!.entries
                       .map((e) => '${e.key} : ${e.value}'),
@@ -957,24 +955,24 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
             // Conflits d'int\u00e9r\u00eats
             _buildSoaSubSection(
-              'Conflits d\'int\u00e9r\u00eats',
+              l10n.reportV2ConflictsOfInterest,
               Icons.handshake_outlined,
               [
-                'Aucun conflit d\'int\u00e9r\u00eat identifi\u00e9 pour ce rapport.',
-                'MINT ne per\u00e7oit aucune commission sur les produits mentionn\u00e9s.',
+                l10n.reportV2NoConflict,
+                l10n.reportV2NoCommission,
               ],
             ),
             const SizedBox(height: 12),
 
             // Limitations
             _buildSoaSubSection(
-              'Limitations',
+              l10n.reportV2Limitations,
               Icons.info_outline,
               [
-                'Bas\u00e9 sur les informations d\u00e9claratives uniquement',
-                'Estimation fiscale approximative (taux moyens cantonaux)',
-                'Ne prend pas en compte les revenus de fortune mobili\u00e8re',
-                'Les projections ne tiennent pas compte de l\'inflation',
+                l10n.reportV2LimitDeclarative,
+                l10n.reportV2LimitTaxApprox,
+                l10n.reportV2LimitNoWealth,
+                l10n.reportV2LimitNoInflation,
               ],
             ),
           ],
@@ -1077,7 +1075,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  DISCLAIMER FOOTER — Mention legale obligatoire
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildDisclaimerFooter() {
+  Widget _buildDisclaimerFooter(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
@@ -1099,7 +1097,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                     size: 14, color: MintColors.textMuted),
                 const SizedBox(width: 6),
                 Text(
-                  'Mention legale',
+                  l10n.reportV2LegalMention,
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -1110,8 +1108,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier au sens de la LSFin. '
-              'Les montants sont des estimations bas\u00e9es sur les donn\u00e9es d\u00e9clar\u00e9es.',
+              l10n.reportV2Disclaimer,
               style: GoogleFonts.inter(
                 fontSize: 10,
                 color: MintColors.textMuted,

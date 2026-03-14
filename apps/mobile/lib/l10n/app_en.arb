@@ -5949,5 +5949,162 @@
   "reportV2Optimize3a": "Optimize your 3a",
   "reportV2Debt3aLockedMessage": "The 3a comparator is disabled while you have active debts. Paying off your debts is a priority before any 3a savings.",
   "reportV2LppBuybackLocked": "LPP buyback locked",
-  "reportV2LppBuybackLockedMessage": "LPP buyback is disabled in protection mode. Pay off your debts before locking liquidity in pension funds."
+  "reportV2LppBuybackLockedMessage": "LPP buyback is disabled in protection mode. Pay off your debts before locking liquidity in pension funds.",
+  "genderGapAppBarTitle": "PENSION GENDER GAP",
+  "genderGapTitle": "Pension gap",
+  "genderGapSubtitle": "Impact of part-time work on retirement",
+  "genderGapIntroText": "The coordination deduction (CHF\u00a026,460) is not prorated for part-time work, which further penalises people working reduced hours. Move the slider to see the impact.",
+  "genderGapActivityRate": "Activity rate",
+  "genderGapParameters": "Parameters",
+  "genderGapGrossAnnualIncome": "Gross annual income (100%)",
+  "genderGapAge": "Age",
+  "genderGapAgeValue": "{age} years",
+  "@genderGapAgeValue": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapCurrentLppAssets": "Current LPP assets",
+  "genderGapContributionYears": "Contribution years",
+  "genderGapCanton": "Canton",
+  "genderGapDemoNotice": "Demo mode: example profile. Complete your assessment for personalised results.",
+  "genderGapEstimatedLppPension": "Estimated LPP pension",
+  "genderGapProjectionYears": "Projection at {years} years (age 65)",
+  "@genderGapProjectionYears": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapAt100Pct": "At 100%",
+  "genderGapAtTaux": "At {taux}%",
+  "@genderGapAtTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapPerYear": "{amount}/year",
+  "@genderGapPerYear": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "genderGapAnnualGap": "Annual gap",
+  "genderGapTotalGap": "Total gap (~20 years)",
+  "genderGapCoordinationTitle": "Understanding the coordination deduction",
+  "genderGapCoordinationExplanation": "The coordination deduction is a fixed amount of CHF\u00a026,460 subtracted from your gross salary to calculate the coordinated salary (LPP basis). This amount is the same whether you work at 100% or 50%.",
+  "genderGapGrossSalary100": "Gross salary at 100%",
+  "genderGapCoordSalary100": "Coordinated salary at 100%",
+  "genderGapGrossSalaryAtTaux": "Gross salary at {taux}%",
+  "@genderGapGrossSalaryAtTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapCoordSalaryAtTaux": "Coordinated salary at {taux}%",
+  "@genderGapCoordSalaryAtTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapCoordDeductionFixed": "Coordination deduction (fixed)",
+  "genderGapSourceLpp": "Source: LPP art. 8, OPP2 art. 5",
+  "genderGapOfsStatistic": "FSO Statistic",
+  "genderGapRecommendations": "RECOMMENDATIONS",
+  "genderGapDisclaimer": "The results shown are simplified estimates for informational purposes. They do not constitute personalised financial advice. Consult your pension fund and a qualified professional before making any decision.",
+  "genderGapSources": "Sources",
+  "genderGapSourcesDetail": "LPP art. 8 (coordination deduction) / LPP art. 14 (conversion rate 6.8%) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (voluntary buyback) / FSO 2024 (gender gap statistics)",
+  "rachatTitle": "STAGGERED LPP BUYBACK",
+  "rachatIntroTitle": "Why stagger your buybacks?",
+  "rachatIntroBody": "Since Swiss tax is progressive, spreading an LPP buyback over several years keeps you in higher marginal brackets each year, thus maximizing total tax savings. This simulator compares both approaches.",
+  "rachatHeroSavingsLabel": "additional savings by staggering",
+  "rachatHeroBlocLabel": "Lump-sum buyback more advantageous in this case",
+  "rachatSituationLpp": "LPP SITUATION",
+  "rachatAvoirActuel": "Current LPP assets",
+  "rachatMaximum": "Maximum buyback",
+  "rachatSituationFiscale": "TAX SITUATION",
+  "rachatCanton": "Canton",
+  "rachatEtatCivil": "Civil status",
+  "rachatCelibataire": "Single",
+  "rachatMarie": "Married",
+  "rachatRevenuImposable": "Taxable income",
+  "rachatTauxMarginalEstime": "Estimated marginal rate",
+  "rachatValeurAjustee": "Manually adjusted value",
+  "rachatCalculePour": "Calculated for {canton}, {statut}",
+  "@rachatCalculePour": {
+    "description": "Subtitle showing calculated tax rate for canton and status",
+    "placeholders": {
+      "canton": { "type": "String", "example": "VD" },
+      "statut": { "type": "String", "example": "single" }
+    }
+  },
+  "rachatAjuster": "Adjust",
+  "rachatAuto": "Auto",
+  "rachatStrategie": "STRATEGY",
+  "rachatHorizonLabel": "Horizon (years)",
+  "rachatHorizonValue": "{count} year{suffix}",
+  "@rachatHorizonValue": {
+    "description": "Horizon value with plural suffix",
+    "placeholders": {
+      "count": { "type": "int", "example": "3" },
+      "suffix": { "type": "String", "example": "s" }
+    }
+  },
+  "rachatComparaison": "COMPARISON",
+  "rachatToutEn1An": "ALL IN 1 YEAR",
+  "rachatBloc": "Lump-sum buyback",
+  "rachatEchelonneSurNAns": "STAGGERED OVER {count} YEARS",
+  "@rachatEchelonneSurNAns": {
+    "description": "Staggered over N years card title",
+    "placeholders": {
+      "count": { "type": "int", "example": "3" }
+    }
+  },
+  "rachatReparti": "Spread buyback",
+  "rachatLePlusAdapte": "BEST FIT",
+  "rachatEconomieFiscale": "Tax savings",
+  "rachatImpactTrancheFiscale": "IMPACT BY TAX BRACKET",
+  "rachatWaterfallExplanation": "As a lump sum, the deduction crosses several brackets (lower average rate). By staggering, each deduction stays in the highest bracket.",
+  "rachatLegendBloc": "Lump sum",
+  "rachatLegendEchelonne": "Staggered",
+  "rachatPlanAnnuel": "YEARLY PLAN",
+  "rachatTotal": "Total",
+  "rachatEconomieChf": "Savings: CHF {amount}",
+  "@rachatEconomieChf": {
+    "description": "Economy amount with CHF prefix",
+    "placeholders": {
+      "amount": { "type": "String", "example": "12'500" }
+    }
+  },
+  "rachatCoutNetChf": "Net cost: CHF {amount}",
+  "@rachatCoutNetChf": {
+    "description": "Net cost amount with CHF prefix",
+    "placeholders": {
+      "amount": { "type": "String", "example": "67'500" }
+    }
+  },
+  "rachatRachat": "Buyback",
+  "rachatLacuneComblee": "Gap filled: {percent}%",
+  "@rachatLacuneComblee": {
+    "description": "Gap filled percentage",
+    "placeholders": {
+      "percent": { "type": "String", "example": "75" }
+    }
+  },
+  "rachatBlockageEplTitle": "LPP art. 79b para. 3 — EPL Lock",
+  "rachatBlockageEplBody": "After each buyback, any EPL withdrawal (home ownership encouragement) is locked for 3 years. Plan accordingly if a property purchase is planned.",
+  "rachatTauxMarginalTitle": "Marginal tax rate",
+  "rachatTauxMarginalBody": "The marginal rate is the tax percentage on your last franc earned. With a rate of 32%, every CHF 1,000 deducted saves you CHF 320. The higher your income, the more this rate increases (Swiss tax progressivity).",
+  "rachatTauxMarginalTip": "That's why staggering your buybacks is smart: each portion stays in a high marginal rate."
 }

@@ -5871,5 +5871,80 @@
   "slmSettingsAuthConfigured": "Autenticación HuggingFace\u00a0: configurada",
   "slmSettingsAuthNotConfigured": "Autenticación HuggingFace\u00a0: no configurada (descarga imposible si la URL de Gemma es restringida)",
   "slmSettingsCompatibilityInfo": "Compatibilidad\u00a0: {compatibility}.\nEl modelo necesita {diskSize} de espacio en disco y ~{ramGb}\u00a0GB de RAM.",
-  "@slmSettingsCompatibilityInfo": {"placeholders": {"compatibility": {"type": "String"}, "diskSize": {"type": "String"}, "ramGb": {"type": "String"}}}
+  "@slmSettingsCompatibilityInfo": {"placeholders": {"compatibility": {"type": "String"}, "diskSize": {"type": "String"}, "ramGb": {"type": "String"}}},
+  "genderGapAppBarTitle": "BRECHA DE GÉNERO PREVISIÓN",
+  "genderGapTitle": "Brecha de previsión",
+  "genderGapSubtitle": "Impacto del trabajo a tiempo parcial en la jubilación",
+  "genderGapIntroText": "La deducción de coordinación (CHF\u00a026\u2019460) no se prorratea para el trabajo a tiempo parcial, lo que penaliza más a quienes trabajan a tiempo reducido. Mueve el cursor para ver el impacto.",
+  "genderGapActivityRate": "Tasa de actividad",
+  "genderGapParameters": "Parámetros",
+  "genderGapGrossAnnualIncome": "Ingreso anual bruto (100\u00a0%)",
+  "genderGapAge": "Edad",
+  "genderGapAgeValue": "{age} años",
+  "@genderGapAgeValue": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapCurrentLppAssets": "Activos LPP actuales",
+  "genderGapContributionYears": "Años de cotización",
+  "genderGapCanton": "Cantón",
+  "genderGapDemoNotice": "Modo demo\u00a0: perfil de ejemplo. Completa tu diagnóstico para resultados personalizados.",
+  "genderGapEstimatedLppPension": "Renta LPP estimada",
+  "genderGapProjectionYears": "Proyección a {years} años (edad 65)",
+  "@genderGapProjectionYears": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapAt100Pct": "Al 100\u00a0%",
+  "genderGapAtTaux": "Al {taux}\u00a0%",
+  "@genderGapAtTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapPerYear": "{amount}/año",
+  "@genderGapPerYear": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "genderGapAnnualGap": "Brecha anual",
+  "genderGapTotalGap": "Brecha total (~20 años)",
+  "genderGapCoordinationTitle": "Entender la deducción de coordinación",
+  "genderGapCoordinationExplanation": "La deducción de coordinación es un monto fijo de CHF\u00a026\u2019460 restado de tu salario bruto para calcular el salario coordinado (base LPP). Este monto es el mismo trabajes al 100\u00a0% o al 50\u00a0%.",
+  "genderGapGrossSalary100": "Salario bruto al 100\u00a0%",
+  "genderGapCoordSalary100": "Salario coordinado al 100\u00a0%",
+  "genderGapGrossSalaryAtTaux": "Salario bruto al {taux}\u00a0%",
+  "@genderGapGrossSalaryAtTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapCoordSalaryAtTaux": "Salario coordinado al {taux}\u00a0%",
+  "@genderGapCoordSalaryAtTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapCoordDeductionFixed": "Deducción coordinación (fija)",
+  "genderGapSourceLpp": "Fuente\u00a0: LPP art. 8, OPP2 art. 5",
+  "genderGapOfsStatistic": "Estadística OFS",
+  "genderGapRecommendations": "RECOMENDACIONES",
+  "genderGapDisclaimer": "Los resultados presentados son estimaciones simplificadas a título indicativo. No constituyen un asesoramiento financiero personalizado. Consulta tu caja de pensiones y un·a profesional cualificado·a antes de tomar cualquier decisión.",
+  "genderGapSources": "Fuentes",
+  "genderGapSourcesDetail": "LPP art. 8 (deducción de coordinación) / LPP art. 14 (tasa de conversión 6.8\u00a0%) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (rescate voluntario) / OFS 2024 (estadísticas gender gap)"
 }

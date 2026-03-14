@@ -5989,5 +5989,162 @@
   "coachChatActionTaxSimulate": "Simuler l'impact fiscal",
   "coachChatActionFitness": "Mon score Fitness",
   "coachChatActionRetirement": "Ma trajectoire retraite",
-  "coachChatUserFallback": "Utilisateur"
+  "coachChatUserFallback": "Utilisateur",
+  "genderGapAppBarTitle": "GENDER GAP PRÉVOYANCE",
+  "genderGapTitle": "Lacune de prévoyance",
+  "genderGapSubtitle": "Impact du temps partiel sur la retraite",
+  "genderGapIntroText": "La déduction de coordination (CHF\u00a026\u2019460) n'est pas proratisée pour le temps partiel, ce qui pénalise davantage les personnes travaillant à temps réduit. Déplace le curseur pour voir l'impact.",
+  "genderGapActivityRate": "Taux d'activité",
+  "genderGapParameters": "Paramètres",
+  "genderGapGrossAnnualIncome": "Revenu annuel brut (100\u00a0%)",
+  "genderGapAge": "Âge",
+  "genderGapAgeValue": "{age} ans",
+  "@genderGapAgeValue": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapCurrentLppAssets": "Avoir LPP actuel",
+  "genderGapContributionYears": "Années de cotisation",
+  "genderGapCanton": "Canton",
+  "genderGapDemoNotice": "Mode démo\u00a0: profil exemple. Complète ton diagnostic pour des résultats personnalisés.",
+  "genderGapEstimatedLppPension": "Rente LPP estimée",
+  "genderGapProjectionYears": "Projection à {years} ans (âge 65)",
+  "@genderGapProjectionYears": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapAt100Pct": "À 100\u00a0%",
+  "genderGapAtTaux": "À {taux}\u00a0%",
+  "@genderGapAtTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapPerYear": "{amount}/an",
+  "@genderGapPerYear": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "genderGapAnnualGap": "Lacune annuelle",
+  "genderGapTotalGap": "Lacune totale (~20 ans)",
+  "genderGapCoordinationTitle": "Comprendre la déduction de coordination",
+  "genderGapCoordinationExplanation": "La déduction de coordination est un montant fixe de CHF\u00a026\u2019460 soustrait de ton salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que tu travailles à 100\u00a0% ou à 50\u00a0%.",
+  "genderGapGrossSalary100": "Salaire brut à 100\u00a0%",
+  "genderGapCoordSalary100": "Salaire coordonné à 100\u00a0%",
+  "genderGapGrossSalaryAtTaux": "Salaire brut à {taux}\u00a0%",
+  "@genderGapGrossSalaryAtTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapCoordSalaryAtTaux": "Salaire coordonné à {taux}\u00a0%",
+  "@genderGapCoordSalaryAtTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapCoordDeductionFixed": "Déduction coordination (fixe)",
+  "genderGapSourceLpp": "Source\u00a0: LPP art. 8, OPP2 art. 5",
+  "genderGapOfsStatistic": "Statistique OFS",
+  "genderGapRecommendations": "RECOMMANDATIONS",
+  "genderGapDisclaimer": "Les résultats présentés sont des estimations simplifiées à titre indicatif. Ils ne constituent pas un conseil financier personnalisé. Consulte ta caisse de pension et un·e professionnel·le qualifié·e avant toute décision.",
+  "genderGapSources": "Sources",
+  "genderGapSourcesDetail": "LPP art. 8 (déduction de coordination) / LPP art. 14 (taux de conversion 6.8\u00a0%) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (rachat volontaire) / OFS 2024 (statistiques gender gap)",
+  "rachatTitle": "RACHAT LPP ÉCHELONNÉ",
+  "rachatIntroTitle": "Pourquoi échelonner ses rachats\u00a0?",
+  "rachatIntroBody": "L'impôt suisse étant progressif, répartir un rachat LPP sur plusieurs années permet de rester dans des tranches marginales plus élevées chaque année, maximisant ainsi l'économie fiscale totale. Ce simulateur compare les deux approches.",
+  "rachatHeroSavingsLabel": "d'économie supplémentaire en échelonnant",
+  "rachatHeroBlocLabel": "Rachat en bloc plus avantageux dans ce cas",
+  "rachatSituationLpp": "SITUATION LPP",
+  "rachatAvoirActuel": "Avoir actuel LPP",
+  "rachatMaximum": "Rachat maximum",
+  "rachatSituationFiscale": "SITUATION FISCALE",
+  "rachatCanton": "Canton",
+  "rachatEtatCivil": "État civil",
+  "rachatCelibataire": "Célibataire",
+  "rachatMarie": "Marié·e",
+  "rachatRevenuImposable": "Revenu imposable",
+  "rachatTauxMarginalEstime": "Taux marginal estimé",
+  "rachatValeurAjustee": "Valeur ajustée manuellement",
+  "rachatCalculePour": "Calculé pour {canton}, {statut}",
+  "@rachatCalculePour": {
+    "description": "Subtitle showing calculated tax rate for canton and status",
+    "placeholders": {
+      "canton": { "type": "String", "example": "VD" },
+      "statut": { "type": "String", "example": "célibataire" }
+    }
+  },
+  "rachatAjuster": "Ajuster",
+  "rachatAuto": "Auto",
+  "rachatStrategie": "STRATÉGIE",
+  "rachatHorizonLabel": "Horizon (années)",
+  "rachatHorizonValue": "{count} an{suffix}",
+  "@rachatHorizonValue": {
+    "description": "Horizon value with plural suffix",
+    "placeholders": {
+      "count": { "type": "int", "example": "3" },
+      "suffix": { "type": "String", "example": "s" }
+    }
+  },
+  "rachatComparaison": "COMPARAISON",
+  "rachatToutEn1An": "TOUT EN 1 AN",
+  "rachatBloc": "Rachat bloc",
+  "rachatEchelonneSurNAns": "ÉCHELONNÉ SUR {count} ANS",
+  "@rachatEchelonneSurNAns": {
+    "description": "Staggered over N years card title",
+    "placeholders": {
+      "count": { "type": "int", "example": "3" }
+    }
+  },
+  "rachatReparti": "Rachat réparti",
+  "rachatLePlusAdapte": "LE PLUS ADAPTÉ",
+  "rachatEconomieFiscale": "Économie fiscale",
+  "rachatImpactTrancheFiscale": "IMPACT PAR TRANCHE FISCALE",
+  "rachatWaterfallExplanation": "En bloc, la déduction traverse plusieurs tranches (taux moyen plus bas). En échelonnant, chaque déduction reste dans la tranche la plus haute.",
+  "rachatLegendBloc": "Bloc",
+  "rachatLegendEchelonne": "Échelonné",
+  "rachatPlanAnnuel": "PLAN ANNUEL",
+  "rachatTotal": "Total",
+  "rachatEconomieChf": "Économie\u00a0: CHF {amount}",
+  "@rachatEconomieChf": {
+    "description": "Economy amount with CHF prefix",
+    "placeholders": {
+      "amount": { "type": "String", "example": "12'500" }
+    }
+  },
+  "rachatCoutNetChf": "Coût net\u00a0: CHF {amount}",
+  "@rachatCoutNetChf": {
+    "description": "Net cost amount with CHF prefix",
+    "placeholders": {
+      "amount": { "type": "String", "example": "67'500" }
+    }
+  },
+  "rachatRachat": "Rachat",
+  "rachatLacuneComblee": "Lacune comblée\u00a0: {percent}\u00a0%",
+  "@rachatLacuneComblee": {
+    "description": "Gap filled percentage",
+    "placeholders": {
+      "percent": { "type": "String", "example": "75" }
+    }
+  },
+  "rachatBlockageEplTitle": "LPP art. 79b al. 3 — Blocage EPL",
+  "rachatBlockageEplBody": "Après chaque rachat, tout retrait EPL (encouragement à la propriété du logement) est bloqué pendant 3 ans. Planifie en conséquence si un achat immobilier est prévu.",
+  "rachatTauxMarginalTitle": "Taux marginal d'imposition",
+  "rachatTauxMarginalBody": "Le taux marginal est le pourcentage d'impôt sur ton dernier franc gagné. Avec un taux de 32\u00a0%, chaque CHF 1'000 déduit te fait économiser CHF 320. Plus ton revenu est élevé, plus ce taux augmente (progressivité de l'impôt suisse).",
+  "rachatTauxMarginalTip": "C'est pour ça qu'échelonner tes rachats est malin\u00a0: chaque tranche reste dans un taux marginal élevé."
 }

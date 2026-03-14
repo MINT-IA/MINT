@@ -5949,5 +5949,80 @@
     }
   },
   "annualRefreshScoreStable": "Dein Score ist stabil — weiter so!",
-  "annualRefreshBackToDashboard": "Zurück zum Dashboard"
+  "annualRefreshBackToDashboard": "Zurück zum Dashboard",
+  "genderGapAppBarTitle": "GENDER GAP VORSORGE",
+  "genderGapTitle": "Vorsorgelücke",
+  "genderGapSubtitle": "Auswirkung von Teilzeitarbeit auf die Rente",
+  "genderGapIntroText": "Der Koordinationsabzug (CHF\u00a026'460) wird nicht anteilmässig für Teilzeitarbeit berechnet, was Teilzeitbeschäftigte zusätzlich benachteiligt. Verschiebe den Regler, um die Auswirkung zu sehen.",
+  "genderGapActivityRate": "Beschäftigungsgrad",
+  "genderGapParameters": "Parameter",
+  "genderGapGrossAnnualIncome": "Bruttojahreseinkommen (100\u00a0%)",
+  "genderGapAge": "Alter",
+  "genderGapAgeValue": "{age} Jahre",
+  "@genderGapAgeValue": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapCurrentLppAssets": "Aktuelles BVG-Guthaben",
+  "genderGapContributionYears": "Beitragsjahre",
+  "genderGapCanton": "Kanton",
+  "genderGapDemoNotice": "Demo-Modus\u00a0: Beispielprofil. Vervollständige deine Analyse für personalisierte Ergebnisse.",
+  "genderGapEstimatedLppPension": "Geschätzte BVG-Rente",
+  "genderGapProjectionYears": "Projektion in {years} Jahren (Alter 65)",
+  "@genderGapProjectionYears": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapAt100Pct": "Bei 100\u00a0%",
+  "genderGapAtTaux": "Bei {taux}\u00a0%",
+  "@genderGapAtTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapPerYear": "{amount}/Jahr",
+  "@genderGapPerYear": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "genderGapAnnualGap": "Jährliche Lücke",
+  "genderGapTotalGap": "Gesamtlücke (~20 Jahre)",
+  "genderGapCoordinationTitle": "Den Koordinationsabzug verstehen",
+  "genderGapCoordinationExplanation": "Der Koordinationsabzug ist ein fester Betrag von CHF\u00a026'460, der von deinem Bruttolohn abgezogen wird, um den koordinierten Lohn (BVG-Basis) zu berechnen. Dieser Betrag ist gleich, ob du zu 100\u00a0% oder 50\u00a0% arbeitest.",
+  "genderGapGrossSalary100": "Bruttolohn bei 100\u00a0%",
+  "genderGapCoordSalary100": "Koordinierter Lohn bei 100\u00a0%",
+  "genderGapGrossSalaryAtTaux": "Bruttolohn bei {taux}\u00a0%",
+  "@genderGapGrossSalaryAtTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapCoordSalaryAtTaux": "Koordinierter Lohn bei {taux}\u00a0%",
+  "@genderGapCoordSalaryAtTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapCoordDeductionFixed": "Koordinationsabzug (fix)",
+  "genderGapSourceLpp": "Quelle\u00a0: BVG Art. 8, BVV2 Art. 5",
+  "genderGapOfsStatistic": "BFS-Statistik",
+  "genderGapRecommendations": "EMPFEHLUNGEN",
+  "genderGapDisclaimer": "Die dargestellten Ergebnisse sind vereinfachte Schätzungen zu Informationszwecken. Sie stellen keine persönliche Finanzberatung dar. Konsultiere deine Pensionskasse und eine qualifizierte Fachperson vor jeder Entscheidung.",
+  "genderGapSources": "Quellen",
+  "genderGapSourcesDetail": "BVG Art. 8 (Koordinationsabzug) / BVG Art. 14 (Umwandlungssatz 6.8\u00a0%) / BVV2 Art. 5 / BVV3 Art. 7 / BVG Art. 79b (freiwilliger Einkauf) / BFS 2024 (Gender-Gap-Statistik)"
 }

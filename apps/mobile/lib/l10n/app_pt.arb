@@ -5865,5 +5865,80 @@
   "slmSettingsAuthConfigured": "Autenticação HuggingFace\u00a0: configurada",
   "slmSettingsAuthNotConfigured": "Autenticação HuggingFace\u00a0: não configurada (download impossível se URL Gemma for restrita)",
   "slmSettingsCompatibilityInfo": "Compatibilidade\u00a0: {compatibility}.\nO modelo necessita de {diskSize} de espaço em disco e ~{ramGb}\u00a0GB de RAM.",
-  "@slmSettingsCompatibilityInfo": {"placeholders": {"compatibility": {"type": "String"}, "diskSize": {"type": "String"}, "ramGb": {"type": "String"}}}
+  "@slmSettingsCompatibilityInfo": {"placeholders": {"compatibility": {"type": "String"}, "diskSize": {"type": "String"}, "ramGb": {"type": "String"}}},
+  "genderGapAppBarTitle": "GENDER GAP PREVIDÊNCIA",
+  "genderGapTitle": "Lacuna de previdência",
+  "genderGapSubtitle": "Impacto do trabalho a tempo parcial na reforma",
+  "genderGapIntroText": "A dedução de coordenação (CHF\u00a026\u2019460) não é rateada para trabalho a tempo parcial, o que penaliza mais quem trabalha horas reduzidas. Move o cursor para ver o impacto.",
+  "genderGapActivityRate": "Taxa de atividade",
+  "genderGapParameters": "Parâmetros",
+  "genderGapGrossAnnualIncome": "Rendimento anual bruto (100\u00a0%)",
+  "genderGapAge": "Idade",
+  "genderGapAgeValue": "{age} anos",
+  "@genderGapAgeValue": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapCurrentLppAssets": "Ativos LPP atuais",
+  "genderGapContributionYears": "Anos de contribuição",
+  "genderGapCanton": "Cantão",
+  "genderGapDemoNotice": "Modo demo\u00a0: perfil exemplo. Completa o teu diagnóstico para resultados personalizados.",
+  "genderGapEstimatedLppPension": "Renda LPP estimada",
+  "genderGapProjectionYears": "Projeção a {years} anos (idade 65)",
+  "@genderGapProjectionYears": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapAt100Pct": "A 100\u00a0%",
+  "genderGapAtTaux": "A {taux}\u00a0%",
+  "@genderGapAtTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapPerYear": "{amount}/ano",
+  "@genderGapPerYear": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "genderGapAnnualGap": "Lacuna anual",
+  "genderGapTotalGap": "Lacuna total (~20 anos)",
+  "genderGapCoordinationTitle": "Compreender a dedução de coordenação",
+  "genderGapCoordinationExplanation": "A dedução de coordenação é um montante fixo de CHF\u00a026\u2019460 subtraído do teu salário bruto para calcular o salário coordenado (base LPP). Este montante é o mesmo quer trabalhe a 100\u00a0% ou a 50\u00a0%.",
+  "genderGapGrossSalary100": "Salário bruto a 100\u00a0%",
+  "genderGapCoordSalary100": "Salário coordenado a 100\u00a0%",
+  "genderGapGrossSalaryAtTaux": "Salário bruto a {taux}\u00a0%",
+  "@genderGapGrossSalaryAtTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapCoordSalaryAtTaux": "Salário coordenado a {taux}\u00a0%",
+  "@genderGapCoordSalaryAtTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "int"
+      }
+    }
+  },
+  "genderGapCoordDeductionFixed": "Dedução coordenação (fixa)",
+  "genderGapSourceLpp": "Fonte\u00a0: LPP art. 8, OPP2 art. 5",
+  "genderGapOfsStatistic": "Estatística OFS",
+  "genderGapRecommendations": "RECOMENDAÇÕES",
+  "genderGapDisclaimer": "Os resultados apresentados são estimativas simplificadas a título indicativo. Não constituem aconselhamento financeiro personalizado. Consulta a tua caixa de pensões e um·a profissional qualificado·a antes de qualquer decisão.",
+  "genderGapSources": "Fontes",
+  "genderGapSourcesDetail": "LPP art. 8 (dedução de coordenação) / LPP art. 14 (taxa de conversão 6.8\u00a0%) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (resgate voluntário) / OFS 2024 (estatísticas gender gap)"
 }
