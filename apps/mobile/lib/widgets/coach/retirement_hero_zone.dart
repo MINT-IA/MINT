@@ -214,7 +214,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
   Widget _buildHeroNumber() {
     final income = _scrubbedAge != null ? _displayedIncome : widget.monthlyIncome;
     final prefix = widget.isApproximate ? '~' : '';
-    final ageLabel = _scrubbedAge != null ? ' à ${_scrubbedAge} ans' : '';
+    final ageLabel = _scrubbedAge != null ? ' à $_scrubbedAge ans' : '';
 
     return Column(
       children: [
