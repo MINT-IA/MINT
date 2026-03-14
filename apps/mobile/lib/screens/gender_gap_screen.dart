@@ -319,7 +319,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          _buildInputRow('Revenu annuel brut (100%)', '${GenderGapService.formatChf(_revenuAnnuel)}'),
+          _buildInputRow('Revenu annuel brut (100%)', GenderGapService.formatChf(_revenuAnnuel)),
           const SizedBox(height: 8),
           _buildInputRow('Age', '$_age ans'),
           const SizedBox(height: 8),
