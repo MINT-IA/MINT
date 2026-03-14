@@ -86,7 +86,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 // Active consents
                 if (!_showNewConsentFlow) ...[
                   _buildSectionTitle(
-                      'CONSENTEMENTS ACTIFS', Icons.privacy_tip_outlined),
+                      S.of(context)!.consentActiveSection, Icons.privacy_tip_outlined),
                   const SizedBox(height: 12),
                   ..._consents.asMap().entries.map((entry) => Padding(
                         padding: const EdgeInsets.only(bottom: 12),
@@ -139,7 +139,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
         },
       ),
       title: Text(
-        'CONSENTEMENTS',
+        S.of(context)!.consentScreenTitle,
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w800,
           fontSize: 13,
@@ -170,7 +170,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Fonctionnalite en preparation',
+                  S.of(context)!.consentFinmaTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -179,8 +179,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Consultation reglementaire FINMA en cours. '
-                  'Les donnees affichees sont des exemples de demonstration.',
+                  S.of(context)!.consentFinmaBody,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.amberDark,
@@ -208,7 +207,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
           border: Border.all(color: MintColors.neutralBg),
         ),
         child: Text(
-          'MODE DEMO',
+          S.of(context)!.consentDemoMode,
           style: GoogleFonts.montserrat(
             fontSize: 10,
             fontWeight: FontWeight.w700,
@@ -313,7 +312,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
 
           // Scopes
           Text(
-            'Autorisations',
+            S.of(context)!.consentAuthLabel,
             style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -348,7 +347,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
           Row(
             children: [
               Text(
-                'Accorde le ${_formatDate(consent.grantedAt)}',
+                S.of(context)!.consentGrantedOn(_formatDate(consent.grantedAt)),
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   color: MintColors.textMuted,
@@ -356,7 +355,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               ),
               const SizedBox(width: 12),
               Text(
-                'Expire le ${_formatDate(consent.expiresAt)}',
+                S.of(context)!.consentExpiresOn(_formatDate(consent.expiresAt)),
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   color: MintColors.textMuted,
@@ -398,7 +397,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                       color: MintColors.error.withOpacity(0.7), size: 16),
                   const SizedBox(width: 8),
                   Text(
-                    'Consentement revoque',
+                    S.of(context)!.consentRevokedLabel,
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       color: MintColors.error,
@@ -432,7 +431,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   color: MintColors.tealLight, size: 20),
               const SizedBox(width: 10),
               Text(
-                'Tes droits (nLPD)',
+                S.of(context)!.consentNlpdTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -443,8 +442,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
           ),
           const SizedBox(height: 14),
           Text(
-            'Tes droits selon la nLPD '
-            '(Loi federale sur la protection des donnees) :',
+            S.of(context)!.consentNlpdIntro,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.tealLight,
@@ -452,18 +450,10 @@ class _ConsentScreenState extends State<ConsentScreen> {
             ),
           ),
           const SizedBox(height: 10),
-          _buildNlpdPoint(
-            '\u2022 Tu peux revoquer ton consentement a tout moment',
-          ),
-          _buildNlpdPoint(
-            '\u2022 Tes donnees ne sont jamais partagees avec des tiers',
-          ),
-          _buildNlpdPoint(
-            '\u2022 Acces en lecture seule \u2014 aucune operation financiere',
-          ),
-          _buildNlpdPoint(
-            '\u2022 Duree maximale de consentement : 90 jours (renouvelable)',
-          ),
+          _buildNlpdPoint(S.of(context)!.consentNlpdRevoke),
+          _buildNlpdPoint(S.of(context)!.consentNlpdNoSharing),
+          _buildNlpdPoint(S.of(context)!.consentNlpdReadOnly),
+          _buildNlpdPoint(S.of(context)!.consentNlpdDuration),
         ],
       ),
     );
@@ -525,7 +515,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               border: Border.all(color: MintColors.neutralBg),
             ),
             child: Text(
-              'MODE DEMO',
+              S.of(context)!.consentDemoMode,
               style: GoogleFonts.montserrat(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
@@ -549,7 +539,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
           child: TextButton(
             onPressed: _cancelNewConsentFlow,
             child: Text(
-              'Annuler',
+              S.of(context)!.consentCancel,
               style: GoogleFonts.inter(
                 color: MintColors.textMuted,
                 fontSize: 14,
@@ -562,7 +552,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
   }
 
   Widget _buildStepIndicator() {
-    const steps = ['Banque', 'Autorisations', 'Confirmation'];
+    final steps = [S.of(context)!.consentStepBank, S.of(context)!.consentStepAuth, S.of(context)!.consentStepConfirm];
     return Row(
       children: List.generate(steps.length, (i) {
         final isActive = i == _newConsentStep;
@@ -635,7 +625,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Choisir une banque',
+            S.of(context)!.consentSelectBank,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -746,7 +736,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Choisir les autorisations',
+            S.of(context)!.consentSelectScopes,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -755,7 +745,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Banque selectionnee : $_selectedBankName',
+            S.of(context)!.consentSelectedBank(_selectedBankName ?? '-'),
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -766,17 +756,17 @@ class _ConsentScreenState extends State<ConsentScreen> {
           // Checkboxes — NOT pre-checked (nLPD compliance)
           _buildScopeCheckbox(
             value: _scopeAccounts,
-            label: 'Comptes (liste de tes comptes)',
+            label: S.of(context)!.consentScopeAccounts,
             onChanged: (v) => setState(() => _scopeAccounts = v ?? false),
           ),
           _buildScopeCheckbox(
             value: _scopeBalances,
-            label: 'Soldes (solde actuel de tes comptes)',
+            label: S.of(context)!.consentScopeBalances,
             onChanged: (v) => setState(() => _scopeBalances = v ?? false),
           ),
           _buildScopeCheckbox(
             value: _scopeTransactions,
-            label: 'Transactions (historique des mouvements)',
+            label: S.of(context)!.consentScopeTransactions,
             onChanged: (v) => setState(() => _scopeTransactions = v ?? false),
           ),
 
@@ -796,8 +786,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Acces en lecture seule. Aucune operation '
-                    'financiere ne peut etre effectuee.',
+                    S.of(context)!.consentReadOnlyInfo,
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: MintColors.textMuted,
@@ -885,9 +874,9 @@ class _ConsentScreenState extends State<ConsentScreen> {
 
   Widget _buildStepConfirm() {
     final scopes = <String>[];
-    if (_scopeAccounts) scopes.add('Comptes');
-    if (_scopeBalances) scopes.add('Soldes');
-    if (_scopeTransactions) scopes.add('Transactions');
+    if (_scopeAccounts) scopes.add(S.of(context)!.consentScopeLabelAccounts);
+    if (_scopeBalances) scopes.add(S.of(context)!.consentScopeLabelBalances);
+    if (_scopeTransactions) scopes.add(S.of(context)!.consentScopeLabelTransactions);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -901,7 +890,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Confirmation',
+            S.of(context)!.consentConfirmTitle,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -911,13 +900,13 @@ class _ConsentScreenState extends State<ConsentScreen> {
           const SizedBox(height: 16),
 
           // Summary
-          _buildConfirmRow('Banque', _selectedBankName ?? '-'),
+          _buildConfirmRow(S.of(context)!.consentConfirmLabelBank, _selectedBankName ?? '-'),
           const SizedBox(height: 8),
-          _buildConfirmRow('Autorisations', scopes.join(', ')),
+          _buildConfirmRow(S.of(context)!.consentConfirmLabelAuth, scopes.join(', ')),
           const SizedBox(height: 8),
-          _buildConfirmRow('Duree', '90 jours'),
+          _buildConfirmRow(S.of(context)!.consentConfirmLabelDuration, S.of(context)!.consentConfirmDuration90),
           const SizedBox(height: 8),
-          _buildConfirmRow('Acces', 'Lecture seule'),
+          _buildConfirmRow(S.of(context)!.consentConfirmLabelAccess, S.of(context)!.consentConfirmReadOnly),
 
           const SizedBox(height: 16),
 
@@ -930,10 +919,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               border: Border.all(color: MintColors.orangeRetroWarm),
             ),
             child: Text(
-              'En confirmant, tu autorises MINT a acceder aux '
-              'donnees selectionnees en lecture seule pour une duree '
-              'de 90 jours. Tu peux revoquer ce consentement '
-              'a tout moment.',
+              S.of(context)!.consentConfirmDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.deepOrange,
@@ -1044,10 +1030,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Cette fonctionnalite est en cours de developpement. '
-              'Les donnees affichees sont des exemples. '
-              'L\'activation du service Open Banking est soumise '
-              'a une consultation reglementaire prealable.',
+              S.of(context)!.consentDisclaimerBottom,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.deepOrange,
@@ -1063,29 +1046,31 @@ class _ConsentScreenState extends State<ConsentScreen> {
   // ── Helpers ────────────────────────────────────────────────
 
   _StatusConfig _getStatusConfig(String statusKey) {
+    final s = S.of(context)!;
     switch (statusKey) {
       case 'active':
-        return _StatusConfig(label: 'Actif', color: MintColors.success);
+        return _StatusConfig(label: s.consentStatusActive, color: MintColors.success);
       case 'expiring_soon':
         return _StatusConfig(
-            label: 'Expire bientot', color: MintColors.warning);
+            label: s.consentStatusExpiringSoon, color: MintColors.warning);
       case 'expired':
-        return _StatusConfig(label: 'Expire', color: MintColors.error);
+        return _StatusConfig(label: s.consentStatusExpired, color: MintColors.error);
       case 'revoked':
-        return _StatusConfig(label: 'Revoque', color: MintColors.error);
+        return _StatusConfig(label: s.consentStatusRevoked, color: MintColors.error);
       default:
-        return _StatusConfig(label: 'Inconnu', color: MintColors.textMuted);
+        return _StatusConfig(label: s.consentStatusUnknown, color: MintColors.textMuted);
     }
   }
 
   String _scopeLabel(String scope) {
+    final s = S.of(context)!;
     switch (scope) {
       case 'accounts':
-        return 'Comptes';
+        return s.consentScopeLabelAccounts;
       case 'balances':
-        return 'Soldes';
+        return s.consentScopeLabelBalances;
       case 'transactions':
-        return 'Transactions';
+        return s.consentScopeLabelTransactions;
       default:
         return scope;
     }
