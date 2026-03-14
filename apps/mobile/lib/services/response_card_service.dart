@@ -184,12 +184,13 @@ class ResponseCardService {
       id: 'pillar_3a_${now.year}',
       type: ResponseCardType.pillar3a,
       title: 'Versement 3a ${now.year}',
-      subtitle: 'Economie fiscale estimee',
+      subtitle: 'Économie fiscale estimée',
       chiffreChoc: ChiffreChoc(
         value: taxSaving,
         unit: 'CHF',
         explanation:
-            'Economie d\'impot estimee si tu verses le plafond de ${plafond.round()} CHF',
+            'Économie d\'impôt estimée si tu verses le plafond de ${plafond.round()} CHF. '
+            'Vérifie ton solde 3a actuel.',
       ),
       cta: const CardCta(
         label: 'Simuler mon 3a',
@@ -231,7 +232,8 @@ class ResponseCardService {
         value: rachatMax,
         unit: 'CHF',
         explanation:
-            'Rachat possible. Economie fiscale estimee de ${taxSaving.round()} CHF sur ${rachatSimule.round()} CHF',
+            'Rachat possible. Économie fiscale estimée de ${taxSaving.round()} CHF sur ${rachatSimule.round()} CHF. '
+            'Demande ton certificat de prévoyance pour le montant exact.',
       ),
       cta: const CardCta(
         label: 'Simuler un rachat',
@@ -271,16 +273,17 @@ class ResponseCardService {
       id: 'replacement_rate',
       type: ResponseCardType.replacementRate,
       title: 'Taux de remplacement',
-      subtitle: 'Projection a ${profile.effectiveRetirementAge} ans',
+      subtitle: 'Projection à ${profile.effectiveRetirementAge} ans',
       chiffreChoc: ChiffreChoc(
         value: replacementRate,
         unit: '%',
         explanation:
-            'Revenu estime a la retraite: ${totalMonthly.round()} CHF/mois '
-            'vs ${currentMonthly.round()} CHF/mois actuellement',
+            'Revenu estimé à la retraite\u00a0: ${totalMonthly.round()} CHF/mois '
+            'vs ${currentMonthly.round()} CHF/mois actuellement. '
+            'Compare tes scénarios dans le simulateur.',
       ),
       cta: const CardCta(
-        label: 'Explorer mes scenarios',
+        label: 'Explorer mes scénarios',
         route: '/simulator/rente-capital',
         icon: 'trending_up',
       ),
@@ -289,7 +292,7 @@ class ResponseCardService {
       sources: const ['LAVS art. 29-40', 'LPP art. 14'],
       alertes: [
         if (replacementRate < 60)
-          'Taux inferieur au seuil recommande de 60%. Explore les options.',
+          'Taux inférieur au seuil recommandé de 60\u00a0%. Explore tes options pour combler l\'écart.',
       ],
       impactPoints: 22,
     );
@@ -316,7 +319,8 @@ class ResponseCardService {
         value: monthlyLoss * 12,
         unit: 'CHF/an',
         explanation:
-            'Reduction estimee de ta rente AVS annuelle due aux lacunes',
+            'Réduction estimée de ta rente AVS annuelle due aux lacunes. '
+            'Vérifie ton extrait de compte AVS.',
       ),
       cta: const CardCta(
         label: 'Voir mon extrait AVS',
@@ -345,14 +349,14 @@ class ResponseCardService {
     return ResponseCard(
       id: 'couple_alert',
       type: ResponseCardType.coupleAlert,
-      title: 'Ecart de visibilite couple',
+      title: 'Écart de visibilité couple',
       subtitle: '${score.coupleWeakName} a ${score.coupleWeakScore!.round()}%',
       chiffreChoc: ChiffreChoc(
         value: gap,
         unit: 'pts',
         explanation:
-            'Ecart de ${gap.round()} points entre vos deux profils. '
-            'Equilibrer ameliore la projection couple.',
+            'Écart de ${gap.round()} points entre tes deux profils. '
+            'Compare les données pour équilibrer ta projection couple.',
       ),
       cta: const CardCta(
         label: 'Enrichir le profil couple',
@@ -378,14 +382,15 @@ class ResponseCardService {
     return ResponseCard(
       id: 'independant_coverage',
       type: ResponseCardType.independant,
-      title: 'Prevoyance independant',
-      subtitle: 'Sans LPP, ton 3a est ta prevoyance principale',
+      title: 'Prévoyance indépendant',
+      subtitle: 'Sans LPP, ton 3a est ta prévoyance principale',
       chiffreChoc: ChiffreChoc(
         value: max3a,
         unit: 'CHF/an',
         explanation:
-            'Plafond 3a sans LPP: ${max3a.round()} CHF/an. '
-            'Capital 3a actuel: ${current3a.round()} CHF',
+            'Plafond 3a sans LPP\u00a0: ${max3a.round()} CHF/an. '
+            'Capital 3a actuel\u00a0: ${current3a.round()} CHF. '
+            'Vérifie tes options de prévoyance.',
       ),
       cta: const CardCta(
         label: 'Explorer mes options',
@@ -423,16 +428,16 @@ class ResponseCardService {
       id: 'tax_optimization',
       type: ResponseCardType.taxOptimization,
       title: 'Optimisation fiscale',
-      subtitle: 'Deductions estimees disponibles',
+      subtitle: 'Déductions estimées disponibles',
       chiffreChoc: ChiffreChoc(
         value: totalSaving,
         unit: 'CHF',
         explanation:
-            'Economie d\'impot estimee via 3a (${plafond3a.round()} CHF) '
-            '+ rachat LPP',
+            'Économie d\'impôt estimée via 3a (${plafond3a.round()} CHF) '
+            '+ rachat LPP. Calcule ton avantage fiscal.',
       ),
       cta: const CardCta(
-        label: 'Decouvrir mes deductions',
+        label: 'Découvrir mes déductions',
         route: '/fiscal',
         icon: 'receipt_long',
       ),
@@ -463,15 +468,16 @@ class ResponseCardService {
       type: ResponseCardType.patrimoine,
       title: 'Patrimoine',
       subtitle: isUnderCushion
-          ? 'Coussin de securite insuffisant'
+          ? 'Coussin de sécurité insuffisant'
           : 'Vue d\'ensemble',
       chiffreChoc: ChiffreChoc(
         value: total,
         unit: 'CHF',
         explanation: isUnderCushion
-            ? 'Epargne liquide (${epargne.round()} CHF) inferieure '
-                'a 3 mois de charges (${coussinMin.round()} CHF)'
-            : 'Epargne ${epargne.round()} CHF + '
+            ? 'Épargne liquide (${epargne.round()} CHF) inférieure '
+                'à 3 mois de charges (${coussinMin.round()} CHF). '
+                'Vérifie ton budget pour renforcer ta réserve.'
+            : 'Épargne ${epargne.round()} CHF + '
                 'investissements ${investissements.round()} CHF',
       ),
       cta: CardCta(
@@ -484,7 +490,7 @@ class ResponseCardService {
       sources: const [],
       alertes: [
         if (isUnderCushion)
-          'Coussin de securite recommande: ${coussinMin.round()} CHF (3 mois de charges)',
+          'Coussin de sécurité recommandé\u00a0: ${coussinMin.round()} CHF (3 mois de charges). Planifie un objectif d\'épargne.',
       ],
       impactPoints: 12,
     );
@@ -506,16 +512,17 @@ class ResponseCardService {
     return ResponseCard(
       id: 'mortgage_overview',
       type: ResponseCardType.mortgage,
-      title: 'Hypotheque',
-      subtitle: 'Ratio LTV: ${ltv.toStringAsFixed(0)}%',
+      title: 'Hypothèque',
+      subtitle: 'Ratio LTV\u00a0: ${ltv.toStringAsFixed(0)}\u00a0%',
       chiffreChoc: ChiffreChoc(
         value: mortgage,
         unit: 'CHF',
-        explanation: 'Solde hypothecaire. Valeur du bien: '
-            '${propertyValue.round()} CHF',
+        explanation: 'Solde hypothécaire. Valeur du bien\u00a0: '
+            '${propertyValue.round()} CHF. '
+            'Vérifie ton ratio LTV et tes conditions.',
       ),
       cta: const CardCta(
-        label: 'Simuler la capacite',
+        label: 'Simuler la capacité',
         route: '/simulator/mortgage',
         icon: 'home',
       ),
