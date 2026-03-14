@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
@@ -11,6 +12,7 @@ class PortfolioScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final profile = context.watch<ProfileProvider>().profile;
     final hasDebt = profile?.hasDebt ?? false;
 
@@ -23,7 +25,7 @@ class PortfolioScreen extends StatelessWidget {
             expandedHeight: 120,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Mon Patrimoine',
+                s.portfolioTitle,
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -48,26 +50,24 @@ class PortfolioScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   if (hasDebt) ...[
-                    _buildSafeModeWarning(),
+                    _buildSafeModeWarning(context),
                     const SizedBox(height: 24),
                   ],
-                  _buildWealthSummary(),
+                  _buildWealthSummary(context),
                   const SizedBox(height: 32),
-                  _buildReadinessIndex(profile),
+                  _buildReadinessIndex(context, profile),
                   const SizedBox(height: 32),
-                  _buildSectionHeader('Répartition par Enveloppe'),
+                  _buildSectionHeader(s.portfolioEnvelopeSection),
                   const SizedBox(height: 12),
-                  _buildAccountItem('Libre (Compte Placement)', 'CHF 73\'508.90', icon: Icons.trending_up, color: MintColors.primary),
-                  _buildAccountItem('Lié (Pilier 3a)', 'CHF 18\'369.74', icon: Icons.savings_outlined, color: MintColors.success),
-                  _buildAccountItem('Réservé (Fonds d\'urgence)', 'CHF 10\'800.00', icon: Icons.account_balance_wallet_outlined, color: MintColors.warning),
+                  _buildAccountItem(s.portfolioAccountFree, 'CHF\u00a073\'508.90', icon: Icons.trending_up, color: MintColors.primary),
+                  _buildAccountItem(s.portfolioAccountLinked, 'CHF\u00a018\'369.74', icon: Icons.savings_outlined, color: MintColors.success),
+                  _buildAccountItem(s.portfolioAccountReserved, 'CHF\u00a010\'800.00', icon: Icons.account_balance_wallet_outlined, color: MintColors.warning),
                   const SizedBox(height: 32),
                   SafeModeGate(
                     hasDebt: hasDebt,
-                    lockedTitle: 'Priorite au desendettement',
-                    lockedMessage:
-                        'Les conseils d\'allocation sont desactives en mode protection. '
-                        'Ta priorite est de reduire tes dettes avant de reequilibrer ton patrimoine.',
-                    child: _buildCoachAdvice(),
+                    lockedTitle: s.portfolioSafeModeLockTitle,
+                    lockedMessage: s.portfolioSafeModeLockMessage,
+                    child: _buildCoachAdvice(context),
                   ),
                   const SizedBox(height: 100),
                 ],
@@ -79,22 +79,22 @@ class PortfolioScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSafeModeWarning() {
+  Widget _buildSafeModeWarning(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: MintColors.error.withOpacity(0.05),
+        color: MintColors.error.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.error.withOpacity(0.3)),
+        border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.warning_amber_rounded, color: MintColors.error),
-          SizedBox(width: 16),
+          const Icon(Icons.warning_amber_rounded, color: MintColors.error),
+          const SizedBox(width: 16),
           Expanded(
             child: Text(
-              'Alerte Dettes : Ta priorité absolue est le désendettement avant tout réinvestissement.',
-              style: TextStyle(fontSize: 13, color: MintColors.error, fontWeight: FontWeight.bold),
+              S.of(context)!.portfolioDebtAlert,
+              style: const TextStyle(fontSize: 13, color: MintColors.error, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -102,7 +102,8 @@ class PortfolioScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildReadinessIndex(Profile? profile) {
+  Widget _buildReadinessIndex(BuildContext context, Profile? profile) {
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -113,13 +114,13 @@ class PortfolioScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Readiness Index (Milestones)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+          Text(s.portfolioReadinessTitle, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          _readinessRow('Pérennité Retraite', 0.65),
+          _readinessRow(s.portfolioReadinessRetirement, 0.65),
           const SizedBox(height: 12),
-          _readinessRow('Projet Immobilier', 0.40),
+          _readinessRow(s.portfolioReadinessProperty, 0.40),
           const SizedBox(height: 12),
-          _readinessRow('Protection Famille', 0.85),
+          _readinessRow(s.portfolioReadinessFamily, 0.85),
         ],
       ),
     );
@@ -147,7 +148,8 @@ class PortfolioScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildWealthSummary() {
+  Widget _buildWealthSummary(BuildContext context) {
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -157,13 +159,13 @@ class PortfolioScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Text(
-            'Valeur Totale Neté',
-            style: TextStyle(fontSize: 14, color: MintColors.textSecondary, fontWeight: FontWeight.w500),
+          Text(
+            s.portfolioTotalNetValue,
+            style: const TextStyle(fontSize: 14, color: MintColors.textSecondary, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 8),
           Text(
-            'CHF 102\'678.64',
+            'CHF\u00a0102\'678.64',
             style: GoogleFonts.montserrat(
               fontSize: 32,
               fontWeight: FontWeight.w700,
@@ -171,14 +173,14 @@ class PortfolioScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.trending_up, color: MintColors.success, size: 16),
-              SizedBox(width: 4),
+              const Icon(Icons.trending_up, color: MintColors.success, size: 16),
+              const SizedBox(width: 4),
               Text(
-                '509.30 (0.50%) aujourd\'hui',
-                style: TextStyle(color: MintColors.success, fontWeight: FontWeight.w600, fontSize: 13),
+                s.portfolioTodayChange,
+                style: const TextStyle(color: MintColors.success, fontWeight: FontWeight.w600, fontSize: 13),
               ),
             ],
           ),
@@ -234,7 +236,7 @@ class PortfolioScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCoachAdvice() {
+  Widget _buildCoachAdvice(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -242,14 +244,14 @@ class PortfolioScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.primary.withValues(alpha: 0.1)),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
-          SizedBox(width: 16),
+          const Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
+          const SizedBox(width: 16),
           Expanded(
             child: Text(
-              'Ton allocation est saine. Pense à rééquilibrer ton 3a prochainement.',
-              style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.4),
+              S.of(context)!.portfolioCoachAdvice,
+              style: const TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.4),
             ),
           ),
         ],

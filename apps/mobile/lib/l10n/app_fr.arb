@@ -8945,5 +8945,76 @@
   "disabilityRedFeedbackYes": "Bien\u00a0! V\u00e9rifie que le d\u00e9lai de carence est inf\u00e9rieur \u00e0 30 jours.",
   "disabilityRedFeedbackNo": "Action prioritaire\u00a0: compare 3 assurances perte de gain. D\u00e8s CHF 45/mois.",
   "disabilityRedFeedbackDontKnow": "Retrouve ton contrat ou contacte ta caisse de compensation.",
-  "disabilityRedDisclaimer": "Outil \u00e9ducatif \u00b7 ne constitue pas un conseil financier au sens de la LSFin. Source\u00a0: LAMal art. 67-77, CO art. 324a."
+  "disabilityRedDisclaimer": "Outil \u00e9ducatif \u00b7 ne constitue pas un conseil financier au sens de la LSFin. Source\u00a0: LAMal art. 67-77, CO art. 324a.",
+  "leasingCostHeaderTitle": "Le vrai coût du leasing",
+  "leasingCostVehicleChip": "Véhicule : CHF {amount}",
+  "@leasingCostVehicleChip": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "leasingCostYearsChip": "{years} ans",
+  "@leasingCostYearsChip": {
+    "placeholders": {
+      "years": {"type": "String"}
+    }
+  },
+  "leasingCostMonthlyLabel": "Mensualité leasing",
+  "leasingCostMonthlyAmount": "CHF {amount}/mois",
+  "@leasingCostMonthlyAmount": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "leasingCostLeasingLabel": "Leasing",
+  "leasingCostLeasingSubtitle": "{years} ans de mensualités",
+  "@leasingCostLeasingSubtitle": {
+    "placeholders": {
+      "years": {"type": "String"}
+    }
+  },
+  "leasingCostTotalPaid": "total payé",
+  "leasingCostCashLabel": "Achat cash",
+  "leasingCostCashSubtitle": "Valeur résiduelle ~45 %",
+  "leasingCostDepreciation": "dépréciation réelle",
+  "leasingCostHiddenCostTitle": "Le vrai coût caché",
+  "leasingCostInvestmentHypothesis": "Si tu avais investi CHF {amount}/mois sur {years} ans à {rate} %/an :",
+  "@leasingCostInvestmentHypothesis": {
+    "placeholders": {
+      "amount": {"type": "String"},
+      "years": {"type": "String"},
+      "rate": {"type": "String"}
+    }
+  },
+  "leasingCostAccumulatedCapital": "Capital accumulé",
+  "leasingCostInsteadOfLeasing": "Au lieu du leasing",
+  "leasingCostOpportunityCostLabel": "Coût d'opportunité",
+  "leasingCostRealCostNote": "C'est ce que ton leasing te coûte vraiment sur {years} ans.",
+  "@leasingCostRealCostNote": {
+    "placeholders": {
+      "years": {"type": "String"}
+    }
+  },
+  "leasingCostDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : CO art. 255 (leasing). Rendement simulé à {rate} % — ne garantit pas de rendement futur.",
+  "@leasingCostDisclaimer": {
+    "placeholders": {
+      "rate": {"type": "String"}
+    }
+  },
+  "portfolioTitle": "Mon Patrimoine",
+  "portfolioDebtAlert": "Alerte Dettes : Ta priorité absolue est le désendettement avant tout réinvestissement.",
+  "portfolioTotalNetValue": "Valeur Totale Nette",
+  "portfolioTodayChange": "509.30 (0.50 %) aujourd'hui",
+  "portfolioReadinessTitle": "Readiness Index (Milestones)",
+  "portfolioReadinessRetirement": "Pérennité Retraite",
+  "portfolioReadinessProperty": "Projet Immobilier",
+  "portfolioReadinessFamily": "Protection Famille",
+  "portfolioEnvelopeSection": "Répartition par Enveloppe",
+  "portfolioAccountFree": "Libre (Compte Placement)",
+  "portfolioAccountLinked": "Lié (Pilier 3a)",
+  "portfolioAccountReserved": "Réservé (Fonds d'urgence)",
+  "portfolioSafeModeLockTitle": "Priorité au désendettement",
+  "portfolioSafeModeLockMessage": "Les conseils d'allocation sont désactivés en mode protection. Ta priorité est de réduire tes dettes avant de rééquilibrer ton patrimoine.",
+  "portfolioCoachAdvice": "Ton allocation est saine. Pense à rééquilibrer ton 3a prochainement."
+
 }
