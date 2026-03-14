@@ -150,9 +150,9 @@ class DebtRatioCalculator {
     if (minimumVitalMenace) {
       recommandations.insert(
         0,
-        'ALERTE : Ta marge residuelle est inferieure au minimum vital '
-        '(LP art. 93 : CHF ${formatChf(minimumVital)}/mois). '
-        'Contactez immediatement un service d\'aide.',
+        'ALERTE\u00a0: Ta marge résiduelle est inférieure au minimum vital '
+        '(LP art. 93\u00a0: CHF ${formatChf(minimumVital)}/mois). '
+        'Contacte immédiatement un service d\'aide aux dettes.',
       );
     }
 
@@ -164,15 +164,15 @@ class DebtRatioCalculator {
       minimumVitalMenace: minimumVitalMenace,
       chiffreChoc: DebtChiffreChoc(
         montant: ratio,
-        texte: 'Ratio dette : ${ratio.toStringAsFixed(1)}%',
+        texte: 'Ratio dette\u00a0: ${ratio.toStringAsFixed(1)}\u00a0%. Vérifie ta marge disponible.',
         niveau: niveau,
       ),
       recommandations: recommandations,
       disclaimer:
-          'Ce diagnostic est pedagogique et ne constitue pas un avis juridique '
+          'Ce diagnostic est pédagogique et ne constitue pas un avis juridique '
           'ou financier. Le minimum vital (LP art. 93) varie selon la situation '
-          'personnelle et le canton. Pour une analyse personnalisee, '
-          'consultez un service de conseil en dettes agree.',
+          'personnelle et le canton. Pour une analyse personnalisée, '
+          'consulte un service de conseil en dettes agréé.',
     );
   }
 }
@@ -308,8 +308,9 @@ class RepaymentPlanner {
       chiffreChoc: DebtChiffreChoc(
         montant: meilleur.moisJusquaLiberation.toDouble(),
         texte:
-            'Libere dans ${meilleur.moisJusquaLiberation} mois — '
-            'CHF ${formatChf(economieInterets.abs())} d\'interets economises',
+            'Libéré dans ${meilleur.moisJusquaLiberation} mois — '
+            'CHF ${formatChf(economieInterets.abs())} d\'intérêts économisés. '
+            'Compare les deux stratégies.',
         niveau: meilleur.moisJusquaLiberation <= 24
             ? DebtRiskLevel.vert
             : meilleur.moisJusquaLiberation <= 60
@@ -317,13 +318,13 @@ class RepaymentPlanner {
                 : DebtRiskLevel.rouge,
       ),
       disclaimer:
-          'Cette simulation est pedagogique et ne prend pas en compte '
-          'les eventuelles penalites de remboursement anticipe, '
+          'Cette simulation est pédagogique et ne prend pas en compte '
+          'les éventuelles pénalités de remboursement anticipé, '
           'les frais annexes ou les variations de taux. '
-          'La methode avalanche minimise les interets totaux, '
-          'la methode boule de neige maximise la motivation par des '
-          'victoires rapides. Consultez un·e spécialiste en dettes '
-          'pour un plan adapte a ta situation.',
+          'La méthode avalanche minimise les intérêts totaux, '
+          'la méthode boule de neige maximise la motivation par des '
+          'victoires rapides. Consulte un·e spécialiste en dettes '
+          'pour un plan adapté à ta situation.',
     );
   }
 
