@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
@@ -175,7 +176,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
             foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Calendrier de retraits',
+                S.of(context)!.calendrierRetraitsTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -218,7 +219,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: SmartDefaultIndicator(
-                        source: 'Valeurs pré-remplies depuis ton profil',
+                        source: S.of(context)!.calendrierRetraitsPrefilledSource,
                         confidence: _result!.confidenceScore / 100,
                       ),
                     ),
@@ -237,7 +238,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                   ArbitrageTornadoSection(
                     result: _result!,
                     subtitle:
-                        'Impact des hypothèses sur l\'écart fiscal entre retrait unique et retraits étalés.',
+                        S.of(context)!.calendrierRetraitsTornadoSubtitle,
                   ),
                   const SizedBox(height: 24),
 
@@ -273,7 +274,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Tes avoirs de prévoyance',
+            S.of(context)!.calendrierRetraitsAssetsTitle,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -282,8 +283,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Ajoute chaque compte (3a, LPP, libre passage) avec le montant '
-            'et l\'âge au plus tôt pour le retrait.',
+            S.of(context)!.calendrierRetraitsAssetsSubtitle,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -305,7 +305,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                   onPressed: _addAsset,
                   icon: const Icon(Icons.add_rounded, size: 18),
                   label: Text(
-                    'Ajouter un avoir',
+                    S.of(context)!.calendrierRetraitsAddAsset,
                     style: GoogleFonts.inter(fontSize: 13),
                   ),
                   style: OutlinedButton.styleFrom(
@@ -334,7 +334,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                 ),
               ),
               child: Text(
-                'Comparer les calendriers',
+                S.of(context)!.calendrierRetraitsCompare,
                 style: GoogleFonts.inter(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -388,12 +388,12 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                       fontSize: 13,
                       color: MintColors.textPrimary,
                     ),
-                    items: const [
-                      DropdownMenuItem(value: '3a', child: Text('Pilier 3a')),
-                      DropdownMenuItem(value: 'lpp', child: Text('LPP')),
+                    items: [
+                      DropdownMenuItem(value: '3a', child: Text(S.of(context)!.calendrierRetraitsType3a)),
+                      DropdownMenuItem(value: 'lpp', child: Text(S.of(context)!.calendrierRetraitsTypeLpp)),
                       DropdownMenuItem(
                           value: 'libre_passage',
-                          child: Text('Libre passage')),
+                          child: Text(S.of(context)!.calendrierRetraitsTypeLibrePassage)),
                     ],
                     onChanged: (v) {
                       if (v != null) {
@@ -442,7 +442,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                       horizontal: 12,
                       vertical: 12,
                     ),
-                    hintText: 'Montant CHF',
+                    hintText: S.of(context)!.calendrierRetraitsAmountHint,
                     hintStyle: GoogleFonts.inter(
                       fontSize: 13,
                       color: MintColors.textMuted,
@@ -472,7 +472,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                     items: List.generate(11, (i) => 55 + i)
                         .map((age) => DropdownMenuItem(
                               value: age,
-                              child: Text('$age ans'),
+                              child: Text(S.of(context)!.calendrierRetraitsAgeYears(age.toString())),
                             ))
                         .toList(),
                     onChanged: (v) {
@@ -503,7 +503,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Canton',
+                S.of(context)!.calendrierRetraitsCanton,
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -547,7 +547,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Marie\u00b7e',
+              S.of(context)!.calendrierRetraitsMarried,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -610,8 +610,8 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
         children: [
           Text(
             taxSaved > 0
-                ? 'Tu économiserais'
-                : 'Écart d\'impôt',
+                ? S.of(context)!.calendrierRetraitsYouWouldSave
+                : S.of(context)!.calendrierRetraitsTaxGap,
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.white.withAlpha(200),
@@ -630,8 +630,8 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
           const SizedBox(height: 4),
           Text(
             taxSaved > 0
-                ? 'd\'impôt en étalant tes retraits'
-                : 'entre les deux stratégies',
+                ? S.of(context)!.calendrierRetraitsTaxByStaggering
+                : S.of(context)!.calendrierRetraitsBetweenStrategies,
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.white.withAlpha(200),
@@ -675,7 +675,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
       children: [
         Expanded(
           child: _buildOptionCard(
-            title: 'Tout en une fois',
+            title: S.of(context)!.calendrierRetraitsAllAtOnce,
             icon: Icons.bolt_rounded,
             iconColor: MintColors.warning,
             netValue: toutEnUn.terminalValue,
@@ -685,7 +685,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
         const SizedBox(width: 12),
         Expanded(
           child: _buildOptionCard(
-            title: 'Étalé',
+            title: S.of(context)!.calendrierRetraitsStaggered,
             icon: Icons.timeline_rounded,
             iconColor: MintColors.success,
             netValue: etale.terminalValue,
@@ -733,7 +733,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Net',
+            S.of(context)!.calendrierRetraitsNet,
             style: GoogleFonts.inter(
               fontSize: 11,
               color: MintColors.textMuted,
@@ -749,7 +749,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Impôt',
+            S.of(context)!.calendrierRetraitsTax,
             style: GoogleFonts.inter(
               fontSize: 11,
               color: MintColors.textMuted,
@@ -788,7 +788,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Calendrier de retraits étalé',
+            S.of(context)!.calendrierRetraitsTimelineTitle,
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -797,7 +797,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Chaque avoir est retiré à l\'âge indiqué pour limiter la progressivité.',
+            S.of(context)!.calendrierRetraitsTimelineSubtitle,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -825,7 +825,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
     required bool isLast,
   }) {
     final typeColor = _colorForType(asset.type);
-    final typeLabel = asset.label ?? _labelForType(asset.type);
+    final typeLabel = asset.label ?? _labelForType(asset.type, context);
     final amount =
         double.tryParse(asset.amountCtrl.text.replaceAll("'", '')) ?? 0;
 
@@ -895,7 +895,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                           ),
                         ),
                         Text(
-                          '${asset.age} ans',
+                          S.of(context)!.calendrierRetraitsAgeYears(asset.age.toString()),
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             color: MintColors.textSecondary,
@@ -931,7 +931,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
       tilePadding: EdgeInsets.zero,
       childrenPadding: const EdgeInsets.only(bottom: 8),
       title: Text(
-        'Hypothèses utilisées',
+        S.of(context)!.calendrierRetraitsHypotheses,
         style: GoogleFonts.montserrat(
           fontSize: 14,
           fontWeight: FontWeight.w600,
@@ -989,7 +989,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                'Avertissement',
+                S.of(context)!.calendrierRetraitsWarning,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -1009,7 +1009,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Sources : ${_result!.sources.join(' | ')}',
+            S.of(context)!.calendrierRetraitsSources(_result!.sources.join(' | ')),
             style: GoogleFonts.inter(
               fontSize: 10,
               color: MintColors.textMuted,
@@ -1038,14 +1038,14 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
     }
   }
 
-  String _labelForType(String type) {
+  String _labelForType(String type, BuildContext ctx) {
     switch (type) {
       case '3a':
-        return 'Pilier 3a';
+        return S.of(ctx)!.calendrierRetraitsType3a;
       case 'lpp':
-        return 'LPP (2e pilier)';
+        return S.of(ctx)!.calendrierRetraitsLabelLpp2e;
       case 'libre_passage':
-        return 'Libre passage';
+        return S.of(ctx)!.calendrierRetraitsTypeLibrePassage;
       default:
         return type;
     }
