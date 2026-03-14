@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/disability_cliff_widget.dart';
@@ -49,16 +50,14 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
 
   // ── Calcul des actes (La Falaise) ─────────────────────────
 
-  List<DisabilityAct> get _acts {
-    // Acte 1 : Employeur — 80% salaire (CO art. 324a, durée variable)
+  List<DisabilityAct> _buildActs(S s) {
+    // Acte 1 : Employeur -- 80% salaire (CO art. 324a, duree variable)
     final act1Income = _grossMonthly * 0.80;
 
-    // Acte 2 : IJM — 80% si souscrite, 0 sinon (24 mois max)
+    // Acte 2 : IJM -- 80% si souscrite, 0 sinon (24 mois max)
     final act2Income = _hasIjm ? _grossMonthly * 0.80 : 0.0;
 
-    // Acte 3 : AI + LPP (définitif)
-    // AI max CHF 2'520/mois (LAI art. 28 + LAVS art. 34)
-    // LPP invalidité ≈ 40% salaire coordonné (LPP art. 23-24, estimation)
+    // Acte 3 : AI + LPP (definitif)
     final annualGross = _grossMonthly * 12;
     double lppInvalidity = 0.0;
     if (annualGross >= lppSeuilEntree) {
@@ -70,35 +69,35 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
 
     return [
       DisabilityAct(
-        label: 'ACTE 1 · Employeur',
-        subtitle: 'CO art. 324a — 3 à 26 semaines selon ancienneté',
-        durationLabel: 'Semaines 1-26',
+        label: s.disabilityGapAct1Label,
+        subtitle: s.disabilityGapAct1Subtitle,
+        durationLabel: s.disabilityGapAct1Duration,
         monthlyIncome: act1Income,
-        emoji: '🟢',
+        emoji: '\uD83D\uDFE2',
         color: MintColors.success,
-        detail: '80\u00a0% de ton salaire versé par ton employeur',
+        detail: s.disabilityGapAct1Detail,
       ),
       DisabilityAct(
-        label: _hasIjm ? 'ACTE 2 · IJM (assurance maladie)' : 'ACTE 2 · Pas d\'IJM',
+        label: _hasIjm ? s.disabilityGapAct2LabelIjm : s.disabilityGapAct2LabelNoIjm,
         subtitle: _hasIjm
-            ? 'Assurance collective — 80% pendant 720 jours max'
-            : 'Sans IJM, tu passes directement à l\'AI après l\'employeur',
-        durationLabel: 'Jusqu\'à 24 mois',
+            ? s.disabilityGapAct2SubtitleIjm
+            : s.disabilityGapAct2SubtitleNoIjm,
+        durationLabel: s.disabilityGapAct2Duration,
         monthlyIncome: act2Income,
-        emoji: _hasIjm ? '🟡' : '🔴',
+        emoji: _hasIjm ? '\uD83D\uDFE1' : '\uD83D\uDD34',
         color: _hasIjm ? MintColors.amber : MintColors.error,
         detail: _hasIjm
-            ? '80% du salaire assuré'
-            : 'Aucune couverture — délai AI en cours',
+            ? s.disabilityGapAct2DetailIjm
+            : s.disabilityGapAct2DetailNoIjm,
       ),
       DisabilityAct(
-        label: 'ACTE 3 · AI + LPP (définitif)',
-        subtitle: 'Délai moyen décision AI : 14 mois · LAI art. 28 + LPP art. 23',
-        durationLabel: 'Après 24 mois',
+        label: s.disabilityGapAct3Label,
+        subtitle: s.disabilityGapAct3Subtitle,
+        durationLabel: s.disabilityGapAct3Duration,
         monthlyIncome: act3Income,
-        emoji: '🔴',
+        emoji: '\uD83D\uDD34',
         color: MintColors.error,
-        detail: 'AI ${_fmtChf(aiRenteEntiere)} + LPP ${_fmtChf(lppInvalidity)} = ${_fmtChf(act3Income)} CHF/mois',
+        detail: s.disabilityGapAct3Detail(_fmtChf(aiRenteEntiere), _fmtChf(lppInvalidity), _fmtChf(act3Income)),
       ),
     ];
   }
@@ -132,14 +131,14 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
 
   // ── Calcul Bulletin scolaire ─────────────────────────────
 
-  List<CoverageItem> get _scorecardItems {
+  List<CoverageItem> _buildScorecardItems(S s) {
     // APG/IJM grade
     final ijmGrade = _hasIjm ? 'B+' : 'F';
     final ijmDetail = _hasIjm
-        ? '80% pendant 720 jours — assurance collective'
-        : 'Aucune IJM souscrite — risque maximal';
+        ? s.disabilityGapIjmDetailYes
+        : s.disabilityGapIjmDetailNo;
 
-    // AI grade (systemic — everyone gets it)
+    // AI grade (systemic -- everyone gets it)
     const aiGrade = 'C';
 
     // LPP grade
@@ -147,10 +146,10 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     final hasLpp = annualGross >= lppSeuilEntree;
     final lppGrade = hasLpp ? 'A-' : 'D';
     final lppDetail = hasLpp
-        ? 'Rente invalidité ≈ 40% salaire coordonné (LPP art. 23)'
-        : 'Salaire sous le seuil LPP — pas de couverture 2e pilier';
+        ? s.disabilityGapLppDetailYes
+        : s.disabilityGapLppDetailNo;
 
-    // Épargne urgence grade
+    // Epargne urgence grade
     final monthsReserve = _savings / (_grossMonthly * 0.7);
     final String savingsGrade;
     if (monthsReserve >= 6) {
@@ -165,31 +164,31 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
 
     return [
       CoverageItem(
-        label: 'APG / IJM (perte de gain)',
+        label: s.disabilityGapApgLabel,
         grade: ijmGrade,
         detail: ijmDetail,
         legalRef: 'LAMal art. 67-77',
-        emoji: '🛡️',
+        emoji: '\uD83D\uDEE1\uFE0F',
       ),
       CoverageItem(
-        label: 'AI (assurance invalidité)',
+        label: s.disabilityGapAiLabel,
         grade: aiGrade,
-        detail: 'Max ${_fmtChf(aiRenteEntiere)} CHF/mois — délai ~14 mois',
+        detail: s.disabilityGapAiDetail(_fmtChf(aiRenteEntiere)),
         legalRef: 'LAI art. 28',
-        emoji: '🏛️',
+        emoji: '\uD83C\uDFDB\uFE0F',
       ),
       CoverageItem(
-        label: 'LPP invalidité (2e pilier)',
+        label: s.disabilityGapLppLabel,
         grade: lppGrade,
         detail: lppDetail,
         legalRef: 'LPP art. 23-26',
-        emoji: '🏦',
+        emoji: '\uD83C\uDFE6',
       ),
       CoverageItem(
-        label: 'Réserve d\'urgence',
+        label: s.disabilityGapSavingsLabel,
         grade: savingsGrade,
-        detail: '${monthsReserve.toStringAsFixed(1)} mois de charges couverts',
-        emoji: '💰',
+        detail: s.disabilityGapSavingsDetail(monthsReserve.toStringAsFixed(1)),
+        emoji: '\uD83D\uDCB0',
       ),
     ];
   }
@@ -210,8 +209,8 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     return 'D';
   }
 
-  double get _lifeDropPercent {
-    final act3Income = _acts.last.monthlyIncome;
+  double _lifeDropPercent(List<DisabilityAct> acts) {
+    final act3Income = acts.last.monthlyIncome;
     return ((1 - act3Income / _grossMonthly) * 100).clamp(0, 100);
   }
 
@@ -229,21 +228,23 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
+    final acts = _buildActs(s);
     return Scaffold(
       backgroundColor: MintColors.background,
       body: CustomScrollView(
         slivers: [
-          _buildAppBar(),
+          _buildAppBar(s),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 20),
-                _buildInputsCard(),
+                _buildInputsCard(s),
                 const SizedBox(height: 20),
                 DisabilityCliffWidget(
                   grossMonthly: _grossMonthly,
-                  acts: _acts,
+                  acts: acts,
                 ),
                 const SizedBox(height: 20),
                 DisabilityCountdownWidget(
@@ -262,23 +263,17 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                   const SizedBox(height: 20),
                 ],
                 DisabilityScorecardWidget(
-                  items: _scorecardItems,
+                  items: _buildScorecardItems(s),
                   overallGrade: _overallGrade,
-                  lifeDropPercent: _lifeDropPercent,
+                  lifeDropPercent: _lifeDropPercent(acts),
                 ),
                 const SizedBox(height: 20),
-                const EduDisclaimer(
-                  text:
-                      'Outil éducatif — ne constitue pas un conseil en assurance au sens de la LSFin. '
-                      'Tes couvertures réelles dépendent de ton contrat de travail et de ta caisse de pension.',
+                EduDisclaimer(
+                  text: s.disabilityGapDisclaimer,
                 ),
                 const SizedBox(height: 8),
-                const EduLegalSources(
-                  sources:
-                      '• LAI art. 28-29 (rente AI)\n'
-                      '• LPP art. 23-26 (invalidité 2e pilier)\n'
-                      '• CO art. 324a (maintien salaire employeur)\n'
-                      '• LPGA art. 19 (délai de carence)',
+                EduLegalSources(
+                  sources: s.disabilityGapLegalSources,
                 ),
               ]),
             ),
@@ -288,7 +283,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(S s) {
     return SliverAppBar(
       expandedHeight: 140,
       floating: false,
@@ -311,7 +306,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    '1 personne sur 5',
+                    s.disabilityGapStatLine1,
                     style: GoogleFonts.montserrat(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -320,7 +315,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                     ),
                   ),
                   Text(
-                    'sera touchée avant 65 ans',
+                    s.disabilityGapStatLine2,
                     style: GoogleFonts.montserrat(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
@@ -334,7 +329,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
         ),
       ),
       title: Text(
-        'Si je ne peux plus travailler',
+        s.disabilityGapTitle,
         style: GoogleFonts.montserrat(
           fontSize: 16,
           fontWeight: FontWeight.w700,
@@ -344,7 +339,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     );
   }
 
-  Widget _buildInputsCard() {
+  Widget _buildInputsCard(S s) {
     return Container(
       decoration: BoxDecoration(
         color: MintColors.white,
@@ -356,7 +351,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ta situation',
+            s.disabilityGapYourSituation,
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -365,32 +360,32 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
           ),
           const SizedBox(height: 16),
           _buildSliderRow(
-            label: 'Salaire brut mensuel',
+            label: s.disabilityGapGrossSalary,
             value: _grossMonthly,
             min: 2000,
             max: 25000,
             divisions: 46,
-            format: (v) => "CHF ${_fmtChf(v)}",
+            format: (v) => 'CHF ${_fmtChf(v)}',
             onChanged: (v) => setState(() => _grossMonthly = v),
           ),
           const SizedBox(height: 12),
           _buildSliderRow(
-            label: 'Ton âge',
+            label: s.disabilityGapYourAge,
             value: _age.toDouble(),
             min: 18,
             max: 64,
             divisions: 46,
-            format: (v) => '${v.toInt()} ans',
+            format: (v) => s.disabilityGapAgeYears(v.toInt()),
             onChanged: (v) => setState(() => _age = v.toInt()),
           ),
           const SizedBox(height: 12),
           _buildSliderRow(
-            label: 'Épargne disponible',
+            label: s.disabilityGapAvailableSavings,
             value: _savings,
             min: 0,
             max: 200000,
             divisions: 40,
-            format: (v) => "CHF ${_fmtChf(v)}",
+            format: (v) => 'CHF ${_fmtChf(v)}',
             onChanged: (v) => setState(() => _savings = v),
           ),
           const SizedBox(height: 16),
@@ -399,7 +394,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
             children: [
               Flexible(
                 child: Text(
-                  'J\'ai une assurance IJM via mon employeur',
+                  s.disabilityGapIjmSwitch,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textPrimary,

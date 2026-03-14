@@ -8295,5 +8295,64 @@
       "canton": {"type": "String"},
       "years": {"type": "String"}
     }
-  }
+  },
+
+  "disabilityGapTitle": "Si je ne peux plus travailler",
+  "disabilityGapStatLine1": "1 personne sur 5",
+  "disabilityGapStatLine2": "sera touch\u00e9e avant 65 ans",
+  "disabilityGapYourSituation": "Ta situation",
+  "disabilityGapGrossSalary": "Salaire brut mensuel",
+  "disabilityGapYourAge": "Ton \u00e2ge",
+  "disabilityGapAgeYears": "{age} ans",
+  "@disabilityGapAgeYears": {
+    "placeholders": {
+      "age": {"type": "int"}
+    }
+  },
+  "disabilityGapAvailableSavings": "\u00c9pargne disponible",
+  "disabilityGapIjmSwitch": "J'ai une assurance IJM via mon employeur",
+  "disabilityGapAct1Label": "ACTE 1 \u00b7 Employeur",
+  "disabilityGapAct1Subtitle": "CO art. 324a \u2014 3 \u00e0 26 semaines selon anciennet\u00e9",
+  "disabilityGapAct1Duration": "Semaines 1-26",
+  "disabilityGapAct1Detail": "80\u00a0% de ton salaire vers\u00e9 par ton employeur",
+  "disabilityGapAct2LabelIjm": "ACTE 2 \u00b7 IJM (assurance maladie)",
+  "disabilityGapAct2LabelNoIjm": "ACTE 2 \u00b7 Pas d'IJM",
+  "disabilityGapAct2SubtitleIjm": "Assurance collective \u2014 80% pendant 720 jours max",
+  "disabilityGapAct2SubtitleNoIjm": "Sans IJM, tu passes directement \u00e0 l'AI apr\u00e8s l'employeur",
+  "disabilityGapAct2Duration": "Jusqu'\u00e0 24 mois",
+  "disabilityGapAct2DetailIjm": "80% du salaire assur\u00e9",
+  "disabilityGapAct2DetailNoIjm": "Aucune couverture \u2014 d\u00e9lai AI en cours",
+  "disabilityGapAct3Label": "ACTE 3 \u00b7 AI + LPP (d\u00e9finitif)",
+  "disabilityGapAct3Subtitle": "D\u00e9lai moyen d\u00e9cision AI\u00a0: 14 mois \u00b7 LAI art. 28 + LPP art. 23",
+  "disabilityGapAct3Duration": "Apr\u00e8s 24 mois",
+  "disabilityGapAct3Detail": "AI {ai} + LPP {lpp} = {total} CHF/mois",
+  "@disabilityGapAct3Detail": {
+    "placeholders": {
+      "ai": {"type": "String"},
+      "lpp": {"type": "String"},
+      "total": {"type": "String"}
+    }
+  },
+  "disabilityGapIjmDetailYes": "80% pendant 720 jours \u2014 assurance collective",
+  "disabilityGapIjmDetailNo": "Aucune IJM souscrite \u2014 risque maximal",
+  "disabilityGapApgLabel": "APG / IJM (perte de gain)",
+  "disabilityGapAiLabel": "AI (assurance invalidit\u00e9)",
+  "disabilityGapAiDetail": "Max {amount} CHF/mois \u2014 d\u00e9lai ~14 mois",
+  "@disabilityGapAiDetail": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "disabilityGapLppLabel": "LPP invalidit\u00e9 (2e pilier)",
+  "disabilityGapLppDetailYes": "Rente invalidit\u00e9 \u2248 40% salaire coordonn\u00e9 (LPP art. 23)",
+  "disabilityGapLppDetailNo": "Salaire sous le seuil LPP \u2014 pas de couverture 2e pilier",
+  "disabilityGapSavingsLabel": "R\u00e9serve d'urgence",
+  "disabilityGapSavingsDetail": "{months} mois de charges couverts",
+  "@disabilityGapSavingsDetail": {
+    "placeholders": {
+      "months": {"type": "String"}
+    }
+  },
+  "disabilityGapDisclaimer": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil en assurance au sens de la LSFin. Tes couvertures r\u00e9elles d\u00e9pendent de ton contrat de travail et de ta caisse de pension.",
+  "disabilityGapLegalSources": "\u2022 LAI art. 28-29 (rente AI)\n\u2022 LPP art. 23-26 (invalidit\u00e9 2e pilier)\n\u2022 CO art. 324a (maintien salaire employeur)\n\u2022 LPGA art. 19 (d\u00e9lai de carence)"
 }
