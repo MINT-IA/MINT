@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_models.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/retirement/monte_carlo_chart.dart';
@@ -53,6 +54,7 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -70,8 +72,8 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
                 Expanded(
                   child: Text(
                     _showMonteCarlo
-                        ? 'Probabilit\u00e9s'
-                        : '3 Sc\u00e9narios',
+                        ? s.monteCarloProbabilities
+                        : s.monteCarlo3Scenarios,
                     style: GoogleFonts.montserrat(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -79,7 +81,7 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
                     ),
                   ),
                 ),
-                _buildToggle(),
+                _buildToggle(s),
               ],
             ),
           ),
@@ -87,7 +89,7 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
 
           // ── Content ────────────────────────────────────
           if (_showMonteCarlo && widget.monteCarloAvailable)
-            _buildMonteCarloView()
+            _buildMonteCarloView(s)
           else
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -100,7 +102,7 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
     );
   }
 
-  Widget _buildToggle() {
+  Widget _buildToggle(S s) {
     return Container(
       decoration: BoxDecoration(
         color: MintColors.background,
@@ -110,12 +112,12 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildToggleButton(
-            label: '3 Sc\u00e9narios',
+            label: s.monteCarlo3Scenarios,
             isSelected: !_showMonteCarlo,
             onTap: () => setState(() => _showMonteCarlo = false),
           ),
           _buildToggleButton(
-            label: 'Probabilit\u00e9s',
+            label: s.monteCarloProbabilities,
             isSelected: _showMonteCarlo,
             onTap: widget.monteCarloAvailable
                 ? () => setState(() => _showMonteCarlo = true)
@@ -165,13 +167,13 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
     );
   }
 
-  Widget _buildMonteCarloView() {
+  Widget _buildMonteCarloView(S s) {
     final result = widget.monteCarloResult;
     if (result == null || result.projection.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Text(
-          'Simulation en cours\u2026',
+          s.monteCarloSimulating,
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textSecondary,
@@ -186,7 +188,7 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
         // ── Depletion risk badge ──────────────────────
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: _buildDepletionBadge(result.ruinProbability),
+          child: _buildDepletionBadge(result.ruinProbability, s),
         ),
         const SizedBox(height: 12),
 
@@ -203,9 +205,7 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
           child: Text(
-            'Dans ces simulations, ${result.numSimulations} trajectoires '
-            'ind\u00e9pendantes sont g\u00e9n\u00e9r\u00e9es. '
-            'Outil \u00e9ducatif (LSFin).',
+            s.monteCarloDisclaimer('${result.numSimulations}'),
             style: GoogleFonts.inter(
               fontSize: 10,
               color: MintColors.textMuted,
@@ -217,20 +217,20 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
     );
   }
 
-  Widget _buildDepletionBadge(double ruinProbability) {
+  Widget _buildDepletionBadge(double ruinProbability, S s) {
     final pct = (ruinProbability * 100).round();
     final Color badgeColor;
     final String label;
 
     if (pct <= 10) {
       badgeColor = MintColors.success;
-      label = 'Risque d\'\u00e9puisement faible';
+      label = s.monteCarloRiskLow;
     } else if (pct <= 25) {
       badgeColor = MintColors.warning;
-      label = 'Risque d\'\u00e9puisement mod\u00e9r\u00e9';
+      label = s.monteCarloRiskModerate;
     } else {
       badgeColor = MintColors.error;
-      label = 'Risque d\'\u00e9puisement \u00e9lev\u00e9';
+      label = s.monteCarloRiskHigh;
     }
 
     return Container(
@@ -285,6 +285,7 @@ class MonteCarloTeaser extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return GestureDetector(
       onTap: onEnrich,
       child: Container(
@@ -298,7 +299,7 @@ class MonteCarloTeaser extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Probabilit\u00e9s Monte Carlo',
+              s.monteCarloTeaserTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
@@ -322,8 +323,7 @@ class MonteCarloTeaser extends StatelessWidget {
 
             // ── Educational message ───────────────────
             Text(
-              'Les probabilit\u00e9s Monte Carlo te montrent '
-              'l\'\u00e9ventail de tes futurs possibles.',
+              s.monteCarloTeaserMessage,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -337,7 +337,7 @@ class MonteCarloTeaser extends StatelessWidget {
                 spacing: 6,
                 runSpacing: 6,
                 children: missingCategories.take(3).map((cat) {
-                  final displayName = _categoryDisplayName(cat);
+                  final displayName = _categoryDisplayName(cat, s);
                   if (displayName == null) return const SizedBox.shrink();
                   return Container(
                     padding: const EdgeInsets.symmetric(
@@ -378,14 +378,14 @@ class MonteCarloTeaser extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.auto_awesome,
                     size: 14,
                     color: MintColors.primary,
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'Compl\u00e8te ton profil pour d\u00e9bloquer',
+                    s.monteCarloTeaserCta,
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -398,8 +398,7 @@ class MonteCarloTeaser extends StatelessWidget {
 
             const SizedBox(height: 8),
             Text(
-              'Outil \u00e9ducatif simplifi\u00e9 (LSFin). '
-              'Ne constitue pas un conseil financier.',
+              s.monteCarloTeaserDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 10,
                 color: MintColors.textMuted,
@@ -415,15 +414,15 @@ class MonteCarloTeaser extends StatelessWidget {
   /// Returns display name for known pillar/domain categories.
   /// Returns null for internal-only categories (income, retirement_urgency, etc.)
   /// to prevent leaking raw internal labels to the UI.
-  static String? _categoryDisplayName(String category) {
+  static String? _categoryDisplayName(String category, S s) {
     return switch (category) {
-      'lpp' => 'LPP',
-      'avs' => 'AVS',
-      '3a' => '3a',
-      'patrimoine' => 'Patrimoine',
-      'logement' => 'Logement',
-      'foreign_pension' => 'Retraite \u00e9trang\u00e8re',
-      'depenses' => 'D\u00e9penses',
+      'lpp' => s.monteCarloCatLpp,
+      'avs' => s.monteCarloCatAvs,
+      '3a' => s.monteCarloCat3a,
+      'patrimoine' => s.monteCarloCatPatrimoine,
+      'logement' => s.monteCarloCatLogement,
+      'foreign_pension' => s.monteCarloCatForeignPension,
+      'depenses' => s.monteCarloCatDepenses,
       _ => null,
     };
   }
