@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
-/// Noms des mois en francais (utilise par Check-in + Agir)
+/// Noms des mois localisés (utilise par Check-in + Agir).
+/// Préférer [localizedMonths] quand un BuildContext est disponible.
+@Deprecated('Use localizedMonths(S.of(context)!) instead')
 const kFrenchMonths = [
   'Janvier',
   'Février',
@@ -19,7 +22,9 @@ const kFrenchMonths = [
   'Décembre',
 ];
 
-/// Noms courts des mois en francais
+/// Noms courts des mois localisés.
+/// Préférer [localizedMonthsShort] quand un BuildContext est disponible.
+@Deprecated('Use localizedMonthsShort(S.of(context)!) instead')
 const kFrenchMonthsShort = [
   'Jan',
   'Fév',
@@ -34,6 +39,38 @@ const kFrenchMonthsShort = [
   'Nov',
   'Déc',
 ];
+
+/// Localized full month names (i18n-ready replacement for kFrenchMonths).
+List<String> localizedMonths(S s) => [
+      s.coachHelperMonthJanuary,
+      s.coachHelperMonthFebruary,
+      s.coachHelperMonthMarch,
+      s.coachHelperMonthApril,
+      s.coachHelperMonthMay,
+      s.coachHelperMonthJune,
+      s.coachHelperMonthJuly,
+      s.coachHelperMonthAugust,
+      s.coachHelperMonthSeptember,
+      s.coachHelperMonthOctober,
+      s.coachHelperMonthNovember,
+      s.coachHelperMonthDecember,
+    ];
+
+/// Localized short month names (i18n-ready replacement for kFrenchMonthsShort).
+List<String> localizedMonthsShort(S s) => [
+      s.coachHelperMonthShortJan,
+      s.coachHelperMonthShortFeb,
+      s.coachHelperMonthShortMar,
+      s.coachHelperMonthShortApr,
+      s.coachHelperMonthShortMay,
+      s.coachHelperMonthShortJun,
+      s.coachHelperMonthShortJul,
+      s.coachHelperMonthShortAug,
+      s.coachHelperMonthShortSep,
+      s.coachHelperMonthShortOct,
+      s.coachHelperMonthShortNov,
+      s.coachHelperMonthShortDec,
+    ];
 
 /// Icone par categorie de versement planifie
 IconData iconForCategory(String category) {
