@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -178,25 +179,25 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
   //  CONTEXTUAL LABEL (changes per section)
   // ════════════════════════════════════════════════════════════════════════════
 
-  String get _contextualLabel {
+  String _contextualLabel(S s) {
     final delta = _currentScore - _previousScore;
 
     switch (widget.currentSection) {
       case 'Profil':
-        if (widget.answers.length <= 1) return 'Ton score se dessine...';
-        return 'Ton profil se dessine...';
+        if (widget.answers.length <= 1) return s.wizardScoreDrawing;
+        return s.wizardScoreProfileDrawing;
       case 'Budget & Protection':
-        if (_budgetScore > 0) return 'Protection : $_budgetScore/100';
-        return 'Protection : en analyse...';
+        if (_budgetScore > 0) return s.wizardScoreProtectionScore(_budgetScore);
+        return s.wizardScoreProtectionAnalyzing;
       case 'Pr\u00e9voyance':
-        if (delta > 0) return 'Pr\u00e9voyance : +$delta pts';
-        if (_prevoyanceScore > 0) return 'Pr\u00e9voyance : $_prevoyanceScore/100';
-        return 'Pr\u00e9voyance : en analyse...';
+        if (delta > 0) return s.wizardScorePrevoyancePlus(delta);
+        if (_prevoyanceScore > 0) return s.wizardScorePrevoyanceScore(_prevoyanceScore);
+        return s.wizardScorePrevoyanceAnalyzing;
       case 'Patrimoine':
-        if (_patrimoineScore > 0) return 'Patrimoine : $_patrimoineScore/100';
-        return 'Patrimoine : en construction...';
+        if (_patrimoineScore > 0) return s.wizardScorePatrimoineScore(_patrimoineScore);
+        return s.wizardScorePatrimoineBuilding;
       default:
-        return 'Score : $_currentScore/100';
+        return s.wizardScoreDefault(_currentScore);
     }
   }
 
@@ -218,6 +219,7 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return AnimatedBuilder(
       animation: Listenable.merge([_scoreAnimation, _pulseAnimation, _glowAnimation]),
       builder: (context, child) {
@@ -247,7 +249,7 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // Row 1: Label + Score number + Section dots
-                  _buildTopRow(),
+                  _buildTopRow(s),
                   const SizedBox(height: 10),
                   // Row 2: Progress bar
                   _buildProgressBar(),
@@ -264,7 +266,8 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
   //  TOP ROW: contextual label + score + section dots
   // ────────────────────────────────────────────────────────────────────────────
 
-  Widget _buildTopRow() {
+  Widget _buildTopRow(S s) {
+    final label = _contextualLabel(s);
     return Row(
       children: [
         // Contextual label
@@ -284,8 +287,8 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
               );
             },
             child: Text(
-              _contextualLabel,
-              key: ValueKey(_contextualLabel),
+              label,
+              key: ValueKey(label),
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -299,7 +302,7 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
         const SizedBox(width: 12),
 
         // Section completion dots
-        _buildSectionDots(),
+        _buildSectionDots(s),
 
         const SizedBox(width: 12),
 
@@ -313,7 +316,7 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
   //  SECTION DOTS: 3 colored dots (Budget/Prevoyance/Patrimoine)
   // ────────────────────────────────────────────────────────────────────────────
 
-  Widget _buildSectionDots() {
+  Widget _buildSectionDots(S s) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -321,21 +324,21 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
           color: MintColors.scoreExcellent,
           filled: _budgetComplete,
           active: widget.currentSection == 'Budget & Protection',
-          tooltip: 'Budget',
+          tooltip: s.wizardScoreBudgetTooltip,
         ),
         const SizedBox(width: 4),
         _buildDot(
           color: MintColors.info,
           filled: _prevoyanceComplete,
           active: widget.currentSection == 'Pr\u00e9voyance',
-          tooltip: 'Pr\u00e9voyance',
+          tooltip: s.wizardScorePrevoyanceTooltip,
         ),
         const SizedBox(width: 4),
         _buildDot(
           color: MintColors.warning,
           filled: _patrimoineComplete,
           active: widget.currentSection == 'Patrimoine',
-          tooltip: 'Patrimoine',
+          tooltip: s.wizardScorePatrimoineTooltip,
         ),
       ],
     );
