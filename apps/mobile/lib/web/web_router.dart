@@ -116,7 +116,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 
 // Onboarding
-import 'package:mint_mobile/screens/onboarding/smart_onboarding_screen.dart';
+// smart_onboarding_screen excluded: file does not exist (removed/renamed)
 import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
 // data_block_enrichment_screen excluded: imports slm_provider → dart:io
@@ -779,8 +779,7 @@ final GoRouter webRouter = GoRouter(
     GoRoute(
       path: '/onboarding/smart',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) =>
-          WebResponsiveWrapper(child: const SmartOnboardingScreen()),
+      redirect: (context, state) => '/onboarding/quick',
     ),
     GoRoute(
       path: '/onboarding/minimal',
