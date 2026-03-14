@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/assurances_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -119,7 +120,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
         onPressed: () => context.pop(),
       ),
       title: Text(
-        'OPTIMISEUR FRANCHISE LAMAL',
+        S.of(context)!.lamalFranchiseAppBarTitle,
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w800,
           fontSize: 13,
@@ -143,7 +144,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
           border: Border.all(color: MintColors.neutralBg),
         ),
         child: Text(
-          'MODE DEMO',
+          S.of(context)!.lamalFranchiseDemoMode,
           style: GoogleFonts.montserrat(
             fontSize: 10,
             fontWeight: FontWeight.w700,
@@ -178,7 +179,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Optimiseur franchise LAMal',
+                S.of(context)!.lamalFranchiseTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
@@ -187,7 +188,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Trouve la franchise ideale selon tes frais de sante',
+                S.of(context)!.lamalFranchiseSubtitle,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textSecondary,
@@ -217,9 +218,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Une franchise elevee reduit ta prime mensuelle, mais '
-              'augmente tes frais en cas de maladie. Deplace les '
-              'curseurs pour trouver l\'equilibre ideal.',
+              S.of(context)!.lamalFranchiseIntro,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -268,7 +267,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                 ),
                 child: Center(
                   child: Text(
-                    'Adulte',
+                    S.of(context)!.lamalFranchiseAdult,
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: !_isChild ? FontWeight.w600 : FontWeight.w400,
@@ -304,7 +303,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                 ),
                 child: Center(
                   child: Text(
-                    'Enfant',
+                    S.of(context)!.lamalFranchiseChild,
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: _isChild ? FontWeight.w600 : FontWeight.w400,
@@ -346,7 +345,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
             children: [
               Expanded(
                 child: Text(
-                  'Prime mensuelle (franchise 300)',
+                  S.of(context)!.lamalFranchisePrimeLabel,
                   style: GoogleFonts.montserrat(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -429,7 +428,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
             children: [
               Expanded(
                 child: Text(
-                  'Frais de sante annuels estimes',
+                  S.of(context)!.lamalFranchiseExpensesLabel,
                   style: GoogleFonts.montserrat(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -506,7 +505,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
             const Icon(Icons.compare_arrows, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'COMPARAISON DES FRANCHISES',
+              S.of(context)!.lamalFranchiseComparisonTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -560,7 +559,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        'RECOMMANDEE',
+                        S.of(context)!.lamalFranchiseRecommended,
                         style: GoogleFonts.montserrat(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
@@ -573,7 +572,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                 ],
               ),
               Text(
-                'Total : ${LamalFranchiseService.formatChf(c.coutTotal)}',
+                '${S.of(context)!.lamalFranchiseTotal}\u00a0: ${LamalFranchiseService.formatChf(c.coutTotal)}',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -586,14 +585,14 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
           Row(
             children: [
               Expanded(
-                child: _buildMiniStat('Prime/an', LamalFranchiseService.formatChf(c.primeAnnuelle)),
+                child: _buildMiniStat(S.of(context)!.lamalFranchisePrimePerYear, LamalFranchiseService.formatChf(c.primeAnnuelle)),
               ),
               Expanded(
-                child: _buildMiniStat('Quote-part', LamalFranchiseService.formatChf(c.quotePart)),
+                child: _buildMiniStat(S.of(context)!.lamalFranchiseQuotePart, LamalFranchiseService.formatChf(c.quotePart)),
               ),
               Expanded(
                 child: _buildMiniStat(
-                  'Economie',
+                  S.of(context)!.lamalFranchiseSavings,
                   c.economieVs300 > 0
                       ? '+${LamalFranchiseService.formatChf(c.economieVs300)}'
                       : LamalFranchiseService.formatChf(c.economieVs300),
@@ -652,7 +651,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               Icon(Icons.swap_vert, color: MintColors.teal, size: 18),
               const SizedBox(width: 8),
               Text(
-                'Seuils de rentabilite',
+                S.of(context)!.lamalFranchiseBreakEvenTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -679,9 +678,11 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Au-dessus de ${LamalFranchiseService.formatChf(bp.seuilDepenses)} '
-                    'de frais, la franchise ${bp.franchiseBasse} '
-                    'devient plus avantageuse que ${bp.franchiseHaute}.',
+                    S.of(context)!.lamalFranchiseBreakEvenItem(
+                      LamalFranchiseService.formatChf(bp.seuilDepenses),
+                      bp.franchiseBasse.toString(),
+                      bp.franchiseHaute.toString(),
+                    ),
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: MintColors.textSecondary,
@@ -711,7 +712,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
             const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'RECOMMANDATIONS',
+              S.of(context)!.lamalFranchiseRecommendationsTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -762,8 +763,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Rappel : changement de franchise possible avant le '
-              '30 novembre de chaque annee pour l\'annee suivante.',
+              S.of(context)!.lamalFranchiseAlertReminder,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.tealDark,
@@ -794,9 +794,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Cette analyse est indicative. Les primes varient selon '
-              'l\'assureur, la region et le modele d\'assurance. '
-              'Consulte ta caisse maladie pour des chiffres exacts.',
+              S.of(context)!.lamalFranchiseDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.deepOrange,
@@ -816,7 +814,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Sources',
+          S.of(context)!.lamalFranchiseSourcesTitle,
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -825,11 +823,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          'LAMal art. 62-64 (franchise et quote-part) / '
-          'OAMal (ordonnance) / '
-          'priminfo.admin.ch (comparateur officiel) / '
-          'LAMal art. 7 (libre choix de l\'assureur) / '
-          'LAMal art. 41a (modeles alternatifs)',
+          S.of(context)!.lamalFranchiseSourcesBody,
           style: GoogleFonts.inter(
             fontSize: 11,
             color: MintColors.textMuted,

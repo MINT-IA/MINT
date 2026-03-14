@@ -8518,5 +8518,34 @@
     }
   },
   "emergencyFundObjectiveReached": "Objectif atteint !",
-  "emergencyFundProtectionText": "Ce fonds te protège des imprévus (perte d'emploi, maladie, réparations) sans toucher à tes investissements."
+  "emergencyFundProtectionText": "Ce fonds te prot\u00e8ge des impr\u00e9vus (perte d'emploi, maladie, r\u00e9parations) sans toucher \u00e0 tes investissements.",
+  "lamalFranchiseAppBarTitle": "OPTIMISEUR FRANCHISE LAMAL",
+  "lamalFranchiseDemoMode": "MODE DEMO",
+  "lamalFranchiseTitle": "Optimiseur franchise LAMal",
+  "lamalFranchiseSubtitle": "Trouve la franchise id\u00e9ale selon tes frais de sant\u00e9",
+  "lamalFranchiseIntro": "Une franchise \u00e9lev\u00e9e r\u00e9duit ta prime mensuelle, mais augmente tes frais en cas de maladie. D\u00e9place les curseurs pour trouver l'\u00e9quilibre id\u00e9al.",
+  "lamalFranchiseAdult": "Adulte",
+  "lamalFranchiseChild": "Enfant",
+  "lamalFranchisePrimeLabel": "Prime mensuelle (franchise 300)",
+  "lamalFranchiseExpensesLabel": "Frais de sant\u00e9 annuels estim\u00e9s",
+  "lamalFranchiseComparisonTitle": "COMPARAISON DES FRANCHISES",
+  "lamalFranchiseRecommended": "RECOMMAND\u00c9E",
+  "lamalFranchiseTotal": "Total",
+  "lamalFranchisePrimePerYear": "Prime/an",
+  "lamalFranchiseQuotePart": "Quote-part",
+  "lamalFranchiseSavings": "\u00c9conomie",
+  "lamalFranchiseBreakEvenTitle": "Seuils de rentabilit\u00e9",
+  "lamalFranchiseBreakEvenItem": "Au-dessus de {seuil} de frais, la franchise {basse} devient plus avantageuse que {haute}.",
+  "@lamalFranchiseBreakEvenItem": {
+    "placeholders": {
+      "seuil": {"type": "String"},
+      "basse": {"type": "String"},
+      "haute": {"type": "String"}
+    }
+  },
+  "lamalFranchiseRecommendationsTitle": "RECOMMANDATIONS",
+  "lamalFranchiseAlertReminder": "Rappel\u00a0: changement de franchise possible avant le 30 novembre de chaque ann\u00e9e pour l'ann\u00e9e suivante.",
+  "lamalFranchiseDisclaimer": "Cette analyse est indicative. Les primes varient selon l'assureur, la r\u00e9gion et le mod\u00e8le d'assurance. Consulte ta caisse maladie pour des chiffres exacts.",
+  "lamalFranchiseSourcesTitle": "Sources",
+  "lamalFranchiseSourcesBody": "LAMal art. 62-64 (franchise et quote-part) / OAMal (ordonnance) / priminfo.admin.ch (comparateur officiel) / LAMal art. 7 (libre choix de l'assureur) / LAMal art. 41a (mod\u00e8les alternatifs)"
 }
