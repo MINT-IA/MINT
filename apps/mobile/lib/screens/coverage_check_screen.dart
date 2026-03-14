@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/assurances_service.dart';
 
@@ -130,7 +131,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         onPressed: () => context.pop(),
       ),
       title: Text(
-        'CHECK-UP COUVERTURE',
+        S.of(context)!.coverageCheckAppBarTitle,
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w800,
           fontSize: 13,
@@ -154,7 +155,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
           border: Border.all(color: MintColors.neutralBg),
         ),
         child: Text(
-          'MODE DÉMO',
+          S.of(context)!.coverageCheckDemoMode,
           style: GoogleFonts.montserrat(
             fontSize: 10,
             fontWeight: FontWeight.w700,
@@ -189,7 +190,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Check-up couverture',
+                S.of(context)!.coverageCheckTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
@@ -198,7 +199,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Évalue ta protection assurantielle',
+                S.of(context)!.coverageCheckSubtitle,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textSecondary,
@@ -233,7 +234,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ton profil',
+            S.of(context)!.coverageCheckProfile,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -244,7 +245,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
 
           // Statut professionnel
           Text(
-            'Statut professionnel',
+            S.of(context)!.coverageCheckStatutLabel,
             style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
           ),
           const SizedBox(height: 8),
@@ -252,19 +253,19 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
           const SizedBox(height: 16),
 
           // Toggles
-          _buildProfileSwitch('Hypothèque en cours', _aHypotheque, (v) {
+          _buildProfileSwitch(S.of(context)!.coverageCheckHypotheque, _aHypotheque, (v) {
             _aHypotheque = v;
             _compute();
           }),
-          _buildProfileSwitch('Personnes à charge', _aFamille, (v) {
+          _buildProfileSwitch(S.of(context)!.coverageCheckDependants, _aFamille, (v) {
             _aFamille = v;
             _compute();
           }),
-          _buildProfileSwitch('Locataire', _estLocataire, (v) {
+          _buildProfileSwitch(S.of(context)!.coverageCheckLocataire, _estLocataire, (v) {
             _estLocataire = v;
             _compute();
           }),
-          _buildProfileSwitch('Voyages fréquents', _voyagesFrequents, (v) {
+          _buildProfileSwitch(S.of(context)!.coverageCheckVoyages, _voyagesFrequents, (v) {
             _voyagesFrequents = v;
             _compute();
           }),
@@ -277,9 +278,9 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
     return Wrap(
       spacing: 8,
       children: [
-        _buildStatutChip('salarie', 'Salarié·e'),
-        _buildStatutChip('independant', 'Indépendant·e'),
-        _buildStatutChip('sans_emploi', 'Sans emploi'),
+        _buildStatutChip('salarie', S.of(context)!.coverageCheckStatutSalarie),
+        _buildStatutChip('independant', S.of(context)!.coverageCheckStatutIndependant),
+        _buildStatutChip('sans_emploi', S.of(context)!.coverageCheckStatutSansEmploi),
       ],
     );
   }
@@ -361,7 +362,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ma couverture actuelle',
+            S.of(context)!.coverageCheckCurrentCoverage,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -369,31 +370,31 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          _buildCoverageSwitch('IJM collective (employeur)', _aIjmCollective, (v) {
+          _buildCoverageSwitch(S.of(context)!.coverageCheckIjm, _aIjmCollective, (v) {
             _aIjmCollective = v;
             _compute();
           }),
-          _buildCoverageSwitch('LAA (assurance accident)', _aLaa, (v) {
+          _buildCoverageSwitch(S.of(context)!.coverageCheckLaa, _aLaa, (v) {
             _aLaa = v;
             _compute();
           }),
-          _buildCoverageSwitch('RC privée', _aRcPrivee, (v) {
+          _buildCoverageSwitch(S.of(context)!.coverageCheckRc, _aRcPrivee, (v) {
             _aRcPrivee = v;
             _compute();
           }),
-          _buildCoverageSwitch('Assurance ménage', _aMenage, (v) {
+          _buildCoverageSwitch(S.of(context)!.coverageCheckMenage, _aMenage, (v) {
             _aMenage = v;
             _compute();
           }),
-          _buildCoverageSwitch('Protection juridique', _aProtectionJuridique, (v) {
+          _buildCoverageSwitch(S.of(context)!.coverageCheckProtectionJuridique, _aProtectionJuridique, (v) {
             _aProtectionJuridique = v;
             _compute();
           }),
-          _buildCoverageSwitch('Assurance voyage', _aAssuranceVoyage, (v) {
+          _buildCoverageSwitch(S.of(context)!.coverageCheckVoyage, _aAssuranceVoyage, (v) {
             _aAssuranceVoyage = v;
             _compute();
           }),
-          _buildCoverageSwitch('Assurance décès', _aAssuranceDeces, (v) {
+          _buildCoverageSwitch(S.of(context)!.coverageCheckDeces, _aAssuranceDeces, (v) {
             _aAssuranceDeces = v;
             _compute();
           }),
@@ -453,7 +454,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
       child: Column(
         children: [
           Text(
-            'Score de couverture',
+            S.of(context)!.coverageCheckScoreTitle,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -492,7 +493,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
                       ),
                     ),
                     Text(
-                      '/ 100',
+                      S.of(context)!.coverageCheckScoreMax,
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: MintColors.textMuted,
@@ -534,7 +535,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'lacune${result.lacunesCritiques > 1 ? 's' : ''} critique${result.lacunesCritiques > 1 ? 's' : ''}',
+                    result.lacunesCritiques > 1 ? S.of(context)!.coverageCheckLacunePlural : S.of(context)!.coverageCheckLacuneSingular,
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -561,7 +562,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             const Icon(Icons.checklist, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'ANALYSE DÉTAILLÉE',
+              S.of(context)!.coverageCheckAnalyseTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -666,10 +667,10 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
 
   Widget _buildUrgencyBadge(String urgency) {
     final (label, color) = switch (urgency) {
-      'critique' => ('Critique', MintColors.error),
-      'haute' => ('Haute', MintColors.warning),
-      'moyenne' => ('Moyenne', MintColors.info),
-      _ => ('Basse', MintColors.textMuted),
+      'critique' => (S.of(context)!.coverageCheckUrgencyCritique, MintColors.error),
+      'haute' => (S.of(context)!.coverageCheckUrgencyHaute, MintColors.warning),
+      'moyenne' => (S.of(context)!.coverageCheckUrgencyMoyenne, MintColors.info),
+      _ => (S.of(context)!.coverageCheckUrgencyBasse, MintColors.textMuted),
     };
 
     return Container(
@@ -691,9 +692,9 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
 
   Widget _buildStatusIndicator(String status) {
     final (icon, label, color) = switch (status) {
-      'couvert' => (Icons.check_circle, 'Couvert', MintColors.success),
-      'non_couvert' => (Icons.cancel, 'Non couvert', MintColors.error),
-      _ => (Icons.help_outline, 'À vérifier', MintColors.warning),
+      'couvert' => (Icons.check_circle, S.of(context)!.coverageCheckStatusCouvert, MintColors.success),
+      'non_couvert' => (Icons.cancel, S.of(context)!.coverageCheckStatusNonCouvert, MintColors.error),
+      _ => (Icons.help_outline, S.of(context)!.coverageCheckStatusAVerifier, MintColors.warning),
     };
 
     return Row(
@@ -726,7 +727,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'RECOMMANDATIONS',
+              S.of(context)!.coverageCheckRecommandationsTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -777,10 +778,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Cette analyse est indicative et ne constitue pas un '
-              'conseil en assurance personnalisé. Les primes varient '
-              'selon l\'assureur et ton profil. Consulte un·e '
-              'spécialiste en assurances pour une évaluation complète.',
+              S.of(context)!.coverageCheckDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.deepOrange,
@@ -800,7 +798,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Sources',
+          S.of(context)!.coverageCheckSourcesTitle,
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -809,10 +807,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          'CO art. 41 (RC) / CO art. 324a (IJM employeur) / '
-          'LAA art. 4 (assurance accident) / '
-          'LAMal art. 34 (couverture à l\'étranger) / '
-          'LCA (assurance décès) / Droit cantonal (ménage)',
+          S.of(context)!.coverageCheckSourcesBody,
           style: GoogleFonts.inter(
             fontSize: 11,
             color: MintColors.textMuted,
