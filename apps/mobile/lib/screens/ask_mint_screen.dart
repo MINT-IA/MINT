@@ -60,7 +60,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final byok = context.watch<ByokProvider>();
 
     return Scaffold(
@@ -68,7 +68,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
       appBar: AppBar(
         backgroundColor: MintColors.background,
         title: Text(
-          s?.askMintTitle ?? 'Ask MINT',
+          s.askMintTitle,
           style: GoogleFonts.montserrat(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -79,7 +79,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
           if (byok.isConfigured)
             IconButton(
               icon: const Icon(Icons.settings_outlined, size: 22),
-              tooltip: s?.byokTitle ?? 'Intelligence artificielle',
+              tooltip: s.byokTitle,
               onPressed: () => context.push('/profile/byok'),
             ),
           const SizedBox(width: 8),
@@ -95,7 +95,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
   // CTA when BYOK is not configured
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildConfigureCTA(S? s) {
+  Widget _buildConfigureCTA(S s) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -116,7 +116,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              s?.askMintConfigureTitle ?? 'Configure ton IA',
+              s.askMintConfigureTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
@@ -125,10 +125,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              s?.askMintConfigureBody ??
-                  'Pour poser des questions sur la finance suisse, '
-                      'connecte ta propre cl\u00e9 API (Claude, OpenAI ou Mistral). '
-                      'Ta cl\u00e9 est chiffr\u00e9e localement et jamais stock\u00e9e sur nos serveurs.',
+              s.askMintConfigureBody,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 15,
@@ -142,8 +139,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
               child: FilledButton.icon(
                 onPressed: () => context.push('/profile/byok'),
                 icon: const Icon(Icons.key, size: 18),
-                label: Text(
-                    s?.askMintConfigureButton ?? 'Configurer ma cl\u00e9 API'),
+                label: Text(s.askMintConfigureButton),
               ),
             ),
             const SizedBox(height: 16),
@@ -155,8 +151,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
                     size: 14, color: MintColors.textMuted),
                 const SizedBox(width: 6),
                 Text(
-                  s?.byokPrivacyShort ??
-                      'Cl\u00e9 chiffr\u00e9e localement, jamais stock\u00e9e sur nos serveurs',
+                  s.byokPrivacyShort,
                   style: const TextStyle(
                     fontSize: 12,
                     color: MintColors.textMuted,
@@ -174,7 +169,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
   // Chat interface (when BYOK is configured)
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildChatInterface(S? s, ByokProvider byok) {
+  Widget _buildChatInterface(S s, ByokProvider byok) {
     return Column(
       children: [
         // Messages list
@@ -202,23 +197,21 @@ class _AskMintScreenState extends State<AskMintScreen> {
   }
 
   /// Build contextual suggested questions based on user profile.
-  List<String> _buildContextualSuggestions(Profile? profile, S? s) {
+  List<String> _buildContextualSuggestions(Profile? profile, S s) {
     final suggestions = <String>[];
 
     if (profile == null) {
       return [
-        s?.askMintSuggestion1 ?? 'Comment fonctionne le 3e pilier en Suisse ?',
-        s?.askMintSuggestion2 ?? 'Dois-je choisir la rente ou le capital LPP ?',
-        s?.askMintSuggestion3 ?? 'Comment optimiser mes imp\u00f4ts ?',
-        s?.askMintSuggestion4 ?? 'Qu\'est-ce que le rachat LPP ?',
+        s.askMintSuggestion1,
+        s.askMintSuggestion2,
+        s.askMintSuggestion3,
+        s.askMintSuggestion4,
       ];
     }
 
     // Debt-first (Safe Mode)
     if (profile.hasDebt) {
-      suggestions.add(
-        s?.askMintSuggestDebt ?? 'J\'ai des dettes \u2014 par o\u00f9 commencer pour m\'en sortir ?',
-      );
+      suggestions.add(s.askMintSuggestDebt);
     }
 
     // Age-based
@@ -227,52 +220,38 @@ class _AskMintScreenState extends State<AskMintScreen> {
         : null;
     if (age != null) {
       if (age < 30) {
-        suggestions.add(
-          s?.askMintSuggestAge3a(age.toString()) ?? 'J\'ai $age ans, est-ce que je devrais d\u00e9j\u00e0 cotiser au 3e pilier ?',
-        );
+        suggestions.add(s.askMintSuggestAge3a(age.toString()));
       } else if (age >= 30 && age < 50) {
-        suggestions.add(
-          s?.askMintSuggestAgeLpp(age.toString()) ?? 'J\'ai $age ans, est-ce que je devrais racheter du LPP ?',
-        );
+        suggestions.add(s.askMintSuggestAgeLpp(age.toString()));
       } else if (age >= 50) {
-        suggestions.add(
-          s?.askMintSuggestAgeRetirement(age.toString()) ?? 'J\'ai $age ans, comment pr\u00e9parer ma retraite au mieux ?',
-        );
+        suggestions.add(s.askMintSuggestAgeRetirement(age.toString()));
       }
     }
 
     // Employment-based
     final employment = profile.employmentStatus?.value;
     if (employment == 'self_employed') {
-      suggestions.add(
-        s?.askMintSuggestSelfEmployed ?? 'Je suis ind\u00e9pendant\u00b7e \u2014 comment me prot\u00e9ger sans LPP ?',
-      );
+      suggestions.add(s.askMintSuggestSelfEmployed);
     } else if (employment == 'unemployed') {
-      suggestions.add(
-        s?.askMintSuggestUnemployed ?? 'Je suis au ch\u00f4mage \u2014 quel impact sur ma pr\u00e9voyance ?',
-      );
+      suggestions.add(s.askMintSuggestUnemployed);
     }
 
     // Canton-based
     if (profile.canton != null) {
-      suggestions.add(
-        s?.askMintSuggestCanton(profile.canton!) ?? 'Quelles d\u00e9ductions fiscales sont possibles dans le canton de ${profile.canton} ?',
-      );
+      suggestions.add(s.askMintSuggestCanton(profile.canton!));
     }
 
     // Income-based
     if (profile.incomeNetMonthly != null && profile.incomeNetMonthly! > 0) {
-      suggestions.add(
-        s?.askMintSuggestIncome ?? 'Avec mon revenu, combien je peux d\u00e9duire fiscalement par an ?',
-      );
+      suggestions.add(s.askMintSuggestIncome);
     }
 
     // Fill up to 4 with generic if needed
     final generics = [
-      s?.askMintSuggestGeneric1 ?? 'Rente ou capital LPP \u2014 quelle est la diff\u00e9rence ?',
-      s?.askMintSuggestGeneric2 ?? 'Comment optimiser mes imp\u00f4ts cette ann\u00e9e ?',
-      s?.askMintSuggestGeneric3 ?? 'Qu\'est-ce que le rachat LPP et est-ce que \u00e7a vaut le coup ?',
-      s?.askMintSuggestGeneric4 ?? 'Comment fonctionne la franchise LAMal ?',
+      s.askMintSuggestGeneric1,
+      s.askMintSuggestGeneric2,
+      s.askMintSuggestGeneric3,
+      s.askMintSuggestGeneric4,
     ];
     for (final g in generics) {
       if (suggestions.length >= 4) break;
@@ -282,7 +261,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
     return suggestions.take(4).toList();
   }
 
-  Widget _buildEmptyState(S? s) {
+  Widget _buildEmptyState(S s) {
     final profile = context.read<ProfileProvider>().profile;
     final suggestions = _buildContextualSuggestions(profile, s);
 
@@ -323,7 +302,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
 
           // Greeting
           Text(
-            s?.askMintEmptyTitle ?? 'Pose-moi ta question',
+            s.askMintEmptyTitle,
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               fontSize: 24,
@@ -334,9 +313,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
           ),
           const SizedBox(height: 10),
           Text(
-            s?.askMintEmptyBody ??
-            'Finance suisse, d\u00e9cryptage des lois, simulateurs \u2014 '
-            'je t\'explique tout, sources \u00e0 l\'appui.',
+            s.askMintEmptyBody,
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 14,
@@ -360,7 +337,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
                     size: 13, color: MintColors.success.withOpacity(0.8)),
                 const SizedBox(width: 6),
                 Text(
-                  s?.askMintPrivacyBadge ?? 'Tes donn\u00e9es restent sur ton appareil',
+                  s.askMintPrivacyBadge,
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
@@ -375,8 +352,8 @@ class _AskMintScreenState extends State<AskMintScreen> {
           // Contextual suggested questions
           _buildSectionLabel(
             profile != null
-                ? (s?.askMintForYou ?? 'POUR TOI')
-                : (s?.askMintSuggestedTitle ?? 'SUGGESTIONS'),
+                ? s.askMintForYou
+                : s.askMintSuggestedTitle,
             context,
           ),
           const SizedBox(height: 12),
@@ -438,7 +415,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
     );
   }
 
-  Widget _buildMessageBubble(_ChatMessage message, S? s) {
+  Widget _buildMessageBubble(_ChatMessage message, S s) {
     if (message.isUser) {
       return _buildUserBubble(message);
     }
@@ -474,7 +451,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
     );
   }
 
-  Widget _buildAssistantBubble(_ChatMessage message, S? s) {
+  Widget _buildAssistantBubble(_ChatMessage message, S s) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16, right: 32),
       child: Column(
@@ -547,7 +524,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
     );
   }
 
-  Widget _buildSourcesSection(List<RagSource> sources, S? s) {
+  Widget _buildSourcesSection(List<RagSource> sources, S s) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -559,7 +536,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            s?.askMintSourcesTitle ?? 'Sources',
+            s.askMintSourcesTitle,
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -598,7 +575,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
     );
   }
 
-  Widget _buildDisclaimersSection(List<String> disclaimers, S? s) {
+  Widget _buildDisclaimersSection(List<String> disclaimers, S s) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -678,7 +655,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
     );
   }
 
-  Widget _buildInputArea(S? s, ByokProvider byok) {
+  Widget _buildInputArea(S s, ByokProvider byok) {
     return Container(
       padding: EdgeInsets.only(
         left: 16,
@@ -711,8 +688,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
                 color: MintColors.textPrimary,
               ),
               decoration: InputDecoration(
-                hintText: s?.askMintInputHint ??
-                    'Pose ta question sur la finance suisse...',
+                hintText: s.askMintInputHint,
                 hintStyle: const TextStyle(
                   color: MintColors.textMuted,
                   fontSize: 15,
@@ -936,8 +912,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
     } catch (e) {
       setState(() {
         _messages.add(_ChatMessage(
-          text: S.of(context)?.askMintErrorGeneric ??
-              'Une erreur est survenue. V\u00e9rifie ta connexion et r\u00e9essaie.',
+          text: S.of(context)!.askMintErrorGeneric,
           isUser: false,
           disclaimers: [],
         ));
@@ -949,17 +924,14 @@ class _AskMintScreenState extends State<AskMintScreen> {
   }
 
   String _getErrorMessage(String code) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     switch (code) {
       case 'invalid_key':
-        return s?.askMintErrorInvalidKey ??
-            'Ta cl\u00e9 API semble invalide ou expir\u00e9e. V\u00e9rifie-la dans les param\u00e8tres.';
+        return s.askMintErrorInvalidKey;
       case 'rate_limit':
-        return s?.askMintErrorRateLimit ??
-            'Limite de requ\u00eates atteinte. Attends quelques instants avant de r\u00e9essayer.';
+        return s.askMintErrorRateLimit;
       default:
-        return s?.askMintErrorGeneric ??
-            'Une erreur est survenue. V\u00e9rifie ta connexion et r\u00e9essaie.';
+        return s.askMintErrorGeneric;
     }
   }
 
