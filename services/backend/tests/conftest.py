@@ -54,7 +54,8 @@ def override_get_db():
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_database():
     """Create database tables once for all tests."""
-    # Import models to ensure they're registered before creating tables
+    # Import ALL models to ensure they're registered before creating tables
+    import app.models  # noqa: F401
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
@@ -82,9 +83,9 @@ def clean_database():
         AdminAuditEventModel,
         SnapshotModel,
         ConsentModel,
+        BankingConsentModel,
+        ExternalDataSourceModel,
     )
-    from app.models.banking_consent import BankingConsentModel
-    from app.models.external_data_source import ExternalDataSourceModel
     db = TestingSessionLocal()
     try:
         db.query(ExternalDataSourceModel).delete()

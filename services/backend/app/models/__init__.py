@@ -25,6 +25,8 @@ from app.models.household import (
 )
 from app.models.snapshot import SnapshotModel
 from app.models.consent import ConsentModel
+from app.models.banking_consent import BankingConsentModel
+from app.models.external_data_source import ExternalDataSourceModel
 
 __all__ = [
     "User",
@@ -44,4 +46,6 @@ __all__ = [
     "AdminAuditEventModel",
     "SnapshotModel",
     "ConsentModel",
+    "BankingConsentModel",
+    "ExternalDataSourceModel",
 ]
