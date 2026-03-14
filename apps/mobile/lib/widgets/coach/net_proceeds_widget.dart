@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -46,43 +47,44 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
   double get _perceivedNet => widget.salePrice - widget.mortgageBalance;
   double get _surprise => _perceivedNet - _netProceeds;
 
-  List<({String label, double amount, String ref, Color color})> get _deductions => [
+  List<({String label, double amount, String ref, Color color})> _deductions(S s) => [
     (
-      label: 'Hypothèque remboursée',
+      label: s.netProceedsMortgageLabel,
       amount: widget.mortgageBalance,
-      ref: 'Banque',
+      ref: s.netProceedsMortgageRef,
       color: MintColors.textSecondary,
     ),
     (
-      label: 'Impôt sur le gain',
+      label: s.netProceedsCapitalGainLabel,
       amount: widget.capitalGainTax,
-      ref: 'LIFD art. 12',
+      ref: s.netProceedsCapitalGainRef,
       color: MintColors.scoreAttention,
     ),
     (
-      label: 'Remboursement EPL',
+      label: s.netProceedsEplLabel,
       amount: widget.eplReimbursement,
-      ref: 'LPP art. 30c',
+      ref: s.netProceedsEplRef,
       color: MintColors.scoreCritique,
     ),
     (
-      label: 'Frais de notaire',
+      label: s.netProceedsNotaryLabel,
       amount: _notaryFees,
-      ref: '${(widget.notaryFeeRate * 100).toStringAsFixed(1)}% prix',
+      ref: s.netProceedsFeePercent((widget.notaryFeeRate * 100).toStringAsFixed(1)),
       color: MintColors.scoreAttention,
     ),
     (
-      label: 'Commission agence',
+      label: s.netProceedsAgencyLabel,
       amount: _agencyFees,
-      ref: '${(widget.agencyFeeRate * 100).toStringAsFixed(1)}% prix',
+      ref: s.netProceedsFeePercent((widget.agencyFeeRate * 100).toStringAsFixed(1)),
       color: MintColors.scoreAttention,
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Net réel vente immobilière calculateur cascade déductions',
+      label: s.netProceedsSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -92,23 +94,23 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildWaterfallChart(),
+                  _buildWaterfallChart(s),
                   const SizedBox(height: 16),
-                  _buildSurprise(),
+                  _buildSurprise(s),
                   const SizedBox(height: 12),
-                  _buildToggleDetails(),
+                  _buildToggleDetails(s),
                   if (_showDetails) ...[
                     const SizedBox(height: 12),
-                    _buildDetailList(),
+                    _buildDetailList(s),
                   ],
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -118,7 +120,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -134,7 +136,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Ton net réel',
+                  s.netProceedsTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -142,7 +144,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
                   ),
                 ),
                 Text(
-                  '"30% en dessous de ce que tu imagines."',
+                  s.netProceedsSubtitle,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -157,7 +159,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
     );
   }
 
-  Widget _buildWaterfallChart() {
+  Widget _buildWaterfallChart(S s) {
     final ratio = widget.salePrice > 0 ? _netProceeds / widget.salePrice : 0.0;
 
     return Column(
@@ -167,11 +169,11 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Prix de vente : ${formatChfWithPrefix(widget.salePrice)}',
+              s.netProceedsSalePrice(formatChfWithPrefix(widget.salePrice)),
               style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
             ),
             Text(
-              'Net : ${formatChfWithPrefix(_netProceeds)}',
+              s.netProceedsNet(formatChfWithPrefix(_netProceeds)),
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
@@ -202,7 +204,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    '${(ratio * 100).round()}%',
+                    '${(ratio * 100).round()}\u00a0%',
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
@@ -223,7 +225,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
               style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
             ),
             Text(
-              'Déductions : ${formatChfWithPrefix(_totalDeductions)}',
+              s.netProceedsDeductions(formatChfWithPrefix(_totalDeductions)),
               style: GoogleFonts.inter(
                 fontSize: 10,
                 color: MintColors.scoreCritique,
@@ -236,7 +238,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
     );
   }
 
-  Widget _buildSurprise() {
+  Widget _buildSurprise(S s) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -253,7 +255,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Surprise : − ${formatChfWithPrefix(_surprise)}',
+                  s.netProceedsSurprise(formatChfWithPrefix(_surprise)),
                   style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -261,7 +263,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
                   ),
                 ),
                 Text(
-                  'Tu croyais toucher ${formatChfWithPrefix(_perceivedNet)} — tu touches ${formatChfWithPrefix(_netProceeds)}.',
+                  s.netProceedsSurpriseDetail(formatChfWithPrefix(_perceivedNet), formatChfWithPrefix(_netProceeds)),
                   style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4),
                 ),
               ],
@@ -272,13 +274,13 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
     );
   }
 
-  Widget _buildToggleDetails() {
+  Widget _buildToggleDetails(S s) {
     return GestureDetector(
       onTap: () => setState(() => _showDetails = !_showDetails),
       child: Row(
         children: [
           Text(
-            _showDetails ? 'Masquer le détail' : 'Voir le détail des déductions',
+            _showDetails ? s.netProceedsHideDetail : s.netProceedsShowDetail,
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -295,7 +297,8 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
     );
   }
 
-  Widget _buildDetailList() {
+  Widget _buildDetailList(S s) {
+    final deductions = _deductions(s);
     return Container(
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
@@ -303,7 +306,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
-        children: _deductions.asMap().entries.map((e) {
+        children: deductions.asMap().entries.map((e) {
           final d = e.value;
           return Column(
             children: [
@@ -328,7 +331,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
                       ),
                     ),
                     Text(
-                      '− ${formatChfWithPrefix(d.amount)}',
+                      '\u2212\u00a0${formatChfWithPrefix(d.amount)}',
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -345,10 +348,9 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil fiscal au sens de la LSFin. '
-      'Source : LIFD art. 12 (gain), LPP art. 30c (EPL). Chiffres indicatifs.',
+      s.netProceedsDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

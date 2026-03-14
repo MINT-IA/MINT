@@ -8790,6 +8790,160 @@
   "clause3aStep2": "Demande le formulaire \"clause bénéficiaire\"",
   "clause3aStep3": "Désigne ton·ta partenaire ou tes héritiers",
   "clause3aStep4": "Renouvelle à chaque changement de situation",
-  "clause3aDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : OPP3 art. 2 al. 1 let. a, CC art. 457-462."
+  "clause3aDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : OPP3 art. 2 al. 1 let. a, CC art. 457-462.",
 
+  "netProceedsSemantics": "Net r\u00e9el vente immobili\u00e8re calculateur cascade d\u00e9ductions",
+  "netProceedsTitle": "Ton net r\u00e9el",
+  "netProceedsSubtitle": "30\u00a0% en dessous de ce que tu imagines.",
+  "netProceedsMortgageLabel": "Hypoth\u00e8que rembours\u00e9e",
+  "netProceedsMortgageRef": "Banque",
+  "netProceedsCapitalGainLabel": "Imp\u00f4t sur le gain",
+  "netProceedsCapitalGainRef": "LIFD art. 12",
+  "netProceedsEplLabel": "Remboursement EPL",
+  "netProceedsEplRef": "LPP art. 30c",
+  "netProceedsNotaryLabel": "Frais de notaire",
+  "netProceedsAgencyLabel": "Commission agence",
+  "netProceedsFeePercent": "{pct}\u00a0% prix",
+  "@netProceedsFeePercent": {
+    "placeholders": {
+      "pct": {"type": "String"}
+    }
+  },
+  "netProceedsSalePrice": "Prix de vente\u00a0: {amount}",
+  "@netProceedsSalePrice": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "netProceedsNet": "Net\u00a0: {amount}",
+  "@netProceedsNet": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "netProceedsDeductions": "D\u00e9ductions\u00a0: {amount}",
+  "@netProceedsDeductions": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "netProceedsSurprise": "Surprise\u00a0: \u2212\u00a0{amount}",
+  "@netProceedsSurprise": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "netProceedsSurpriseDetail": "Tu croyais toucher {perceived} \u2014 tu touches {actual}.",
+  "@netProceedsSurpriseDetail": {
+    "placeholders": {
+      "perceived": {"type": "String"},
+      "actual": {"type": "String"}
+    }
+  },
+  "netProceedsHideDetail": "Masquer le d\u00e9tail",
+  "netProceedsShowDetail": "Voir le d\u00e9tail des d\u00e9ductions",
+  "netProceedsDisclaimer": "Outil \u00e9ducatif \u00b7 ne constitue pas un conseil fiscal au sens de la LSFin. Source\u00a0: LIFD art. 12 (gain), LPP art. 30c (EPL). Chiffres indicatifs.",
+
+  "monteCarlo3Scenarios": "3 Sc\u00e9narios",
+  "monteCarloProbabilities": "Probabilit\u00e9s",
+  "monteCarloSimulating": "Simulation en cours\u2026",
+  "monteCarloRiskLow": "Risque d'\u00e9puisement faible",
+  "monteCarloRiskModerate": "Risque d'\u00e9puisement mod\u00e9r\u00e9",
+  "monteCarloRiskHigh": "Risque d'\u00e9puisement \u00e9lev\u00e9",
+  "monteCarloDisclaimer": "Dans ces simulations, {count} trajectoires ind\u00e9pendantes sont g\u00e9n\u00e9r\u00e9es. Outil \u00e9ducatif (LSFin).",
+  "@monteCarloDisclaimer": {
+    "placeholders": {
+      "count": {"type": "String"}
+    }
+  },
+  "monteCarloTeaserTitle": "Probabilit\u00e9s Monte Carlo",
+  "monteCarloTeaserMessage": "Les probabilit\u00e9s Monte Carlo te montrent l'\u00e9ventail de tes futurs possibles.",
+  "monteCarloTeaserCta": "Compl\u00e8te ton profil pour d\u00e9bloquer",
+  "monteCarloTeaserDisclaimer": "Outil \u00e9ducatif simplifi\u00e9 (LSFin). Ne constitue pas un conseil financier.",
+  "monteCarloCatLpp": "LPP",
+  "monteCarloCatAvs": "AVS",
+  "monteCarloCat3a": "3a",
+  "monteCarloCatPatrimoine": "Patrimoine",
+  "monteCarloCatLogement": "Logement",
+  "monteCarloCatForeignPension": "Retraite \u00e9trang\u00e8re",
+  "monteCarloCatDepenses": "D\u00e9penses",
+
+  "mintScoreGaugeSemantics": "Score de forme financi\u00e8re. {score} sur 100. Niveau {level}. Budget {budget}, Pr\u00e9voyance {prevoyance}, Patrimoine {patrimoine}.",
+  "@mintScoreGaugeSemantics": {
+    "placeholders": {
+      "score": {"type": "String"},
+      "level": {"type": "String"},
+      "budget": {"type": "String"},
+      "prevoyance": {"type": "String"},
+      "patrimoine": {"type": "String"}
+    }
+  },
+  "mintScoreGaugeTitle": "Forme financi\u00e8re",
+  "mintScoreGaugeSubtitle": "Score composite  \u00b7  3 piliers",
+  "mintScoreGaugeLevelExcellent": "Excellent",
+  "mintScoreGaugeLevelGood": "Bon",
+  "mintScoreGaugeLevelAttention": "Attention",
+  "mintScoreGaugeLevelCritical": "Critique",
+  "mintScoreGaugeBudget": "Budget",
+  "mintScoreGaugePrevoyance": "Pr\u00e9voyance",
+  "mintScoreGaugePatrimoine": "Patrimoine",
+  "mintScoreGaugeGainTitle": "Ce qui t'a fait monter",
+  "mintScoreGaugeNextActionsTitle": "Pour monter encore",
+  "mintScoreGaugePoints": "+{pts} pts",
+  "@mintScoreGaugePoints": {
+    "placeholders": {
+      "pts": {"type": "String"}
+    }
+  },
+  "mintScoreGaugeDisclaimer": "Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier.",
+
+  "disabilityRedSemantics": "\u00c9cran rouge ind\u00e9pendant invalidit\u00e9 filet inexistant",
+  "disabilityRedTitle": "Ind\u00e9pendant\u00b7e\u00a0: ton filet n'existe pas",
+  "disabilityRedSubtitle": "Si tu ne peux plus travailler demain\u00a0:",
+  "disabilityRedEmployeeTitle": "Salari\u00e9\u00b7e",
+  "disabilityRedEmployeeApg": "APG 80\u00a0%",
+  "disabilityRedEmployeeLpp": "LPP invalidit\u00e9",
+  "disabilityRedEmployeeAi": "AI rente",
+  "disabilityRedEmployeeTotal": "\u2248 CHF {amount}/mois",
+  "@disabilityRedEmployeeTotal": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "disabilityRedYouTitle": "Toi",
+  "disabilityRedYouNothing": "RIEN",
+  "disabilityRedYouDuring": "pendant",
+  "disabilityRedYouMonths": "~{months} mois",
+  "@disabilityRedYouMonths": {
+    "placeholders": {
+      "months": {"type": "String"}
+    }
+  },
+  "disabilityRedYouTotal": "= 0 CHF/mois",
+  "disabilityRedChiffreChocTitle": "\ud83d\udcb0 Chiffre-choc\u00a0: {months} mois \u00e0 0 CHF.",
+  "@disabilityRedChiffreChocTitle": {
+    "placeholders": {
+      "months": {"type": "String"}
+    }
+  },
+  "disabilityRedChiffreChocBody": "Tu dois avoir CHF {amount} d'\u00e9pargne de s\u00e9curit\u00e9 pour tenir jusqu'\u00e0 la d\u00e9cision AI.",
+  "@disabilityRedChiffreChocBody": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "disabilityRedAfterAi": "Apr\u00e8s d\u00e9cision AI\u00a0: CHF {amount}/mois (AI seule)",
+  "@disabilityRedAfterAi": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "disabilityRedQuestion": "As-tu une assurance perte de gain\u00a0?",
+  "disabilityRedAnswerYes": "Oui",
+  "disabilityRedAnswerNo": "Non",
+  "disabilityRedAnswerDontKnow": "Je ne sais pas",
+  "disabilityRedFeedbackYes": "Bien\u00a0! V\u00e9rifie que le d\u00e9lai de carence est inf\u00e9rieur \u00e0 30 jours.",
+  "disabilityRedFeedbackNo": "Action prioritaire\u00a0: compare 3 assurances perte de gain. D\u00e8s CHF 45/mois.",
+  "disabilityRedFeedbackDontKnow": "Retrouve ton contrat ou contacte ta caisse de compensation.",
+  "disabilityRedDisclaimer": "Outil \u00e9ducatif \u00b7 ne constitue pas un conseil financier au sens de la LSFin. Source\u00a0: LAMal art. 67-77, CO art. 324a."
 }
