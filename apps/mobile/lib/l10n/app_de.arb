@@ -4396,4 +4396,7 @@
   "apercu3aProgressionLabel": "Aktuelles Kapital vs Altersprojektion",
   "apercu3aSimulerCta": "Meine 3a simulieren",
   "apercu3aDisclaimer": "Bildungsprojektion basierend auf 2% Nettorendite. Keine Finanzberatung (FIDLEG)."
+,
+  "consentRevokeButton": "Widerrufen",
+  "consentAddButton": "Zustimmung hinzufügen"
 }

@@ -4396,4 +4396,7 @@
   "apercu3aProgressionLabel": "Capitale attuale vs proiezione pensione",
   "apercu3aSimulerCta": "Simulare il mio 3a",
   "apercu3aDisclaimer": "Proiezione educativa basata su un rendimento netto del 2%. Non costituisce consulenza (LSFin)."
+,
+  "consentRevokeButton": "Revocare",
+  "consentAddButton": "Aggiungere un consenso"
 }

@@ -4396,4 +4396,7 @@
   "apercu3aProgressionLabel": "Current capital vs retirement projection",
   "apercu3aSimulerCta": "Simulate my 3a",
   "apercu3aDisclaimer": "Educational projection based on 2% net return. Not financial advice (FinSA)."
+,
+  "consentRevokeButton": "Revoke",
+  "consentAddButton": "Add a consent"
 }

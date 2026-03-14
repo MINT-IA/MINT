@@ -4282,5 +4282,7 @@
   "firstSalaryFranchiseLabel": "Franchise {label}",
   "@firstSalaryFranchiseLabel": { "placeholders": { "label": { "type": "String" } } },
   "firstSalaryFirstStep": "Premier pas financier",
-  "firstSalaryFirstStepSub": "Tu sais maintenant ce que 90\u00a0% des gens ne savent jamais."
+  "firstSalaryFirstStepSub": "Tu sais maintenant ce que 90\u00a0% des gens ne savent jamais.",
+  "consentRevokeButton": "Révoquer",
+  "consentAddButton": "Ajouter un consentement"
 }
