@@ -368,7 +368,7 @@ void main() {
       );
 
       expect(result.chiffreChoc, contains('mois'));
-      expect(result.chiffreChoc, contains('salaire'));
+      expect(result.chiffreChoc, contains('revenu'));
     });
 
     test('formatChf formate avec apostrophe suisse', () {

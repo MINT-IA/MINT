@@ -180,7 +180,7 @@ void main() {
         loyer: 1500,
       );
       expect(result.disclaimer, isNotEmpty);
-      expect(result.disclaimer, contains('pedagogique'));
+      expect(result.disclaimer, contains('pédagogique'));
       expect(result.disclaimer, contains('LP art. 93'));
       expect(result.disclaimer, contains('ne constitue pas'));
     });
@@ -192,7 +192,7 @@ void main() {
         loyer: 1200,
       );
       expect(result.chiffreChoc.montant, closeTo(20.0, 0.1));
-      expect(result.chiffreChoc.texte, contains('Ratio dette'));
+      expect(result.chiffreChoc.texte, contains('revenus'));
       expect(result.chiffreChoc.niveau, DebtRiskLevel.orange);
     });
 
@@ -333,7 +333,7 @@ void main() {
         budgetMensuelRemboursement: 500,
       );
       expect(result.disclaimer, isNotEmpty);
-      expect(result.disclaimer, contains('pedagogique'));
+      expect(result.disclaimer, contains('pédagogique'));
       expect(result.disclaimer, contains('sp\u00e9cialiste'));
     });
 
