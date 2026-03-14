@@ -9,7 +9,7 @@ class EducationalInsertService {
       'Contenu pédagogique à caractère informatif — outil éducatif '
       'qui ne constitue pas un conseil financier, fiscal ou juridique. '
       'Les informations sont fournies à titre indicatif. '
-      'Consultez un·e spécialiste pour une analyse adaptée à ta situation.';
+      'Consulte un·e spécialiste pour une analyse adaptée à ta situation.';
 
   static const List<String> sources = [
     'LPP (Loi sur la prévoyance professionnelle)',

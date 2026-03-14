@@ -20,7 +20,7 @@ class TaxEstimatorService {
       'Estimation approximative de l\'impôt (ICC + IFD) — outil éducatif '
       'qui ne constitue pas un conseil fiscal. Les montants réels dépendent '
       'de ta commune, de ta situation familiale et de tes déductions effectives. '
-      'Consultez un·e spécialiste fiscal·e pour un calcul personnalisé.';
+      'Consulte un·e spécialiste fiscal·e pour un calcul personnalisé.';
 
   static const List<String> sources = [
     'LIFD art. 36 (Barèmes de l\'impôt fédéral direct)',

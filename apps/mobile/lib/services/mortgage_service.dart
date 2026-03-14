@@ -139,12 +139,12 @@ class AffordabilityCalculator {
       chiffreChocTexte: chiffreChocTexte,
       chiffreChocPositif: chiffreChocPositif,
       disclaimer:
-          'Simulation pedagogique a titre indicatif. La capacite d\'achat '
-          'reelle depend de la politique de credit de chaque etablissement. '
-          'Le taux theorique de 5% est utilise pour le calcul de tenue '
-          '(pratique ASB), pas le taux reel du marche. '
-          'Base legale : directive ASB sur le credit hypothecaire. '
-          'Consultez un ou une specialiste avant toute decision.',
+          'Simulation pédagogique à titre indicatif. La capacité d\'achat '
+          'réelle dépend de la politique de crédit de chaque établissement. '
+          'Le taux théorique de 5\u00a0% est utilisé pour le calcul de tenue '
+          '(pratique ASB), pas le taux réel du marché. '
+          'Base légale\u00a0: directive ASB sur le crédit hypothécaire. '
+          'Consulte un·e spécialiste avant toute décision.',
     );
   }
 }
@@ -440,12 +440,12 @@ class ImputedRentalCalculator {
       chiffreChocTexte: chiffreChocTexte,
       chiffreChocPositif: chiffreChocPositif,
       disclaimer:
-          'Simulation pedagogique a titre indicatif. La valeur locative '
-          'reelle est fixee par l\'autorite fiscale cantonale et peut '
-          'differer significativement de cette estimation. Les deductions '
-          'dependent de la situation personnelle. '
-          'Base legale : LIFD art. 21 al. 1 let. b, art. 32 (deductions). '
-          'Consultez un ou une specialiste en fiscalite.',
+          'Simulation pédagogique à titre indicatif. La valeur locative '
+          'réelle est fixée par l\'autorité fiscale cantonale et peut '
+          'différer significativement de cette estimation. Les déductions '
+          'dépendent de la situation personnelle. '
+          'Base légale\u00a0: LIFD art. 21 al. 1 let. b, art. 32 (déductions). '
+          'Consulte un·e spécialiste en fiscalité.',
     );
   }
 }
@@ -592,12 +592,12 @@ class AmortizationCalculator {
           : 'L\'amortissement direct est environ CHF ${formatChf(-economie)} moins cher sur $duree ans',
       chiffreChocPositif: economie > 0,
       disclaimer:
-          'Simulation pedagogique a titre indicatif. L\'avantage de '
-          'l\'amortissement indirect depend du taux marginal effectif, '
-          'du rendement 3a et des conditions hypothecaires. '
-          'Le nantissement du 3a doit etre accepte par le preteur. '
-          'Base legale : OPP3, pratique hypothecaire suisse. '
-          'Consultez un ou une specialiste avant toute decision.',
+          'Simulation pédagogique à titre indicatif. L\'avantage de '
+          'l\'amortissement indirect dépend du taux marginal effectif, '
+          'du rendement 3a et des conditions hypothécaires. '
+          'Le nantissement du 3a doit être accepté par le prêteur. '
+          'Base légale\u00a0: OPP3, pratique hypothécaire suisse. '
+          'Consulte un·e spécialiste avant toute décision.',
     );
   }
 }
@@ -785,12 +785,12 @@ class EplCombinedCalculator {
       chiffreChocPositif: objectifAtteint,
       alertes: alertes,
       disclaimer:
-          'Simulation pedagogique a titre indicatif. Les montants reels '
-          'dependent de la caisse de pension, de la fiscalite cantonale '
+          'Simulation pédagogique à titre indicatif. Les montants réels '
+          'dépendent de la caisse de pension, de la fiscalité cantonale '
           'et communale, et de la situation personnelle. '
-          'Le retrait LPP est soumis a l\'accord du conjoint (si marie). '
-          'Base legale : LPP art. 30c (EPL), OPP3, LIFD art. 38. '
-          'Consultez un ou une specialiste avant toute decision.',
+          'Le retrait LPP est soumis à l\'accord du conjoint (si marié). '
+          'Base légale\u00a0: LPP art. 30c (EPL), OPP3, LIFD art. 38. '
+          'Consulte un·e spécialiste avant toute décision.',
     );
   }
 

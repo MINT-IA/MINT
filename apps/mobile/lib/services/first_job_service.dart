@@ -107,7 +107,7 @@ class FirstJobService {
       'Simulation du premier salaire — outil éducatif qui ne constitue pas '
       'un conseil en matière de rémunération ou de prévoyance. '
       'Les montants sont des estimations basées sur des taux moyens. '
-      'Consultez un·e spécialiste pour une analyse adaptée à ta situation.';
+      'Consulte un·e spécialiste pour une analyse adaptée à ta situation.';
 
   static const List<String> sources = [
     'CO art. 322 (Obligation de payer le salaire)',

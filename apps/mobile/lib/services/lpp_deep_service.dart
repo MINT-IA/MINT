@@ -368,7 +368,7 @@ class LibrePassageAdvisor {
       disclaimer: 'Ces informations sont pédagogiques et ne constituent pas '
           'un conseil juridique ou financier personnalisé. Les règles '
           'dépendent de ta caisse de pension et de ta situation. '
-          'Base légale : LFLP, OLP. Consultez un ou une spécialiste '
+          'Base légale\u00a0: LFLP, OLP. Consulte un·e spécialiste '
           'en prévoyance professionnelle.',
     );
   }

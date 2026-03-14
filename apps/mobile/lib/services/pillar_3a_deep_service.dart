@@ -307,8 +307,8 @@ class RealReturnCalculator {
           'constant. Les rendements passés ne préjugent pas des rendements '
           'futurs. Les frais et rendements varient selon le prestataire. '
           'L\'économie fiscale dépend de ton taux marginal réel. '
-          'Base légale : OPP3, LIFD art. 33 al. 1 let. e. '
-          'Consultez un ou une spécialiste avant toute décision.',
+          'Base légale\u00a0: OPP3, LIFD art. 33 al. 1 let. e. '
+          'Consulte un·e spécialiste avant toute décision.',
     );
   }
 

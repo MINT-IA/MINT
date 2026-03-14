@@ -178,7 +178,7 @@ class LamalFranchiseService {
       alerteDelai: 'Rappel : modification de franchise possible avant le '
           '30 novembre de chaque année pour l\'année suivante.',
       disclaimer: 'Cette analyse est indicative. Les primes varient selon '
-          'l\'assureur, la région et le modèle d\'assurance. Consultez '
+          'l\'assureur, la région et le modèle d\'assurance. Consulte '
           'ta caisse maladie pour des chiffres exacts. '
           'Source : LAMal art. 62-64, OAMal.',
     );

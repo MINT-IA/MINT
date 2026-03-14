@@ -158,7 +158,7 @@ class JobComparisonService {
       'Comparaison indicative entre deux plans LPP — outil éducatif '
       'qui ne constitue pas un conseil en prévoyance professionnelle. '
       'Les projections reposent sur des hypothèses simplifiées. '
-      'Consultez un·e spécialiste LPP pour une analyse personnalisée.';
+      'Consulte un·e spécialiste LPP pour une analyse personnalisée.';
 
   static const List<String> sources = [
     'LPP art. 15-16 (Bonifications de vieillesse)',

@@ -9,7 +9,7 @@ class CircleScoringService {
       'Score indicatif de santé financière — outil éducatif qui ne constitue '
       'pas un conseil financier. Ce score repose sur une approche propriétaire MINT '
       'et ne remplace pas l\'avis d\'un·e spécialiste. '
-      'Consultez un·e spécialiste pour une analyse personnalisée.';
+      'Consulte un·e spécialiste pour une analyse personnalisée.';
 
   static const List<String> sources = [
     'Approche propriétaire MINT — scoring par cercles concentriques',

@@ -18,7 +18,7 @@ class RecommendationsService {
   static const String disclaimer =
       'Suggestions pédagogiques basées sur ton profil — outil éducatif '
       'qui ne constitue pas un conseil financier personnalisé au sens de la LSFin. '
-      'Consultez un·e spécialiste pour une analyse adaptée à ta situation.';
+      'Consulte un·e spécialiste pour une analyse adaptée à ta situation.';
 
   static const List<String> sources = [
     'LSFin art. 3 (Définition du conseil en placement)',
