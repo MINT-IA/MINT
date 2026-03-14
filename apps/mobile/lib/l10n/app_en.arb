@@ -5630,5 +5630,324 @@
   "successionPatrimoineCtaTitle": "Consult a notary or specialist",
   "successionPatrimoineCtaBody": "A notary or succession law specialist can draft or review your will and guide you on the estate planning suited to your situation.",
   "successionPatrimoineLegalSources": "• CC art. 457–640 — Law of succession\n• CC art. 470–471 — Forced heirship\n• CC art. 498–504 — Forms of will\n• LPP art. 20 — LPP capital beneficiaries\n• OPP3 art. 2 — Pillar 3a beneficiaries",
-  "successionPatrimoineDisclaimer": "Educational information, does not constitute legal or estate advice within the meaning of FinSA or the CC. Inheritance rules vary by family situation, matrimonial regime and canton. Consult a notary or succession law specialist for your personal situation."
+  "successionPatrimoineDisclaimer": "Educational information, does not constitute legal or estate advice within the meaning of FinSA or the CC. Inheritance rules vary by family situation, matrimonial regime and canton. Consult a notary or succession law specialist for your personal situation.",
+  "slmSettingsChooseModel": "Choose your model",
+  "slmSettingsTwoSizesAvailable": "Two sizes available depending on your device",
+  "slmSettingsRecommended": "Recommended",
+  "slmSettingsTierDetails": "{size} • ~{minutes} min • {compatibility}",
+  "@slmSettingsTierDetails": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      },
+      "compatibility": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsModelSize": "Size: {size}",
+  "@slmSettingsModelSize": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsModelVersion": "Version: {version}",
+  "@slmSettingsModelVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsDownloadFailedDefault": "Download failed. Check your WiFi connection and available storage on your device.",
+  "slmSettingsDownloadButton": "Download ({size})",
+  "@slmSettingsDownloadButton": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsBuildDownloadUnavailable": "This build does not allow model download.",
+  "slmSettingsDownloadDialogContent": "The model is {size}. Make sure you are connected to WiFi to avoid heavy mobile data usage.\n\n~{minutes} min on WiFi. Compatible: {compatibility}.",
+  "@slmSettingsDownloadDialogContent": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      },
+      "compatibility": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsCheckWifiAndStorage": "Check your WiFi connection and available storage.",
+  "slmSettingsDownloadFailed": "Download failed. {reason}",
+  "@slmSettingsDownloadFailed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsRetryAction": "Retry",
+  "slmSettingsEstimatedTime": "~{minutes} min on WiFi",
+  "@slmSettingsEstimatedTime": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsStatusRunning": "Ready — the coach uses on-device AI",
+  "slmSettingsStatusReady": "Model downloaded — initialization required",
+  "slmSettingsStatusError": "Error — device not compatible or insufficient memory",
+  "slmSettingsStatusDownloading": "Downloading…",
+  "slmSettingsStatusModelReady": "Model ready — start initialization",
+  "slmSettingsStatusNotDownloaded": "Model not downloaded",
+  "slmSettingsInitError": "Model initialization error. Check that your device is compatible.",
+  "slmSettingsInitializing": "Initializing…",
+  "slmSettingsInitializeEngine": "Initialize engine",
+  "slmSettingsInfoDownload": "Download the model once (~{minutes} min on WiFi)",
+  "@slmSettingsInfoDownload": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsInfoOnDevice": "AI runs directly on your phone",
+  "slmSettingsInfoOffline": "Works even without internet connection",
+  "slmSettingsInfoPrivacy": "Your data never leaves your device",
+  "slmSettingsInfoSpeed": "Responses in 2-4 seconds on a recent device",
+  "slmSettingsInfoSource": "Model source: {modelId}",
+  "@slmSettingsInfoSource": {
+    "placeholders": {
+      "modelId": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsAuthConfigured": "HuggingFace authentication: configured",
+  "slmSettingsAuthNotConfigured": "HuggingFace authentication: not configured (download impossible if Gemma URL is gated)",
+  "slmSettingsCompatibilityInfo": "Compatibility: {compatibility}.\nThe model requires {diskSize} of disk space and ~{ramGb} GB of RAM.",
+  "@slmSettingsCompatibilityInfo": {
+    "placeholders": {
+      "compatibility": {
+        "type": "String"
+      },
+      "diskSize": {
+        "type": "String"
+      },
+      "ramGb": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2Title": "Your Mint Plan",
+  "reportV2Greeting": "Hello {firstName}!",
+  "@reportV2Greeting": {
+    "description": "Greeting with first name",
+    "placeholders": {
+      "firstName": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2ProfileSummary": "{age} years • {canton} • {civilStatus}",
+  "@reportV2ProfileSummary": {
+    "description": "Profile summary line",
+    "placeholders": {
+      "age": {
+        "type": "int"
+      },
+      "canton": {
+        "type": "String"
+      },
+      "civilStatus": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2StatusGood": "Your foundation is solid, keep it up!",
+  "reportV2StatusMedium": "A few adjustments to feel secure",
+  "reportV2StatusLow": "Priority: stabilize your situation",
+  "reportV2BudgetTitle": "Your Budget",
+  "reportV2BudgetKeyLabel": "Disposable income (after fixed costs)",
+  "reportV2BudgetAction": "Set up my budget envelopes",
+  "reportV2DebtConsumer": "Active consumer debt.",
+  "reportV2LeasingActive": "Active leasing with monthly charge.",
+  "reportV2DebtPayments": "Debt repayments: CHF {amount} / month.",
+  "@reportV2DebtPayments": {
+    "description": "Debt repayment amount per month",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2EmergencyFundInsufficient": "Insufficient emergency fund (< 3 months).",
+  "reportV2FragilitySignal": "Fragility signal detected: priority to budget stability.",
+  "reportV2ProtectionTitle": "Your Protection",
+  "reportV2EmergencyFundMonths": "{months} months",
+  "@reportV2EmergencyFundMonths": {
+    "description": "Emergency fund duration in months",
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2EmergencyFundTarget": "Emergency fund (target: 6 months)",
+  "reportV2SourceLpArt93": "Source: LP art. 93 — Minimum vital",
+  "reportV2BuildEmergencyFund": "Build my emergency fund",
+  "reportV2No3aYet": "No 3a yet — up to CHF 7,258/year in tax deductions possible",
+  "reportV2One3aAccount": "1 pillar 3a account — open a 2nd to optimize withdrawal",
+  "reportV2Multiple3aAccounts": "{count} pillar 3a accounts — good diversification",
+  "@reportV2Multiple3aAccounts": {
+    "description": "Multiple 3a accounts count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportV2LppBuybackAvailable": "LPP buyback available: CHF {buybackAmount} — estimated tax savings: CHF {taxSavings}",
+  "@reportV2LppBuybackAvailable": {
+    "description": "LPP buyback with amounts",
+    "placeholders": {
+      "buybackAmount": {
+        "type": "String"
+      },
+      "taxSavings": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2RetirementTitle": "Your Retirement",
+  "reportV2RetirementKeyNumber": "CHF {amount}/month",
+  "@reportV2RetirementKeyNumber": {
+    "description": "Monthly retirement income",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2RetirementKeyLabel": "Estimated income at age 65",
+  "reportV2RetirementSource": "Sources: LPP art. 14, OPP3, OASI",
+  "reportV2TaxTitle": "Your Taxes",
+  "reportV2TaxKeyNumber": "CHF {amount}/year",
+  "@reportV2TaxKeyNumber": {
+    "description": "Annual tax amount",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2TaxKeyLabel": "Estimated taxes (effective rate: {rate}%)",
+  "@reportV2TaxKeyLabel": {
+    "description": "Tax key label with rate",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2CompareCantons": "Compare 26 cantons",
+  "reportV2SourceLifdArt33": "Source: LIFD art. 33",
+  "reportV2TaxableIncome": "Taxable income",
+  "reportV2Deductions": "Deductions",
+  "reportV2EstimatedTaxes": "Estimated taxes",
+  "reportV2LppBuybackSavings": "Possible savings with LPP buyback: CHF {amount}/year",
+  "@reportV2LppBuybackSavings": {
+    "description": "LPP buyback savings per year",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2TopPriorities": "Your Top 3 Priority Actions",
+  "reportV2StartAction": "Start",
+  "reportV2LppBuybackStrategy": "LPP Buyback Strategy",
+  "reportV2TotalTaxSavings": "Total tax savings: CHF {amount}",
+  "@reportV2TotalTaxSavings": {
+    "description": "Total tax savings amount",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2BuybackYear": "Year {year}",
+  "@reportV2BuybackYear": {
+    "description": "Buyback plan year",
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "reportV2BuybackAmount": "Buyback: CHF {amount}",
+  "@reportV2BuybackAmount": {
+    "description": "Buyback amount",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2BuybackSavingsAmount": "Savings: CHF {amount}",
+  "@reportV2BuybackSavingsAmount": {
+    "description": "Buyback tax savings",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2HowItWorks": "How does it work?",
+  "reportV2LppBuybackExplanation": "Understand why staggering your LPP buybacks saves you thousands of additional francs.",
+  "reportV2TransparencyTitle": "Transparency and compliance",
+  "reportV2ServiceNature": "Nature of service",
+  "reportV2EducationWithPhases": "Financial education — {count} phases identified",
+  "@reportV2EducationWithPhases": {
+    "description": "Education with phase count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportV2EducationPersonalized": "Personalized financial education",
+  "reportV2WorkingHypotheses": "Working hypotheses",
+  "reportV2HypothesisStableIncome": "Declared income stable over the period",
+  "reportV2HypothesisLppRate": "Mandatory LPP conversion rate: 6.8%",
+  "reportV2Hypothesis3aCeiling": "Employee 3a ceiling: CHF 7,258/year",
+  "reportV2HypothesisAvsMax": "Maximum AVS pension: CHF 30,240/year",
+  "reportV2ConflictsOfInterest": "Conflicts of interest",
+  "reportV2NoConflict": "No conflict of interest identified for this report.",
+  "reportV2NoCommission": "MINT receives no commission on the products mentioned.",
+  "reportV2Limitations": "Limitations",
+  "reportV2LimitDeclarative": "Based on self-declared information only",
+  "reportV2LimitTaxApprox": "Approximate tax estimate (average cantonal rates)",
+  "reportV2LimitNoWealth": "Does not account for investment income",
+  "reportV2LimitNoInflation": "Projections do not account for inflation",
+  "reportV2LegalMention": "Legal notice",
+  "reportV2Disclaimer": "Educational tool — does not constitute financial advice under FinSA. Amounts are estimates based on declared data.",
+  "reportV2DebtPriorityTitle": "Debt reduction priority",
+  "reportV2DebtPriorityMessage": "Your priority actions are replaced by a debt reduction plan. Stabilize your situation before exploring recommendations.",
+  "reportV2Optimize3a": "Optimize your 3a",
+  "reportV2Debt3aLockedMessage": "The 3a comparator is disabled while you have active debts. Paying off your debts is a priority before any 3a savings.",
+  "reportV2LppBuybackLocked": "LPP buyback locked",
+  "reportV2LppBuybackLockedMessage": "LPP buyback is disabled in protection mode. Pay off your debts before locking liquidity in pension funds."
 }

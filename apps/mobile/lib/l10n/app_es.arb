@@ -5574,5 +5574,260 @@
   "successionPatrimoineCtaTitle": "Consultar a un/a notario/a o especialista",
   "successionPatrimoineCtaBody": "Un/a notario/a o especialista en derecho sucesorio puede redactar o revisar tu testamento y orientarte sobre la organización sucesoria adaptada a tu situación.",
   "successionPatrimoineLegalSources": "• CC art. 457–640 — Derecho sucesorio\n• CC art. 470–471 — Reservas hereditarias\n• CC art. 498–504 — Formas del testamento\n• LPP art. 20 — Beneficiarios del capital LPP\n• OPP3 art. 2 — Beneficiarios del pilar 3a",
-  "successionPatrimoineDisclaimer": "Información con carácter educativo, no constituye asesoramiento jurídico o patrimonial en el sentido de la LSFin o del CC. Las reglas sucesorias varían según la situación familiar, el régimen matrimonial y el cantón. Consulta a un/a notario/a o especialista en derecho sucesorio para tu situación personal."
+  "successionPatrimoineDisclaimer": "Información con carácter educativo, no constituye asesoramiento jurídico o patrimonial en el sentido de la LSFin o del CC. Las reglas sucesorias varían según la situación familiar, el régimen matrimonial y el cantón. Consulta a un/a notario/a o especialista en derecho sucesorio para tu situación personal.",
+  "coachChatTitle": "Coach MINT",
+  "coachChatEmptyStateMessage": "Completa tu diagnóstico para hablar con tu coach",
+  "coachChatStartDiagnostic": "Hacer mi diagnóstico",
+  "coachChatExportTooltip": "Exportar la conversación",
+  "coachChatSettingsTooltip": "Configuración IA",
+  "coachChatTierSlm": "IA en el dispositivo",
+  "coachChatTierByok": "IA nube (BYOK)",
+  "coachChatTierOffline": "Modo sin conexión",
+  "coachChatBadgeOnDevice": "En dispositivo",
+  "coachChatBadgeCloud": "Nube",
+  "coachChatBadgeOffline": "Sin conexión",
+  "coachChatDisclaimer": "Herramienta educativa — las respuestas no constituyen asesoramiento financiero. LSFin.",
+  "coachChatLoading": "Reflexionando...",
+  "coachChatSources": "Fuentes",
+  "coachChatInputHint": "Haz tu pregunta...",
+  "coachChatDefaultName": "amigo·a",
+  "coachChatGreetingSlm": "¡Hola {name}! Soy tu coach MINT — funciono directamente en tu iPhone, ningún dato sale de tu dispositivo. Pregúntame sobre previsión, impuestos o jubilación.",
+  "@coachChatGreetingSlm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coachChatGreetingFallback": "¡Hola {name}! Soy tu coach MINT. Pregúntame sobre previsión, impuestos, presupuesto o jubilación en Suiza.",
+  "@coachChatGreetingFallback": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coachChatFitnessScore": " Tu puntuación Fitness es de {score}/100.",
+  "@coachChatFitnessScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "coachChatComplianceFallback": "No pude formular una respuesta conforme. Reformula tu pregunta o explora los simuladores.",
+  "coachChatErrorInvalidKey": "Tu clave API parece inválida o expirada. Verifícala en los ajustes.",
+  "coachChatErrorRateLimit": "Límite de solicitudes alcanzado. Vuelve a intentarlo en unos instantes.",
+  "coachChatErrorDefault": "Error técnico. Inténtalo más tarde.",
+  "coachChatErrorConnection": "Error de conexión. Verifica tu conexión a internet o tu clave API.",
+  "coachChatAction3aSimulate": "Simular una aportación 3a",
+  "coachChatAction3aView": "Ver mis cuentas 3a",
+  "coachChatActionLppSimulate": "Simular una recompra LPP",
+  "coachChatActionLppUnderstand": "Comprender la recompra LPP",
+  "coachChatActionTrajectory": "Ver mi trayectoria",
+  "coachChatActionScenarios": "Explorar los escenarios",
+  "coachChatActionTaxDeductions": "Deducciones fiscales posibles",
+  "coachChatActionTaxSimulate": "Simular el impacto fiscal",
+  "coachChatActionFitness": "Mi puntuación Fitness",
+  "coachChatActionRetirement": "Mi trayectoria de jubilación",
+  "coachChatUserFallback": "Usuario",
+  "reportV2Title": "Tu Plan Mint",
+  "reportV2Greeting": "¡Hola {firstName}!",
+  "@reportV2Greeting": {
+    "description": "Greeting with first name",
+    "placeholders": {
+      "firstName": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2ProfileSummary": "{age} años • {canton} • {civilStatus}",
+  "@reportV2ProfileSummary": {
+    "description": "Profile summary line",
+    "placeholders": {
+      "age": {
+        "type": "int"
+      },
+      "canton": {
+        "type": "String"
+      },
+      "civilStatus": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2StatusGood": "Tu base es sólida, ¡sigue así!",
+  "reportV2StatusMedium": "Algunos ajustes para estar tranquilo",
+  "reportV2StatusLow": "Prioridad: estabiliza tu situación",
+  "reportV2BudgetTitle": "Tu Presupuesto",
+  "reportV2BudgetKeyLabel": "Renta disponible (después de gastos fijos)",
+  "reportV2BudgetAction": "Configurar mis sobres presupuestarios",
+  "reportV2DebtConsumer": "Deuda de consumo activa.",
+  "reportV2LeasingActive": "Leasing activo con cargo mensual.",
+  "reportV2DebtPayments": "Pagos de deuda: CHF {amount} / mes.",
+  "@reportV2DebtPayments": {
+    "description": "Debt repayment amount per month",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2EmergencyFundInsufficient": "Fondo de emergencia insuficiente (< 3 meses).",
+  "reportV2FragilitySignal": "Señal de fragilidad detectada: prioridad a la estabilidad presupuestaria.",
+  "reportV2ProtectionTitle": "Tu Protección",
+  "reportV2EmergencyFundMonths": "{months} meses",
+  "@reportV2EmergencyFundMonths": {
+    "description": "Emergency fund duration in months",
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2EmergencyFundTarget": "Fondo de emergencia (objetivo: 6 meses)",
+  "reportV2SourceLpArt93": "Fuente: LP art. 93 — Mínimo vital",
+  "reportV2BuildEmergencyFund": "Constituir mi fondo de emergencia",
+  "reportV2No3aYet": "Aún sin 3a — hasta CHF 7.258/año de deducción fiscal posible",
+  "reportV2One3aAccount": "1 cuenta 3a — abre una 2ª para optimizar el retiro",
+  "reportV2Multiple3aAccounts": "{count} cuentas 3a — buena diversificación",
+  "@reportV2Multiple3aAccounts": {
+    "description": "Multiple 3a accounts count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportV2LppBuybackAvailable": "Rescate LPP disponible: CHF {buybackAmount} — ahorro fiscal estimado: CHF {taxSavings}",
+  "@reportV2LppBuybackAvailable": {
+    "description": "LPP buyback with amounts",
+    "placeholders": {
+      "buybackAmount": {
+        "type": "String"
+      },
+      "taxSavings": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2RetirementTitle": "Tu Jubilación",
+  "reportV2RetirementKeyNumber": "CHF {amount}/mes",
+  "@reportV2RetirementKeyNumber": {
+    "description": "Monthly retirement income",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2RetirementKeyLabel": "Ingreso estimado a los 65 años",
+  "reportV2RetirementSource": "Fuentes: LPP art. 14, OPP3, LAVS",
+  "reportV2TaxTitle": "Tus Impuestos",
+  "reportV2TaxKeyNumber": "CHF {amount}/año",
+  "@reportV2TaxKeyNumber": {
+    "description": "Annual tax amount",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2TaxKeyLabel": "Impuestos estimados (tasa efectiva: {rate}%)",
+  "@reportV2TaxKeyLabel": {
+    "description": "Tax key label with rate",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2CompareCantons": "Comparar 26 cantones",
+  "reportV2SourceLifdArt33": "Fuente: LIFD art. 33",
+  "reportV2TaxableIncome": "Renta imponible",
+  "reportV2Deductions": "Deducciones",
+  "reportV2EstimatedTaxes": "Impuestos estimados",
+  "reportV2LppBuybackSavings": "Ahorro posible con rescate LPP: CHF {amount}/año",
+  "@reportV2LppBuybackSavings": {
+    "description": "LPP buyback savings per year",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2TopPriorities": "Tus 3 Acciones Prioritarias",
+  "reportV2StartAction": "Comenzar",
+  "reportV2LppBuybackStrategy": "Estrategia de Rescate LPP",
+  "reportV2TotalTaxSavings": "Ahorro fiscal total: CHF {amount}",
+  "@reportV2TotalTaxSavings": {
+    "description": "Total tax savings amount",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2BuybackYear": "Año {year}",
+  "@reportV2BuybackYear": {
+    "description": "Buyback plan year",
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "reportV2BuybackAmount": "Rescate: CHF {amount}",
+  "@reportV2BuybackAmount": {
+    "description": "Buyback amount",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2BuybackSavingsAmount": "Ahorro: CHF {amount}",
+  "@reportV2BuybackSavingsAmount": {
+    "description": "Buyback tax savings",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2HowItWorks": "¿Cómo funciona?",
+  "reportV2LppBuybackExplanation": "Comprende por qué escalonar tus rescates LPP te ahorra miles de francos adicionales.",
+  "reportV2TransparencyTitle": "Transparencia y conformidad",
+  "reportV2ServiceNature": "Naturaleza del servicio",
+  "reportV2EducationWithPhases": "Educación financiera — {count} fases identificadas",
+  "@reportV2EducationWithPhases": {
+    "description": "Education with phase count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportV2EducationPersonalized": "Educación financiera personalizada",
+  "reportV2WorkingHypotheses": "Hipótesis de trabajo",
+  "reportV2HypothesisStableIncome": "Ingresos declarados estables en el período",
+  "reportV2HypothesisLppRate": "Tasa de conversión LPP obligatoria: 6.8%",
+  "reportV2Hypothesis3aCeiling": "Techo 3a asalariado: CHF 7.258/año",
+  "reportV2HypothesisAvsMax": "Renta AVS máxima: CHF 30.240/año",
+  "reportV2ConflictsOfInterest": "Conflictos de interés",
+  "reportV2NoConflict": "Ningún conflicto de interés identificado para este informe.",
+  "reportV2NoCommission": "MINT no percibe ninguna comisión sobre los productos mencionados.",
+  "reportV2Limitations": "Limitaciones",
+  "reportV2LimitDeclarative": "Basado únicamente en información declarativa",
+  "reportV2LimitTaxApprox": "Estimación fiscal aproximada (tasas medias cantonales)",
+  "reportV2LimitNoWealth": "No tiene en cuenta los ingresos de patrimonio mobiliario",
+  "reportV2LimitNoInflation": "Las proyecciones no tienen en cuenta la inflación",
+  "reportV2LegalMention": "Aviso legal",
+  "reportV2Disclaimer": "Herramienta educativa — no constituye asesoramiento financiero según la LSFin. Los montos son estimaciones basadas en datos declarados.",
+  "reportV2DebtPriorityTitle": "Prioridad al desendeudamiento",
+  "reportV2DebtPriorityMessage": "Tus acciones prioritarias son reemplazadas por un plan de desendeudamiento. Estabiliza tu situación antes de explorar las recomendaciones.",
+  "reportV2Optimize3a": "Optimiza tu 3a",
+  "reportV2Debt3aLockedMessage": "El comparador 3a está desactivado mientras tengas deudas activas. Pagar tus deudas es prioritario antes de cualquier ahorro 3a.",
+  "reportV2LppBuybackLocked": "Rescate LPP bloqueado",
+  "reportV2LppBuybackLockedMessage": "El rescate LPP está desactivado en modo protección. Paga tus deudas antes de bloquear liquidez en la previsión."
 }

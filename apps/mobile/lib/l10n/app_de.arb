@@ -5513,5 +5513,380 @@
   "successionPatrimoineCtaTitle": "Eine·n Notar·in oder Spezialist·in konsultieren",
   "successionPatrimoineCtaBody": "Ein·e Notar·in oder Spezialist·in für Erbrecht kann dein Testament verfassen oder überprüfen und dich zur passenden Nachlassplanung beraten.",
   "successionPatrimoineLegalSources": "• ZGB Art. 457–640 — Erbrecht\n• ZGB Art. 470–471 — Pflichtteile\n• ZGB Art. 498–504 — Testamentsformen\n• BVG Art. 20 — BVG-Kapitalbegünstigte\n• BVV3 Art. 2 — Säule-3a-Begünstigte",
-  "successionPatrimoineDisclaimer": "Informationen zu Bildungszwecken, stellt keine rechtliche oder vermögensrechtliche Beratung im Sinne des FIDLEG oder des ZGB dar. Die Erbschaftsregeln variieren je nach Familiensituation, Güterstand und Kanton. Konsultiere eine·n Notar·in oder Spezialist·in für Erbrecht für deine persönliche Situation."
+  "successionPatrimoineDisclaimer": "Informationen zu Bildungszwecken, stellt keine rechtliche oder vermögensrechtliche Beratung im Sinne des FIDLEG oder des ZGB dar. Die Erbschaftsregeln variieren je nach Familiensituation, Güterstand und Kanton. Konsultiere eine·n Notar·in oder Spezialist·in für Erbrecht für deine persönliche Situation.",
+  "coachChatTitle": "MINT Coach",
+  "coachChatEmptyStateMessage": "Vervollständige deine Analyse, um mit deinem Coach zu chatten",
+  "coachChatStartDiagnostic": "Meine Analyse starten",
+  "coachChatExportTooltip": "Gespräch exportieren",
+  "coachChatSettingsTooltip": "KI-Einstellungen",
+  "coachChatTierSlm": "KI auf dem Gerät",
+  "coachChatTierByok": "Cloud-KI (BYOK)",
+  "coachChatTierOffline": "Offline-Modus",
+  "coachChatBadgeOnDevice": "Auf dem Gerät",
+  "coachChatBadgeCloud": "Cloud",
+  "coachChatBadgeOffline": "Offline",
+  "coachChatDisclaimer": "Bildungstool — die Antworten stellen keine Finanzberatung dar. FIDLEG.",
+  "coachChatLoading": "Nachdenken...",
+  "coachChatSources": "Quellen",
+  "coachChatInputHint": "Stelle deine Frage...",
+  "coachChatDefaultName": "Freund·in",
+  "coachChatGreetingSlm": "Hallo {name}! Ich bin dein MINT Coach — ich laufe direkt auf deinem iPhone, keine Daten verlassen dein Gerät. Frag mich zur Vorsorge, Steuern oder Pensionierung.",
+  "@coachChatGreetingSlm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coachChatGreetingFallback": "Hallo {name}! Ich bin dein MINT Coach. Frag mich zur Vorsorge, Steuern, Budget oder Pensionierung in der Schweiz.",
+  "@coachChatGreetingFallback": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coachChatFitnessScore": " Dein Fitness-Score beträgt {score}/100.",
+  "@coachChatFitnessScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "coachChatComplianceFallback": "Ich konnte keine konforme Antwort formulieren. Formuliere deine Frage um oder erkunde die Simulatoren.",
+  "coachChatErrorInvalidKey": "Dein API-Schlüssel scheint ungültig oder abgelaufen. Überprüfe ihn in den Einstellungen.",
+  "coachChatErrorRateLimit": "Anfragelimit erreicht. Versuche es in einigen Augenblicken erneut.",
+  "coachChatErrorDefault": "Technischer Fehler. Versuche es später erneut.",
+  "coachChatErrorConnection": "Verbindungsfehler. Überprüfe deine Internetverbindung oder deinen API-Schlüssel.",
+  "coachChatAction3aSimulate": "3a-Einzahlung simulieren",
+  "coachChatAction3aView": "Meine 3a-Konten anzeigen",
+  "coachChatActionLppSimulate": "BVG-Einkauf simulieren",
+  "coachChatActionLppUnderstand": "BVG-Einkauf verstehen",
+  "coachChatActionTrajectory": "Meine Trajektorie anzeigen",
+  "coachChatActionScenarios": "Szenarien erkunden",
+  "coachChatActionTaxDeductions": "Mögliche Steuerabzüge",
+  "coachChatActionTaxSimulate": "Steuerliche Auswirkung simulieren",
+  "coachChatActionFitness": "Mein Fitness-Score",
+  "coachChatActionRetirement": "Meine Pensionstrajektorie",
+  "coachChatUserFallback": "Benutzer",
+  "slmSettingsChooseModel": "Wähle dein Modell",
+  "slmSettingsTwoSizesAvailable": "Zwei Grössen je nach Gerät verfügbar",
+  "slmSettingsRecommended": "Empfohlen",
+  "slmSettingsTierDetails": "{size} • ~{minutes} Min • {compatibility}",
+  "@slmSettingsTierDetails": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      },
+      "compatibility": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsModelSize": "Grösse : {size}",
+  "@slmSettingsModelSize": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsModelVersion": "Version : {version}",
+  "@slmSettingsModelVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsDownloadFailedDefault": "Der Download ist fehlgeschlagen. Überprüfe deine WLAN-Verbindung und den verfügbaren Speicherplatz.",
+  "slmSettingsDownloadButton": "Herunterladen ({size})",
+  "@slmSettingsDownloadButton": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsBuildDownloadUnavailable": "Dieser Build erlaubt keinen Modell-Download.",
+  "slmSettingsDownloadDialogContent": "Das Modell ist {size} gross. Stelle sicher, dass du mit WLAN verbunden bist, um hohen mobilen Datenverbrauch zu vermeiden.\n\n~{minutes} Min über WLAN. Kompatibel : {compatibility}.",
+  "@slmSettingsDownloadDialogContent": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      },
+      "compatibility": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsCheckWifiAndStorage": "Überprüfe deine WLAN-Verbindung und den verfügbaren Speicherplatz.",
+  "slmSettingsDownloadFailed": "Download fehlgeschlagen. {reason}",
+  "@slmSettingsDownloadFailed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsRetryAction": "Erneut versuchen",
+  "slmSettingsEstimatedTime": "~{minutes} Min über WLAN",
+  "@slmSettingsEstimatedTime": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsStatusRunning": "Bereit — der Coach nutzt die On-Device-KI",
+  "slmSettingsStatusReady": "Modell heruntergeladen — Initialisierung erforderlich",
+  "slmSettingsStatusError": "Fehler — Gerät nicht kompatibel oder ungenügend Speicher",
+  "slmSettingsStatusDownloading": "Download läuft…",
+  "slmSettingsStatusModelReady": "Modell bereit — starte die Initialisierung",
+  "slmSettingsStatusNotDownloaded": "Modell nicht heruntergeladen",
+  "slmSettingsInitError": "Fehler bei der Modell-Initialisierung. Prüfe, ob dein Gerät kompatibel ist.",
+  "slmSettingsInitializing": "Initialisierung…",
+  "slmSettingsInitializeEngine": "Engine starten",
+  "slmSettingsInfoDownload": "Lade das Modell einmal herunter (~{minutes} Min über WLAN)",
+  "@slmSettingsInfoDownload": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsInfoOnDevice": "Die KI läuft direkt auf deinem Handy",
+  "slmSettingsInfoOffline": "Funktioniert auch ohne Internetverbindung",
+  "slmSettingsInfoPrivacy": "Deine Daten verlassen nie dein Gerät",
+  "slmSettingsInfoSpeed": "Antworten in 2-4 Sekunden auf einem aktuellen Gerät",
+  "slmSettingsInfoSource": "Modellquelle : {modelId}",
+  "@slmSettingsInfoSource": {
+    "placeholders": {
+      "modelId": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsAuthConfigured": "HuggingFace-Authentifizierung : konfiguriert",
+  "slmSettingsAuthNotConfigured": "HuggingFace-Authentifizierung : nicht konfiguriert (Download unmöglich, wenn Gemma-URL eingeschränkt)",
+  "slmSettingsCompatibilityInfo": "Kompatibilität : {compatibility}.\nDas Modell benötigt {diskSize} Speicherplatz und ~{ramGb} GB RAM.",
+  "@slmSettingsCompatibilityInfo": {
+    "placeholders": {
+      "compatibility": {
+        "type": "String"
+      },
+      "diskSize": {
+        "type": "String"
+      },
+      "ramGb": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2Title": "Dein Mint-Plan",
+  "reportV2Greeting": "Hallo {firstName}!",
+  "@reportV2Greeting": {
+    "description": "Greeting with first name",
+    "placeholders": {
+      "firstName": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2ProfileSummary": "{age} Jahre • {canton} • {civilStatus}",
+  "@reportV2ProfileSummary": {
+    "description": "Profile summary line",
+    "placeholders": {
+      "age": {
+        "type": "int"
+      },
+      "canton": {
+        "type": "String"
+      },
+      "civilStatus": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2StatusGood": "Deine Basis ist solide, weiter so!",
+  "reportV2StatusMedium": "Ein paar Anpassungen für mehr Gelassenheit",
+  "reportV2StatusLow": "Priorität: stabilisiere deine Situation",
+  "reportV2BudgetTitle": "Dein Budget",
+  "reportV2BudgetKeyLabel": "Verfügbares Einkommen (nach Fixkosten)",
+  "reportV2BudgetAction": "Meine Budgetumschläge einrichten",
+  "reportV2DebtConsumer": "Aktive Konsumschulden.",
+  "reportV2LeasingActive": "Aktives Leasing mit monatlicher Belastung.",
+  "reportV2DebtPayments": "Schuldenrückzahlungen: CHF {amount} / Monat.",
+  "@reportV2DebtPayments": {
+    "description": "Debt repayment amount per month",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2EmergencyFundInsufficient": "Notfallfonds unzureichend (< 3 Monate).",
+  "reportV2FragilitySignal": "Fragilitätssignal erkannt: Priorität auf Budgetstabilität.",
+  "reportV2ProtectionTitle": "Dein Schutz",
+  "reportV2EmergencyFundMonths": "{months} Monate",
+  "@reportV2EmergencyFundMonths": {
+    "description": "Emergency fund duration in months",
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2EmergencyFundTarget": "Notfallfonds (Ziel: 6 Monate)",
+  "reportV2SourceLpArt93": "Quelle: LP Art. 93 — Existenzminimum",
+  "reportV2BuildEmergencyFund": "Meinen Notfallfonds aufbauen",
+  "reportV2No3aYet": "Noch keine Säule 3a — bis zu CHF 7’258/Jahr Steuerabzug möglich",
+  "reportV2One3aAccount": "1 Säule-3a-Konto — eröffne ein 2. für optimierten Bezug",
+  "reportV2Multiple3aAccounts": "{count} Säule-3a-Konten — gute Diversifikation",
+  "@reportV2Multiple3aAccounts": {
+    "description": "Multiple 3a accounts count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportV2LppBuybackAvailable": "BVG-Einkauf verfügbar: CHF {buybackAmount} — geschätzte Steuerersparnis: CHF {taxSavings}",
+  "@reportV2LppBuybackAvailable": {
+    "description": "LPP buyback with amounts",
+    "placeholders": {
+      "buybackAmount": {
+        "type": "String"
+      },
+      "taxSavings": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2RetirementTitle": "Deine Rente",
+  "reportV2RetirementKeyNumber": "CHF {amount}/Monat",
+  "@reportV2RetirementKeyNumber": {
+    "description": "Monthly retirement income",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2RetirementKeyLabel": "Geschätztes Einkommen mit 65",
+  "reportV2RetirementSource": "Quellen: BVG Art. 14, BVV3, AHVG",
+  "reportV2TaxTitle": "Deine Steuern",
+  "reportV2TaxKeyNumber": "CHF {amount}/Jahr",
+  "@reportV2TaxKeyNumber": {
+    "description": "Annual tax amount",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2TaxKeyLabel": "Geschätzte Steuern (effektiver Satz: {rate}%)",
+  "@reportV2TaxKeyLabel": {
+    "description": "Tax key label with rate",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2CompareCantons": "26 Kantone vergleichen",
+  "reportV2SourceLifdArt33": "Quelle: DBG Art. 33",
+  "reportV2TaxableIncome": "Steuerbares Einkommen",
+  "reportV2Deductions": "Abzüge",
+  "reportV2EstimatedTaxes": "Geschätzte Steuern",
+  "reportV2LppBuybackSavings": "Mögliche Ersparnis mit BVG-Einkauf: CHF {amount}/Jahr",
+  "@reportV2LppBuybackSavings": {
+    "description": "LPP buyback savings per year",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2TopPriorities": "Deine 3 Prioritären Aktionen",
+  "reportV2StartAction": "Starten",
+  "reportV2LppBuybackStrategy": "BVG-Einkaufsstrategie",
+  "reportV2TotalTaxSavings": "Gesamte Steuerersparnis: CHF {amount}",
+  "@reportV2TotalTaxSavings": {
+    "description": "Total tax savings amount",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2BuybackYear": "Jahr {year}",
+  "@reportV2BuybackYear": {
+    "description": "Buyback plan year",
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "reportV2BuybackAmount": "Einkauf: CHF {amount}",
+  "@reportV2BuybackAmount": {
+    "description": "Buyback amount",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2BuybackSavingsAmount": "Ersparnis: CHF {amount}",
+  "@reportV2BuybackSavingsAmount": {
+    "description": "Buyback tax savings",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2HowItWorks": "Wie funktioniert es?",
+  "reportV2LppBuybackExplanation": "Verstehe, warum das Staffeln deiner BVG-Einkäufe dir Tausende Franken zusätzlich spart.",
+  "reportV2TransparencyTitle": "Transparenz und Konformität",
+  "reportV2ServiceNature": "Art der Dienstleistung",
+  "reportV2EducationWithPhases": "Finanzielle Bildung — {count} Phasen identifiziert",
+  "@reportV2EducationWithPhases": {
+    "description": "Education with phase count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportV2EducationPersonalized": "Personalisierte Finanzbildung",
+  "reportV2WorkingHypotheses": "Arbeitshypothesen",
+  "reportV2HypothesisStableIncome": "Deklariertes Einkommen über den Zeitraum stabil",
+  "reportV2HypothesisLppRate": "Obligatorischer BVG-Umwandlungssatz: 6.8%",
+  "reportV2Hypothesis3aCeiling": "Säule-3a-Maximum Angestellte: CHF 7’258/Jahr",
+  "reportV2HypothesisAvsMax": "Maximale AHV-Rente: CHF 30’240/Jahr",
+  "reportV2ConflictsOfInterest": "Interessenkonflikte",
+  "reportV2NoConflict": "Kein Interessenkonflikt für diesen Bericht identifiziert.",
+  "reportV2NoCommission": "MINT erhält keine Provision auf die genannten Produkte.",
+  "reportV2Limitations": "Einschränkungen",
+  "reportV2LimitDeclarative": "Basierend auf selbst deklarierten Informationen",
+  "reportV2LimitTaxApprox": "Ungefähre Steuerschätzung (durchschnittliche Kantonssätze)",
+  "reportV2LimitNoWealth": "Berücksichtigt kein Einkommen aus beweglichem Vermögen",
+  "reportV2LimitNoInflation": "Projektionen berücksichtigen keine Inflation",
+  "reportV2LegalMention": "Rechtlicher Hinweis",
+  "reportV2Disclaimer": "Bildungstool — stellt keine Finanzberatung im Sinne des FIDLEG dar. Die Beträge sind Schätzungen basierend auf den deklarierten Daten.",
+  "reportV2DebtPriorityTitle": "Priorität Schuldenabbau",
+  "reportV2DebtPriorityMessage": "Deine prioritären Aktionen werden durch einen Schuldenabbauplan ersetzt. Stabilisiere deine Situation, bevor du die Empfehlungen erkundest.",
+  "reportV2Optimize3a": "Optimiere deine Säule 3a",
+  "reportV2Debt3aLockedMessage": "Der 3a-Vergleicher ist deaktiviert, solange du aktive Schulden hast. Deine Schulden abzubauen hat Priorität vor jeder 3a-Einzahlung.",
+  "reportV2LppBuybackLocked": "BVG-Einkauf gesperrt",
+  "reportV2LppBuybackLockedMessage": "Der BVG-Einkauf ist im Schutzmodus deaktiviert. Zahle deine Schulden ab, bevor du Liquidität in der Vorsorge bindest."
 }

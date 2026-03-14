@@ -5740,5 +5740,204 @@
   "successionPatrimoineCtaTitle": "Consulter un·e notaire ou spécialiste",
   "successionPatrimoineCtaBody": "Un·e notaire ou spécialiste en droit successoral peut rédiger ou réviser ton testament et t’orienter sur l’organisation successorale adaptée à ta situation.",
   "successionPatrimoineLegalSources": "• CC art. 457–640 — Droit des successions\n• CC art. 470–471 — Réserves héréditaires\n• CC art. 498–504 — Formes du testament\n• LPP art. 20 — Bénéficiaires du capital LPP\n• OPP3 art. 2 — Bénéficiaires du pilier 3a",
-  "successionPatrimoineDisclaimer": "Information à caractère éducatif, ne constitue pas un conseil juridique ou patrimonial au sens de la LSFin ou du CC. Les règles successorales varient selon la situation familiale, le régime matrimonial et le canton. Consulte un·e notaire ou un·e spécialiste en droit successoral pour ta situation personnelle."
+  "successionPatrimoineDisclaimer": "Information à caractère éducatif, ne constitue pas un conseil juridique ou patrimonial au sens de la LSFin ou du CC. Les règles successorales varient selon la situation familiale, le régime matrimonial et le canton. Consulte un·e notaire ou un·e spécialiste en droit successoral pour ta situation personnelle.",
+  "reportV2Title": "Ton Plan Mint",
+  "reportV2Greeting": "Bonjour {firstName} !",
+  "@reportV2Greeting": {
+    "description": "Greeting with first name",
+    "placeholders": {
+      "firstName": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2ProfileSummary": "{age} ans • {canton} • {civilStatus}",
+  "@reportV2ProfileSummary": {
+    "description": "Profile summary line",
+    "placeholders": {
+      "age": {
+        "type": "int"
+      },
+      "canton": {
+        "type": "String"
+      },
+      "civilStatus": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2StatusGood": "Ta base est solide, continue ainsi !",
+  "reportV2StatusMedium": "Quelques ajustements pour être serein",
+  "reportV2StatusLow": "Priorité : stabilise ta situation",
+  "reportV2BudgetTitle": "Ton Budget",
+  "reportV2BudgetKeyLabel": "Reste à vivre (après fixes)",
+  "reportV2BudgetAction": "Configurer mes enveloppes",
+  "reportV2DebtConsumer": "Dette à la consommation active.",
+  "reportV2LeasingActive": "Leasing actif avec charge mensuelle.",
+  "reportV2DebtPayments": "Remboursements de dette : CHF {amount} / mois.",
+  "@reportV2DebtPayments": {
+    "description": "Debt repayment amount per month",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2EmergencyFundInsufficient": "Fonds d’urgence insuffisant (< 3 mois).",
+  "reportV2FragilitySignal": "Signal de fragilité détecté : priorité à la stabilité budgétaire.",
+  "reportV2ProtectionTitle": "Ta Protection",
+  "reportV2EmergencyFundMonths": "{months} mois",
+  "@reportV2EmergencyFundMonths": {
+    "description": "Emergency fund duration in months",
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2EmergencyFundTarget": "Fonds d’urgence (cible : 6 mois)",
+  "reportV2SourceLpArt93": "Source : LP art. 93 — Minimum vital",
+  "reportV2BuildEmergencyFund": "Constituer mon fonds d’urgence",
+  "reportV2No3aYet": "Pas encore de 3a — jusqu’à CHF 7’258/an de déduction fiscale possible",
+  "reportV2One3aAccount": "1 compte 3a — ouvre un 2e pour optimiser le retrait",
+  "reportV2Multiple3aAccounts": "{count} comptes 3a — bonne diversification",
+  "@reportV2Multiple3aAccounts": {
+    "description": "Multiple 3a accounts count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportV2LppBuybackAvailable": "Rachat LPP disponible : CHF {buybackAmount} — économie fiscale estimée : CHF {taxSavings}",
+  "@reportV2LppBuybackAvailable": {
+    "description": "LPP buyback with amounts",
+    "placeholders": {
+      "buybackAmount": {
+        "type": "String"
+      },
+      "taxSavings": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2RetirementTitle": "Ta Retraite",
+  "reportV2RetirementKeyNumber": "CHF {amount}/mois",
+  "@reportV2RetirementKeyNumber": {
+    "description": "Monthly retirement income",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2RetirementKeyLabel": "Revenu estimé à 65 ans",
+  "reportV2RetirementSource": "Sources : LPP art. 14, OPP3, LAVS",
+  "reportV2TaxTitle": "Tes Impôts",
+  "reportV2TaxKeyNumber": "CHF {amount}/an",
+  "@reportV2TaxKeyNumber": {
+    "description": "Annual tax amount",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2TaxKeyLabel": "Impôts estimés (taux effectif : {rate} %)",
+  "@reportV2TaxKeyLabel": {
+    "description": "Tax key label with rate",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2CompareCantons": "Comparer 26 cantons",
+  "reportV2SourceLifdArt33": "Source : LIFD art. 33",
+  "reportV2TaxableIncome": "Revenu imposable",
+  "reportV2Deductions": "Déductions",
+  "reportV2EstimatedTaxes": "Impôts estimés",
+  "reportV2LppBuybackSavings": "Économie possible avec rachat LPP : CHF {amount}/an",
+  "@reportV2LppBuybackSavings": {
+    "description": "LPP buyback savings per year",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2TopPriorities": "Tes 3 Actions Prioritaires",
+  "reportV2StartAction": "Commencer",
+  "reportV2LppBuybackStrategy": "Stratégie Rachat LPP",
+  "reportV2TotalTaxSavings": "Économie fiscale totale : CHF {amount}",
+  "@reportV2TotalTaxSavings": {
+    "description": "Total tax savings amount",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2BuybackYear": "Année {year}",
+  "@reportV2BuybackYear": {
+    "description": "Buyback plan year",
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "reportV2BuybackAmount": "Rachat : CHF {amount}",
+  "@reportV2BuybackAmount": {
+    "description": "Buyback amount",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2BuybackSavingsAmount": "Économie : CHF {amount}",
+  "@reportV2BuybackSavingsAmount": {
+    "description": "Buyback tax savings",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2HowItWorks": "Comment ça marche ?",
+  "reportV2LppBuybackExplanation": "Comprends pourquoi échelonner tes rachats LPP te fait économiser des milliers de francs supplémentaires.",
+  "reportV2TransparencyTitle": "Transparence et conformité",
+  "reportV2ServiceNature": "Nature du service",
+  "reportV2EducationWithPhases": "Éducation financière — {count} phases identifiées",
+  "@reportV2EducationWithPhases": {
+    "description": "Education with phase count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportV2EducationPersonalized": "Éducation financière personnalisée",
+  "reportV2WorkingHypotheses": "Hypothèses de travail",
+  "reportV2HypothesisStableIncome": "Revenus déclarés stables sur la période",
+  "reportV2HypothesisLppRate": "Taux de conversion LPP obligatoire : 6.8 %",
+  "reportV2Hypothesis3aCeiling": "Plafond 3a salarié : 7’258 CHF/an",
+  "reportV2HypothesisAvsMax": "Rente AVS maximale : 30’240 CHF/an",
+  "reportV2ConflictsOfInterest": "Conflits d’intérêts",
+  "reportV2NoConflict": "Aucun conflit d’intérêt identifié pour ce rapport.",
+  "reportV2NoCommission": "MINT ne perçoit aucune commission sur les produits mentionnés.",
+  "reportV2Limitations": "Limitations",
+  "reportV2LimitDeclarative": "Basé sur les informations déclaratives uniquement",
+  "reportV2LimitTaxApprox": "Estimation fiscale approximative (taux moyens cantonaux)",
+  "reportV2LimitNoWealth": "Ne prend pas en compte les revenus de fortune mobilière",
+  "reportV2LimitNoInflation": "Les projections ne tiennent pas compte de l’inflation",
+  "reportV2LegalMention": "Mention légale",
+  "reportV2Disclaimer": "Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin. Les montants sont des estimations basées sur les données déclarées.",
+  "reportV2DebtPriorityTitle": "Priorité au désendettement",
+  "reportV2DebtPriorityMessage": "Tes actions prioritaires sont remplacées par un plan de désendettement. Stabilise ta situation avant d’explorer les recommandations.",
+  "reportV2Optimize3a": "Optimise ton 3a",
+  "reportV2Debt3aLockedMessage": "Le comparateur 3a est désactivé tant que tu as des dettes actives. Rembourser tes dettes est prioritaire avant toute épargne 3a.",
+  "reportV2LppBuybackLocked": "Rachat LPP bloqué",
+  "reportV2LppBuybackLockedMessage": "Le rachat LPP est désactivé en mode protection. Rembourser tes dettes avant de bloquer de la liquidité dans la prévoyance."
 }

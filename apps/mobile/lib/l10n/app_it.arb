@@ -5513,5 +5513,265 @@
   "successionPatrimoineCtaTitle": "Consultare un/a notaio/a o specialista",
   "successionPatrimoineCtaBody": "Un/a notaio/a o specialista in diritto successorio può redigere o rivedere il tuo testamento e orientarti sull’organizzazione successoria adatta alla tua situazione.",
   "successionPatrimoineLegalSources": "• CC art. 457–640 — Diritto successorio\n• CC art. 470–471 — Riserve ereditarie\n• CC art. 498–504 — Forme del testamento\n• LPP art. 20 — Beneficiari del capitale LPP\n• OPP3 art. 2 — Beneficiari del pilastro 3a",
-  "successionPatrimoineDisclaimer": "Informazione a carattere educativo, non costituisce consulenza giuridica o patrimoniale ai sensi della LSerFi o del CC. Le regole successorie variano a seconda della situazione familiare, del regime matrimoniale e del cantone. Consulta un/a notaio/a o specialista in diritto successorio per la tua situazione personale."
+  "successionPatrimoineDisclaimer": "Informazione a carattere educativo, non costituisce consulenza giuridica o patrimoniale ai sensi della LSerFi o del CC. Le regole successorie variano a seconda della situazione familiare, del regime matrimoniale e del cantone. Consulta un/a notaio/a o specialista in diritto successorio per la tua situazione personale.",
+  "annualRefreshTitle": "Check-up annuale",
+  "annualRefreshSubtitle": "Qualche domanda veloce per aggiornare il tuo profilo.",
+  "annualRefreshEmploymentSame": "Stesso impiego",
+  "annualRefreshEmploymentNew": "Nuovo impiego",
+  "annualRefreshEmploymentIndependent": "Indipendente",
+  "annualRefreshEmploymentUnemployed": "Senza impiego",
+  "annualRefreshNone": "Nessuno",
+  "annualRefreshRealEstatePurchase": "Acquisto",
+  "annualRefreshRealEstateSale": "Vendita",
+  "annualRefreshRealEstateRefinance": "Rifinanziamento",
+  "annualRefreshFamilyMarriage": "Matrimonio",
+  "annualRefreshFamilyBirth": "Nascita",
+  "annualRefreshFamilyDivorce": "Divorzio",
+  "annualRefreshFamilyDeath": "Decesso",
+  "annualRefreshRiskConservative": "Conservativo",
+  "annualRefreshRiskModerate": "Moderato",
+  "annualRefreshRiskAggressive": "Aggressivo",
+  "annualRefreshQ1Title": "Il tuo stipendio lordo mensile è cambiato?",
+  "annualRefreshSalaryPerMonth": "{amount} CHF / mese",
+  "@annualRefreshSalaryPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "annualRefreshSliderMin": "0 CHF",
+  "annualRefreshSliderMax": "30’000 CHF",
+  "annualRefreshQ2Title": "La tua situazione professionale",
+  "annualRefreshQ3Title": "Il tuo avere LPP attuale",
+  "annualRefreshQ3Help": "Guarda il tuo certificato di previdenza (lo ricevi ogni gennaio)",
+  "annualRefreshAmountMustBePositive": "L'importo deve essere positivo",
+  "annualRefreshQ4Title": "Il tuo saldo 3a approssimativo",
+  "annualRefreshQ4Help": "Accedi alla tua app 3a per vedere il saldo esatto",
+  "annualRefreshQ5Title": "Un progetto immobiliare in vista?",
+  "annualRefreshQ6Title": "Un cambiamento familiare quest'anno?",
+  "annualRefreshQ7Title": "La tua tolleranza al rischio",
+  "annualRefreshSubmit": "Aggiorna il mio profilo",
+  "annualRefreshDisclaimer": "Questo strumento ha scopo educativo e non costituisce una consulenza finanziaria ai sensi della LSFin. Consulta uno·a specialista per consigli personalizzati.",
+  "annualRefreshResultTitle": "Profilo aggiornato!",
+  "annualRefreshScoreBefore": "Prima",
+  "annualRefreshScoreAfter": "Dopo",
+  "annualRefreshScoreOutOf": "/ 100",
+  "annualRefreshScoreImproved": "Il tuo punteggio è aumentato di {delta} punti!",
+  "@annualRefreshScoreImproved": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "annualRefreshScoreDropped": "Il tuo punteggio è sceso di {delta} punti — verifichiamo insieme",
+  "@annualRefreshScoreDropped": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "annualRefreshScoreStable": "Il tuo punteggio è stabile — continua così!",
+  "annualRefreshBackToDashboard": "Torna alla dashboard",
+  "reportV2Title": "Il tuo Piano Mint",
+  "reportV2Greeting": "Ciao {firstName}!",
+  "@reportV2Greeting": {
+    "description": "Greeting with first name",
+    "placeholders": {
+      "firstName": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2ProfileSummary": "{age} anni • {canton} • {civilStatus}",
+  "@reportV2ProfileSummary": {
+    "description": "Profile summary line",
+    "placeholders": {
+      "age": {
+        "type": "int"
+      },
+      "canton": {
+        "type": "String"
+      },
+      "civilStatus": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2StatusGood": "La tua base è solida, continua così!",
+  "reportV2StatusMedium": "Qualche aggiustamento per stare sereno",
+  "reportV2StatusLow": "Priorità: stabilizza la tua situazione",
+  "reportV2BudgetTitle": "Il tuo Budget",
+  "reportV2BudgetKeyLabel": "Reddito disponibile (dopo costi fissi)",
+  "reportV2BudgetAction": "Configura le mie buste budget",
+  "reportV2DebtConsumer": "Debito al consumo attivo.",
+  "reportV2LeasingActive": "Leasing attivo con addebito mensile.",
+  "reportV2DebtPayments": "Rimborsi debito: CHF {amount} / mese.",
+  "@reportV2DebtPayments": {
+    "description": "Debt repayment amount per month",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2EmergencyFundInsufficient": "Fondo di emergenza insufficiente (< 3 mesi).",
+  "reportV2FragilitySignal": "Segnale di fragilità rilevato: priorità alla stabilità di bilancio.",
+  "reportV2ProtectionTitle": "La tua Protezione",
+  "reportV2EmergencyFundMonths": "{months} mesi",
+  "@reportV2EmergencyFundMonths": {
+    "description": "Emergency fund duration in months",
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2EmergencyFundTarget": "Fondo di emergenza (obiettivo: 6 mesi)",
+  "reportV2SourceLpArt93": "Fonte: LP art. 93 — Minimo vitale",
+  "reportV2BuildEmergencyFund": "Costituire il mio fondo di emergenza",
+  "reportV2No3aYet": "Ancora nessun 3a — fino a CHF 7’258/anno di deduzione fiscale possibile",
+  "reportV2One3aAccount": "1 conto 3a — apri un 2° per ottimizzare il prelievo",
+  "reportV2Multiple3aAccounts": "{count} conti 3a — buona diversificazione",
+  "@reportV2Multiple3aAccounts": {
+    "description": "Multiple 3a accounts count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportV2LppBuybackAvailable": "Riscatto LPP disponibile: CHF {buybackAmount} — risparmio fiscale stimato: CHF {taxSavings}",
+  "@reportV2LppBuybackAvailable": {
+    "description": "LPP buyback with amounts",
+    "placeholders": {
+      "buybackAmount": {
+        "type": "String"
+      },
+      "taxSavings": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2RetirementTitle": "La tua Pensione",
+  "reportV2RetirementKeyNumber": "CHF {amount}/mese",
+  "@reportV2RetirementKeyNumber": {
+    "description": "Monthly retirement income",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2RetirementKeyLabel": "Reddito stimato a 65 anni",
+  "reportV2RetirementSource": "Fonti: LPP art. 14, OPP3, LAVS",
+  "reportV2TaxTitle": "Le tue Imposte",
+  "reportV2TaxKeyNumber": "CHF {amount}/anno",
+  "@reportV2TaxKeyNumber": {
+    "description": "Annual tax amount",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2TaxKeyLabel": "Imposte stimate (aliquota effettiva: {rate}%)",
+  "@reportV2TaxKeyLabel": {
+    "description": "Tax key label with rate",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2CompareCantons": "Confronta 26 cantoni",
+  "reportV2SourceLifdArt33": "Fonte: LIFD art. 33",
+  "reportV2TaxableIncome": "Reddito imponibile",
+  "reportV2Deductions": "Deduzioni",
+  "reportV2EstimatedTaxes": "Imposte stimate",
+  "reportV2LppBuybackSavings": "Risparmio possibile con riscatto LPP: CHF {amount}/anno",
+  "@reportV2LppBuybackSavings": {
+    "description": "LPP buyback savings per year",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2TopPriorities": "Le tue 3 Azioni Prioritarie",
+  "reportV2StartAction": "Iniziare",
+  "reportV2LppBuybackStrategy": "Strategia Riscatto LPP",
+  "reportV2TotalTaxSavings": "Risparmio fiscale totale: CHF {amount}",
+  "@reportV2TotalTaxSavings": {
+    "description": "Total tax savings amount",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2BuybackYear": "Anno {year}",
+  "@reportV2BuybackYear": {
+    "description": "Buyback plan year",
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "reportV2BuybackAmount": "Riscatto: CHF {amount}",
+  "@reportV2BuybackAmount": {
+    "description": "Buyback amount",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2BuybackSavingsAmount": "Risparmio: CHF {amount}",
+  "@reportV2BuybackSavingsAmount": {
+    "description": "Buyback tax savings",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportV2HowItWorks": "Come funziona?",
+  "reportV2LppBuybackExplanation": "Capisci perché scaglionare i tuoi riscatti LPP ti fa risparmiare migliaia di franchi in più.",
+  "reportV2TransparencyTitle": "Trasparenza e conformità",
+  "reportV2ServiceNature": "Natura del servizio",
+  "reportV2EducationWithPhases": "Educazione finanziaria — {count} fasi identificate",
+  "@reportV2EducationWithPhases": {
+    "description": "Education with phase count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportV2EducationPersonalized": "Educazione finanziaria personalizzata",
+  "reportV2WorkingHypotheses": "Ipotesi di lavoro",
+  "reportV2HypothesisStableIncome": "Redditi dichiarati stabili nel periodo",
+  "reportV2HypothesisLppRate": "Tasso di conversione LPP obbligatorio: 6.8%",
+  "reportV2Hypothesis3aCeiling": "Massimale 3a dipendenti: CHF 7’258/anno",
+  "reportV2HypothesisAvsMax": "Rendita AVS massima: CHF 30’240/anno",
+  "reportV2ConflictsOfInterest": "Conflitti di interesse",
+  "reportV2NoConflict": "Nessun conflitto di interesse identificato per questo rapporto.",
+  "reportV2NoCommission": "MINT non percepisce alcuna commissione sui prodotti menzionati.",
+  "reportV2Limitations": "Limitazioni",
+  "reportV2LimitDeclarative": "Basato solo su informazioni dichiarative",
+  "reportV2LimitTaxApprox": "Stima fiscale approssimativa (aliquote medie cantonali)",
+  "reportV2LimitNoWealth": "Non tiene conto dei redditi da patrimonio mobiliare",
+  "reportV2LimitNoInflation": "Le proiezioni non tengono conto dell’inflazione",
+  "reportV2LegalMention": "Avviso legale",
+  "reportV2Disclaimer": "Strumento educativo — non costituisce consulenza finanziaria ai sensi della LSFin. Gli importi sono stime basate sui dati dichiarati.",
+  "reportV2DebtPriorityTitle": "Priorità al rientro del debito",
+  "reportV2DebtPriorityMessage": "Le tue azioni prioritarie sono sostituite da un piano di rientro del debito. Stabilizza la tua situazione prima di esplorare le raccomandazioni.",
+  "reportV2Optimize3a": "Ottimizza il tuo 3a",
+  "reportV2Debt3aLockedMessage": "Il comparatore 3a è disattivato finché hai debiti attivi. Ripagare i tuoi debiti è prioritario prima di qualsiasi risparmio 3a.",
+  "reportV2LppBuybackLocked": "Riscatto LPP bloccato",
+  "reportV2LppBuybackLockedMessage": "Il riscatto LPP è disattivato in modalità protezione. Rimborsa i tuoi debiti prima di bloccare liquidità nella previdenza."
 }

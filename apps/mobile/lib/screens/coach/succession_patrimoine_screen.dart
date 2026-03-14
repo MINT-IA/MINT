@@ -10,6 +10,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
 import 'package:mint_mobile/widgets/coach/testament_invisible_widget.dart';
@@ -21,6 +22,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.background,
       body: CustomScrollView(
@@ -37,7 +39,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
               titlePadding:
                   const EdgeInsets.only(left: 56, bottom: 16, right: 24),
               title: Text(
-                'Succession & transmission',
+                s.successionPatrimoineTitle,
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
@@ -65,9 +67,8 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 // ── Chiffre choc ─────────────────────────────
                 _AlertCard(
                   icon: Icons.warning_amber_outlined,
-                  title: 'Sans testament, ton concubin·e hérite de RIEN',
-                  body:
-                      'Le droit successoral suisse (CC art. 457 ss) protège d\'abord les descendants, puis les parents et le conjoint·e légal·e. Sans lien légal et sans testament, un·e concubin·e est exclu·e de la succession — quelle que soit la durée de la vie commune.',
+                  title: s.successionPatrimoineAlertTitle,
+                  body: s.successionPatrimoineAlertBody,
                   color: MintColors.urgentOrange,
                 ),
                 const SizedBox(height: 24),
@@ -92,99 +93,94 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Concepts clés ────────────────────────────
-                EduSectionTitle(text: 'Les notions clés'),
+                EduSectionTitle(text: s.successionPatrimoineNotionsCles),
                 const SizedBox(height: 12),
 
                 _ConceptCard(
                   icon: Icons.shield_outlined,
-                  title: 'Réserves héréditaires',
-                  subtitle: 'CC art. 470–471',
-                  body:
-                      'Une part de ta succession est réservée par la loi à tes descendants (1/2 de leur part légale) et à ton conjoint·e (1/2 de sa part légale). Cette part ne peut pas être écartée par testament, sauf révocation pour cause ingratitude.',
+                  title: s.successionPatrimoineReservesTitle,
+                  subtitle: s.successionPatrimoineReservesSubtitle,
+                  body: s.successionPatrimoineReservesBody,
                   color: MintColors.blueDark,
                 ),
                 const SizedBox(height: 10),
 
                 _ConceptCard(
                   icon: Icons.pie_chart_outline,
-                  title: 'Quotité disponible',
-                  subtitle: 'CC art. 470 al. 2',
-                  body:
-                      'Ce qui reste après les réserves héréditaires est ta "quotité disponible" — la part que tu peux léguer librement à qui tu veux : conjoint·e non marié·e, amis, associations. Si tu as des enfants, ta quotité disponible est 1/2 de ta succession.',
+                  title: s.successionPatrimoineQuotiteTitle,
+                  subtitle: s.successionPatrimoineQuotiteSubtitle,
+                  body: s.successionPatrimoineQuotiteBody,
                   color: MintColors.purpleDark,
                 ),
                 const SizedBox(height: 10),
 
                 _ConceptCard(
                   icon: Icons.description_outlined,
-                  title: 'Testament',
-                  subtitle: 'CC art. 498–504',
-                  body:
-                      'Deux formes valides :\n• Olographe : entièrement manuscrit, daté et signé — pas de témoin requis.\n• Notarié : devant notaire avec 2 témoins — recommandé pour les situations complexes.\nPas de testament = succession légale par défaut.',
+                  title: s.successionPatrimoineTestamentTitle,
+                  subtitle: s.successionPatrimoineTestamentSubtitle,
+                  body: s.successionPatrimoineTestamentBody,
                   color: MintColors.withdrawalOptim,
                 ),
                 const SizedBox(height: 10),
 
                 _ConceptCard(
                   icon: Icons.card_giftcard_outlined,
-                  title: 'Donation du vivant',
-                  subtitle: 'CO art. 239 ss',
-                  body:
-                      'Transmettre de ton vivant permet d\'anticiper la succession et de réduire potentiellement l\'impôt successoral (variable par canton). Attention : les donations sont rapportables à la succession si tu as des héritiers réservataires. Les 5 années précédant le décès sont particulièrement scrutées.',
+                  title: s.successionPatrimoineDonationTitle,
+                  subtitle: s.successionPatrimoineDonationSubtitle,
+                  body: s.successionPatrimoineDonationBody,
                   color: MintColors.successionDark,
                 ),
                 const SizedBox(height: 10),
 
                 _ConceptCard(
                   icon: Icons.how_to_reg_outlined,
-                  title: 'Bénéficiaires LPP et 3a',
-                  subtitle: 'LPP art. 20 · OPP3 art. 2',
-                  body:
-                      'Le capital LPP non converti en rente et le solde 3a ne font PAS partie de ta succession ordinaire — ils sont versés aux bénéficiaires désignés. Si tu ne désignes personne, l\'ordre légal s\'applique : conjoint·e marié·e ou partenaire enregistré·e, puis descendants, puis parents. Un·e concubin·e doit être explicitement désigné·e.',
+                  title: s.successionPatrimoineBeneficiairesTitle,
+                  subtitle: s.successionPatrimoineBeneficiairesSubtitle,
+                  body: s.successionPatrimoineBeneficiairesBody,
                   color: MintColors.urgentOrange,
                 ),
                 const SizedBox(height: 24),
 
                 // ── P14-A : Guide de première urgence ────────────
-                EduSectionTitle(text: 'En cas de décès d\'un proche'),
+                EduSectionTitle(text: s.successionPatrimoineDecesProche),
                 const SizedBox(height: 12),
                 DeathUrgencyGuideWidget(
                   phases: [
                     UrgencyPhase(
-                      timeframe: 'J+1 à J+7',
+                      timeframe: s.successionPatrimoinePhase1Timeframe,
                       emoji: '🆘',
-                      title: 'Urgence immédiate',
+                      title: s.successionPatrimoinePhase1Title,
                       color: MintColors.urgentOrange,
                       actions: [
-                        'Déclarer le décès à l\'état civil dans les 2 jours',
-                        'Informer l\'employeur et les assurances (LAMal, LPP)',
-                        'Bloquer les comptes bancaires conjoints si nécessaire',
-                        'Contacter le notaire si la personne avait un testament',
+                        s.successionPatrimoinePhase1Action1,
+                        s.successionPatrimoinePhase1Action2,
+                        s.successionPatrimoinePhase1Action3,
+                        s.successionPatrimoinePhase1Action4,
                       ],
                     ),
                     UrgencyPhase(
-                      timeframe: 'J+8 à J+30',
+                      timeframe: s.successionPatrimoinePhase2Timeframe,
                       emoji: '📋',
-                      title: 'Démarches administratives',
+                      title: s.successionPatrimoinePhase2Title,
                       color: MintColors.orangeDarkDeep,
                       actions: [
-                        'Demander les rentes de survivants AVS (LAVS art. 23)',
-                        'Contacter la caisse LPP pour le capital décès',
-                        'Résilier les abonnements et contrats au nom du défunt',
-                        'Faire l\'inventaire des avoirs et dettes',
-                        'Demander les certificats d\'héritiers au notaire',
+                        s.successionPatrimoinePhase2Action1,
+                        s.successionPatrimoinePhase2Action2,
+                        s.successionPatrimoinePhase2Action3,
+                        s.successionPatrimoinePhase2Action4,
+                        s.successionPatrimoinePhase2Action5,
                       ],
                     ),
                     UrgencyPhase(
-                      timeframe: 'J+31 à J+365',
+                      timeframe: s.successionPatrimoinePhase3Timeframe,
                       emoji: '⚖️',
-                      title: 'Succession légale',
+                      title: s.successionPatrimoinePhase3Title,
                       color: MintColors.successDeep,
                       actions: [
-                        'Ouvrir la procédure de succession avec le notaire',
-                        'Partager les biens selon le testament ou la loi (CC art. 537)',
-                        'Déposer la déclaration fiscale pour l\'année du décès',
-                        'Mettre à jour les bénéficiaires de vos propres contrats',
+                        s.successionPatrimoinePhase3Action1,
+                        s.successionPatrimoinePhase3Action2,
+                        s.successionPatrimoinePhase3Action3,
+                        s.successionPatrimoinePhase3Action4,
                       ],
                     ),
                   ],
@@ -192,15 +188,15 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Checklist pratique ────────────────────────
-                EduSectionTitle(text: 'Checklist protection patrimoine'),
+                EduSectionTitle(text: s.successionPatrimoineChecklistTitle),
                 const SizedBox(height: 12),
                 _ChecklistCard(
                   items: [
-                    'Vérifier la désignation des bénéficiaires sur chaque compte 3a',
-                    'Vérifier la désignation de bénéficiaire LPP auprès de ta caisse',
-                    'Rédiger ou mettre à jour ton testament',
-                    'Vérifier ton régime matrimonial si marié·e (CC art. 181 ss)',
-                    'Informer tes proches de l\'emplacement de ton testament',
+                    s.successionPatrimoineChecklist1,
+                    s.successionPatrimoineChecklist2,
+                    s.successionPatrimoineChecklist3,
+                    s.successionPatrimoineChecklist4,
+                    s.successionPatrimoineChecklist5,
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -209,25 +205,20 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 EduSpecialistCta(
                   icon: Icons.gavel_outlined,
                   color: MintColors.successionDark,
-                  title: 'Consulter un·e notaire ou spécialiste',
-                  body: 'Un·e notaire ou spécialiste en droit successoral peut rédiger ou réviser ton testament et t\'orienter sur l\'organisation successorale adaptée à ta situation.',
+                  title: s.successionPatrimoineCtaTitle,
+                  body: s.successionPatrimoineCtaBody,
                 ),
                 const SizedBox(height: 24),
 
                 // ── Sources légales ───────────────────────────
                 EduLegalSources(
-                  sources: '• CC art. 457–640 — Droit des successions\n'
-                      '• CC art. 470–471 — Réserves héréditaires\n'
-                      '• CC art. 498–504 — Formes du testament\n'
-                      '• LPP art. 20 — Bénéficiaires du capital LPP\n'
-                      '• OPP3 art. 2 — Bénéficiaires du pilier 3a',
+                  sources: s.successionPatrimoineLegalSources,
                 ),
                 const SizedBox(height: 16),
 
                 // ── Disclaimer LSFin ──────────────────────────
                 EduDisclaimer(
-                  text:
-                      'Information à caractère éducatif, ne constitue pas un conseil juridique ou patrimonial au sens de la LSFin ou du CC. Les règles successorales varient selon la situation familiale, le régime matrimonial et le canton. Consulte un·e notaire ou un·e spécialiste en droit successoral pour ta situation personnelle.',
+                  text: s.successionPatrimoineDisclaimer,
                 ),
                 const SizedBox(height: 32),
               ]),
