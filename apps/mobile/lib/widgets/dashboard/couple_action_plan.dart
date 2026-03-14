@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -32,7 +33,8 @@ class CoupleActionPlan extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final actions = _buildCoupleActions(profile);
+    final s = S.of(context)!;
+    final actions = _buildCoupleActions(profile, s);
     if (actions.isEmpty) return const SizedBox.shrink();
 
     return Container(
@@ -52,22 +54,22 @@ class CoupleActionPlan extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(),
+          _buildHeader(s),
           const SizedBox(height: 16),
           ...actions.asMap().entries.map((entry) {
             final isLast = entry.key == actions.length - 1;
             return _buildActionTile(context, entry.value, isLast);
           }),
           const SizedBox(height: 8),
-          _buildDisclaimer(),
+          _buildDisclaimer(s),
         ],
       ),
     );
   }
 
-  Widget _buildHeader() {
-    final conjName = profile.conjoint!.firstName ?? 'Conjoint\u00b7e';
-    final userName = profile.firstName ?? 'Toi';
+  Widget _buildHeader(S s) {
+    final conjName = profile.conjoint!.firstName ?? s.coupleActionPlanDefaultConjoint;
+    final userName = profile.firstName ?? s.coupleActionPlanDefaultUser;
     return Row(
       children: [
         Container(
@@ -89,7 +91,7 @@ class CoupleActionPlan extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Plan d\u2019action couple',
+                s.coupleActionPlanHeaderTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -225,9 +227,9 @@ class CoupleActionPlan extends StatelessWidget {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Actions \u00e9ducatives. Ne constituent pas un conseil financier (LSFin).',
+      s.coupleActionPlanDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textMuted,
@@ -236,11 +238,11 @@ class CoupleActionPlan extends StatelessWidget {
     );
   }
 
-  static List<_CoupleAction> _buildCoupleActions(CoachProfile profile) {
+  static List<_CoupleAction> _buildCoupleActions(CoachProfile profile, S s) {
     final actions = <_CoupleAction>[];
     final conj = profile.conjoint!;
-    final userName = profile.firstName ?? 'Toi';
-    final conjName = conj.firstName ?? 'Conjoint\u00b7e';
+    final userName = profile.firstName ?? s.coupleActionPlanDefaultUser;
+    final conjName = conj.firstName ?? s.coupleActionPlanDefaultConjoint;
     final now = DateTime.now();
     final userYearsToRetirement = profile.anneesAvantRetraite;
     final conjYearsToRetirement = conj.anneesAvantRetraite ?? 99;
@@ -253,14 +255,12 @@ class CoupleActionPlan extends StatelessWidget {
       final gap = (userRetYear - conjRetYear).abs();
       actions.add(_CoupleAction(
         owner: ActionOwner.household,
-        ownerLabel: 'M\u00c9NAGE',
+        ownerLabel: s.coupleActionPlanHousehold,
         ownerColor: MintColors.primary,
         icon: Icons.calendar_month_outlined,
-        title: '\u00c9chelonner les retraits sur $gap ans',
-        subtitle:
-            '$firstRetires prend sa retraite en premier. '
-            '\u00c9chelonner 3a/LPP peut r\u00e9duire la charge fiscale.',
-        impactLabel: 'Jusqu\u2019\u00e0 CHF\u00a015\u2019000\u201340\u2019000 d\u2019\u00e9conomie (estimation)',
+        title: s.coupleActionPlanStaggerTitle(gap.toString()),
+        subtitle: s.coupleActionPlanStaggerSubtitle(firstRetires),
+        impactLabel: s.coupleActionPlanStaggerImpact,
         route: '/arbitrage/calendrier-retraits',
       ));
     }
@@ -307,9 +307,8 @@ class CoupleActionPlan extends StatelessWidget {
           ownerLabel: userName.toUpperCase(),
           ownerColor: MintColors.info,
           icon: Icons.savings_outlined,
-          title: 'Verser 3a avant le 31.12',
-          subtitle:
-              'CHF\u00a0${_fmt(remaining)} restant avant le plafond ${now.year}.',
+          title: s.coupleActionPlan3aTitle,
+          subtitle: s.coupleActionPlan3aSubtitle(_fmt(remaining), now.year.toString()),
           impactLabel: null,
           route: '/3a-deep/comparator',
         ));
@@ -331,23 +330,20 @@ class CoupleActionPlan extends StatelessWidget {
         ownerLabel: conjName.toUpperCase(),
         ownerColor: MintColors.purple,
         icon: Icons.savings_outlined,
-        title: 'Verser 3a ($conjName)',
-        subtitle:
-            'Plafond annuel\u00a0: CHF\u00a0${_fmt(conjPlafond.toDouble())}.',
+        title: s.coupleActionPlan3aConjointTitle(conjName),
+        subtitle: s.coupleActionPlan3aConjointSubtitle(_fmt(conjPlafond.toDouble())),
         impactLabel: null,
         route: '/3a-deep/comparator',
       ));
     } else {
-      // FATCA — can't contribute 3a
+      // FATCA -- can't contribute 3a
       actions.add(_CoupleAction(
         owner: ActionOwner.conjoint,
         ownerLabel: conjName.toUpperCase(),
         ownerColor: MintColors.purple,
         icon: Icons.block_outlined,
-        title: '3a non disponible ($conjName)',
-        subtitle:
-            'Les r\u00e9sidents fiscaux US (FATCA) ne peuvent '
-            'g\u00e9n\u00e9ralement pas ouvrir un 3a en Suisse.',
+        title: s.coupleActionPlan3aUnavailableTitle(conjName),
+        subtitle: s.coupleActionPlan3aUnavailableSubtitle,
         impactLabel: null,
         route: null,
       ));
@@ -358,13 +354,11 @@ class CoupleActionPlan extends StatelessWidget {
         FeatureFlags.enableDecisionScaffold) {
       actions.add(_CoupleAction(
         owner: ActionOwner.household,
-        ownerLabel: 'M\u00c9NAGE',
+        ownerLabel: s.coupleActionPlanHousehold,
         ownerColor: MintColors.primary,
         icon: Icons.compare_arrows_rounded,
-        title: 'Rente vs capital : coordonner \u00e0 deux',
-        subtitle:
-            'La strat\u00e9gie mixte (rente oblig. + capital suroblig.) '
-            'peut \u00eatre diff\u00e9rente pour chaque partenaire.',
+        title: s.coupleActionPlanRenteVsCapitalTitle,
+        subtitle: s.coupleActionPlanRenteVsCapitalSubtitle,
         impactLabel: null,
         route: '/arbitrage/rente-vs-capital',
       ));
@@ -374,13 +368,11 @@ class CoupleActionPlan extends StatelessWidget {
     if (profile.etatCivil == CoachCivilStatus.marie) {
       actions.add(_CoupleAction(
         owner: ActionOwner.household,
-        ownerLabel: 'M\u00c9NAGE',
+        ownerLabel: s.coupleActionPlanHousehold,
         ownerColor: MintColors.primary,
         icon: Icons.info_outline,
-        title: 'Plafonnement AVS couple (LAVS art.\u00a035)',
-        subtitle:
-            'Mari\u00e9\u00b7e\u00a0: la somme des rentes AVS est plafonn\u00e9e '
-            '\u00e0 150\u00a0% de la rente maximale (CHF\u00a03\u2019780/mois).',
+        title: s.coupleActionPlanAvsCapTitle,
+        subtitle: s.coupleActionPlanAvsCapSubtitle,
         impactLabel: null,
         route: '/document-scan/avs-guide',
       ));

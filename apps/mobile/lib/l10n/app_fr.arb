@@ -8547,5 +8547,135 @@
   "lamalFranchiseAlertReminder": "Rappel\u00a0: changement de franchise possible avant le 30 novembre de chaque ann\u00e9e pour l'ann\u00e9e suivante.",
   "lamalFranchiseDisclaimer": "Cette analyse est indicative. Les primes varient selon l'assureur, la r\u00e9gion et le mod\u00e8le d'assurance. Consulte ta caisse maladie pour des chiffres exacts.",
   "lamalFranchiseSourcesTitle": "Sources",
-  "lamalFranchiseSourcesBody": "LAMal art. 62-64 (franchise et quote-part) / OAMal (ordonnance) / priminfo.admin.ch (comparateur officiel) / LAMal art. 7 (libre choix de l'assureur) / LAMal art. 41a (mod\u00e8les alternatifs)"
+  "lamalFranchiseSourcesBody": "LAMal art. 62-64 (franchise et quote-part) / OAMal (ordonnance) / priminfo.admin.ch (comparateur officiel) / LAMal art. 7 (libre choix de l'assureur) / LAMal art. 41a (mod\u00e8les alternatifs)",
+
+  "disabilityInsuranceTitle": "Ma couverture invalidit\u00e9",
+  "disabilityInsuranceSubtitle": "Bulletin scolaire \u00b7 Franchise LAMal \u00b7 AI/APG",
+  "disabilityInsuranceTitleShort": "Ma couverture",
+  "disabilityInsuranceRefine": "Affine ta situation",
+  "disabilityInsuranceGrossSalary": "Salaire brut mensuel",
+  "disabilityInsuranceSavings": "\u00c9pargne disponible",
+  "disabilityInsuranceIjmEmployer": "IJM via mon employeur",
+  "disabilityInsurancePrivateInsurance": "Assurance perte de gain priv\u00e9e",
+  "disabilityInsuranceIjmCollective": "80\u00a0% salaire \u2014 720 jours (assurance collective)",
+  "disabilityInsuranceIjmPrivate": "Assurance priv\u00e9e personnelle (v\u00e9rifie les conditions)",
+  "disabilityInsuranceIjmNone": "\u26a0\ufe0f Aucune couverture \u2014 hors p\u00e9riode employeur, c'est 0 CHF",
+  "disabilityInsuranceLppCovered": "Rente \u2248 40\u00a0% salaire coordonn\u00e9 (LPP art. 23)",
+  "disabilityInsuranceLppUnder": "Sous le seuil LPP {amount} CHF/an \u2014 pas de couverture 2e pilier",
+  "@disabilityInsuranceLppUnder": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "disabilityInsuranceSavingsDetail": "{months} mois de charges (objectif\u00a0: 6 mois)",
+  "@disabilityInsuranceSavingsDetail": {
+    "placeholders": {
+      "months": {"type": "String"}
+    }
+  },
+  "disabilityInsuranceIjmLabel": "IJM / Perte de gain",
+  "disabilityInsuranceAiLabel": "AI f\u00e9d\u00e9rale",
+  "disabilityInsuranceAiDetail": "Max {amount} CHF/mois \u2014 d\u00e9lai d\u00e9cision ~14 mois",
+  "@disabilityInsuranceAiDetail": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "disabilityInsuranceLppLabel": "LPP invalidit\u00e9",
+  "disabilityInsuranceReserveLabel": "R\u00e9serve d'urgence",
+  "disabilityInsuranceDisclaimer": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil en assurance. Les montants de franchise et primes sont indicatifs. Compare les offres sur comparaison.ch ou via un\u00b7e courtier\u00b7\u00e8re ind\u00e9pendant\u00b7e.",
+  "disabilityInsuranceLegalSources": "\u2022 LAMal art. 64-64a (franchise)\n\u2022 OAMal art. 93 (primes)\n\u2022 LAI art. 28 (rente AI)\n\u2022 LPP art. 23-26 (invalidit\u00e9 2e pilier)",
+
+  "regimeMatrimonialTitle": "R\u00e9gime matrimonial",
+  "regimeMatrimonialSubtitle": "R\u00e9partition des biens",
+  "regimeMatrimonialChartA11y": "Graphique du r\u00e9gime matrimonial",
+  "regimeMatrimonialTotal": "Total",
+  "regimeMatrimonialParticipation": "Participation aux acqu\u00eats",
+  "regimeMatrimonialSeparation": "S\u00e9paration de biens",
+  "regimeMatrimonialCommunaute": "Communaut\u00e9 de biens",
+  "regimeMatrimonialShort5050": "50/50",
+  "regimeMatrimonialShortSepare": "S\u00e9par\u00e9",
+  "regimeMatrimonialShortCommun": "Commun",
+  "regimeMatrimonialDescParticipation": "Les acqu\u00eats sont partag\u00e9s \u00e0 parts \u00e9gales.",
+  "regimeMatrimonialDescSeparation": "Chacun conserve ses biens propres.",
+  "regimeMatrimonialDescCommunaute": "Tous les biens sont mis en commun.",
+
+  "mortgageComparisonTitle": "Fixe vs SARON\u00a0: comprendre les options",
+  "mortgageComparisonSubtitle": "Chaque type d'hypoth\u00e8que a ses avantages",
+  "mortgageComparisonDisclaimer": "Comparaison simplifi\u00e9e \u00e0 titre p\u00e9dagogique. Les conditions varient selon les pr\u00eateurs et ton profil. Ne constitue pas un conseil hypoth\u00e9caire.",
+  "mortgageComparisonHypo1": "Comparaison bas\u00e9e sur conditions march\u00e9 2024-2026",
+  "mortgageComparisonHypo2": "SARON = Swiss Average Rate Overnight",
+  "mortgageComparisonHypo3": "Historique ne garantit pas l'avenir",
+  "mortgageComparisonNoUniversalBest": "Aucune option n'est universellement meilleure",
+  "mortgageComparisonFixeAdvice": "Fixe si tu pr\u00e9f\u00e8res la pr\u00e9visibilit\u00e9",
+  "mortgageComparisonSaronAdvice": "SARON si tu acceptes le risque pour potentiellement payer moins",
+  "mortgageComparisonMixAdvice": "Mix possible pour diversifier",
+  "mortgageComparisonCritere": "Crit\u00e8re",
+  "mortgageComparisonFixe": "Fixe",
+  "mortgageComparisonSaron": "SARON",
+  "mortgageComparisonMensualites": "Mensualit\u00e9s",
+  "mortgageComparisonStables": "Stables",
+  "mortgageComparisonVariables": "Variables",
+  "mortgageComparisonCoutHistorique": "Co\u00fbt historique",
+  "mortgageComparisonPlusEleve": "Plus \u00e9lev\u00e9",
+  "mortgageComparisonPlusBas": "Plus bas",
+  "mortgageComparisonRisqueTaux": "Risque taux",
+  "mortgageComparisonAucun": "Aucun",
+  "mortgageComparisonExposition": "Exposition",
+  "mortgageComparisonFlexibilite": "Flexibilit\u00e9",
+  "mortgageComparisonPenalites": "P\u00e9nalit\u00e9s",
+  "mortgageComparisonSouple": "Souple",
+  "mortgageComparisonPlanification": "Planification",
+  "mortgageComparisonBudgetable": "Budg\u00e9table",
+  "mortgageComparisonIncertain": "Incertain",
+
+  "coupleActionPlanDefaultConjoint": "Conjoint·e",
+  "coupleActionPlanDefaultUser": "Toi",
+  "coupleActionPlanHeaderTitle": "Plan d'action couple",
+  "coupleActionPlanDisclaimer": "Actions éducatives. Ne constituent pas un conseil financier (LSFin).",
+  "coupleActionPlanHousehold": "MÉNAGE",
+  "coupleActionPlanStaggerTitle": "Échelonner les retraits sur {gap} ans",
+  "@coupleActionPlanStaggerTitle": {
+    "placeholders": {
+      "gap": {"type": "String"}
+    }
+  },
+  "coupleActionPlanStaggerSubtitle": "{name} prend sa retraite en premier. Échelonner 3a/LPP peut réduire la charge fiscale.",
+  "@coupleActionPlanStaggerSubtitle": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "coupleActionPlanStaggerImpact": "Jusqu'à CHF 15'000–40'000 d'économie (estimation)",
+  "coupleActionPlan3aTitle": "Verser 3a avant le 31.12",
+  "coupleActionPlan3aSubtitle": "CHF {remaining} restant avant le plafond {year}.",
+  "@coupleActionPlan3aSubtitle": {
+    "placeholders": {
+      "remaining": {"type": "String"},
+      "year": {"type": "String"}
+    }
+  },
+  "coupleActionPlan3aConjointTitle": "Verser 3a ({name})",
+  "@coupleActionPlan3aConjointTitle": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "coupleActionPlan3aConjointSubtitle": "Plafond annuel : CHF {amount}.",
+  "@coupleActionPlan3aConjointSubtitle": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "coupleActionPlan3aUnavailableTitle": "3a non disponible ({name})",
+  "@coupleActionPlan3aUnavailableTitle": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "coupleActionPlan3aUnavailableSubtitle": "Les résidents fiscaux US (FATCA) ne peuvent généralement pas ouvrir un 3a en Suisse.",
+  "coupleActionPlanRenteVsCapitalTitle": "Rente vs capital : coordonner à deux",
+  "coupleActionPlanRenteVsCapitalSubtitle": "La stratégie mixte (rente oblig. + capital suroblig.) peut être différente pour chaque partenaire.",
+  "coupleActionPlanAvsCapTitle": "Plafonnement AVS couple (LAVS art. 35)",
+  "coupleActionPlanAvsCapSubtitle": "Marié·e : la somme des rentes AVS est plafonnée à 150 % de la rente maximale (CHF 3'780/mois)."
 }
