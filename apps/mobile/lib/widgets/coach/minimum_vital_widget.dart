@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -48,8 +49,9 @@ class MinimumVitalWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Minimum vital LP art 93 bouclier légal insaisissable',
+      label: 'Minimum vital LP art 93 bouclier legal insaisissable',
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -59,21 +61,21 @@ class MinimumVitalWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildShield(),
+                  _buildShield(s),
                   const SizedBox(height: 16),
-                  _buildItemList(),
+                  _buildItemList(s),
                   const SizedBox(height: 16),
-                  _buildSeizableBar(),
+                  _buildSeizableBar(s),
                   const SizedBox(height: 16),
-                  _buildAction(),
+                  _buildAction(s),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -83,7 +85,7 @@ class MinimumVitalWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -99,7 +101,7 @@ class MinimumVitalWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Ton bouclier légal',
+                  s.minimumVitalHeaderTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -108,7 +110,7 @@ class MinimumVitalWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'LP art. 93 — Ce que tes créanciers ne peuvent PAS toucher',
+                  s.minimumVitalHeaderSubtitle,
                   style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
                 ),
               ],
@@ -119,7 +121,7 @@ class MinimumVitalWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildShield() {
+  Widget _buildShield(S s) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -134,11 +136,11 @@ class MinimumVitalWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Minimum vital protégé',
+                  s.minimumVitalProtectedLabel,
                   style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
                 ),
                 Text(
-                  '${formatChfWithPrefix(_totalProtected)}/mois',
+                  s.minimumVitalPerMonth(formatChfWithPrefix(_totalProtected)),
                   style: GoogleFonts.montserrat(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
@@ -146,7 +148,7 @@ class MinimumVitalWidget extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Légalement insaisissable · LP art. 93',
+                  s.minimumVitalLegallyProtected,
                   style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
                 ),
               ],
@@ -156,7 +158,7 @@ class MinimumVitalWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                'Saisissable',
+                s.minimumVitalSeizableLabel,
                 style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
               ),
               Text(
@@ -168,7 +170,7 @@ class MinimumVitalWidget extends StatelessWidget {
                 ),
               ),
               Text(
-                '/mois max',
+                s.minimumVitalPerMonthMax,
                 style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
               ),
             ],
@@ -178,12 +180,12 @@ class MinimumVitalWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildItemList() {
+  Widget _buildItemList(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Composantes du minimum vital',
+          s.minimumVitalComponentsTitle,
           style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -253,18 +255,18 @@ class MinimumVitalWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Enfants ($childrenCount)',
+                        s.minimumVitalChildren(childrenCount.toString()),
                         style: GoogleFonts.inter(fontSize: 13, color: MintColors.textPrimary),
                       ),
                       Text(
-                        'LP art. 93 al. 1 lit. a — besoins enfants',
+                        s.minimumVitalChildrenLegalRef,
                         style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
                       ),
                     ],
                   ),
                 ),
                 Text(
-                  'Inclus',
+                  s.minimumVitalIncluded,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -279,7 +281,7 @@ class MinimumVitalWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildSeizableBar() {
+  Widget _buildSeizableBar(S s) {
     final fraction = grossMonthly > 0 ? _seizable / grossMonthly : 0.0;
 
     return Column(
@@ -289,11 +291,11 @@ class MinimumVitalWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Salaire brut : ${formatChfWithPrefix(grossMonthly)}/mois',
+              s.minimumVitalGrossSalary(formatChfWithPrefix(grossMonthly)),
               style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
             ),
             Text(
-              '${(fraction * 100).round()}% saisissable',
+              s.minimumVitalSeizablePercent((fraction * 100).round().toString()),
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -329,11 +331,11 @@ class MinimumVitalWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '🟢 Protégé : ${formatChfWithPrefix(_totalProtected)}',
+              s.minimumVitalProtectedAmount(formatChfWithPrefix(_totalProtected)),
               style: GoogleFonts.inter(fontSize: 10, color: MintColors.scoreExcellent),
             ),
             Text(
-              '🟠 Saisissable : ${formatChfWithPrefix(_seizable)}',
+              s.minimumVitalSeizableAmount(formatChfWithPrefix(_seizable)),
               style: GoogleFonts.inter(fontSize: 10, color: MintColors.scoreAttention),
             ),
           ],
@@ -342,7 +344,7 @@ class MinimumVitalWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildAction() {
+  Widget _buildAction(S s) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -360,7 +362,7 @@ class MinimumVitalWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Si un créancier saisit plus que la limite',
+                  s.minimumVitalActionTitle,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -369,8 +371,7 @@ class MinimumVitalWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Contacte un·e avocat·e ou le service des poursuites de ta commune. '
-                  'La LP art. 93 est impérative — aucun contrat ne peut y déroger.',
+                  s.minimumVitalActionBody,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -385,11 +386,9 @@ class MinimumVitalWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil juridique au sens de la LSFin. '
-      'Source : LP art. 92 (biens insaisissables), LP art. 93 (minimum vital). '
-      'Les montants varient selon le canton et la situation familiale.',
+      s.minimumVitalDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,
