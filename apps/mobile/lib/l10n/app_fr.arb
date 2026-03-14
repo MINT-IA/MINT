@@ -4271,5 +4271,16 @@
   "apercu3aProjectionLabel": "PROJECTION 65 ANS",
   "apercu3aProgressionLabel": "Capital actuel vs projection retraite",
   "apercu3aSimulerCta": "Simuler mon 3a",
-  "apercu3aDisclaimer": "Projection éducative basée sur un rendement net de 2\u00a0%. Ne constitue pas un conseil (LSFin)."
+  "apercu3aDisclaimer": "Projection éducative basée sur un rendement net de 2\u00a0%. Ne constitue pas un conseil (LSFin).",
+  "firstSalaryBrutLabel": "Brut\u00a0: CHF {amount}",
+  "@firstSalaryBrutLabel": { "placeholders": { "amount": { "type": "String" } } },
+  "firstSalaryNetLabel": "Net\u00a0: CHF {amount}",
+  "@firstSalaryNetLabel": { "placeholders": { "amount": { "type": "String" } } },
+  "firstSalaryEmployerCost": "Coût total employeur",
+  "firstSalaryChfValue": "CHF {amount}",
+  "@firstSalaryChfValue": { "placeholders": { "amount": { "type": "String" } } },
+  "firstSalaryFranchiseLabel": "Franchise {label}",
+  "@firstSalaryFranchiseLabel": { "placeholders": { "label": { "type": "String" } } },
+  "firstSalaryFirstStep": "Premier pas financier",
+  "firstSalaryFirstStepSub": "Tu sais maintenant ce que 90\u00a0% des gens ne savent jamais."
 }
