@@ -30,6 +30,7 @@ lifeEvent: "jobLoss"
 ## Chiffre choc
 "Un salarie de 56 ans avec 22 mois de cotisation a droit a 520 indemnites journalieres -- soit environ 2 ans d'indemnisation. Mais un jeune avec moins de 12 mois de cotisation peut n'avoir droit qu'a 200 jours."
 
+<!-- compliance:allow -->
 ## Contenu educatif
 
 ### Niveau 0 — L'essentiel en 30 secondes
@@ -38,14 +39,14 @@ L'assurance-chomage (AC) te verse une indemnite si tu perds ton emploi sans faut
 ### Niveau 1 — Comprendre tes droits
 
 #### Conditions d'ouverture (LACI art. 8)
-Pour avoir droit aux indemnites, tu dois :
+Pour avoir droit aux indemnités, il faut :
 1. Etre domicilie-e en Suisse.
 2. Avoir cotise au moins **12 mois** durant les 2 dernieres annees (delai-cadre de cotisation, LACI art. 9).
 3. Etre apte au placement (disponible et capable de travailler).
 4. Etre inscrit-e aupres de l'ORP (Office regional de placement).
 
 #### Delai-cadre (LACI art. 9)
-- **Delai-cadre de cotisation** : les 2 annees precedant l'inscription au chomage. Tu dois avoir cotise au moins 12 mois dans cette periode.
+- **Delai-cadre de cotisation** : les 2 annees precedant l'inscription au chomage. Il faut avoir cotisé au moins 12 mois dans cette période.
 - **Delai-cadre d'indemnisation** : 2 ans a partir de ton inscription. Tes indemnites doivent etre epuisees dans ce delai, sinon elles sont perdues.
 
 #### Duree des indemnites (LACI art. 27 al. 2)
@@ -90,7 +91,7 @@ Avant le premier versement, un **delai d'attente** s'applique (generalement 5 jo
 4. **Fais le point sur tes annees AVS** : demande un extrait de compte sur ahv-iv.ch.
 5. **Etablis un budget d'urgence** : base-toi sur 70% de ton dernier salaire net.
 
-## Hypotheses
+## Hypothèses
 - Taux d'indemnite standard de 70% (80% avec charges de famille).
 - Gain assure plafonné a CHF 148'200/an (LACI art. 3).
 - Delai-cadre de 2 ans pour la cotisation et l'indemnisation.
@@ -117,6 +118,8 @@ Avant le premier versement, un **delai d'attente** s'applique (generalement 5 jo
 - LACI art. 30 (suspension du droit a l'indemnite)
 - LPP art. 10 al. 3 (couverture risque apres sortie)
 - OPP3 art. 7 (plafond 3a salarie-e)
+
+<!-- compliance:end -->
 
 ## Action
 "Simule ton budget chomage et verifie l'impact sur ta prevoyance dans l'outil MINT."
