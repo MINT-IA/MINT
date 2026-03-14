@@ -292,7 +292,7 @@ void main() {
       expect(oublies, isNotEmpty);
     });
 
-    test('disclaimer mentionne LFLP et specialiste', () {
+    test('disclaimer mentionne LFLP et spécialiste', () {
       final result = LibrePassageAdvisor.analyze(
         statut: LibrePassageStatut.changementEmploi,
         avoir: 100000,
@@ -470,7 +470,7 @@ void main() {
       expect(alerteVente, isNotEmpty);
     });
 
-    test('disclaimer mentionne art. 30c LPP et specialiste', () {
+    test('disclaimer mentionne art. 30c LPP et spécialiste', () {
       final result = EplSimulator.simulate(
         avoirTotal: 200000,
         avoirObligatoire: 140000,

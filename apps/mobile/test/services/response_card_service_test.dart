@@ -161,7 +161,7 @@ void main() {
         chiffreChoc:
             ChiffreChoc(value: 539414, unit: 'CHF', explanation: 'max'),
         cta: CardCta(label: 'Simuler', route: '/lpp-deep/rachat'),
-        disclaimer: 'Outil educatif',
+        disclaimer: 'Outil éducatif',
         sources: ['LPP art. 79b'],
         impactPoints: 20,
       );
@@ -169,7 +169,7 @@ void main() {
       final json = card.toJson();
       expect(json['id'], 'lpp_buyback');
       expect(json['type'], 'lppBuyback');
-      expect(json['disclaimer'], 'Outil educatif');
+      expect(json['disclaimer'], 'Outil éducatif');
       expect(json['sources'], ['LPP art. 79b']);
       expect(json['impactPoints'], 20);
     });

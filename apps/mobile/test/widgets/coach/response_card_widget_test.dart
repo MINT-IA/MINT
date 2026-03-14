@@ -34,7 +34,7 @@ ResponseCard _makeCard({
     cta: CardCta(label: ctaLabel, route: ctaRoute, icon: 'savings'),
     urgency: urgency,
     deadline: deadline,
-    disclaimer: 'Outil educatif — ne constitue pas un conseil financier (LSFin art. 3).',
+    disclaimer: 'Outil éducatif — ne constitue pas un conseil financier (LSFin art. 3).',
     sources: sources,
     alertes: alertes,
     impactPoints: impactPoints,

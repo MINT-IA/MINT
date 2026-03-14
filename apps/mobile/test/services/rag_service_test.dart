@@ -27,8 +27,8 @@ void main() {
           {'title': 'LIFD', 'file': 'lifd.pdf', 'section': 'Art. 33'},
         ],
         'disclaimers': [
-          'Outil educatif, ne constitue pas un conseil.',
-          'Consultez un·e specialiste.',
+          'Outil éducatif, ne constitue pas un conseil.',
+          'Consulte un·e spécialiste.',
         ],
         'tokens_used': 1234,
       };

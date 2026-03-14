@@ -120,7 +120,7 @@ void main() {
       expect(result.impotEchelonne, 0);
     });
 
-    test('disclaimer present et mentionne specialiste', () {
+    test('disclaimer present et mentionne spécialiste', () {
       final result = StaggeredWithdrawalSimulator.simulate(
         avoirTotal: 200000,
         nbComptes: 3,
@@ -129,7 +129,7 @@ void main() {
         ageRetraitDebut: 62,
         ageRetraitFin: 65,
       );
-      expect(result.disclaimer, contains('specialiste'));
+      expect(result.disclaimer, contains('spécialiste'));
       expect(result.disclaimer, contains('OPP3'));
     });
 
@@ -442,7 +442,7 @@ void main() {
       expect(result.totalVersements, closeTo(7258 * 15, 0.01));
     });
 
-    test('disclaimer mentionne OPP3 et specialiste', () {
+    test('disclaimer mentionne OPP3 et spécialiste', () {
       final result = RealReturnCalculator.calculate(
         versementAnnuel: 7258,
         tauxMarginal: 0.30,
@@ -594,7 +594,7 @@ void main() {
         profilRisque: ProfilRisque.equilibre,
       );
       expect(result.disclaimer, contains('MINT'));
-      expect(result.disclaimer, contains('specialiste'));
+      expect(result.disclaimer, contains('spécialiste'));
     });
 
     test('assurance a badge WARNING', () {

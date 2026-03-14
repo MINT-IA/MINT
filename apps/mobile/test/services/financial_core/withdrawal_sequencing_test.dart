@@ -296,8 +296,8 @@ void main() {
 
       expect(result.disclaimer, contains('LIFD art. 38'));
       expect(result.disclaimer, contains('OPP3 art. 3'));
-      expect(result.disclaimer, contains('specialiste'));
-      expect(result.disclaimer, contains('Simulation pedagogique'));
+      expect(result.disclaimer, contains('spécialiste'));
+      expect(result.disclaimer, contains('Simulation pédagogique'));
 
       // Sources check
       expect(result.sources,

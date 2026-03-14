@@ -404,7 +404,7 @@ void main() {
           },
         ],
         'disclaimers': [
-          'Outil educatif, ne constitue pas un conseil.',
+          'Outil éducatif, ne constitue pas un conseil.',
         ],
         'generatedAt': '2025-06-15T14:30:00.000',
       };

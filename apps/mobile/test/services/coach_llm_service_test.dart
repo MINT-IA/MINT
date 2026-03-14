@@ -243,8 +243,8 @@ void main() {
 
       expect(prompt, contains('NE calcules JAMAIS'));
       expect(prompt, contains('NE donnes JAMAIS'));
-      expect(prompt, contains('educatif'));
-      expect(prompt, contains('specialiste'));
+      expect(prompt, contains('éducatif'));
+      expect(prompt, contains('spécialiste'));
     });
 
     test('system prompt contains capital projection', () {
@@ -513,7 +513,7 @@ void main() {
         sources: const [
           RagSource(title: 'Test', file: 'test', section: 'Art. 1'),
         ],
-        disclaimers: const ['Outil educatif.'],
+        disclaimers: const ['Outil éducatif.'],
       );
       expect(msg.sources, hasLength(1));
       expect(msg.disclaimers, hasLength(1));

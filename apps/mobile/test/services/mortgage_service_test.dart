@@ -147,7 +147,7 @@ void main() {
       );
 
       expect(r.disclaimer, contains('ASB'));
-      expect(r.disclaimer, contains('specialiste'));
+      expect(r.disclaimer, contains('spécialiste'));
     });
 
     test('chiffre choc positif quand capacite et fonds propres ok', () {

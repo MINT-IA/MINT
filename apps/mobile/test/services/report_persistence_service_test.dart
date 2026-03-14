@@ -397,7 +397,7 @@ void main() {
           'title': 'Demande rachat LPP',
           'date': '2025-03-01',
           'type': 'LPP_BUYBACK',
-          'disclaimer': 'Outil educatif - ne constitue pas un conseil',
+          'disclaimer': 'Outil éducatif - ne constitue pas un conseil',
           'sources': ['LPP art. 79b'],
         },
       ];
