@@ -156,9 +156,13 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
     final isDone = _completed[index];
 
     Color borderColor = MintColors.lightBorder;
-    if (isDone) borderColor = MintColors.scoreExcellent.withValues(alpha: 0.4);
-    else if (isOverdue) borderColor = MintColors.scoreCritique.withValues(alpha: 0.4);
-    else if (isUrgent) borderColor = MintColors.scoreAttention.withValues(alpha: 0.4);
+    if (isDone) {
+      borderColor = MintColors.scoreExcellent.withValues(alpha: 0.4);
+    } else if (isOverdue) {
+      borderColor = MintColors.scoreCritique.withValues(alpha: 0.4);
+    } else if (isUrgent) {
+      borderColor = MintColors.scoreAttention.withValues(alpha: 0.4);
+    }
 
     return GestureDetector(
       onTap: () => setState(() => _completed[index] = !_completed[index]),
