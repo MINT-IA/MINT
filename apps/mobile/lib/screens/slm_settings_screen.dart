@@ -105,7 +105,7 @@ class SlmSettingsScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Choisis ton mod\u00e8le',
+              S.of(context)!.slmSettingsChooseModel,
               style: GoogleFonts.montserrat(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -113,7 +113,7 @@ class SlmSettingsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Deux tailles disponibles selon ton appareil',
+              S.of(context)!.slmSettingsTwoSizesAvailable,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -201,7 +201,7 @@ class SlmSettingsScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            'Recommand\u00e9',
+                            S.of(context)!.slmSettingsRecommended,
                             style: GoogleFonts.inter(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
@@ -214,7 +214,7 @@ class SlmSettingsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${config.modelSizeFormatted} \u2022 ~${config.estimatedDownloadMinutes} min \u2022 ${config.compatibilityHint}',
+                    S.of(context)!.slmSettingsTierDetails(config.modelSizeFormatted, '${config.estimatedDownloadMinutes}', config.compatibilityHint),
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       color: MintColors.textMuted,
@@ -280,12 +280,12 @@ class SlmSettingsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Taille : ${SlmDownloadService.instance.modelSizeFormatted}',
+              S.of(context)!.slmSettingsModelSize(SlmDownloadService.instance.modelSizeFormatted),
               style: GoogleFonts.inter(fontSize: 14, color: MintColors.textSecondary),
             ),
             const SizedBox(height: 4),
             Text(
-              'Version : ${info.version}',
+              S.of(context)!.slmSettingsModelVersion(info.version),
               style: GoogleFonts.inter(fontSize: 14, color: MintColors.textSecondary),
             ),
             const SizedBox(height: 16),
@@ -378,7 +378,7 @@ class SlmSettingsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '~${SlmDownloadService.instance.estimatedDownloadMinutes} min sur WiFi',
+                S.of(context)!.slmSettingsEstimatedTime('${SlmDownloadService.instance.estimatedDownloadMinutes}'),
                 style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
               ),
               const SizedBox(height: 14),
@@ -410,9 +410,7 @@ class SlmSettingsScreen extends StatelessWidget {
                     Expanded(
                       child: Text(
                         slm.lastError ??
-                            'Le téléchargement a échoué. '
-                                'Vérifie ta connexion WiFi et '
-                                'l\'espace disponible sur ton appareil.',
+                            S.of(context)!.slmSettingsDownloadFailedDefault,
                         style: GoogleFonts.inter(
                             fontSize: 13, color: MintColors.redMedium),
                       ),
@@ -431,8 +429,8 @@ class SlmSettingsScreen extends StatelessWidget {
                       slm.canAttemptDownload ? Icons.refresh : Icons.lock),
                   label: Text(
                     slm.canAttemptDownload
-                        ? 'Réessayer le téléchargement'
-                        : 'Téléchargement indisponible sur ce build',
+                        ? S.of(context)!.slmRetryDownload
+                        : S.of(context)!.slmDownloadUnavailable,
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
@@ -454,8 +452,8 @@ class SlmSettingsScreen extends StatelessWidget {
                       slm.canAttemptDownload ? Icons.download : Icons.lock),
                   label: Text(
                     slm.canAttemptDownload
-                        ? 'Télécharger (${SlmDownloadService.instance.modelSizeFormatted})'
-                        : 'Téléchargement indisponible sur ce build',
+                        ? S.of(context)!.slmSettingsDownloadButton(SlmDownloadService.instance.modelSizeFormatted)
+                        : S.of(context)!.slmDownloadUnavailable,
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
@@ -495,7 +493,7 @@ class SlmSettingsScreen extends StatelessWidget {
         SnackBar(
           content: Text(
             slm.prerequisiteWarning ??
-                'Ce build ne permet pas le téléchargement du modèle.',
+                S.of(context)!.slmSettingsBuildDownloadUnavailable,
             style: GoogleFonts.inter(),
           ),
           backgroundColor: MintColors.error,
@@ -513,11 +511,11 @@ class SlmSettingsScreen extends StatelessWidget {
           style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
         ),
         content: Text(
-          'Le mod\u00e8le fait ${SlmDownloadService.instance.modelSizeFormatted}. '
-          'Assure-toi d\'\u00eatre connect\u00e9 en WiFi pour \u00e9viter '
-          'une consommation importante de donn\u00e9es mobiles.\n\n'
-          '~${SlmDownloadService.instance.estimatedDownloadMinutes} min sur WiFi. '
-          'Compatible\u00a0: ${slm.activeTierConfig.compatibilityHint}.',
+          S.of(context)!.slmSettingsDownloadDialogContent(
+            SlmDownloadService.instance.modelSizeFormatted,
+            '${SlmDownloadService.instance.estimatedDownloadMinutes}',
+            slm.activeTierConfig.compatibilityHint,
+          ),
           style: GoogleFonts.inter(),
         ),
         actions: [
@@ -541,18 +539,18 @@ class SlmSettingsScreen extends StatelessWidget {
         context.mounted &&
         slm.downloadState == DownloadState.failed) {
       final reason =
-          slm.lastError ?? 'Vérifie ta connexion WiFi et l\'espace disponible.';
+          slm.lastError ?? S.of(context)!.slmSettingsCheckWifiAndStorage;
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         SnackBar(
           content: Text(
-            'Échec du téléchargement. $reason',
+            S.of(context)!.slmSettingsDownloadFailed(reason),
             style: GoogleFonts.inter(),
           ),
           backgroundColor: MintColors.error,
           duration: const Duration(seconds: 6),
           action: slm.canAttemptDownload
               ? SnackBarAction(
-                  label: 'Réessayer',
+                  label: S.of(context)!.slmSettingsRetryAction,
                   textColor: MintColors.white,
                   onPressed: () => _startDownload(context, slm),
                 )
@@ -617,27 +615,28 @@ class SlmSettingsScreen extends StatelessWidget {
     Color statusColor;
     IconData statusIcon;
 
+    final s = S.of(context)!;
     switch (engineStatus) {
       case SlmStatus.running:
-        statusText = 'Prêt — le coach utilise l\'IA on-device';
+        statusText = s.slmSettingsStatusRunning;
         statusColor = MintColors.success;
         statusIcon = Icons.check_circle;
       case SlmStatus.ready:
-        statusText = 'Modèle téléchargé — initialisation requise';
+        statusText = s.slmSettingsStatusReady;
         statusColor = MintColors.warning;
         statusIcon = Icons.pending;
       case SlmStatus.error:
-        statusText = 'Erreur — appareil non compatible ou mémoire insuffisante';
+        statusText = s.slmSettingsStatusError;
         statusColor = MintColors.error;
         statusIcon = Icons.error;
       case SlmStatus.downloading:
-        statusText = 'Téléchargement en cours...';
+        statusText = s.slmSettingsStatusDownloading;
         statusColor = MintColors.primary;
         statusIcon = Icons.downloading;
       case SlmStatus.notDownloaded:
         statusText = isReady
-            ? 'Modèle prêt — lance l\'initialisation'
-            : 'Modèle non téléchargé';
+            ? s.slmSettingsStatusModelReady
+            : s.slmSettingsStatusNotDownloaded;
         statusColor = MintColors.greyMedium;
         statusIcon = Icons.cloud_off;
     }
@@ -681,10 +680,9 @@ class SlmSettingsScreen extends StatelessWidget {
                           final success = await slm.initializeEngine();
                           if (!success && context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
+                              SnackBar(
                                 content: Text(
-                                    'Erreur d\'initialisation du modèle. '
-                                    'Vérifie que ton appareil est compatible.'),
+                                    S.of(context)!.slmSettingsInitError),
                               ),
                             );
                           }
@@ -701,8 +699,8 @@ class SlmSettingsScreen extends StatelessWidget {
                       : const Icon(Icons.play_arrow),
                   label: Text(
                     slm.isProcessing
-                        ? 'Initialisation...'
-                        : 'Initialiser le moteur',
+                        ? S.of(context)!.slmSettingsInitializing
+                        : S.of(context)!.slmSettingsInitializeEngine,
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
@@ -736,39 +734,41 @@ class SlmSettingsScreen extends StatelessWidget {
             const SizedBox(height: 12),
             _buildInfoRow(
               Icons.download,
-              'Télécharge le modèle une fois (~${SlmDownloadService.instance.estimatedDownloadMinutes} min sur WiFi)',
+              S.of(context)!.slmSettingsInfoDownload('${SlmDownloadService.instance.estimatedDownloadMinutes}'),
             ),
             _buildInfoRow(
               Icons.phone_android,
-              'L\'IA tourne directement sur ton téléphone',
+              S.of(context)!.slmSettingsInfoOnDevice,
             ),
             _buildInfoRow(
               Icons.wifi_off,
-              'Fonctionne même sans connexion internet',
+              S.of(context)!.slmSettingsInfoOffline,
             ),
             _buildInfoRow(
               Icons.shield,
-              'Tes données ne quittent jamais ton appareil',
+              S.of(context)!.slmSettingsInfoPrivacy,
             ),
             _buildInfoRow(
               Icons.speed,
-              'Réponses en 2-4 secondes sur un appareil récent',
+              S.of(context)!.slmSettingsInfoSpeed,
             ),
             const Divider(height: 24),
             _buildInfoRow(
               Icons.link,
-              'Source modèle : ${SlmDownloadService.modelId}',
+              S.of(context)!.slmSettingsInfoSource(SlmDownloadService.modelId),
             ),
             _buildInfoRow(
               slm.hasAuthToken ? Icons.key : Icons.key_off,
               slm.hasAuthToken
-                  ? 'Authentification HuggingFace : configurée'
-                  : 'Authentification HuggingFace : non configurée (download impossible si URL Gemma gated)',
+                  ? S.of(context)!.slmSettingsAuthConfigured
+                  : S.of(context)!.slmSettingsAuthNotConfigured,
             ),
             Text(
-              'Compatibilit\u00e9\u00a0: ${slm.activeTierConfig.compatibilityHint}.\n'
-              'Le mod\u00e8le n\u00e9cessite ${slm.activeTierConfig.modelSizeFormatted} d\'espace disque '
-              'et ~${slm.activeTierConfig.minRamGb} Go de RAM.',
+              S.of(context)!.slmSettingsCompatibilityInfo(
+                slm.activeTierConfig.compatibilityHint,
+                slm.activeTierConfig.modelSizeFormatted,
+                '${slm.activeTierConfig.minRamGb}',
+              ),
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textSecondary,
