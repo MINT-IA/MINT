@@ -404,33 +404,28 @@ Reponds uniquement avec le texte final.
     required List<PlannedMonthlyContribution> initialContributions,
     required List<PlannedMonthlyContribution> updatedContributions,
   }) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final delta = scoreAfter - scoreBefore;
     if (delta == 0) {
-      return s?.checkinScoreReasonStable ??
-          'Score stable ce mois: continue la regularite de tes actions.';
+      return s.checkinScoreReasonStable;
     }
 
     if (delta > 0) {
       if (totalVersements > 0) {
-        return s?.checkinScoreReasonPositiveContrib(
+        return s.checkinScoreReasonPositiveContrib(
               ForecasterService.formatChf(totalVersements),
-            ) ??
-            'Hausse principale: versements confirmes (${ForecasterService.formatChf(totalVersements)}) ce mois.';
+            );
       }
       if (revenusExceptionnels > 0) {
-        return s?.checkinScoreReasonPositiveIncome ??
-            'Hausse principale: revenu exceptionnel ajoute ce mois.';
+        return s.checkinScoreReasonPositiveIncome;
       }
-      return s?.checkinScoreReasonPositiveGeneral ??
-          'Hausse principale: progression globale de ta discipline financiere.';
+      return s.checkinScoreReasonPositiveGeneral;
     }
 
     if (depensesExceptionnelles > 0) {
-      return s?.checkinScoreReasonNegativeExpense(
+      return s.checkinScoreReasonNegativeExpense(
             ForecasterService.formatChf(depensesExceptionnelles),
-          ) ??
-          'Baisse principale: depenses exceptionnelles ce mois (${ForecasterService.formatChf(depensesExceptionnelles)}).';
+          );
     }
 
     if (contributionsChanged &&
@@ -441,15 +436,13 @@ Reponds uniquement avec le texte final.
             (updatedContributions[i].amount - initialContributions[i].amount);
       }
       if (deltaPlanned < 0) {
-        return s?.checkinScoreReasonNegativeContrib(
+        return s.checkinScoreReasonNegativeContrib(
               ForecasterService.formatChf(deltaPlanned.abs()),
-            ) ??
-            'Baisse principale: reduction de tes versements planifies (${ForecasterService.formatChf(deltaPlanned.abs())}/mois).';
+            );
       }
     }
 
-    return s?.checkinScoreReasonNegativeGeneral ??
-        'Baisse temporaire ce mois. On ajuste le plan au prochain check-in.';
+    return s.checkinScoreReasonNegativeGeneral;
   }
 
   // ── Build ──────────────────────────────────────────────────
@@ -475,7 +468,7 @@ Reponds uniquement avec le texte final.
 
   // ── AppBar ─────────────────────────────────────────────────
   Widget _buildAppBar() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return SliverAppBar(
       pinned: true,
       backgroundColor: MintColors.background,
@@ -486,8 +479,7 @@ Reponds uniquement avec le texte final.
         onPressed: () => Navigator.of(context).pop(),
       ),
       title: Text(
-        (s?.checkinTitle(_currentMonthLabel) ?? 'CHECK-IN $_currentMonthLabel')
-            .toUpperCase(),
+        s.checkinTitle(_currentMonthLabel).toUpperCase(),
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w700,
           fontSize: 14,
@@ -503,7 +495,7 @@ Reponds uniquement avec le texte final.
   // ════════════════════════════════════════════════════════════
 
   List<Widget> _buildFormContent() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return [
       const SizedBox(height: 8),
       // Header
@@ -517,26 +509,25 @@ Reponds uniquement avec le texte final.
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Section: Planned contributions
-            _buildSectionTitle(
-                s?.checkinPlannedSection ?? 'Versements planifiés'),
+            _buildSectionTitle(s.checkinPlannedSection),
             const SizedBox(height: 12),
             ..._buildContributionRows(),
             const SizedBox(height: 28),
 
             // Section: Exceptional items
-            _buildSectionTitle(s?.checkinEventsSection ?? 'Événements du mois'),
+            _buildSectionTitle(s.checkinEventsSection),
             const SizedBox(height: 12),
             _buildExceptionalField(
-              label: s?.checkinExpenses ?? 'Dépenses exceptionnelles ?',
-              hint: s?.checkinExpensesHint ?? 'Ex: 2000 (réparation voiture)',
+              label: s.checkinExpenses,
+              hint: s.checkinExpensesHint,
               controller: _depensesController,
               icon: Icons.remove_circle_outline,
               color: MintColors.error,
             ),
             const SizedBox(height: 12),
             _buildExceptionalField(
-              label: s?.checkinRevenues ?? 'Revenus exceptionnels ?',
-              hint: s?.checkinRevenuesHint ?? 'Ex: 5000 (bonus annuel)',
+              label: s.checkinRevenues,
+              hint: s.checkinRevenuesHint,
               controller: _revenusController,
               icon: Icons.add_circle_outline,
               color: MintColors.success,
@@ -544,8 +535,7 @@ Reponds uniquement avec le texte final.
             const SizedBox(height: 28),
 
             // Section: Note
-            _buildSectionTitle(
-                s?.checkinNoteSection ?? 'Note du mois (optionnel)'),
+            _buildSectionTitle(s.checkinNoteSection),
             const SizedBox(height: 12),
             _buildNoteField(),
             const SizedBox(height: 32),
@@ -563,7 +553,7 @@ Reponds uniquement avec le texte final.
   }
 
   Widget _buildFormHeader() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Row(
       children: [
         Container(
@@ -584,8 +574,7 @@ Reponds uniquement avec le texte final.
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                s?.checkinHeader(_currentMonthLabel) ??
-                    'Check-in $_currentMonthLabel',
+                s.checkinHeader(_currentMonthLabel),
                 style: GoogleFonts.montserrat(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
@@ -594,7 +583,7 @@ Reponds uniquement avec le texte final.
               ),
               const SizedBox(height: 4),
               Text(
-                s?.checkinSubtitle ?? 'Confirme tes versements du mois',
+                s.checkinSubtitle,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textSecondary,
@@ -640,7 +629,7 @@ Reponds uniquement avec le texte final.
   }
 
   Widget _buildAddContributionButton() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return GestureDetector(
       onTap: _showAddContributionSheet,
       child: Container(
@@ -660,7 +649,7 @@ Reponds uniquement avec le texte final.
                 color: MintColors.coachAccent, size: 20),
             const SizedBox(width: 8),
             Text(
-              s?.checkinAddContribution ?? 'Ajouter un versement',
+              s.checkinAddContribution,
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -688,29 +677,29 @@ Reponds uniquement avec le texte final.
   }
 
   void _showAddContributionSheet() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final categories = [
       (
         '3a',
-        s?.checkinCat3a ?? 'Pilier 3a',
+        s.checkinCat3a,
         Icons.savings,
         MintColors.indigo
       ),
       (
         'lpp_buyback',
-        s?.checkinCatLpp ?? 'Rachat LPP',
+        s.checkinCatLpp,
         Icons.account_balance,
         MintColors.cyan
       ),
       (
         'investissement',
-        s?.checkinCatInvest ?? 'Investissement',
+        s.checkinCatInvest,
         Icons.trending_up,
         MintColors.success
       ),
       (
         'epargne_libre',
-        s?.checkinCatEpargne ?? 'Epargne libre',
+        s.checkinCatEpargne,
         Icons.wallet,
         MintColors.warning
       ),
@@ -752,7 +741,7 @@ Reponds uniquement avec le texte final.
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    s?.checkinAddContribution ?? 'Ajouter un versement',
+                    s.checkinAddContribution,
                     style: GoogleFonts.montserrat(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -763,7 +752,7 @@ Reponds uniquement avec le texte final.
 
                   // Category chips
                   Text(
-                    s?.checkinCategoryLabel ?? 'Catégorie',
+                    s.checkinCategoryLabel,
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -824,7 +813,7 @@ Reponds uniquement avec le texte final.
 
                   // Label
                   Text(
-                    s?.checkinLabelField ?? 'Nom',
+                    s.checkinLabelField,
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -837,8 +826,7 @@ Reponds uniquement avec le texte final.
                     style: GoogleFonts.inter(
                         fontSize: 14, color: MintColors.textPrimary),
                     decoration: InputDecoration(
-                      hintText: s?.checkinLabelHint ??
-                          'Ex: 3a VIAC, Epargne vacances...',
+                      hintText: s.checkinLabelHint,
                       hintStyle: GoogleFonts.inter(
                           fontSize: 13, color: MintColors.textMuted),
                       filled: true,
@@ -864,7 +852,7 @@ Reponds uniquement avec le texte final.
 
                   // Amount
                   Text(
-                    s?.checkinAmountField ?? 'Montant mensuel',
+                    s.checkinAmountField,
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -911,7 +899,7 @@ Reponds uniquement avec le texte final.
                   Row(
                     children: [
                       Text(
-                        s?.checkinAutoToggle ?? 'Ordre permanent (automatique)',
+                        s.checkinAutoToggle,
                         style: GoogleFonts.inter(
                           fontSize: 13,
                           color: MintColors.textSecondary,
@@ -959,7 +947,7 @@ Reponds uniquement avec le texte final.
                         elevation: 0,
                       ),
                       child: Text(
-                        s?.checkinAddConfirm ?? 'Ajouter',
+                        s.checkinAddConfirm,
                         style: GoogleFonts.montserrat(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -1071,7 +1059,7 @@ Reponds uniquement avec le texte final.
 
   // ── Note field ─────────────────────────────────────────────
   Widget _buildNoteField() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return TextFormField(
       controller: _noteController,
       maxLines: 3,
@@ -1080,8 +1068,7 @@ Reponds uniquement avec le texte final.
         color: MintColors.textPrimary,
       ),
       decoration: InputDecoration(
-        hintText: s?.checkinNoteHint ??
-            'Ex: Mois compliqué, dépense imprévue pour la voiture...',
+        hintText: s.checkinNoteHint,
         hintStyle: GoogleFonts.inter(
           fontSize: 14,
           color: MintColors.textMuted,
@@ -1108,7 +1095,7 @@ Reponds uniquement avec le texte final.
 
   // ── Submit button ──────────────────────────────────────────
   Widget _buildSubmitButton() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return SizedBox(
       width: double.infinity,
       height: 56,
@@ -1123,7 +1110,7 @@ Reponds uniquement avec le texte final.
           elevation: 0,
         ),
         child: Text(
-          s?.checkinSubmit ?? 'Valider le check-in',
+          s.checkinSubmit,
           style: GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -1138,7 +1125,7 @@ Reponds uniquement avec le texte final.
   // ════════════════════════════════════════════════════════════
 
   List<Widget> _buildSuccessContent() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return [
       const SizedBox(height: 40),
       // Animated checkmark
@@ -1171,8 +1158,7 @@ Reponds uniquement avec le texte final.
       // Success title
       Center(
         child: Text(
-          s?.checkinSuccessTitle(_currentMonthLabel) ??
-              'Bravo ! Check-in $_currentMonthLabel complété',
+          s.checkinSuccessTitle(_currentMonthLabel),
           textAlign: TextAlign.center,
           style: GoogleFonts.montserrat(
             fontSize: 22,
@@ -1228,7 +1214,7 @@ Reponds uniquement avec le texte final.
             elevation: 0,
           ),
           child: Text(
-            s?.checkinSeeTrajectory ?? 'Voir ma trajectoire mise à jour',
+            s.checkinSeeTrajectory,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -1322,13 +1308,12 @@ Reponds uniquement avec le texte final.
   }
 
   Widget _buildImpactCard() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final impactFormatted = ForecasterService.formatChf(_impactCapital);
     final totalFormatted = ForecasterService.formatChf(_totalVersements);
     final impactLabel = _impactCapital.abs() < 1
-        ? (s?.checkinImpactPending ?? 'Impact en cours de calcul')
-        : (s?.checkinImpactCapital(impactFormatted) ??
-            'Capital projeté +$impactFormatted ce mois');
+        ? s.checkinImpactPending
+        : s.checkinImpactCapital(impactFormatted);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1358,7 +1343,7 @@ Reponds uniquement avec le texte final.
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  s?.checkinImpactLabel ?? 'Impact sur ta trajectoire',
+                  s.checkinImpactLabel,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -1376,8 +1361,7 @@ Reponds uniquement avec le texte final.
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  s?.checkinImpactTotal(totalFormatted) ??
-                      'Total versements : $totalFormatted',
+                  s.checkinImpactTotal(totalFormatted),
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -1392,7 +1376,7 @@ Reponds uniquement avec le texte final.
   }
 
   Widget _buildStreakCard() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1422,7 +1406,7 @@ Reponds uniquement avec le texte final.
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  s?.checkinStreakLabel ?? 'Série en cours',
+                  s.checkinStreakLabel,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -1431,8 +1415,7 @@ Reponds uniquement avec le texte final.
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  s?.checkinStreakCount(_streak.toString()) ??
-                      '$_streak mois consécutifs on-track !',
+                  s.checkinStreakCount(_streak.toString()),
                   style: GoogleFonts.montserrat(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -1448,7 +1431,7 @@ Reponds uniquement avec le texte final.
   }
 
   Widget _buildCoachTipCard() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1479,7 +1462,7 @@ Reponds uniquement avec le texte final.
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  s?.checkinCoachTip ?? 'Tip du coach',
+                  s.checkinCoachTip,
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -1505,7 +1488,7 @@ Reponds uniquement avec le texte final.
 
   // ── Monthly briefing insights card (Coach Vivant) ──────────
   Widget _buildBriefingInsightsCard() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final briefing = _briefing!;
     final trendIcon = switch (briefing.trend) {
       BriefingTrend.enHausse => Icons.trending_up,
@@ -1533,7 +1516,7 @@ Reponds uniquement avec le texte final.
               Icon(trendIcon, size: 18, color: trendColor),
               const SizedBox(width: 8),
               Text(
-                s?.checkinEvolutionTitle ?? 'Ton évolution',
+                s.checkinEvolutionTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -1579,7 +1562,7 @@ Reponds uniquement avec le texte final.
 
   // ── Disclaimer ─────────────────────────────────────────────
   Widget _buildDisclaimer() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1598,10 +1581,7 @@ Reponds uniquement avec le texte final.
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              s?.checkinDisclaimer ??
-                  'Outil éducatif — ne constitue pas un conseil financier personnalisé. '
-                      'Les projections sont basées sur des hypothèses et peuvent varier. '
-                      'Consulte un·e spécialiste pour un accompagnement adapté. LSFin.',
+              s.checkinDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: MintColors.textMuted,
@@ -1632,7 +1612,7 @@ class _ContributionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final icon = iconForCategory(contribution.category);
     final color = colorForCategory(contribution.category);
 
@@ -1692,8 +1672,8 @@ class _ContributionRow extends StatelessWidget {
                       ),
                       child: Text(
                         contribution.isAutomatic
-                            ? (s?.checkinAuto ?? 'Auto')
-                            : (s?.checkinManuel ?? 'Manuel'),
+                            ? s.checkinAuto
+                            : s.checkinManuel,
                         style: GoogleFonts.inter(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -1753,7 +1733,7 @@ class _ContributionRow extends StatelessWidget {
                   validator: (value) {
                     if (value == null || value.isEmpty) return null; // optional
                     if (double.tryParse(value) == null) {
-                      return s?.checkinInvalidAmount ?? 'Montant invalide';
+                      return s.checkinInvalidAmount;
                     }
                     return null;
                   },
