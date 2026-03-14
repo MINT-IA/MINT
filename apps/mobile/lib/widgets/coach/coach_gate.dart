@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/subscription_service.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
@@ -108,7 +109,7 @@ class CoachGate extends StatelessWidget {
 
                     // Label
                     Text(
-                      'Fonctionnalite Coach',
+                      S.of(context)?.coachGateTitle ?? 'Fonctionnalité Coach',
                       style: GoogleFonts.montserrat(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -117,7 +118,7 @@ class CoachGate extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Disponible avec MINT Coach',
+                      S.of(context)?.coachGateSubtitle ?? 'Disponible avec MINT Coach',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: MintColors.textMuted,
@@ -130,7 +131,7 @@ class CoachGate extends StatelessWidget {
                       onPressed: () => CoachPaywallSheet.show(context),
                       icon: const Icon(Icons.lock_open_rounded, size: 16),
                       label: Text(
-                        'Debloquer',
+                        S.of(context)?.coachGateUnlock ?? 'Débloquer',
                         style: GoogleFonts.inter(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,

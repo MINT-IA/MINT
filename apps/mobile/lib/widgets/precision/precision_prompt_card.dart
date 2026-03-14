@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/precision/precision_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -80,7 +81,7 @@ class PrecisionPromptCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Precision disponible',
+                    S.of(context)?.precisionPromptTitle ?? 'Précision disponible',
                     style: GoogleFonts.montserrat(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -146,7 +147,7 @@ class PrecisionPromptCard extends StatelessWidget {
                     onPressed: onPrecise,
                     icon: const Icon(Icons.edit_outlined, size: 16),
                     label: Text(
-                      'Preciser',
+                      S.of(context)?.precisionPromptCta ?? 'Préciser',
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
@@ -179,7 +180,7 @@ class PrecisionPromptCard extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'Continuer',
+                      S.of(context)?.precisionPromptSkip ?? 'Continuer',
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.w500,
                         fontSize: 13,

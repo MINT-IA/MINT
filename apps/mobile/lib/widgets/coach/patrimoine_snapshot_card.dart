@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -40,13 +41,14 @@ class PatrimoineSnapshotCard extends StatelessWidget {
     final total = _total;
     if (total <= 0) return const SizedBox.shrink();
 
+    final s = S.of(context);
     final segments = [
-      _Segment('LPP', lppCapital, MintColors.primary),
+      _Segment(s?.patrimoineSnapshotLpp ?? 'LPP', lppCapital, MintColors.primary),
       if (lppCapitalConjoint > 0)
-        _Segment('LPP conjoint·e', lppCapitalConjoint, MintColors.indigoMuted),
-      _Segment('3a', threeACapital, MintColors.centralScenario),
-      _Segment('Épargne', epargne, MintColors.orangeWarm),
-      _Segment('Immobilier', immobilier, MintColors.blueSteel),
+        _Segment(s?.patrimoineSnapshotLppConjoint ?? 'LPP conjoint·e', lppCapitalConjoint, MintColors.indigoMuted),
+      _Segment(s?.patrimoineSnapshot3a ?? '3a', threeACapital, MintColors.centralScenario),
+      _Segment(s?.patrimoineSnapshotEpargne ?? 'Épargne', epargne, MintColors.orangeWarm),
+      _Segment(s?.patrimoineSnapshotImmobilier ?? 'Immobilier', immobilier, MintColors.blueSteel),
     ].where((s) => s.value > 0).toList();
 
     return Card(
@@ -59,7 +61,7 @@ class PatrimoineSnapshotCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Patrimoine total estimé',
+              s?.patrimoineSnapshotTitle ?? 'Patrimoine total estimé',
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,

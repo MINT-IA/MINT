@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/factory/letter_generator_service.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -26,13 +27,13 @@ class LetterGeneratorSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            "Secrétariat Automatique",
+            S.of(context)?.letterGeneratorTitle ?? 'Secrétariat Automatique',
             style:
                 GoogleFonts.montserrat(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
-            "Générez des modèles de lettres prêts à l'emploi.",
+            S.of(context)?.letterGeneratorSubtitle ?? 'Générez des modèles de lettres prêts à l\'emploi.',
             style: GoogleFonts.inter(
                 fontSize: 14, color: MintColors.textSecondary),
           ),
@@ -40,8 +41,8 @@ class LetterGeneratorSheet extends StatelessWidget {
           _buildActionItem(
             context,
             icon: Icons.savings,
-            title: "Demande de Rachat LPP",
-            subtitle: "Pour connaître ton potentiel de rachat.",
+            title: S.of(context)?.letterGeneratorBuybackTitle ?? 'Demande de Rachat LPP',
+            subtitle: S.of(context)?.letterGeneratorBuybackSubtitle ?? 'Pour connaître ton potentiel de rachat.',
             onTap: () async {
               final letter = LetterGeneratorService.generateBuybackRequest(
                 userName: userName,
@@ -54,8 +55,8 @@ class LetterGeneratorSheet extends StatelessWidget {
           _buildActionItem(
             context,
             icon: Icons.receipt_long,
-            title: "Attestation Fiscale",
-            subtitle: "Pour ta déclaration d'impôts.",
+            title: S.of(context)?.letterGeneratorTaxTitle ?? 'Attestation Fiscale',
+            subtitle: S.of(context)?.letterGeneratorTaxSubtitle ?? 'Pour ta déclaration d\'impôts.',
             onTap: () async {
               final letter =
                   LetterGeneratorService.generateTaxCertificateRequest(
@@ -67,7 +68,7 @@ class LetterGeneratorSheet extends StatelessWidget {
           ),
           const SizedBox(height: 30),
           Text(
-            "Ces documents sont des modèles à compléter. Ils ne constituent pas un avis de droit.",
+            S.of(context)?.letterGeneratorDisclaimer ?? 'Ces documents sont des modèles à compléter. Ils ne constituent pas un avis de droit.',
             style: GoogleFonts.inter(fontSize: 10, color: MintColors.textMuted),
             textAlign: TextAlign.center,
           ),

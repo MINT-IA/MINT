@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// Banner displayed when projection confidence is below 70%.
@@ -60,7 +61,7 @@ class IndicatifBanner extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Résultat indicatif ($pct% de fiabilité)',
+                  S.of(context)?.indicatifBannerTitle(pct.toString()) ?? 'Résultat indicatif ($pct\u00a0% de fiabilité)',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -87,7 +88,7 @@ class IndicatifBanner extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'Précise tes données pour des projections personnalisées.',
+            S.of(context)?.indicatifBannerMessage ?? 'Précise tes données pour des projections personnalisées.',
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -101,7 +102,7 @@ class IndicatifBanner extends StatelessWidget {
               onPressed: () => context.push('/data-block/$route'),
               icon: const Icon(Icons.arrow_forward, size: 16),
               label: Text(
-                'Préciser',
+                S.of(context)?.indicatifBannerCta ?? 'Préciser',
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,

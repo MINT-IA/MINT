@@ -729,7 +729,7 @@
   "divorceTotalLpp": "Total LPP (pendant le mariage)",
   "divorcePartConjoint1": "Part Conjoint 1",
   "divorcePartConjoint2": "Part Conjoint 2",
-  "divorceTransfert": "Transfert",
+  "divorceTransfert": "Transfert de {amount} ({direction})",
   "divorceImpactFiscal": "IMPACT FISCAL",
   "divorceImpotMarie": "Impôt estimé (marié)",
   "divorceImpotConjoint1": "Impôt Conjoint 1 (individuel)",
@@ -4951,8 +4951,8 @@
   "independantStatusCritical": "NON COUVERT — Critique",
   "independantStatusNotCovered": "NON COUVERT",
   "independantStatusNotCoveredLow": "Non couvert",
-  "independantSliderMin": "CHF\u00a020k",
-  "independantSliderMax": "CHF\u00a0200k",
+  "independantSliderMin": "CHF 20k",
+  "independantSliderMax": "CHF 200k",
   "independantRescueLibrePassage": "Fondation de libre passage",
   "independantRescueLibrePassageDesc": "Place ton avoir en libre passage avec un rendement correct.",
   "independantRescueSuppletive": "Institution supplétive",
@@ -4967,7 +4967,7 @@
   "independantLppCon1": "Cotisations obligatoires élevées",
   "independantLppCon2": "Moins flexible",
   "independant3aOptionTitle": "Grand 3a (sans LPP)",
-  "independant3aOptionSubtitle": "20\u00a0% du revenu net, max CHF\u00a036\u2019288/an",
+  "independant3aOptionSubtitle": "20 % du revenu net, max CHF 36’288/an",
   "independant3aPro1": "Flexibilité totale",
   "independant3aPro2": "Déduction fiscale maximale",
   "independant3aPro3": "Capital disponible à 60 ans",
@@ -4978,7 +4978,7 @@
   "independantLayerBusiness": "Frais professionnels",
   "independantLayerUnpaid": "Jours non facturables",
   "independantFiscal3aLabel": "Pilier 3a grand versement",
-  "independantFiscal3aNote": "Max 20\u00a0% du revenu net, plafonné à CHF\u00a036\u2019288/an sans LPP",
+  "independantFiscal3aNote": "Max 20 % du revenu net, plafonné à CHF 36’288/an sans LPP",
   "independantFiscalFraisLabel": "Frais professionnels effectifs",
   "independantFiscalFraisNote": "Loyer bureau, matériel, formation — déductibles au réel",
   "independantFiscalPrimesLabel": "Primes assurance maladie (LPP vol.)",
@@ -4998,11 +4998,365 @@
   "independantPhase1Consequence2": "Pas de couverture accident professionnel",
   "independantPhase2Title": "Prévoyance",
   "independantPhase2Deadline": "J+60",
-  "independantPhase2Action1": "Ouvrir compte 3a (déduction jusqu'à CHF\u00a036\u2019288)",
+  "independantPhase2Action1": "Ouvrir compte 3a (déduction jusqu'à CHF 36’288)",
   "independantPhase2Action2": "Évaluer IJM (indemnité journalière maladie)",
   "independantPhase2Consequence2": "Perte de revenus dès J+3 en cas de maladie",
   "independantPhase3Title": "Optimisation fiscale",
   "independantPhase3Deadline": "J+90",
   "independantPhase3Action1": "Frais professionnels déductibles — tenir registre",
-  "independantPhase3Action2": "Acomptes impôts cantonaux — éviter les intérêts"
+  "independantPhase3Action2": "Acomptes impôts cantonaux — éviter les intérêts",
+  "coachGateTitle": "Fonctionnalité Coach",
+  "coachGateSubtitle": "Disponible avec MINT Coach",
+  "coachGateUnlock": "Débloquer",
+  "indicatifBannerTitle": "Résultat indicatif ({pct} % de fiabilité)",
+  "@indicatifBannerTitle": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "indicatifBannerMessage": "Précise tes données pour des projections personnalisées.",
+  "indicatifBannerCta": "Préciser",
+  "patrimoineSnapshotTitle": "Patrimoine total estimé",
+  "patrimoineSnapshotLpp": "LPP",
+  "patrimoineSnapshotLppConjoint": "LPP conjoint·e",
+  "patrimoineSnapshot3a": "3a",
+  "patrimoineSnapshotEpargne": "Épargne",
+  "patrimoineSnapshotImmobilier": "Immobilier",
+  "pillarDecompTitle": "Décomposition par pilier",
+  "pillarDecompEmpty": "Complète ton profil pour voir la décomposition par pilier.",
+  "pillarDecompAvs": "1er pilier (AVS)",
+  "pillarDecompAvsYou": "1er pilier (AVS toi)",
+  "pillarDecompLpp": "2ème pilier (LPP)",
+  "pillarDecompLppYou": "2ème pilier (LPP toi)",
+  "pillarDecompAvsConjoint": "1er pilier (AVS conjoint·e)",
+  "pillarDecompLppConjoint": "2ème pilier (LPP conjoint·e)",
+  "pillarDecomp3a": "3ème pilier (3a)",
+  "pillarDecompFree": "Libre / épargne",
+  "pillarDecompTotal": "Total mensuel estimé",
+  "safeModeGateTitle": "Concentration Prioritaire",
+  "safeModeGateMessage": "Pour ta sécurité financière, nous désactivons les optimisations avancées tant qu’un signal de dette est actif. La priorité est de construire ta sécurité.",
+  "safeModeGateCta": "Voir mon plan de désendettement",
+  "safeModeGateWhyTitle": "Pourquoi c’est bloqué",
+  "safeModeGateWhyBody": "En mode protection, MINT priorise la stabilité de trésorerie avant les optimisations fiscales et prévoyance.",
+  "safeModeGateWhyLink": "Pourquoi est-ce bloqué ?",
+  "confidenceCompleteness": "Complétude",
+  "confidenceAccuracy": "Fiabilité source",
+  "confidenceFreshness": "Fraîcheur",
+  "precisionPromptTitle": "Précision disponible",
+  "precisionPromptCta": "Préciser",
+  "precisionPromptSkip": "Continuer",
+  "letterGeneratorTitle": "Secrétariat Automatique",
+  "letterGeneratorSubtitle": "Générez des modèles de lettres prêts à l’emploi.",
+  "letterGeneratorBuybackTitle": "Demande de Rachat LPP",
+  "letterGeneratorBuybackSubtitle": "Pour connaître ton potentiel de rachat.",
+  "letterGeneratorTaxTitle": "Attestation Fiscale",
+  "letterGeneratorTaxSubtitle": "Pour ta déclaration d’impôts.",
+  "letterGeneratorDisclaimer": "Ces documents sont des modèles à compléter. Ils ne constituent pas un avis de droit.",
+  "@divorceTransfert": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "direction": {
+        "type": "String"
+      }
+    }
+  },
+  "divorceTaxDelta": "Différence : {delta}/an",
+  "@divorceTaxDelta": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "divorceConjoint1Label": "Conjoint 1",
+  "divorceConjoint2Label": "Conjoint 2",
+  "divorcePensionAnnual": "soit {amount}/an",
+  "@divorcePensionAnnual": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "exploreEventFirstJob": "Premier emploi",
+  "exploreEventFirstJobSub": "AVS, LPP, impôts : tout comprendre",
+  "exploreEventJobChange": "Changement de poste",
+  "exploreEventJobChangeSub": "Comparer LPP et salaire",
+  "exploreEventSelfEmployment": "Devenir indépendant",
+  "exploreEventSelfEmploymentSub": "AVS, 3a, LPP volontaire",
+  "exploreEventJobLoss": "Perte d'emploi",
+  "exploreEventJobLossSub": "Chômage, LPP, budget",
+  "exploreEventRetirement": "Retraite",
+  "exploreEventRetirementSub": "AVS, LPP, retrait 3a",
+  "exploreEventHousingPurchase": "Achat immobilier",
+  "exploreEventHousingPurchaseSub": "Fonds propres et hypothèque",
+  "exploreEventDisability": "Invalidité",
+  "exploreEventDisabilitySub": "Lacune de prévoyance",
+  "exploreEventCantonMove": "Déménagement cantonal",
+  "exploreEventCantonMoveSub": "Comparer la fiscalité",
+  "exploreEventDeathRelative": "Décès d'un proche",
+  "exploreEventDeathRelativeSub": "Succession et démarches",
+  "exploreEventDebtCrisis": "Crise de dette",
+  "exploreEventDebtCrisisSub": "Diagnostic et solutions",
+  "exploreCoachSuggestionLabel": "Suggestion du coach",
+  "renteCapitalTitle": "Rente ou capital : ta décision",
+  "renteCapitalHeroIntro": "À la retraite, tu choisis une fois pour toutes : un revenu à vie ou ton capital en main.",
+  "renteCapitalOptionRente": "Rente",
+  "renteCapitalOptionCapital": "Capital",
+  "renteCapitalOptionMixte": "Mixte",
+  "renteCapitalExplRente": "Ta caisse de pension te verse un montant fixe chaque mois, tant que tu vis — même si tu atteins 100 ans. En échange, tu ne récupères jamais ton capital.",
+  "renteCapitalExplCapital": "Tu récupères tout ton avoir LPP d’un coup. Tu le places, tu retires ce dont tu as besoin chaque mois. Liberté totale, mais le risque de manquer est réel.",
+  "renteCapitalExplMixte": "La partie obligatoire en rente (taux 6.8 %) + le surobligatoire en capital. Un compromis entre sécurité et flexibilité.",
+  "renteCapitalModeEstimate": "Estimer pour moi",
+  "renteCapitalModeCertificate": "J’ai mon certificat",
+  "renteCapitalLabelAge": "Ton âge",
+  "renteCapitalLabelRetirementAge": "Retraite prévue à",
+  "renteCapitalRetirementAgeValue": "{age} ans",
+  "@renteCapitalRetirementAgeValue": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "renteCapitalLabelSalary": "Ton salaire brut annuel (CHF)",
+  "renteCapitalLabelLppTotal": "Ton avoir LPP actuel (CHF)",
+  "renteCapitalLabelLppOblig": "Avoir LPP obligatoire (certificat LPP)",
+  "renteCapitalLabelLppSurob": "Avoir LPP surobligatoire (certificat LPP)",
+  "renteCapitalLabelRenteAnnuelle": "Rente annuelle proposée (certificat LPP)",
+  "renteCapitalLabelTcOblig": "Taux conv. oblig. (%)",
+  "renteCapitalLabelTcSurob": "Taux conv. surob. (%)",
+  "renteCapitalLabelCanton": "Canton",
+  "renteCapitalLabelMarried": "Marié·e",
+  "renteCapitalAutoFillSource": "Valeurs pré-remplies depuis ton profil",
+  "renteCapitalProjectionSource": "Projection basée sur ton âge, salaire et LPP actuel",
+  "renteCapitalCertificatePrecision": "Précision maximale — résultats basés sur tes vrais chiffres.",
+  "renteCapitalEstimatedCapital": "Capital estimé à {age} ans : ~{amount}",
+  "@renteCapitalEstimatedCapital": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "renteCapitalEstimatedRente": "Rente estimée : ~{amount}/an",
+  "@renteCapitalEstimatedRente": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "renteCapitalAccrocheTaxAndAge": "Cette décision peut te coûter {taxDelta} d’impôts en trop — ou te laisser sans rien à {age} ans. Tu ne peux la prendre qu’une seule fois.",
+  "@renteCapitalAccrocheTaxAndAge": {
+    "placeholders": {
+      "taxDelta": {
+        "type": "String"
+      },
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "renteCapitalAccrocheTaxOnly": "Cette décision peut changer {taxDelta} d’impôts sur ta retraite. Tu ne peux la prendre qu’une seule fois.",
+  "@renteCapitalAccrocheTaxOnly": {
+    "placeholders": {
+      "taxDelta": {
+        "type": "String"
+      }
+    }
+  },
+  "renteCapitalAccrocheAgeOnly": "Avec le capital, tu pourrais manquer d’argent dès {age} ans. Avec la rente, tu reçois un montant fixe à vie. Tu ne peux choisir qu’une fois.",
+  "@renteCapitalAccrocheAgeOnly": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "renteCapitalLabelRente": "RENTE",
+  "renteCapitalLabelCapitalUpper": "CAPITAL",
+  "renteCapitalPerMonth": "/mois",
+  "renteCapitalForLife": "à vie",
+  "renteCapitalDuration": "pendant {duration}",
+  "@renteCapitalDuration": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "renteCapitalDurationYears": "~{years} ans",
+  "@renteCapitalDurationYears": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "renteCapitalDuration30Plus": "30+ ans",
+  "renteCapitalMicroRente": "Ta caisse te verse ce montant chaque mois, tant que tu vis.",
+  "renteCapitalMicroCapital": "Tu retires {swr} % par an d’un capital placé à {rendement} %.",
+  "@renteCapitalMicroCapital": {
+    "placeholders": {
+      "swr": {
+        "type": "String"
+      },
+      "rendement": {
+        "type": "String"
+      }
+    }
+  },
+  "renteCapitalSyntheseCapitalHigher": "Le capital te donne {delta}/mois de plus, mais pourrait s’épuiser.",
+  "@renteCapitalSyntheseCapitalHigher": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "renteCapitalSyntheseRenteHigher": "La rente te donne {delta}/mois de plus, et ne s’arrête jamais.",
+  "@renteCapitalSyntheseRenteHigher": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "renteCapitalAvsEstimee": "AVS estimée : ",
+  "renteCapitalAvsAmount": "~{amount}/mois",
+  "@renteCapitalAvsAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "renteCapitalAvsComplement": " supplémentaires dans les deux cas (LAVS art. 29)",
+  "renteCapitalExplorerTitle": "Et si je vis jusqu’à...",
+  "renteCapitalLifeExpStat": "Espérance de vie suisse : hommes 84 ans · femmes 87 ans",
+  "renteCapitalChartTitle": "Capital restant vs revenus cumulés de la rente",
+  "renteCapitalChartExplain": "Capital (vert) : ce qu’il reste après tes retraits. Rente (bleu) : total reçu depuis le départ. Le croisement = l’âge auquel la rente a plus rapporté.",
+  "renteCapitalChartAxisLabel": "Age",
+  "renteCapitalDeltaBeyondHorizon": "À {age} ans : au-delà de l’horizon de simulation.",
+  "@renteCapitalDeltaBeyondHorizon": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "renteCapitalDeltaAtAge": "À {age} ans : ",
+  "@renteCapitalDeltaAtAge": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "renteCapitalDeltaWinner": "{winner} = +{amount} ",
+  "@renteCapitalDeltaWinner": {
+    "placeholders": {
+      "winner": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "renteCapitalDeltaAhead": "d’avance",
+  "renteCapitalSectionComprendre": "Ce que ça change concrètement",
+  "renteCapitalCardFiscaliteTitle": "Fiscalité",
+  "renteCapitalCardFiscaliteLeftSub": "Imposée chaque année",
+  "renteCapitalCardFiscaliteRightSub": "Taxé une seule fois",
+  "renteCapitalCardFiscaliteOnYears": "sur 30 ans",
+  "renteCapitalCardFiscaliteRightDetail": "au retrait (LIFD art. 38)",
+  "renteCapitalCardFiscaliteCapitalSaves": "Sur 30 ans, le capital te fait économiser ~{amount} d’impôts.",
+  "@renteCapitalCardFiscaliteCapitalSaves": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "renteCapitalCardFiscaliteRenteSaves": "Sur 30 ans, la rente génère ~{amount} d’impôts en moins.",
+  "@renteCapitalCardFiscaliteRenteSaves": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "renteCapitalCardInflationTitle": "Inflation",
+  "renteCapitalCardInflationLeftTitle": "Aujourd’hui",
+  "renteCapitalCardInflationRightTitle": "Dans 20 ans",
+  "renteCapitalCardInflationRightSub": "pouvoir d’achat",
+  "renteCapitalCardInflationBottom": "Ta rente LPP n’est pas indexée. Elle achète {percent} % de moins dans 20 ans.",
+  "@renteCapitalCardInflationBottom": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "renteCapitalCardTransmissionTitle": "Transmission",
+  "renteCapitalCardTransmissionLeftSubMarried": "Ton conjoint reçoit",
+  "renteCapitalCardTransmissionLeftSubSingle": "À ton décès",
+  "renteCapitalCardTransmissionLeftValMarried": "60 % = {amount}/mois",
+  "@renteCapitalCardTransmissionLeftValMarried": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "renteCapitalCardTransmissionLeftValSingle": "Rien",
+  "renteCapitalCardTransmissionLeftDetailMarried": "LPP art. 19",
+  "renteCapitalCardTransmissionLeftDetailSingle": "pour tes héritiers",
+  "renteCapitalCardTransmissionRightSub": "Tes héritiers reçoivent",
+  "renteCapitalCardTransmissionRightVal": "100 %",
+  "renteCapitalCardTransmissionRightDetail": "du solde restant",
+  "renteCapitalCardTransmissionBottomMarried": "Avec la rente, seul·e ton conjoint·e reçoit 60 %. Rien pour les enfants.",
+  "renteCapitalCardTransmissionBottomSingle": "Avec la rente, rien ne revient à tes proches.",
+  "renteCapitalSectionAffiner": "Affiner ta simulation",
+  "renteCapitalAffinerSubtitle": "Pour ceux qui veulent creuser.",
+  "renteCapitalHypRendement": "Ce que ton capital rapporte par an",
+  "renteCapitalHypSwr": "Combien tu retires chaque année",
+  "renteCapitalHypInflation": "Inflation",
+  "renteCapitalSensitivityTitle": "Qu’est-ce qui change le plus le résultat ?",
+  "renteCapitalSensitivitySubtitle": "Les paramètres les plus influents sur l’écart entre tes options.",
+  "renteCapitalTornadoExpand": "Voir le diagramme de sensibilité",
+  "renteCapitalHypothesesTitle": "Hypothèses de cette simulation",
+  "renteCapitalDisclaimerTitle": "Avertissement",
+  "renteCapitalSourcesPrefix": "Sources : {sources}",
+  "@renteCapitalSourcesPrefix": {
+    "placeholders": {
+      "sources": {
+        "type": "String"
+      }
+    }
+  },
+  "renteCapitalLabelRachat": "Rachat LPP annuel prévu (CHF)",
+  "renteCapitalRachatMax": "max {amount}",
+  "@renteCapitalRachatMax": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "renteCapitalRachatHint": "0 (optionnel)",
+  "renteCapitalRachatTooltip": "Si tu fais des rachats LPP chaque année, leur valeur futur est ajoutée au capital à la retraite. Blocage 3 ans avant EPL (LPP art. 79b).",
+  "renteCapitalLabelEpl": "Retrait EPL pour achat immobilier",
+  "renteCapitalEplHint": "Montant retiré (min 20’000)",
+  "renteCapitalEplTooltip": "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20’000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
+  "renteCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20’000)"
 }

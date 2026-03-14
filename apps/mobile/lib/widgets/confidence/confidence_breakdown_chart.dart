@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// Horizontal 3-axis confidence visualization used by S46 dashboard.
@@ -17,22 +18,23 @@ class ConfidenceBreakdownChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return Column(
       children: [
         _AxisRow(
-          label: 'Completude',
+          label: s?.confidenceCompleteness ?? 'Complétude',
           value: completeness,
           color: _colorFor(completeness),
         ),
         const SizedBox(height: 12),
         _AxisRow(
-          label: 'Fiabilite source',
+          label: s?.confidenceAccuracy ?? 'Fiabilité source',
           value: accuracy,
           color: _colorFor(accuracy),
         ),
         const SizedBox(height: 12),
         _AxisRow(
-          label: 'Fraicheur',
+          label: s?.confidenceFreshness ?? 'Fraîcheur',
           value: freshness,
           color: _colorFor(freshness),
         ),

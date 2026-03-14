@@ -566,8 +566,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Transfert de ${_chfFmt(r.lppSplit.transferAmount)} '
-                      '(${r.lppSplit.transferDirection})',
+                      S.of(context)!.divorceTransfert(_chfFmt(r.lppSplit.transferAmount), r.lppSplit.transferDirection),
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -649,7 +648,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Différence : ${isIncrease ? '+' : ''}${_chfFmt(r.taxImpact.delta)}/an',
+                    S.of(context)!.divorceTaxDelta('${isIncrease ? '+' : ''}${_chfFmt(r.taxImpact.delta)}'),
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -709,9 +708,9 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           ),
           const SizedBox(height: 12),
           _buildResultRow(
-              'Conjoint 1', _chfFmt(r.patrimoineSplit.shareConjoint1)),
+              S.of(context)!.divorceConjoint1Label, _chfFmt(r.patrimoineSplit.shareConjoint1)),
           _buildResultRow(
-              'Conjoint 2', _chfFmt(r.patrimoineSplit.shareConjoint2)),
+              S.of(context)!.divorceConjoint2Label, _chfFmt(r.patrimoineSplit.shareConjoint2)),
         ],
       ),
     );
@@ -809,7 +808,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'soit ${_chfFmt(r.pensionAlimentaireMonthly * 12)}/an',
+            S.of(context)!.divorcePensionAnnual(_chfFmt(r.pensionAlimentaireMonthly * 12)),
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.textSecondary,

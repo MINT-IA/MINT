@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 class SafeModeGate extends StatelessWidget {
   final bool hasDebt;
   final Widget child;
-  final String lockedTitle;
-  final String lockedMessage;
+  final String? lockedTitle;
+  final String? lockedMessage;
   final List<String> reasons;
   final String? ctaRoute;
-  final String ctaLabel;
+  final String? ctaLabel;
 
   const SafeModeGate({
     super.key,
     required this.hasDebt,
     required this.child,
-    this.lockedTitle = "Concentration Prioritaire",
-    this.lockedMessage =
-        "Pour ta sécurité financière, nous désactivons les optimisations avancées tant qu'un signal de dette est actif. La priorité est de construire ta sécurité.",
+    this.lockedTitle,
+    this.lockedMessage,
     this.reasons = const [],
     this.ctaRoute = '/debt/repayment',
-    this.ctaLabel = 'Voir mon plan de désendettement',
+    this.ctaLabel,
   });
 
   @override
@@ -29,6 +29,11 @@ class SafeModeGate extends StatelessWidget {
     if (!hasDebt) {
       return child;
     }
+
+    final s = S.of(context);
+    final resolvedTitle = lockedTitle ?? s?.safeModeGateTitle ?? 'Concentration Prioritaire';
+    final resolvedMessage = lockedMessage ?? s?.safeModeGateMessage ?? 'Pour ta sécurité financière, nous désactivons les optimisations avancées tant qu\'un signal de dette est actif. La priorité est de construire ta sécurité.';
+    final resolvedCtaLabel = ctaLabel ?? s?.safeModeGateCta ?? 'Voir mon plan de désendettement';
 
     // Locked State visualization
     return Container(
@@ -50,7 +55,7 @@ class SafeModeGate extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  lockedTitle,
+                  resolvedTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -59,7 +64,7 @@ class SafeModeGate extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  lockedMessage,
+                  resolvedMessage,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textMuted,
@@ -111,7 +116,7 @@ class SafeModeGate extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Pourquoi c’est bloqué',
+                              s?.safeModeGateWhyTitle ?? ‘Pourquoi c\u2019est bloqué’,
                               style: GoogleFonts.montserrat(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
@@ -120,8 +125,7 @@ class SafeModeGate extends StatelessWidget {
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              'En mode protection, MINT priorise la stabilité de trésorerie '
-                              'avant les optimisations fiscales et prévoyance.',
+                              s?.safeModeGateWhyBody ?? 'En mode protection, MINT priorise la stabilité de trésorerie avant les optimisations fiscales et prévoyance.',
                               style: GoogleFonts.inter(
                                 fontSize: 13,
                                 color: MintColors.textSecondary,
@@ -149,7 +153,7 @@ class SafeModeGate extends StatelessWidget {
                     );
                   },
                   child: Text(
-                    "Pourquoi est-ce bloqué ?",
+                    s?.safeModeGateWhyLink ?? 'Pourquoi est-ce bloqué\u00a0?',
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -173,7 +177,7 @@ class SafeModeGate extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      ctaLabel,
+                      resolvedCtaLabel,
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,

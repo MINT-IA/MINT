@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -104,6 +105,7 @@ class _PillarDecompositionState extends State<PillarDecomposition>
   @override
   Widget build(BuildContext context) {
     final total = _total;
+    final s = S.of(context);
 
     return Container(
       width: double.infinity,
@@ -128,7 +130,7 @@ class _PillarDecompositionState extends State<PillarDecomposition>
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Text(
-                'Compl\u00e8te ton profil pour voir la d\u00e9composition par pilier.',
+                s?.pillarDecompEmpty ?? 'Complète ton profil pour voir la décomposition par pilier.',
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   color: MintColors.textSecondary,
@@ -142,7 +144,7 @@ class _PillarDecompositionState extends State<PillarDecomposition>
               return Column(
                 children: [
                   _buildPillarRow(
-                    label: _hasConjoint ? '1er pilier (AVS toi)' : '1er pilier (AVS)',
+                    label: _hasConjoint ? (s?.pillarDecompAvsYou ?? '1er pilier (AVS toi)') : (s?.pillarDecompAvs ?? '1er pilier (AVS)'),
                     amount: widget.avsMonthly,
                     total: total,
                     color: MintColors.retirementAvs,
@@ -151,7 +153,7 @@ class _PillarDecompositionState extends State<PillarDecomposition>
                   ),
                   const SizedBox(height: 10),
                   _buildPillarRow(
-                    label: _hasConjoint ? '2\u00e8me pilier (LPP toi)' : '2\u00e8me pilier (LPP)',
+                    label: _hasConjoint ? (s?.pillarDecompLppYou ?? '2ème pilier (LPP toi)') : (s?.pillarDecompLpp ?? '2ème pilier (LPP)'),
                     amount: widget.lppMonthly,
                     total: total,
                     color: MintColors.retirementLpp,
@@ -161,7 +163,7 @@ class _PillarDecompositionState extends State<PillarDecomposition>
                   if (_hasConjoint && widget.avsConjointMonthly > 0) ...[
                     const SizedBox(height: 10),
                     _buildPillarRow(
-                      label: '1er pilier (AVS conjoint\u00b7e)',
+                      label: s?.pillarDecompAvsConjoint ?? '1er pilier (AVS conjoint·e)',
                       amount: widget.avsConjointMonthly,
                       total: total,
                       color: MintColors.retirementAvs.withValues(alpha: 0.65),
@@ -172,7 +174,7 @@ class _PillarDecompositionState extends State<PillarDecomposition>
                   if (_hasConjoint && widget.lppConjointMonthly > 0) ...[
                     const SizedBox(height: 10),
                     _buildPillarRow(
-                      label: '2\u00e8me pilier (LPP conjoint\u00b7e)',
+                      label: s?.pillarDecompLppConjoint ?? '2ème pilier (LPP conjoint·e)',
                       amount: widget.lppConjointMonthly,
                       total: total,
                       color: MintColors.indigoMuted,
@@ -182,7 +184,7 @@ class _PillarDecompositionState extends State<PillarDecomposition>
                   ],
                   const SizedBox(height: 10),
                   _buildPillarRow(
-                    label: '3\u00e8me pilier (3a)',
+                    label: s?.pillarDecomp3a ?? '3ème pilier (3a)',
                     amount: widget.threeAMonthly,
                     total: total,
                     color: MintColors.retirement3a,
@@ -191,7 +193,7 @@ class _PillarDecompositionState extends State<PillarDecomposition>
                   ),
                   const SizedBox(height: 10),
                   _buildPillarRow(
-                    label: 'Libre / \u00e9pargne',
+                    label: s?.pillarDecompFree ?? 'Libre / épargne',
                     amount: widget.freeMonthly,
                     total: total,
                     color: MintColors.retirementLibre,
@@ -213,7 +215,7 @@ class _PillarDecompositionState extends State<PillarDecomposition>
 
   Widget _buildHeader() {
     return Text(
-      'D\u00e9composition par pilier',
+      S.of(context)?.pillarDecompTitle ?? 'Décomposition par pilier',
       style: GoogleFonts.montserrat(
         fontSize: 16,
         fontWeight: FontWeight.w700,
@@ -310,7 +312,7 @@ class _PillarDecompositionState extends State<PillarDecomposition>
         const SizedBox(width: 42),
         Expanded(
           child: Text(
-            'Total mensuel estim\u00e9',
+            S.of(context)?.pillarDecompTotal ?? 'Total mensuel estimé',
             style: GoogleFonts.montserrat(
               fontSize: 13,
               fontWeight: FontWeight.w700,
