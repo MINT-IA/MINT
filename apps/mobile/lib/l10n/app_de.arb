@@ -4884,5 +4884,17 @@
   "languageSelectorTitle": "Langue / Sprache / Language",
   "realInterestSimulatorTitle": "Realzins-Simulator",
   "affordabilityMax33": "Max 33%",
-  "affordabilityMin20": "Min 20%"
+  "affordabilityMin20": "Min 20%",
+  "profileDocumentCount": "{count} Dokument(e)",
+  "@profileDocumentCount": {
+    "description": "Document count label in profile",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "profileDeleteAccountSuccess": "Konto erfolgreich gelöscht.",
+  "profileDeleteAccountFailed": "Löschung momentan nicht möglich. Versuche es später erneut."
 }

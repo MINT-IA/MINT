@@ -195,8 +195,8 @@ class ProfileScreen extends StatelessWidget {
                           fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   _buildFactFindSection(
-                    title: 'Notre menage',
-                    status: 'Couple+',
+                    title: S.of(context)?.profileHouseholdTitle ?? 'Notre ménage',
+                    status: S.of(context)?.profileHouseholdStatus ?? 'Couple+',
                     isComplete: false,
                     icon: Icons.people_outline,
                     onTap: () => context.push('/household'),
@@ -264,7 +264,7 @@ class ProfileScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Mon aperçu financier',
+                    S.of(context)?.profileBilanTitle ?? 'Mon aperçu financier',
                     style: GoogleFonts.montserrat(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -274,8 +274,8 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     hasProfile
-                        ? 'Revenus, prévoyance, patrimoine, dettes'
-                        : 'Complète ton profil pour voir tes chiffres',
+                        ? (S.of(context)?.profileBilanSubtitleComplete ?? 'Revenus, prévoyance, patrimoine, dettes')
+                        : (S.of(context)?.profileBilanSubtitleIncomplete ?? 'Complète ton profil pour voir tes chiffres'),
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: MintColors.white70,
@@ -648,10 +648,10 @@ class ProfileScreen extends StatelessWidget {
         Builder(builder: (context) {
           final slm = context.watch<SlmProvider>();
           return _buildFactFindSection(
-            title: 'IA on-device (SLM)',
+            title: S.of(context)?.profileAiSlmTitle ?? 'IA on-device (SLM)',
             status: slm.isEngineAvailable
-                ? 'Mod\u00e8le pr\u00eat'
-                : 'Mod\u00e8le non install\u00e9',
+                ? (S.of(context)?.profileAiSlmReady ?? 'Modèle prêt')
+                : (S.of(context)?.profileAiSlmNotInstalled ?? 'Modèle non installé'),
             isComplete: slm.isEngineAvailable,
             icon: Icons.smartphone,
             onTap: () => context.push('/profile/slm'),
@@ -666,7 +666,7 @@ class ProfileScreen extends StatelessWidget {
     final s = S.of(context);
     final count = docProvider.documentCount;
     final statusText = count > 0
-        ? '$count document(s)'
+        ? (s?.profileDocumentCount(count) ?? '$count document(s)')
         : (s?.documentsEmpty ?? 'Aucun document');
     return _buildFactFindSection(
       title: s?.profileDocuments ?? 'Mes documents',
@@ -797,9 +797,9 @@ class ProfileScreen extends StatelessWidget {
     if (!context.mounted) return;
 
     final message = success
-        ? 'Compte supprimé avec succès.'
+        ? (S.of(context)?.profileDeleteAccountSuccess ?? 'Compte supprimé avec succès.')
         : (authProvider.error ??
-            'Suppression impossible pour le moment. Réessaie plus tard.');
+            (S.of(context)?.profileDeleteAccountFailed ?? 'Suppression impossible pour le moment. Réessaie plus tard.'));
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
     if (success) {

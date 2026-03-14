@@ -4929,5 +4929,17 @@
   "languageSelectorTitle": "Langue / Sprache / Language",
   "realInterestSimulatorTitle": "Simulateur d'Intérêt Réel",
   "affordabilityMax33": "Max 33 %",
-  "affordabilityMin20": "Min 20 %"
+  "affordabilityMin20": "Min 20 %",
+  "profileDocumentCount": "{count} document(s)",
+  "@profileDocumentCount": {
+    "description": "Document count label in profile",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "profileDeleteAccountSuccess": "Compte supprimé avec succès.",
+  "profileDeleteAccountFailed": "Suppression impossible pour le moment. Réessaie plus tard."
 }
