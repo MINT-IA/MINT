@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'dart:math' as math;
 
@@ -65,8 +66,9 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Leasing coût caché opportunité investissement comparaison',
+      label: 'Leasing cout cache opportunite investissement comparaison',
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -76,19 +78,19 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildMonthlySlider(),
+                  _buildMonthlySlider(s),
                   const SizedBox(height: 16),
-                  _buildComparison(),
+                  _buildComparison(s),
                   const SizedBox(height: 16),
-                  _buildOpportunityCost(),
+                  _buildOpportunityCost(s),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -98,7 +100,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -114,7 +116,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Le vrai coût du leasing',
+                  s.leasingCostHeaderTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -128,12 +130,12 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
           Row(
             children: [
               _buildStatChip(
-                label: 'Véhicule : CHF ${_fmt(widget.vehiclePrice)}',
+                label: s.leasingCostVehicleChip(_fmt(widget.vehiclePrice)),
                 color: MintColors.textSecondary,
               ),
               const SizedBox(width: 8),
               _buildStatChip(
-                label: '${widget.leasingDurationMonths ~/ 12} ans',
+                label: s.leasingCostYearsChip((widget.leasingDurationMonths ~/ 12).toString()),
                 color: MintColors.info,
               ),
             ],
@@ -161,7 +163,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
     );
   }
 
-  Widget _buildMonthlySlider() {
+  Widget _buildMonthlySlider(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -169,7 +171,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Mensualité leasing',
+              s.leasingCostMonthlyLabel,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -183,7 +185,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                'CHF ${_fmt(_monthly)}/mois',
+                s.leasingCostMonthlyAmount(_fmt(_monthly)),
                 style: GoogleFonts.montserrat(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -205,24 +207,24 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
     );
   }
 
-  Widget _buildComparison() {
+  Widget _buildComparison(S s) {
     return Row(
       children: [
         Expanded(child: _buildScenarioCard(
-          emoji: '🔑',
-          label: 'Leasing',
-          subtitle: '${widget.leasingDurationMonths ~/ 12} ans de mensualités',
+          emoji: '\u{1F511}',
+          label: s.leasingCostLeasingLabel,
+          subtitle: s.leasingCostLeasingSubtitle((widget.leasingDurationMonths ~/ 12).toString()),
           value: 'CHF ${_fmt(_totalLeasing)}',
-          subValue: 'total payé',
+          subValue: s.leasingCostTotalPaid,
           color: MintColors.scoreCritique,
         )),
         const SizedBox(width: 12),
         Expanded(child: _buildScenarioCard(
-          emoji: '💸',
-          label: 'Achat cash',
-          subtitle: 'Valeur résiduelle ~45%',
+          emoji: '\u{1F4B8}',
+          label: s.leasingCostCashLabel,
+          subtitle: s.leasingCostCashSubtitle,
           value: 'CHF ${_fmt(widget.vehiclePrice * 0.55)}',
-          subValue: 'dépréciation réelle',
+          subValue: s.leasingCostDepreciation,
           color: MintColors.scoreAttention,
         )),
       ],
@@ -279,7 +281,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
     );
   }
 
-  Widget _buildOpportunityCost() {
+  Widget _buildOpportunityCost(S s) {
     final fv = _futureValue(widget.leasingDurationMonths);
 
     return Container(
@@ -297,7 +299,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
               const Text('📈', style: TextStyle(fontSize: 18)),
               const SizedBox(width: 10),
               Text(
-                'Le vrai coût caché',
+                s.leasingCostHiddenCostTitle,
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -308,8 +310,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
           ),
           const SizedBox(height: 10),
           Text(
-            'Si tu avais investi CHF ${_fmt(_monthly)}/mois sur ${widget.leasingDurationMonths ~/ 12} ans '
-            'à ${(widget.annualReturnRate * 100).toStringAsFixed(0)}%/an :',
+            s.leasingCostInvestmentHypothesis(_fmt(_monthly), (widget.leasingDurationMonths ~/ 12).toString(), (widget.annualReturnRate * 100).toStringAsFixed(0)),
             style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4),
           ),
           const SizedBox(height: 8),
@@ -317,7 +318,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Capital accumulé',
+                s.leasingCostAccumulatedCapital,
                 style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
               ),
               Text(
@@ -335,7 +336,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Au lieu du leasing',
+                s.leasingCostInsteadOfLeasing,
                 style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
               ),
               Text(
@@ -353,7 +354,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Coût d\'opportunité',
+                s.leasingCostOpportunityCostLabel,
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -372,7 +373,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
           ),
           const SizedBox(height: 4),
           Text(
-            'C\'est ce que ton leasing te coûte vraiment sur ${widget.leasingDurationMonths ~/ 12} ans.',
+            s.leasingCostRealCostNote((widget.leasingDurationMonths ~/ 12).toString()),
             style: GoogleFonts.inter(
               fontSize: 11,
               color: MintColors.textSecondary,
@@ -385,11 +386,9 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : CO art. 255 (leasing). '
-      'Rendement simulé à ${(widget.annualReturnRate * 100).toStringAsFixed(0)}% — ne garantit pas de rendement futur.',
+      s.leasingCostDisclaimer((widget.annualReturnRate * 100).toStringAsFixed(0)),
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,
