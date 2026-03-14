@@ -2376,6 +2376,7 @@
   "budgetExampleLeisure": "leisure",
   "budgetExampleSavings": "Savings",
   "budgetExampleProjects": "projects",
+  "budgetExample3a": "3a",
   "budgetChiffreChoc503020": "By saving CHF {monthly}/month, you accumulate CHF {total} in 10 years.",
   "@budgetChiffreChoc503020": {
     "placeholders": {
@@ -5313,5 +5314,155 @@
   "renteCapitalLabelEpl": "Retrait EPL pour achat immobilier",
   "renteCapitalEplHint": "Montant retiré (min 20’000)",
   "renteCapitalEplTooltip": "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20’000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
-  "renteCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20’000)"
+  "renteCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20’000)",
+  "openBankingHubTitle": "OPEN BANKING",
+  "openBankingHubFinmaTitle": "Feature in preparation",
+  "openBankingHubFinmaBody": "FINMA regulatory consultation in progress. The data displayed are demonstration examples.",
+  "openBankingHubDemoMode": "DEMO MODE",
+  "openBankingHubSubtitle": "Connect your bank accounts",
+  "openBankingHubSectionAccounts": "CONNECTED ACCOUNTS",
+  "openBankingHubSectionOverview": "FINANCIAL OVERVIEW",
+  "openBankingHubSectionNavigation": "NAVIGATION",
+  "openBankingHubViewTransactions": "View transactions",
+  "openBankingHubTransactionsSubtitle": "Detailed history by category",
+  "openBankingHubManageConsents": "Manage consents",
+  "openBankingHubConsentsSubtitle": "nLPD rights, revocation, scopes",
+  "openBankingHubFinmaTooltip": "Available after FINMA consultation",
+  "openBankingHubAddBank": "Add a bank",
+  "openBankingHubTotalBalance": "Total balance",
+  "openBankingHubAccountsConnected": "3 connected accounts",
+  "openBankingHubIncome": "Income",
+  "openBankingHubExpenses": "Expenses",
+  "openBankingHubNetSavings": "Net savings",
+  "openBankingHubTopExpenses": "Top 3 expenses",
+  "openBankingHubPoweredByBlink": "Powered by bLink (SIX)",
+  "openBankingHubDisclaimer": "This feature is under development. The data displayed are examples. Activation of the Open Banking service is subject to prior regulatory consultation.",
+  "openBankingHubSyncMinutesAgo": "{minutes} min ago",
+  "openBankingHubSyncHoursAgo": "{hours}h ago",
+  "openBankingHubSyncDaysAgo": "{days}d ago",
+  "openBankingHubCatFood": "Food",
+  "openBankingHubCatTransport": "Transport",
+  "openBankingHubCatHousing": "Housing",
+  "openBankingHubCatTelecom": "Telecom",
+  "openBankingHubCatInsurance": "Insurance",
+  "openBankingHubCatEnergy": "Energy",
+  "openBankingHubCatHealth": "Health",
+  "openBankingHubCatLeisure": "Leisure",
+  "openBankingHubCatTaxes": "Taxes",
+  "openBankingHubCatSavings": "Savings",
+  "openBankingHubCatIncome": "Income",
+  "openBankingHubCatOther": "Other",
+  "@openBankingHubSyncMinutesAgo": {
+    "description": "Time since last sync in minutes",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "@openBankingHubSyncHoursAgo": {
+    "description": "Time since last sync in hours",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "@openBankingHubSyncDaysAgo": {
+    "description": "Time since last sync in days",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "concubinageTitle": "Marriage vs Cohabitation",
+  "concubinageTabComparateur": "Comparator",
+  "concubinageTabChecklist": "Checklist",
+  "concubinageRevenu1": "Income 1",
+  "concubinageRevenu2": "Income 2",
+  "concubinagePatrimoineTotal": "Total assets",
+  "concubinageCanton": "Canton",
+  "concubinageCriteriaImpots": "Taxes",
+  "concubinagePenaliteFiscale": "Tax penalty",
+  "concubinageBonusFiscal": "Tax bonus",
+  "concubinageAvantageux": "Advantageous",
+  "concubinageDesavantageux": "Disadvantageous",
+  "concubinageCriteriaHeritage": "Inheritance",
+  "concubinageExonereCc462": "Exempt (CC art. 462)",
+  "concubinageImpotCantonal": "Cantonal tax",
+  "concubinageCriteriaProtectionDeces": "Death protection",
+  "concubinageAvsSurvivor": "AVS + LPP survivor",
+  "concubinageAucuneRenteAuto": "No automatic pension",
+  "concubinageCriteriaFlexibilite": "Flexibility",
+  "concubinageProcedureJudiciaire": "Legal proceedings",
+  "concubinageSeparationSimplifiee": "Simplified separation",
+  "concubinageCriteriaPensionAlim": "Alimony",
+  "concubinageProtegeeParJuge": "Protected by the judge",
+  "concubinageAccordPrealable": "Prior agreement",
+  "concubinageAvantages": "advantages",
+  "concubinageMariage": "Marriage",
+  "concubinageConcubinage": "Cohabitation",
+  "concubinageDetailFiscal": "TAX DETAIL",
+  "concubinageImpots2Celibataires": "Tax for 2 singles",
+  "concubinageImpotsMaries": "Married tax",
+  "concubinagePenaliteMariage": "Marriage penalty",
+  "concubinageBonusMariage": "Marriage bonus",
+  "concubinageImpotSuccession": "INHERITANCE TAX",
+  "concubinagePatrimoineTransmis": "Transferred assets",
+  "concubinageMarieE": "Married",
+  "concubinageExonereZero": "CHF 0 (exempt)",
+  "concubinageConcubinTaux": "Partner (~{taux}%)",
+  "@concubinageConcubinTaux": {
+    "description": "Concubin label with tax rate percentage",
+    "placeholders": {
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
+  "concubinageWarningSuccession": "In cohabitation, your partner would pay {impot} in inheritance tax on assets of {patrimoine}. If married, they would be fully exempt.",
+  "@concubinageWarningSuccession": {
+    "description": "Warning about inheritance tax in cohabitation",
+    "placeholders": {
+      "impot": {
+        "type": "String"
+      },
+      "patrimoine": {
+        "type": "String"
+      }
+    }
+  },
+  "concubinageNeutralTitle": "No option is universally better",
+  "concubinageNeutralBody": "The choice between marriage and cohabitation depends on your situation: income, assets, children, canton, life plans. Marriage offers more automatic legal protections, cohabitation more flexibility. A specialist can help you see more clearly.",
+  "concubinageChecklistIntro": "In cohabitation, nothing is automatic. Here are the essential protections to put in place to protect your partner.",
+  "concubinageProtectionsEnPlace": "{count}/{total} protections in place",
+  "@concubinageProtectionsEnPlace": {
+    "description": "Progress label for checklist",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "concubinageChecklistTitle1": "Write a will",
+  "concubinageChecklistDesc1": "Without a will, your partner inherits nothing — everything goes to your parents or siblings. A handwritten will (written by hand, dated, signed) is sufficient. You can bequeath the disposable portion to your partner.",
+  "concubinageChecklistTitle2": "LPP beneficiary clause",
+  "concubinageChecklistDesc2": "Contact your pension fund to register your partner as beneficiary. Without this clause, the LPP death capital does not go to them. Most funds accept the cohabiting partner under conditions (shared household, etc.).",
+  "concubinageChecklistTitle3": "Cohabitation agreement",
+  "concubinageChecklistDesc3": "A written contract that regulates the sharing of expenses, property ownership, and what happens in case of separation. Not mandatory, but strongly recommended — especially if you buy property together.",
+  "concubinageChecklistTitle4": "Cross life insurance",
+  "concubinageChecklistDesc4": "A life insurance where each is beneficiary of the other compensates for the absence of AVS/LPP survivor pension. Compare offers — premiums depend on age and insured capital.",
+  "concubinageChecklistTitle5": "Mandate in case of incapacity",
+  "concubinageChecklistDesc5": "If you become unable to make decisions (accident, illness), your partner has no power of representation. A mandate in case of incapacity (CC art. 360 ff) gives them this right.",
+  "concubinageChecklistTitle6": "Advance directives",
+  "concubinageChecklistDesc6": "A document that specifies your medical wishes in case of incapacity. You can designate your partner as trusted person for medical decisions (CC art. 370 ff).",
+  "concubinageChecklistTitle7": "Joint account for shared expenses",
+  "concubinageChecklistDesc7": "A joint account simplifies the management of shared expenses (rent, groceries, bills). Clearly define each person's contribution. In case of separation, the balance is split 50/50 unless otherwise agreed.",
+  "concubinageChecklistTitle8": "Joint or individual lease",
+  "concubinageChecklistDesc8": "If you are on the lease with your partner, you are jointly liable. In case of separation, both must give notice. If only one is the leaseholder, the other has no right to the housing.",
+  "concubinageDisclaimer": "Simplified information for educational purposes — does not constitute legal or tax advice. Rules depend on the canton, municipality and your personal situation. Consult a legal specialist for personalised advice."
 }

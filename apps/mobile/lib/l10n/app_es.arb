@@ -2376,6 +2376,7 @@
   "budgetExampleLeisure": "ocio",
   "budgetExampleSavings": "Ahorro",
   "budgetExampleProjects": "proyectos",
+  "budgetExample3a": "3a",
   "budgetChiffreChoc503020": "Ahorrando CHF {monthly}/mes, acumulas CHF {total} en 10 años.",
   "@budgetChiffreChoc503020": {
     "placeholders": {
@@ -5292,5 +5293,176 @@
   "renteCapitalLabelEpl": "Retrait EPL pour achat immobilier",
   "renteCapitalEplHint": "Montant retiré (min 20’000)",
   "renteCapitalEplTooltip": "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20’000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
-  "renteCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20’000)"
+  "renteCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20’000)",
+  "exploreEventFirstJob": "Primer empleo",
+  "exploreEventFirstJobSub": "AVS, LPP, impuestos : entenderlo todo",
+  "exploreEventJobChange": "Cambio de puesto",
+  "exploreEventJobChangeSub": "Comparar LPP y salario",
+  "exploreEventSelfEmployment": "Hacerse independiente",
+  "exploreEventSelfEmploymentSub": "AVS, 3a, LPP voluntario",
+  "exploreEventJobLoss": "Pérdida de empleo",
+  "exploreEventJobLossSub": "Desempleo, LPP, presupuesto",
+  "exploreEventRetirement": "Jubilación",
+  "exploreEventRetirementSub": "AVS, LPP, retiro 3a",
+  "exploreEventHousingPurchase": "Compra inmobiliaria",
+  "exploreEventHousingPurchaseSub": "Fondos propios e hipoteca",
+  "exploreEventDisability": "Invalidez",
+  "exploreEventDisabilitySub": "Brecha de previsión",
+  "exploreEventCantonMove": "Mudanza cantonal",
+  "exploreEventCantonMoveSub": "Comparar la fiscalidad",
+  "exploreEventDeathRelative": "Fallecimiento de un familiar",
+  "exploreEventDeathRelativeSub": "Sucesión y trámites",
+  "exploreEventDebtCrisis": "Crisis de deuda",
+  "exploreEventDebtCrisisSub": "Diagnóstico y soluciones",
+  "exploreCoachSuggestionLabel": "Sugerencia del coach",
+  "openBankingHubTitle": "OPEN BANKING",
+  "openBankingHubFinmaTitle": "Funcionalidad en preparación",
+  "openBankingHubFinmaBody": "Consulta regulatoria FINMA en curso. Los datos mostrados son ejemplos de demostración.",
+  "openBankingHubDemoMode": "MODO DEMO",
+  "openBankingHubSubtitle": "Conecta tus cuentas bancarias",
+  "openBankingHubSectionAccounts": "CUENTAS CONECTADAS",
+  "openBankingHubSectionOverview": "RESUMEN FINANCIERO",
+  "openBankingHubSectionNavigation": "NAVEGACIÓN",
+  "openBankingHubViewTransactions": "Ver transacciones",
+  "openBankingHubTransactionsSubtitle": "Historial detallado por categoría",
+  "openBankingHubManageConsents": "Gestionar consentimientos",
+  "openBankingHubConsentsSubtitle": "Derechos nLPD, revocación, scopes",
+  "openBankingHubFinmaTooltip": "Disponible tras consulta FINMA",
+  "openBankingHubAddBank": "Añadir un banco",
+  "openBankingHubTotalBalance": "Saldo total",
+  "openBankingHubAccountsConnected": "3 cuentas conectadas",
+  "openBankingHubIncome": "Ingresos",
+  "openBankingHubExpenses": "Gastos",
+  "openBankingHubNetSavings": "Ahorro neto",
+  "openBankingHubTopExpenses": "Top 3 gastos",
+  "openBankingHubPoweredByBlink": "Impulsado por bLink (SIX)",
+  "openBankingHubDisclaimer": "Esta funcionalidad está en desarrollo. Los datos mostrados son ejemplos. La activación del servicio Open Banking está sujeta a una consulta regulatoria previa.",
+  "openBankingHubSyncMinutesAgo": "Hace {minutes} min",
+  "openBankingHubSyncHoursAgo": "Hace {hours} h",
+  "openBankingHubSyncDaysAgo": "Hace {days} d",
+  "openBankingHubCatFood": "Alimentación",
+  "openBankingHubCatTransport": "Transporte",
+  "openBankingHubCatHousing": "Vivienda",
+  "openBankingHubCatTelecom": "Telecomunicaciones",
+  "openBankingHubCatInsurance": "Seguros",
+  "openBankingHubCatEnergy": "Energía",
+  "openBankingHubCatHealth": "Salud",
+  "openBankingHubCatLeisure": "Ocio",
+  "openBankingHubCatTaxes": "Impuestos",
+  "openBankingHubCatSavings": "Ahorro",
+  "openBankingHubCatIncome": "Ingresos",
+  "openBankingHubCatOther": "Varios",
+  "@openBankingHubSyncMinutesAgo": {
+    "description": "Time since last sync in minutes",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "@openBankingHubSyncHoursAgo": {
+    "description": "Time since last sync in hours",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "@openBankingHubSyncDaysAgo": {
+    "description": "Time since last sync in days",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "concubinageTitle": "Matrimonio vs Concubinato",
+  "concubinageTabComparateur": "Comparador",
+  "concubinageTabChecklist": "Checklist",
+  "concubinageRevenu1": "Ingreso 1",
+  "concubinageRevenu2": "Ingreso 2",
+  "concubinagePatrimoineTotal": "Patrimonio total",
+  "concubinageCanton": "Cantón",
+  "concubinageCriteriaImpots": "Impuestos",
+  "concubinagePenaliteFiscale": "Penalización fiscal",
+  "concubinageBonusFiscal": "Bonificación fiscal",
+  "concubinageAvantageux": "Ventajoso",
+  "concubinageDesavantageux": "Desventajoso",
+  "concubinageCriteriaHeritage": "Herencia",
+  "concubinageExonereCc462": "Exento (CC art. 462)",
+  "concubinageImpotCantonal": "Impuesto cantonal",
+  "concubinageCriteriaProtectionDeces": "Protección por fallecimiento",
+  "concubinageAvsSurvivor": "AVS + LPP sobreviviente",
+  "concubinageAucuneRenteAuto": "Ninguna pensión automática",
+  "concubinageCriteriaFlexibilite": "Flexibilidad",
+  "concubinageProcedureJudiciaire": "Procedimiento judicial",
+  "concubinageSeparationSimplifiee": "Separación simplificada",
+  "concubinageCriteriaPensionAlim": "Pensión alim.",
+  "concubinageProtegeeParJuge": "Protegida por el juez",
+  "concubinageAccordPrealable": "Acuerdo previo",
+  "concubinageAvantages": "ventajas",
+  "concubinageMariage": "Matrimonio",
+  "concubinageConcubinage": "Concubinato",
+  "concubinageDetailFiscal": "DETALLE FISCAL",
+  "concubinageImpots2Celibataires": "Impuestos 2 solteros",
+  "concubinageImpotsMaries": "Impuestos casados",
+  "concubinagePenaliteMariage": "Penalización matrimonio",
+  "concubinageBonusMariage": "Bonificación matrimonio",
+  "concubinageImpotSuccession": "IMPUESTO DE SUCESIÓN",
+  "concubinagePatrimoineTransmis": "Patrimonio transmitido",
+  "concubinageMarieE": "Casado/a",
+  "concubinageExonereZero": "CHF 0 (exento)",
+  "concubinageConcubinTaux": "Concubino/a (~{taux} %)",
+  "@concubinageConcubinTaux": {
+    "description": "Concubin label with tax rate percentage",
+    "placeholders": {
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
+  "concubinageWarningSuccession": "En concubinato, tu pareja pagaría {impot} de impuesto sucesorio sobre un patrimonio de {patrimoine}. Casado/a, estaría totalmente exento/a.",
+  "@concubinageWarningSuccession": {
+    "description": "Warning about inheritance tax in cohabitation",
+    "placeholders": {
+      "impot": {
+        "type": "String"
+      },
+      "patrimoine": {
+        "type": "String"
+      }
+    }
+  },
+  "concubinageNeutralTitle": "Ninguna opción es universalmente mejor",
+  "concubinageNeutralBody": "La elección entre matrimonio y concubinato depende de tu situación: ingresos, patrimonio, hijos, cantón, proyecto de vida. El matrimonio ofrece más protecciones legales automáticas, el concubinato más flexibilidad. Un especialista puede ayudarte a ver más claro.",
+  "concubinageChecklistIntro": "En concubinato, nada es automático. Aquí están las protecciones esenciales a implementar para proteger a tu pareja.",
+  "concubinageProtectionsEnPlace": "{count}/{total} protecciones implementadas",
+  "@concubinageProtectionsEnPlace": {
+    "description": "Progress label for checklist",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "concubinageChecklistTitle1": "Redactar un testamento",
+  "concubinageChecklistDesc1": "Sin testamento, tu pareja no hereda nada — todo va a tus padres o hermanos. Un testamento ológrafo (escrito a mano, fechado, firmado) es suficiente. Puedes legar la porción disponible a tu pareja.",
+  "concubinageChecklistTitle2": "Cláusula beneficiaria LPP",
+  "concubinageChecklistDesc2": "Contacta tu caja de pensiones para inscribir a tu pareja como beneficiario/a. Sin esta cláusula, el capital de fallecimiento LPP no le corresponde. La mayoría de las cajas aceptan al concubino bajo condiciones (hogar común, etc.).",
+  "concubinageChecklistTitle3": "Convenio de concubinato",
+  "concubinageChecklistDesc3": "Un contrato escrito que regula el reparto de gastos, la propiedad de bienes, y lo que ocurre en caso de separación. No obligatorio, pero muy recomendado — especialmente si compráis un inmueble juntos.",
+  "concubinageChecklistTitle4": "Seguro de vida cruzado",
+  "concubinageChecklistDesc4": "Un seguro de vida donde cada uno es beneficiario del otro permite compensar la ausencia de pensión AVS/LPP de sobreviviente. Compara las ofertas — las primas dependen de la edad y del capital asegurado.",
+  "concubinageChecklistTitle5": "Mandato por incapacidad",
+  "concubinageChecklistDesc5": "Si pierdes la capacidad de discernimiento (accidente, enfermedad), tu pareja no tiene poder de representación. Un mandato por incapacidad (CC art. 360 ss) le otorga este derecho.",
+  "concubinageChecklistTitle6": "Directivas anticipadas",
+  "concubinageChecklistDesc6": "Un documento que precisa tus voluntades médicas en caso de incapacidad. Puedes designar a tu pareja como persona de confianza para decisiones médicas (CC art. 370 ss).",
+  "concubinageChecklistTitle7": "Cuenta conjunta para gastos comunes",
+  "concubinageChecklistDesc7": "Una cuenta conjunta simplifica la gestión de gastos compartidos (alquiler, compras, facturas). Define claramente la contribución de cada uno. En caso de separación, el saldo se reparte 50/50 salvo acuerdo contrario.",
+  "concubinageChecklistTitle8": "Contrato de alquiler conjunto o individual",
+  "concubinageChecklistDesc8": "Si estás en el contrato con tu pareja, sois solidariamente responsables. En caso de separación, ambos deben dar aviso. Si solo uno es titular, el otro no tiene derecho sobre la vivienda.",
+  "concubinageDisclaimer": "Información simplificada con fines educativos — no constituye asesoramiento jurídico ni fiscal. Las reglas dependen del cantón, del municipio y de tu situación personal. Consulta a un especialista jurídico para un asesoramiento personalizado."
 }

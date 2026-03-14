@@ -2376,6 +2376,7 @@
   "budgetExampleLeisure": "Freizeit",
   "budgetExampleSavings": "Sparen",
   "budgetExampleProjects": "Projekte",
+  "budgetExample3a": "3a",
   "budgetChiffreChoc503020": "Mit CHF {monthly}/Monat sparst du CHF {total} in 10 Jahren.",
   "@budgetChiffreChoc503020": {
     "placeholders": {
@@ -5292,5 +5293,176 @@
   "renteCapitalLabelEpl": "Retrait EPL pour achat immobilier",
   "renteCapitalEplHint": "Montant retiré (min 20’000)",
   "renteCapitalEplTooltip": "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20’000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
-  "renteCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20’000)"
+  "renteCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20’000)",
+  "exploreEventFirstJob": "Erster Job",
+  "exploreEventFirstJobSub": "AHV, BVG, Steuern : alles verstehen",
+  "exploreEventJobChange": "Stellenwechsel",
+  "exploreEventJobChangeSub": "BVG und Gehalt vergleichen",
+  "exploreEventSelfEmployment": "Selbstständig werden",
+  "exploreEventSelfEmploymentSub": "AHV, 3a, freiwillige BVG",
+  "exploreEventJobLoss": "Arbeitsplatzverlust",
+  "exploreEventJobLossSub": "Arbeitslosigkeit, BVG, Budget",
+  "exploreEventRetirement": "Pensionierung",
+  "exploreEventRetirementSub": "AHV, BVG, 3a-Bezug",
+  "exploreEventHousingPurchase": "Immobilienkauf",
+  "exploreEventHousingPurchaseSub": "Eigenmittel und Hypothek",
+  "exploreEventDisability": "Invalidität",
+  "exploreEventDisabilitySub": "Vorsorgelücke",
+  "exploreEventCantonMove": "Kantonaler Umzug",
+  "exploreEventCantonMoveSub": "Besteuerung vergleichen",
+  "exploreEventDeathRelative": "Tod eines Angehörigen",
+  "exploreEventDeathRelativeSub": "Erbschaft und Verfahren",
+  "exploreEventDebtCrisis": "Schuldenkrise",
+  "exploreEventDebtCrisisSub": "Diagnose und Lösungen",
+  "exploreCoachSuggestionLabel": "Coach-Vorschlag",
+  "openBankingHubTitle": "OPEN BANKING",
+  "openBankingHubFinmaTitle": "Funktion in Vorbereitung",
+  "openBankingHubFinmaBody": "FINMA-Regulierungskonsultation im Gange. Die angezeigten Daten sind Demonstrationsbeispiele.",
+  "openBankingHubDemoMode": "DEMO-MODUS",
+  "openBankingHubSubtitle": "Verbinde deine Bankkonten",
+  "openBankingHubSectionAccounts": "VERBUNDENE KONTEN",
+  "openBankingHubSectionOverview": "FINANZÜBERSICHT",
+  "openBankingHubSectionNavigation": "NAVIGATION",
+  "openBankingHubViewTransactions": "Transaktionen anzeigen",
+  "openBankingHubTransactionsSubtitle": "Detaillierter Verlauf nach Kategorie",
+  "openBankingHubManageConsents": "Einwilligungen verwalten",
+  "openBankingHubConsentsSubtitle": "nDSG-Rechte, Widerruf, Scopes",
+  "openBankingHubFinmaTooltip": "Verfügbar nach FINMA-Konsultation",
+  "openBankingHubAddBank": "Bank hinzufügen",
+  "openBankingHubTotalBalance": "Gesamtsaldo",
+  "openBankingHubAccountsConnected": "3 verbundene Konten",
+  "openBankingHubIncome": "Einnahmen",
+  "openBankingHubExpenses": "Ausgaben",
+  "openBankingHubNetSavings": "Nettoersparnisse",
+  "openBankingHubTopExpenses": "Top 3 Ausgaben",
+  "openBankingHubPoweredByBlink": "Unterstützt von bLink (SIX)",
+  "openBankingHubDisclaimer": "Diese Funktion befindet sich in Entwicklung. Die angezeigten Daten sind Beispiele. Die Aktivierung des Open-Banking-Dienstes unterliegt einer vorherigen regulatorischen Konsultation.",
+  "openBankingHubSyncMinutesAgo": "Vor {minutes} Min.",
+  "openBankingHubSyncHoursAgo": "Vor {hours} Std.",
+  "openBankingHubSyncDaysAgo": "Vor {days} T.",
+  "openBankingHubCatFood": "Lebensmittel",
+  "openBankingHubCatTransport": "Transport",
+  "openBankingHubCatHousing": "Wohnen",
+  "openBankingHubCatTelecom": "Telekommunikation",
+  "openBankingHubCatInsurance": "Versicherungen",
+  "openBankingHubCatEnergy": "Energie",
+  "openBankingHubCatHealth": "Gesundheit",
+  "openBankingHubCatLeisure": "Freizeit",
+  "openBankingHubCatTaxes": "Steuern",
+  "openBankingHubCatSavings": "Sparen",
+  "openBankingHubCatIncome": "Einkommen",
+  "openBankingHubCatOther": "Sonstiges",
+  "@openBankingHubSyncMinutesAgo": {
+    "description": "Time since last sync in minutes",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "@openBankingHubSyncHoursAgo": {
+    "description": "Time since last sync in hours",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "@openBankingHubSyncDaysAgo": {
+    "description": "Time since last sync in days",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "concubinageTitle": "Ehe vs Konkubinat",
+  "concubinageTabComparateur": "Vergleich",
+  "concubinageTabChecklist": "Checkliste",
+  "concubinageRevenu1": "Einkommen 1",
+  "concubinageRevenu2": "Einkommen 2",
+  "concubinagePatrimoineTotal": "Gesamtvermögen",
+  "concubinageCanton": "Kanton",
+  "concubinageCriteriaImpots": "Steuern",
+  "concubinagePenaliteFiscale": "Steuerstrafe",
+  "concubinageBonusFiscal": "Steuerbonus",
+  "concubinageAvantageux": "Vorteilhaft",
+  "concubinageDesavantageux": "Nachteilig",
+  "concubinageCriteriaHeritage": "Erbschaft",
+  "concubinageExonereCc462": "Befreit (ZGB Art. 462)",
+  "concubinageImpotCantonal": "Kantonssteuer",
+  "concubinageCriteriaProtectionDeces": "Todesfallschutz",
+  "concubinageAvsSurvivor": "AHV + BVG Hinterbliebene",
+  "concubinageAucuneRenteAuto": "Keine automatische Rente",
+  "concubinageCriteriaFlexibilite": "Flexibilität",
+  "concubinageProcedureJudiciaire": "Gerichtsverfahren",
+  "concubinageSeparationSimplifiee": "Vereinfachte Trennung",
+  "concubinageCriteriaPensionAlim": "Unterhalt",
+  "concubinageProtegeeParJuge": "Gerichtlich geschützt",
+  "concubinageAccordPrealable": "Vorherige Vereinbarung",
+  "concubinageAvantages": "Vorteile",
+  "concubinageMariage": "Ehe",
+  "concubinageConcubinage": "Konkubinat",
+  "concubinageDetailFiscal": "STEUERDETAILS",
+  "concubinageImpots2Celibataires": "Steuern 2 Ledige",
+  "concubinageImpotsMaries": "Steuern Verheiratete",
+  "concubinagePenaliteMariage": "Heiratsstrafe",
+  "concubinageBonusMariage": "Heiratsbonus",
+  "concubinageImpotSuccession": "ERBSCHAFTSSTEUER",
+  "concubinagePatrimoineTransmis": "Übertragenes Vermögen",
+  "concubinageMarieE": "Verheiratet",
+  "concubinageExonereZero": "CHF 0 (befreit)",
+  "concubinageConcubinTaux": "Konkubinatspartner (~{taux} %)",
+  "@concubinageConcubinTaux": {
+    "description": "Concubin label with tax rate percentage",
+    "placeholders": {
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
+  "concubinageWarningSuccession": "Im Konkubinat würde dein Partner {impot} Erbschaftssteuer auf ein Vermögen von {patrimoine} zahlen. Verheiratet wäre er/sie vollständig befreit.",
+  "@concubinageWarningSuccession": {
+    "description": "Warning about inheritance tax in cohabitation",
+    "placeholders": {
+      "impot": {
+        "type": "String"
+      },
+      "patrimoine": {
+        "type": "String"
+      }
+    }
+  },
+  "concubinageNeutralTitle": "Keine Option ist universell besser",
+  "concubinageNeutralBody": "Die Wahl zwischen Ehe und Konkubinat hängt von deiner Situation ab: Einkommen, Vermögen, Kinder, Kanton, Lebenspläne. Die Ehe bietet mehr automatischen Rechtsschutz, das Konkubinat mehr Flexibilität. Ein Spezialist kann dir helfen, klarer zu sehen.",
+  "concubinageChecklistIntro": "Im Konkubinat ist nichts automatisch. Hier sind die wesentlichen Schutzmassnahmen, die du für deinen Partner treffen solltest.",
+  "concubinageProtectionsEnPlace": "{count}/{total} Schutzmassnahmen umgesetzt",
+  "@concubinageProtectionsEnPlace": {
+    "description": "Progress label for checklist",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "concubinageChecklistTitle1": "Testament verfassen",
+  "concubinageChecklistDesc1": "Ohne Testament erbt dein Partner nichts — alles geht an deine Eltern oder Geschwister. Ein handschriftliches Testament (handgeschrieben, datiert, unterschrieben) genügt. Du kannst die verfügbare Quote deinem Partner vermachen.",
+  "concubinageChecklistTitle2": "BVG-Begünstigtenklausel",
+  "concubinageChecklistDesc2": "Kontaktiere deine Pensionskasse, um deinen Partner als Begünstigten einzutragen. Ohne diese Klausel erhält er/sie das BVG-Todesfallkapital nicht. Die meisten Kassen akzeptieren den Konkubinatspartner unter Bedingungen (gemeinsamer Haushalt etc.).",
+  "concubinageChecklistTitle3": "Konkubinatsvertrag",
+  "concubinageChecklistDesc3": "Ein schriftlicher Vertrag, der die Kostenteilung, das Eigentum und die Regelung bei Trennung festlegt. Nicht obligatorisch, aber dringend empfohlen — besonders wenn ihr gemeinsam eine Immobilie kauft.",
+  "concubinageChecklistTitle4": "Überkreuz-Lebensversicherung",
+  "concubinageChecklistDesc4": "Eine Lebensversicherung, bei der jeder Begünstigter des anderen ist, kompensiert das Fehlen der AHV/BVG-Hinterlassenenrente. Vergleiche die Angebote — die Prämien hängen vom Alter und der Versicherungssumme ab.",
+  "concubinageChecklistTitle5": "Vorsorgeauftrag",
+  "concubinageChecklistDesc5": "Wenn du urteilsunfähig wirst (Unfall, Krankheit), hat dein Partner kein Vertretungsrecht. Ein Vorsorgeauftrag (ZGB Art. 360 ff.) gibt ihm dieses Recht.",
+  "concubinageChecklistTitle6": "Patientenverfügung",
+  "concubinageChecklistDesc6": "Ein Dokument, das deine medizinischen Wünsche bei Urteilsunfähigkeit festlegt. Du kannst deinen Partner als Vertrauensperson für medizinische Entscheidungen bezeichnen (ZGB Art. 370 ff.).",
+  "concubinageChecklistTitle7": "Gemeinschaftskonto für gemeinsame Ausgaben",
+  "concubinageChecklistDesc7": "Ein Gemeinschaftskonto vereinfacht die Verwaltung gemeinsamer Ausgaben (Miete, Einkäufe, Rechnungen). Definiert klar den Beitrag jedes Partners. Bei Trennung wird das Guthaben 50/50 geteilt, sofern nicht anders vereinbart.",
+  "concubinageChecklistTitle8": "Gemeinsamer oder individueller Mietvertrag",
+  "concubinageChecklistDesc8": "Wenn du mit deinem Partner im Mietvertrag stehst, seid ihr solidarisch haftbar. Bei Trennung müssen beide kündigen. Ist nur einer Mieter, hat der andere kein Recht auf die Wohnung.",
+  "concubinageDisclaimer": "Vereinfachte Informationen zu Bildungszwecken — stellt keine Rechts- oder Steuerberatung dar. Die Regeln hängen vom Kanton, der Gemeinde und deiner persönlichen Situation ab. Konsultiere einen Rechtsexperten für eine persönliche Beratung."
 }
