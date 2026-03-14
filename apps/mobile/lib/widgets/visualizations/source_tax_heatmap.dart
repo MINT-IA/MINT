@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -160,9 +161,9 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
-      label:
-          'Carte thermique des taux d\'imposition à la source par canton suisse',
+      label: s.sourceTaxSemanticsLabel,
       child: LayoutBuilder(
         builder: (context, constraints) {
           return Container(
@@ -200,6 +201,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
   }
 
   Widget _buildHeader() {
+    final s = S.of(context)!;
     return Row(
       children: [
         Container(
@@ -221,7 +223,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Taux d\'imposition à la source',
+                s.sourceTaxTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -229,7 +231,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
                 ),
               ),
               Text(
-                '26 cantons  ·  Célibataire, CHF 80\'000',
+                s.sourceTaxSubtitle,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textSecondary,
@@ -330,6 +332,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
   }
 
   Widget _buildLegendBar() {
+    final s = S.of(context)!;
     return Column(
       children: [
         Container(
@@ -358,7 +361,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
               ),
             ),
             Text(
-              'Taux moyen',
+              s.sourceTaxAverageRate,
               style: GoogleFonts.inter(
                 fontSize: 10,
                 color: MintColors.textMuted,
@@ -426,7 +429,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
                   ),
                 ),
                 Text(
-                  'Taux indicatif d\'imposition à la source',
+                  S.of(context)!.sourceTaxIndicativeRate,
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: MintColors.textSecondary,

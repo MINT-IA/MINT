@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -32,7 +33,11 @@ class LifeEventSuggestion {
 }
 
 /// Generates contextual life event suggestions based on profile.
+///
+/// When [context] is provided, strings are resolved via AppLocalizations.
+/// When omitted (unit tests), French fallback strings are used.
 List<LifeEventSuggestion> buildLifeEventSuggestions({
+  BuildContext? context,
   required int age,
   required String civilStatus,
   required int childrenCount,
@@ -40,14 +45,15 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   required double monthlyNetIncome,
   required String canton,
 }) {
+  final s = context != null ? S.of(context)! : null;
   final suggestions = <LifeEventSuggestion>[];
 
   // ── Family ─────────────────────────────────────────────
 
   if (civilStatus == 'single' || civilStatus == 'concubinage') {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Mariage',
-      reason: 'Découvre l\'impact fiscal et sur la prévoyance',
+    suggestions.add(LifeEventSuggestion(
+      title: s?.lifeEventMarriage ?? 'Mariage',
+      reason: s?.lifeEventMarriageReason ?? 'Découvre l\u2019impact fiscal et patrimonial du mariage.',
       icon: Icons.favorite_outline,
       route: '/mariage',
       color: MintColors.error,
@@ -55,9 +61,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   }
 
   if (civilStatus == 'concubinage') {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Concubinage',
-      reason: 'Attention : aucune protection légale automatique',
+    suggestions.add(LifeEventSuggestion(
+      title: s?.lifeEventConcubinage ?? 'Concubinage',
+      reason: s?.lifeEventConcubinageReason ?? 'Protège ton couple\u00a0: droits, risques et solutions.',
       icon: Icons.people_outline,
       route: '/concubinage',
       color: MintColors.warning,
@@ -65,9 +71,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   }
 
   if (civilStatus == 'married' && childrenCount == 0) {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Naissance',
-      reason: 'Simule l\'impact financier d\'un enfant',
+    suggestions.add(LifeEventSuggestion(
+      title: s?.lifeEventBirth ?? 'Naissance',
+      reason: s?.lifeEventBirthReason ?? 'Anticipe l\u2019impact financier d\u2019un enfant.',
       icon: Icons.child_care,
       route: '/naissance',
       color: MintColors.info,
@@ -77,9 +83,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   // ── Succession / Donation (age-driven) ─────────────────
 
   if (age >= 50 && childrenCount > 0) {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Planification successorale',
-      reason: 'Réserves héréditaires et quotité disponible (CC art. 470)',
+    suggestions.add(LifeEventSuggestion(
+      title: s?.lifeEventSuccession ?? 'Planification successorale',
+      reason: s?.lifeEventSuccessionReason ?? 'Optimise la transmission de ton patrimoine.',
       icon: Icons.account_balance_outlined,
       route: '/life-event/succession',
       color: MintColors.primary,
@@ -87,9 +93,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   }
 
   if (age >= 55 && monthlyNetIncome * 12 > 100000) {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Donation entre vifs',
-      reason: 'Anticipe ta succession et optimise la fiscalité',
+    suggestions.add(LifeEventSuggestion(
+      title: s?.lifeEventDonation ?? 'Donation',
+      reason: s?.lifeEventDonationReason ?? 'Explore les avantages d\u2019une donation de ton vivant.',
       icon: Icons.card_giftcard,
       route: '/life-event/donation',
       color: MintColors.info,
@@ -99,9 +105,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   // ── Professional ───────────────────────────────────────
 
   if (age <= 28) {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Premier emploi',
-      reason: 'Pose les bases : AVS, LPP, 3a et budget',
+    suggestions.add(LifeEventSuggestion(
+      title: s?.lifeEventFirstJob ?? 'Premier emploi',
+      reason: s?.lifeEventFirstJobReason ?? 'Les bons réflexes financiers dès le départ.',
       icon: Icons.school_outlined,
       route: '/first-job',
       color: MintColors.info,
@@ -109,9 +115,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   }
 
   if (employmentStatus == 'employee' && age >= 30 && age <= 50) {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Changement d\'emploi',
-      reason: 'Compare ton LPP avant de signer un nouveau contrat',
+    suggestions.add(LifeEventSuggestion(
+      title: s?.lifeEventJobChange ?? 'Changement d\u2019emploi',
+      reason: s?.lifeEventJobChangeReason ?? 'Compare salaire, LPP et fiscalité entre deux postes.',
       icon: Icons.swap_horiz,
       route: '/simulator/job-comparison',
       color: MintColors.primary,
@@ -119,9 +125,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   }
 
   if (employmentStatus == 'independent') {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Outils indépendant',
-      reason: 'AVS, LPP volontaire, 3a élargi et dividende vs salaire',
+    suggestions.add(LifeEventSuggestion(
+      title: s?.lifeEventSelfEmployedTools ?? 'Outils indépendant',
+      reason: s?.lifeEventSelfEmployedReason ?? 'Pilier 3a élargi, LPP facultative, cotisations AVS.',
       icon: Icons.storefront_outlined,
       route: '/segments/independant',
       color: MintColors.success,
@@ -129,9 +135,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   }
 
   if (age >= 55) {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Planification retraite',
-      reason: 'Rente vs capital, échelonnement 3a, lacune AVS',
+    suggestions.add(LifeEventSuggestion(
+      title: s?.lifeEventRetirementPlanning ?? 'Planification retraite',
+      reason: s?.lifeEventRetirementReason ?? 'Prépare ta transition vers la retraite.',
       icon: Icons.elderly,
       route: '/retirement',
       color: MintColors.primary,
@@ -141,9 +147,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   // ── Housing ────────────────────────────────────────────
 
   if (monthlyNetIncome >= 5000 && age >= 25 && age <= 50) {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Achat immobilier',
-      reason: 'Simule ta capacité d\'emprunt et l\'apport EPL',
+    suggestions.add(LifeEventSuggestion(
+      title: s?.lifeEventHomePurchase ?? 'Achat immobilier',
+      reason: s?.lifeEventHomePurchaseReason ?? 'Simule ta capacité d\u2019emprunt et les fonds propres nécessaires.',
       icon: Icons.home_outlined,
       route: '/mortgage/affordability',
       color: MintColors.success,
@@ -155,9 +161,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   // High-tax cantons → suggest canton move
   const highTaxCantons = ['GE', 'VD', 'NE', 'JU', 'BE', 'BS'];
   if (highTaxCantons.contains(canton.toUpperCase())) {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Déménagement cantonal',
-      reason: 'Ton canton est parmi les plus imposés — compare les 26',
+    suggestions.add(LifeEventSuggestion(
+      title: s?.lifeEventCantonMove ?? 'Déménagement cantonal',
+      reason: s?.lifeEventCantonMoveReason ?? 'Compare l\u2019impact fiscal d\u2019un changement de canton.',
       icon: Icons.map_outlined,
       route: '/fiscal',
       color: MintColors.warning,
@@ -167,9 +173,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   // ── Health ─────────────────────────────────────────────
 
   if (childrenCount > 0 || monthlyNetIncome > 6000) {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Invalidité',
-      reason: 'Vérifie ta couverture AI + LPP en cas d\'accident',
+    suggestions.add(LifeEventSuggestion(
+      title: s?.lifeEventDisability ?? 'Invalidité',
+      reason: s?.lifeEventDisabilityReason ?? 'Mesure ton gap de revenus en cas d\u2019invalidité.',
       icon: Icons.accessible,
       route: '/simulator/disability-gap',
       color: MintColors.error,
@@ -219,7 +225,7 @@ class LifeEventSuggestionsSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Et ensuite ?',
+                      S.of(context)!.lifeEventNextTitle,
                       style: GoogleFonts.montserrat(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -227,7 +233,7 @@ class LifeEventSuggestionsSection extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Modules adaptés à ton profil',
+                      S.of(context)!.lifeEventNextSubtitle,
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: MintColors.textSecondary,
@@ -318,7 +324,7 @@ class LifeEventSuggestionsSection extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'Simuler',
+                  S.of(context)!.lifeEventSimulate,
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,

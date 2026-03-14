@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/haptic_feedback_service.dart';
 import 'dart:math' as math;
@@ -62,6 +63,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
         _calculateFutureValue(_monthlyContribution, 5.0, _years);
     final totalTaxSavings = _taxSavings * _years;
 
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -83,8 +85,8 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
               Expanded(
                 child: Text(
                   widget.isEmployee
-                      ? '👤 EMPLOYÉ avec LPP'
-                      : '💼 INDÉPENDANT sans LPP',
+                      ? s.interactiveSimEmployeeWithLpp
+                      : s.interactiveSimSelfEmployedNoLpp,
                   style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -95,7 +97,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Plafond 2026 : CHF ${_maxAnnual.toStringAsFixed(0)}/an',
+            s.interactiveSimCeiling(_maxAnnual.toStringAsFixed(0)),
             style:
                 const TextStyle(fontSize: 12, color: MintColors.textSecondary),
           ),
@@ -106,7 +108,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
 
           // Curseur 1 : Versement mensuel
           Text(
-            'Versement mensuel : CHF ${_monthlyContribution.toStringAsFixed(0)}',
+            s.interactiveSimMonthlyPayment(_monthlyContribution.toStringAsFixed(0)),
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
@@ -133,7 +135,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Versement annuel (CHF ${_annualContribution.toStringAsFixed(0)}) dépasse le plafond (CHF ${_maxAnnual.toStringAsFixed(0)})',
+                      s.interactiveSimExceedsCeiling(_annualContribution.toStringAsFixed(0), _maxAnnual.toStringAsFixed(0)),
                       style:
                           const TextStyle(fontSize: 11, color: MintColors.warning),
                     ),
@@ -146,7 +148,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
 
           // Curseur 2 : Durée
           Text(
-            'Durée : $_years ans',
+            s.interactiveSimDuration(_years),
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
@@ -164,13 +166,13 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
 
           // Curseur 3 : Taux marginal
           Text(
-            'Taux marginal d\'imposition : ${_marginalTaxRate.toStringAsFixed(0)}%',
+            s.interactiveSimMarginalTaxRate(_marginalTaxRate.toStringAsFixed(0)),
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Estimé selon canton/revenu (varie de 15% à 45%)',
-            style: TextStyle(fontSize: 11, color: MintColors.textMuted),
+          Text(
+            s.interactiveSimMarginalTaxHint,
+            style: const TextStyle(fontSize: 11, color: MintColors.textMuted),
           ),
           const SizedBox(height: 8),
           Slider(
@@ -189,21 +191,21 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
 
           // Résultats
           _buildMetric(
-            'Versement annuel',
+            s.interactiveSimAnnualPayment,
             'CHF ${math.min(_annualContribution, _maxAnnual).toStringAsFixed(0)}',
             Icons.trending_up,
             MintColors.primary,
           ),
           const SizedBox(height: 16),
           _buildMetric(
-            'Économie d\'impôts (estimée)',
+            s.interactiveSimTaxSavings,
             'CHF ${_taxSavings.toStringAsFixed(0)}/an',
             Icons.savings,
             MintColors.success,
           ),
           const SizedBox(height: 16),
           _buildMetric(
-            'Coût réel',
+            s.interactiveSimRealCost,
             'CHF ${_realCost.toStringAsFixed(0)}/an',
             Icons.account_balance_wallet,
             MintColors.textPrimary,
@@ -215,7 +217,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
 
           // Projections
           Text(
-            'Projection $_years ans (scénarios pédagogiques)',
+            s.interactiveSimProjectionTitle(_years),
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -223,16 +225,16 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
           ),
           const SizedBox(height: 16),
 
-          _buildProjection('Prudence (1%)', prudenceValue, MintColors.warning),
+          _buildProjection(s.interactiveSimPrudence, prudenceValue, MintColors.warning),
           const SizedBox(height: 8),
           _buildProjection(
-              'Central (3%)', centralValue, MintColors.centralScenarioLight),
+              s.interactiveSimCentral, centralValue, MintColors.centralScenarioLight),
           const SizedBox(height: 8),
-          _buildProjection('Stress (5%)', stressValue, MintColors.primary),
+          _buildProjection(s.interactiveSimStress, stressValue, MintColors.primary),
 
           const SizedBox(height: 16),
           _buildMetric(
-            'Économies fiscales cumulées ($_years ans)',
+            s.interactiveSimCumulativeTaxSavings(_years),
             'CHF ${totalTaxSavings.toStringAsFixed(0)}',
             Icons.star,
             MintColors.amber,
@@ -246,14 +248,14 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: MintColors.orangeRetroWarm),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.info_outline, size: 16, color: MintColors.warning),
-                SizedBox(width: 8),
+                const Icon(Icons.info_outline, size: 16, color: MintColors.warning),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Hypothèses pédagogiques. Rendements passés ne garantissent pas rendements futurs.',
-                    style: TextStyle(fontSize: 11, color: MintColors.warning),
+                    s.interactiveSimDisclaimer,
+                    style: const TextStyle(fontSize: 11, color: MintColors.warning),
                   ),
                 ),
               ],
@@ -369,6 +371,7 @@ class _InteractiveLppBuybackSimulationState
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -385,7 +388,7 @@ class _InteractiveLppBuybackSimulationState
                   color: MintColors.primary, size: 24),
               const SizedBox(width: 12),
               Text(
-                'Simulation Rachat LPP',
+                s.interactiveSimLppBuybackTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -400,7 +403,7 @@ class _InteractiveLppBuybackSimulationState
 
           // Curseur 1 : Montant rachat
           Text(
-            'Montant rachat : CHF ${_buybackAmount.toStringAsFixed(0)}',
+            s.interactiveSimBuybackAmount(_buybackAmount.toStringAsFixed(0)),
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
@@ -418,13 +421,13 @@ class _InteractiveLppBuybackSimulationState
 
           // Curseur 2 : Taux marginal
           Text(
-            'Taux marginal d\'imposition : ${_marginalTaxRate.toStringAsFixed(0)}%',
+            s.interactiveSimMarginalTaxRate(_marginalTaxRate.toStringAsFixed(0)),
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Estimé selon canton/revenu',
-            style: TextStyle(fontSize: 11, color: MintColors.textMuted),
+          Text(
+            s.interactiveSimMarginalTaxHintShort,
+            style: const TextStyle(fontSize: 11, color: MintColors.textMuted),
           ),
           const SizedBox(height: 8),
           Slider(
@@ -443,21 +446,21 @@ class _InteractiveLppBuybackSimulationState
 
           // Résultats
           _buildMetric(
-            'Rachat',
+            s.interactiveSimBuyback,
             'CHF ${_buybackAmount.toStringAsFixed(0)}',
             Icons.trending_up,
             MintColors.primary,
           ),
           const SizedBox(height: 16),
           _buildMetric(
-            'Économie d\'impôts (estimée)',
+            s.interactiveSimTaxSavings,
             'CHF ${_taxSavings.toStringAsFixed(0)}',
             Icons.savings,
             MintColors.success,
           ),
           const SizedBox(height: 16),
           _buildMetric(
-            'Coût réel',
+            s.interactiveSimRealCost,
             'CHF ${_realCost.toStringAsFixed(0)}',
             Icons.account_balance_wallet,
             MintColors.textPrimary,
@@ -469,7 +472,7 @@ class _InteractiveLppBuybackSimulationState
 
           // Projections rente
           Text(
-            'Impact retraite (scénarios pédagogiques)',
+            s.interactiveSimRetirementImpact,
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -478,19 +481,19 @@ class _InteractiveLppBuybackSimulationState
           const SizedBox(height: 16),
 
           _buildPensionProjection(
-            'Prudence (taux ${_conversionRatePrudence.toStringAsFixed(1)}%)',
+            s.interactiveSimPrudenceRate(_conversionRatePrudence.toStringAsFixed(1)),
             _annualPensionPrudence,
             MintColors.warning,
           ),
           const SizedBox(height: 8),
           _buildPensionProjection(
-            'Central (taux ${_conversionRateCentral.toStringAsFixed(1)}%)',
+            s.interactiveSimCentralRate(_conversionRateCentral.toStringAsFixed(1)),
             _annualPensionCentral,
             MintColors.centralScenarioLight,
           ),
           const SizedBox(height: 8),
           _buildPensionProjection(
-            'Stress (taux ${_conversionRateStress.toStringAsFixed(1)}%)',
+            s.interactiveSimStressRate(_conversionRateStress.toStringAsFixed(1)),
             _annualPensionStress,
             MintColors.primary,
           ),
@@ -503,28 +506,26 @@ class _InteractiveLppBuybackSimulationState
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: MintColors.orangeRetroWarm),
             ),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Icon(Icons.info_outline, size: 16, color: MintColors.warning),
-                    SizedBox(width: 8),
+                    const Icon(Icons.info_outline, size: 16, color: MintColors.warning),
+                    const SizedBox(width: 8),
                     Text(
-                      'Hypothèses et limites :',
-                      style: TextStyle(
+                      s.interactiveSimHypothesesTitle,
+                      style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
                           color: MintColors.warning),
                     ),
                   ],
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  '• Déduction fiscale selon règles applicables\n'
-                  '• Taux de conversion : hypothèse actuelle, peut baisser\n'
-                  '• Vérifier avec certificat LPP et un·e spécialiste en fiscalité',
-                  style: TextStyle(fontSize: 11, color: MintColors.warning),
+                  s.interactiveSimHypothesesBody,
+                  style: const TextStyle(fontSize: 11, color: MintColors.warning),
                 ),
               ],
             ),

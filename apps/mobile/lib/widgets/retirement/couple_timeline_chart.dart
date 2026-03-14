@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/retirement_projection_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -63,6 +64,7 @@ class _CoupleTimelineChartState extends State<CoupleTimelineChart>
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final userRetireYear = widget.userBirthYear + widget.userRetirementAge;
     final conjRetireYear =
         widget.conjointBirthYear + widget.conjointRetirementAge;
@@ -86,6 +88,9 @@ class _CoupleTimelineChartState extends State<CoupleTimelineChart>
                   conjRetireYear: conjRetireYear,
                   phases: widget.phases,
                   progress: _animation.value,
+                  phase1Label: s.coupleTimelineChartPhase1,
+                  phase2Label: s.coupleTimelineChartPhase2,
+                  retirementAgeLabel: s.coupleTimelineChartRetirementAge,
                 ),
               );
             },
@@ -94,12 +99,13 @@ class _CoupleTimelineChartState extends State<CoupleTimelineChart>
         const SizedBox(height: 12),
 
         // Phase income cards
-        ...widget.phases.map((phase) => _buildPhaseCard(phase)),
+        ...widget.phases.map((phase) => _buildPhaseCard(context, phase)),
       ],
     );
   }
 
-  Widget _buildPhaseCard(RetirementPhase phase) {
+  Widget _buildPhaseCard(BuildContext context, RetirementPhase phase) {
+    final s = S.of(context)!;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
@@ -135,7 +141,7 @@ class _CoupleTimelineChartState extends State<CoupleTimelineChart>
                 Text(
                   phase.endYear != null
                       ? '${phase.startYear} - ${phase.endYear}'
-                      : 'Des ${phase.startYear}',
+                      : s.coupleTimelineChartFrom(phase.startYear),
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: MintColors.textMuted,
@@ -145,7 +151,7 @@ class _CoupleTimelineChartState extends State<CoupleTimelineChart>
             ),
           ),
           Text(
-            '${RetirementProjectionService.formatChf(phase.totalMonthly)}/mois',
+            '${RetirementProjectionService.formatChf(phase.totalMonthly)}${s.coupleTimelineChartPerMonth}',
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w800,
@@ -165,6 +171,9 @@ class _CoupleTimelinePainter extends CustomPainter {
   final int conjRetireYear;
   final List<RetirementPhase> phases;
   final double progress;
+  final String phase1Label;
+  final String phase2Label;
+  final String retirementAgeLabel;
 
   _CoupleTimelinePainter({
     required this.userName,
@@ -173,6 +182,9 @@ class _CoupleTimelinePainter extends CustomPainter {
     required this.conjRetireYear,
     required this.phases,
     required this.progress,
+    required this.phase1Label,
+    required this.phase2Label,
+    required this.retirementAgeLabel,
   });
 
   @override
@@ -302,7 +314,7 @@ class _CoupleTimelinePainter extends CustomPainter {
       final phase1Mid = (transitionX + transitionX2) / 2;
       final tp1 = TextPainter(
         text: TextSpan(
-          text: 'Phase 1',
+          text: phase1Label,
           style: GoogleFonts.montserrat(
             fontSize: 10,
             fontWeight: FontWeight.w700,
@@ -317,7 +329,7 @@ class _CoupleTimelinePainter extends CustomPainter {
         final phase2Mid = (transitionX2 + yearToX(rangeEnd)) / 2;
         final tp2 = TextPainter(
           text: TextSpan(
-            text: 'Phase 2',
+            text: phase2Label,
             style: GoogleFonts.montserrat(
               fontSize: 10,
               fontWeight: FontWeight.w700,
@@ -391,7 +403,7 @@ class _CoupleTimelinePainter extends CustomPainter {
     // Age at retirement
     final ageTP = TextPainter(
       text: TextSpan(
-        text: '${65} ans',
+        text: retirementAgeLabel,
         style: GoogleFonts.inter(
           fontSize: 9,
           fontWeight: FontWeight.w600,

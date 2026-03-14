@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/services/financial_core/tornado_sensitivity_service.dart';
 import 'package:mint_mobile/widgets/retirement/tornado_chart.dart';
@@ -9,17 +10,17 @@ import 'package:mint_mobile/widgets/retirement/tornado_chart.dart';
 /// using the `tornado_*` key convention.
 class ArbitrageTornadoSection extends StatelessWidget {
   final ArbitrageResult result;
-  final String subtitle;
+  final String? subtitle;
 
   const ArbitrageTornadoSection({
     super.key,
     required this.result,
-    this.subtitle =
-        'Impact de chaque hypothèse sur l\'écart entre les options comparées.',
+    this.subtitle,
   });
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final variables = result.tornadoVariables;
     if (variables.isEmpty) return const SizedBox.shrink();
 
@@ -41,11 +42,10 @@ class ArbitrageTornadoSection extends StatelessWidget {
       baseCase: base,
       variables: chartVariables,
       maxVariables: 8,
-      title: 'Sensibilités clé',
-      subtitle: subtitle,
+      title: s.arbitrageTornadoTitle,
+      subtitle: subtitle ?? s.arbitrageTornadoDefaultSubtitle,
       baseCaseSuffix: '',
-      disclaimerText:
-          'Simulation pédagogique — transparence sur les hypothèses, sans recommandation.',
+      disclaimerText: s.arbitrageTornadoDisclaimer,
     );
   }
 }

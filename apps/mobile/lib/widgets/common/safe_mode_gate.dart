@@ -116,7 +116,7 @@ class SafeModeGate extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              s?.safeModeGateWhyTitle ?? ‘Pourquoi c\u2019est bloqué’,
+                              s?.safeModeGateWhyTitle ?? 'Pourquoi c\u2019est bloqu\u00e9',
                               style: GoogleFonts.montserrat(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,

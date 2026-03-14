@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -143,9 +144,9 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
-      label:
-          'Carte des allocations familiales par canton. ${widget.cantons.length} cantons affiches.',
+      label: s.cantonMapSemanticsLabel(widget.cantons.length),
       child: LayoutBuilder(
         builder: (context, constraints) {
           return Container(
@@ -202,7 +203,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Allocations familiales',
+                  S.of(context)!.cantonMapTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -210,7 +211,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
                   ),
                 ),
                 Text(
-                  'par canton (par enfant/mois)',
+                  S.of(context)!.cantonMapSubtitle,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -331,7 +332,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Rang $rank sur ${widget.cantons.length}',
+                  S.of(context)!.cantonMapRank(rank, widget.cantons.length),
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: MintColors.textSecondary,
