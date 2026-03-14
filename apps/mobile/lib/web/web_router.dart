@@ -39,7 +39,7 @@ import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
 import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
 
 // Coach
-import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
+// retirement_dashboard_screen excluded: imports coach_narrative_service → slm_engine → flutter_gemma/dart:io
 import 'package:mint_mobile/screens/coach/optimisation_decaissement_screen.dart';
 import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
@@ -184,12 +184,11 @@ final GoRouter webRouter = GoRouter(
             child: WebResponsiveWrapper(child: const ToolsLibraryScreen()),
           ),
         ),
-        // Coach dashboard (Prevoyance tab)
+        // Coach dashboard — excluded: RetirementDashboardScreen → slm_engine → dart:io
+        // Redirects to home until a web-safe dashboard is available
         GoRoute(
           path: '/coach/dashboard',
-          pageBuilder: (context, state) => NoTransitionPage(
-            child: WebResponsiveWrapper(child: const RetirementDashboardScreen()),
-          ),
+          redirect: (context, state) => '/',
         ),
         // Education hub
         GoRoute(
