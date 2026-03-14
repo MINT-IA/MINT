@@ -56,6 +56,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         await ReportPersistenceService.saveAnswers(answers);
       }
 
+      if (!mounted) return;
       if (authProvider.requiresEmailVerification) {
         context.go('/auth/verify-email');
       } else {
