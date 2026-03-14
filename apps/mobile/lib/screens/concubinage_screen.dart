@@ -330,68 +330,6 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     ];
   }
 
-  Widget _buildMatrixRow(String label, bool marriageGood, bool concubinGood) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 3,
-            child: Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Center(
-              child: Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: marriageGood
-                      ? MintColors.success.withValues(alpha: 0.12)
-                      : MintColors.error.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  marriageGood ? Icons.check : Icons.close,
-                  size: 16,
-                  color:
-                      marriageGood ? MintColors.success : MintColors.error,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Center(
-              child: Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: concubinGood
-                      ? MintColors.success.withValues(alpha: 0.12)
-                      : MintColors.error.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  concubinGood ? Icons.check : Icons.close,
-                  size: 16,
-                  color:
-                      concubinGood ? MintColors.success : MintColors.error,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildScoreSummary() {
     final result = _comparisonResult!;
     final scoreMariage = result['scoreMariage'] as int;
