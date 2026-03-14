@@ -6,12 +6,12 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   final phases = [
-    PlanPhase(
+    const PlanPhase(
       title: 'Semaine 1',
       emoji: '\ud83d\udea8',
       deadline: 'J+7',
       urgencyColor: Colors.red,
-      actions: const [
+      actions: [
         PlanAction(
           label: 'Inscription caisse AVS',
           consequence: 'D\u00e9lai 90j, sinon r\u00e9troactif',
@@ -24,12 +24,12 @@ void main() {
         ),
       ],
     ),
-    PlanPhase(
+    const PlanPhase(
       title: 'Mois 2',
       emoji: '\ud83d\udcbc',
       deadline: 'J+30',
       urgencyColor: Colors.orange,
-      actions: const [
+      actions: [
         PlanAction(
           label: 'Choix LPP ou Grand 3a',
           consequence: 'Impact fiscal majeur',
@@ -92,16 +92,16 @@ void main() {
   });
 
   testWidgets('returns shrink for empty phases', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      locale: const Locale('fr'),
-      localizationsDelegates: const [
+    await tester.pumpWidget(const MaterialApp(
+      locale: Locale('fr'),
+      localizationsDelegates: [
         S.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: S.supportedLocales,
-      home: Scaffold(body: NinetyDayPlanWidget(phases: const [])),
+      home: Scaffold(body: NinetyDayPlanWidget(phases: [])),
     ));
     expect(find.textContaining('Plan 90 jours'), findsNothing);
   });

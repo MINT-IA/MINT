@@ -6,7 +6,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   final phases = [
-    UrgencyPhase(
+    const UrgencyPhase(
       timeframe: '24h',
       emoji: '🕊️',
       title: 'Urgences immédiates',
@@ -16,7 +16,7 @@ void main() {
       ],
       color: Colors.red,
     ),
-    UrgencyPhase(
+    const UrgencyPhase(
       timeframe: '1 semaine',
       emoji: '📄',
       title: 'Démarches administratives',

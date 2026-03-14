@@ -608,7 +608,7 @@ void main() {
     test('projectEtSi clamps negative returns to 0', () {
       final etSi = ForecasterService.projectEtSi(
         profile: demo,
-        customBase: ScenarioAssumptions(
+        customBase: const ScenarioAssumptions(
           label: 'Custom',
           lppReturn: 0.005, // Very low — prudent would go negative without clamp
           threeAReturn: 0.01,

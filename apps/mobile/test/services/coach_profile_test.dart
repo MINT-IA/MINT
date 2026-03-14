@@ -38,7 +38,7 @@ void main() {
 
     test('demo profile revenu brut annuel includes bonus', () {
       // 9080 * 13 = 118'040 + 7% bonus = 126'302.80
-      final expected = 9080 * 13 * 1.07;
+      const expected = 9080 * 13 * 1.07;
       expect(demo.revenuBrutAnnuel, closeTo(expected, 1));
     });
 

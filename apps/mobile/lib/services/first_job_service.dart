@@ -211,7 +211,7 @@ class FirstJobService {
     ];
 
     // 3a recommendation
-    final economie3a = pilier3aPlafondAvecLpp * 0.25; // ~25% marginal tax estimate
+    const economie3a = pilier3aPlafondAvecLpp * 0.25; // ~25% marginal tax estimate
 
     // LAMal franchise comparison
     final franchiseData = _calculateFranchiseOptions(age, canton);
@@ -281,7 +281,7 @@ class FirstJobService {
     }
 
     // Recommend 2500 for young healthy person
-    final economieVs300 =
+    const economieVs300 =
         (basePremium300 - (basePremium300 - (2500 - 300) * 0.06)) * 12;
 
     return (options, 2500, economieVs300);

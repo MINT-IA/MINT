@@ -8,8 +8,8 @@ void main() {
   testWidgets('ToolsLibraryScreen renders without crashing',
       (WidgetTester tester) async {
     await tester.pumpWidget(const MaterialApp(
-    locale: const Locale('fr'),
-    localizationsDelegates: const [
+    locale: Locale('fr'),
+    localizationsDelegates: [
       S.delegate,
       GlobalMaterialLocalizations.delegate,
       GlobalWidgetsLocalizations.delegate,
@@ -25,8 +25,8 @@ void main() {
   testWidgets('ToolsLibraryScreen shows search field',
       (WidgetTester tester) async {
     await tester.pumpWidget(const MaterialApp(
-    locale: const Locale('fr'),
-    localizationsDelegates: const [
+    locale: Locale('fr'),
+    localizationsDelegates: [
       S.delegate,
       GlobalMaterialLocalizations.delegate,
       GlobalWidgetsLocalizations.delegate,
@@ -41,8 +41,8 @@ void main() {
   testWidgets('ToolsLibraryScreen shows category headers in uppercase',
       (WidgetTester tester) async {
     await tester.pumpWidget(const MaterialApp(
-    locale: const Locale('fr'),
-    localizationsDelegates: const [
+    locale: Locale('fr'),
+    localizationsDelegates: [
       S.delegate,
       GlobalMaterialLocalizations.delegate,
       GlobalWidgetsLocalizations.delegate,

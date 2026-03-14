@@ -30,16 +30,16 @@ void main() {
           create: (_) => ByokProvider(),
         ),
       ],
-      child: MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      child: const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: S.supportedLocales,
-        home: const Scaffold(body: PulseScreen()),
+        home: Scaffold(body: PulseScreen()),
       ),
     );
   }
@@ -365,12 +365,12 @@ void main() {
     test('conjoint profile preserves patrimoine when available', () {
       // This tests that ConjointProfile.patrimoine is properly threaded
       // through to the synthetic CoachProfile used for couple scoring.
-      final conjoint = ConjointProfile(
+      const conjoint = ConjointProfile(
         firstName: 'Lauren',
         birthYear: 1982,
         salaireBrutMensuel: 4800,
         employmentStatus: 'salarie',
-        patrimoine: const PatrimoineProfile(
+        patrimoine: PatrimoineProfile(
           epargneLiquide: 20000,
           investissements: 380000,
         ),
@@ -382,11 +382,11 @@ void main() {
     });
 
     test('conjoint patrimoine serializes/deserializes correctly', () {
-      final conjoint = ConjointProfile(
+      const conjoint = ConjointProfile(
         firstName: 'Lauren',
         birthYear: 1982,
         salaireBrutMensuel: 4800,
-        patrimoine: const PatrimoineProfile(
+        patrimoine: PatrimoineProfile(
           epargneLiquide: 20000,
           investissements: 380000,
         ),
@@ -402,11 +402,11 @@ void main() {
     });
 
     test('conjoint patrimoine copyWith preserves value', () {
-      final conjoint = ConjointProfile(
+      const conjoint = ConjointProfile(
         firstName: 'Lauren',
         birthYear: 1982,
         salaireBrutMensuel: 4800,
-        patrimoine: const PatrimoineProfile(
+        patrimoine: PatrimoineProfile(
           investissements: 380000,
         ),
       );

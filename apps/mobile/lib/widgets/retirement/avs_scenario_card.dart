@@ -174,26 +174,26 @@ class AvsScenarioCard extends StatelessWidget {
   _ScenarioConfig get _scenarioConfig {
     switch (scenario) {
       case 'anticipation':
-        return _ScenarioConfig(
+        return const _ScenarioConfig(
           label: 'Anticipation',
           icon: Icons.fast_rewind,
           color: MintColors.error,
         );
       case 'ajournement':
-        return _ScenarioConfig(
+        return const _ScenarioConfig(
           label: 'Ajournement',
           icon: Icons.fast_forward,
           color: MintColors.info,
         );
       case 'normal':
-        return _ScenarioConfig(
+        return const _ScenarioConfig(
           label: 'Normal (65 ans)',
           icon: Icons.check_circle_outline,
           color: MintColors.success,
         );
       default:
         assert(false, 'Unknown AVS scenario: $scenario');
-        return _ScenarioConfig(
+        return const _ScenarioConfig(
           label: 'Normal (65 ans)',
           icon: Icons.check_circle_outline,
           color: MintColors.success,

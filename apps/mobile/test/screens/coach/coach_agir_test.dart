@@ -54,16 +54,16 @@ void main() {
         ChangeNotifierProvider(create: (_) => buildCoachProvider()),
         ChangeNotifierProvider(create: (_) => UserActivityProvider()),
       ],
-      child: MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      child: const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: S.supportedLocales,
-        home: const CoachAgirScreen(),
+        home: CoachAgirScreen(),
       ),
     );
   }
@@ -75,16 +75,16 @@ void main() {
         ChangeNotifierProvider(create: (_) => buildMiniCoachProvider()),
         ChangeNotifierProvider(create: (_) => UserActivityProvider()),
       ],
-      child: MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      child: const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: S.supportedLocales,
-        home: const CoachAgirScreen(),
+        home: CoachAgirScreen(),
       ),
     );
   }

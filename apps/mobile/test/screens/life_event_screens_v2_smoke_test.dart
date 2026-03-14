@@ -30,8 +30,8 @@ void main() {
       return ChangeNotifierProvider<CoachProfileProvider>(
         create: (_) => CoachProfileProvider(),
         child: const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -143,8 +143,8 @@ void main() {
   group('NaissanceScreen', () {
     Widget buildNaissanceScreen() {
       return const MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -246,8 +246,8 @@ void main() {
   group('ConcubinageScreen', () {
     Widget buildConcubinageScreen() {
       return const MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -348,8 +348,8 @@ void main() {
   group('DonationScreen', () {
     Widget buildDonationScreen() {
       return const MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -486,8 +486,8 @@ void main() {
   group('HousingSaleScreen', () {
     Widget buildHousingSaleScreen() {
       return const MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,

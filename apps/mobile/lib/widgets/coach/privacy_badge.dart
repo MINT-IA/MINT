@@ -29,7 +29,7 @@ class PrivacyBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.lock_outline,
+          const Icon(Icons.lock_outline,
               size: 14, color: MintColors.scoreGreen),
           const SizedBox(width: 6),
           Text(

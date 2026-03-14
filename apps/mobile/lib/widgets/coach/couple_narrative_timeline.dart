@@ -89,7 +89,7 @@ class CoupleNarrativeTimeline extends StatelessWidget {
             // ── Header ──
             Row(
               children: [
-                Icon(Icons.movie_outlined,
+                const Icon(Icons.movie_outlined,
                     size: 20, color: MintColors.primary),
                 const SizedBox(width: 8),
                 Expanded(
@@ -274,7 +274,7 @@ class CoupleNarrativeTimeline extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.lightbulb_outline,
+          const Icon(Icons.lightbulb_outline,
               size: 16, color: MintColors.primary),
           const SizedBox(width: 8),
           Expanded(

@@ -350,7 +350,7 @@ void main() {
 
       // Income gap = 80000, monthly gap = 80000/12 = ~6666.67
       // Spousal maintenance = 6666.67 * 0.15 = 1000.00
-      final expectedSpousal = (80000 / 12.0) * 0.15;
+      const expectedSpousal = (80000 / 12.0) * 0.15;
       expect(result.pensionAlimentaireMonthly, closeTo(expectedSpousal, 0.01));
     });
 
@@ -373,8 +373,8 @@ void main() {
 
       // Child: 600
       // Spousal: (60000 / 12) * 0.08 = 400
-      final expectedChild = 600.0;
-      final expectedSpousal = (60000 / 12.0) * 0.08;
+      const expectedChild = 600.0;
+      const expectedSpousal = (60000 / 12.0) * 0.08;
       expect(
           result.pensionAlimentaireMonthly, closeTo(expectedChild + expectedSpousal, 0.01));
     });

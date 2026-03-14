@@ -421,7 +421,7 @@ void main() {
     });
 
     test('hasApiKey returns true when set', () {
-      final config = LlmConfig(
+      const config = LlmConfig(
         apiKey: 'sk-test-key',
         provider: LlmProvider.openai,
       );
@@ -454,7 +454,7 @@ void main() {
     });
 
     test('copyWith creates config with Mistral provider', () {
-      final config = LlmConfig(
+      const config = LlmConfig(
         apiKey: 'test-key',
         provider: LlmProvider.mistral,
         model: 'mistral-large-latest',
@@ -465,7 +465,7 @@ void main() {
     });
 
     test('copyWith creates new config with updated fields', () {
-      final original = LlmConfig.defaultOpenAI;
+      const original = LlmConfig.defaultOpenAI;
       final updated = original.copyWith(apiKey: 'new-key');
 
       expect(updated.apiKey, 'new-key');

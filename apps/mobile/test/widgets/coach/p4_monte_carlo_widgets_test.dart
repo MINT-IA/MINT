@@ -11,9 +11,9 @@ void main() {
   group('MonteCarloToggleSection', () {
     test('starts in 3 Sc\u00e9narios mode', () {
       // Verify initial state is not Monte Carlo
-      final widget = MonteCarloToggleSection(
+      const widget = MonteCarloToggleSection(
         monteCarloResult: null,
-        scenariosChild: const Text('scenarios'),
+        scenariosChild: Text('scenarios'),
         monteCarloAvailable: true,
       );
       expect(widget.monteCarloAvailable, isTrue);
@@ -21,9 +21,9 @@ void main() {
     });
 
     testWidgets('shows scenarios child by default', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -33,7 +33,7 @@ void main() {
         home: Scaffold(
           body: MonteCarloToggleSection(
             monteCarloResult: null,
-            scenariosChild: const Text('Sc\u00e9narios test'),
+            scenariosChild: Text('Sc\u00e9narios test'),
             monteCarloAvailable: false,
           ),
         ),
@@ -44,9 +44,9 @@ void main() {
     });
 
     testWidgets('toggle disabled when MC unavailable', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -56,7 +56,7 @@ void main() {
         home: Scaffold(
           body: MonteCarloToggleSection(
             monteCarloResult: null,
-            scenariosChild: const Text('child'),
+            scenariosChild: Text('child'),
             monteCarloAvailable: false,
           ),
         ),
@@ -87,9 +87,9 @@ void main() {
       ));
 
       // Rebuild with MC unavailable — should reset to scenarios
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -99,7 +99,7 @@ void main() {
         home: Scaffold(
           body: MonteCarloToggleSection(
             monteCarloResult: null,
-            scenariosChild: const Text('child'),
+            scenariosChild: Text('child'),
             monteCarloAvailable: false,
           ),
         ),
@@ -122,16 +122,16 @@ void main() {
 
     testWidgets('displays educational message + CTA + disclaimer',
         (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: S.supportedLocales,
-        home: const Scaffold(
+        home: Scaffold(
           body: SingleChildScrollView(
             child: MonteCarloTeaser(
               missingCategories: ['lpp', '3a', 'patrimoine'],
@@ -153,16 +153,16 @@ void main() {
     });
 
     testWidgets('chips show max 3 categories', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: S.supportedLocales,
-        home: const Scaffold(
+        home: Scaffold(
           body: SingleChildScrollView(
             child: MonteCarloTeaser(
               missingCategories: ['lpp', '3a', 'patrimoine', 'avs', 'logement'],
@@ -180,16 +180,16 @@ void main() {
     });
 
     testWidgets('no chips when missingCategories is empty', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: S.supportedLocales,
-        home: const Scaffold(
+        home: Scaffold(
           body: SingleChildScrollView(
             child: MonteCarloTeaser(missingCategories: []),
           ),
@@ -202,16 +202,16 @@ void main() {
     });
 
     testWidgets('internal categories are not leaked to UI', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: S.supportedLocales,
-        home: const Scaffold(
+        home: Scaffold(
           body: SingleChildScrollView(
             child: MonteCarloTeaser(
               // Internal-only categories that could leak from enrichment prompts
@@ -228,16 +228,16 @@ void main() {
 
     testWidgets('mixed internal + valid categories only show valid ones',
         (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: S.supportedLocales,
-        home: const Scaffold(
+        home: Scaffold(
           body: SingleChildScrollView(
             child: MonteCarloTeaser(
               missingCategories: ['lpp', 'income', '3a'],
@@ -254,16 +254,16 @@ void main() {
     });
 
     testWidgets('no banned terms in rendered text', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: S.supportedLocales,
-        home: const Scaffold(
+        home: Scaffold(
           body: SingleChildScrollView(
             child: MonteCarloTeaser(
               missingCategories: ['lpp'],
@@ -350,9 +350,9 @@ void main() {
     });
 
     testWidgets('returns empty when no variables', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -360,7 +360,7 @@ void main() {
         ],
         supportedLocales: S.supportedLocales,
         home: Scaffold(
-          body: SensitivitySnippet(variables: const []),
+          body: SensitivitySnippet(variables: []),
         ),
       ));
 
@@ -371,9 +371,9 @@ void main() {
 }
 
 MonteCarloResult _buildMockResult() {
-  return MonteCarloResult(
+  return const MonteCarloResult(
     projection: [
-      const MonteCarloPoint(
+      MonteCarloPoint(
           year: 2040, age: 65, p10: 2000, p25: 2500, p50: 3000, p75: 3500, p90: 4000),
     ],
     medianAt65: 3000,
@@ -383,7 +383,7 @@ MonteCarloResult _buildMockResult() {
     numSimulations: 500,
     disclaimer: 'Outil \u00e9ducatif (LSFin).',
     retirementAge: 65,
-    sources: const ['LPP art. 14'],
-    alertes: const [],
+    sources: ['LPP art. 14'],
+    alertes: [],
   );
 }

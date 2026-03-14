@@ -189,9 +189,9 @@ class _CoupleTimelinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final laneHeight = 40.0;
-    final laneGap = 30.0;
-    final chartLeft = 10.0;
+    const laneHeight = 40.0;
+    const laneGap = 30.0;
+    const chartLeft = 10.0;
     final chartRight = size.width - 10;
     final chartWidth = (chartRight - chartLeft) * progress;
 
@@ -207,7 +207,7 @@ class _CoupleTimelinePainter extends CustomPainter {
     }
 
     // ── Lane 1: User ────────────────────────────────────
-    final lane1Y = 50.0;
+    const lane1Y = 50.0;
     _drawLane(
       canvas: canvas,
       name: userName,
@@ -221,7 +221,7 @@ class _CoupleTimelinePainter extends CustomPainter {
     );
 
     // ── Lane 2: Conjoint ────────────────────────────────
-    final lane2Y = lane1Y + laneHeight + laneGap;
+    const lane2Y = lane1Y + laneHeight + laneGap;
     _drawLane(
       canvas: canvas,
       name: conjointName,
@@ -257,7 +257,7 @@ class _CoupleTimelinePainter extends CustomPainter {
     );
 
     // ── Year markers ────────────────────────────────────
-    final markerY = lane2Y + laneHeight + 20;
+    const markerY = lane2Y + laneHeight + 20;
     for (int y = rangeStart; y <= rangeEnd; y++) {
       final x = yearToX(y);
       final isKey = y == userRetireYear || y == conjRetireYear;

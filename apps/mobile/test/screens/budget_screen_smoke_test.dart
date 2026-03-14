@@ -16,7 +16,7 @@ void main() {
   testWidgets('BudgetScreen smoke test - renders correctly',
       (WidgetTester tester) async {
     // 1. Setup Inputs
-    final inputs = BudgetInputs(
+    const inputs = BudgetInputs(
       payFrequency: PayFrequency.monthly,
       netIncome: 5000,
       housingCost: 1500,
@@ -37,7 +37,7 @@ void main() {
         supportedLocales: S.supportedLocales,
         home: ChangeNotifierProvider(
           create: (_) => BudgetProvider(),
-          child: BudgetScreen(inputs: inputs),
+          child: const BudgetScreen(inputs: inputs),
         ),
       ),
     );
@@ -60,7 +60,7 @@ void main() {
 
   testWidgets('BudgetScreen Stop Rule triggers warning',
       (WidgetTester tester) async {
-    final inputs = BudgetInputs(
+    const inputs = BudgetInputs(
       payFrequency: PayFrequency.monthly,
       netIncome: 2000,
       housingCost: 2000, // Available = 0
@@ -80,7 +80,7 @@ void main() {
         supportedLocales: S.supportedLocales,
         home: ChangeNotifierProvider(
           create: (_) => BudgetProvider(),
-          child: BudgetScreen(inputs: inputs),
+          child: const BudgetScreen(inputs: inputs),
         ),
       ),
     );

@@ -499,7 +499,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                 if (isExplored)
                   Container(
                     padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: MintColors.success,
                       shape: BoxShape.circle,
                     ),
@@ -535,7 +535,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.trending_up,
+                    const Icon(Icons.trending_up,
                         color: MintColors.success, size: 16),
                     const SizedBox(width: 8),
                     Text(
@@ -681,7 +681,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.warning_amber_rounded,
+                  const Icon(Icons.warning_amber_rounded,
                       size: 14, color: MintColors.error),
                   const SizedBox(width: 6),
                   Expanded(
@@ -848,7 +848,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                 color: MintColors.coachAccent.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.flash_on,
                 color: MintColors.coachAccent,
                 size: 48,
@@ -915,7 +915,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
       ),
       child: Column(
         children: [
-          Icon(
+          const Icon(
             Icons.add_circle_outline,
             color: MintColors.coachAccent,
             size: 36,
@@ -1084,7 +1084,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
+          const Icon(
             Icons.info_outline,
             color: MintColors.textMuted,
             size: 16,
@@ -1552,7 +1552,7 @@ class _CoachingTipCard extends StatelessWidget {
               ),
             ],
             const SizedBox(width: 4),
-            Icon(
+            const Icon(
               Icons.chevron_right,
               color: MintColors.textMuted,
               size: 20,

@@ -841,7 +841,7 @@ class _MariageScreenState extends State<MariageScreen>
   // ════════════════════════════════════════════════════════════
 
   Widget _buildTab3Protection() {
-    final avsSurvivor = avsRenteMaxMensuelle *
+    const avsSurvivor = avsRenteMaxMensuelle *
         FamilyService.avsSurvivorFactor;
     final lppSurvivor = _renteLpp * FamilyService.lppSurvivorFactor;
     final totalSurvivor = avsSurvivor + lppSurvivor;
@@ -1659,7 +1659,7 @@ class _MariageScreenState extends State<MariageScreen>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

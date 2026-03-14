@@ -152,7 +152,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
             const SizedBox(height: 8),
             Text(
               S.of(context)!.staggeredWithdrawalNombreAdapte(result.nbComptesOptimal.toString()),
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: MintColors.info,
@@ -185,7 +185,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           const SizedBox(height: 8),
           Text(
             S.of(context)!.staggeredWithdrawalPourquoiBody,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 13,
               color: MintColors.textSecondary,
               height: 1.5,
@@ -298,7 +298,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
       children: [
         Text(
           S.of(context)!.staggeredWithdrawalCanton,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w500,
             color: MintColors.textPrimary,
@@ -425,12 +425,12 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
             ),
             child: Row(
               children: [
-                Icon(Icons.savings, color: MintColors.greenDark, size: 24),
+                const Icon(Icons.savings, color: MintColors.greenDark, size: 24),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     S.of(context)!.staggeredWithdrawalEchelonnerGain(formatChf(result.economie)),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: MintColors.greenForest,
@@ -494,7 +494,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           const SizedBox(height: 4),
           Text(
             S.of(context)!.staggeredWithdrawalImpotEstime,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 11,
               color: MintColors.textMuted,
             ),
@@ -577,7 +577,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
                   Expanded(
                     child: Text(
                       'CHF ${formatChf(year.impotEstime)}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         color: MintColors.redDeep,
                         fontWeight: FontWeight.w600,
@@ -588,7 +588,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
                   Expanded(
                     child: Text(
                       'CHF ${formatChf(year.montantNet)}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         color: MintColors.greenDark,
                         fontWeight: FontWeight.w600,
@@ -622,7 +622,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
               Expanded(
                 child: Text(
                   'CHF ${formatChf(result.impotEchelonne)}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: MintColors.redDeep,
@@ -633,7 +633,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
               Expanded(
                 child: Text(
                   'CHF ${formatChf(_avoirTotal - result.impotEchelonne)}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: MintColors.greenDark,
@@ -659,12 +659,12 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: MintColors.deepOrange,
                 height: 1.4,

@@ -121,7 +121,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.support_agent,
+              const Icon(Icons.support_agent,
                   color: MintColors.primary, size: 24),
               const SizedBox(width: 12),
               Text(
@@ -136,7 +136,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
           const SizedBox(height: 12),
           Text(
             S.of(context)!.helpResourcesIntroBody,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 13,
               color: MintColors.textSecondary,
               height: 1.5,
@@ -145,7 +145,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
           const SizedBox(height: 12),
           Text(
             S.of(context)!.helpResourcesExternalLinks,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               color: MintColors.textMuted,
               fontStyle: FontStyle.italic,
@@ -169,7 +169,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3), width: 2),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,7 +179,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: color, size: 24),
@@ -206,7 +206,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                       ),
                       child: Text(
                         S.of(context)!.helpResourcesGratuit,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           color: MintColors.success,
@@ -237,7 +237,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                   label: Text(S.of(context)!.helpResourcesSiteWeb),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: color,
-                    side: BorderSide(color: color.withOpacity(0.5)),
+                    side: BorderSide(color: color.withValues(alpha: 0.5)),
                   ),
                 ),
               ),
@@ -287,7 +287,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
             children: [
               Text(
                 S.of(context)!.helpResourcesVotreCanton,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                 ),
@@ -336,7 +336,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: MintColors.primary.withOpacity(0.1),
+                        color: MintColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.location_city,
@@ -376,7 +376,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
               padding: const EdgeInsets.all(16),
               child: Text(
                 S.of(context)!.helpResourcesAucunServiceCantonal,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 13,
                   color: MintColors.textMuted,
                 ),
@@ -398,7 +398,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.lock_outline, color: MintColors.blueDark, size: 20),
+          const Icon(Icons.lock_outline, color: MintColors.blueDark, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -406,7 +406,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
               children: [
                 Text(
                   S.of(context)!.helpResourcesPrivacyTitle,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: MintColors.blueMaterial900,
@@ -415,7 +415,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                 const SizedBox(height: 4),
                 Text(
                   S.of(context)!.helpResourcesPrivacyBody,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     color: MintColors.blueDark,
                     height: 1.4,
@@ -440,12 +440,12 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               S.of(context)!.helpResourcesDisclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: MintColors.deepOrange,
                 height: 1.4,

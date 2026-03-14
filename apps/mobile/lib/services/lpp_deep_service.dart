@@ -434,7 +434,7 @@ class EplSimulator {
       // L'estimation a) utilise un ratio base sur les annees restantes:
       // un assure ayant cotise de 25 a 50 ans (25 ans) vs 25 a age actuel.
       final anneesDepuis25 = max(1, age - 25);
-      final annees25a50 = 25; // 25 ans de 25 a 50 ans
+      const annees25a50 = 25; // 25 ans de 25 a 50 ans
       final ratioA50 = (annees25a50 / anneesDepuis25).clamp(0.3, 1.0);
       final avoirEstimeA50 = avoirTotal * ratioA50;
       montantMax = max(avoirEstimeA50, avoirTotal / 2);

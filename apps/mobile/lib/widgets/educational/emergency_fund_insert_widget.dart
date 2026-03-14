@@ -64,7 +64,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
           const SizedBox(height: 4),
           Text(
             s.emergencyFundMonthlyExpensesHint,
-            style: TextStyle(fontSize: 12, color: MintColors.textSecondary),
+            style: const TextStyle(fontSize: 12, color: MintColors.textSecondary),
           ),
           const SizedBox(height: 8),
           Row(
@@ -127,8 +127,8 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(s.emergencyFundMinimum, style: TextStyle(fontSize: 11, color: MintColors.textSecondary)),
-                Text(s.emergencyFundComfort, style: TextStyle(fontSize: 11, color: MintColors.textSecondary)),
+                Text(s.emergencyFundMinimum, style: const TextStyle(fontSize: 11, color: MintColors.textSecondary)),
+                Text(s.emergencyFundComfort, style: const TextStyle(fontSize: 11, color: MintColors.textSecondary)),
               ],
             ),
           ),
@@ -144,7 +144,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(
-                  color: MintColors.primary.withOpacity(0.1),
+                  color: MintColors.primary.withValues(alpha: 0.1),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -203,12 +203,12 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
                       if (_currentProgress < 1)
                         Text(
                           s.emergencyFundMissing(_currencyFormat.format(_targetAmount - widget.currentSavings!)),
-                          style: TextStyle(fontSize: 13, color: MintColors.warning),
+                          style: const TextStyle(fontSize: 13, color: MintColors.warning),
                         )
                       else
                         Row(
                           children: [
-                            Icon(Icons.check_circle, color: MintColors.success, size: 16),
+                            const Icon(Icons.check_circle, color: MintColors.success, size: 16),
                             const SizedBox(width: 8),
                             Text(
                               s.emergencyFundObjectiveReached,

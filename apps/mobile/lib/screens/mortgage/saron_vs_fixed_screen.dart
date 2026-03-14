@@ -82,7 +82,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
                 // Source legale
                 Text(
                   S.of(context)!.saronVsFixedSource,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
                     color: MintColors.textMuted,
@@ -103,7 +103,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.info.withOpacity(0.3), width: 2),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.3), width: 2),
       ),
       child: Column(
         children: [
@@ -380,7 +380,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
                 Expanded(
                   child: Text(
                     S.of(context)!.saronVsFixedExplanation,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 11,
                       color: MintColors.textSecondary,
                       height: 1.4,
@@ -457,12 +457,12 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 fontStyle: FontStyle.italic,
                 color: MintColors.deepOrange,

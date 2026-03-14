@@ -401,7 +401,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
     final avsYears = _findField('avs_contribution_years');
     if (avsYears != null) {
       final years = (avsYears.value as double).round();
-      final maxYears = 44;
+      const maxYears = 44;
       final completionPct = ((years / maxYears) * 100).round();
       return Column(
         children: [

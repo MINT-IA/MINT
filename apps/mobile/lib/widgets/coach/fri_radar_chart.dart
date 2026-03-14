@@ -251,7 +251,7 @@ class _RadarPainter extends CustomPainter {
     }
 
     // Draw axis labels
-    final textStyle = TextStyle(
+    const textStyle = TextStyle(
       color: MintColors.greyDark,
       fontSize: 12,
       fontWeight: FontWeight.w600,

@@ -235,10 +235,10 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: MintColors.warningText.withOpacity(0.1),
+              color: MintColors.warningText.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(Icons.house_outlined,
+            child: const Icon(Icons.house_outlined,
                 color: MintColors.warningText, size: 24),
           ),
           const SizedBox(width: 16),
@@ -275,17 +275,17 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: MintColors.warningText.withOpacity(0.06),
+        color: MintColors.warningText.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: MintColors.warningText.withOpacity(0.15),
+          color: MintColors.warningText.withValues(alpha: 0.15),
         ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.lightbulb_outline,
-              size: 20, color: MintColors.warningText.withOpacity(0.8)),
+              size: 20, color: MintColors.warningText.withValues(alpha: 0.8)),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -495,11 +495,11 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: (isGain ? MintColors.success : MintColors.error)
-            .withOpacity(0.06),
+            .withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: (isGain ? MintColors.success : MintColors.error)
-              .withOpacity(0.15),
+              .withValues(alpha: 0.15),
         ),
       ),
       child: Column(
@@ -542,10 +542,10 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: MintColors.warningText.withOpacity(0.06),
+        color: MintColors.warningText.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: MintColors.warningText.withOpacity(0.15),
+          color: MintColors.warningText.withValues(alpha: 0.15),
         ),
       ),
       child: Column(
@@ -553,7 +553,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.receipt_long,
+              const Icon(Icons.receipt_long,
                   color: MintColors.warningText, size: 18),
               const SizedBox(width: 8),
               Text(
@@ -599,16 +599,16 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: MintColors.success.withOpacity(0.06),
+        color: MintColors.success.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.success.withOpacity(0.15)),
+        border: Border.all(color: MintColors.success.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.replay, color: MintColors.success, size: 18),
+              const Icon(Icons.replay, color: MintColors.success, size: 18),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.housingSaleReportTitle,
@@ -658,16 +658,16 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: MintColors.warning.withOpacity(0.06),
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.warning.withOpacity(0.15)),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.replay_circle_filled,
+              const Icon(Icons.replay_circle_filled,
                   color: MintColors.warning, size: 18),
               const SizedBox(width: 8),
               Text(
@@ -716,11 +716,11 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: (isPositive ? MintColors.primary : MintColors.error)
-            .withOpacity(0.06),
+            .withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: (isPositive ? MintColors.primary : MintColors.error)
-              .withOpacity(0.15),
+              .withValues(alpha: 0.15),
         ),
       ),
       child: Column(
@@ -790,16 +790,16 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: MintColors.warning.withOpacity(0.06),
+                  color: MintColors.warning.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: MintColors.warning.withOpacity(0.15),
+                    color: MintColors.warning.withValues(alpha: 0.15),
                   ),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.warning_amber_rounded,
+                    const Icon(Icons.warning_amber_rounded,
                         size: 16, color: MintColors.warning),
                     const SizedBox(width: 10),
                     Expanded(
@@ -846,12 +846,12 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
                 ),
                 decoration: BoxDecoration(
                   color: _checklistState[index]
-                      ? MintColors.success.withOpacity(0.06)
+                      ? MintColors.success.withValues(alpha: 0.06)
                       : MintColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: _checklistState[index]
-                        ? MintColors.success.withOpacity(0.3)
+                        ? MintColors.success.withValues(alpha: 0.3)
                         : MintColors.border,
                   ),
                 ),
@@ -974,7 +974,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 18, color: MintColors.warning),
+          const Icon(Icons.info_outline, size: 18, color: MintColors.warning),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -1090,7 +1090,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: MintColors.primary,
+          activeThumbColor: MintColors.primary,
         ),
       ],
     );

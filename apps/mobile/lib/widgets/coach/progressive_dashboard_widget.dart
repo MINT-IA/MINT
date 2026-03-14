@@ -182,7 +182,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
     final levels = ['Novice', 'Intermédiaire', 'Expert'];
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: MintColors.appleSurface,
         border: Border(bottom: BorderSide(color: MintColors.lightBorder)),
       ),

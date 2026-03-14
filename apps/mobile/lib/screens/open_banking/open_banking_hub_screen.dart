@@ -136,7 +136,7 @@ class OpenBankingHubScreen extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.lock_outline, color: MintColors.amberDark, size: 22),
+          const Icon(Icons.lock_outline, color: MintColors.amberDark, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -203,7 +203,7 @@ class OpenBankingHubScreen extends StatelessWidget {
             color: MintColors.accentPastel,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Icon(
+          child: const Icon(
             Icons.account_balance,
             color: MintColors.tealLight,
             size: 28,
@@ -269,14 +269,14 @@ class OpenBankingHubScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: MintColors.primary.withOpacity(0.06),
+            color: MintColors.primary.withValues(alpha: 0.06),
             blurRadius: 20,
             offset: const Offset(0, 6),
             spreadRadius: -4,
           ),
         ],
         border:
-            Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Row(
         children: [
@@ -285,7 +285,7 @@ class OpenBankingHubScreen extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: avatarColor.withOpacity(0.15),
+              color: avatarColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
@@ -396,7 +396,7 @@ class OpenBankingHubScreen extends StatelessWidget {
             color: MintColors.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-                color: MintColors.border.withOpacity(0.4), width: 0.8),
+                color: MintColors.border.withValues(alpha: 0.4), width: 0.8),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -413,7 +413,7 @@ class OpenBankingHubScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(Icons.lock_outline,
+              const Icon(Icons.lock_outline,
                   color: MintColors.warningText, size: 16),
             ],
           ),
@@ -430,15 +430,15 @@ class OpenBankingHubScreen extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            MintColors.primary.withOpacity(0.06),
-            MintColors.appleSurface.withOpacity(0.3),
+            MintColors.primary.withValues(alpha: 0.06),
+            MintColors.appleSurface.withValues(alpha: 0.3),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         border:
-            Border.all(color: MintColors.border.withOpacity(0.4), width: 0.8),
+            Border.all(color: MintColors.border.withValues(alpha: 0.4), width: 0.8),
       ),
       child: Column(
         children: [
@@ -484,7 +484,7 @@ class OpenBankingHubScreen extends StatelessWidget {
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border:
-            Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         children: [
@@ -590,7 +590,7 @@ class OpenBankingHubScreen extends StatelessWidget {
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border:
-            Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -668,7 +668,7 @@ class OpenBankingHubScreen extends StatelessWidget {
           color: MintColors.white,
           borderRadius: BorderRadius.circular(16),
           border:
-              Border.all(color: MintColors.border.withOpacity(0.5), width: 0.8),
+              Border.all(color: MintColors.border.withValues(alpha: 0.5), width: 0.8),
         ),
         child: Row(
           children: [
@@ -747,7 +747,7 @@ class OpenBankingHubScreen extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

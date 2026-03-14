@@ -104,7 +104,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
           children: [
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: MintColors.accentPastel,
                 shape: BoxShape.circle,
               ),
@@ -286,7 +286,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: MintColors.primary.withOpacity(0.15),
+                  color: MintColors.primary.withValues(alpha: 0.15),
                   blurRadius: 24,
                   offset: const Offset(0, 8),
                 ),
@@ -327,21 +327,21 @@ class _AskMintScreenState extends State<AskMintScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: MintColors.success.withOpacity(0.08),
+              color: MintColors.success.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.lock_outline,
-                    size: 13, color: MintColors.success.withOpacity(0.8)),
+                    size: 13, color: MintColors.success.withValues(alpha: 0.8)),
                 const SizedBox(width: 6),
                 Text(
                   s.askMintPrivacyBadge,
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
-                    color: MintColors.success.withOpacity(0.8),
+                    color: MintColors.success.withValues(alpha: 0.8),
                   ),
                 ),
               ],
@@ -429,9 +429,9 @@ class _AskMintScreenState extends State<AskMintScreen> {
         alignment: Alignment.centerRight,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: MintColors.primary,
-            borderRadius: const BorderRadius.only(
+            borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20),
               topRight: Radius.circular(20),
               bottomLeft: Radius.circular(20),
@@ -528,9 +528,9 @@ class _AskMintScreenState extends State<AskMintScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: MintColors.info.withOpacity(0.05),
+        color: MintColors.info.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.info.withOpacity(0.15)),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -540,7 +540,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
-              color: MintColors.info.withOpacity(0.8),
+              color: MintColors.info.withValues(alpha: 0.8),
               letterSpacing: 0.5,
             ),
           ),
@@ -553,7 +553,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
                 child: Row(
                   children: [
                     Icon(Icons.description_outlined,
-                        size: 14, color: MintColors.info.withOpacity(0.7)),
+                        size: 14, color: MintColors.info.withValues(alpha: 0.7)),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
@@ -562,7 +562,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
                           fontSize: 12,
                           color: MintColors.info,
                           decoration: TextDecoration.underline,
-                          decorationColor: MintColors.info.withOpacity(0.5),
+                          decorationColor: MintColors.info.withValues(alpha: 0.5),
                         ),
                       ),
                     ),
@@ -579,22 +579,22 @@ class _AskMintScreenState extends State<AskMintScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: MintColors.warning.withOpacity(0.06),
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.warning.withOpacity(0.2)),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.2)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.info_outline,
-              size: 16, color: MintColors.warning.withOpacity(0.8)),
+              size: 16, color: MintColors.warning.withValues(alpha: 0.8)),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               disclaimers.join('\n'),
               style: TextStyle(
                 fontSize: 12,
-                color: MintColors.warning.withOpacity(0.9),
+                color: MintColors.warning.withValues(alpha: 0.9),
                 height: 1.4,
               ),
             ),
@@ -667,7 +667,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
         color: MintColors.white,
         boxShadow: [
           BoxShadow(
-            color: MintColors.black.withOpacity(0.05),
+            color: MintColors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -1012,7 +1012,7 @@ class _TypingDotsState extends State<_TypingDots>
                 child: Container(
                   width: 8,
                   height: 8,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: MintColors.textMuted,
                     shape: BoxShape.circle,
                   ),

@@ -280,8 +280,8 @@ class _LandingScreenState extends State<LandingScreen>
           ),
         ),
         // Arrow
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12),
           child: Icon(
             Icons.arrow_forward_rounded,
             size: 15,

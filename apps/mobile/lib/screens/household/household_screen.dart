@@ -102,7 +102,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.lock_outline, size: 64, color: MintColors.greyBorderLight),
+            const Icon(Icons.lock_outline, size: 64, color: MintColors.greyBorderLight),
             const SizedBox(height: 16),
             Text(
               'Couple+',
@@ -138,7 +138,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.people_outline, size: 64, color: MintColors.greyBorderLight),
+            const Icon(Icons.people_outline, size: 64, color: MintColors.greyBorderLight),
             const SizedBox(height: 16),
             Text(
               S.of(context)!.householdLoginPrompt,
@@ -194,7 +194,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline, size: 48, color: MintColors.coralLight),
+            const Icon(Icons.error_outline, size: 48, color: MintColors.coralLight),
             const SizedBox(height: 16),
             Text(
               household.error!,
@@ -221,7 +221,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            Icon(Icons.favorite_border, size: 48, color: MintColors.primary),
+            const Icon(Icons.favorite_border, size: 48, color: MintColors.primary),
             const SizedBox(height: 16),
             Text(
               'Couple+',
@@ -260,9 +260,9 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            CircleAvatar(
+            const CircleAvatar(
               backgroundColor: MintColors.primary,
-              child: const Icon(Icons.home, color: MintColors.white),
+              child: Icon(Icons.home, color: MintColors.white),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -484,7 +484,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Icon(Icons.check_circle, size: 40, color: MintColors.categoryGreen),
+            const Icon(Icons.check_circle, size: 40, color: MintColors.categoryGreen),
             const SizedBox(height: 8),
             Text(
               S.of(context)!.householdInviteSentTitle,

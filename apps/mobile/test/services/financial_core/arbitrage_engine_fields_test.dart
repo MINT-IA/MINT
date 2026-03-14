@@ -92,7 +92,7 @@ void main() {
 
     test('renteNetMensuelle < renteAnnuelle / 12 (tax applied)', () {
       // Net must be less than gross monthly (taxes reduce it)
-      final grossMonthly = 37000 / 12;
+      const grossMonthly = 37000 / 12;
       expect(r.renteNetMensuelle, lessThan(grossMonthly));
     });
 
@@ -102,7 +102,7 @@ void main() {
 
     test('capitalRetraitMensuel ≈ SWR × capitalTotal / 12 (year 1)', () {
       // SWR 4% on 650k → 26k/yr → ~2167/mo
-      final expected = 650000 * 0.04 / 12;
+      const expected = 650000 * 0.04 / 12;
       expect(r.capitalRetraitMensuel, closeTo(expected, expected * 0.15));
     });
 

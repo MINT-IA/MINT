@@ -149,7 +149,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
       decoration: BoxDecoration(
         color: MintColors.accentPastel,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.accent.withOpacity(0.2)),
+        border: Border.all(color: MintColors.accent.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,7 +159,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: MintColors.accent.withOpacity(0.1),
+                  color: MintColors.accent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.lock_outline,
@@ -378,9 +378,9 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: MintColors.success.withOpacity(0.08),
+            color: MintColors.success.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: MintColors.success.withOpacity(0.3)),
+            border: Border.all(color: MintColors.success.withValues(alpha: 0.3)),
           ),
           child: Row(
             children: [
@@ -414,7 +414,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: MintColors.primary.withOpacity(0.15),
+                color: MintColors.primary.withValues(alpha: 0.15),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -425,7 +425,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: MintColors.white.withOpacity(0.12),
+                  color: MintColors.white.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -451,7 +451,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
-                  color: MintColors.white.withOpacity(0.75),
+                  color: MintColors.white.withValues(alpha: 0.75),
                   height: 1.5,
                 ),
               ),
@@ -487,9 +487,9 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: MintColors.error.withOpacity(0.08),
+        color: MintColors.error.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.error.withOpacity(0.3)),
+        border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [

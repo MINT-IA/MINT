@@ -536,7 +536,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
           ),
           Switch(
             value: value,
-            activeColor: MintColors.primary,
+            activeThumbColor: MintColors.primary,
             onChanged: (v) {
               setState(() => onChanged(v));
             },

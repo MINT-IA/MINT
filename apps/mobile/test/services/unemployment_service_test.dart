@@ -174,7 +174,7 @@ void main() {
       );
 
       // 6000 * 0.70 / 21.75
-      final expected = 6000.0 * 0.70 / 21.75;
+      const expected = 6000.0 * 0.70 / 21.75;
       expect(result.indemniteJournaliere, closeTo(expected, 0.01));
     });
 
@@ -356,7 +356,7 @@ void main() {
 
       expect(result.gainAssureRetenu, 12350.0);
       // indemnite basee sur le plafond, pas le salaire reel
-      final expectedDaily = 12350.0 * 0.70 / 21.75;
+      const expectedDaily = 12350.0 * 0.70 / 21.75;
       expect(result.indemniteJournaliere, closeTo(expectedDaily, 0.01));
     });
 

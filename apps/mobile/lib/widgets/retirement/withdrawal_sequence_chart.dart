@@ -637,9 +637,9 @@ class WithdrawalSequenceChart extends StatelessWidget {
   Widget _buildTotalRow(double totalAmount, double totalTax, double totalRate) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const BorderRadius.vertical(
+        borderRadius: BorderRadius.vertical(
           bottom: Radius.circular(12),
         ),
       ),

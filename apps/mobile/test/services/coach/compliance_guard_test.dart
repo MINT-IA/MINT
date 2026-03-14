@@ -348,7 +348,7 @@ void main() {
   // ═══════════════════════════════════════════════════════════
 
   group('Layer 3 — Hallucination detection', () {
-    final ctx = const CoachContext(
+    const ctx = CoachContext(
       firstName: 'Julien',
       age: 35,
       canton: 'VD',
@@ -382,7 +382,7 @@ void main() {
       // Use a context where fri_total is closer to 95 so it passes
       // relevance check (|95-70|=25 < 30pt threshold) but still triggers
       // hallucination (|95-70|=25 > 2pt tolerance).
-      final scoreCtx = const CoachContext(
+      const scoreCtx = CoachContext(
         firstName: 'Julien',
         age: 35,
         canton: 'VD',
@@ -588,7 +588,7 @@ void main() {
 
   group('Combined adversarial scenarios', () {
     test('multiple violations: banned + prescriptive + hallucination', () {
-      final ctx = const CoachContext(
+      const ctx = CoachContext(
         knownValues: {'capital_final': 300000.0},
       );
       final result = ComplianceGuard.validate(
@@ -616,7 +616,7 @@ void main() {
     });
 
     test('fully compliant output passes all layers', () {
-      final ctx = const CoachContext(
+      const ctx = CoachContext(
         firstName: 'Julien',
         knownValues: {'fri_total': 62.0},
       );

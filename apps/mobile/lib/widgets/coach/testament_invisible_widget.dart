@@ -110,9 +110,9 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
   Widget _buildHeader(bool isConcubin, S s) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: MintColors.successionBg,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

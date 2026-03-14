@@ -308,7 +308,7 @@ void main() {
       // instead of the user's actual monthly income.
       // User at 10k/month with projected 6.5k retirement => 65%, NOT 83%.
       // Ref: LPP art. 14 — taux de conversion minimum de 6.8% (part obligatoire)
-      final projection = RetirementProjection(
+      const projection = RetirementProjection(
         yearsUntilRetirement: 25,
         lppCapital: 500000,
         pillar3aCapital: 100000,
@@ -325,7 +325,7 @@ void main() {
 
     test('replacement rate is clamped between 0 and 150', () {
       // Edge case: very low income, high retirement income => clamped at 150%
-      final projHigh = RetirementProjection(
+      const projHigh = RetirementProjection(
         yearsUntilRetirement: 10,
         lppCapital: 200000,
         pillar3aCapital: 50000,
@@ -336,7 +336,7 @@ void main() {
       expect(projHigh.replacementRate, equals(150.0));
 
       // Edge case: zero income => 0%
-      final projZero = RetirementProjection(
+      const projZero = RetirementProjection(
         yearsUntilRetirement: 10,
         lppCapital: 200000,
         pillar3aCapital: 50000,
@@ -349,7 +349,7 @@ void main() {
 
     test('replacement rate defaults to 7800 when currentMonthlyIncome not provided', () {
       // Backward compatibility: default currentMonthlyIncome = 7800
-      final projection = RetirementProjection(
+      const projection = RetirementProjection(
         yearsUntilRetirement: 20,
         lppCapital: 300000,
         pillar3aCapital: 80000,

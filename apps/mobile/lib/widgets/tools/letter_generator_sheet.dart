@@ -141,7 +141,7 @@ class LetterGeneratorSheet extends StatelessWidget {
               pw.Spacer(),
               pw.Divider(),
               pw.Text(letter.disclaimer,
-                  style: pw.TextStyle(fontSize: 8, color: PdfColors.grey600)),
+                  style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey600)),
             ],
           );
         },

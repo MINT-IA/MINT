@@ -904,7 +904,7 @@ void main() {
       );
 
       // 70% of net (8000 * 0.87) = 4872 — should be AT LEAST this
-      final netFloor = 8000 * 0.87 * 0.70;
+      const netFloor = 8000 * 0.87 * 0.70;
       expect(result.budgetGap.depensesMensuelles, greaterThanOrEqualTo(netFloor));
     });
   });

@@ -1,0 +1,34 @@
+iteration	timestamp	commit_hash	metric_analyze	metric_tests	metric_hardcoded	metric_banned	status	description
+0	2026-03-14T00:00:00	baseline	1620	4252/4252	0	0	BASELINE	Initial measurement
+1	2026-03-14T00:01:00	18614d2	1619	4252/4252	0	0	KEEP	remove unused import in avs_guide_screen
+2	2026-03-14T00:02:00	4b796a6	1618	4252/4252	0	0	KEEP	remove unused import in document_scan_screen
+3	2026-03-14T00:03:00	751bac1	1617	4252/4252	0	0	KEEP	remove unused import in extraction_review_screen
+4	2026-03-14T00:04:00	9d993bb	1616	4252/4252	0	0	KEEP	remove unused import in succession_simulator_screen
+5	2026-03-14T00:05:00	110be41	1615	4252/4252	0	0	KEEP	remove unnecessary import in financial_report_service
+6	2026-03-14T00:06:00	6b3edb4	1614	4252/4252	0	0	KEEP	remove unnecessary import in forecaster_service
+7	2026-03-14T00:07:00	6ba27ff	1613	4252/4252	0	0	KEEP	remove unnecessary import in ios_iap_service_test
+8	2026-03-14T00:08:00	ee186b1	1611	4252/4252	0	0	KEEP	remove unnecessary string interpolations in rente_vs_capital_screen
+9	2026-03-14T00:09:00	a582cc1	1610	4252/4252	0	0	KEEP	remove unnecessary string interpolation in gender_gap_screen
+10	2026-03-14T00:10:00	76d09f3	1609	4252/4252	0	0	KEEP	remove unnecessary string interpolation in apercu_3a_card
+11	2026-03-14T00:11:00	60bc274	1608	4252/4252	0	0	KEEP	remove unnecessary brace interpolation in remploi_countdown_widget
+12	2026-03-14T00:12:00	5a12b75	1606	4252/4252	0	0	KEEP	remove unnecessary brace interpolations in rent_vs_buy_scoreboard_widget
+13	2026-03-14T00:13:00	2a6006e	1605	4252/4252	0	0	KEEP	remove unnecessary brace interpolation in retirement_hero_zone
+14	2026-03-14T00:14:00	e86e96c	1604	4252/4252	0	0	KEEP	remove unnecessary brace interpolation in ninety_day_gauge
+15	2026-03-14T00:15:00	3938b42	1602	4252/4252	0	0	KEEP	remove unnecessary string escapes in assurances_service
+16	2026-03-14T00:16:00	481d654	1601	4252/4252	0	0	KEEP	remove unnecessary toList in spread in pillar3a_comparator_widget
+17	2026-03-14T00:17:00	2f02118	1600	4252/4252	0	0	KEEP	remove unnecessary toList in spread in educational_explanation_widget
+18	2026-03-14T00:18:00	0854ec5	1599	4252/4252	0	0	KEEP	remove unused _buildMatrixRow in concubinage_screen
+19	2026-03-14T00:19:00	a284714	1597	4252/4252	0	0	KEEP	remove unused _buildPieLegend and _PieChartPainter in mariage_screen
+20	2026-03-14T00:20:00	a389434	1596	4252/4252	0	0	KEEP	remove unused _MockResult class in coach_llm_service
+21	2026-03-14T00:21:00	3573b4b	1591	4252/4252	0	0	KEEP	make never-reassigned fields final in gender_gap_screen
+22	2026-03-14T00:22:00	e941845	1589	4252/4252	0	0	KEEP	make never-reassigned fields final in independant_screen
+23	2026-03-14T00:23:00	4301e23	1588	4252/4252	0	0	KEEP	make never-reassigned _canton final in lpp_buyback_advanced_widget
+24	2026-03-14T00:24:00	9f342b9	1585	4252/4252	0	0	KEEP	add curly braces to if/else in expat_countdown_widget
+25	2026-03-14T00:25:00	0879469	1583	4252/4252	0	0	KEEP	guard BuildContext after async gap in register_screen
+26	2026-03-14T00:26:00	ccc64b7	1582	4252/4252	0	0	KEEP	guard BuildContext after async gap in slm_auto_prompt_service
+27	2026-03-14T00:27:00	22f696e	1581	4252/4252	0	0	KEEP	remove leading underscore from local _scenarioFromJson
+28	2026-03-14T00:28:00	19c607d	1578	4252/4252	0	0	KEEP	rename trois_a to troisA in retirement_hero_zone
+## SESSION 2 — 2026-03-14 (post coach-evolution)
+29	2026-03-14T01:00:00	a282189	—	—	0	0	KEEP	P0-P1: unused_var + 8x non_null_assertion + sort_child + interpolation fixes
+30	2026-03-14T01:05:00	3de04ea	—	—	0	0	KEEP	P2: remove dead map + rename _3aAnnualizationYears
+31	2026-03-14T01:10:00	f21e1b5	1457	passing	0	0	KEEP	P2: 20x no_leading_underscores renamed in 16 test files

@@ -42,7 +42,7 @@ class EnvelopeSlider extends StatelessWidget {
           data: SliderTheme.of(context).copyWith(
             activeTrackColor: activeColor,
             thumbColor: activeColor,
-            overlayColor: activeColor.withOpacity(0.2),
+            overlayColor: activeColor.withValues(alpha: 0.2),
             trackHeight: 6.0,
           ),
           child: Slider(

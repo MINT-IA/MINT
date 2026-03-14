@@ -48,7 +48,7 @@ class Apercu3aCard extends StatelessWidget {
         capitalActuel + (plafond * anneesRestantes.clamp(0, 40));
 
     // Projection avec rendement ~2% net (conservateur, après frais)
-    final tauxNet = 0.02;
+    const tauxNet = 0.02;
     double projectionAvecRendement = capitalActuel;
     for (int i = 0; i < anneesRestantes.clamp(0, 40); i++) {
       projectionAvecRendement =
@@ -81,7 +81,7 @@ class Apercu3aCard extends StatelessWidget {
                   color: MintColors.pillar3a.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.savings_outlined,
                   color: MintColors.pillar3a,
                   size: 22,
@@ -178,7 +178,7 @@ class Apercu3aCard extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 6),
                 child: Row(
                   children: [
-                    Icon(Icons.account_balance_outlined,
+                    const Icon(Icons.account_balance_outlined,
                         size: 14, color: MintColors.textMuted),
                     const SizedBox(width: 8),
                     Expanded(
@@ -348,7 +348,7 @@ class _ProgressionBar extends StatelessWidget {
             minHeight: 6,
             backgroundColor: MintColors.pillar3a.withValues(alpha: 0.12),
             valueColor:
-                AlwaysStoppedAnimation<Color>(MintColors.pillar3a),
+                const AlwaysStoppedAnimation<Color>(MintColors.pillar3a),
           ),
         ),
       ],

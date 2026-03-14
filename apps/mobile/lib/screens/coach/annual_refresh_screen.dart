@@ -779,7 +779,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                             MintColors.textMuted,
                             l10n,
                           ),
-                          Icon(
+                          const Icon(
                             Icons.arrow_forward,
                             color: MintColors.textMuted,
                             size: 24,

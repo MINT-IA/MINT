@@ -404,7 +404,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
               Switch(
                 value: _hasIjm,
                 onChanged: (v) => setState(() => _hasIjm = v),
-                activeColor: MintColors.primary,
+                activeThumbColor: MintColors.primary,
               ),
             ],
           ),

@@ -114,7 +114,7 @@ class _IncomeStackedBarChartState extends State<IncomeStackedBarChart>
         // Find which segment
         final phase = widget.phases[i];
         final maxVal = _maxValue;
-        final chartHeight = 240.0;
+        const chartHeight = 240.0;
         double currentY = chartHeight;
 
         for (int j = 0; j < phase.sources.length; j++) {
@@ -277,10 +277,10 @@ class _IncomeBarPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final chartTop = 30.0;
+    const chartTop = 30.0;
     final chartBottom = size.height - 30;
     final chartHeight = chartBottom - chartTop;
-    final chartLeft = 50.0;
+    const chartLeft = 50.0;
     final chartRight = size.width - 10;
     final chartWidth = chartRight - chartLeft;
 
@@ -294,7 +294,7 @@ class _IncomeBarPainter extends CustomPainter {
     maxVal *= 1.15;
 
     // Y-axis labels
-    final ySteps = 4;
+    const ySteps = 4;
     final yLabelPaint = TextPainter(textDirection: TextDirection.ltr);
     for (int i = 0; i <= ySteps; i++) {
       final val = maxVal * i / ySteps;

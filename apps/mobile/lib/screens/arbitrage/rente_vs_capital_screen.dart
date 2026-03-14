@@ -811,7 +811,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   const SizedBox(height: 6),
                   Switch(
                     value: _isMarried,
-                    activeColor: MintColors.primary,
+                    activeThumbColor: MintColors.primary,
                     onChanged: (v) { _isMarried = v; _recalculate(); },
                   ),
                 ],
@@ -1180,7 +1180,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               trackHeight: 6,
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
               valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
-              showValueIndicator: ShowValueIndicator.always,
+              showValueIndicator: ShowValueIndicator.onDrag,
             ),
             child: Slider(
               value: _lifeExpectancy,
@@ -1848,7 +1848,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             ),
             Switch(
               value: _hasEpl,
-              activeColor: MintColors.primary,
+              activeThumbColor: MintColors.primary,
               onChanged: (v) => setState(() { _hasEpl = v; _recalculate(); }),
             ),
           ],

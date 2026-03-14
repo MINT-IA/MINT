@@ -282,7 +282,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
                       height: 48,
                       margin: const EdgeInsets.symmetric(horizontal: 2),
                       transform: Matrix4.identity()
-                        ..scale(isSelected ? 1.1 : 1.0),
+                        ..scaleByDouble(isSelected ? 1.1 : 1.0),
                       transformAlignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: _colorForRate(canton.rate)
@@ -339,7 +339,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
           height: 10,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               colors: [
                 MintColors.success,
                 MintColors.warning,

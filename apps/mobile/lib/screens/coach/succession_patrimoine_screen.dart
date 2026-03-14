@@ -74,18 +74,18 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── P8-A : Testament invisible ───────────────
-                TestamentInvisibleWidget(
+                const TestamentInvisibleWidget(
                   patrimoine: 500000,
                   initialStatus: FamilyStatus.concubin,
                 ),
                 const SizedBox(height: 20),
 
                 // ── P8-E : Avancement d'hoirie ────────────────
-                AvancementHoirieWidget(
+                const AvancementHoirieWidget(
                   totalPatrimoine: 500000,
                   donationAmount: 50000,
                   donationRecipientIndex: 0,
-                  children: const [
+                  children: [
                     HoirieChild(name: 'Enfant 1', emoji: '👦'),
                     HoirieChild(name: 'Enfant 2', emoji: '👧'),
                   ],

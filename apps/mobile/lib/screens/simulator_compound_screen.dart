@@ -131,12 +131,12 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
           ),
           const SizedBox(height: 12),
           RichText(
-            text: TextSpan(
-              style: const TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
+            text: const TextSpan(
+              style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
               children: [
-                const TextSpan(text: 'Comprendre l\''),
+                TextSpan(text: 'Comprendre l\''),
                 WidgetSpan(child: InfoTooltip(term: 'intérêt composé')),
-                const TextSpan(text: ', c\'est comprendre comment ton argent travaille pour toi pendant que tu dors.'),
+                TextSpan(text: ', c\'est comprendre comment ton argent travaille pour toi pendant que tu dors.'),
               ],
             ),
           ),

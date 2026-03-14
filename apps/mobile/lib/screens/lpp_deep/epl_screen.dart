@@ -140,7 +140,7 @@ class _EplScreenState extends State<EplScreen> {
           const SizedBox(height: 8),
           Text(
             S.of(context)!.eplIntroBody,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 13,
               color: MintColors.textSecondary,
               height: 1.5,
@@ -271,7 +271,7 @@ class _EplScreenState extends State<EplScreen> {
               ),
               Switch(
                 value: _aRachete,
-                activeColor: MintColors.primary,
+                activeThumbColor: MintColors.primary,
                 onChanged: (v) => setState(() {
                   _aRachete = v;
                   if (!v) _anneesSDepuisRachat = 0;
@@ -382,7 +382,7 @@ class _EplScreenState extends State<EplScreen> {
             const SizedBox(height: 8),
             Text(
               S.of(context)!.eplRetraitImpossible,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 color: MintColors.error,
                 fontStyle: FontStyle.italic,
@@ -425,7 +425,7 @@ class _EplScreenState extends State<EplScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [MintColors.urgentBg, MintColors.warningBg],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -458,7 +458,7 @@ class _EplScreenState extends State<EplScreen> {
           const SizedBox(height: 12),
           Text(
             S.of(context)!.eplImpactPrestationsBody,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 11,
               color: MintColors.redDeep,
               height: 1.4,
@@ -486,7 +486,7 @@ class _EplScreenState extends State<EplScreen> {
         ),
         Text(
           amount,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.bold,
             color: MintColors.redMedium,
@@ -515,7 +515,7 @@ class _EplScreenState extends State<EplScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [MintColors.warningBg, MintColors.disclaimerBg],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -554,7 +554,7 @@ class _EplScreenState extends State<EplScreen> {
           const SizedBox(height: 12),
           Text(
             S.of(context)!.eplEstimationEducative,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 11,
               color: MintColors.warning,
               height: 1.4,
@@ -605,7 +605,7 @@ class _EplScreenState extends State<EplScreen> {
           const SizedBox(height: 8),
           Text(
             S.of(context)!.eplTaxNote,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 11,
               color: MintColors.textMuted,
               height: 1.4,
@@ -642,13 +642,13 @@ class _EplScreenState extends State<EplScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.warning_amber_rounded,
+                const Icon(Icons.warning_amber_rounded,
                     color: MintColors.warningText, size: 20),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     alert,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
                       color: MintColors.amberDark,
                       height: 1.4,
@@ -673,12 +673,12 @@ class _EplScreenState extends State<EplScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: MintColors.deepOrange,
                 height: 1.4,

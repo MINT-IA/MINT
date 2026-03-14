@@ -23,13 +23,13 @@ class RecommendationCard extends StatelessWidget {
         recommendation.title.toLowerCase().contains('desendettement');
 
     if (hasDebt && !isDebtRelated) {
-      return SafeModeGate(
+      return const SafeModeGate(
         hasDebt: true,
         lockedTitle: 'Recommandation suspendue',
         lockedMessage:
             'Cette recommandation est désactivée en mode protection. '
             'Ta priorité est de stabiliser ta situation financière.',
-        child: const SizedBox.shrink(),
+        child: SizedBox.shrink(),
       );
     }
 

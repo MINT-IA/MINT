@@ -99,7 +99,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [MintColors.successBg, MintColors.successBg],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -127,7 +127,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
           const SizedBox(height: 4),
           Text(
             S.of(context)!.realReturnVsTaux(result.rendementNominal.toStringAsFixed(1)),
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 13,
               color: MintColors.categoryGreen,
             ),
@@ -136,7 +136,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
           Text(
             S.of(context)!.realReturnEffortNet(formatChf(effortNet), premiumPts.toStringAsFixed(1)),
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 11,
               color: MintColors.greenDark,
               fontWeight: FontWeight.w600,
@@ -402,12 +402,12 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             ),
             child: Row(
               children: [
-                Icon(Icons.trending_up, color: MintColors.greenDark, size: 20),
+                const Icon(Icons.trending_up, color: MintColors.greenDark, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     S.of(context)!.realReturnGainVsEpargne(formatChf(result.gainVsEpargne)),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: MintColors.greenForest,
@@ -549,12 +549,12 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: MintColors.deepOrange,
                 height: 1.4,

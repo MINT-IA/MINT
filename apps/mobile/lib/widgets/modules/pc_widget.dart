@@ -59,7 +59,7 @@ class _PCWidgetState extends State<PCWidget> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: isEligible
-                  ? MintColors.success.withOpacity(0.1)
+                  ? MintColors.success.withValues(alpha: 0.1)
                   : MintColors.surface,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(

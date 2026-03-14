@@ -44,7 +44,7 @@ class DisabilityResetWidget extends StatelessWidget {
     final bonificationBefore = currentSalary * currentRate;
     final bonificationAfter = reducedSalary * currentRate;
     final capitalDelta = capitalBefore - capitalAfter;
-    final conversionRate = lppTauxConversionMin / 100;
+    const conversionRate = lppTauxConversionMin / 100;
     final renteMonthlyDelta = capitalDelta * conversionRate / 12;
 
     return Semantics(

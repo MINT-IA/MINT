@@ -209,9 +209,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 const SizedBox(height: 24),
 
                 // Simulateur de départ anticipé à la retraite
-                EarlyRetirementSlider(
+                const EarlyRetirementSlider(
                   monthlyIncomeAt65: 4000,
-                  scenarios: const [
+                  scenarios: [
                     RetirementAgeScenario(age: 60, monthlyIncome: 3400, deltaPercent: -15, lifetimeDelta: -18000),
                     RetirementAgeScenario(age: 62, monthlyIncome: 3600, deltaPercent: -10, lifetimeDelta: -12000),
                     RetirementAgeScenario(age: 63, monthlyIncome: 3760, deltaPercent: -6, lifetimeDelta: -7200),
@@ -782,7 +782,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                     Expanded(
                       child: Text(
                         S.of(context)!.rachatTauxMarginalTip,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 13,
                           color: MintColors.greenForest,
                           fontStyle: FontStyle.italic,
@@ -1178,7 +1178,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                   children: [
                     Text(
                       S.of(context)!.rachatEconomieChf(formatChf(result.economieEchelonneTotal)),
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: MintColors.greenDark,
@@ -1297,7 +1297,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                       ),
                       Text(
                         '-CHF ${formatChf(year.economieFiscale)}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                           color: MintColors.greenDark,
@@ -1318,7 +1318,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                       ),
                       Text(
                         S.of(context)!.rachatEconomieFiscale,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 11,
                           color: MintColors.greenPastel,
                         ),
@@ -1378,7 +1378,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.gavel, color: MintColors.redMedium, size: 22),
+          const Icon(Icons.gavel, color: MintColors.redMedium, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -1386,7 +1386,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               children: [
                 Text(
                   S.of(context)!.rachatBlockageEplTitle,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                     color: MintColors.redDark,
@@ -1395,7 +1395,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 const SizedBox(height: 4),
                 Text(
                   S.of(context)!.rachatBlockageEplBody,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     color: MintColors.redMedium,
                     height: 1.4,
@@ -1424,12 +1424,12 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: MintColors.deepOrange,
                 height: 1.4,

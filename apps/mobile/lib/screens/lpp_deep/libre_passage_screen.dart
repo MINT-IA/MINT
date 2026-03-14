@@ -249,7 +249,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
             children: [
               Text(
                 S.of(context)!.librePassageTonAge,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: MintColors.textPrimary,
@@ -280,7 +280,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
             children: [
               Text(
                 S.of(context)!.librePassageAvoirLibrePassage,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: MintColors.textPrimary,
@@ -343,7 +343,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
           ),
           Switch(
             value: _hasNewEmployer,
-            activeColor: MintColors.primary,
+            activeThumbColor: MintColors.primary,
             onChanged: (v) => setState(() => _hasNewEmployer = v),
           ),
         ],
@@ -504,7 +504,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: _urgencyColor(urgency).withOpacity(0.15),
+        color: _urgencyColor(urgency).withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
@@ -545,7 +545,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.lightbulb_outline,
+                  const Icon(Icons.lightbulb_outline,
                       size: 18, color: MintColors.warningText),
                   const SizedBox(width: 10),
                   Expanded(
@@ -584,7 +584,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
         ),
         child: Row(
           children: [
-            Icon(Icons.search, color: MintColors.blueDark, size: 24),
+            const Icon(Icons.search, color: MintColors.blueDark, size: 24),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -592,7 +592,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 children: [
                   Text(
                     S.of(context)!.librePassageCentrale2ePilier,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: MintColors.blueMaterial900,
@@ -601,7 +601,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                   const SizedBox(height: 2),
                   Text(
                     S.of(context)!.librePassageRechercherAvoirs,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
                       color: MintColors.categoryBlue,
                     ),
@@ -609,7 +609,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 ],
               ),
             ),
-            Icon(Icons.open_in_new, color: MintColors.blueClassic, size: 18),
+            const Icon(Icons.open_in_new, color: MintColors.blueClassic, size: 18),
           ],
         ),
       ),
@@ -631,7 +631,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
           Expanded(
             child: Text(
               S.of(context)!.librePassagePrivacy,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: MintColors.textMuted,
                 height: 1.4,
@@ -654,12 +654,12 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: MintColors.deepOrange,
                 height: 1.4,

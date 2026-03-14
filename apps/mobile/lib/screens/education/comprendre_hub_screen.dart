@@ -48,7 +48,7 @@ class ComprendreHubScreen extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 24.0),
                     child: Text(
                       S.of(context)?.eduHubSubtitle ?? "Pas de panique. Choisis un sujet, on t'explique l'essentiel et on te donne une action simple.",
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         color: MintColors.textMuted,
                         height: 1.5,
@@ -87,7 +87,7 @@ class _ThemeCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: MintColors.black.withOpacity(0.03),
+              color: MintColors.black.withValues(alpha: 0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -114,7 +114,7 @@ class _ThemeCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: theme.color.withOpacity(0.1),
+                        color: theme.color.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(theme.icon, color: theme.color, size: 24),
@@ -136,7 +136,7 @@ class _ThemeCard extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             S.of(context)?.eduHubReadQuiz ?? "Lire + quiz \u2022 ${theme.estimatedMinutes} min",
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
                               color: MintColors.textMuted,
                             ),

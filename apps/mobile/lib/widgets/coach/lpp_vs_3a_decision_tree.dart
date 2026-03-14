@@ -163,7 +163,7 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
       ),
       child: Row(
         children: [
-          Text('\ud83d\udcca', style: const TextStyle(fontSize: 20)),
+          const Text('\ud83d\udcca', style: TextStyle(fontSize: 20)),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -301,7 +301,7 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
         children: [
           Row(
             children: [
-              Text('\ud83c\udfaf', style: const TextStyle(fontSize: 20)),
+              const Text('\ud83c\udfaf', style: TextStyle(fontSize: 20)),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(

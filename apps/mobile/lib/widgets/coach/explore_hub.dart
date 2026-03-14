@@ -40,32 +40,32 @@ class ExploreHub extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          _ExploreRow(
+          const _ExploreRow(
             icon: Icons.person_outline,
             title: 'Mon profil',
             subtitle: 'Compl\u00e9ter ou ajuster mes donn\u00e9es',
             route: '/profile/bilan',
           ),
           if (FeatureFlags.enableDecisionScaffold)
-            _ExploreRow(
+            const _ExploreRow(
               icon: Icons.balance,
               title: 'Rente vs capital',
               subtitle: 'Comparer les options de retrait LPP',
               route: '/arbitrage/rente-vs-capital',
             ),
-          _ExploreRow(
+          const _ExploreRow(
             icon: Icons.chat_outlined,
             title: 'Coach & check-in',
             subtitle: 'Discussion et suivi mensuel',
             route: '/coach/checkin',
           ),
-          _ExploreRow(
+          const _ExploreRow(
             icon: Icons.document_scanner_outlined,
             title: 'Scanner un document',
             subtitle: 'Certificat LPP, d\u00e9claration fiscale',
             route: '/document-scan',
           ),
-          _ExploreRow(
+          const _ExploreRow(
             icon: Icons.assignment_outlined,
             title: 'Extrait AVS',
             subtitle: 'Commander et v\u00e9rifier ton extrait CI',

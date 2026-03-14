@@ -167,7 +167,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
             color: MintColors.accentPastel,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Icon(
+          child: const Icon(
             Icons.health_and_safety,
             color: MintColors.tealLight,
             size: 28,
@@ -258,7 +258,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                   boxShadow: !_isChild
                       ? [
                           BoxShadow(
-                            color: MintColors.black.withOpacity(0.05),
+                            color: MintColors.black.withValues(alpha: 0.05),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -294,7 +294,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                   boxShadow: _isChild
                       ? [
                           BoxShadow(
-                            color: MintColors.black.withOpacity(0.05),
+                            color: MintColors.black.withValues(alpha: 0.05),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -329,13 +329,13 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: MintColors.primary.withOpacity(0.06),
+            color: MintColors.primary.withValues(alpha: 0.06),
             blurRadius: 20,
             offset: const Offset(0, 6),
             spreadRadius: -4,
           ),
         ],
-        border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -356,7 +356,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: MintColors.primary.withOpacity(0.08),
+                  color: MintColors.primary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -376,7 +376,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               activeTrackColor: MintColors.primary,
               inactiveTrackColor: MintColors.border,
               thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withOpacity(0.1),
+              overlayColor: MintColors.primary.withValues(alpha: 0.1),
               trackHeight: 6,
             ),
             child: Slider(
@@ -412,13 +412,13 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: MintColors.primary.withOpacity(0.06),
+            color: MintColors.primary.withValues(alpha: 0.06),
             blurRadius: 20,
             offset: const Offset(0, 6),
             spreadRadius: -4,
           ),
         ],
-        border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -440,10 +440,10 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: _depensesSante > 3000
-                      ? MintColors.error.withOpacity(0.1)
+                      ? MintColors.error.withValues(alpha: 0.1)
                       : _depensesSante > 1000
-                          ? MintColors.warning.withOpacity(0.1)
-                          : MintColors.success.withOpacity(0.1),
+                          ? MintColors.warning.withValues(alpha: 0.1)
+                          : MintColors.success.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -467,7 +467,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               activeTrackColor: MintColors.primary,
               inactiveTrackColor: MintColors.border,
               thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withOpacity(0.1),
+              overlayColor: MintColors.primary.withValues(alpha: 0.1),
               trackHeight: 6,
             ),
             child: Slider(
@@ -531,7 +531,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: c.isOptimal ? MintColors.success : MintColors.border.withOpacity(0.6),
+          color: c.isOptimal ? MintColors.success : MintColors.border.withValues(alpha: 0.6),
           width: c.isOptimal ? 2 : 0.8,
         ),
       ),
@@ -555,7 +555,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: MintColors.success.withOpacity(0.1),
+                        color: MintColors.success.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -641,14 +641,14 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.swap_vert, color: MintColors.teal, size: 18),
+              const Icon(Icons.swap_vert, color: MintColors.teal, size: 18),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.lamalFranchiseBreakEvenTitle,
@@ -670,7 +670,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                   width: 6,
                   height: 6,
                   margin: const EdgeInsets.only(top: 6),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: MintColors.teal,
                     shape: BoxShape.circle,
                   ),
@@ -730,7 +730,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
             decoration: BoxDecoration(
               color: MintColors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+              border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
             ),
             child: Text(
               rec,
@@ -759,7 +759,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.event, color: MintColors.tealLight, size: 20),
+          const Icon(Icons.event, color: MintColors.tealLight, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -790,7 +790,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

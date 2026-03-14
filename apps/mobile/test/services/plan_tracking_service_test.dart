@@ -145,7 +145,7 @@ void main() {
 
   group('PlanTrackingService.compoundProjectedImpact', () {
     test('returns 0 when monthsToRetirement <= 0', () {
-      final status = PlanStatus(
+      const status = PlanStatus(
         score: 50,
         completedActions: 1,
         totalActions: 2,
@@ -163,7 +163,7 @@ void main() {
     });
 
     test('returns 0 when gap is zero (all planned = all actual)', () {
-      final status = PlanStatus(
+      const status = PlanStatus(
         score: 100,
         completedActions: 2,
         totalActions: 2,
@@ -181,7 +181,7 @@ void main() {
     });
 
     test('positive impact with real CHF gap', () {
-      final status = PlanStatus(
+      const status = PlanStatus(
         score: 50,
         completedActions: 1,
         totalActions: 2,
@@ -202,7 +202,7 @@ void main() {
     });
 
     test('zero return produces linear accumulation', () {
-      final status = PlanStatus(
+      const status = PlanStatus(
         score: 50,
         completedActions: 1,
         totalActions: 2,
@@ -220,7 +220,7 @@ void main() {
     });
 
     test('compound exceeds linear with positive return', () {
-      final status = PlanStatus(
+      const status = PlanStatus(
         score: 50,
         completedActions: 1,
         totalActions: 2,

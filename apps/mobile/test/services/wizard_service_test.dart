@@ -14,17 +14,17 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────
   List<WizardQuestion> buildTestQuestions() {
     return [
-      WizardQuestion(
+      const WizardQuestion(
         id: 'q_canton',
         title: 'Canton?',
         type: QuestionType.choice,
         required: true,
         options: [
-          const QuestionOption(label: 'Vaud', value: 'VD'),
-          const QuestionOption(label: 'Zurich', value: 'ZH'),
+          QuestionOption(label: 'Vaud', value: 'VD'),
+          QuestionOption(label: 'Zurich', value: 'ZH'),
         ],
       ),
-      WizardQuestion(
+      const WizardQuestion(
         id: 'q_birth_year',
         title: 'Birth year?',
         type: QuestionType.number,
@@ -32,31 +32,31 @@ void main() {
         minValue: 1940,
         maxValue: 2010,
       ),
-      WizardQuestion(
+      const WizardQuestion(
         id: 'q_savings_monthly',
         title: 'Monthly savings?',
         type: QuestionType.number,
         required: false,
         hint: 'CHF par mois',
       ),
-      WizardQuestion(
+      const WizardQuestion(
         id: 'q_has_3a',
         title: 'As-tu un 3a?',
         type: QuestionType.choice,
         required: true,
         options: [
-          const QuestionOption(label: 'Oui', value: 'yes'),
-          const QuestionOption(label: 'Non', value: 'no'),
+          QuestionOption(label: 'Oui', value: 'yes'),
+          QuestionOption(label: 'Non', value: 'no'),
         ],
       ),
-      WizardQuestion(
+      const WizardQuestion(
         id: 'q_primary_goal',
         title: 'Objectif principal?',
         type: QuestionType.choice,
         required: true,
         options: [
-          const QuestionOption(label: 'Maison', value: 'house'),
-          const QuestionOption(label: 'Retraite', value: 'retire'),
+          QuestionOption(label: 'Maison', value: 'house'),
+          QuestionOption(label: 'Retraite', value: 'retire'),
         ],
       ),
       WizardQuestion(
@@ -217,7 +217,7 @@ void main() {
 
   group('WizardService.validateAnswer', () {
     test('returns error when required question has null answer', () {
-      final question = WizardQuestion(
+      const question = WizardQuestion(
         id: 'q_test',
         title: 'Test?',
         type: QuestionType.choice,
@@ -230,7 +230,7 @@ void main() {
     });
 
     test('returns null for valid required answer', () {
-      final question = WizardQuestion(
+      const question = WizardQuestion(
         id: 'q_test',
         title: 'Test?',
         type: QuestionType.choice,
@@ -242,7 +242,7 @@ void main() {
     });
 
     test('returns null for optional question with null answer', () {
-      final question = WizardQuestion(
+      const question = WizardQuestion(
         id: 'q_test',
         title: 'Test?',
         type: QuestionType.choice,
@@ -254,7 +254,7 @@ void main() {
     });
 
     test('returns error when numeric answer below minValue', () {
-      final question = WizardQuestion(
+      const question = WizardQuestion(
         id: 'q_birth_year',
         title: 'Birth year?',
         type: QuestionType.number,
@@ -269,7 +269,7 @@ void main() {
     });
 
     test('returns error when numeric answer above maxValue', () {
-      final question = WizardQuestion(
+      const question = WizardQuestion(
         id: 'q_birth_year',
         title: 'Birth year?',
         type: QuestionType.number,
@@ -284,7 +284,7 @@ void main() {
     });
 
     test('returns null for numeric answer within range', () {
-      final question = WizardQuestion(
+      const question = WizardQuestion(
         id: 'q_birth_year',
         title: 'Birth year?',
         type: QuestionType.number,
@@ -298,7 +298,7 @@ void main() {
     });
 
     test('returns null for input type with numeric answer within range', () {
-      final question = WizardQuestion(
+      const question = WizardQuestion(
         id: 'q_income',
         title: 'Income?',
         type: QuestionType.input,
@@ -315,7 +315,7 @@ void main() {
   group('WizardService.calculateCompletionScore', () {
     test('returns 100 when no required questions exist', () {
       final questions = [
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_optional',
           title: 'Optional',
           type: QuestionType.text,
@@ -406,7 +406,7 @@ void main() {
 
     test('returns first question when no priority match found', () {
       final questions = [
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_custom_unknown',
           title: 'Custom',
           type: QuestionType.text,
@@ -447,7 +447,7 @@ void main() {
     test('formats input answer with CHF prefix when hint contains CHF', () {
       // Use a custom question with type=input and a CHF hint
       final questions = [
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_income_chf',
           title: 'Revenu mensuel?',
           type: QuestionType.input,
@@ -637,7 +637,7 @@ void main() {
 
   group('WizardQuestion.shouldShow', () {
     test('returns true when no condition is set', () {
-      final question = WizardQuestion(
+      const question = WizardQuestion(
         id: 'q_test',
         title: 'Test',
         type: QuestionType.text,

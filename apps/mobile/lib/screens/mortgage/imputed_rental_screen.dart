@@ -85,7 +85,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
                 // Source legale
                 Text(
                   S.of(context)!.imputedRentalSource,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
                     color: MintColors.textMuted,
@@ -145,7 +145,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3), width: 2),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
       ),
       child: Column(
         children: [
@@ -270,7 +270,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
               child: Container(
                 height: 24,
                 decoration: BoxDecoration(
-                  color: MintColors.error.withOpacity(0.2),
+                  color: MintColors.error.withValues(alpha: 0.2),
                   borderRadius: const BorderRadius.horizontal(
                     left: Radius.circular(6),
                   ),
@@ -278,7 +278,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
                 alignment: Alignment.center,
                 child: Text(
                   S.of(context)!.imputedRentalRentalValue,
-                  style: TextStyle(fontSize: 10, color: MintColors.error),
+                  style: const TextStyle(fontSize: 10, color: MintColors.error),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -288,7 +288,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
               child: Container(
                 height: 24,
                 decoration: BoxDecoration(
-                  color: MintColors.success.withOpacity(0.2),
+                  color: MintColors.success.withValues(alpha: 0.2),
                   borderRadius: const BorderRadius.horizontal(
                     right: Radius.circular(6),
                   ),
@@ -296,7 +296,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
                 alignment: Alignment.center,
                 child: Text(
                   S.of(context)!.imputedRentalDeductions,
-                  style: TextStyle(fontSize: 10, color: MintColors.success),
+                  style: const TextStyle(fontSize: 10, color: MintColors.success),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -446,7 +446,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
               ),
               Switch(
                 value: _bienAncien,
-                activeColor: MintColors.primary,
+                activeThumbColor: MintColors.primary,
                 onChanged: (v) => setState(() => _bienAncien = v),
               ),
             ],
@@ -555,12 +555,12 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 fontStyle: FontStyle.italic,
                 color: MintColors.deepOrange,

@@ -94,7 +94,7 @@ void main() {
     _resetFlags();
     final ctx = _ctx();
     // byokConfig with empty apiKey
-    final byokConfig = const LlmConfig(
+    const byokConfig = LlmConfig(
       apiKey: '',
       provider: LlmProvider.openai,
     );
@@ -140,7 +140,7 @@ void main() {
       safeModeDegraded: true,
     );
     final ctx = _ctx();
-    final byokConfig = const LlmConfig(
+    const byokConfig = LlmConfig(
       apiKey: 'sk-any-key',
       provider: LlmProvider.openai,
     );

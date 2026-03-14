@@ -568,7 +568,7 @@ class _ExploreTabState extends State<ExploreTab>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.description_outlined,
+                  const Icon(Icons.description_outlined,
                       color: MintColors.info, size: 24),
                   const SizedBox(height: 10),
                   Text(
@@ -767,7 +767,7 @@ class _ExploreTabState extends State<ExploreTab>
                 ],
               ),
             ),
-            Icon(Icons.chevron_right,
+            const Icon(Icons.chevron_right,
                 size: 16, color: MintColors.textMuted),
           ],
         ),

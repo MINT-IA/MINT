@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -36,8 +37,9 @@ class HorizonLineWidget extends StatelessWidget {
     final monthsLeft = daysLeft / 21.7;
     final progressFraction = daysConsumed / totalDays;
 
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Ligne horizon fin droits chômage',
+      label: 'Ligne horizon fin droits chomage',
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -47,19 +49,19 @@ class HorizonLineWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildTimeline(progressFraction, daysLeft, monthsLeft),
+                  _buildTimeline(s, progressFraction, daysLeft, monthsLeft),
                   const SizedBox(height: 24),
-                  _buildAfterLine(),
+                  _buildAfterLine(s),
                   const SizedBox(height: 16),
-                  _buildChiffreChoc(),
+                  _buildChiffreChoc(s),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -69,7 +71,7 @@ class HorizonLineWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -85,7 +87,7 @@ class HorizonLineWidget extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Ta ligne d\'horizon',
+                  s.horizonLineHeaderTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -97,7 +99,7 @@ class HorizonLineWidget extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'CHF ${_fmt(monthlyBenefit)}/mois jusqu\'au dernier jour — puis 0 CHF.',
+            s.horizonLineHeaderSubtitle(_fmt(monthlyBenefit)),
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -109,7 +111,7 @@ class HorizonLineWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildTimeline(double fraction, int daysLeft, double monthsLeft) {
+  Widget _buildTimeline(S s, double fraction, int daysLeft, double monthsLeft) {
     const zoneColor = MintColors.scoreExcellent;
     const wallColor = MintColors.scoreCritique;
 

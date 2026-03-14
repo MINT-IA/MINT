@@ -425,7 +425,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                   const SizedBox(height: 6),
                   Switch(
                     value: _isMarried,
-                    activeColor: MintColors.primary,
+                    activeThumbColor: MintColors.primary,
                     onChanged: (v) {
                       _isMarried = v;
                       _recalculate();

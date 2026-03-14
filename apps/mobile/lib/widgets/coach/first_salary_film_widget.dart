@@ -150,7 +150,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
     return Container(
       height: 44,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: MintColors.appleSurface,
         border: Border(bottom: BorderSide(color: MintColors.lightBorder)),
       ),
@@ -403,7 +403,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
             value: ratio,
             minHeight: 8,
             backgroundColor: MintColors.primary.withValues(alpha: 0.1),
-            valueColor: AlwaysStoppedAnimation<Color>(MintColors.primary),
+            valueColor: const AlwaysStoppedAnimation<Color>(MintColors.primary),
           ),
         ),
       ],

@@ -6,7 +6,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   final acts = [
-    DisabilityAct(
+    const DisabilityAct(
       label: 'Le filet',
       subtitle: 'Ton employeur paie 80%',
       durationLabel: 'Jours 1–30',
@@ -14,7 +14,7 @@ void main() {
       emoji: '🛡️',
       color: Colors.green,
     ),
-    DisabilityAct(
+    const DisabilityAct(
       label: 'L\'attente',
       subtitle: 'L\'AI évalue ton cas',
       durationLabel: 'Mois 2–24',
@@ -23,7 +23,7 @@ void main() {
       color: Colors.orange,
       detail: 'Délai moyen : 14 mois',
     ),
-    DisabilityAct(
+    const DisabilityAct(
       label: 'Le plateau',
       subtitle: 'Après décision AI',
       durationLabel: 'Long terme',

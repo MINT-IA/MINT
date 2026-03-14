@@ -191,7 +191,7 @@ class WhatIfStoriesWidget extends StatelessWidget {
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          Icon(Icons.arrow_forward,
+                          const Icon(Icons.arrow_forward,
                               size: 12, color: MintColors.primary),
                           const SizedBox(width: 4),
                           Flexible(

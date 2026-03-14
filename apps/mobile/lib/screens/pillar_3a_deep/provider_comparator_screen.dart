@@ -103,7 +103,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [MintColors.successBg, MintColors.successBg],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -131,7 +131,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
           const SizedBox(height: 4),
           Text(
             S.of(context)!.providerComparatorEntreProviders,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               color: MintColors.categoryGreen,
             ),
@@ -441,7 +441,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                 children: [
                   Text(S.of(context)!.providerComparatorRendement,
                       style:
-                          TextStyle(fontSize: 10, color: MintColors.textMuted)),
+                          const TextStyle(fontSize: 10, color: MintColors.textMuted)),
                   Text(
                     '${(result.rendementNet * 100).toStringAsFixed(1)}%',
                     style: const TextStyle(
@@ -454,7 +454,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                 children: [
                   Text(S.of(context)!.providerComparatorFrais,
                       style:
-                          TextStyle(fontSize: 10, color: MintColors.textMuted)),
+                          const TextStyle(fontSize: 10, color: MintColors.textMuted)),
                   Text(
                     '${(result.provider.fraisGestion * 100).toStringAsFixed(2)}%',
                     style: const TextStyle(
@@ -467,7 +467,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                 children: [
                   Text(S.of(context)!.providerComparatorCapitalFinal,
                       style:
-                          TextStyle(fontSize: 10, color: MintColors.textMuted)),
+                          const TextStyle(fontSize: 10, color: MintColors.textMuted)),
                   Text(
                     'CHF ${formatChf(result.capitalFinal)}',
                     style: GoogleFonts.montserrat(
@@ -496,7 +496,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
               ),
               child: Text(
                 S.of(context)!.providerComparatorVsPremier(formatChf(maxCapital - result.capitalFinal)),
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
                   color: MintColors.redMedium,
@@ -521,7 +521,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               colors: [MintColors.urgentBg, MintColors.redBg],
             ),
             borderRadius: BorderRadius.circular(16),
@@ -532,7 +532,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             children: [
               Row(
                 children: [
-                  Icon(Icons.warning_amber_rounded,
+                  const Icon(Icons.warning_amber_rounded,
                       color: MintColors.redMedium, size: 24),
                   const SizedBox(width: 12),
                   Expanded(
@@ -550,7 +550,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
               const SizedBox(height: 12),
               Text(
                 w.warningMessage!,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 13,
                   color: MintColors.redMedium,
                   height: 1.5,
@@ -559,7 +559,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
               const SizedBox(height: 8),
               Text(
                 S.of(context)!.providerComparatorAssuranceWarning,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
                   color: MintColors.redDeep,
                   height: 1.4,
@@ -584,12 +584,12 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: MintColors.deepOrange,
                 height: 1.4,

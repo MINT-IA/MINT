@@ -539,7 +539,7 @@ void main() {
   group('MicroActionEngine — couple actions', () {
     test('FATCA conjoint generates compliance action', () {
       final profile = buildProfile(
-        conjoint: ConjointProfile(
+        conjoint: const ConjointProfile(
           firstName: 'Lauren',
           birthYear: 1982,
           salaireBrutMensuel: 4800,
@@ -555,7 +555,7 @@ void main() {
 
     test('incomplete conjoint generates profile action', () {
       final profile = buildProfile(
-        conjoint: ConjointProfile(
+        conjoint: const ConjointProfile(
           firstName: 'Lauren',
           birthYear: 1982,
           salaireBrutMensuel: 0,

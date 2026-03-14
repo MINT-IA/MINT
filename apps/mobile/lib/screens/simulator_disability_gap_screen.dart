@@ -155,7 +155,7 @@ class _SimulatorDisabilityGapScreenState
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: MintColors.primary.withOpacity(0.1),
+              color: MintColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.shield_outlined,
@@ -409,7 +409,7 @@ class _SimulatorDisabilityGapScreenState
             _hasIjm = v;
             _calculate();
           },
-          activeColor: MintColors.primary,
+          activeThumbColor: MintColors.primary,
         ),
       ],
     );
@@ -492,7 +492,7 @@ class _SimulatorDisabilityGapScreenState
                   Container(
                     height: 32,
                     decoration: BoxDecoration(
-                      color: MintColors.border.withOpacity(0.15),
+                      color: MintColors.border.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
@@ -555,9 +555,9 @@ class _SimulatorDisabilityGapScreenState
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: riskColor.withOpacity(0.06),
+        color: riskColor.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: riskColor.withOpacity(0.15), width: 1.5),
+        border: Border.all(color: riskColor.withValues(alpha: 0.15), width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -686,9 +686,9 @@ class _SimulatorDisabilityGapScreenState
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.06),
+        color: color.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.15)),
+        border: Border.all(color: color.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -801,16 +801,16 @@ class _SimulatorDisabilityGapScreenState
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.06),
+        color: color.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.15)),
+        border: Border.all(color: color.withValues(alpha: 0.15)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 22),
@@ -919,7 +919,7 @@ class _SimulatorDisabilityGapScreenState
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 18, color: MintColors.warning),
+          const Icon(Icons.info_outline, size: 18, color: MintColors.warning),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

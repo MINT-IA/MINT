@@ -145,10 +145,10 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [color.withOpacity(0.1), color.withOpacity(0.2)],
+          colors: [color.withValues(alpha: 0.1), color.withValues(alpha: 0.2)],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.5), width: 2),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 2),
       ),
       child: Column(
         children: [
@@ -227,7 +227,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
               child: Center(
                 child: Text(
                   S.of(context)!.repaymentAjoutezDettes,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13,
                     color: MintColors.textMuted,
                   ),
@@ -272,7 +272,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 ),
               ),
               IconButton(
-                icon: Icon(Icons.delete_outline,
+                icon: const Icon(Icons.delete_outline,
                     color: MintColors.redMaterial, size: 20),
                 onPressed: () => setState(() => _dettes.removeAt(index)),
                 padding: EdgeInsets.zero,
@@ -341,13 +341,13 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         ),
         Expanded(
           child: SliderTheme(
-            data: SliderThemeData(
+            data: const SliderThemeData(
               trackHeight: 2,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+              thumbShape: RoundSliderThumbShape(enabledThumbRadius: 6),
               activeTrackColor: MintColors.primary,
               inactiveTrackColor: MintColors.border,
               thumbColor: MintColors.primary,
-              overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+              overlayShape: RoundSliderOverlayShape(overlayRadius: 14),
             ),
             child: Slider(
               value: value.clamp(min, max),
@@ -529,7 +529,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 const Divider(height: 16),
                 Text(
                   S.of(context)!.repaymentDifference(formatChf(result.economieInterets)),
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: MintColors.success,
@@ -599,7 +599,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           const SizedBox(height: 4),
           Text(
             '\${S.of(context)!.repaymentInterets}: CHF ${formatChf(interets)}',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 11,
               color: MintColors.redDeep,
             ),
@@ -758,12 +758,12 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       ),
       child: Column(
         children: [
-          Icon(Icons.account_balance_wallet_outlined,
+          const Icon(Icons.account_balance_wallet_outlined,
               color: MintColors.textMuted, size: 48),
           const SizedBox(height: 16),
           Text(
             S.of(context)!.repaymentEmptyState,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               color: MintColors.textSecondary,
             ),
@@ -785,12 +785,12 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: MintColors.deepOrange,
                 height: 1.4,
