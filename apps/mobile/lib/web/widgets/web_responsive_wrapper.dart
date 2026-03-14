@@ -10,7 +10,7 @@ class WebResponsiveWrapper extends StatelessWidget {
   const WebResponsiveWrapper({
     super.key,
     required this.child,
-    this.maxContentWidth = 960,
+    this.maxContentWidth = double.infinity,
   });
 
   @override

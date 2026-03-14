@@ -12,7 +12,7 @@ class WebViewportLayout extends StatelessWidget {
   const WebViewportLayout({
     super.key,
     required this.child,
-    this.maxWidth = 1360,
+    this.maxWidth = double.infinity,
   });
 
   @override
