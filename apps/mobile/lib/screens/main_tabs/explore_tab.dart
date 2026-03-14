@@ -106,13 +106,13 @@ class _ExploreTabState extends State<ExploreTab>
   }
 
   Widget _buildAppBar(BuildContext context) {
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     return SliverAppBar(
       floating: true,
       backgroundColor: MintColors.background,
       elevation: 0,
       title: Text(
-        l10n?.exploreTitle ?? 'EXPLORER',
+        l10n.exploreTitle,
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w700,
           fontSize: 14,
@@ -126,40 +126,39 @@ class _ExploreTabState extends State<ExploreTab>
   // ── PILIER 1 — JE VEUX COMPRENDRE ──────────────────────
 
   Widget _buildComprendreSection(BuildContext context) {
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     return _buildPillarCard(
       context,
       icon: Icons.school_outlined,
-      title: l10n?.explorePillarComprendreTitle ?? 'Je veux comprendre',
-      subtitle: l10n?.explorePillarComprendreSub ??
-          'L\'essentiel de la finance suisse, sans jargon. Quiz inclus.',
+      title: l10n.explorePillarComprendreTitle,
+      subtitle: l10n.explorePillarComprendreSub,
       pillarColor: MintColors.purple,
       previewContent: [
         _buildLearnItem(
           context,
           icon: Icons.savings_outlined,
-          title: l10n?.exploreLearn3a ?? 'C\'est quoi le 3a ?',
-          duration: '3 min',
+          title: l10n.exploreLearn3a,
+          duration: l10n.exploreLearn3aDuration,
           themeId: '3a',
         ),
         const SizedBox(height: 10),
         _buildLearnItem(
           context,
           icon: Icons.work_outline,
-          title: l10n?.exploreLearnLpp ?? 'LPP : Mode d\'emploi',
-          duration: '5 min',
+          title: l10n.exploreLearnLpp,
+          duration: l10n.exploreLearnLppDuration,
           themeId: 'lpp',
         ),
         const SizedBox(height: 10),
         _buildLearnItem(
           context,
           icon: Icons.calculate_outlined,
-          title: l10n?.exploreLearnFiscal ?? 'Fiscalité Suisse 101',
-          duration: '7 min',
+          title: l10n.exploreLearnFiscal,
+          duration: l10n.exploreLearnFiscalDuration,
           themeId: 'fiscal',
         ),
       ],
-      ctaText: l10n?.explorePillarComprendreCta ?? 'Explorer les 9 thèmes',
+      ctaText: l10n.explorePillarComprendreCta,
       onCtaTap: () => context.push('/education/hub'),
     );
   }
@@ -167,21 +166,19 @@ class _ExploreTabState extends State<ExploreTab>
   // ── PILIER 2 — JE VEUX CALCULER ────────────────────────
 
   Widget _buildCalculerSection(BuildContext context) {
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     return _buildPillarCard(
       context,
       icon: Icons.calculate_outlined,
-      title: l10n?.explorePillarCalculerTitle ?? 'Je veux calculer',
-      subtitle: l10n?.explorePillarCalculerSub ??
-          'Simule, compare, optimise. 49 outils à ta disposition.',
+      title: l10n.explorePillarCalculerTitle,
+      subtitle: l10n.explorePillarCalculerSub,
       pillarColor: MintColors.success,
       previewContent: [
         _buildGoalCard(
           context,
           icon: Icons.savings_outlined,
-          title: l10n?.exploreGoalBudget ?? 'Maîtriser mon Budget',
-          subtitle:
-              l10n?.exploreGoalBudgetSub ?? 'Gérer mes dépenses → 3 min',
+          title: l10n.exploreGoalBudget,
+          subtitle: l10n.exploreGoalBudgetSub,
           tint: MintColors.warning,
           onTap: () => context.push('/budget'),
         ),
@@ -189,9 +186,8 @@ class _ExploreTabState extends State<ExploreTab>
         _buildGoalCard(
           context,
           icon: Icons.home_outlined,
-          title: l10n?.exploreGoalProperty ?? 'Devenir Propriétaire',
-          subtitle: l10n?.exploreGoalPropertySub ??
-              'Simuler mon achat → 5 min',
+          title: l10n.exploreGoalProperty,
+          subtitle: l10n.exploreGoalPropertySub,
           tint: MintColors.info,
           onTap: () => context.push('/mortgage/affordability'),
         ),
@@ -199,9 +195,8 @@ class _ExploreTabState extends State<ExploreTab>
         _buildGoalCard(
           context,
           icon: Icons.trending_down,
-          title: l10n?.exploreGoalTax ?? 'Payer Moins d\'Impôts',
-          subtitle:
-              l10n?.exploreGoalTaxSub ?? 'Optimiser mon 3a → 3 min',
+          title: l10n.exploreGoalTax,
+          subtitle: l10n.exploreGoalTaxSub,
           tint: MintColors.success,
           onTap: () => context.push('/simulator/3a'),
         ),
@@ -209,14 +204,13 @@ class _ExploreTabState extends State<ExploreTab>
         _buildGoalCard(
           context,
           icon: Icons.beach_access_outlined,
-          title: l10n?.exploreGoalRetirement ?? 'Préparer ma Retraite',
-          subtitle:
-              l10n?.exploreGoalRetirementSub ?? 'Voir mon plan → 10 min',
+          title: l10n.exploreGoalRetirement,
+          subtitle: l10n.exploreGoalRetirementSub,
           tint: MintColors.purple,
           onTap: () => context.push('/retirement'),
         ),
       ],
-      ctaText: l10n?.explorePillarCalculerCta ?? 'Voir tous les outils',
+      ctaText: l10n.explorePillarCalculerCta,
       onCtaTap: () => context.push('/tools'),
     );
   }
@@ -277,84 +271,84 @@ class _ExploreTabState extends State<ExploreTab>
   }
 
   Widget _buildLifeEventsSection(BuildContext context) {
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     final coachProvider = context.watch<CoachProfileProvider>();
     final activity = context.watch<UserActivityProvider>();
 
     // Liste des evenements de vie avec ID pour scoring + tracking
     final events = <_LifeEventData>[
       _LifeEventData(id: 'marriage', icon: Icons.favorite_outline,
-        title: l10n?.exploreEventMarriage ?? 'Mariage',
-        subtitle: l10n?.exploreEventMarriageSub ?? 'Impact fiscal et LPP',
+        title: l10n.exploreEventMarriage,
+        subtitle: l10n.exploreEventMarriageSub,
         color: MintColors.pink, route: '/mariage'),
       _LifeEventData(id: 'birth', icon: Icons.child_care,
-        title: l10n?.exploreEventBirth ?? 'Naissance',
-        subtitle: l10n?.exploreEventBirthSub ?? 'Allocations et déductions',
+        title: l10n.exploreEventBirth,
+        subtitle: l10n.exploreEventBirthSub,
         color: MintColors.info, route: '/naissance'),
       _LifeEventData(id: 'concubinage', icon: Icons.people_outline,
-        title: l10n?.exploreEventConcubinage ?? 'Concubinage',
-        subtitle: l10n?.exploreEventConcubinageSub ?? 'Protéger ton couple',
+        title: l10n.exploreEventConcubinage,
+        subtitle: l10n.exploreEventConcubinageSub,
         color: MintColors.purple, route: '/concubinage'),
       _LifeEventData(id: 'divorce', icon: Icons.family_restroom,
-        title: l10n?.exploreEventDivorce ?? 'Divorce',
-        subtitle: l10n?.exploreEventDivorceSub ?? 'Partage LPP et AVS',
+        title: l10n.exploreEventDivorce,
+        subtitle: l10n.exploreEventDivorceSub,
         color: MintColors.warning, route: '/life-event/divorce'),
       _LifeEventData(id: 'succession', icon: Icons.volunteer_activism,
-        title: l10n?.exploreEventSuccession ?? 'Succession',
-        subtitle: l10n?.exploreEventSuccessionSub ?? 'Droits et planning',
+        title: l10n.exploreEventSuccession,
+        subtitle: l10n.exploreEventSuccessionSub,
         color: MintColors.success, route: '/life-event/succession'),
       _LifeEventData(id: 'housing_sale', icon: Icons.home_work_outlined,
-        title: l10n?.exploreEventHouseSale ?? 'Vente immobilière',
-        subtitle: l10n?.exploreEventHouseSaleSub ?? 'Impôt plus-value',
+        title: l10n.exploreEventHouseSale,
+        subtitle: l10n.exploreEventHouseSaleSub,
         color: MintColors.cyan, route: '/life-event/housing-sale'),
       _LifeEventData(id: 'donation', icon: Icons.card_giftcard,
-        title: l10n?.exploreEventDonation ?? 'Donation',
-        subtitle: l10n?.exploreEventDonationSub ?? 'Fiscalité et limites',
+        title: l10n.exploreEventDonation,
+        subtitle: l10n.exploreEventDonationSub,
         color: MintColors.deepOrange, route: '/life-event/donation'),
       _LifeEventData(id: 'expatriation', icon: Icons.flight_takeoff,
-        title: l10n?.exploreEventExpat ?? 'Expatriation',
-        subtitle: l10n?.exploreEventExpatSub ?? 'Départ ou arrivée',
+        title: l10n.exploreEventExpat,
+        subtitle: l10n.exploreEventExpatSub,
         color: MintColors.indigo, route: '/expatriation'),
       _LifeEventData(id: 'first_job', icon: Icons.work_outline,
-        title: l10n?.exploreEventFirstJob ?? 'Premier emploi',
-        subtitle: l10n?.exploreEventFirstJobSub ?? 'AVS, LPP, impôts\u00a0: tout comprendre',
+        title: l10n.exploreEventFirstJob,
+        subtitle: l10n.exploreEventFirstJobSub,
         color: MintColors.info, route: '/first-job'),
       _LifeEventData(id: 'job_change', icon: Icons.swap_horiz,
-        title: l10n?.exploreEventJobChange ?? 'Changement de poste',
-        subtitle: l10n?.exploreEventJobChangeSub ?? 'Comparer LPP et salaire',
+        title: l10n.exploreEventJobChange,
+        subtitle: l10n.exploreEventJobChangeSub,
         color: MintColors.teal, route: '/simulator/job-comparison'),
       _LifeEventData(id: 'self_employment', icon: Icons.rocket_launch_outlined,
-        title: l10n?.exploreEventSelfEmployment ?? 'Devenir indépendant',
-        subtitle: l10n?.exploreEventSelfEmploymentSub ?? 'AVS, 3a, LPP volontaire',
+        title: l10n.exploreEventSelfEmployment,
+        subtitle: l10n.exploreEventSelfEmploymentSub,
         color: MintColors.purple, route: '/segments/independant'),
       _LifeEventData(id: 'job_loss', icon: Icons.work_off_outlined,
-        title: l10n?.exploreEventJobLoss ?? 'Perte d\'emploi',
-        subtitle: l10n?.exploreEventJobLossSub ?? 'Chômage, LPP, budget',
+        title: l10n.exploreEventJobLoss,
+        subtitle: l10n.exploreEventJobLossSub,
         color: MintColors.warning, route: '/unemployment'),
       _LifeEventData(id: 'retirement', icon: Icons.beach_access_outlined,
-        title: l10n?.exploreEventRetirement ?? 'Retraite',
-        subtitle: l10n?.exploreEventRetirementSub ?? 'AVS, LPP, retrait 3a',
+        title: l10n.exploreEventRetirement,
+        subtitle: l10n.exploreEventRetirementSub,
         color: MintColors.success, route: '/retirement'),
       _LifeEventData(id: 'housing_purchase', icon: Icons.house_outlined,
-        title: l10n?.exploreEventHousingPurchase ?? 'Achat immobilier',
-        subtitle: l10n?.exploreEventHousingPurchaseSub ?? 'Fonds propres et hypothèque',
+        title: l10n.exploreEventHousingPurchase,
+        subtitle: l10n.exploreEventHousingPurchaseSub,
         color: MintColors.cyan, route: '/mortgage/affordability'),
       _LifeEventData(id: 'disability', icon: Icons.health_and_safety_outlined,
-        title: l10n?.exploreEventDisability ?? 'Invalidité',
-        subtitle: l10n?.exploreEventDisabilitySub ?? 'Lacune de prévoyance',
+        title: l10n.exploreEventDisability,
+        subtitle: l10n.exploreEventDisabilitySub,
         color: MintColors.error, route: '/disability/gap'),
       _LifeEventData(id: 'canton_move', icon: Icons.map_outlined,
-        title: l10n?.exploreEventCantonMove ?? 'Déménagement cantonal',
-        subtitle: l10n?.exploreEventCantonMoveSub ?? 'Comparer la fiscalité',
+        title: l10n.exploreEventCantonMove,
+        subtitle: l10n.exploreEventCantonMoveSub,
         color: MintColors.amber, route: '/fiscal'),
       _LifeEventData(id: 'death_of_relative',
         icon: Icons.sentiment_very_dissatisfied_outlined,
-        title: l10n?.exploreEventDeathRelative ?? 'Décès d\'un proche',
-        subtitle: l10n?.exploreEventDeathRelativeSub ?? 'Succession et démarches',
+        title: l10n.exploreEventDeathRelative,
+        subtitle: l10n.exploreEventDeathRelativeSub,
         color: MintColors.textMuted, route: '/life-event/succession'),
       _LifeEventData(id: 'debt_crisis', icon: Icons.warning_amber_outlined,
-        title: l10n?.exploreEventDebtCrisis ?? 'Crise de dette',
-        subtitle: l10n?.exploreEventDebtCrisisSub ?? 'Diagnostic et solutions',
+        title: l10n.exploreEventDebtCrisis,
+        subtitle: l10n.exploreEventDebtCrisisSub,
         color: MintColors.error, route: '/check/debt'),
     ];
 
@@ -374,9 +368,8 @@ class _ExploreTabState extends State<ExploreTab>
     return _buildPillarCard(
       context,
       icon: Icons.event_note,
-      title: l10n?.explorePillarLifeTitle ?? 'Il m\'arrive quelque chose',
-      subtitle: l10n?.explorePillarLifeSub ??
-          'Mariage, naissance, divorce, déménagement... on t\'accompagne.',
+      title: l10n.explorePillarLifeTitle,
+      subtitle: l10n.explorePillarLifeSub,
       pillarColor: MintColors.warning,
       previewContent: [
         // Suggestion du coach (si profil disponible et evenement non explore)
@@ -416,7 +409,7 @@ class _ExploreTabState extends State<ExploreTab>
     _LifeEventData event,
     UserActivityProvider activity,
   ) {
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: InkWell(
@@ -453,7 +446,7 @@ class _ExploreTabState extends State<ExploreTab>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      l10n?.exploreCoachSuggestionLabel ?? 'Suggestion du coach',
+                      l10n.exploreCoachSuggestionLabel,
                       style: GoogleFonts.montserrat(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -491,7 +484,7 @@ class _ExploreTabState extends State<ExploreTab>
   // ── UTILITY STRIP ──────────────────────────────────────
 
   Widget _buildUtilityStrip(BuildContext context) {
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     final byok = context.watch<ByokProvider>();
     return Row(
       children: [
@@ -527,7 +520,7 @@ class _ExploreTabState extends State<ExploreTab>
                       color: MintColors.white, size: 24),
                   const SizedBox(height: 10),
                   Text(
-                    l10n?.exploreAskMintTitle ?? 'Ask MINT',
+                    l10n.exploreAskMintTitle,
                     style: GoogleFonts.montserrat(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -537,10 +530,8 @@ class _ExploreTabState extends State<ExploreTab>
                   const SizedBox(height: 2),
                   Text(
                     byok.isConfigured
-                        ? l10n?.exploreAskMintConfigured ??
-                            'Pose tes questions →'
-                        : l10n?.exploreAskMintNotConfigured ??
-                            'Configure ton IA →',
+                        ? l10n.exploreAskMintConfigured
+                        : l10n.exploreAskMintNotConfigured,
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: MintColors.white.withValues(alpha: 0.8),
@@ -581,7 +572,7 @@ class _ExploreTabState extends State<ExploreTab>
                       color: MintColors.info, size: 24),
                   const SizedBox(height: 10),
                   Text(
-                    l10n?.exploreDocUploadLpp ?? 'Certificats & documents',
+                    l10n.exploreDocUploadLpp,
                     style: GoogleFonts.montserrat(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -590,8 +581,7 @@ class _ExploreTabState extends State<ExploreTab>
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    l10n?.exploreDocUploadLppSub ??
-                        'Certificat LPP, extraits AVS →',
+                    l10n.exploreDocUploadLppSub,
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: MintColors.textSecondary,
@@ -925,7 +915,7 @@ class _ExploreTabState extends State<ExploreTab>
     final profile = coachProvider.profile;
     if (profile == null) return const SizedBox.shrink();
 
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
 
     // Pick the most relevant suggestion
     String title;
@@ -940,29 +930,29 @@ class _ExploreTabState extends State<ExploreTab>
 
     if (!has3a && age < 55) {
       // No 3a → suggest 3a simulator
-      title = l10n?.exploreSuggestion3aTitle ?? 'Le 3a : ton premier levier fiscal';
-      subtitle = l10n?.exploreSuggestion3aSub ?? 'Découvre combien tu peux économiser d\'impôts';
+      title = l10n.exploreSuggestion3aTitle;
+      subtitle = l10n.exploreSuggestion3aSub;
       icon = Icons.savings_outlined;
       color = MintColors.success;
       route = '/simulator/3a';
     } else if (hasLpp && (profile.prevoyance.rachatMaximum ?? 0) > 20000) {
       // Has LPP with buyback potential → suggest LPP deep
-      title = l10n?.exploreSuggestionLppTitle ?? 'Rachat LPP : une opportunité\u00a0?';
-      subtitle = l10n?.exploreSuggestionLppSub ?? 'Simule l\'impact sur ta retraite et tes impôts';
+      title = l10n.exploreSuggestionLppTitle;
+      subtitle = l10n.exploreSuggestionLppSub;
       icon = Icons.account_balance_outlined;
       color = MintColors.cyan;
       route = '/lpp-deep/rachat';
     } else if (age >= 50) {
       // Over 50 → retirement planning
-      title = l10n?.exploreSuggestionRetirementTitle ?? 'Ta retraite approche';
-      subtitle = l10n?.exploreSuggestionRetirementSub ?? 'Rente, capital ou mix\u00a0? Compare les options';
+      title = l10n.exploreSuggestionRetirementTitle;
+      subtitle = l10n.exploreSuggestionRetirementSub;
       icon = Icons.beach_access_outlined;
       color = MintColors.purple;
       route = '/retirement';
     } else {
       // Default: budget
-      title = l10n?.exploreSuggestionBudgetTitle ?? 'Commence par ton budget';
-      subtitle = l10n?.exploreSuggestionBudgetSub ?? '3 minutes pour voir où va ton argent';
+      title = l10n.exploreSuggestionBudgetTitle;
+      subtitle = l10n.exploreSuggestionBudgetSub;
       icon = Icons.account_balance_wallet_outlined;
       color = MintColors.warning;
       route = '/budget';
@@ -1002,7 +992,7 @@ class _ExploreTabState extends State<ExploreTab>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      l10n?.exploreSuggestionLabel ?? 'Suggestion pour toi',
+                      l10n.exploreSuggestionLabel,
                       style: GoogleFonts.inter(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
