@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/educational/educational_insert_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -17,24 +18,23 @@ class MortgageComparisonInsertWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return EducationalInsertWidget(
-      title: 'Fixe vs SARON : comprendre les options',
-      subtitle: 'Chaque type d\'hypothèque a ses avantages',
-      disclaimer: 'Comparaison simplifiée à titre pédagogique. Les conditions varient selon les prêteurs et ton profil. Ne constitue pas un conseil hypothécaire.',
-      hypotheses: const [
-        'Comparaison basée sur conditions marché 2024-2026',
-        'SARON = Swiss Average Rate Overnight',
-        'Historique ne garantit pas l\'avenir',
+      title: s.mortgageComparisonTitle,
+      subtitle: s.mortgageComparisonSubtitle,
+      disclaimer: s.mortgageComparisonDisclaimer,
+      hypotheses: [
+        s.mortgageComparisonHypo1,
+        s.mortgageComparisonHypo2,
+        s.mortgageComparisonHypo3,
       ],
       onLearnMore: onLearnMore,
       content: Column(
         children: [
-          // Tableau comparatif
-          _buildComparisonTable(),
-          
+          _buildComparisonTable(s),
+
           const SizedBox(height: 20),
-          
-          // Message neutre
+
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -49,20 +49,22 @@ class MortgageComparisonInsertWidget extends StatelessWidget {
                   children: [
                     const Icon(Icons.balance, color: MintColors.primary, size: 24),
                     const SizedBox(width: 12),
-                    Text(
-                      'Aucune option n\'est universellement meilleure',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: MintColors.textPrimary,
+                    Expanded(
+                      child: Text(
+                        s.mortgageComparisonNoUniversalBest,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: MintColors.textPrimary,
+                        ),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
-                _buildNeutralPoint(Icons.check, 'Fixe si tu préfères la prévisibilité'),
-                _buildNeutralPoint(Icons.check, 'SARON si tu acceptes le risque pour potentiellement payer moins'),
-                _buildNeutralPoint(Icons.check, 'Mix possible pour diversifier'),
+                _buildNeutralPoint(Icons.check, s.mortgageComparisonFixeAdvice),
+                _buildNeutralPoint(Icons.check, s.mortgageComparisonSaronAdvice),
+                _buildNeutralPoint(Icons.check, s.mortgageComparisonMixAdvice),
               ],
             ),
           ),
@@ -71,7 +73,7 @@ class MortgageComparisonInsertWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildComparisonTable() {
+  Widget _buildComparisonTable(S s) {
     return Table(
       border: TableBorder.all(
         color: MintColors.greyBorder,
@@ -80,26 +82,26 @@ class MortgageComparisonInsertWidget extends StatelessWidget {
       children: [
         _buildTableRow(
           isHeader: true,
-          cells: ['Critère', 'Fixe', 'SARON'],
+          cells: [s.mortgageComparisonCritere, s.mortgageComparisonFixe, s.mortgageComparisonSaron],
         ),
         _buildTableRow(
-          cells: ['Mensualités', 'Stables', 'Variables'],
+          cells: [s.mortgageComparisonMensualites, s.mortgageComparisonStables, s.mortgageComparisonVariables],
           colors: [null, MintColors.appleSurface, null],
         ),
         _buildTableRow(
-          cells: ['Coût historique', 'Plus élevé', 'Plus bas'],
+          cells: [s.mortgageComparisonCoutHistorique, s.mortgageComparisonPlusEleve, s.mortgageComparisonPlusBas],
           colors: [null, null, MintColors.appleSurface],
         ),
         _buildTableRow(
-          cells: ['Risque taux', 'Aucun', 'Exposition'],
+          cells: [s.mortgageComparisonRisqueTaux, s.mortgageComparisonAucun, s.mortgageComparisonExposition],
           colors: [null, MintColors.appleSurface, null],
         ),
         _buildTableRow(
-          cells: ['Flexibilité', 'Pénalités', 'Souple'],
+          cells: [s.mortgageComparisonFlexibilite, s.mortgageComparisonPenalites, s.mortgageComparisonSouple],
           colors: [null, null, MintColors.appleSurface],
         ),
         _buildTableRow(
-          cells: ['Planification', 'Budgétable', 'Incertain'],
+          cells: [s.mortgageComparisonPlanification, s.mortgageComparisonBudgetable, s.mortgageComparisonIncertain],
           colors: [null, MintColors.appleSurface, null],
         ),
       ],
