@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -26,36 +27,36 @@ enum RegimeMatrimonial {
 }
 
 extension RegimeMatrimonialLabel on RegimeMatrimonial {
-  String get label {
+  String localizedLabel(S s) {
     switch (this) {
       case RegimeMatrimonial.participationAcquets:
-        return 'Participation aux acquets';
+        return s.regimeMatrimonialParticipation;
       case RegimeMatrimonial.separationBiens:
-        return 'Separation de biens';
+        return s.regimeMatrimonialSeparation;
       case RegimeMatrimonial.communauteBiens:
-        return 'Communaute de biens';
+        return s.regimeMatrimonialCommunaute;
     }
   }
 
-  String get shortLabel {
+  String localizedShortLabel(S s) {
     switch (this) {
       case RegimeMatrimonial.participationAcquets:
-        return '50/50';
+        return s.regimeMatrimonialShort5050;
       case RegimeMatrimonial.separationBiens:
-        return 'Separe';
+        return s.regimeMatrimonialShortSepare;
       case RegimeMatrimonial.communauteBiens:
-        return 'Commun';
+        return s.regimeMatrimonialShortCommun;
     }
   }
 
-  String get description {
+  String localizedDescription(S s) {
     switch (this) {
       case RegimeMatrimonial.participationAcquets:
-        return 'Les acquets sont partages a parts egales.';
+        return s.regimeMatrimonialDescParticipation;
       case RegimeMatrimonial.separationBiens:
-        return 'Chacun conserve ses biens propres.';
+        return s.regimeMatrimonialDescSeparation;
       case RegimeMatrimonial.communauteBiens:
-        return 'Tous les biens sont mis en commun.';
+        return s.regimeMatrimonialDescCommunaute;
     }
   }
 }
@@ -193,9 +194,10 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
       label:
-          'Graphique du regime matrimonial: ${widget.regime.label}. '
+          '${s.regimeMatrimonialChartA11y}: ${widget.regime.localizedLabel(s)}. '
           '${widget.labelPersonne1}: ${_formatChf(widget.assetsPersonne1)}, '
           '${widget.labelPersonne2}: ${_formatChf(widget.assetsPersonne2)}',
       child: LayoutBuilder(
@@ -218,13 +220,13 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildHeader(),
-                _buildRegimeSelector(),
+                _buildHeader(s),
+                _buildRegimeSelector(s),
                 const SizedBox(height: 16),
-                _buildPieChart(pieSize),
+                _buildPieChart(pieSize, s),
                 const SizedBox(height: 16),
                 _buildLegend(),
-                _buildDescription(),
+                _buildDescription(s),
                 const SizedBox(height: 16),
               ],
             ),
@@ -234,7 +236,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
       child: Row(
@@ -258,7 +260,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Regime matrimonial',
+                  s.regimeMatrimonialTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -266,7 +268,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
                   ),
                 ),
                 Text(
-                  'Repartition des biens',
+                  s.regimeMatrimonialSubtitle,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -280,7 +282,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
     );
   }
 
-  Widget _buildRegimeSelector() {
+  Widget _buildRegimeSelector(S s) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
@@ -318,7 +320,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
                         : null,
                   ),
                   child: Text(
-                    regime.shortLabel,
+                    regime.localizedShortLabel(s),
                     textAlign: TextAlign.center,
                     style: GoogleFonts.montserrat(
                       fontSize: 12,
@@ -338,7 +340,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
     );
   }
 
-  Widget _buildPieChart(double size) {
+  Widget _buildPieChart(double size, S s) {
     return AnimatedBuilder(
       animation: _sweepAnimation,
       builder: (context, _) {
@@ -394,7 +396,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Total',
+                      s.regimeMatrimonialTotal,
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: MintColors.textMuted,
@@ -507,7 +509,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
     );
   }
 
-  Widget _buildDescription() {
+  Widget _buildDescription(S s) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
       child: AnimatedSwitcher(
@@ -530,7 +532,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  widget.regime.description,
+                  widget.regime.localizedDescription(s),
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
