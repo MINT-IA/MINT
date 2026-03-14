@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/educational/educational_insert_widget.dart';
 
@@ -65,7 +66,7 @@ class GenericInfoInsertWidget extends StatelessWidget {
 
           // Learning goals
           Text(
-            'Ce que tu vas comprendre',
+            AppLocalizations.of(context)!.whatYouWillUnderstand,
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w700,

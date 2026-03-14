@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// Widget de base pour tous les inserts éducatifs
@@ -118,7 +119,7 @@ class EducationalInsertWidget extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: ExpansionTile(
                 title: Text(
-                  'Hypothèses de calcul',
+                  AppLocalizations.of(context)!.calculationAssumptions,
                   style: GoogleFonts.inter(fontSize: 12, color: MintColors.textMuted, fontWeight: FontWeight.w500),
                 ),
                 tilePadding: EdgeInsets.zero,

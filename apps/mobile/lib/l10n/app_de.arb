@@ -4870,5 +4870,17 @@
   "enrichmentCoachPromptRevenu": "Ich möchte die Auswirkungen meines Einkommens auf meine Vorsorge und Steuern verstehen.",
   "enrichmentCoachPromptObjectif": "Was wäre die Auswirkung, wenn ich früher oder später in Rente ginge?",
   "enrichmentCoachPromptMenage": "Wie beeinflusst die Paarsituation meine Pensionierungsprojektionen?",
-  "enrichmentCoachPromptDefault": "Hilf mir, mein Finanzprofil zu vervollständigen."
+  "enrichmentCoachPromptDefault": "Hilf mir, mein Finanzprofil zu vervollständigen.",
+  "budgetReportTitle": "Dein berechnetes Budget",
+  "coachMintLabel": "MINT Coach",
+  "legalSourcesTitle": "Rechtsquellen",
+  "financialResilienceTitle": "Finanzielle Resilienz",
+  "continueButton": "Weiter",
+  "dataPrecisionTitle": "Datengenauigkeit",
+  "calculationAssumptions": "Berechnungsannahmen",
+  "whatYouWillUnderstand": "Was du verstehen wirst",
+  "concreteExample": "Konkretes Beispiel",
+  "progressionTrack": "Fortschrittspfad",
+  "languageSelectorTitle": "Langue / Sprache / Language",
+  "realInterestSimulatorTitle": "Realzins-Simulator"
 }

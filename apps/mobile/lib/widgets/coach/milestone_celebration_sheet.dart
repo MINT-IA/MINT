@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/milestone_detection_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -201,7 +202,7 @@ class _MilestoneCelebrationSheetState extends State<MilestoneCelebrationSheet>
                       elevation: 0,
                     ),
                     child: Text(
-                      'Continuer',
+                      AppLocalizations.of(context)!.continueButton,
                       style: GoogleFonts.montserrat(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,

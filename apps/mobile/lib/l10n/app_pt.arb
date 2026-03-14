@@ -4870,5 +4870,17 @@
   "frontalierEdu90Days": "Desde 2023, os acordos amigáveis entre a Suíça e os seus vizinhos fixam um limiar de tolerância para o teletrabalho dos fronteiriços. Para além de 90 dias de teletrabalho por ano, as contribuições sociais e a tributação podem passar para o país de residência.",
   "frontalierEduCharges": "Como trabalhador fronteiriço, contribuis para os seguros sociais suíços (AVS/AI/APG, AC, LPP). As taxas são geralmente mais baixas do que em França ou na Alemanha — mas o seguro de saúde LAMal é da tua responsabilidade individual, o que pode compensar a vantagem.",
   "frontalierLppEstimate": "LPP (est.)",
-  "frontalierTotal": "Total"
+  "frontalierTotal": "Total",
+  "budgetReportTitle": "O teu Orçamento Calculado",
+  "coachMintLabel": "Coach MINT",
+  "legalSourcesTitle": "Fontes legais",
+  "financialResilienceTitle": "Resiliência financeira",
+  "continueButton": "Continuar",
+  "dataPrecisionTitle": "Precisão dos dados",
+  "calculationAssumptions": "Hipóteses de cálculo",
+  "whatYouWillUnderstand": "O que vais compreender",
+  "concreteExample": "Exemplo concreto",
+  "progressionTrack": "Pista de progressão",
+  "languageSelectorTitle": "Langue / Sprache / Language",
+  "realInterestSimulatorTitle": "Simulador de Juro Real"
 }

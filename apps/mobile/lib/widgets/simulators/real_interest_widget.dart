@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/simulators/real_interest_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
@@ -38,7 +39,7 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
     );
 
     return SimulatorCard(
-      title: "Simulateur d'Intérêt Réel",
+      title: AppLocalizations.of(context)!.realInterestSimulatorTitle,
       subtitle: "Capital + Économie d'impôt réinvestie (Virtuel)",
       icon: Icons.auto_graph,
       child: Column(

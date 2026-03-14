@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// Widget explicatif didactique réutilisable
@@ -157,7 +158,7 @@ class _EducationalExplanationWidgetState
                           color: MintColors.warning, size: 16),
                       const SizedBox(width: 6),
                       Text(
-                        'Exemple concret',
+                        AppLocalizations.of(context)!.concreteExample,
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,

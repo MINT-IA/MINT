@@ -4915,5 +4915,17 @@
   "enrichmentCoachPromptRevenu": "Je veux comprendre l’impact de mon revenu sur ma prévoyance et mes impôts.",
   "enrichmentCoachPromptObjectif": "Quel serait l’impact si je partais à la retraite plus tôt ou plus tard ?",
   "enrichmentCoachPromptMenage": "Comment la situation de couple influence mes projections de retraite ?",
-  "enrichmentCoachPromptDefault": "Aide-moi à compléter mon profil financier."
+  "enrichmentCoachPromptDefault": "Aide-moi à compléter mon profil financier.",
+  "budgetReportTitle": "Ton Budget Calculé",
+  "coachMintLabel": "Coach MINT",
+  "legalSourcesTitle": "Sources légales",
+  "financialResilienceTitle": "Résilience financière",
+  "continueButton": "Continuer",
+  "dataPrecisionTitle": "Précision des données",
+  "calculationAssumptions": "Hypothèses de calcul",
+  "whatYouWillUnderstand": "Ce que tu vas comprendre",
+  "concreteExample": "Exemple concret",
+  "progressionTrack": "Piste de progression",
+  "languageSelectorTitle": "Langue / Sprache / Language",
+  "realInterestSimulatorTitle": "Simulateur d'Intérêt Réel"
 }

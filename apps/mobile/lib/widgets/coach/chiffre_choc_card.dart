@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// Animated "shock figure" card that reveals a personalized financial insight.
@@ -128,7 +129,7 @@ class ChiffreChocCard extends StatelessWidget {
                 const Icon(Icons.auto_awesome, size: 12, color: MintColors.coachAccent),
                 const SizedBox(width: 4),
                 Text(
-                  'Coach MINT',
+                  AppLocalizations.of(context)!.coachMintLabel,
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: MintColors.textMuted,

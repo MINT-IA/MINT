@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -48,7 +49,7 @@ class FriRadarChart extends StatelessWidget {
         child: Column(
           children: [
             Text(
-              'Résilience financière',
+              AppLocalizations.of(context)!.financialResilienceTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,

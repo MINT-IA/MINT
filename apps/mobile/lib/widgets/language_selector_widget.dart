@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/l10n/locale_helper.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -58,7 +59,7 @@ class LanguageSelectorSheet extends StatelessWidget {
                   const Icon(Icons.language, size: 22, color: MintColors.textPrimary),
                   const SizedBox(width: 10),
                   Text(
-                    'Langue / Sprache / Language',
+                    AppLocalizations.of(context)!.languageSelectorTitle,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w700,
                           color: MintColors.textPrimary,

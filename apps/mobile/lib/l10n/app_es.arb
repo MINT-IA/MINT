@@ -4870,5 +4870,17 @@
   "enrichmentCoachPromptRevenu": "Quiero entender el impacto de mis ingresos en mi previsión e impuestos.",
   "enrichmentCoachPromptObjectif": "¿Cuál sería el impacto si me jubilara antes o después?",
   "enrichmentCoachPromptMenage": "¿Cómo influye la situación de pareja en mis proyecciones de jubilación?",
-  "enrichmentCoachPromptDefault": "Ayúdame a completar mi perfil financiero."
+  "enrichmentCoachPromptDefault": "Ayúdame a completar mi perfil financiero.",
+  "budgetReportTitle": "Tu Presupuesto Calculado",
+  "coachMintLabel": "Coach MINT",
+  "legalSourcesTitle": "Fuentes legales",
+  "financialResilienceTitle": "Resiliencia financiera",
+  "continueButton": "Continuar",
+  "dataPrecisionTitle": "Precisión de los datos",
+  "calculationAssumptions": "Hipótesis de cálculo",
+  "whatYouWillUnderstand": "Lo que vas a entender",
+  "concreteExample": "Ejemplo concreto",
+  "progressionTrack": "Pista de progresión",
+  "languageSelectorTitle": "Langue / Sprache / Language",
+  "realInterestSimulatorTitle": "Simulador de Interés Real"
 }

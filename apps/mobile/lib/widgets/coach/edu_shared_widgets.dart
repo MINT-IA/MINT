@@ -5,6 +5,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ── Disclaimer palette (amber/brown — intentionally distinct from MintColors) ──
@@ -86,7 +87,7 @@ class EduLegalSources extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Sources légales',
+            AppLocalizations.of(context)!.legalSourcesTitle,
             style: GoogleFonts.inter(
               fontSize: 11,
               fontWeight: FontWeight.w600,

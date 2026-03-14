@@ -4870,5 +4870,17 @@
   "enrichmentCoachPromptRevenu": "I want to understand the impact of my income on my pension and taxes.",
   "enrichmentCoachPromptObjectif": "What would be the impact if I retired earlier or later?",
   "enrichmentCoachPromptMenage": "How does the couple situation influence my retirement projections?",
-  "enrichmentCoachPromptDefault": "Help me complete my financial profile."
+  "enrichmentCoachPromptDefault": "Help me complete my financial profile.",
+  "budgetReportTitle": "Your Calculated Budget",
+  "coachMintLabel": "MINT Coach",
+  "legalSourcesTitle": "Legal sources",
+  "financialResilienceTitle": "Financial resilience",
+  "continueButton": "Continue",
+  "dataPrecisionTitle": "Data precision",
+  "calculationAssumptions": "Calculation assumptions",
+  "whatYouWillUnderstand": "What you will understand",
+  "concreteExample": "Concrete example",
+  "progressionTrack": "Progression track",
+  "languageSelectorTitle": "Langue / Sprache / Language",
+  "realInterestSimulatorTitle": "Real Interest Simulator"
 }
