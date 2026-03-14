@@ -1015,7 +1015,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         );
       }
       if (!mounted) return const _PdfParseResult(success: true);
-      context.push(‘/document-scan/extraction-review’, extra: extraction);
+      context.push('/document-scan/extraction-review', extra: extraction);
       return const _PdfParseResult(success: true);
     } on DocumentServiceException catch (e) {
       final lower = e.message.toLowerCase();
