@@ -18,7 +18,7 @@ void main() {
   // HELPERS
   // ═══════════════════════════════════════════════════════════════════════
 
-  CoachingTip _makeTip({
+  CoachingTip makeTip({
     required String id,
     CoachingPriority priority = CoachingPriority.basse,
     double? impact,
@@ -36,7 +36,7 @@ void main() {
     );
   }
 
-  ReengagementMessage _makeReengagement({
+  ReengagementMessage makeReengagement({
     required String title,
     ReengagementTrigger trigger = ReengagementTrigger.quarterlyFri,
   }) {
@@ -64,7 +64,7 @@ void main() {
     });
 
     test('non-haute priority returns info', () {
-      final tip = _makeTip(id: 'deadline_3a', priority: CoachingPriority.basse);
+      final tip = makeTip(id: 'deadline_3a', priority: CoachingPriority.basse);
       expect(
         DashboardCuratorService.computeAlertUrgency(tip),
         AlertUrgency.info,
@@ -72,7 +72,7 @@ void main() {
     });
 
     test('haute priority with deadline <= 30 days returns urgent', () {
-      final tip = _makeTip(
+      final tip = makeTip(
         id: 'deadline_3a',
         priority: CoachingPriority.haute,
       );
@@ -83,7 +83,7 @@ void main() {
     });
 
     test('haute priority without deadline returns active', () {
-      final tip = _makeTip(
+      final tip = makeTip(
         id: 'unknown_tip',
         priority: CoachingPriority.haute,
       );
@@ -104,12 +104,12 @@ void main() {
     });
 
     test('tip without deadline returns null', () {
-      final tip = _makeTip(id: 'emergency_fund');
+      final tip = makeTip(id: 'emergency_fund');
       expect(DashboardCuratorService.computeDeadlineText(tip), isNull);
     });
 
     test('tip with deadline returns J-X format', () {
-      final tip = _makeTip(id: 'deadline_3a');
+      final tip = makeTip(id: 'deadline_3a');
       final text = DashboardCuratorService.computeDeadlineText(tip);
       // Should be non-null since deadline_3a has a date
       expect(text, isNotNull);
@@ -124,7 +124,7 @@ void main() {
 
   group('getDeadlineDaysForTip', () {
     test('deadline_3a returns Dec 31 days', () {
-      final tip = _makeTip(id: 'deadline_3a');
+      final tip = makeTip(id: 'deadline_3a');
       final days = DashboardCuratorService.getDeadlineDaysForTip(
         tip,
         today: DateTime(2026, 6, 1),
@@ -134,7 +134,7 @@ void main() {
     });
 
     test('deadline_3a wraps to next year after Dec 31', () {
-      final tip = _makeTip(id: 'deadline_3a');
+      final tip = makeTip(id: 'deadline_3a');
       final days = DashboardCuratorService.getDeadlineDaysForTip(
         tip,
         today: DateTime(2027, 1, 1),
@@ -144,8 +144,8 @@ void main() {
     });
 
     test('missing_3a maps to same deadline as deadline_3a', () {
-      final tip1 = _makeTip(id: 'deadline_3a');
-      final tip2 = _makeTip(id: 'missing_3a');
+      final tip1 = makeTip(id: 'deadline_3a');
+      final tip2 = makeTip(id: 'missing_3a');
       final today = DateTime(2026, 3, 15);
 
       final days1 = DashboardCuratorService.getDeadlineDaysForTip(
@@ -160,7 +160,7 @@ void main() {
     });
 
     test('3a_not_maxed maps to same deadline as deadline_3a', () {
-      final tip = _makeTip(id: '3a_not_maxed');
+      final tip = makeTip(id: '3a_not_maxed');
       final days = DashboardCuratorService.getDeadlineDaysForTip(
         tip,
         today: DateTime(2026, 10, 1),
@@ -170,7 +170,7 @@ void main() {
     });
 
     test('tax_deadline returns Mar 31 days', () {
-      final tip = _makeTip(id: 'tax_deadline');
+      final tip = makeTip(id: 'tax_deadline');
       final days = DashboardCuratorService.getDeadlineDaysForTip(
         tip,
         today: DateTime(2026, 1, 15),
@@ -180,7 +180,7 @@ void main() {
     });
 
     test('tax_deadline wraps to next year after Mar 31', () {
-      final tip = _makeTip(id: 'tax_deadline');
+      final tip = makeTip(id: 'tax_deadline');
       final days = DashboardCuratorService.getDeadlineDaysForTip(
         tip,
         today: DateTime(2026, 4, 1),
@@ -190,7 +190,7 @@ void main() {
     });
 
     test('lpp_buyback returns Dec 31 with year-wrap', () {
-      final tip = _makeTip(id: 'lpp_buyback');
+      final tip = makeTip(id: 'lpp_buyback');
       final days = DashboardCuratorService.getDeadlineDaysForTip(
         tip,
         today: DateTime(2027, 1, 2),
@@ -200,7 +200,7 @@ void main() {
     });
 
     test('unknown tip returns null', () {
-      final tip = _makeTip(id: 'emergency_fund');
+      final tip = makeTip(id: 'emergency_fund');
       expect(
         DashboardCuratorService.getDeadlineDaysForTip(tip),
         isNull,
@@ -221,7 +221,7 @@ void main() {
     test('respects maxCards limit', () {
       final tips = List.generate(
         10,
-        (i) => _makeTip(id: 'tip_$i', impact: 1000.0 * i),
+        (i) => makeTip(id: 'tip_$i', impact: 1000.0 * i),
       );
       final result = DashboardCuratorService.curate(tips: tips);
       expect(result.length, DashboardCuratorService.maxCards);
@@ -230,7 +230,7 @@ void main() {
     test('custom limit works', () {
       final tips = List.generate(
         10,
-        (i) => _makeTip(id: 'tip_$i'),
+        (i) => makeTip(id: 'tip_$i'),
       );
       final result = DashboardCuratorService.curate(tips: tips, limit: 2);
       expect(result.length, 2);
@@ -238,8 +238,8 @@ void main() {
 
     test('sorts by urgency first', () {
       final tips = [
-        _makeTip(id: 'emergency_fund', priority: CoachingPriority.basse),
-        _makeTip(id: 'deadline_3a', priority: CoachingPriority.haute),
+        makeTip(id: 'emergency_fund', priority: CoachingPriority.basse),
+        makeTip(id: 'deadline_3a', priority: CoachingPriority.haute),
       ];
       final result = DashboardCuratorService.curate(tips: tips);
       // deadline_3a has a deadline + haute priority → more urgent
@@ -248,8 +248,8 @@ void main() {
 
     test('sorts by impact when urgency is equal', () {
       final tips = [
-        _makeTip(id: 'tip_low', impact: 100),
-        _makeTip(id: 'tip_high', impact: 5000),
+        makeTip(id: 'tip_low', impact: 100),
+        makeTip(id: 'tip_high', impact: 5000),
       ];
       final result = DashboardCuratorService.curate(tips: tips);
       // Higher impact first
@@ -257,8 +257,8 @@ void main() {
     });
 
     test('mixes coaching tips and reengagement messages', () {
-      final tips = [_makeTip(id: 'emergency_fund', impact: 200)];
-      final msgs = [_makeReengagement(title: 'Quarterly FRI')];
+      final tips = [makeTip(id: 'emergency_fund', impact: 200)];
+      final msgs = [makeReengagement(title: 'Quarterly FRI')];
       final result = DashboardCuratorService.curate(
         tips: tips,
         reengagementMessages: msgs,
@@ -270,7 +270,7 @@ void main() {
     });
 
     test('curated card has correct fields', () {
-      final tip = _makeTip(id: 'lpp_buyback', impact: 3000);
+      final tip = makeTip(id: 'lpp_buyback', impact: 3000);
       tip.narrativeMessage = 'LLM enriched message';
       final result = DashboardCuratorService.curate(tips: [tip]);
 
@@ -282,24 +282,24 @@ void main() {
     });
 
     test('prefers narrativeMessage over message', () {
-      final tip = _makeTip(id: 'test');
+      final tip = makeTip(id: 'test');
       tip.narrativeMessage = 'Enriched';
       final result = DashboardCuratorService.curate(tips: [tip]);
       expect(result.single.message, 'Enriched');
     });
 
     test('falls back to message when narrativeMessage is null', () {
-      final tip = _makeTip(id: 'test');
+      final tip = makeTip(id: 'test');
       final result = DashboardCuratorService.curate(tips: [tip]);
       expect(result.single.message, 'Message for test');
     });
 
     test('maps known coaching tip IDs to active deeplinks', () {
       final result = DashboardCuratorService.curate(tips: [
-        _makeTip(id: 'missing_3a'),
-        _makeTip(id: 'lpp_buyback'),
-        _makeTip(id: 'retirement_countdown'),
-        _makeTip(id: 'debt_ratio'),
+        makeTip(id: 'missing_3a'),
+        makeTip(id: 'lpp_buyback'),
+        makeTip(id: 'retirement_countdown'),
+        makeTip(id: 'debt_ratio'),
       ], limit: 10);
 
       final deeplinks = {
@@ -315,7 +315,7 @@ void main() {
 
     test('unknown tip ID keeps null deeplink', () {
       final result = DashboardCuratorService.curate(
-        tips: [_makeTip(id: 'unknown_tip')],
+        tips: [makeTip(id: 'unknown_tip')],
       );
       expect(result.single.deeplink, isNull);
     });
@@ -336,7 +336,7 @@ void main() {
       ];
 
       for (final id in knownDeadlineIds) {
-        final tip = _makeTip(id: id);
+        final tip = makeTip(id: id);
         final days = DashboardCuratorService.getDeadlineDaysForTip(
           tip,
           today: DateTime(2026, 6, 15),
@@ -357,7 +357,7 @@ void main() {
       ];
 
       for (final id in noDeadlineIds) {
-        final tip = _makeTip(id: id);
+        final tip = makeTip(id: id);
         expect(
           DashboardCuratorService.getDeadlineDaysForTip(tip),
           isNull,

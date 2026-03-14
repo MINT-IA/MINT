@@ -32,7 +32,7 @@ void main() {
     });
   });
 
-  CoachProfileProvider _buildCoachProvider() {
+  CoachProfileProvider buildCoachProvider() {
     final provider = CoachProfileProvider();
     provider.updateFromAnswers({
       'q_firstname': 'Julien',
@@ -66,7 +66,7 @@ void main() {
         ChangeNotifierProvider<DocumentProvider>(
             create: (_) => DocumentProvider()),
         ChangeNotifierProvider<BudgetProvider>(create: (_) => BudgetProvider()),
-        ChangeNotifierProvider(create: (_) => _buildCoachProvider()),
+        ChangeNotifierProvider(create: (_) => buildCoachProvider()),
         ChangeNotifierProvider<LocaleProvider>(create: (_) => LocaleProvider()),
         ChangeNotifierProvider<UserActivityProvider>(
             create: (_) => UserActivityProvider()),

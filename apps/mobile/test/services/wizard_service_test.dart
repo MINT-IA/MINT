@@ -12,7 +12,7 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────
   // Helper: build a minimal list of WizardQuestion objects for testing
   // ─────────────────────────────────────────────────────────────────────
-  List<WizardQuestion> _buildTestQuestions() {
+  List<WizardQuestion> buildTestQuestions() {
     return [
       WizardQuestion(
         id: 'q_canton',
@@ -328,7 +328,7 @@ void main() {
     });
 
     test('returns 0 when no required questions are answered', () {
-      final questions = _buildTestQuestions();
+      final questions = buildTestQuestions();
       final requiredCount = questions.where((q) => q.required).length;
 
       final score = WizardService.calculateCompletionScore({}, questions);
@@ -337,7 +337,7 @@ void main() {
     });
 
     test('returns partial score for partially answered required questions', () {
-      final questions = _buildTestQuestions();
+      final questions = buildTestQuestions();
       final requiredCount = questions.where((q) => q.required).length;
 
       final answers = <String, dynamic>{
@@ -350,7 +350,7 @@ void main() {
     });
 
     test('returns 100 when all required questions are answered', () {
-      final questions = _buildTestQuestions();
+      final questions = buildTestQuestions();
 
       final answers = <String, dynamic>{
         'q_canton': 'VD',
@@ -364,7 +364,7 @@ void main() {
     });
 
     test('ignores null-valued answers for required questions', () {
-      final questions = _buildTestQuestions();
+      final questions = buildTestQuestions();
       final requiredCount = questions.where((q) => q.required).length;
 
       final answers = <String, dynamic>{
@@ -379,7 +379,7 @@ void main() {
 
   group('WizardService.getNextMostValuableQuestion', () {
     test('returns highest priority question from remaining list', () {
-      final questions = _buildTestQuestions();
+      final questions = buildTestQuestions();
 
       final next = WizardService.getNextMostValuableQuestion(questions, {});
       // q_canton is in the priority list, so it should be returned
@@ -388,7 +388,7 @@ void main() {
     });
 
     test('returns q_birth_year when q_canton already answered', () {
-      final questions = _buildTestQuestions()
+      final questions = buildTestQuestions()
           .where((q) => q.id != 'q_canton')
           .toList();
 
@@ -422,7 +422,7 @@ void main() {
 
   group('WizardService.generateAnswersSummary', () {
     test('generates summary for answered questions', () {
-      final questions = _buildTestQuestions();
+      final questions = buildTestQuestions();
       final answers = <String, dynamic>{
         'q_canton': 'VD',
         'q_birth_year': 1990,
@@ -435,7 +435,7 @@ void main() {
     });
 
     test('formats choice answer with label from options', () {
-      final questions = _buildTestQuestions();
+      final questions = buildTestQuestions();
       final answers = <String, dynamic>{
         'q_canton': 'VD',
       };
@@ -464,7 +464,7 @@ void main() {
     });
 
     test('returns empty summary for empty answers', () {
-      final questions = _buildTestQuestions();
+      final questions = buildTestQuestions();
       final summary = WizardService.generateAnswersSummary({}, questions);
       expect(summary, isEmpty);
     });

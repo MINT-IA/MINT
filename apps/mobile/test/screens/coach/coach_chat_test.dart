@@ -13,7 +13,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 // ────────────────────────────────────────────────────────────
 
 void main() {
-  CoachProfileProvider _buildProfileProvider() {
+  CoachProfileProvider buildProfileProvider() {
     final provider = CoachProfileProvider();
     provider.updateFromAnswers({
       'q_firstname': 'Julien',
@@ -30,7 +30,7 @@ void main() {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => withProfile ? _buildProfileProvider() : CoachProfileProvider(),
+          create: (_) => withProfile ? buildProfileProvider() : CoachProfileProvider(),
         ),
         ChangeNotifierProvider(create: (_) => ByokProvider()),
         ChangeNotifierProvider(create: (_) => UserActivityProvider()),

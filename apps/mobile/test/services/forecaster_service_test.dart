@@ -633,7 +633,7 @@ void main() {
       demo = CoachProfile.buildDemo();
     });
 
-    MonthlyCheckIn _makeCheckIn(DateTime month, Map<String, double> v) {
+    MonthlyCheckIn makeCheckIn(DateTime month, Map<String, double> v) {
       return MonthlyCheckIn(
         month: month,
         versements: v,
@@ -650,7 +650,7 @@ void main() {
 
     test('1 check-in: smart block skipped (requires >= 2)', () {
       final profile = demo.copyWithCheckIns([
-        _makeCheckIn(DateTime(2026, 1, 1), {
+        makeCheckIn(DateTime(2026, 1, 1), {
           '3a_julien': 900,
           '3a_lauren': 900,
         }),
@@ -663,13 +663,13 @@ void main() {
 
     test('2 check-ins with higher 3a: projection increases', () {
       final profile = demo.copyWithCheckIns([
-        _makeCheckIn(DateTime(2026, 1, 1), {
+        makeCheckIn(DateTime(2026, 1, 1), {
           '3a_julien': 900,
           '3a_lauren': 900,
           'lpp_buyback_julien': 1000,
           'lpp_buyback_lauren': 500,
         }),
-        _makeCheckIn(DateTime(2026, 2, 1), {
+        makeCheckIn(DateTime(2026, 2, 1), {
           '3a_julien': 900,
           '3a_lauren': 900,
           'lpp_buyback_julien': 1000,
@@ -685,12 +685,12 @@ void main() {
 
     test('check-ins with lower amounts: garde-fou prevents decrease', () {
       final profile = demo.copyWithCheckIns([
-        _makeCheckIn(DateTime(2026, 1, 1), {
+        makeCheckIn(DateTime(2026, 1, 1), {
           '3a_julien': 200,
           '3a_lauren': 200,
           'lpp_buyback_julien': 300,
         }),
-        _makeCheckIn(DateTime(2026, 2, 1), {
+        makeCheckIn(DateTime(2026, 2, 1), {
           '3a_julien': 200,
           '3a_lauren': 200,
           'lpp_buyback_julien': 300,
@@ -706,20 +706,20 @@ void main() {
     test('3+ check-ins: only last 3 are used', () {
       final profile = demo.copyWithCheckIns([
         // Old check-in with very high amount (should be ignored)
-        _makeCheckIn(DateTime(2025, 10, 1), {
+        makeCheckIn(DateTime(2025, 10, 1), {
           '3a_julien': 3000,
           '3a_lauren': 3000,
         }),
         // Recent 3 check-ins with moderate increase
-        _makeCheckIn(DateTime(2026, 1, 1), {
+        makeCheckIn(DateTime(2026, 1, 1), {
           '3a_julien': 700,
           '3a_lauren': 700,
         }),
-        _makeCheckIn(DateTime(2026, 2, 1), {
+        makeCheckIn(DateTime(2026, 2, 1), {
           '3a_julien': 700,
           '3a_lauren': 700,
         }),
-        _makeCheckIn(DateTime(2026, 3, 1), {
+        makeCheckIn(DateTime(2026, 3, 1), {
           '3a_julien': 700,
           '3a_lauren': 700,
         }),
@@ -733,8 +733,8 @@ void main() {
 
     test('check-ins with empty versements: no crash', () {
       final profile = demo.copyWithCheckIns([
-        _makeCheckIn(DateTime(2026, 1, 1), {}),
-        _makeCheckIn(DateTime(2026, 2, 1), {}),
+        makeCheckIn(DateTime(2026, 1, 1), {}),
+        makeCheckIn(DateTime(2026, 2, 1), {}),
       ]);
       final result = ForecasterService.project(profile: profile);
       final resultBase = ForecasterService.project(profile: demo);
@@ -744,11 +744,11 @@ void main() {
 
     test('check-ins with unknown IDs: gracefully skipped', () {
       final profile = demo.copyWithCheckIns([
-        _makeCheckIn(DateTime(2026, 1, 1), {
+        makeCheckIn(DateTime(2026, 1, 1), {
           'unknown_contribution': 5000,
           'also_unknown': 3000,
         }),
-        _makeCheckIn(DateTime(2026, 2, 1), {
+        makeCheckIn(DateTime(2026, 2, 1), {
           'unknown_contribution': 5000,
         }),
       ]);
@@ -763,11 +763,11 @@ void main() {
       // Planned total 3a = 604.83 + 604.83 = 1209.66/month
       // Actual per month = 800 + 800 = 1600/month → should trigger increase
       final profile = demo.copyWithCheckIns([
-        _makeCheckIn(DateTime(2026, 1, 1), {
+        makeCheckIn(DateTime(2026, 1, 1), {
           '3a_julien': 800,
           '3a_lauren': 800,
         }),
-        _makeCheckIn(DateTime(2026, 2, 1), {
+        makeCheckIn(DateTime(2026, 2, 1), {
           '3a_julien': 800,
           '3a_lauren': 800,
         }),
