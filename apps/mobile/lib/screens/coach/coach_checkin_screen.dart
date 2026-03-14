@@ -1505,6 +1505,7 @@ Reponds uniquement avec le texte final.
 
   // ── Monthly briefing insights card (Coach Vivant) ──────────
   Widget _buildBriefingInsightsCard() {
+    final s = S.of(context);
     final briefing = _briefing!;
     final trendIcon = switch (briefing.trend) {
       BriefingTrend.enHausse => Icons.trending_up,
@@ -1532,7 +1533,7 @@ Reponds uniquement avec le texte final.
               Icon(trendIcon, size: 18, color: trendColor),
               const SizedBox(width: 8),
               Text(
-                'Ton evolution',
+                s?.checkinEvolutionTitle ?? 'Ton évolution',
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
