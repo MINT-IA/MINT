@@ -176,9 +176,10 @@ class EducationalInsertService {
           title: 'Ton statut professionnel, tes droits',
           subtitle: 'Prévoyance, 3a, couvertures sociales',
           chiffreChoc:
-              'Un indépendant sans LPP volontaire peut cotiser jusqu\'à '
-              '36\'288 CHF/an au 3a — soit 5x plus qu\'un salarié (7\'258 CHF). '
-              'Mais il perd l\'assurance invalidité LPP.',
+              'En tant qu\'indépendant, personne ne cotise pour ta retraite '
+              'à part toi. L\'avantage\u00a0: tu peux mettre jusqu\'à '
+              '36\'288 CHF/an de côté en 3a (5× plus qu\'un salarié) '
+              'et payer moins d\'impôts. Le risque\u00a0: pas de filet en cas d\'invalidité.',
           learningGoals: const [
             'Les 3 régimes : salarié (employé), indépendant, sans activité lucrative.',
             'Le salarié bénéficie automatiquement de l\'AVS (LAVS art. 3), du LPP (LPP art. 2) et de l\'assurance accident (LAA art. 1a).',
@@ -206,10 +207,10 @@ class EducationalInsertService {
           title: 'Locataire ou propriétaire ?',
           subtitle: 'Fiscalité, EPL et capacité d\'emprunt',
           chiffreChoc:
-              'En Suisse, seuls 36% des ménages sont propriétaires — '
-              'le taux le plus bas d\'Europe. Pourtant, un propriétaire paie '
-              'en moyenne 15-25% de moins par mois qu\'un locataire équivalent '
-              'après 15 ans d\'amortissement.',
+              'En Suisse, 2 personnes sur 3 sont locataires — c\'est unique en Europe. '
+              'Devenir propriétaire demande au moins 20\u00a0% d\'apport '
+              '(pour un bien à 800\'000 CHF, c\'est 160\'000 CHF de ta poche). '
+              'Mais après 15 ans, un propriétaire paie souvent 15-25\u00a0% de moins qu\'un locataire.',
           learningGoals: const [
             'La propriété en Suisse implique un apport minimum de 20% (max 10% du 2e pilier, FINMA circ. 2017/7).',
             'Le propriétaire paie l\'impôt sur la valeur locative (LIFD art. 21 al. 1 let. b) mais peut déduire les intérêts hypothécaires et les frais d\'entretien.',
@@ -237,9 +238,9 @@ class EducationalInsertService {
           title: 'Ton canton, ton impôt',
           subtitle: 'Le 1er levier fiscal en Suisse',
           chiffreChoc:
-              'Pour un revenu de 100\'000 CHF, l\'impôt varie de ~8% à Zoug '
-              'à ~30% à Genève — soit une différence de plus de 22\'000 CHF par an. '
-              'Ton canton est le premier levier fiscal en Suisse.',
+              'À revenu égal (100\'000 CHF), tu paies ~8\'000 CHF d\'impôts à Zoug '
+              'contre ~30\'000 CHF à Genève. 22\'000 CHF de différence — '
+              'c\'est un salaire de plus chaque année, juste en changeant de canton.',
           learningGoals: const [
             'La Suisse a 3 niveaux d\'imposition : fédéral (fixe), cantonal et communal (variables).',
             'Le taux effectif d\'imposition varie énormément d\'un canton à l\'autre (et même d\'une commune à l\'autre).',
@@ -268,9 +269,10 @@ class EducationalInsertService {
           title: 'Rachat LPP : ton levier fiscal',
           subtitle: 'Rendement immédiat de 25 à 40%',
           chiffreChoc:
-              'Un rachat LPP de 20\'000 CHF peut te faire économiser entre '
-              '5\'000 et 8\'000 CHF d\'impôts l\'année même — c\'est un rendement '
-              'fiscal immédiat de 25 à 40%.',
+              'Tu verses 20\'000 CHF dans ta caisse de pension, '
+              'le fisc t\'en rend 5\'000 à 8\'000 l\'année même. '
+              'C\'est comme un placement qui rapporte 25-40\u00a0% immédiatement — '
+              'et l\'argent reste à toi pour la retraite.',
           learningGoals: const [
             'Le rachat LPP est déductible à 100% du revenu imposable (LPP art. 79b).',
             'Le montant maximum de rachat figure sur le certificat de prévoyance (demande à ta caisse de pension).',
@@ -297,9 +299,10 @@ class EducationalInsertService {
           title: 'Nombre de comptes 3a : la stratégie',
           subtitle: 'Échelonner pour payer moins d\'impôts',
           chiffreChoc:
-              'Avec 5 comptes 3a retirés sur 5 ans au lieu d\'un seul, '
-              'tu peux économiser entre 8\'000 et 25\'000 CHF d\'impôts sur '
-              'le retrait — car chaque retrait est imposé séparément et à un taux plus bas.',
+              'Imagine\u00a0: tu retires 200\'000 CHF d\'un coup → impôt élevé. '
+              'Tu retires 40\'000 CHF sur 5 ans → chaque tranche est taxée '
+              'à un taux plus bas. Économie\u00a0: 8\'000 à 25\'000 CHF. '
+              'C\'est pour ça qu\'on ouvre plusieurs comptes 3a.',
           learningGoals: const [
             'Le retrait du 3a est imposé comme un revenu (taux progressif, LIFD art. 38).',
             'Les retraits de la même année sont additionnés pour le calcul du taux (impôt progressif).',
@@ -326,11 +329,10 @@ class EducationalInsertService {
           title: 'Placements : le régime fiscal suisse',
           subtitle: 'Gains en capital, dividendes, fortune',
           chiffreChoc:
-              'En Suisse, les gains en capital privés sont exonérés d\'impôt '
-              '(LIFD art. 16 al. 3) — mais les dividendes et intérêts sont '
-              'imposés à 100%. Placer 100\'000 CHF en valeurs mobilières plutôt '
-              'que sur un compte d\'épargne peut générer 3\'000 à 5\'000 CHF/an '
-              'de rendement supplémentaire.',
+              'Bonne nouvelle\u00a0: en Suisse, si tu achètes une action à 100 CHF '
+              'et la revends à 150 CHF, les 50 CHF de gain ne sont pas imposés. '
+              'C\'est presque unique au monde. Par contre, les dividendes '
+              'et intérêts sont taxés comme un salaire.',
           learningGoals: const [
             'Les gains en capital privés ne sont PAS imposés en Suisse (LIFD art. 16 al. 3) — un avantage unique.',
             'Les dividendes et intérêts sont imposables comme revenu ordinaire (LIFD art. 20).',
