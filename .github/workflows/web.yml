@@ -1,0 +1,114 @@
+# MINT Web App — Build & Deploy to Vercel
+#
+# Branch strategy:
+#   - PR merged into staging -> deploy to Vercel Preview (staging)
+#   - PR merged into main    -> deploy to Vercel Production
+#
+# Required secrets:
+#   VERCEL_TOKEN          — Vercel API token
+#   VERCEL_ORG_ID         — Vercel organization/team ID
+#   VERCEL_PROJECT_ID     — Vercel project ID
+#
+# Required variables:
+#   STAGING_API_URL       — Backend staging URL (e.g. https://mint-staging.up.railway.app/api/v1)
+#   PROD_API_URL          — Backend production URL (e.g. https://mint-production-3a41.up.railway.app/api/v1)
+
+name: Deploy Web App
+
+on:
+  pull_request:
+    branches: [staging, main]
+    types: [closed]
+    paths:
+      - "apps/mobile/lib/**"
+      - "apps/mobile/pubspec.*"
+      - "apps/mobile/web/**"
+      - "vercel.json"
+      - ".github/workflows/web.yml"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - production
+
+concurrency:
+  group: web-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build & Deploy Web
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.32.1"
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        working-directory: apps/mobile
+        run: flutter pub get
+
+      - name: Determine environment
+        id: env
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            ENV="${{ github.event.inputs.environment }}"
+          elif [[ "${{ github.base_ref }}" == "main" ]]; then
+            ENV="production"
+          else
+            ENV="staging"
+          fi
+          echo "environment=$ENV" >> $GITHUB_OUTPUT
+
+          if [[ "$ENV" == "production" ]]; then
+            echo "api_url=${{ vars.PROD_API_URL }}" >> $GITHUB_OUTPUT
+            echo "vercel_args=--prod" >> $GITHUB_OUTPUT
+          else
+            echo "api_url=${{ vars.STAGING_API_URL }}" >> $GITHUB_OUTPUT
+            echo "vercel_args=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build Flutter Web
+        working-directory: apps/mobile
+        run: |
+          flutter build web \
+            -t lib/main_web.dart \
+            --dart-define=API_BASE_URL=${{ steps.env.outputs.api_url }}
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Deploy to Vercel
+        working-directory: apps/mobile/build/web
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          vercel deploy \
+            --token=$VERCEL_TOKEN \
+            ${{ steps.env.outputs.vercel_args }} \
+            --yes
+
+      - name: Deployment summary
+        run: |
+          echo "## Web App Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: ${{ steps.env.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **API URL**: ${{ steps.env.outputs.api_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
