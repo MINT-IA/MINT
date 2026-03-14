@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
 //  ANNUAL REFRESH SCREEN — T6 / MINT Coach
@@ -18,7 +19,7 @@ import 'package:mint_mobile/services/financial_fitness_service.dart';
 // actuelles et on ne met a jour que ce qui a change.
 // Duree cible : 2-3 minutes max.
 //
-// Tous les textes en francais (informel "tu").
+// Tous les textes internationalisés via AppLocalizations.
 // Aucun terme banni (pas de "garanti", "certain", "optimal", etc.).
 // ────────────────────────────────────────────────────────────
 
@@ -103,64 +104,64 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
     return double.tryParse(cleaned) ?? 0;
   }
 
-  String _employmentLabel(String status) {
+  String _employmentLabel(String status, AppLocalizations l10n) {
     switch (status) {
       case 'salarie':
-        return 'Même emploi';
+        return l10n.annualRefreshEmploymentSame;
       case 'nouvel_emploi':
-        return 'Nouvel emploi';
+        return l10n.annualRefreshEmploymentNew;
       case 'independant':
-        return 'Indépendant\u00b7e';
+        return l10n.annualRefreshEmploymentIndependent;
       case 'chomage':
       case 'sans_emploi':
-        return 'Sans emploi';
+        return l10n.annualRefreshEmploymentUnemployed;
       default:
-        return 'Même emploi';
+        return l10n.annualRefreshEmploymentSame;
     }
   }
 
-  String _realEstateLabel(String project) {
+  String _realEstateLabel(String project, AppLocalizations l10n) {
     switch (project) {
       case 'aucun':
-        return 'Aucun';
+        return l10n.annualRefreshNone;
       case 'achat':
-        return 'Achat';
+        return l10n.annualRefreshRealEstatePurchase;
       case 'vente':
-        return 'Vente';
+        return l10n.annualRefreshRealEstateSale;
       case 'refinancement':
-        return 'Refinancement';
+        return l10n.annualRefreshRealEstateRefinance;
       default:
-        return 'Aucun';
+        return l10n.annualRefreshNone;
     }
   }
 
-  String _familyLabel(String change) {
+  String _familyLabel(String change, AppLocalizations l10n) {
     switch (change) {
       case 'aucun':
-        return 'Aucun';
+        return l10n.annualRefreshNone;
       case 'mariage':
-        return 'Mariage';
+        return l10n.annualRefreshFamilyMarriage;
       case 'naissance':
-        return 'Naissance';
+        return l10n.annualRefreshFamilyBirth;
       case 'divorce':
-        return 'Divorce';
+        return l10n.annualRefreshFamilyDivorce;
       case 'deces':
-        return 'Décès';
+        return l10n.annualRefreshFamilyDeath;
       default:
-        return 'Aucun';
+        return l10n.annualRefreshNone;
     }
   }
 
-  String _riskLabel(String risk) {
+  String _riskLabel(String risk, AppLocalizations l10n) {
     switch (risk) {
       case 'conservateur':
-        return 'Conservateur';
+        return l10n.annualRefreshRiskConservative;
       case 'modere':
-        return 'Modéré';
+        return l10n.annualRefreshRiskModerate;
       case 'agressif':
-        return 'Agressif';
+        return l10n.annualRefreshRiskAggressive;
       default:
-        return 'Modéré';
+        return l10n.annualRefreshRiskModerate;
     }
   }
 
@@ -227,21 +228,23 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (_showResult) {
-      return _buildResultScreen();
+      return _buildResultScreen(l10n);
     }
 
     return Scaffold(
       backgroundColor: MintColors.background,
       body: CustomScrollView(
         slivers: [
-          _buildAppBar(),
+          _buildAppBar(l10n),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 Text(
-                  'Quelques questions rapides pour mettre ton profil à jour.',
+                  l10n.annualRefreshSubtitle,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     color: MintColors.textSecondary,
@@ -252,23 +255,23 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      _buildSalaireCard(),
+                      _buildSalaireCard(l10n),
                       const SizedBox(height: 16),
-                      _buildEmploiCard(),
+                      _buildEmploiCard(l10n),
                       const SizedBox(height: 16),
-                      _buildLppCard(),
+                      _buildLppCard(l10n),
                       const SizedBox(height: 16),
-                      _buildThreeACard(),
+                      _buildThreeACard(l10n),
                       const SizedBox(height: 16),
-                      _buildRealEstateCard(),
+                      _buildRealEstateCard(l10n),
                       const SizedBox(height: 16),
-                      _buildFamilyCard(),
+                      _buildFamilyCard(l10n),
                       const SizedBox(height: 16),
-                      _buildRiskCard(),
+                      _buildRiskCard(l10n),
                       const SizedBox(height: 32),
-                      _buildSubmitButton(),
+                      _buildSubmitButton(l10n),
                       const SizedBox(height: 16),
-                      _buildDisclaimer(),
+                      _buildDisclaimer(l10n),
                       const SizedBox(height: 40),
                     ],
                   ),
@@ -285,7 +288,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  APP BAR
   // ════════════════════════════════════════════════════════════════
 
-  SliverAppBar _buildAppBar() {
+  SliverAppBar _buildAppBar(AppLocalizations l10n) {
     return SliverAppBar(
       expandedHeight: 120,
       pinned: true,
@@ -305,7 +308,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
           ),
         ),
         title: Text(
-          'Check-up annuel',
+          l10n.annualRefreshTitle,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -321,14 +324,14 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  Q1 — SALAIRE
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildSalaireCard() {
+  Widget _buildSalaireCard(AppLocalizations l10n) {
     return _questionCard(
       number: 1,
-      title: 'Ton salaire brut mensuel a-t-il changé ?',
+      title: l10n.annualRefreshQ1Title,
       child: Column(
         children: [
           Text(
-            '${_salaireBrutMensuel.toInt()} CHF / mois',
+            l10n.annualRefreshSalaryPerMonth('${_salaireBrutMensuel.toInt()}'),
             style: GoogleFonts.montserrat(
               fontSize: 24,
               fontWeight: FontWeight.w700,
@@ -349,10 +352,10 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('0 CHF',
+              Text(l10n.annualRefreshSliderMin,
                   style: GoogleFonts.inter(
                       fontSize: 11, color: MintColors.textMuted)),
-              Text('30\'000 CHF',
+              Text(l10n.annualRefreshSliderMax,
                   style: GoogleFonts.inter(
                       fontSize: 11, color: MintColors.textMuted)),
             ],
@@ -366,19 +369,19 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  Q2 — EMPLOI
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildEmploiCard() {
+  Widget _buildEmploiCard(AppLocalizations l10n) {
     final options = ['salarie', 'nouvel_emploi', 'independant', 'sans_emploi'];
 
     return _questionCard(
       number: 2,
-      title: 'Ta situation professionnelle',
+      title: l10n.annualRefreshQ2Title,
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
         children: options.map((opt) {
           final isSelected = _employmentStatus == opt;
           return ChoiceChip(
-            label: Text(_employmentLabel(opt)),
+            label: Text(_employmentLabel(opt, l10n)),
             selected: isSelected,
             onSelected: (_) => setState(() => _employmentStatus = opt),
             selectedColor: MintColors.coachAccent.withAlpha(30),
@@ -408,12 +411,11 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  Q3 — AVOIR LPP
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildLppCard() {
+  Widget _buildLppCard(AppLocalizations l10n) {
     return _questionCard(
       number: 3,
-      title: 'Ton avoir LPP actuel',
-      helpText:
-          'Regarde ton certificat de prévoyance (tu le reçois chaque janvier)',
+      title: l10n.annualRefreshQ3Title,
+      helpText: l10n.annualRefreshQ3Help,
       child: TextFormField(
         controller: _lppController,
         keyboardType: TextInputType.number,
@@ -438,7 +440,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
         style: GoogleFonts.inter(fontSize: 16, color: MintColors.textPrimary),
         validator: (v) {
           final val = _parseChf(v ?? '');
-          if (val < 0) return 'Le montant doit être positif';
+          if (val < 0) return l10n.annualRefreshAmountMustBePositive;
           return null;
         },
       ),
@@ -449,11 +451,11 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  Q4 — SOLDE 3A
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildThreeACard() {
+  Widget _buildThreeACard(AppLocalizations l10n) {
     return _questionCard(
       number: 4,
-      title: 'Ton solde 3a approximatif',
-      helpText: 'Connecte-toi sur ton app 3a pour voir le solde exact',
+      title: l10n.annualRefreshQ4Title,
+      helpText: l10n.annualRefreshQ4Help,
       child: TextFormField(
         controller: _threeAController,
         keyboardType: TextInputType.number,
@@ -478,7 +480,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
         style: GoogleFonts.inter(fontSize: 16, color: MintColors.textPrimary),
         validator: (v) {
           final val = _parseChf(v ?? '');
-          if (val < 0) return 'Le montant doit être positif';
+          if (val < 0) return l10n.annualRefreshAmountMustBePositive;
           return null;
         },
       ),
@@ -489,19 +491,19 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  Q5 — PROJET IMMOBILIER
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildRealEstateCard() {
+  Widget _buildRealEstateCard(AppLocalizations l10n) {
     final options = ['aucun', 'achat', 'vente', 'refinancement'];
 
     return _questionCard(
       number: 5,
-      title: 'Un projet immobilier en vue ?',
+      title: l10n.annualRefreshQ5Title,
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
         children: options.map((opt) {
           final isSelected = _realEstateProject == opt;
           return ChoiceChip(
-            label: Text(_realEstateLabel(opt)),
+            label: Text(_realEstateLabel(opt, l10n)),
             selected: isSelected,
             onSelected: (_) => setState(() => _realEstateProject = opt),
             selectedColor: MintColors.coachAccent.withAlpha(30),
@@ -531,19 +533,19 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  Q6 — CHANGEMENT FAMILIAL
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildFamilyCard() {
+  Widget _buildFamilyCard(AppLocalizations l10n) {
     final options = ['aucun', 'mariage', 'naissance', 'divorce', 'deces'];
 
     return _questionCard(
       number: 6,
-      title: 'Un changement familial cette année ?',
+      title: l10n.annualRefreshQ6Title,
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
         children: options.map((opt) {
           final isSelected = _familyChange == opt;
           return ChoiceChip(
-            label: Text(_familyLabel(opt)),
+            label: Text(_familyLabel(opt, l10n)),
             selected: isSelected,
             onSelected: (_) => setState(() => _familyChange = opt),
             selectedColor: MintColors.coachAccent.withAlpha(30),
@@ -573,12 +575,12 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  Q7 — TOLERANCE AU RISQUE
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildRiskCard() {
+  Widget _buildRiskCard(AppLocalizations l10n) {
     final options = ['conservateur', 'modere', 'agressif'];
 
     return _questionCard(
       number: 7,
-      title: 'Ta tolérance au risque',
+      title: l10n.annualRefreshQ7Title,
       child: Row(
         children: options.map((opt) {
           final isSelected = _riskTolerance == opt;
@@ -614,7 +616,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      _riskLabel(opt),
+                      _riskLabel(opt, l10n),
                       textAlign: TextAlign.center,
                       style: GoogleFonts.inter(
                         fontSize: 12,
@@ -639,7 +641,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  SUBMIT BUTTON
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildSubmitButton() {
+  Widget _buildSubmitButton(AppLocalizations l10n) {
     return SizedBox(
       width: double.infinity,
       height: 52,
@@ -663,7 +665,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                 ),
               )
             : Text(
-                'Mettre à jour mon profil',
+                l10n.annualRefreshSubmit,
                 style: GoogleFonts.inter(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -677,13 +679,11 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  DISCLAIMER
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Text(
-        'Cet outil est à but éducatif et ne constitue pas un conseil financier '
-        'au sens de la LSFin. Consulte un\u00b7e spécialiste pour des conseils '
-        'personnalisés.',
+        l10n.annualRefreshDisclaimer,
         textAlign: TextAlign.center,
         style: GoogleFonts.inter(
           fontSize: 11,
@@ -698,7 +698,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  RESULT SCREEN
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildResultScreen() {
+  Widget _buildResultScreen(AppLocalizations l10n) {
     final delta = (_newScore ?? 0) - (_oldScore ?? 0);
     final improved = delta > 0;
     final dropped = delta < 0;
@@ -707,7 +707,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
       backgroundColor: MintColors.background,
       body: CustomScrollView(
         slivers: [
-          _buildAppBar(),
+          _buildAppBar(l10n),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
             sliver: SliverList(
@@ -744,7 +744,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                 const SizedBox(height: 24),
                 // Title
                 Text(
-                  'Profil mis à jour !',
+                  l10n.annualRefreshResultTitle,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.montserrat(
                     fontSize: 22,
@@ -774,9 +774,10 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           _scoreColumn(
-                            'Avant',
+                            l10n.annualRefreshScoreBefore,
                             _oldScore ?? 0,
                             MintColors.textMuted,
+                            l10n,
                           ),
                           Icon(
                             Icons.arrow_forward,
@@ -784,9 +785,10 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                             size: 24,
                           ),
                           _scoreColumn(
-                            'Après',
+                            l10n.annualRefreshScoreAfter,
                             _newScore ?? 0,
                             MintColors.coachAccent,
+                            l10n,
                           ),
                         ],
                       ),
@@ -794,7 +796,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                       // Delta text
                       if (improved)
                         Text(
-                          'Ton score a augmenté de $delta points !',
+                          l10n.annualRefreshScoreImproved('$delta'),
                           textAlign: TextAlign.center,
                           style: GoogleFonts.inter(
                             fontSize: 15,
@@ -804,7 +806,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                         )
                       else if (dropped)
                         Text(
-                          'Ton score a baissé de ${delta.abs()} points — vérifions ensemble',
+                          l10n.annualRefreshScoreDropped('${delta.abs()}'),
                           textAlign: TextAlign.center,
                           style: GoogleFonts.inter(
                             fontSize: 15,
@@ -814,7 +816,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                         )
                       else
                         Text(
-                          'Ton score est stable — continue comme ça !',
+                          l10n.annualRefreshScoreStable,
                           textAlign: TextAlign.center,
                           style: GoogleFonts.inter(
                             fontSize: 15,
@@ -841,7 +843,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                       elevation: 0,
                     ),
                     child: Text(
-                      'Retour au dashboard',
+                      l10n.annualRefreshBackToDashboard,
                       style: GoogleFonts.inter(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -850,7 +852,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                _buildDisclaimer(),
+                _buildDisclaimer(l10n),
               ]),
             ),
           ),
@@ -859,7 +861,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
     );
   }
 
-  Widget _scoreColumn(String label, int score, Color color) {
+  Widget _scoreColumn(String label, int score, Color color, AppLocalizations l10n) {
     return Column(
       children: [
         Text(
@@ -879,7 +881,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
           ),
         ),
         Text(
-          '/ 100',
+          l10n.annualRefreshScoreOutOf,
           style: GoogleFonts.inter(
             fontSize: 12,
             color: MintColors.textMuted,

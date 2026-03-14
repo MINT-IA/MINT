@@ -5888,5 +5888,66 @@
   "reportV2Optimize3a": "Optimiere deine Säule 3a",
   "reportV2Debt3aLockedMessage": "Der 3a-Vergleicher ist deaktiviert, solange du aktive Schulden hast. Deine Schulden abzubauen hat Priorität vor jeder 3a-Einzahlung.",
   "reportV2LppBuybackLocked": "BVG-Einkauf gesperrt",
-  "reportV2LppBuybackLockedMessage": "Der BVG-Einkauf ist im Schutzmodus deaktiviert. Zahle deine Schulden ab, bevor du Liquidität in der Vorsorge bindest."
+  "reportV2LppBuybackLockedMessage": "Der BVG-Einkauf ist im Schutzmodus deaktiviert. Zahle deine Schulden ab, bevor du Liquidität in der Vorsorge bindest.",
+  "annualRefreshTitle": "Jährlicher Check-up",
+  "annualRefreshSubtitle": "Ein paar schnelle Fragen, um dein Profil zu aktualisieren.",
+  "annualRefreshEmploymentSame": "Gleicher Job",
+  "annualRefreshEmploymentNew": "Neuer Job",
+  "annualRefreshEmploymentIndependent": "Selbstständig",
+  "annualRefreshEmploymentUnemployed": "Arbeitslos",
+  "annualRefreshNone": "Keines",
+  "annualRefreshRealEstatePurchase": "Kauf",
+  "annualRefreshRealEstateSale": "Verkauf",
+  "annualRefreshRealEstateRefinance": "Refinanzierung",
+  "annualRefreshFamilyMarriage": "Heirat",
+  "annualRefreshFamilyBirth": "Geburt",
+  "annualRefreshFamilyDivorce": "Scheidung",
+  "annualRefreshFamilyDeath": "Todesfall",
+  "annualRefreshRiskConservative": "Konservativ",
+  "annualRefreshRiskModerate": "Moderat",
+  "annualRefreshRiskAggressive": "Aggressiv",
+  "annualRefreshQ1Title": "Hat sich dein monatliches Bruttogehalt geändert?",
+  "annualRefreshSalaryPerMonth": "{amount} CHF / Monat",
+  "@annualRefreshSalaryPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "annualRefreshSliderMin": "0 CHF",
+  "annualRefreshSliderMax": "30\u2019000 CHF",
+  "annualRefreshQ2Title": "Deine berufliche Situation",
+  "annualRefreshQ3Title": "Dein aktuelles BVG-Guthaben",
+  "annualRefreshQ3Help": "Schau auf deinen Vorsorgeausweis (du erhältst ihn jeden Januar)",
+  "annualRefreshAmountMustBePositive": "Der Betrag muss positiv sein",
+  "annualRefreshQ4Title": "Dein ungefähres Säule-3a-Guthaben",
+  "annualRefreshQ4Help": "Melde dich in deiner 3a-App an, um den genauen Saldo zu sehen",
+  "annualRefreshQ5Title": "Ein Immobilienprojekt in Sicht?",
+  "annualRefreshQ6Title": "Eine familiäre Veränderung dieses Jahr?",
+  "annualRefreshQ7Title": "Deine Risikotoleranz",
+  "annualRefreshSubmit": "Mein Profil aktualisieren",
+  "annualRefreshDisclaimer": "Dieses Tool dient Bildungszwecken und stellt keine Finanzberatung im Sinne des FIDLEG dar. Konsultiere eine Fachperson für persönliche Beratung.",
+  "annualRefreshResultTitle": "Profil aktualisiert!",
+  "annualRefreshScoreBefore": "Vorher",
+  "annualRefreshScoreAfter": "Nachher",
+  "annualRefreshScoreOutOf": "/ 100",
+  "annualRefreshScoreImproved": "Dein Score ist um {delta} Punkte gestiegen!",
+  "@annualRefreshScoreImproved": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "annualRefreshScoreDropped": "Dein Score ist um {delta} Punkte gesunken — schauen wir gemeinsam",
+  "@annualRefreshScoreDropped": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "annualRefreshScoreStable": "Dein Score ist stabil — weiter so!",
+  "annualRefreshBackToDashboard": "Zurück zum Dashboard"
 }

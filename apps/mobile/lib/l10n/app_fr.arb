@@ -5939,5 +5939,55 @@
   "reportV2Optimize3a": "Optimise ton 3a",
   "reportV2Debt3aLockedMessage": "Le comparateur 3a est désactivé tant que tu as des dettes actives. Rembourser tes dettes est prioritaire avant toute épargne 3a.",
   "reportV2LppBuybackLocked": "Rachat LPP bloqué",
-  "reportV2LppBuybackLockedMessage": "Le rachat LPP est désactivé en mode protection. Rembourser tes dettes avant de bloquer de la liquidité dans la prévoyance."
+  "reportV2LppBuybackLockedMessage": "Le rachat LPP est désactivé en mode protection. Rembourser tes dettes avant de bloquer de la liquidité dans la prévoyance.",
+  "coachChatTitle": "Coach MINT",
+  "coachChatEmptyStateMessage": "Complète ton diagnostic pour discuter avec ton coach",
+  "coachChatStartDiagnostic": "Faire mon diagnostic",
+  "coachChatExportTooltip": "Exporter la conversation",
+  "coachChatSettingsTooltip": "Paramètres IA",
+  "coachChatTierSlm": "IA on-device",
+  "coachChatTierByok": "IA cloud (BYOK)",
+  "coachChatTierOffline": "Mode hors-ligne",
+  "coachChatBadgeOnDevice": "On-device",
+  "coachChatBadgeCloud": "Cloud",
+  "coachChatBadgeOffline": "Hors-ligne",
+  "coachChatDisclaimer": "Outil éducatif\u00a0— les réponses ne constituent pas un conseil financier. LSFin.",
+  "coachChatLoading": "Réflexion en cours...",
+  "coachChatSources": "Sources",
+  "coachChatInputHint": "Pose ta question...",
+  "coachChatDefaultName": "ami·e",
+  "coachChatGreetingSlm": "Salut {name}\u00a0! Je suis ton coach MINT\u00a0— je tourne directement sur ton iPhone, aucune donnée ne quitte ton appareil. Pose-moi tes questions sur la prévoyance, les impôts ou la retraite.",
+  "@coachChatGreetingSlm": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "coachChatGreetingFallback": "Salut {name}\u00a0! Je suis ton coach MINT. Pose-moi tes questions sur la prévoyance, les impôts, le budget ou la retraite en Suisse.",
+  "@coachChatGreetingFallback": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "coachChatFitnessScore": " Ton score Fitness est de {score}/100.",
+  "@coachChatFitnessScore": {
+    "placeholders": {
+      "score": {"type": "int"}
+    }
+  },
+  "coachChatComplianceFallback": "Je n'ai pas pu formuler une réponse conforme. Reformule ta question ou explore les simulateurs.",
+  "coachChatErrorInvalidKey": "Ta clé API semble invalide ou expirée. Vérifie-la dans les paramètres.",
+  "coachChatErrorRateLimit": "Limite de requêtes atteinte. Réessaie dans quelques instants.",
+  "coachChatErrorDefault": "Erreur technique. Réessaie plus tard.",
+  "coachChatErrorConnection": "Erreur de connexion. Vérifie ta connexion internet ou ta clé API.",
+  "coachChatAction3aSimulate": "Simuler un versement 3a",
+  "coachChatAction3aView": "Voir mes comptes 3a",
+  "coachChatActionLppSimulate": "Simuler un rachat LPP",
+  "coachChatActionLppUnderstand": "Comprendre le rachat LPP",
+  "coachChatActionTrajectory": "Voir ma trajectoire",
+  "coachChatActionScenarios": "Explorer les scénarios",
+  "coachChatActionTaxDeductions": "Déductions fiscales possibles",
+  "coachChatActionTaxSimulate": "Simuler l'impact fiscal",
+  "coachChatActionFitness": "Mon score Fitness",
+  "coachChatActionRetirement": "Ma trajectoire retraite",
+  "coachChatUserFallback": "Utilisateur"
 }
