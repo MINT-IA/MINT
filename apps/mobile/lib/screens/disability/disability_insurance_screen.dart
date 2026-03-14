@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/disability_scorecard_widget.dart';
@@ -46,17 +47,17 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
 
   // ── Scorecard items ───────────────────────────────────────
 
-  List<CoverageItem> get _scorecardItems {
+  List<CoverageItem> _scorecardItems(S s) {
     final annualGross = _grossMonthly * 12;
     final hasLpp = annualGross >= lppSeuilEntree;
 
     // IJM
     final ijmGrade = _hasIjm ? 'B+' : (_hasPrivateInsurance ? 'B' : 'F');
     final ijmDetail = _hasIjm
-        ? '80% salaire — 720 jours (assurance collective)'
+        ? s.disabilityInsuranceIjmCollective
         : _hasPrivateInsurance
-            ? 'Assurance privée personnelle (vérifie les conditions)'
-            : '⚠️ Aucune couverture — hors période employeur, c\'est 0 CHF';
+            ? s.disabilityInsuranceIjmPrivate
+            : s.disabilityInsuranceIjmNone;
 
     // AI
     const aiGrade = 'C';
@@ -64,8 +65,9 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
     // LPP
     final lppGrade = hasLpp ? 'A-' : 'D';
     final lppDetail = hasLpp
-        ? 'Rente ≈ 40% salaire coordonné (LPP art. 23)'
-        : 'Sous le seuil LPP ${_fmtChf(lppSeuilEntree)} CHF/an — pas de couverture 2e pilier';
+        ? s.disabilityInsuranceLppCovered
+        : s.disabilityInsuranceLppUnder(
+            _fmtChf(lppSeuilEntree));
 
     // Épargne
     final monthsReserve = _savings / (_grossMonthly * 0.7);
@@ -79,36 +81,37 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
     } else {
       savingsGrade = 'F';
     }
-    final savingsDetail =
-        '${monthsReserve.toStringAsFixed(1)} mois de charges (objectif : 6 mois)';
+    final savingsDetail = s.disabilityInsuranceSavingsDetail(
+        monthsReserve.toStringAsFixed(1));
 
     return [
       CoverageItem(
-        label: 'IJM / Perte de gain',
+        label: s.disabilityInsuranceIjmLabel,
         grade: ijmGrade,
         detail: ijmDetail,
         legalRef: 'LAMal art. 67-77',
-        emoji: '🛡️',
+        emoji: '\u{1F6E1}\u{FE0F}',
       ),
       CoverageItem(
-        label: 'AI fédérale',
+        label: s.disabilityInsuranceAiLabel,
         grade: aiGrade,
-        detail: 'Max ${_fmtChf(aiRenteEntiere)} CHF/mois — délai décision ~14 mois',
+        detail: s.disabilityInsuranceAiDetail(
+            _fmtChf(aiRenteEntiere)),
         legalRef: 'LAI art. 28',
-        emoji: '🏛️',
+        emoji: '\u{1F3DB}\u{FE0F}',
       ),
       CoverageItem(
-        label: 'LPP invalidité',
+        label: s.disabilityInsuranceLppLabel,
         grade: lppGrade,
         detail: lppDetail,
         legalRef: 'LPP art. 23-26',
-        emoji: '🏦',
+        emoji: '\u{1F3E6}',
       ),
       CoverageItem(
-        label: 'Réserve d\'urgence',
+        label: s.disabilityInsuranceReserveLabel,
         grade: savingsGrade,
         detail: savingsDetail,
-        emoji: '💰',
+        emoji: '\u{1F4B0}',
       ),
     ];
   }
@@ -165,20 +168,21 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.background,
       body: CustomScrollView(
         slivers: [
-          _buildAppBar(),
+          _buildAppBar(s),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 20),
-                _buildInputsCard(),
+                _buildInputsCard(s),
                 const SizedBox(height: 20),
                 DisabilityScorecardWidget(
-                  items: _scorecardItems,
+                  items: _scorecardItems(s),
                   overallGrade: _overallGrade,
                   lifeDropPercent: _lifeDropPercent,
                 ),
@@ -188,19 +192,12 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
                   initialConsultationsPerYear: 3,
                 ),
                 const SizedBox(height: 20),
-                const EduDisclaimer(
-                  text:
-                      'Outil éducatif — ne constitue pas un conseil en assurance. '
-                      'Les montants de franchise et primes sont indicatifs. '
-                      'Compare les offres sur comparaison.ch ou via un·e courtier·ère indépendant·e.',
+                EduDisclaimer(
+                  text: s.disabilityInsuranceDisclaimer,
                 ),
                 const SizedBox(height: 8),
-                const EduLegalSources(
-                  sources:
-                      '• LAMal art. 64-64a (franchise)\n'
-                      '• OAMal art. 93 (primes)\n'
-                      '• LAI art. 28 (rente AI)\n'
-                      '• LPP art. 23-26 (invalidité 2e pilier)',
+                EduLegalSources(
+                  sources: s.disabilityInsuranceLegalSources,
                 ),
               ]),
             ),
@@ -210,7 +207,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(S s) {
     return SliverAppBar(
       expandedHeight: 140,
       floating: false,
@@ -233,7 +230,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    'Ma couverture invalidité',
+                    s.disabilityInsuranceTitle,
                     style: GoogleFonts.montserrat(
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
@@ -241,7 +238,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
                     ),
                   ),
                   Text(
-                    'Bulletin scolaire · Franchise LAMal · AI/APG',
+                    s.disabilityInsuranceSubtitle,
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       color: MintColors.white70,
@@ -254,7 +251,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
         ),
       ),
       title: Text(
-        'Ma couverture',
+        s.disabilityInsuranceTitleShort,
         style: GoogleFonts.montserrat(
           fontSize: 16,
           fontWeight: FontWeight.w700,
@@ -264,7 +261,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
     );
   }
 
-  Widget _buildInputsCard() {
+  Widget _buildInputsCard(S s) {
     return Container(
       decoration: BoxDecoration(
         color: MintColors.white,
@@ -276,7 +273,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Affine ta situation',
+            s.disabilityInsuranceRefine,
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -285,7 +282,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
           ),
           const SizedBox(height: 16),
           _buildSliderRow(
-            label: 'Salaire brut mensuel',
+            label: s.disabilityInsuranceGrossSalary,
             value: _grossMonthly,
             min: 2000,
             max: 25000,
@@ -295,7 +292,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
           ),
           const SizedBox(height: 12),
           _buildSliderRow(
-            label: 'Épargne disponible',
+            label: s.disabilityInsuranceSavings,
             value: _savings,
             min: 0,
             max: 200000,
@@ -305,13 +302,13 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
           ),
           const SizedBox(height: 16),
           _buildToggleRow(
-            label: 'IJM via mon employeur',
+            label: s.disabilityInsuranceIjmEmployer,
             value: _hasIjm,
             onChanged: (v) => setState(() => _hasIjm = v),
           ),
           const SizedBox(height: 8),
           _buildToggleRow(
-            label: 'Assurance perte de gain privée',
+            label: s.disabilityInsurancePrivateInsurance,
             value: _hasPrivateInsurance,
             onChanged: (v) => setState(() => _hasPrivateInsurance = v),
           ),
