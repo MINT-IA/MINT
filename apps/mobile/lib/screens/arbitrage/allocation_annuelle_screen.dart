@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
@@ -125,6 +126,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -136,7 +138,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
             foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Ou placer tes CHF ?',
+                s.allocationAnnuelleTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -175,12 +177,12 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: SmartDefaultIndicator(
-                        source: 'Valeurs pre-remplies depuis ton profil',
+                        source: s.allocationAnnuelleAutoFillSource,
                         confidence: _result!.confidenceScore / 100,
                       ),
                     ),
                   Text(
-                    'Trajectoires comparees',
+                    s.allocationAnnuelleTrajectoiresTitle,
                     style: GoogleFonts.montserrat(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -189,7 +191,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Touche le graphique pour voir les valeurs a chaque annee.',
+                    s.allocationAnnuelleTrajectoiresHint,
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       color: MintColors.textSecondary,
@@ -225,10 +227,10 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
 
                   // ── Hypothesis sliders ──
                   HypothesisEditorWidget(
-                    hypotheses: const [
+                    hypotheses: [
                       HypothesisConfig(
                         key: 'rendement_marche',
-                        label: 'Rendement marche',
+                        label: s.allocationAnnuelleHypRendementMarche,
                         min: 0,
                         max: 8,
                         divisions: 16,
@@ -236,7 +238,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                       ),
                       HypothesisConfig(
                         key: 'rendement_lpp',
-                        label: 'Rendement LPP',
+                        label: s.allocationAnnuelleHypRendementLpp,
                         min: 0,
                         max: 4,
                         divisions: 8,
@@ -244,7 +246,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                       ),
                       HypothesisConfig(
                         key: 'rendement_3a',
-                        label: 'Rendement 3a',
+                        label: s.allocationAnnuelleHypRendement3a,
                         min: 0,
                         max: 5,
                         divisions: 10,
@@ -292,6 +294,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildInputSection() {
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -303,7 +306,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ton budget annuel',
+            s.allocationAnnuelleBudgetTitle,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -313,7 +316,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
           const SizedBox(height: 16),
           _buildTextField(
             controller: _montantCtrl,
-            label: 'Montant disponible par an (CHF)',
+            label: s.allocationAnnuelleMontantLabel,
           ),
           const SizedBox(height: 16),
 
@@ -323,7 +326,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
             children: [
               Flexible(
                 child: Text(
-                  'Taux marginal d\'imposition estime',
+                  s.allocationAnnuelleTauxMarginalLabel,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -369,7 +372,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
             children: [
               Flexible(
                 child: Text(
-                  'Annees avant la retraite',
+                  s.allocationAnnuelleAnneesRetraiteLabel,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -378,7 +381,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                 ),
               ),
               Text(
-                '$_anneesAvantRetraite ans',
+                s.allocationAnnuelleAnneesValue(_anneesAvantRetraite),
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -411,7 +414,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
 
           // Toggles
           _buildToggle(
-            label: '3a deja au maximum',
+            label: s.allocationAnnuelleToggle3aMaxed,
             value: _a3aMaxed,
             onChanged: (v) {
               _a3aMaxed = v;
@@ -419,7 +422,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
             },
           ),
           _buildToggle(
-            label: 'Potentiel de rachat LPP',
+            label: s.allocationAnnuelleToggleRachatLpp,
             value: _hasRachatLpp,
             onChanged: (v) {
               _hasRachatLpp = v;
@@ -430,11 +433,11 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
             const SizedBox(height: 8),
             _buildTextField(
               controller: _potentielRachatCtrl,
-              label: 'Montant de rachat possible (CHF)',
+              label: s.allocationAnnuelleRachatLabel,
             ),
           ],
           _buildToggle(
-            label: 'Proprietaire immobilier',
+            label: s.allocationAnnuelleToggleProprietaire,
             value: _isPropertyOwner,
             onChanged: (v) {
               _isPropertyOwner = v;
@@ -455,7 +458,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                 ),
               ),
               child: Text(
-                'Comparer les strategies',
+                s.allocationAnnuelleCompareButton,
                 style: GoogleFonts.inter(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -549,6 +552,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
 
   Widget _buildTerminalValuesCard() {
     if (_result == null) return const SizedBox.shrink();
+    final s = S.of(context)!;
     final options = _result!.options;
     final colorMap = _colorsForOptions(options);
 
@@ -564,7 +568,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Valeur terminale estimee',
+            s.allocationAnnuelleTerminalTitle,
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -572,7 +576,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
             ),
           ),
           Text(
-            'Apres $_anneesAvantRetraite ans',
+            s.allocationAnnuelleTerminalAfter(_anneesAvantRetraite),
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -688,11 +692,12 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
 
   Widget _buildHypothesesSection() {
     if (_result == null) return const SizedBox.shrink();
+    final s = S.of(context)!;
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
       childrenPadding: const EdgeInsets.only(bottom: 8),
       title: Text(
-        'Hypotheses utilisees',
+        s.allocationAnnuelleHypothesesTitle,
         style: GoogleFonts.montserrat(
           fontSize: 14,
           fontWeight: FontWeight.w600,
@@ -731,6 +736,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
 
   Widget _buildDisclaimerCard() {
     if (_result == null) return const SizedBox.shrink();
+    final s = S.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -750,7 +756,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                'Avertissement',
+                s.allocationAnnuelleDisclaimerTitle,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -770,7 +776,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Sources : ${_result!.sources.join(' | ')}',
+            s.allocationAnnuelleSources(_result!.sources.join(' | ')),
             style: GoogleFonts.inter(
               fontSize: 10,
               color: MintColors.textMuted,

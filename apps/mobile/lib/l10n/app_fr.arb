@@ -8207,5 +8207,43 @@
       "taxAmount": {"type": "String"}
     }
   },
-  "testamentInvisibleDisclaimer": "Outil \u00e9ducatif \u00b7 ne constitue pas un conseil financier au sens de la LSFin. Source\u00a0: CC art. 457-462, OPP3 art. 2. Taux successoral concubin\u00b7e illustratif (ex. VD) \u2014 varie de 0\u00a0% \u00e0 40\u00a0% selon canton et lien de parent\u00e9."
+  "testamentInvisibleDisclaimer": "Outil \u00e9ducatif \u00b7 ne constitue pas un conseil financier au sens de la LSFin. Source\u00a0: CC art. 457-462, OPP3 art. 2. Taux successoral concubin\u00b7e illustratif (ex. VD) \u2014 varie de 0\u00a0% \u00e0 40\u00a0% selon canton et lien de parent\u00e9.",
+
+  "allocationAnnuelleTitle": "O\u00f9 placer tes CHF\u00a0?",
+  "allocationAnnuelleAutoFillSource": "Valeurs pr\u00e9-remplies depuis ton profil",
+  "allocationAnnuelleTrajectoiresTitle": "Trajectoires compar\u00e9es",
+  "allocationAnnuelleTrajectoiresHint": "Touche le graphique pour voir les valeurs \u00e0 chaque ann\u00e9e.",
+  "allocationAnnuelleBudgetTitle": "Ton budget annuel",
+  "allocationAnnuelleMontantLabel": "Montant disponible par an (CHF)",
+  "allocationAnnuelleTauxMarginalLabel": "Taux marginal d'imposition estim\u00e9",
+  "allocationAnnuelleAnneesRetraiteLabel": "Ann\u00e9es avant la retraite",
+  "allocationAnnuelleAnneesValue": "{count} ans",
+  "@allocationAnnuelleAnneesValue": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "allocationAnnuelleToggle3aMaxed": "3a d\u00e9j\u00e0 au maximum",
+  "allocationAnnuelleToggleRachatLpp": "Potentiel de rachat LPP",
+  "allocationAnnuelleRachatLabel": "Montant de rachat possible (CHF)",
+  "allocationAnnuelleToggleProprietaire": "Propri\u00e9taire immobilier",
+  "allocationAnnuelleCompareButton": "Comparer les strat\u00e9gies",
+  "allocationAnnuelleTerminalTitle": "Valeur terminale estim\u00e9e",
+  "allocationAnnuelleTerminalAfter": "Apr\u00e8s {count} ans",
+  "@allocationAnnuelleTerminalAfter": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "allocationAnnuelleHypothesesTitle": "Hypoth\u00e8ses utilis\u00e9es",
+  "allocationAnnuelleDisclaimerTitle": "Avertissement",
+  "allocationAnnuelleSources": "Sources\u00a0: {sources}",
+  "@allocationAnnuelleSources": {
+    "placeholders": {
+      "sources": {"type": "String"}
+    }
+  },
+  "allocationAnnuelleHypRendementMarche": "Rendement march\u00e9",
+  "allocationAnnuelleHypRendementLpp": "Rendement LPP",
+  "allocationAnnuelleHypRendement3a": "Rendement 3a"
 }
