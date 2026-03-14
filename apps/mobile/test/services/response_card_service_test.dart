@@ -349,8 +349,8 @@ void main() {
       for (final card in cards) {
         expect(card.disclaimer, contains('LSFin'),
             reason: '${card.type.name} must have LSFin disclaimer');
-        expect(card.disclaimer, contains('educatif'),
-            reason: '${card.type.name} must mention educatif');
+        expect(card.disclaimer, contains('éducatif'),
+            reason: '${card.type.name} must mention éducatif');
       }
     });
 
