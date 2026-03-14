@@ -7869,5 +7869,110 @@
     "placeholders": {
       "sources": {"type": "String"}
     }
-  }
+  },
+
+  "trajectoryChartDebtSubtitle": "Dette restante \u00b7 {years} ans",
+  "@trajectoryChartDebtSubtitle": {
+    "placeholders": {
+      "years": {"type": "String"}
+    }
+  },
+  "trajectoryChartSemanticDebt": "Graphique de trajectoire de dette. Dette restante estim\u00e9e en fin de p\u00e9riode\u00a0: {amount}.",
+  "@trajectoryChartSemanticDebt": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "trajectoryChartSemanticFinancial": "Graphique de trajectoire financi\u00e8re. Sc\u00e9nario base\u00a0: {amount}. Taux de remplacement estim\u00e9\u00a0: {taux} pour cent.",
+  "@trajectoryChartSemanticFinancial": {
+    "placeholders": {
+      "amount": {"type": "String"},
+      "taux": {"type": "String"}
+    }
+  },
+  "trajectoryChartDebtZero": "Objectif dette z\u00e9ro atteint sur cet horizon.",
+  "trajectoryChartDebtRemaining": "Dette restante estim\u00e9e\u00a0: {amount} ({percent}% rembours\u00e9e).",
+  "@trajectoryChartDebtRemaining": {
+    "placeholders": {
+      "amount": {"type": "String"},
+      "percent": {"type": "String"}
+    }
+  },
+  "trajectoryChartMonthJan": "janv.",
+  "trajectoryChartMonthFeb": "f\u00e9vr.",
+  "trajectoryChartMonthMar": "mars",
+  "trajectoryChartMonthApr": "avr.",
+  "trajectoryChartMonthMay": "mai",
+  "trajectoryChartMonthJun": "juin",
+  "trajectoryChartMonthJul": "juil.",
+  "trajectoryChartMonthAug": "ao\u00fbt",
+  "trajectoryChartMonthSep": "sept.",
+  "trajectoryChartMonthOct": "oct.",
+  "trajectoryChartMonthNov": "nov.",
+  "trajectoryChartMonthDec": "d\u00e9c.",
+
+  "coachHelperMonthJanuary": "Janvier",
+  "coachHelperMonthFebruary": "F\u00e9vrier",
+  "coachHelperMonthMarch": "Mars",
+  "coachHelperMonthApril": "Avril",
+  "coachHelperMonthMay": "Mai",
+  "coachHelperMonthJune": "Juin",
+  "coachHelperMonthJuly": "Juillet",
+  "coachHelperMonthAugust": "Ao\u00fbt",
+  "coachHelperMonthSeptember": "Septembre",
+  "coachHelperMonthOctober": "Octobre",
+  "coachHelperMonthNovember": "Novembre",
+  "coachHelperMonthDecember": "D\u00e9cembre",
+  "coachHelperMonthShortJan": "Jan",
+  "coachHelperMonthShortFeb": "F\u00e9v",
+  "coachHelperMonthShortMar": "Mar",
+  "coachHelperMonthShortApr": "Avr",
+  "coachHelperMonthShortMay": "Mai",
+  "coachHelperMonthShortJun": "Jun",
+  "coachHelperMonthShortJul": "Jul",
+  "coachHelperMonthShortAug": "Ao\u00fb",
+  "coachHelperMonthShortSep": "Sep",
+  "coachHelperMonthShortOct": "Oct",
+  "coachHelperMonthShortNov": "Nov",
+  "coachHelperMonthShortDec": "D\u00e9c",
+
+  "heroRetirementTitleFull": "Ton salaire apr\u00e8s 65 ans",
+  "heroRetirementTitleEducational": "Projection retraite",
+  "heroRetirementSubtitleFull": "AVS + LPP + \u00e9pargne",
+  "heroRetirementSubtitleRange": "Estimation avec incertitude",
+  "heroRetirementSubtitleEducational": "Profil incomplet",
+  "heroRetirementBadgeFull": "Fiable",
+  "heroRetirementBadgeRange": "Estimation",
+  "heroRetirementBadgeEducational": "\u00c0 compl\u00e9ter",
+  "heroRetirementLabelToday": "Aujourd'hui",
+  "heroRetirementLabelRetirement": "\u00c0 la retraite",
+  "heroRetirementPerMonth": "/mois",
+  "heroRetirementPerMonthRetirement": "par mois \u00e0 la retraite",
+  "heroRetirementReplacementRatio": "Tu garderas {ratio}% de ton train de vie",
+  "@heroRetirementReplacementRatio": {
+    "placeholders": {
+      "ratio": {"type": "String"}
+    }
+  },
+  "heroRetirementExplanationComfortable": "Confortable \u2014 tu gardes ton train de vie",
+  "heroRetirementExplanationSufficient": "Suffisant pour la plupart des m\u00e9nages (charges r\u00e9duites \u00e0 la retraite)",
+  "heroRetirementExplanationTight": "Serr\u00e9 \u2014 des ajustements seront n\u00e9cessaires",
+  "heroRetirementExplanationInsufficient": "Insuffisant \u2014 agis maintenant pour am\u00e9liorer ta situation",
+  "heroRetirementRangeLabel": "Fourchette\u00a0: {min} \u2013 {max} / mois",
+  "@heroRetirementRangeLabel": {
+    "placeholders": {
+      "min": {"type": "String"},
+      "max": {"type": "String"}
+    }
+  },
+  "heroRetirementBetween": "Entre",
+  "heroRetirementAnd": "et",
+  "heroRetirementRangeWarning": "La fourchette se r\u00e9duira en ajoutant tes donn\u00e9es LPP et AVS.",
+  "heroRetirementMissingInfo": "Il nous manque des informations",
+  "heroRetirementMissingInfoDesc": "Pour estimer ton revenu de retraite, quelques questions suffisent\u00a0:",
+  "heroRetirementQuestionSalary": "Ton salaire et statut professionnel",
+  "heroRetirementQuestionLpp": "Ton avoir LPP",
+  "heroRetirementQuestion3a": "Ton \u00e9pargne 3e pilier",
+  "heroRetirementCompleteProfile": "Compl\u00e9ter mon profil",
+  "heroRetirementDisclaimer": "Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin)."
 }

@@ -134,13 +134,13 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   Widget build(BuildContext context) {
     final hasPoints = _displayBasePoints.isNotEmpty;
 
+    final s = S.of(context)!;
     return Semantics(
       label: _isDebtGoal
-          ? 'Graphique de trajectoire de dette. '
-              'Dette restante estimée en fin de période : ${_formatChf(_displayBaseFinal)}.'
-          : 'Graphique de trajectoire financière. '
-              'Scénario base : ${_formatChf(widget.result.base.capitalFinal)}. '
-              'Taux de remplacement estimé : ${widget.result.tauxRemplacementBase.round()} pour cent.',
+          ? s.trajectoryChartSemanticDebt(_formatChf(_displayBaseFinal))
+          : s.trajectoryChartSemanticFinancial(
+              _formatChf(widget.result.base.capitalFinal),
+              widget.result.tauxRemplacementBase.round().toString()),
       child: GestureDetector(
         onTap: hasPoints ? _handleTap : widget.onTap,
         onTapDown: hasPoints ? _handleTapDown : null,
@@ -260,12 +260,11 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildHeader() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final yearsToTarget = _yearsToTarget();
     final subtitle = _isDebtGoal
-        ? 'Dette restante · $yearsToTarget ans'
-        : (s?.trajectorySubtitle(yearsToTarget.toString()) ??
-            '3 scénarios · $yearsToTarget ans');
+        ? s.trajectoryChartDebtSubtitle(yearsToTarget.toString())
+        : s.trajectorySubtitle(yearsToTarget.toString());
     return Row(
       children: [
         Container(
@@ -287,7 +286,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                s?.trajectoryTitle ?? 'Ta trajectoire',
+                s.trajectoryTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -351,11 +350,10 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
                   progress: _drawAnimation.value,
                   goalALabel: widget.goalALabel,
                   selectedIndex: _selectedPointIndex,
-                  prudentLabel: S.of(context)?.trajectoryPrudent ?? 'Prudent',
-                  baseLabel: S.of(context)?.trajectoryBase ?? 'Base',
-                  optimisteLabel:
-                      S.of(context)?.trajectoryOptimiste ?? 'Optimiste',
-                  goalLabel: S.of(context)?.trajectoryGoalLabel ?? 'Cible',
+                  prudentLabel: S.of(context)!.trajectoryPrudent,
+                  baseLabel: S.of(context)!.trajectoryBase,
+                  optimisteLabel: S.of(context)!.trajectoryOptimiste,
+                  goalLabel: S.of(context)!.trajectoryGoalLabel,
                 ),
                 size: Size(availableWidth, chartHeight),
               ),
@@ -394,10 +392,10 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
 
     final dateLabel = _formatDate(basePoint.date);
 
-    final s = S.of(context);
-    final optimisteLabel = s?.trajectoryOptimiste ?? 'Optimiste';
-    final baseLabel = s?.trajectoryBase ?? 'Base';
-    final prudentLabel = s?.trajectoryPrudent ?? 'Prudent';
+    final s = S.of(context)!;
+    final optimisteLabel = s.trajectoryOptimiste;
+    final baseLabel = s.trajectoryBase;
+    final prudentLabel = s.trajectoryPrudent;
 
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 120),
@@ -494,24 +492,24 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildLegend() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _buildLegendItem(
-          s?.trajectoryOptimiste ?? 'Optimiste',
+          s.trajectoryOptimiste,
           MintColors.trajectoryOptimiste,
           dashed: true,
         ),
         const SizedBox(width: 16),
         _buildLegendItem(
-          s?.trajectoryBase ?? 'Base',
+          s.trajectoryBase,
           MintColors.trajectoryBase,
           dashed: false,
         ),
         const SizedBox(width: 16),
         _buildLegendItem(
-          s?.trajectoryPrudent ?? 'Prudent',
+          s.trajectoryPrudent,
           MintColors.trajectoryPrudent,
           dashed: true,
         ),
@@ -548,11 +546,11 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildScrubHint() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Padding(
       padding: const EdgeInsets.only(top: 6),
       child: Text(
-        s?.trajectoryDragHint ?? 'Glisse pour explorer',
+        s.trajectoryDragHint,
         style: GoogleFonts.inter(
           fontSize: 10,
           color: MintColors.textMuted.withValues(alpha: 0.6),
@@ -568,7 +566,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildTauxRemplacement() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final taux = widget.result.tauxRemplacementBase.clamp(0.0, 200.0);
     final isGood = taux >= 60;
     final icon = isGood ? Icons.check_circle_outline : Icons.warning_amber;
@@ -602,8 +600,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
                       ),
                       children: [
                         TextSpan(
-                            text: s?.trajectoryTauxRemplacement ??
-                                'Taux de remplacement estimé : '),
+                            text: s.trajectoryTauxRemplacement),
                         TextSpan(
                           text: '${taux.round()}%',
                           style: GoogleFonts.montserrat(
@@ -625,6 +622,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   }
 
   Widget _buildDebtMetric() {
+    final s = S.of(context)!;
     final debtLeft = _displayBaseFinal.clamp(0.0, double.infinity);
     final debtPaid =
         (widget.initialDebt - debtLeft).clamp(0.0, widget.initialDebt);
@@ -649,9 +647,10 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           Expanded(
             child: Text(
               isGood
-                  ? 'Objectif dette zéro atteint sur cet horizon.'
-                  : 'Dette restante estimée : ${_formatChf(debtLeft)} '
-                      '(${(paidRatio * 100).round()}% remboursée).',
+                  ? s.trajectoryChartDebtZero
+                  : s.trajectoryChartDebtRemaining(
+                      _formatChf(debtLeft),
+                      (paidRatio * 100).round().toString()),
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textPrimary,
@@ -668,7 +667,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildEmptyState() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Container(
       height: 200,
       alignment: Alignment.center,
@@ -682,7 +681,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           ),
           const SizedBox(height: 12),
           Text(
-            s?.trajectoryEmpty ?? 'Pas encore de projection disponible',
+            s.trajectoryEmpty,
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.textMuted,
@@ -690,8 +689,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           ),
           const SizedBox(height: 4),
           Text(
-            s?.trajectoryEmptySub ??
-                'Complète ton profil pour voir ta trajectoire',
+            s.trajectoryEmptySub,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textMuted.withValues(alpha: 0.7),
@@ -707,10 +705,9 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildDisclaimer() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Text(
-      s?.trajectoryDisclaimer ??
-          'Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier.',
+      s.trajectoryDisclaimer,
       textAlign: TextAlign.center,
       style: GoogleFonts.inter(
         fontSize: 10,
@@ -745,20 +742,21 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
     return 'CHF\u00A0${intVal < 0 ? '-' : ''}${buffer.toString()}';
   }
 
-  static String _formatDate(DateTime date) {
-    const months = [
-      'janv.',
-      'fevr.',
-      'mars',
-      'avr.',
-      'mai',
-      'juin',
-      'juil.',
-      'aout',
-      'sept.',
-      'oct.',
-      'nov.',
-      'dec.',
+  String _formatDate(DateTime date) {
+    final s = S.of(context)!;
+    final months = [
+      s.trajectoryChartMonthJan,
+      s.trajectoryChartMonthFeb,
+      s.trajectoryChartMonthMar,
+      s.trajectoryChartMonthApr,
+      s.trajectoryChartMonthMay,
+      s.trajectoryChartMonthJun,
+      s.trajectoryChartMonthJul,
+      s.trajectoryChartMonthAug,
+      s.trajectoryChartMonthSep,
+      s.trajectoryChartMonthOct,
+      s.trajectoryChartMonthNov,
+      s.trajectoryChartMonthDec,
     ];
     return '${months[date.month - 1]} ${date.year}';
   }
