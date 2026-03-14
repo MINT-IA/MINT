@@ -36,7 +36,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final docProvider = context.watch<DocumentProvider>();
     final sub = context.watch<SubscriptionProvider>();
     final totalDocs = docProvider.documentCount;
@@ -140,7 +140,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           ),
         ),
         title: Text(
-          s?.vaultTitle.toUpperCase() ?? 'COFFRE-FORT',
+          s.vaultTitle.toUpperCase(),
           style: GoogleFonts.montserrat(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -165,7 +165,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 const Icon(Icons.star_rounded, color: MintColors.white, size: 16),
                 const SizedBox(width: 4),
                 Text(
-                  s?.vaultPremiumBadge ?? 'Premium',
+                  s.vaultPremiumBadge,
                   style: GoogleFonts.montserrat(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -223,7 +223,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      s?.vaultHeaderTitle ?? 'Ton coffre-fort financier',
+                      s.vaultHeaderTitle,
                       style: GoogleFonts.montserrat(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -232,8 +232,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      s?.vaultHeaderSubtitle ??
-                          'Centralise, comprends et agis sur tes documents',
+                      s.vaultHeaderSubtitle,
                       style: const TextStyle(
                         fontSize: 15,
                         color: MintColors.textSecondary,
@@ -259,8 +258,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                     color: MintColors.info, size: 18),
                 const SizedBox(width: 8),
                 Text(
-                  s?.vaultDocCount(totalDocs.toString()) ??
-                      '$totalDocs documents',
+                  s.vaultDocCount(totalDocs.toString()),
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -351,8 +349,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             ),
             Text(
               count > 0
-                  ? (s?.vaultCategoryCount(count.toString()) ?? '$count')
-                  : (s?.vaultCategoryNone ?? 'Aucun'),
+                  ? (s.vaultCategoryCount(count.toString()))
+                  : (s.vaultCategoryNone),
               style: TextStyle(
                 fontSize: 13,
                 color: count > 0 ? color : MintColors.textMuted,
@@ -374,7 +372,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          s?.vaultGuidanceTitle.toUpperCase() ?? 'GUIDANCE JURIDIQUE',
+          s.vaultGuidanceTitle.toUpperCase(),
           style: GoogleFonts.montserrat(
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -388,15 +386,13 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         _buildGuidanceCard(
           s,
           icon: Icons.home_outlined,
-          title: s?.vaultGuidanceLeaseTitle ??
-              'Bail \u2014 Tes droits de locataire',
-          body: s?.vaultGuidanceLeaseBody ??
-              'En Suisse, le loyer peut \u00eatre contest\u00e9 s\u2019il d\u00e9passe '
+          title: s.vaultGuidanceLeaseTitle,
+          body: s.vaultGuidanceLeaseBody
                   'le rendement admissible (CO art. 269). Le pr\u00e9avis l\u00e9gal est '
                   'de 3 mois pour un appartement, sauf clause contraire dans le bail. '
                   'L\u2019ASLOCA offre des consultations gratuites dans la plupart des cantons.',
           source:
-              s?.vaultGuidanceLeaseSource ?? 'CO art. 269-270, OBLF art. 12-13',
+              s.vaultGuidanceLeaseSource,
         ),
         const SizedBox(height: 12),
 
@@ -404,16 +400,14 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         _buildGuidanceCard(
           s,
           icon: Icons.health_and_safety_outlined,
-          title: s?.vaultGuidanceInsuranceTitle ??
-              'Assurances \u2014 Audit de couverture',
-          body: s?.vaultGuidanceInsuranceBody ??
-              'La RC priv\u00e9e et l\u2019assurance m\u00e9nage ne sont pas obligatoires '
+          title: s.vaultGuidanceInsuranceTitle,
+          body: s.vaultGuidanceInsuranceBody
                   'en Suisse, mais fortement recommand\u00e9es. V\u00e9rifie que ta somme '
                   'assur\u00e9e m\u00e9nage couvre la valeur r\u00e9elle de tes biens. '
                   'La sous-assurance peut r\u00e9duire l\u2019indemnisation proportionnellement '
                   '(LCA art. 69).',
           source:
-              s?.vaultGuidanceInsuranceSource ?? 'LCA art. 69, CGA assureurs',
+              s.vaultGuidanceInsuranceSource,
         ),
         const SizedBox(height: 12),
 
@@ -421,15 +415,13 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         _buildGuidanceCard(
           s,
           icon: Icons.local_hospital_outlined,
-          title: s?.vaultGuidanceLamalTitle ??
-              'LAMal \u2014 Optimisation franchise',
-          body: s?.vaultGuidanceLamalBody ??
-              'Tu peux changer de franchise LAMal chaque ann\u00e9e au 30 novembre '
+          title: s.vaultGuidanceLamalTitle,
+          body: s.vaultGuidanceLamalBody
                   '(franchise plus haute) ou au 31 d\u00e9cembre (franchise plus basse). '
                   'Un\u00b7e adulte en bonne sant\u00e9 peut \u00e9conomiser jusqu\u2019\u00e0 '
                   '1\u2019500 CHF/an avec une franchise de 2\u2019500 CHF vs 300 CHF.',
           source:
-              s?.vaultGuidanceLamalSource ?? 'LAMal art. 62, OAMal art. 93-94',
+              s.vaultGuidanceLamalSource,
         ),
         const SizedBox(height: 12),
 
@@ -437,15 +429,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         _buildGuidanceCard(
           s,
           icon: Icons.payments_outlined,
-          title: s?.vaultGuidanceSalaryTitle ??
-              'Salaire \u2014 V\u00e9rification du certificat',
-          body: s?.vaultGuidanceSalaryBody ??
-              'Ton certificat de salaire (Lohnausweis) est le document cl\u00e9 pour ta '
+          title: s.vaultGuidanceSalaryTitle,
+          body: s.vaultGuidanceSalaryBody
                   'd\u00e9claration fiscale. V\u00e9rifie que les cotisations LPP, AVS et '
                   'allocations familiales correspondent \u00e0 tes fiches de paie. '
                   'Toute erreur peut impacter tes imp\u00f4ts et ta pr\u00e9voyance.',
-          source: s?.vaultGuidanceSalarySource ??
-              'LIFD art. 127, OFS formulaire 11',
+          source: s.vaultGuidanceSalarySource,
         ),
       ],
     );
@@ -527,7 +516,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          s?.vaultDocListTitle.toUpperCase() ?? 'MES DOCUMENTS',
+          s.vaultDocListTitle.toUpperCase(),
           style: GoogleFonts.montserrat(
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -678,8 +667,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              s?.vaultConfidence(confidence.toString()) ??
-                                  'Confiance : $confidence%',
+                              s.vaultConfidence(confidence.toString()),
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
@@ -720,7 +708,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               size: 48, color: MintColors.textMuted.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
           Text(
-            s?.vaultEmptyTitle ?? 'Aucun document',
+            s.vaultEmptyTitle,
             style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -729,8 +717,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            s?.vaultEmptySubtitle ??
-                'Ajoute ton premier document pour alimenter tes simulations avec des donn\u00e9es r\u00e9elles',
+            s.vaultEmptySubtitle,
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 14,
@@ -751,7 +738,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             ),
             icon: const Icon(Icons.add_rounded, size: 20),
             label: Text(
-              s?.vaultUploadButton ?? 'Choisir un fichier PDF',
+              s.vaultUploadButton,
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
@@ -798,7 +785,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
-                  s?.vaultPremiumTitle ?? 'Coffre-fort Premium',
+                  s.vaultPremiumTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -810,8 +797,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            s?.vaultPremiumBody ??
-                'Passe \u00e0 MINT Premium pour stocker un nombre illimit\u00e9 de documents '
+            s.vaultPremiumBody
                     'et d\u00e9bloquer l\u2019audit de couverture automatique',
             style: TextStyle(
               fontSize: 14,
@@ -838,7 +824,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 ),
               ),
               child: Text(
-                s?.vaultPremiumCta ?? 'D\u00e9couvrir Premium',
+                s.vaultPremiumCta,
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
@@ -872,7 +858,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           ),
           const SizedBox(width: 16),
           Text(
-            s?.vaultAnalyzing ?? 'Analyse en cours...',
+            s.vaultAnalyzing,
             style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,
@@ -943,8 +929,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               context.push('/documents/${result.id}');
             },
             child: Text(
-              s?.documentsConfirmButton ??
-                  'Confirmer et mettre \u00e0 jour mon profil',
+              s.documentsConfirmButton,
             ),
           ),
         ),
@@ -1019,7 +1004,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          s?.vaultExtractedFields.toUpperCase() ?? 'CHAMPS EXTRAITS',
+          s.vaultExtractedFields.toUpperCase(),
           style: GoogleFonts.montserrat(
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -1085,7 +1070,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   size: 18, color: MintColors.warning.withValues(alpha: 0.8)),
               const SizedBox(width: 8),
               Text(
-                s?.documentsWarningsTitle ?? 'Points d\'attention',
+                s.documentsWarningsTitleattention',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -1154,7 +1139,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    s?.bankImportTitle ?? 'Importer un relev\u00e9 bancaire',
+                    s.bankImportTitle,
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -1163,8 +1148,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    s?.bankImportSubtitle ??
-                        'Analyse automatique de tes transactions',
+                    s.bankImportSubtitle,
                     style: const TextStyle(
                       fontSize: 13,
                       color: MintColors.textMuted,
@@ -1208,8 +1192,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              s?.vaultPrivacy ??
-                  'Tes documents sont analys\u00e9s localement et ne sont '
+              s.vaultPrivacy
                       'jamais partag\u00e9s avec des tiers. Tu peux les supprimer '
                       '\u00e0 tout moment.',
               style: const TextStyle(
@@ -1244,8 +1227,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              s?.vaultDisclaimer ??
-                  'MINT est un outil \u00e9ducatif. Les informations juridiques '
+              s.vaultDisclaimer
                       'pr\u00e9sent\u00e9es sont \u00e0 titre informatif et ne constituent '
                       'pas un conseil juridique personnalis\u00e9 (LSFin, nLPD). '
                       'Pour toute question sp\u00e9cifique, consulte un\u00b7e '
@@ -1334,7 +1316,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  s?.vaultUploadTitle ?? 'Quel type de document ?',
+                  s.vaultUploadTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -1382,7 +1364,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                     color: MintColors.textMuted, size: 22),
               ),
               title: Text(
-                s?.vaultCategoryOther ?? 'Autre',
+                s.vaultCategoryOther,
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
@@ -1438,18 +1420,18 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(s?.vaultDeleteTitle ?? 'Supprimer le document ?'),
+        title: Text(s.vaultDeleteTitle),
         content: Text(
-            s?.vaultDeleteMessage ?? 'Cette action est irr\u00e9versible.'),
+            s.vaultDeleteMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text(s?.vaultCancelButton ?? 'Annuler'),
+            child: Text(s.vaultCancelButton),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(backgroundColor: MintColors.error),
-            child: Text(s?.vaultDeleteButton ?? 'Supprimer'),
+            child: Text(s.vaultDeleteButton),
           ),
         ],
       ),
@@ -1457,21 +1439,20 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   void _showInfoDialog() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
-          s?.vaultTitle ?? 'Coffre-fort',
+          s.vaultTitle,
           style: GoogleFonts.montserrat(
             fontSize: 20,
             fontWeight: FontWeight.w700,
           ),
         ),
         content: Text(
-          s?.vaultPrivacy ??
-              'Tes documents sont analys\u00e9s localement et ne sont '
+          s.vaultPrivacy
                   'jamais partag\u00e9s avec des tiers. Tu peux les supprimer '
                   '\u00e0 tout moment.',
           style: const TextStyle(
@@ -1483,7 +1464,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         actions: [
           FilledButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(s?.vaultOkButton ?? 'OK'),
+            child: Text(s.vaultOkButton),
           ),
         ],
       ),
@@ -1501,37 +1482,37 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         type: VaultDocumentType.lppCertificate,
         icon: Icons.shield_outlined,
         color: MintColors.info,
-        label: s?.vaultCategoryLpp ?? 'Pr\u00e9voyance LPP',
+        label: s.vaultCategoryLpp,
       ),
       _CategoryDef(
         type: VaultDocumentType.salaryCertificate,
         icon: Icons.payments_outlined,
         color: MintColors.success,
-        label: s?.vaultCategorySalary ?? 'Certificat de salaire',
+        label: s.vaultCategorySalary,
       ),
       _CategoryDef(
         type: VaultDocumentType.pillar3aAttestation,
         icon: Icons.savings_outlined,
         color: MintColors.purple,
-        label: s?.vaultCategory3a ?? '3e pilier',
+        label: s.vaultCategory3a,
       ),
       _CategoryDef(
         type: VaultDocumentType.insurancePolicy,
         icon: Icons.health_and_safety_outlined,
         color: MintColors.warning,
-        label: s?.vaultCategoryInsurance ?? 'Assurances',
+        label: s.vaultCategoryInsurance,
       ),
       _CategoryDef(
         type: VaultDocumentType.lease,
         icon: Icons.home_outlined,
         color: MintColors.cyan,
-        label: s?.vaultCategoryLease ?? 'Bail',
+        label: s.vaultCategoryLease,
       ),
       _CategoryDef(
         type: VaultDocumentType.lamalStatement,
         icon: Icons.local_hospital_outlined,
         color: MintColors.error,
-        label: s?.vaultCategoryLamal ?? 'Sant\u00e9 (LAMal)',
+        label: s.vaultCategoryLamal,
       ),
     ];
   }
@@ -1546,19 +1527,19 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   String _labelForType(S? s, VaultDocumentType type) {
     switch (type) {
       case VaultDocumentType.lppCertificate:
-        return s?.vaultCategoryLpp ?? 'Pr\u00e9voyance LPP';
+        return s.vaultCategoryLpp;
       case VaultDocumentType.salaryCertificate:
-        return s?.vaultCategorySalary ?? 'Certificat de salaire';
+        return s.vaultCategorySalary;
       case VaultDocumentType.pillar3aAttestation:
-        return s?.vaultCategory3a ?? '3e pilier';
+        return s.vaultCategory3a;
       case VaultDocumentType.insurancePolicy:
-        return s?.vaultCategoryInsurance ?? 'Assurances';
+        return s.vaultCategoryInsurance;
       case VaultDocumentType.lease:
-        return s?.vaultCategoryLease ?? 'Bail';
+        return s.vaultCategoryLease;
       case VaultDocumentType.lamalStatement:
-        return s?.vaultCategoryLamal ?? 'Sant\u00e9 (LAMal)';
+        return s.vaultCategoryLamal;
       case VaultDocumentType.other:
-        return s?.vaultCategoryOther ?? 'Autre';
+        return s.vaultCategoryOther;
     }
   }
 
@@ -1618,50 +1599,49 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
     if (fields.avoirVieillesseTotal != null) {
       entries.add((
-        s?.documentsFieldAvoirTotal ?? 'Avoir de vieillesse total',
+        s.documentsFieldAvoirTotal,
         _formatChf(fields.avoirVieillesseTotal!),
       ));
     }
     if (fields.salaireAssure != null) {
       entries.add((
-        s?.documentsFieldSalaireAssure ?? 'Salaire assur\u00e9',
+        s.documentsFieldSalaireAssure,
         _formatChf(fields.salaireAssure!),
       ));
     }
     if (fields.tauxConversionObligatoire != null) {
       entries.add((
-        s?.documentsFieldTauxObligatoire ?? 'Taux de conversion obligatoire',
+        s.documentsFieldTauxObligatoire,
         '${fields.tauxConversionObligatoire!.toStringAsFixed(1)}%',
       ));
     }
     if (fields.rachatMaximum != null) {
       entries.add((
-        s?.documentsFieldRachatMax ?? 'Rachat maximum possible',
+        s.documentsFieldRachatMax,
         _formatChf(fields.rachatMaximum!),
       ));
     }
     if (fields.renteInvalidite != null) {
       entries.add((
-        s?.documentsFieldRenteInvalidite ?? 'Rente d\'invalidit\u00e9 annuelle',
+        s.documentsFieldRenteInvaliditeinvalidit\u00e9 annuelle',
         '${_formatChf(fields.renteInvalidite!)}/an',
       ));
     }
     if (fields.capitalDeces != null) {
       entries.add((
-        s?.documentsFieldCapitalDeces ?? 'Capital-d\u00e9c\u00e8s',
+        s.documentsFieldCapitalDeces,
         _formatChf(fields.capitalDeces!),
       ));
     }
     if (fields.cotisationEmploye != null) {
       entries.add((
-        s?.documentsFieldCotisationEmploye ??
-            'Cotisation employ\u00e9 annuelle',
+        s.documentsFieldCotisationEmploye,
         _formatChf(fields.cotisationEmploye!),
       ));
     }
     if (fields.cotisationEmployeur != null) {
       entries.add((
-        s?.documentsFieldCotisationEmployeur ?? 'Cotisation employeur annuelle',
+        s.documentsFieldCotisationEmployeur,
         _formatChf(fields.cotisationEmployeur!),
       ));
     }
@@ -1690,14 +1670,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     return value < 0 ? '-${buffer.toString()}' : buffer.toString();
   }
 
-  String _formatConfidence(S? s, int confidence) {
-    return s?.documentsConfidence(confidence.toString()) ??
-        'Confiance : $confidence%';
+  String _formatConfidence(S s, int confidence) {
+    return s.documentsConfidence(confidence.toString());
   }
 
-  String _formatFieldsFound(S? s, int found, int total) {
-    return s?.documentsFieldsFound(found.toString(), total.toString()) ??
-        '$found champs extraits sur $total';
+  String _formatFieldsFound(S s, int found, int total) {
+    return s.documentsFieldsFound(found.toString(), total.toString());
   }
 }
 
