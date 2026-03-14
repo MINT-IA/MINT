@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:intl/intl.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
@@ -109,13 +110,13 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
               IconButton(
                 icon: const Icon(Icons.picture_as_pdf_outlined, color: MintColors.white),
                 onPressed: _exportPdf,
-                tooltip: 'Exporter mon bilan',
+                tooltip: S.of(context)!.simulator3aExportTooltip,
               ),
               const SizedBox(width: 8),
             ],
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Optimiseur Pilier 3a',
+                S.of(context)!.simulator3aTitle,
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -146,19 +147,15 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
                   if (_result != null)
                     SafeModeGate(
                       hasDebt: hasDebt,
-                      lockedTitle: 'Priorite au desendettement',
-                      lockedMessage:
-                          'En mode protection, les recommandations d\'action 3a sont desactivees. '
-                          'La priorite est de stabiliser ta situation financiere avant de verser dans le 3a.',
+                      lockedTitle: S.of(context)!.simulator3aSafeModeTitleDebt,
+                      lockedMessage: S.of(context)!.simulator3aSafeModeMessageDebt,
                       child: _buildResultSection(),
                     ),
                   const SizedBox(height: 32),
                   SafeModeGate(
                     hasDebt: hasDebt,
-                    lockedTitle: 'Strategie bloquee',
-                    lockedMessage:
-                        'Les strategies d\'investissement 3a sont desactivees tant que tu as des dettes actives. '
-                        'Rembourser tes dettes est un rendement plus eleve que tout placement.',
+                    lockedTitle: S.of(context)!.simulator3aSafeModeTitleStrategy,
+                    lockedMessage: S.of(context)!.simulator3aSafeModeMessageStrategy,
                     child: _buildEducationSection(),
                   ),
                   const SizedBox(height: 48),
@@ -176,26 +173,27 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   }
 
   Widget _buildCoachSection() {
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.surface,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
-              SizedBox(width: 12),
-              Text('Le conseil du Mentor', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+              const Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
+              const SizedBox(width: 12),
+              Text(s.simulator3aCoachTitle, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(
-            'Le 3a est l\'un des outils les plus efficaces d\'optimisation en Suisse. L\'économie fiscale immédiate est un avantage concret.',
-            style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
+            s.simulator3aCoachBody,
+            style: const TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
           ),
         ],
       ),
@@ -203,15 +201,16 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   }
 
   Widget _buildInputSection() {
+    final s = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Tes Paramètres'),
+        _buildSectionHeader(s.simulator3aParamsHeader),
         const SizedBox(height: 24),
         _buildSlider(
           label: _isIndepSansLpp
-              ? 'Versement annuel (indep. sans LPP)'
-              : 'Versement annuel',
+              ? s.simulator3aContributionIndep
+              : s.simulator3aContribution,
           value: _annualContribution,
           min: 1000,
           max: _plafond3a,
@@ -224,7 +223,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         ),
         const SizedBox(height: 20),
         _buildSlider(
-          label: 'Taux marginal d’imposition',
+          label: s.simulator3aMarginalTaxRate,
           value: _marginalTaxRate * 100,
           min: 10,
           max: 45,
@@ -237,12 +236,12 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         ),
         const SizedBox(height: 20),
         _buildSlider(
-          label: 'Années jusqu\'à la retraite',
+          label: s.simulator3aYearsToRetirement,
           value: _years.toDouble(),
           min: 5,
           max: 45,
           divisions: 40,
-          format: (v) => '${v.toInt()} ans',
+          format: (v) => s.simulator3aYearsFormat(v.toInt().toString()),
           onChanged: (v) {
             _years = v.toInt();
             _calculate();
@@ -250,7 +249,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         ),
         const SizedBox(height: 20),
         _buildSlider(
-          label: 'Rendement annuel espéré',
+          label: s.simulator3aExpectedReturn,
           value: _annualReturn,
           min: 0,
           max: 10,
@@ -331,7 +330,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       ),
       child: Column(
         children: [
-          const Text('Gain Fiscal Annuel', style: TextStyle(fontSize: 14, color: MintColors.textSecondary)),
+          Text(S.of(context)!.simulator3aAnnualTaxGain, style: const TextStyle(fontSize: 14, color: MintColors.textSecondary)),
           const SizedBox(height: 8),
           Text(
             _currencyFormat.format(_result!['annualTaxSaved']!),
@@ -340,9 +339,9 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           const SizedBox(height: 24),
           const Divider(color: MintColors.border),
           const SizedBox(height: 16),
-          _buildImpactRow('Capital au terme', _result!['potentialFinalValue']!),
+          _buildImpactRow(S.of(context)!.simulator3aFinalCapital, _result!['potentialFinalValue']!),
           const SizedBox(height: 8),
-          _buildImpactRow('Économie fiscale cumulée', _result!['totalTaxSavedOverPeriod']!, color: MintColors.success),
+          _buildImpactRow(S.of(context)!.simulator3aCumulativeTaxSaving, _result!['totalTaxSavedOverPeriod']!, color: MintColors.success),
         ],
       ),
     );
@@ -362,14 +361,15 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   }
 
   Widget _buildEducationSection() {
+    final s = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Strategie Gagnante'),
+        _buildSectionHeader(s.simulator3aStrategyHeader),
         const SizedBox(height: 24),
-        _buildSmartItem(Icons.account_balance_wallet_outlined, 'Bancaire > Assurance', 'Évitez les contrats d\'assurance liés. Restez flexible avec un 3a bancaire investi.'),
-        _buildSmartItem(Icons.layers_outlined, 'La règle des 5 comptes', 'Ouvrez plusieurs comptes pour retirer de manière échelonnée et éviter la progression fiscale au retrait.'),
-        _buildSmartItem(Icons.trending_up, '100% Actions', 'Si ta retraite est dans plus de 15 ans, une stratégie actions maximise ton capital.'),
+        _buildSmartItem(Icons.account_balance_wallet_outlined, s.simulator3aStrategyBankTitle, s.simulator3aStrategyBankBody),
+        _buildSmartItem(Icons.layers_outlined, s.simulator3aStrategy5AccountsTitle, s.simulator3aStrategy5AccountsBody),
+        _buildSmartItem(Icons.trending_up, s.simulator3aStrategyEquitiesTitle, s.simulator3aStrategyEquitiesBody),
       ],
     );
   }
@@ -405,12 +405,12 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   }
 
   Widget _buildDisclaimer() {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Text(
-          'Calculs basés sur des moyennes cantonales. Les économies réelles dépendent de ton lieu de résidence et situation familiale.',
-          style: TextStyle(color: MintColors.textMuted, fontSize: 11),
+          S.of(context)!.simulator3aDisclaimer,
+          style: const TextStyle(color: MintColors.textMuted, fontSize: 11),
           textAlign: TextAlign.center,
         ),
       ),
