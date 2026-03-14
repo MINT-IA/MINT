@@ -405,10 +405,10 @@ class ExpatService {
       riskLevel = 'high';
       riskColor = 'red';
       recommendation =
-          'Risque fiscal — l\'imposition peut basculer vers ton pays de residence. '
-          'Avec $riskDays jours de home office, tu depasses le seuil de 90 jours. '
-          'Ton employeur pourrait devoir cotiser dans ton pays de residence. '
-          'Consulte un-e specialiste en fiscalite internationale.';
+          'Risque fiscal — l\'imposition peut basculer vers ton pays de résidence. '
+          'Avec $riskDays jours de home office, tu dépasses le seuil de 90 jours. '
+          'Ton employeur pourrait devoir cotiser dans ton pays de résidence. '
+          'Consulte un·e spécialiste en fiscalité internationale.';
     }
 
     return {

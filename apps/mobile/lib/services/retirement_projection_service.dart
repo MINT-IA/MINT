@@ -264,10 +264,10 @@ class RetirementProjectionService {
       indexedProjection: indexedProjection,
       disclaimer:
           'Projection educative basee sur les baremes AVS/LPP 2025. '
-          'Ne constitue pas un conseil financier ou en prevoyance. '
+          'Ne constitue pas un conseil financier ou en prévoyance. '
           'Les montants sont des estimations qui peuvent varier selon '
-          'l\'evolution legale et ta situation personnelle. '
-          'Consulte un·e specialiste pour un plan personnalise. LSFin.',
+          'l\'évolution légale et ta situation personnelle. '
+          'Consulte un·e spécialiste pour un plan personnalisé. LSFin.',
       sources: [
         'LAVS art. 21-29 (rente AVS, anticipation, ajournement)',
         'LPP art. 14 (taux de conversion minimum 6.8%)',

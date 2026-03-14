@@ -289,10 +289,10 @@ class HousingSaleService {
     final disclaimer =
         'Cet outil educatif fournit des estimations indicatives et '
         'ne constitue pas un conseil fiscal, juridique ou immobilier '
-        'personnalise au sens de la LSFin. Les taux d\'imposition '
-        'sont simplifies et peuvent varier selon la commune et les '
-        'deductions applicables. ${!cantonExplicit ? "Le bareme utilise est celui de VD par defaut. " : ""}'
-        'Consulte un·e specialiste pour ta situation personnelle.';
+        'personnalisé au sens de la LSFin. Les taux d\'imposition '
+        'sont simplifiés et peuvent varier selon la commune et les '
+        'déductions applicables. ${!cantonExplicit ? "Le barème utilisé est celui de VD par défaut. " : ""}'
+        'Consulte un·e spécialiste pour ta situation personnelle.';
 
     // ── Sources ──
     const sources = [

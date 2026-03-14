@@ -335,10 +335,10 @@ class ForecasterService {
       tauxRemplacementBase: tauxRemplacement,
       milestones: milestones,
       disclaimer:
-          'Projections educatives basees sur des hypotheses de rendement. '
-          'Ne constitue pas un conseil financier. Les rendements passes ne '
-          'presagent pas des rendements futurs. Consulte un·e specialiste '
-          'pour un plan personnalise. LSFin.',
+          'Projections éducatives basées sur des hypothèses de rendement. '
+          'Ne constitue pas un conseil financier. Les rendements passés ne '
+          'présagent pas des rendements futurs. Consulte un·e spécialiste '
+          'pour un plan personnalisé. LSFin.',
       sources: [
         'LAVS art. 21-29 (rente AVS)',
         'LPP art. 14 (taux de conversion)',
