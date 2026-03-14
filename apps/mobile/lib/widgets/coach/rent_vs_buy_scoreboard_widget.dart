@@ -35,7 +35,7 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
     if (n >= 1000000) {
       final m = n ~/ 1000000;
       final r = (n % 1000000) ~/ 1000;
-      return r == 0 ? "${m}M" : "${m}'${r.toString().padLeft(3, '0')}'000";
+      return r == 0 ? "${m}M" : "$m'${r.toString().padLeft(3, '0')}'000";
     }
     if (n >= 1000) {
       final t = n ~/ 1000;
@@ -416,7 +416,7 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             'La question n\'est pas "louer ou acheter" — c\'est '
-            '"Est-ce que je resterai ${_breakEvenYears}+ ans dans ce bien ?" '
+            '"Est-ce que je resterai $_breakEvenYears+ ans dans ce bien ?" '
             'Si oui, acheter a du sens financièrement. Sinon, louer et investir la différence.',
             style: GoogleFonts.inter(
               fontSize: 12,
