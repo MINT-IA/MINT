@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
@@ -102,6 +103,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -113,7 +115,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
             foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Rachat LPP ou investissement libre ?',
+                s.rachatVsMarcheTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -138,7 +140,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── Inputs ──
-                _buildInputSection(),
+                _buildInputSection(s),
                 const SizedBox(height: 24),
 
                 // ── Chart ──
@@ -152,12 +154,12 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: SmartDefaultIndicator(
-                        source: 'Valeurs pre-remplies depuis ton profil',
+                        source: s.rachatVsMarcheProfileSource,
                         confidence: _result!.confidenceScore / 100,
                       ),
                     ),
                   Text(
-                    'Trajectoires comparees',
+                    s.rachatVsMarcheTrajectories,
                     style: GoogleFonts.montserrat(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -166,7 +168,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Touche le graphique pour voir les valeurs a chaque annee.',
+                    s.rachatVsMarcheChartHint,
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       color: MintColors.textSecondary,
@@ -196,7 +198,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
                   const SizedBox(height: 20),
 
                   // ── Blocage warning ──
-                  _buildBlocageWarning(),
+                  _buildBlocageWarning(s),
                   const SizedBox(height: 20),
 
                   // ── Chiffre choc ──
@@ -232,11 +234,11 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
                   const SizedBox(height: 20),
 
                   // ── Hypotheses list ──
-                  _buildHypothesesSection(),
+                  _buildHypothesesSection(s),
                   const SizedBox(height: 20),
 
                   // ── Disclaimer ──
-                  _buildDisclaimerCard(),
+                  _buildDisclaimerCard(s),
                   const SizedBox(height: 32),
                 ],
               ]),
@@ -251,7 +253,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
   //  INPUT SECTION
   // ═══════════════════════════════════════════════════════════════
 
-  Widget _buildInputSection() {
+  Widget _buildInputSection(S s) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -263,7 +265,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ton rachat potentiel',
+            s.rachatVsMarcheInputTitle,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -273,7 +275,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
           const SizedBox(height: 16),
           _buildTextField(
             controller: _montantCtrl,
-            label: 'Montant a investir (CHF)',
+            label: s.rachatVsMarcheAmountLabel,
           ),
           const SizedBox(height: 16),
 
@@ -283,7 +285,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
             children: [
               Flexible(
                 child: Text(
-                  'Taux marginal d\'imposition estime',
+                  s.rachatVsMarcheTauxLabel,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -292,7 +294,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
                 ),
               ),
               Text(
-                '${_tauxMarginal.toStringAsFixed(0)} %',
+                '${_tauxMarginal.toStringAsFixed(0)}\u00a0%',
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -329,7 +331,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
             children: [
               Flexible(
                 child: Text(
-                  'Annees avant la retraite',
+                  s.rachatVsMarcheYearsLabel,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -338,7 +340,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
                 ),
               ),
               Text(
-                '$_anneesAvantRetraite ans',
+                s.rachatVsMarcheYearsValue(_anneesAvantRetraite),
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -377,7 +379,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Canton',
+                      s.rachatVsMarcheCantonLabel,
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -421,7 +423,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Marie\u00b7e',
+                    s.rachatVsMarcheMarriedLabel,
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
@@ -455,7 +457,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
                 ),
               ),
               child: Text(
-                'Comparer les strategies',
+                s.rachatVsMarcheCompare,
                 style: GoogleFonts.inter(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -515,7 +517,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
   //  BLOCAGE WARNING
   // ═══════════════════════════════════════════════════════════════
 
-  Widget _buildBlocageWarning() {
+  Widget _buildBlocageWarning(S s) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -538,7 +540,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Blocage 3 ans (LPP art. 79b al. 3)',
+                  s.rachatVsMarcheBlocageTitle,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -547,9 +549,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Apres un rachat LPP, tu ne peux pas retirer ton capital sous '
-                  'forme de capital pendant 3 ans. Si tu prevois un retrait '
-                  '(retraite, EPL, depart a l\'etranger), planifie en consequence.',
+                  s.rachatVsMarcheBlocageDetail,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -630,13 +630,13 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
   //  HYPOTHESES EXPANDABLE
   // ═══════════════════════════════════════════════════════════════
 
-  Widget _buildHypothesesSection() {
+  Widget _buildHypothesesSection(S s) {
     if (_result == null) return const SizedBox.shrink();
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
       childrenPadding: const EdgeInsets.only(bottom: 8),
       title: Text(
-        'Hypotheses utilisees',
+        s.rachatVsMarcheHypotheses,
         style: GoogleFonts.montserrat(
           fontSize: 14,
           fontWeight: FontWeight.w600,
@@ -673,7 +673,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
   //  DISCLAIMER CARD
   // ═══════════════════════════════════════════════════════════════
 
-  Widget _buildDisclaimerCard() {
+  Widget _buildDisclaimerCard(S s) {
     if (_result == null) return const SizedBox.shrink();
     return Container(
       width: double.infinity,
@@ -694,7 +694,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
               ),
               const SizedBox(width: 8),
               Text(
-                'Avertissement',
+                s.rachatVsMarcheWarning,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -714,7 +714,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
           ),
           const SizedBox(height: 8),
           Text(
-            'Sources : ${_result!.sources.join(' | ')}',
+            s.rachatVsMarcheSourcesPrefix(_result!.sources.join(' | ')),
             style: GoogleFonts.inter(
               fontSize: 10,
               color: MintColors.textMuted,
