@@ -82,8 +82,7 @@ class ProfileScreen extends StatelessWidget {
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              S.of(context)?.profileCompleteBanner ??
-                                  'Profil complet ! Ton coach dispose de toutes les données pour des conseils fiables.',
+                              S.of(context)!.profileCompleteBanner,
                               style: GoogleFonts.inter(
                                 fontSize: 12,
                                 color: MintColors.success,
@@ -107,84 +106,73 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 32),
                   Text(
-                      S.of(context)?.profileFactFindTitle ?? 'Détails FactFind',
+                      S.of(context)!.profileFactFindTitle,
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   _buildFactFindSection(
-                    title: S.of(context)?.profileSectionIdentity ??
-                        'Identité & Foyer',
+                    title: S.of(context)!.profileSectionIdentity,
                     status: identityComplete
-                        ? (S.of(context)?.profileStatusComplete ?? 'Complet')
-                        : (S.of(context)?.profileStatusPartial ??
-                            'A completer'),
+                        ? S.of(context)!.profileStatusComplete
+                        : S.of(context)!.profileStatusPartial,
                     isComplete: identityComplete,
                     icon: Icons.person_outline,
                     onTap: () =>
                         context.push('/advisor/wizard?section=identity'),
                   ),
                   _buildFactFindSection(
-                    title: S.of(context)?.profileSectionIncome ??
-                        'Revenus & Épargne',
+                    title: S.of(context)!.profileSectionIncome,
                     status: incomeComplete
-                        ? (S.of(context)?.profileStatusComplete ?? 'Complet')
-                        : (S.of(context)?.profileStatusPartial ??
-                            'A completer'),
+                        ? S.of(context)!.profileStatusComplete
+                        : S.of(context)!.profileStatusPartial,
                     isComplete: incomeComplete,
                     icon: Icons.account_balance_wallet_outlined,
                     onTap: () =>
                         context.push('/advisor/wizard?section=income'),
                   ),
                   _buildFactFindSection(
-                    title: S.of(context)?.profileSectionPension ??
-                        'Prévoyance (LPP)',
+                    title: S.of(context)!.profileSectionPension,
                     status: pensionComplete
-                        ? (S.of(context)?.profileStatusComplete ?? 'Complet')
-                        : (S.of(context)?.profileStatusMissing ?? 'Manquant'),
+                        ? S.of(context)!.profileStatusComplete
+                        : S.of(context)!.profileStatusMissing,
                     isComplete: pensionComplete,
                     icon: Icons.security_outlined,
                     reward: pensionComplete
                         ? null
-                        : (S.of(context)?.profileReward15 ??
-                            '+15% de précision'),
+                        : S.of(context)!.profileReward15,
                     onTap: () =>
                         context.push('/advisor/wizard?section=pension'),
                   ),
                   _buildFactFindSection(
-                    title: S.of(context)?.profileSectionProperty ??
-                        'Immobilier & Dettes',
+                    title: S.of(context)!.profileSectionProperty,
                     status: propertyComplete
-                        ? (S.of(context)?.profileStatusComplete ?? 'Complet')
-                        : (S.of(context)?.profileStatusMissing ?? 'Manquant'),
+                        ? S.of(context)!.profileStatusComplete
+                        : S.of(context)!.profileStatusMissing,
                     isComplete: propertyComplete,
                     icon: Icons.home_outlined,
                     reward: propertyComplete
                         ? null
-                        : (S.of(context)?.profileReward10 ??
-                            '+10% de précision'),
+                        : S.of(context)!.profileReward10,
                     onTap: () =>
                         context.push('/advisor/wizard?section=property'),
                   ),
                   const SizedBox(height: 32),
                   _buildLanguageSection(context),
                   const SizedBox(height: 32),
-                  Text(S.of(context)?.profileSecurityTitle ?? 'Sécurité & Data',
+                  Text(S.of(context)!.profileSecurityTitle,
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   _buildFactFindSection(
-                    title: S.of(context)?.profileConsentControl ??
-                        'Contrôle des Partages',
-                    status: S.of(context)?.profileConsentManage ??
-                        'Gérer mes accès bLink',
+                    title: S.of(context)!.profileConsentControl,
+                    status: S.of(context)!.profileConsentManage,
                     isComplete: true,
                     icon: Icons.lock_outline,
                     onTap: () => context.push('/profile/consent'),
                   ),
                   const SizedBox(height: 32),
                   Text(
-                      S.of(context)?.profileAiTitle ??
-                          'Intelligence Artificielle',
+                      S.of(context)!.profileAiTitle,
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
@@ -195,14 +183,14 @@ class ProfileScreen extends StatelessWidget {
                           fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   _buildFactFindSection(
-                    title: S.of(context)?.profileHouseholdTitle ?? 'Notre ménage',
-                    status: S.of(context)?.profileHouseholdStatus ?? 'Couple+',
+                    title: S.of(context)!.profileHouseholdTitle,
+                    status: S.of(context)!.profileHouseholdStatus,
                     isComplete: false,
                     icon: Icons.people_outline,
                     onTap: () => context.push('/household'),
                   ),
                   const SizedBox(height: 32),
-                  Text(S.of(context)?.profileDocuments ?? 'Mes documents',
+                  Text(S.of(context)!.profileDocuments,
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
@@ -210,7 +198,7 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 32),
                   // Auth section (if logged in)
                   if (authProvider.isLoggedIn) ...[
-                    Text(S.of(context)?.profileAccountTitle ?? 'Compte',
+                    Text(S.of(context)!.profileAccountTitle,
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 16),
@@ -228,13 +216,13 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildAppBar(BuildContext context) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final isCompact = MediaQuery.of(context).size.height <= 760;
     return SliverAppBar(
       pinned: true,
       toolbarHeight: isCompact ? 44 : 52,
       backgroundColor: MintColors.background,
-      title: Text(s?.profileTitle ?? 'MON PROFIL MENTOR',
+      title: Text(s.profileTitle,
           style: GoogleFonts.montserrat(
               fontSize: isCompact ? 13 : 14,
               fontWeight: FontWeight.bold,
@@ -264,7 +252,7 @@ class ProfileScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    S.of(context)?.profileBilanTitle ?? 'Mon aperçu financier',
+                    S.of(context)!.profileBilanTitle,
                     style: GoogleFonts.montserrat(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -274,8 +262,8 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     hasProfile
-                        ? (S.of(context)?.profileBilanSubtitleComplete ?? 'Revenus, prévoyance, patrimoine, dettes')
-                        : (S.of(context)?.profileBilanSubtitleIncomplete ?? 'Complète ton profil pour voir tes chiffres'),
+                        ? S.of(context)!.profileBilanSubtitleComplete
+                        : S.of(context)!.profileBilanSubtitleIncomplete,
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: MintColors.white70,
@@ -292,7 +280,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildPrecisionCard(BuildContext context, double precision) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final coachProfile = context.watch<CoachProfileProvider>();
     final hasFullWizard = coachProfile.hasFullProfile;
     final hasMini = coachProfile.hasProfile && !hasFullWizard;
@@ -314,7 +302,7 @@ class ProfileScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(s?.profilePrecisionIndex ?? 'Precision Index',
+              Text(s.profilePrecisionIndex,
                   style: const TextStyle(
                       color: MintColors.white70, fontWeight: FontWeight.bold)),
               Text('${(precision * 100).toInt()}%',
@@ -336,17 +324,17 @@ class ProfileScreen extends StatelessWidget {
           // Drill-down: show what's complete and what's missing
           _buildPrecisionRow(
             icon: Icons.person_outline,
-            label: s?.profileSectionIdentity ?? 'Identite & Foyer',
+            label: s.profileSectionIdentity,
             isComplete: hasMini || hasFullWizard,
           ),
           _buildPrecisionRow(
             icon: Icons.account_balance_wallet_outlined,
-            label: s?.profileSectionIncome ?? 'Revenus & Epargne',
+            label: s.profileSectionIncome,
             isComplete: hasMini || hasFullWizard,
           ),
           _buildPrecisionRow(
             icon: Icons.security_outlined,
-            label: s?.profileSectionPension ?? 'Prevoyance (LPP)',
+            label: s.profileSectionPension,
             isComplete: hasFullWizard,
             reward: hasFullWizard ? null : '+15%',
             onTap: hasFullWizard
@@ -355,7 +343,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           _buildPrecisionRow(
             icon: Icons.home_outlined,
-            label: s?.profileSectionProperty ?? 'Immobilier & Dettes',
+            label: s.profileSectionProperty,
             isComplete: hasFullWizard,
             reward: hasFullWizard ? null : '+10%',
             onTap: hasFullWizard
@@ -377,7 +365,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildAnnualRefreshCard(BuildContext context) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
@@ -395,7 +383,7 @@ class ProfileScreen extends StatelessWidget {
                   size: 16, color: MintColors.warning),
               const SizedBox(width: 8),
               Text(
-                s?.profileAnnualRefreshTitle ?? 'Mise à jour annuelle',
+                s.profileAnnualRefreshTitle,
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -406,8 +394,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            s?.profileAnnualRefreshBody ??
-                'Tes données datent de plus de 10 mois. Un check-up rapide (2 min) fiabilise ton plan.',
+            s.profileAnnualRefreshBody,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -421,7 +408,7 @@ class ProfileScreen extends StatelessWidget {
               onPressed: () => context.push('/coach/refresh'),
               icon: const Icon(Icons.refresh, size: 16),
               label: Text(
-                s?.profileAnnualRefreshCta ?? 'Lancer le check-up',
+                s.profileAnnualRefreshCta,
                 style: GoogleFonts.inter(fontWeight: FontWeight.w700),
               ),
             ),
@@ -432,18 +419,18 @@ class ProfileScreen extends StatelessWidget {
   }
 
   String _wizardSectionLabel(BuildContext context, String section) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     switch (section) {
       case 'identity':
-        return s?.profileSectionIdentity ?? 'Identité & Foyer';
+        return s.profileSectionIdentity;
       case 'income':
-        return s?.profileSectionIncome ?? 'Revenus & Épargne';
+        return s.profileSectionIncome;
       case 'pension':
-        return s?.profileSectionPension ?? 'Prévoyance (LPP)';
+        return s.profileSectionPension;
       case 'property':
-        return s?.profileSectionProperty ?? 'Immobilier & Dettes';
+        return s.profileSectionProperty;
       default:
-        return s?.advisorMiniFullDiagnostic ?? 'Diagnostic complet';
+        return s.advisorMiniFullDiagnostic;
     }
   }
 
@@ -452,7 +439,7 @@ class ProfileScreen extends StatelessWidget {
     required String recommendedSection,
     required int onboardingQuality,
   }) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final sectionLabel = _wizardSectionLabel(context, recommendedSection);
     return Container(
       width: double.infinity,
@@ -470,7 +457,7 @@ class ProfileScreen extends StatelessWidget {
               const Icon(Icons.radar, size: 16, color: MintColors.info),
               const SizedBox(width: 8),
               Text(
-                s?.profileGuidanceTitle ?? 'Section recommandée',
+                s.profileGuidanceTitle,
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -490,8 +477,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            s?.profileGuidanceBody(sectionLabel) ??
-                'Complète maintenant $sectionLabel pour fiabiliser ton plan.',
+            s.profileGuidanceBody(sectionLabel),
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -508,8 +494,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               icon: const Icon(Icons.auto_awesome, size: 16),
               label: Text(
-                s?.profileGuidanceCta(sectionLabel) ??
-                    'Compléter $sectionLabel',
+                s.profileGuidanceCta(sectionLabel),
                 style: GoogleFonts.inter(fontWeight: FontWeight.w700),
               ),
             ),
@@ -632,14 +617,14 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildAiSection(BuildContext context) {
     final byok = context.watch<ByokProvider>();
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Column(
       children: [
         _buildFactFindSection(
-          title: s?.profileAiByok ?? 'Ask MINT (BYOK)',
+          title: s.profileAiByok,
           status: byok.isConfigured
-              ? '${byok.providerLabel} \u2014 ${s?.profileAiConfigured ?? 'Configur\u00e9'}'
-              : (s?.profileAiNotConfigured ?? 'Non configur\u00e9'),
+              ? '${byok.providerLabel} \u2014 ${s.profileAiConfigured}'
+              : s.profileAiNotConfigured,
           isComplete: byok.isConfigured,
           icon: Icons.auto_awesome,
           onTap: () => context.push('/profile/byok'),
@@ -648,10 +633,10 @@ class ProfileScreen extends StatelessWidget {
         Builder(builder: (context) {
           final slm = context.watch<SlmProvider>();
           return _buildFactFindSection(
-            title: S.of(context)?.profileAiSlmTitle ?? 'IA on-device (SLM)',
+            title: S.of(context)!.profileAiSlmTitle,
             status: slm.isEngineAvailable
-                ? (S.of(context)?.profileAiSlmReady ?? 'Modèle prêt')
-                : (S.of(context)?.profileAiSlmNotInstalled ?? 'Modèle non installé'),
+                ? S.of(context)!.profileAiSlmReady
+                : S.of(context)!.profileAiSlmNotInstalled,
             isComplete: slm.isEngineAvailable,
             icon: Icons.smartphone,
             onTap: () => context.push('/profile/slm'),
@@ -663,13 +648,13 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildDocumentsSection(BuildContext context) {
     final docProvider = context.watch<DocumentProvider>();
-    final s = S.of(context);
+    final s = S.of(context)!;
     final count = docProvider.documentCount;
     final statusText = count > 0
-        ? (s?.profileDocumentCount(count) ?? '$count document(s)')
-        : (s?.documentsEmpty ?? 'Aucun document');
+        ? s.profileDocumentCount(count)
+        : s.documentsEmpty;
     return _buildFactFindSection(
-      title: s?.profileDocuments ?? 'Mes documents',
+      title: s.profileDocuments,
       status: statusText,
       isComplete: count > 0,
       icon: Icons.description_outlined,
@@ -700,7 +685,7 @@ class ProfileScreen extends StatelessWidget {
                     Text(
                       authProvider.displayName ??
                           authProvider.email ??
-                          (S.of(context)?.profileUser ?? 'Utilisateur'),
+                          S.of(context)!.profileUser,
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 16),
                     ),
@@ -726,7 +711,7 @@ class ProfileScreen extends StatelessWidget {
               }
             },
             icon: const Icon(Icons.logout, size: 18),
-            label: Text(S.of(context)?.authLogout ?? 'Se déconnecter'),
+            label: Text(S.of(context)!.authLogout),
             style: TextButton.styleFrom(
               foregroundColor: MintColors.error,
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -797,9 +782,9 @@ class ProfileScreen extends StatelessWidget {
     if (!context.mounted) return;
 
     final message = success
-        ? (S.of(context)?.profileDeleteAccountSuccess ?? 'Compte supprimé avec succès.')
+        ? S.of(context)!.profileDeleteAccountSuccess
         : (authProvider.error ??
-            (S.of(context)?.profileDeleteAccountFailed ?? 'Suppression impossible pour le moment. Réessaie plus tard.'));
+            S.of(context)!.profileDeleteAccountFailed);
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
     if (success) {
@@ -858,20 +843,19 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildDangerZone(BuildContext context) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Divider(),
         const SizedBox(height: 16),
         Text(
-          s?.profileDangerZoneTitle ?? 'Zone sensible',
+          s.profileDangerZoneTitle,
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Text(
-          s?.profileDangerZoneSubtitle ??
-              'Réinitialise ton historique financier local sans supprimer ton compte.',
+          s.profileDangerZoneSubtitle,
           style: const TextStyle(fontSize: 12, color: MintColors.textMuted),
         ),
         const SizedBox(height: 12),
@@ -899,8 +883,7 @@ class ProfileScreen extends StatelessWidget {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  s?.profileResetSuccess ??
-                      'Historique financier local réinitialisé.',
+                  s.profileResetSuccess,
                 ),
               ),
             );
@@ -915,12 +898,11 @@ class ProfileScreen extends StatelessWidget {
           },
           style: TextButton.styleFrom(foregroundColor: MintColors.error),
           child: Text(
-            s?.profileDeleteData ?? 'Supprimer mes données locales',
+            s.profileDeleteData,
           ),
         ),
         Text(
-          s?.profileResetScopeNote ??
-              'Conserve la connexion et la clé BYOK. Les documents backend ne sont pas supprimés.',
+          s.profileResetScopeNote,
           style: const TextStyle(fontSize: 11, color: MintColors.textMuted),
         ),
       ],
@@ -928,7 +910,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Future<bool?> _showStrongResetDialog(BuildContext context) async {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final controller = TextEditingController();
     bool valid = false;
     const expected = 'RESET';
@@ -940,20 +922,18 @@ class ProfileScreen extends StatelessWidget {
           builder: (ctx, setState) {
             return AlertDialog(
               title: Text(
-                s?.profileResetDialogTitle ?? 'Réinitialiser ma situation ?',
+                s.profileResetDialogTitle,
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    s?.profileResetDialogBody ??
-                        'Cette action supprime ton diagnostic, tes check-ins, ton score et ton budget local.',
+                    s.profileResetDialogBody,
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    s?.profileResetDialogConfirmLabel ??
-                        'Tape RESET pour confirmer :',
+                    s.profileResetDialogConfirmLabel,
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
@@ -970,7 +950,7 @@ class ProfileScreen extends StatelessWidget {
                       isDense: true,
                       errorText: controller.text.isEmpty || valid
                           ? null
-                          : s?.profileResetDialogInvalid ?? 'Mot-clé invalide.',
+                          : s.profileResetDialogInvalid,
                     ),
                   ),
                 ],
@@ -978,12 +958,12 @@ class ProfileScreen extends StatelessWidget {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx, false),
-                  child: Text(s?.commonCancel ?? 'Annuler'),
+                  child: Text(s.commonCancel),
                 ),
                 TextButton(
                   onPressed: valid ? () => Navigator.pop(ctx, true) : null,
                   style: TextButton.styleFrom(foregroundColor: MintColors.error),
-                  child: Text(s?.profileResetDialogAction ?? 'Réinitialiser'),
+                  child: Text(s.profileResetDialogAction),
                 ),
               ],
             );
