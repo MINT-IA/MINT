@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -77,11 +78,11 @@ class HeroRetirementCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildHeader(),
+          _buildHeader(context),
           const SizedBox(height: 20),
           _buildContent(context),
           const SizedBox(height: 16),
-          _buildDisclaimer(),
+          _buildDisclaimer(context),
         ],
       ),
     );
@@ -91,7 +92,8 @@ class HeroRetirementCard extends StatelessWidget {
   //  HEADER
   // ────────────────────────────────────────────────────────────
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
+    final s = S.of(context)!;
     return Row(
       children: [
         Container(
@@ -113,7 +115,7 @@ class HeroRetirementCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                _headerTitle,
+                _headerTitle(s),
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -121,7 +123,7 @@ class HeroRetirementCard extends StatelessWidget {
                 ),
               ),
               Text(
-                _headerSubtitle,
+                _headerSubtitle(s),
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textSecondary,
@@ -130,34 +132,34 @@ class HeroRetirementCard extends StatelessWidget {
             ],
           ),
         ),
-        _buildModeBadge(),
+        _buildModeBadge(s),
       ],
     );
   }
 
-  String get _headerTitle {
+  String _headerTitle(S s) {
     switch (mode) {
       case HeroCardMode.full:
-        return 'Ton salaire apr\u00e8s 65 ans';
+        return s.heroRetirementTitleFull;
       case HeroCardMode.range:
-        return 'Ton salaire apr\u00e8s 65 ans';
+        return s.heroRetirementTitleFull;
       case HeroCardMode.educational:
-        return 'Projection retraite';
+        return s.heroRetirementTitleEducational;
     }
   }
 
-  String get _headerSubtitle {
+  String _headerSubtitle(S s) {
     switch (mode) {
       case HeroCardMode.full:
-        return 'AVS + LPP + \u00e9pargne';
+        return s.heroRetirementSubtitleFull;
       case HeroCardMode.range:
-        return 'Estimation avec incertitude';
+        return s.heroRetirementSubtitleRange;
       case HeroCardMode.educational:
-        return 'Profil incomplet';
+        return s.heroRetirementSubtitleEducational;
     }
   }
 
-  Widget _buildModeBadge() {
+  Widget _buildModeBadge(S s) {
     switch (mode) {
       case HeroCardMode.full:
         return Container(
@@ -167,7 +169,7 @@ class HeroRetirementCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
-            'Fiable',
+            s.heroRetirementBadgeFull,
             style: GoogleFonts.inter(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -183,7 +185,7 @@ class HeroRetirementCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
-            'Estimation',
+            s.heroRetirementBadgeRange,
             style: GoogleFonts.inter(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -199,7 +201,7 @@ class HeroRetirementCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
-            'A compl\u00e9ter',
+            s.heroRetirementBadgeEducational,
             style: GoogleFonts.inter(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -215,18 +217,19 @@ class HeroRetirementCard extends StatelessWidget {
   // ────────────────────────────────────────────────────────────
 
   Widget _buildContent(BuildContext context) {
+    final s = S.of(context)!;
     switch (mode) {
       case HeroCardMode.full:
-        return _buildFullMode();
+        return _buildFullMode(context, s);
       case HeroCardMode.range:
-        return _buildRangeMode();
+        return _buildRangeMode(s);
       case HeroCardMode.educational:
-        return _buildEducationalMode(context);
+        return _buildEducationalMode(context, s);
     }
   }
 
   /// Mode full : montant precis + avant/apres + taux de remplacement.
-  Widget _buildFullMode() {
+  Widget _buildFullMode(BuildContext context, S s) {
     final income = monthlyIncome ?? 0;
     final ratio = replacementRatio ?? 0;
     final hasSalary = currentMonthlySalary != null && currentMonthlySalary! > 0;
@@ -240,9 +243,10 @@ class HeroRetirementCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _buildSalaryColumn(
-                  label: "Aujourd'hui",
+                  label: s.heroRetirementLabelToday,
                   amount: currentMonthlySalary!,
                   isHighlighted: false,
+                  perMonthLabel: s.heroRetirementPerMonth,
                 ),
               ),
               Padding(
@@ -255,9 +259,10 @@ class HeroRetirementCard extends StatelessWidget {
               ),
               Expanded(
                 child: _buildSalaryColumn(
-                  label: '\u00c0 la retraite',
+                  label: s.heroRetirementLabelRetirement,
                   amount: income,
                   isHighlighted: true,
+                  perMonthLabel: s.heroRetirementPerMonth,
                 ),
               ),
             ],
@@ -275,7 +280,7 @@ class HeroRetirementCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'par mois \u00e0 la retraite',
+            s.heroRetirementPerMonthRetirement,
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.textSecondary,
@@ -284,11 +289,11 @@ class HeroRetirementCard extends StatelessWidget {
         ],
         if (ratio > 0) ...[
           const SizedBox(height: 12),
-          _buildReplacementRatioBar(ratio),
+          _buildReplacementRatioBar(ratio, s),
         ],
         if (rangeMin != null && rangeMax != null) ...[
           const SizedBox(height: 12),
-          _buildRangeChip(),
+          _buildRangeChip(s),
         ],
       ],
     );
@@ -298,6 +303,7 @@ class HeroRetirementCard extends StatelessWidget {
     required String label,
     required double amount,
     required bool isHighlighted,
+    String perMonthLabel = '/mois',
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -321,7 +327,7 @@ class HeroRetirementCard extends StatelessWidget {
         ),
         const SizedBox(height: 2),
         Text(
-          '/mois',
+          perMonthLabel,
           style: GoogleFonts.inter(
             fontSize: 11,
             color: MintColors.textMuted,
@@ -331,7 +337,7 @@ class HeroRetirementCard extends StatelessWidget {
     );
   }
 
-  Widget _buildReplacementRatioBar(double ratio) {
+  Widget _buildReplacementRatioBar(double ratio, S s) {
     final color = ratio >= 70
         ? MintColors.scoreExcellent
         : ratio >= 50
@@ -340,12 +346,12 @@ class HeroRetirementCard extends StatelessWidget {
 
     // P1-A: Human explanation of replacement ratio
     final explanation = ratio >= 70
-        ? 'Confortable \u2014 tu gardes ton train de vie'
+        ? s.heroRetirementExplanationComfortable
         : ratio >= 60
-            ? 'Suffisant pour la plupart des m\u00e9nages (charges r\u00e9duites \u00e0 la retraite)'
+            ? s.heroRetirementExplanationSufficient
             : ratio >= 50
-                ? 'Serr\u00e9 \u2014 des ajustements seront n\u00e9cessaires'
-                : 'Insuffisant \u2014 agis maintenant pour am\u00e9liorer ta situation';
+                ? s.heroRetirementExplanationTight
+                : s.heroRetirementExplanationInsufficient;
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -364,7 +370,7 @@ class HeroRetirementCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Tu garderas ${ratio.toStringAsFixed(0)}% de ton train de vie',
+                      s.heroRetirementReplacementRatio(ratio.toStringAsFixed(0)),
                       style: GoogleFonts.montserrat(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -399,13 +405,13 @@ class HeroRetirementCard extends StatelessWidget {
     );
   }
 
-  Widget _buildRangeChip() {
+  Widget _buildRangeChip(S s) {
     return Row(
       children: [
         Icon(Icons.unfold_more, size: 14, color: MintColors.textMuted),
         const SizedBox(width: 4),
         Text(
-          'Fourchette\u00a0: ${formatChfWithPrefix(rangeMin!)} \u2013 ${formatChfWithPrefix(rangeMax!)} / mois',
+          s.heroRetirementRangeLabel(formatChfWithPrefix(rangeMin!), formatChfWithPrefix(rangeMax!)),
           style: GoogleFonts.inter(
             fontSize: 12,
             color: MintColors.textMuted,
@@ -416,14 +422,14 @@ class HeroRetirementCard extends StatelessWidget {
   }
 
   /// Mode range : fourchette + message d'avertissement.
-  Widget _buildRangeMode() {
+  Widget _buildRangeMode(S s) {
     final min = rangeMin ?? 0;
     final max = rangeMax ?? 0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Entre',
+          s.heroRetirementBetween,
           style: GoogleFonts.inter(
             fontSize: 14,
             color: MintColors.textSecondary,
@@ -445,7 +451,7 @@ class HeroRetirementCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 3, left: 6, right: 6),
               child: Text(
-                'et',
+                s.heroRetirementAnd,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textSecondary,
@@ -465,7 +471,7 @@ class HeroRetirementCard extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          'par mois \u00e0 la retraite',
+          s.heroRetirementPerMonthRetirement,
           style: GoogleFonts.inter(
             fontSize: 14,
             color: MintColors.textSecondary,
@@ -488,7 +494,7 @@ class HeroRetirementCard extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'La fourchette se r\u00e9duira en ajoutant tes donn\u00e9es LPP et AVS.',
+                  s.heroRetirementRangeWarning,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -504,7 +510,7 @@ class HeroRetirementCard extends StatelessWidget {
   }
 
   /// Mode educational : aucun chiffre, uniquement des questions et CTA.
-  Widget _buildEducationalMode(BuildContext context) {
+  Widget _buildEducationalMode(BuildContext context, S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -518,7 +524,7 @@ class HeroRetirementCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Il nous manque des informations',
+                s.heroRetirementMissingInfo,
                 style: GoogleFonts.montserrat(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -527,7 +533,7 @@ class HeroRetirementCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Pour estimer ton revenu de retraite, quelques questions suffisent\u00a0:',
+                s.heroRetirementMissingInfoDesc,
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   color: MintColors.textSecondary,
@@ -536,10 +542,10 @@ class HeroRetirementCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               _buildQuestion(
-                  Icons.work_outline, 'Ton salaire et statut professionnel'),
+                  Icons.work_outline, s.heroRetirementQuestionSalary),
               _buildQuestion(
-                  Icons.account_balance_outlined, 'Ton avoir LPP'),
-              _buildQuestion(Icons.savings_outlined, 'Ton \u00e9pargne 3e pilier'),
+                  Icons.account_balance_outlined, s.heroRetirementQuestionLpp),
+              _buildQuestion(Icons.savings_outlined, s.heroRetirementQuestion3a),
             ],
           ),
         ),
@@ -551,7 +557,7 @@ class HeroRetirementCard extends StatelessWidget {
                 () => context.push('/document-scan'),
             icon: const Icon(Icons.edit_outlined, size: 18),
             label: Text(
-              'Compl\u00e9ter mon profil',
+              s.heroRetirementCompleteProfile,
               style: GoogleFonts.inter(fontWeight: FontWeight.w600),
             ),
             style: FilledButton.styleFrom(
@@ -594,9 +600,10 @@ class HeroRetirementCard extends StatelessWidget {
   //  DISCLAIMER
   // ────────────────────────────────────────────────────────────
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(BuildContext context) {
+    final s = S.of(context)!;
     return Text(
-      'Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin).',
+      s.heroRetirementDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textMuted,
