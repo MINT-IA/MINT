@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -137,7 +138,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
         onPressed: () => context.pop(),
       ),
       title: Text(
-        'TRANSACTIONS',
+        AppLocalizations.of(context)!.txTitle,
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w800,
           fontSize: 13,
@@ -168,7 +169,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Fonctionnalite en preparation',
+                  AppLocalizations.of(context)!.txFinmaGateTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -177,8 +178,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Consultation réglementaire FINMA en cours. '
-                  'Les données affichées sont des exemples de démonstration.',
+                  AppLocalizations.of(context)!.txFinmaGateDesc,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.amberDark,
@@ -206,7 +206,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           border: Border.all(color: MintColors.neutralBg),
         ),
         child: Text(
-          'MODE DEMO',
+          AppLocalizations.of(context)!.txDemoMode,
           style: GoogleFonts.montserrat(
             fontSize: 10,
             fontWeight: FontWeight.w700,
@@ -223,9 +223,9 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   Widget _buildPeriodSelector() {
     return Row(
       children: [
-        _buildPeriodChip('this_month', 'Ce mois'),
+        _buildPeriodChip('this_month', AppLocalizations.of(context)!.txThisMonth),
         const SizedBox(width: 8),
-        _buildPeriodChip('last_month', 'Mois precedent'),
+        _buildPeriodChip('last_month', AppLocalizations.of(context)!.txLastMonth),
       ],
     );
   }
@@ -433,7 +433,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
               size: 48, color: MintColors.textMuted.withOpacity(0.4)),
           const SizedBox(height: 16),
           Text(
-            'Aucune transaction',
+            AppLocalizations.of(context)!.txEmptyState,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -468,7 +468,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Synthese du mois',
+            AppLocalizations.of(context)!.txMonthlySummaryTitle,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -477,13 +477,13 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           ),
           const SizedBox(height: 16),
           _buildSummaryRow(
-            'Revenus',
+            AppLocalizations.of(context)!.txIncome,
             OpenBankingService.formatChf(summary['income'] ?? 0),
             MintColors.success,
           ),
           const SizedBox(height: 10),
           _buildSummaryRow(
-            'Depenses',
+            AppLocalizations.of(context)!.txExpenses,
             OpenBankingService.formatChf(summary['expenses'] ?? 0),
             MintColors.error,
           ),
@@ -491,7 +491,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           const Divider(height: 1),
           const SizedBox(height: 10),
           _buildSummaryRow(
-            'Épargne nette',
+            AppLocalizations.of(context)!.txNetSavings,
             OpenBankingService.formatChf(summary['net'] ?? 0),
             (summary['net'] ?? 0) >= 0
                 ? MintColors.success
@@ -499,7 +499,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           ),
           const SizedBox(height: 10),
           _buildSummaryRow(
-            'Taux d\'epargne',
+            AppLocalizations.of(context)!.txSavingsRate,
             '${(summary['savingsRate'] ?? 0).toStringAsFixed(1)}%',
             MintColors.info,
           ),
@@ -548,10 +548,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Cette fonctionnalité est en cours de développement. '
-              'Les données affichées sont des exemples. '
-              'L\'activation du service Open Banking est soumise '
-              'à une consultation réglementaire préalable.',
+              AppLocalizations.of(context)!.txDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.deepOrange,

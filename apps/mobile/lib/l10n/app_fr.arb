@@ -4284,5 +4284,18 @@
   "firstSalaryFirstStep": "Premier pas financier",
   "firstSalaryFirstStepSub": "Tu sais maintenant ce que 90\u00a0% des gens ne savent jamais.",
   "consentRevokeButton": "Révoquer",
-  "consentAddButton": "Ajouter un consentement"
+  "consentAddButton": "Ajouter un consentement",
+  "txTitle": "TRANSACTIONS",
+  "txFinmaGateTitle": "Fonctionnalité en préparation",
+  "txFinmaGateDesc": "Consultation réglementaire FINMA en cours. Les données affichées sont des exemples de démonstration.",
+  "txDemoMode": "MODE DÉMO",
+  "txThisMonth": "Ce mois",
+  "txLastMonth": "Mois précédent",
+  "txEmptyState": "Aucune transaction",
+  "txMonthlySummaryTitle": "Synthèse du mois",
+  "txIncome": "Revenus",
+  "txExpenses": "Dépenses",
+  "txNetSavings": "Épargne nette",
+  "txSavingsRate": "Taux d'épargne",
+  "txDisclaimer": "Cette fonctionnalité est en cours de développement. Les données affichées sont des exemples. L'activation du service Open Banking est soumise à une consultation réglementaire préalable."
 }

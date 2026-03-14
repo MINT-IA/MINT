@@ -2147,7 +2147,7 @@
   "profileAiSlmTitle": "On-Device KI (SLM)",
   "profileAiSlmReady": "Modell bereit",
   "profileAiSlmNotInstalled": "Modell nicht installiert",
-  "profileLanguageTitle": "Sprache / Langue / Language",
+  "profileLanguageTitle": "Langue / Sprache / Language",
   "profileAdminObservability": "Admin Observability",
   "profileAdminAnalytics": "Beta-Tester Analytik",
   "profileDeleteCloudAccount": "Mein Cloud-Konto löschen",
@@ -3715,7 +3715,13 @@
   "patrimoineLtvAmortissement": "Amortissement recommandé",
   "patrimoineLtvElevee": "LTV élevée — amortir",
   "patrimoineLtvDisplay": "LTV {percent}%",
-  "@patrimoineLtvDisplay": { "placeholders": { "percent": { "type": "String" } } },
+  "@patrimoineLtvDisplay": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "patrimoineLpp": "LPP",
   "patrimoine3a": "3a",
   "patrimoineLibrePassage": "Libre pass.",
@@ -3822,7 +3828,6 @@
   "futurCompleterProfil": "Complete ton profil pour affiner la projection.",
   "futurDisclaimer": "Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, non garanti. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.",
   "futurExplorerDetails": "Explorer les détails",
-
   "financialSummaryTitle": "FINANZÜBERSICHT",
   "financialSummaryNoProfile": "Kein Profil erfasst",
   "financialSummaryStartDiagnostic": "Diagnose starten",
@@ -3836,11 +3841,29 @@
   "financialSummarySalaireBrutMensuel": "Monatliches Bruttogehalt",
   "financialSummary13emeSalaire": "13. Monatsgehalt",
   "financialSummaryNemeMois": "{n}. Monatsgehalt",
-  "@financialSummaryNemeMois": { "placeholders": { "n": { "type": "String" } } },
+  "@financialSummaryNemeMois": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryBonusEstime": "Geschätzter Bonus ({pct}%)",
-  "@financialSummaryBonusEstime": { "placeholders": { "pct": { "type": "String" } } },
+  "@financialSummaryBonusEstime": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryConjointBrutMensuel": "{name} — Bruttogehalt monatlich",
-  "@financialSummaryConjointBrutMensuel": { "placeholders": { "name": { "type": "String" } } },
+  "@financialSummaryConjointBrutMensuel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryDefaultConjoint": "Ehepartner·in",
   "financialSummaryRevenuBrutAnnuel": "Brutto-Jahreseinkommen",
   "financialSummaryRevenuBrutAnnuelCouple": "Brutto-Jahreseinkommen (Paar)",
@@ -3854,7 +3877,16 @@
   "financialSummaryImpotEstime": "Geschätzte Steuer (ICC + IFD)",
   "financialSummaryTauxMarginalEstime": "Geschätzter Grenzsteuersatz",
   "financialSummary13emeEtBonusHint": "{label}: ~{montant} netto/Jahr (nicht im Monatsbetrag enthalten)",
-  "@financialSummary13emeEtBonusHint": { "placeholders": { "label": { "type": "String" }, "montant": { "type": "String" } } },
+  "@financialSummary13emeEtBonusHint": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryRevenusEtFiscalite": "Einkommen & Steuern",
   "financialSummaryDisponibleApresImpot": "Verfügbar nach Steuern",
   "financialSummaryFootnoteRevenus": "Vereinfachte Schätzung. AANP und IJM variieren je nach Arbeitgeber und sind nicht enthalten. Der BVG-Beitrag entspricht dem gesetzlichen Minimum (50/50) — deine Kasse kann einen anderen Split anwenden.",
@@ -3864,7 +3896,13 @@
   "financialSummaryAvs1erPilier": "AHV (1. Säule)",
   "financialSummaryAnneesCotisees": "Beitragsjahre",
   "financialSummaryAnneesUnit": "{n} Jahre",
-  "@financialSummaryAnneesUnit": { "placeholders": { "n": { "type": "String" } } },
+  "@financialSummaryAnneesUnit": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryLacunes": "Lücken",
   "financialSummaryRenteEstimee": "Geschätzte Rente",
   "financialSummaryLpp2ePilier": "BVG (2. Säule)",
@@ -3877,15 +3915,39 @@
   "financialSummaryCaisse": "Kasse",
   "financialSummary3a3ePilier": "3a (3. Säule)",
   "financialSummaryNComptes": "{n} Konto(s)",
-  "@financialSummaryNComptes": { "placeholders": { "n": { "type": "String" } } },
+  "@financialSummaryNComptes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryLibrePassage": "Freizügigkeit",
   "financialSummaryCompteN": "Konto {n}",
-  "@financialSummaryCompteN": { "placeholders": { "n": { "type": "String" } } },
+  "@financialSummaryCompteN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryConjointLpp": "{name} — BVG",
-  "@financialSummaryConjointLpp": { "placeholders": { "name": { "type": "String" } } },
+  "@financialSummaryConjointLpp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryConjoint3a": "{name} — 3a",
-  "@financialSummaryConjoint3a": { "placeholders": { "name": { "type": "String" } } },
-  "financialSummaryFatcaWarning": "\u26a0\ufe0f FATCA — Nur eine Minderheit der Anbieter akzeptiert (z.B. Raiffeisen)",
+  "@financialSummaryConjoint3a": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "financialSummaryFatcaWarning": "⚠️ FATCA — Nur eine Minderheit der Anbieter akzeptiert (z.B. Raiffeisen)",
   "financialSummaryPrevoyanceTitle": "Vorsorge",
   "financialSummaryScanCertificatLpp": "BVG-/AHV-Zertifikat scannen",
   "financialSummaryModifierPrevoyance": "Vorsorge bearbeiten",
@@ -3901,15 +3963,42 @@
   "financialSummaryHypothequeRestante": "Restliche Hypothek",
   "financialSummaryValeurNetteImmobiliere": "Netto-Immobilienwert",
   "financialSummaryLtvAmortissement": "LTV-Verhältnis: {pct}% — Amortisation 2. Rang obligatorisch",
-  "@financialSummaryLtvAmortissement": { "placeholders": { "pct": { "type": "String" } } },
+  "@financialSummaryLtvAmortissement": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryLtvBonneVoie": "LTV-Verhältnis: {pct}% — auf gutem Weg",
-  "@financialSummaryLtvBonneVoie": { "placeholders": { "pct": { "type": "String" } } },
+  "@financialSummaryLtvBonneVoie": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryLtvExcellent": "LTV-Verhältnis: {pct}% — ausgezeichnet",
-  "@financialSummaryLtvExcellent": { "placeholders": { "pct": { "type": "String" } } },
+  "@financialSummaryLtvExcellent": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryPrevoyanceCapital": "Vorsorge (Kapital)",
   "financialSummaryAvoirLppTotal": "BVG-Gesamtguthaben",
   "financialSummaryCapital3a": "3a-Kapital ({n} Konto{s})",
-  "@financialSummaryCapital3a": { "placeholders": { "n": { "type": "String" }, "s": { "type": "String" } } },
+  "@financialSummaryCapital3a": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "s": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryPatrimoineBrut": "Bruttovermögen",
   "financialSummaryDettesTotales": "Gesamtschulden",
   "financialSummaryPatrimoine": "Vermögen",
@@ -3949,16 +4038,37 @@
   "financialSummaryHypotheque": "Hypothek",
   "financialSummaryChargeMensuelle": "Monatliche Belastung",
   "financialSummaryEcheance": "Fälligkeit: {date} (~{years} Jahre)",
-  "@financialSummaryEcheance": { "placeholders": { "date": { "type": "String" }, "years": { "type": "String" } } },
+  "@financialSummaryEcheance": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "years": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryInteretsDeductibles": "Abzugsfähige Zinsen (LIFD Art. 33): {montant}/Jahr",
-  "@financialSummaryInteretsDeductibles": { "placeholders": { "montant": { "type": "String" } } },
+  "@financialSummaryInteretsDeductibles": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryDetteConsommation": "Konsumschulden",
   "financialSummaryCreditConsommation": "Konsumkredit",
   "financialSummaryMensualite": "Monatsrate",
   "financialSummaryLeasing": "Leasing",
   "financialSummaryAutresDettes": "Andere Schulden",
   "financialSummaryConseilRemboursement": "Zahle zuerst die Schulden mit {taux}% zurück, bevor du investierst. Jeder zurückgezahlte CHF = {taux}% effektive Rendite.",
-  "@financialSummaryConseilRemboursement": { "placeholders": { "taux": { "type": "String" } } },
+  "@financialSummaryConseilRemboursement": {
+    "placeholders": {
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryTotalDettes": "Gesamtschulden",
   "financialSummaryScannerDocument": "Dokument scannen",
   "financialSummaryCascadeBudgetaire": "Budgetwasserfall",
@@ -3986,7 +4096,9 @@
   "dataQualityMissingCount": "{count} Information(en) hinzufügen",
   "@dataQualityMissingCount": {
     "placeholders": {
-      "count": {"type": "String"}
+      "count": {
+        "type": "String"
+      }
     }
   },
   "dataQualityComplete": "Profil vollständig",
@@ -4000,7 +4112,9 @@
   "dataQualityEnrichWithImpact": "Mein Profil ergänzen ({impact})",
   "@dataQualityEnrichWithImpact": {
     "placeholders": {
-      "impact": {"type": "String"}
+      "impact": {
+        "type": "String"
+      }
     }
   },
   "confidenceLabelSalaire": "Bruttolohn",
@@ -4017,26 +4131,33 @@
   "confidencePromptFreshnessStale": "Daten von vor {months} Monaten — scanne dein Zertifikat erneut",
   "@confidencePromptFreshnessStale": {
     "placeholders": {
-      "months": {"type": "String"}
+      "months": {
+        "type": "String"
+      }
     }
   },
   "confidencePromptFreshnessConfirm": "Bestätige, dass dieser Wert noch aktuell ist",
   "confidencePromptAccuracyPrefix": "Bestätige: ",
   "confidencePromptAccuracyEstimated": "Gib deinen tatsächlichen Wert ein",
   "confidencePromptAccuracyCertificate": "Scanne dein Zertifikat zur Bestätigung",
-
   "pulseTitle": "Pulse",
   "pulseGreeting": "Hallo {name}",
   "@pulseGreeting": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "pulseGreetingCouple": "Hallo {name1} und {name2}",
   "@pulseGreetingCouple": {
     "placeholders": {
-      "name1": {"type": "String"},
-      "name2": {"type": "String"}
+      "name1": {
+        "type": "String"
+      },
+      "name2": {
+        "type": "String"
+      }
     }
   },
   "pulseWelcome": "Willkommen bei MINT",
@@ -4058,12 +4179,14 @@
   "pulseComprendre_budgetSub": "Visualisiere deine Einnahmen und Ausgaben",
   "pulseComprendreAchat": "Immobilie kaufen?",
   "pulseComprendreAchatSub": "Schätze deine Kreditkapazität",
-  "pulseDisclaimer": "Bildungstool. Stellt keine persönliche Finanzberatung dar. FIDLEG Art.\u00a03",
+  "pulseDisclaimer": "Bildungstool. Stellt keine persönliche Finanzberatung dar. FIDLEG Art. 3",
   "pulseKeyFigRetraite": "Geschätzte Rente",
-  "pulseKeyFigRetraitePct": "{pct}\u00a0% des Einkommens",
+  "pulseKeyFigRetraitePct": "{pct} % des Einkommens",
   "@pulseKeyFigRetraitePct": {
     "placeholders": {
-      "pct": {"type": "String"}
+      "pct": {
+        "type": "String"
+      }
     }
   },
   "pulseKeyFigBudgetLibre": "Freies Budget",
@@ -4071,14 +4194,20 @@
   "pulseCoupleRetraite": "Rente als Paar: {montant}",
   "@pulseCoupleRetraite": {
     "placeholders": {
-      "montant": {"type": "String"}
+      "montant": {
+        "type": "String"
+      }
     }
   },
-  "pulseCoupleAlertWeak": "Das Profil von {name} liegt bei {score}\u00a0% Sichtbarkeit",
+  "pulseCoupleAlertWeak": "Das Profil von {name} liegt bei {score} % Sichtbarkeit",
   "@pulseCoupleAlertWeak": {
     "placeholders": {
-      "name": {"type": "String"},
-      "score": {"type": "String"}
+      "name": {
+        "type": "String"
+      },
+      "score": {
+        "type": "String"
+      }
     }
   },
   "pulseAxisLiquidite": "Liquidität",
@@ -4102,27 +4231,35 @@
   "pulseNarrativeGood": "Gute Sichtbarkeit! Verfeinere deine {axis}, um weiterzukommen.",
   "@pulseNarrativeGood": {
     "placeholders": {
-      "axis": {"type": "String"}
+      "axis": {
+        "type": "String"
+      }
     }
   },
   "pulseNarrativeModerate": "Du beginnst, klarer zu sehen. Konzentriere dich auf deine {axis}.",
   "@pulseNarrativeModerate": {
     "placeholders": {
-      "axis": {"type": "String"}
+      "axis": {
+        "type": "String"
+      }
     }
   },
   "pulseNarrativeWeak": "Jede Information zählt. Beginne mit {hint}.",
   "@pulseNarrativeWeak": {
     "placeholders": {
-      "hint": {"type": "String"}
+      "hint": {
+        "type": "String"
+      }
     }
   },
   "pulseNoCheckinMsg": "Kein Check-in diesen Monat. Erfasse deine Zahlungen, um deinen Fortschritt zu verfolgen.",
   "pulseCheckinBtn": "Check-in",
-  "pulseBriefingTitle": "Monatsbilanz \u2014 {trend}",
+  "pulseBriefingTitle": "Monatsbilanz — {trend}",
   "@pulseBriefingTitle": {
     "placeholders": {
-      "trend": {"type": "String"}
+      "trend": {
+        "type": "String"
+      }
     }
   },
   "pulseFriLiquidite": "Liquidität",
@@ -4133,10 +4270,11 @@
   "pulseFriWeakest": "Schwächster Punkt: {axis}",
   "@pulseFriWeakest": {
     "placeholders": {
-      "axis": {"type": "String"}
+      "axis": {
+        "type": "String"
+      }
     }
   },
-
   "lppBuybackAdvTitle": "BVG-Einkauf-Optimierung",
   "lppBuybackAdvSubtitle": "Steuerlicher Hebel + Kapitalisierungseffekt",
   "lppBuybackAdvPotential": "Einkaufspotenzial",
@@ -4145,10 +4283,12 @@
   "lppBuybackAdvFundRate": "BVG-Kassenzins",
   "lppBuybackAdvIncome": "Steuerbares Einkommen",
   "lppBuybackAdvFinalCapital": "Endkapital (kapitalisiert)",
-  "lppBuybackAdvRealReturn": "Reale Rendite: {pct}\u00a0% / Jahr",
+  "lppBuybackAdvRealReturn": "Reale Rendite: {pct} % / Jahr",
   "@lppBuybackAdvRealReturn": {
     "placeholders": {
-      "pct": {"type": "String"}
+      "pct": {
+        "type": "String"
+      }
     }
   },
   "lppBuybackAdvTaxSaving": "Steuerersparnis",
@@ -4159,8 +4299,8 @@
   "lppBuybackAdvLeverageEffect": "Steuerlicher Hebeleffekt",
   "lppBuybackAdvBonASavoir": "Gut zu wissen",
   "lppBuybackAdvBon1": "Der BVG-Einkauf ist eines der wenigen Steuerplanungsinstrumente, die allen Arbeitnehmenden in der Schweiz zur Verfügung stehen.",
-  "lppBuybackAdvBon2": "Jeder eingekaufte Franken ist vom steuerbaren Einkommen abziehbar (DBG Art.\u00a033 Abs.\u00a01 Bst.\u00a0d).",
-  "lppBuybackAdvBon3": "Achtung: Jeder WEF-Bezug ist während 3 Jahren nach einem Einkauf gesperrt (BVG Art.\u00a079b Abs.\u00a03).",
+  "lppBuybackAdvBon2": "Jeder eingekaufte Franken ist vom steuerbaren Einkommen abziehbar (DBG Art. 33 Abs. 1 Bst. d).",
+  "lppBuybackAdvBon3": "Achtung: Jeder WEF-Bezug ist während 3 Jahren nach einem Einkauf gesperrt (BVG Art. 79b Abs. 3).",
   "lppBuybackAdvDisclaimer": "Simulation einschliesslich Kassenzins und geglätteter Steuerersparnis. Die reale Rendite wird auf deinem tatsächlichen Nettoaufwand berechnet.",
   "householdTitle": "Unsere Familie",
   "householdDiscoverCouplePlus": "Couple+ entdecken",
@@ -4194,9 +4334,21 @@
   "householdInviteSentTitle": "Einladung gesendet",
   "householdValidFor": "72 Stunden gültig",
   "householdShareMessage": "Tritt meinem MINT-Haushalt bei mit dem Code: {code}\n\nÖffne die MINT-App > Familie > Ich habe einen Code",
-  "@householdShareMessage": {"placeholders": {"code": {"type": "String"}}},
+  "@householdShareMessage": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
   "householdMemberCount": "{count} aktive{count, plural, =1{s} other{}} Mitglied{count, plural, =1{} other{er}}",
-  "@householdMemberCount": {"placeholders": {"count": {"type": "int"}}},
+  "@householdMemberCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "householdPartnerDefault": "Partner",
   "documentScanCancel": "Abbrechen",
   "documentScanAnalyze": "Analysieren",
@@ -4212,14 +4364,11 @@
   "documentScanOcrHint": "Füge den OCR-Text aus deinem PDF ein, um fortzufahren.",
   "documentScanOcrRetryHint": "Füge den OCR-Text ein, wenn das Foto unlesbar bleibt.",
   "profileFamilySection": "Familie",
-  "profileAdminObservability": "Admin Observability",
   "profileAnalyticsBeta": "Analytics Beta-Tester",
-  "profileDeleteCloudAccount": "Mein Cloud-Konto löschen",
   "profileDeleteAccountTitle": "Konto löschen?",
   "profileDeleteAccountContent": "Diese Aktion löscht dein Cloud-Konto und die zugehörigen Daten. Deine lokalen Daten bleiben auf diesem Gerät.",
   "profileDeleteCancel": "Abbrechen",
   "profileDeleteConfirm": "Löschen",
-  "profileLanguageTitle": "Langue / Sprache / Language",
   "consentAllRevoked": "Alle optionalen Einwilligungen wurden widerrufen.",
   "consentClose": "Schliessen",
   "consentExportData": "Meine Daten exportieren (nDSG Art. 28)",
@@ -4231,7 +4380,13 @@
   "consentOptionalTitle": "Optionale Einwilligungen",
   "consentExportTitle": "Daten exportieren",
   "consentRetentionDays": "Aufbewahrung: {days} Tage",
-  "@consentRetentionDays": {"placeholders": {"days": {"type": "int"}}},
+  "@consentRetentionDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "consentLegalSources": "Rechtsquellen",
   "pillar3aPaymentPerYear": "Einzahlung/Jahr:",
   "pillar3aDuration": "Dauer:",
@@ -4241,10 +4396,22 @@
   "pillar3aAt65": "Mit 65",
   "pillar3aComparator": "3a Vergleich",
   "pillar3aProjection": "Projektion über {years} Jahre",
-  "@pillar3aProjection": {"placeholders": {"years": {"type": "int"}}},
+  "@pillar3aProjection": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
   "pillar3aScenarioTitle": "Szenario: Maximale Jahreseinzahlung",
   "pillar3aDurationYears": "{years} Jahre (bis 65)",
-  "@pillar3aDurationYears": {"placeholders": {"years": {"type": "int"}}},
+  "@pillar3aDurationYears": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
   "pillar3aViacGainLabel": "Mit VIAC statt einer Bank:",
   "pillar3aMoreAtRetirement": "mehr bei der Pensionierung!",
   "pillar3aDisclaimer": "Pädagogische Annahmen basierend auf historischen Durchschnittsrenditen. Vergangene Renditen garantieren keine zukünftigen Renditen.",
@@ -4253,25 +4420,54 @@
   "pillar3aBank15": "Bank 1.5%",
   "pillar3aViac45": "VIAC 4.5%",
   "pillar3aYearN": "Jahr {n}",
-  "@pillar3aYearN": {"placeholders": {"n": {"type": "int"}}},
+  "@pillar3aYearN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "pillar3aCompoundTip": "Die letzten Jahre machen +50% des Gesamtgewinns dank Zinseszins!",
   "pillar3aRecommended": "EMPFOHLEN",
   "pillar3aVsBank": "{amount} vs Bank",
-  "@pillar3aVsBank": {"placeholders": {"amount": {"type": "String"}}},
+  "@pillar3aVsBank": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "wizardCollapse": "Einklappen",
   "wizardUnderstandTopic": "Dieses Thema verstehen",
   "wizardSeeSimulation": "Interaktive Simulation ansehen",
   "wizardNext": "Weiter",
   "wizardExplanation": "Erklärung",
   "wizardValidateCount": "Bestätigen ({count})",
-  "@wizardValidateCount": {"placeholders": {"count": {"type": "int"}}},
+  "@wizardValidateCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "wizardInvalidNumber": "Gib eine gültige Zahl ein",
   "wizardMinValue": "Minimum: {value}",
-  "@wizardMinValue": {"placeholders": {"value": {"type": "String"}}},
+  "@wizardMinValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "wizardMaxValue": "Maximum: {value}",
-  "@wizardMaxValue": {"placeholders": {"value": {"type": "String"}}},
+  "@wizardMaxValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "wizardFieldRequired": "Dieses Feld ist erforderlich",
-  "budgetMonthlyTitle": "Monatsbudget",
   "slmCancelDownload": "Download abbrechen",
   "slmCancel": "Abbrechen",
   "slmDownload": "Herunterladen",
@@ -4281,7 +4477,13 @@
   "slmDownloadModelTitle": "Modell herunterladen?",
   "slmDeleteModelTitle": "Modell löschen?",
   "slmDeleteModelContent": "Dies gibt {size} Speicherplatz frei. Du kannst es jederzeit erneut herunterladen.",
-  "@slmDeleteModelContent": {"placeholders": {"size": {"type": "String"}}},
+  "@slmDeleteModelContent": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "slmDeleteModelButton": "Modell löschen",
   "slmStartingDownload": "Download wird gestartet...",
   "slmRetryDownload": "Download erneut versuchen",
@@ -4305,11 +4507,12 @@
   "landingMintDoesIt": "MINT tut es.",
   "landingCtaCommencer": "Loslegen",
   "landingLegalFooterShort": "Bildungstool. Keine Finanzberatung (FIDLEG). Daten auf deinem Gerät.",
-
   "pulseDigitalTwinPct": "Digitaler Zwilling: {pct}%",
   "@pulseDigitalTwinPct": {
     "placeholders": {
-      "pct": { "type": "String" }
+      "pct": {
+        "type": "String"
+      }
     }
   },
   "pulseDigitalTwinHint": "Je vollständiger dein Profil, desto zuverlässiger deine Projektionen.",
@@ -4319,19 +4522,49 @@
   "pulseRefineProfile": "Profil verfeinern",
   "pulseWhatIf3aQuestion": "Was, wenn du das 3a-Maximum einzahlst?",
   "pulseWhatIf3aImpact": "−CHF {amount}/Jahr Steuern",
-  "@pulseWhatIf3aImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "@pulseWhatIf3aImpact": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "pulseWhatIfLppQuestion": "Was, wenn du BVG-Einkäufe tätigst?",
   "pulseWhatIfLppImpact": "Bis zu −CHF {amount} Steuern",
-  "@pulseWhatIfLppImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "@pulseWhatIfLppImpact": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "pulseWhatIfEarlyQuestion": "Was, wenn du 1 Jahr früher in Rente gehst?",
   "pulseWhatIfEarlyImpact": "−CHF {amount}/Monat Rente",
-  "@pulseWhatIfEarlyImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "@pulseWhatIfEarlyImpact": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "pulseActionSignalSingular": "1 Aktion zu erledigen",
   "pulseActionSignalPlural": "{count} Aktionen zu erledigen",
-  "@pulseActionSignalPlural": {"placeholders": {"count": {"type": "String"}}},
+  "@pulseActionSignalPlural": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "agirTopActionCta": "Loslegen",
   "agirOtherActions": "{count} weitere Aktionen",
-  "@agirOtherActions": {"placeholders": {"count": {"type": "String"}}},
+  "@agirOtherActions": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "exploreSuggestionLabel": "Vorschlag für dich",
   "exploreSuggestion3aTitle": "Säule 3a: dein erster Steuerhebel",
   "exploreSuggestion3aSub": "Finde heraus, wie viel Steuern du sparen kannst",
@@ -4346,9 +4579,21 @@
   "pulseReadinessProgress": "In Entwicklung",
   "pulseReadinessWeak": "Zu stärken",
   "pulseReadinessRetireIn": "Pensionierung in {years} Jahren",
-  "@pulseReadinessRetireIn": {"placeholders": {"years": {"type": "int"}}},
+  "@pulseReadinessRetireIn": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
   "pulseReadinessYearsToAct": "Noch {years} Jahre zum Handeln",
-  "@pulseReadinessYearsToAct": {"placeholders": {"years": {"type": "int"}}},
+  "@pulseReadinessYearsToAct": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
   "pulseReadinessActNow": "Das Wesentliche passiert jetzt",
   "agirBudgetNet": "Netto",
   "agirBudgetFixed": "Fixkosten",
@@ -4372,7 +4617,7 @@
   "heroGapRetirement": "Rente",
   "heroGapConfidence": "Vertrauen",
   "heroGapScanCta": "BVG-Ausweis scannen",
-  "heroGapBoost": "+{percent}\u00a0% Genauigkeit",
+  "heroGapBoost": "+{percent} % Genauigkeit",
   "@heroGapBoost": {
     "placeholders": {
       "percent": {
@@ -4395,8 +4640,20 @@
   "apercu3aProjectionLabel": "PROJEKTION MIT 65",
   "apercu3aProgressionLabel": "Aktuelles Kapital vs Altersprojektion",
   "apercu3aSimulerCta": "Meine 3a simulieren",
-  "apercu3aDisclaimer": "Bildungsprojektion basierend auf 2% Nettorendite. Keine Finanzberatung (FIDLEG)."
-,
+  "apercu3aDisclaimer": "Bildungsprojektion basierend auf 2% Nettorendite. Keine Finanzberatung (FIDLEG).",
   "consentRevokeButton": "Widerrufen",
-  "consentAddButton": "Zustimmung hinzufügen"
+  "consentAddButton": "Zustimmung hinzufügen",
+  "txTitle": "TRANSAKTIONEN",
+  "txFinmaGateTitle": "Funktion in Vorbereitung",
+  "txFinmaGateDesc": "FINMA-Regulierungskonsultation läuft. Die angezeigten Daten sind Demonstrationsbeispiele.",
+  "txDemoMode": "DEMO-MODUS",
+  "txThisMonth": "Dieser Monat",
+  "txLastMonth": "Letzter Monat",
+  "txEmptyState": "Keine Transaktionen",
+  "txMonthlySummaryTitle": "Monatszusammenfassung",
+  "txIncome": "Einnahmen",
+  "txExpenses": "Ausgaben",
+  "txNetSavings": "Nettosparen",
+  "txSavingsRate": "Sparquote",
+  "txDisclaimer": "Diese Funktion befindet sich in Entwicklung. Die angezeigten Daten sind Beispiele. Die Aktivierung des Open-Banking-Dienstes unterliegt einer vorherigen regulatorischen Konsultation."
 }

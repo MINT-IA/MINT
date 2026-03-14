@@ -2147,7 +2147,7 @@
   "profileAiSlmTitle": "IA on-device (SLM)",
   "profileAiSlmReady": "Modelo pronto",
   "profileAiSlmNotInstalled": "Modelo não instalado",
-  "profileLanguageTitle": "Língua / Langue / Sprache",
+  "profileLanguageTitle": "Langue / Sprache / Language",
   "profileAdminObservability": "Admin observability",
   "profileAdminAnalytics": "Analytics beta testers",
   "profileDeleteCloudAccount": "Eliminar a minha conta cloud",
@@ -2344,7 +2344,7 @@
   "budgetEmptyTitle": "O teu orçamento constrói-se automaticamente",
   "budgetEmptyBody": "Completa o teu diagnóstico para desbloquear o teu plano mensal com os teus rendimentos e despesas reais.",
   "budgetEmptyAction": "Fazer o meu diagnóstico",
-  "budgetMonthlyTitle": "Orçamento mensal",
+  "budgetMonthlyTitle": "Orçamento Mensal",
   "budgetAvailableThisMonth": "Disponível este mês",
   "budgetNetIncome": "Rendimento líquido",
   "budgetHousing": "Habitação",
@@ -3715,7 +3715,13 @@
   "patrimoineLtvAmortissement": "Amortissement recommandé",
   "patrimoineLtvElevee": "LTV élevée — amortir",
   "patrimoineLtvDisplay": "LTV {percent}%",
-  "@patrimoineLtvDisplay": { "placeholders": { "percent": { "type": "String" } } },
+  "@patrimoineLtvDisplay": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "patrimoineLpp": "LPP",
   "patrimoine3a": "3a",
   "patrimoineLibrePassage": "Libre pass.",
@@ -3822,7 +3828,6 @@
   "futurCompleterProfil": "Complete ton profil pour affiner la projection.",
   "futurDisclaimer": "Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, non garanti. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.",
   "futurExplorerDetails": "Explorer les détails",
-
   "financialSummaryTitle": "RESUMO FINANCEIRO",
   "financialSummaryNoProfile": "Nenhum perfil registado",
   "financialSummaryStartDiagnostic": "Iniciar o diagnóstico",
@@ -3836,11 +3841,29 @@
   "financialSummarySalaireBrutMensuel": "Salário bruto mensal",
   "financialSummary13emeSalaire": "13.º salário",
   "financialSummaryNemeMois": "{n}.º mês",
-  "@financialSummaryNemeMois": { "placeholders": { "n": { "type": "String" } } },
+  "@financialSummaryNemeMois": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryBonusEstime": "Bónus estimado ({pct}%)",
-  "@financialSummaryBonusEstime": { "placeholders": { "pct": { "type": "String" } } },
+  "@financialSummaryBonusEstime": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryConjointBrutMensuel": "{name} — bruto mensal",
-  "@financialSummaryConjointBrutMensuel": { "placeholders": { "name": { "type": "String" } } },
+  "@financialSummaryConjointBrutMensuel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryDefaultConjoint": "Cônjuge",
   "financialSummaryRevenuBrutAnnuel": "Rendimento bruto anual",
   "financialSummaryRevenuBrutAnnuelCouple": "Rendimento bruto anual (casal)",
@@ -3854,7 +3877,16 @@
   "financialSummaryImpotEstime": "Imposto estimado (ICC + IFD)",
   "financialSummaryTauxMarginalEstime": "Taxa marginal estimada",
   "financialSummary13emeEtBonusHint": "{label}: ~{montant} líquido/ano (não incluído no mensal)",
-  "@financialSummary13emeEtBonusHint": { "placeholders": { "label": { "type": "String" }, "montant": { "type": "String" } } },
+  "@financialSummary13emeEtBonusHint": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryRevenusEtFiscalite": "Rendimentos e Fiscalidade",
   "financialSummaryDisponibleApresImpot": "Disponível após impostos",
   "financialSummaryFootnoteRevenus": "Estimativa simplificada. A AANP e a IJM variam consoante o empregador e não estão incluídas. A LPP empregado reflete o mínimo legal (50/50) — a tua caixa pode aplicar outra repartição.",
@@ -3864,7 +3896,13 @@
   "financialSummaryAvs1erPilier": "AVS (1.º pilar)",
   "financialSummaryAnneesCotisees": "Anos de contribuição",
   "financialSummaryAnneesUnit": "{n} anos",
-  "@financialSummaryAnneesUnit": { "placeholders": { "n": { "type": "String" } } },
+  "@financialSummaryAnneesUnit": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryLacunes": "Lacunas",
   "financialSummaryRenteEstimee": "Renda estimada",
   "financialSummaryLpp2ePilier": "LPP (2.º pilar)",
@@ -3877,15 +3915,39 @@
   "financialSummaryCaisse": "Caixa",
   "financialSummary3a3ePilier": "3a (3.º pilar)",
   "financialSummaryNComptes": "{n} conta(s)",
-  "@financialSummaryNComptes": { "placeholders": { "n": { "type": "String" } } },
+  "@financialSummaryNComptes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryLibrePassage": "Livre passagem",
   "financialSummaryCompteN": "Conta {n}",
-  "@financialSummaryCompteN": { "placeholders": { "n": { "type": "String" } } },
+  "@financialSummaryCompteN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryConjointLpp": "{name} — LPP",
-  "@financialSummaryConjointLpp": { "placeholders": { "name": { "type": "String" } } },
+  "@financialSummaryConjointLpp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryConjoint3a": "{name} — 3a",
-  "@financialSummaryConjoint3a": { "placeholders": { "name": { "type": "String" } } },
-  "financialSummaryFatcaWarning": "\u26a0\ufe0f FATCA — Apenas uma minoria de fornecedores aceita (ex. Raiffeisen)",
+  "@financialSummaryConjoint3a": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "financialSummaryFatcaWarning": "⚠️ FATCA — Apenas uma minoria de fornecedores aceita (ex. Raiffeisen)",
   "financialSummaryPrevoyanceTitle": "Previdência",
   "financialSummaryScanCertificatLpp": "Digitalizar certificado LPP / AVS",
   "financialSummaryModifierPrevoyance": "Modificar previdência",
@@ -3901,15 +3963,42 @@
   "financialSummaryHypothequeRestante": "Hipoteca restante",
   "financialSummaryValeurNetteImmobiliere": "Valor líquido imobiliário",
   "financialSummaryLtvAmortissement": "Rácio LTV: {pct}% — amortização 2.º grau obrigatória",
-  "@financialSummaryLtvAmortissement": { "placeholders": { "pct": { "type": "String" } } },
+  "@financialSummaryLtvAmortissement": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryLtvBonneVoie": "Rácio LTV: {pct}% — bom caminho",
-  "@financialSummaryLtvBonneVoie": { "placeholders": { "pct": { "type": "String" } } },
+  "@financialSummaryLtvBonneVoie": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryLtvExcellent": "Rácio LTV: {pct}% — excelente",
-  "@financialSummaryLtvExcellent": { "placeholders": { "pct": { "type": "String" } } },
+  "@financialSummaryLtvExcellent": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryPrevoyanceCapital": "Previdência (capital)",
   "financialSummaryAvoirLppTotal": "Ativos LPP totais",
   "financialSummaryCapital3a": "Capital 3a ({n} conta{s})",
-  "@financialSummaryCapital3a": { "placeholders": { "n": { "type": "String" }, "s": { "type": "String" } } },
+  "@financialSummaryCapital3a": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "s": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryPatrimoineBrut": "Património bruto",
   "financialSummaryDettesTotales": "Dívidas totais",
   "financialSummaryPatrimoine": "Património",
@@ -3949,16 +4038,37 @@
   "financialSummaryHypotheque": "Hipoteca",
   "financialSummaryChargeMensuelle": "Encargo mensal",
   "financialSummaryEcheance": "Vencimento: {date} (~{years} anos)",
-  "@financialSummaryEcheance": { "placeholders": { "date": { "type": "String" }, "years": { "type": "String" } } },
+  "@financialSummaryEcheance": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "years": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryInteretsDeductibles": "Juros dedutíveis (LIFD art. 33): {montant}/ano",
-  "@financialSummaryInteretsDeductibles": { "placeholders": { "montant": { "type": "String" } } },
+  "@financialSummaryInteretsDeductibles": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryDetteConsommation": "Dívida de consumo",
   "financialSummaryCreditConsommation": "Crédito ao consumo",
   "financialSummaryMensualite": "Mensalidade",
   "financialSummaryLeasing": "Leasing",
   "financialSummaryAutresDettes": "Outras dívidas",
   "financialSummaryConseilRemboursement": "Paga primeiro a dívida a {taux}% antes de investir. Cada CHF reembolsado = {taux}% de rendimento efetivo.",
-  "@financialSummaryConseilRemboursement": { "placeholders": { "taux": { "type": "String" } } },
+  "@financialSummaryConseilRemboursement": {
+    "placeholders": {
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
   "financialSummaryTotalDettes": "Dívidas totais",
   "financialSummaryScannerDocument": "Digitalizar um documento",
   "financialSummaryCascadeBudgetaire": "Cascata orçamental",
@@ -3986,7 +4096,9 @@
   "dataQualityMissingCount": "{count} informação(ões) a adicionar",
   "@dataQualityMissingCount": {
     "placeholders": {
-      "count": {"type": "String"}
+      "count": {
+        "type": "String"
+      }
     }
   },
   "dataQualityComplete": "Perfil completo",
@@ -4000,7 +4112,9 @@
   "dataQualityEnrichWithImpact": "Enriquecer meu perfil ({impact})",
   "@dataQualityEnrichWithImpact": {
     "placeholders": {
-      "impact": {"type": "String"}
+      "impact": {
+        "type": "String"
+      }
     }
   },
   "confidenceLabelSalaire": "Salário bruto",
@@ -4017,26 +4131,33 @@
   "confidencePromptFreshnessStale": "Dados de {months} meses atrás — rescaneie o seu certificado",
   "@confidencePromptFreshnessStale": {
     "placeholders": {
-      "months": {"type": "String"}
+      "months": {
+        "type": "String"
+      }
     }
   },
   "confidencePromptFreshnessConfirm": "Confirma que este valor ainda é atual",
   "confidencePromptAccuracyPrefix": "Confirma: ",
   "confidencePromptAccuracyEstimated": "Insere o teu valor real",
   "confidencePromptAccuracyCertificate": "Digitaliza o teu certificado para confirmar",
-
   "pulseTitle": "Pulse",
   "pulseGreeting": "Olá {name}",
   "@pulseGreeting": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "pulseGreetingCouple": "Olá {name1} e {name2}",
   "@pulseGreetingCouple": {
     "placeholders": {
-      "name1": {"type": "String"},
-      "name2": {"type": "String"}
+      "name1": {
+        "type": "String"
+      },
+      "name2": {
+        "type": "String"
+      }
     }
   },
   "pulseWelcome": "Bem-vindo ao MINT",
@@ -4058,12 +4179,14 @@
   "pulseComprendre_budgetSub": "Visualiza as tuas receitas e despesas",
   "pulseComprendreAchat": "Comprar um imóvel?",
   "pulseComprendreAchatSub": "Estima a tua capacidade de empréstimo",
-  "pulseDisclaimer": "Ferramenta educativa. Não constitui aconselhamento financeiro personalizado. LSFin art.\u00a03",
+  "pulseDisclaimer": "Ferramenta educativa. Não constitui aconselhamento financeiro personalizado. LSFin art. 3",
   "pulseKeyFigRetraite": "Reforma estimada",
-  "pulseKeyFigRetraitePct": "{pct}\u00a0% do rendimento",
+  "pulseKeyFigRetraitePct": "{pct} % do rendimento",
   "@pulseKeyFigRetraitePct": {
     "placeholders": {
-      "pct": {"type": "String"}
+      "pct": {
+        "type": "String"
+      }
     }
   },
   "pulseKeyFigBudgetLibre": "Orçamento livre",
@@ -4071,14 +4194,20 @@
   "pulseCoupleRetraite": "Reforma casal: {montant}",
   "@pulseCoupleRetraite": {
     "placeholders": {
-      "montant": {"type": "String"}
+      "montant": {
+        "type": "String"
+      }
     }
   },
-  "pulseCoupleAlertWeak": "O perfil de {name} está a {score}\u00a0% de visibilidade",
+  "pulseCoupleAlertWeak": "O perfil de {name} está a {score} % de visibilidade",
   "@pulseCoupleAlertWeak": {
     "placeholders": {
-      "name": {"type": "String"},
-      "score": {"type": "String"}
+      "name": {
+        "type": "String"
+      },
+      "score": {
+        "type": "String"
+      }
     }
   },
   "pulseAxisLiquidite": "Liquidez",
@@ -4102,27 +4231,35 @@
   "pulseNarrativeGood": "Boa visibilidade! Refina a tua {axis} para ir mais longe.",
   "@pulseNarrativeGood": {
     "placeholders": {
-      "axis": {"type": "String"}
+      "axis": {
+        "type": "String"
+      }
     }
   },
   "pulseNarrativeModerate": "Começas a ver com mais clareza. Concentra-te na tua {axis}.",
   "@pulseNarrativeModerate": {
     "placeholders": {
-      "axis": {"type": "String"}
+      "axis": {
+        "type": "String"
+      }
     }
   },
   "pulseNarrativeWeak": "Cada informação conta. Começa por {hint}.",
   "@pulseNarrativeWeak": {
     "placeholders": {
-      "hint": {"type": "String"}
+      "hint": {
+        "type": "String"
+      }
     }
   },
   "pulseNoCheckinMsg": "Sem check-in este mês. Regista os teus pagamentos para acompanhar o teu progresso.",
   "pulseCheckinBtn": "Check-in",
-  "pulseBriefingTitle": "Balanço do mês \u2014 {trend}",
+  "pulseBriefingTitle": "Balanço do mês — {trend}",
   "@pulseBriefingTitle": {
     "placeholders": {
-      "trend": {"type": "String"}
+      "trend": {
+        "type": "String"
+      }
     }
   },
   "pulseFriLiquidite": "Liquidez",
@@ -4133,10 +4270,11 @@
   "pulseFriWeakest": "Ponto mais frágil: {axis}",
   "@pulseFriWeakest": {
     "placeholders": {
-      "axis": {"type": "String"}
+      "axis": {
+        "type": "String"
+      }
     }
   },
-
   "lppBuybackAdvTitle": "Otimização de resgate LPP",
   "lppBuybackAdvSubtitle": "Alavancagem fiscal + efeito de capitalização",
   "lppBuybackAdvPotential": "Potencial de resgate",
@@ -4145,10 +4283,12 @@
   "lppBuybackAdvFundRate": "Taxa do fundo LPP",
   "lppBuybackAdvIncome": "Rendimento tributável",
   "lppBuybackAdvFinalCapital": "Valor final capitalizado",
-  "lppBuybackAdvRealReturn": "Rendimento real: {pct}\u00a0% / ano",
+  "lppBuybackAdvRealReturn": "Rendimento real: {pct} % / ano",
   "@lppBuybackAdvRealReturn": {
     "placeholders": {
-      "pct": {"type": "String"}
+      "pct": {
+        "type": "String"
+      }
     }
   },
   "lppBuybackAdvTaxSaving": "Poupança fiscal",
@@ -4159,8 +4299,8 @@
   "lppBuybackAdvLeverageEffect": "Efeito de alavancagem fiscal",
   "lppBuybackAdvBonASavoir": "Bom saber",
   "lppBuybackAdvBon1": "O resgate LPP é uma das poucas ferramentas de planeamento fiscal acessíveis a todos os trabalhadores na Suíça.",
-  "lppBuybackAdvBon2": "Cada franco resgatado é dedutível do rendimento tributável (LIFD art.\u00a033 al.\u00a01 let.\u00a0d).",
-  "lppBuybackAdvBon3": "Atenção: qualquer levantamento EPL fica bloqueado durante 3 anos após um resgate (LPP art.\u00a079b al.\u00a03).",
+  "lppBuybackAdvBon2": "Cada franco resgatado é dedutível do rendimento tributável (LIFD art. 33 al. 1 let. d).",
+  "lppBuybackAdvBon3": "Atenção: qualquer levantamento EPL fica bloqueado durante 3 anos após um resgate (LPP art. 79b al. 3).",
   "lppBuybackAdvDisclaimer": "Simulação incluindo juros do fundo e poupança fiscal suavizada. O rendimento real é calculado sobre o teu esforço líquido real.",
   "householdTitle": "A nossa Família",
   "householdDiscoverCouplePlus": "Descobrir Couple+",
@@ -4194,9 +4334,21 @@
   "householdInviteSentTitle": "Convite enviado",
   "householdValidFor": "Válido 72 horas",
   "householdShareMessage": "Junta-te ao meu agregado MINT com o código: {code}\n\nAbre a app MINT > Família > Tenho um código",
-  "@householdShareMessage": {"placeholders": {"code": {"type": "String"}}},
+  "@householdShareMessage": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
   "householdMemberCount": "{count} membro{count, plural, =1{} other{s}} ativo{count, plural, =1{} other{s}}",
-  "@householdMemberCount": {"placeholders": {"count": {"type": "int"}}},
+  "@householdMemberCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "householdPartnerDefault": "Parceiro",
   "documentScanCancel": "Cancelar",
   "documentScanAnalyze": "Analisar",
@@ -4212,14 +4364,11 @@
   "documentScanOcrHint": "Cola o texto OCR extraído do teu PDF para continuar.",
   "documentScanOcrRetryHint": "Cola o texto OCR se a foto continuar ilegível.",
   "profileFamilySection": "Família",
-  "profileAdminObservability": "Admin observability",
   "profileAnalyticsBeta": "Analytics beta testers",
-  "profileDeleteCloudAccount": "Eliminar a minha conta cloud",
   "profileDeleteAccountTitle": "Eliminar conta?",
   "profileDeleteAccountContent": "Esta ação elimina a tua conta cloud e os dados associados. Os teus dados locais permanecem neste dispositivo.",
   "profileDeleteCancel": "Cancelar",
   "profileDeleteConfirm": "Eliminar",
-  "profileLanguageTitle": "Langue / Sprache / Language",
   "consentAllRevoked": "Todos os consentimentos opcionais foram revogados.",
   "consentClose": "Fechar",
   "consentExportData": "Exportar os meus dados (nLPD art. 28)",
@@ -4231,7 +4380,13 @@
   "consentOptionalTitle": "Consentimentos opcionais",
   "consentExportTitle": "Exportar os teus dados",
   "consentRetentionDays": "Conservação: {days} dias",
-  "@consentRetentionDays": {"placeholders": {"days": {"type": "int"}}},
+  "@consentRetentionDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "consentLegalSources": "Fontes legais",
   "pillar3aPaymentPerYear": "Pagamento/ano:",
   "pillar3aDuration": "Duração:",
@@ -4241,10 +4396,22 @@
   "pillar3aAt65": "Aos 65",
   "pillar3aComparator": "Comparador 3a",
   "pillar3aProjection": "Projeção sobre {years} anos",
-  "@pillar3aProjection": {"placeholders": {"years": {"type": "int"}}},
+  "@pillar3aProjection": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
   "pillar3aScenarioTitle": "Cenário: Contribuição máxima anual",
   "pillar3aDurationYears": "{years} anos (até aos 65)",
-  "@pillar3aDurationYears": {"placeholders": {"years": {"type": "int"}}},
+  "@pillar3aDurationYears": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
   "pillar3aViacGainLabel": "Com VIAC em vez de um banco:",
   "pillar3aMoreAtRetirement": "a mais na reforma!",
   "pillar3aDisclaimer": "Hipóteses pedagógicas baseadas em rendimentos históricos médios. Rendimentos passados não garantem rendimentos futuros.",
@@ -4253,25 +4420,54 @@
   "pillar3aBank15": "Banco 1.5%",
   "pillar3aViac45": "VIAC 4.5%",
   "pillar3aYearN": "Ano {n}",
-  "@pillar3aYearN": {"placeholders": {"n": {"type": "int"}}},
+  "@pillar3aYearN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "pillar3aCompoundTip": "Os últimos anos representam +50% do ganho total graças aos juros compostos!",
   "pillar3aRecommended": "RECOMENDADO",
   "pillar3aVsBank": "{amount} vs Banco",
-  "@pillar3aVsBank": {"placeholders": {"amount": {"type": "String"}}},
+  "@pillar3aVsBank": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "wizardCollapse": "Reduzir",
   "wizardUnderstandTopic": "Compreender este tema",
   "wizardSeeSimulation": "Ver simulação interativa",
   "wizardNext": "Seguinte",
   "wizardExplanation": "Explicação",
   "wizardValidateCount": "Validar ({count})",
-  "@wizardValidateCount": {"placeholders": {"count": {"type": "int"}}},
+  "@wizardValidateCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "wizardInvalidNumber": "Introduz um número válido",
   "wizardMinValue": "Mínimo: {value}",
-  "@wizardMinValue": {"placeholders": {"value": {"type": "String"}}},
+  "@wizardMinValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "wizardMaxValue": "Máximo: {value}",
-  "@wizardMaxValue": {"placeholders": {"value": {"type": "String"}}},
+  "@wizardMaxValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "wizardFieldRequired": "Este campo é obrigatório",
-  "budgetMonthlyTitle": "Orçamento Mensal",
   "slmCancelDownload": "Cancelar download",
   "slmCancel": "Cancelar",
   "slmDownload": "Descarregar",
@@ -4281,7 +4477,13 @@
   "slmDownloadModelTitle": "Descarregar o modelo?",
   "slmDeleteModelTitle": "Eliminar o modelo?",
   "slmDeleteModelContent": "Isto libertará {size} de espaço. Podes voltar a descarregá-lo a qualquer momento.",
-  "@slmDeleteModelContent": {"placeholders": {"size": {"type": "String"}}},
+  "@slmDeleteModelContent": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "slmDeleteModelButton": "Eliminar modelo",
   "slmStartingDownload": "A iniciar download...",
   "slmRetryDownload": "Tentar download novamente",
@@ -4305,11 +4507,12 @@
   "landingMintDoesIt": "MINT fá-lo.",
   "landingCtaCommencer": "Começar",
   "landingLegalFooterShort": "Ferramenta educativa. Não constitui aconselhamento financeiro (LSFin). Dados no teu dispositivo.",
-
   "pulseDigitalTwinPct": "Gémeo digital: {pct}%",
   "@pulseDigitalTwinPct": {
     "placeholders": {
-      "pct": { "type": "String" }
+      "pct": {
+        "type": "String"
+      }
     }
   },
   "pulseDigitalTwinHint": "Quanto mais completo o teu perfil, mais fiáveis as projeções.",
@@ -4319,19 +4522,49 @@
   "pulseRefineProfile": "Refinar meu perfil",
   "pulseWhatIf3aQuestion": "E se contribuísses o máximo no 3a?",
   "pulseWhatIf3aImpact": "−CHF {amount}/ano de impostos",
-  "@pulseWhatIf3aImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "@pulseWhatIf3aImpact": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "pulseWhatIfLppQuestion": "E se fizesses um resgate LPP?",
   "pulseWhatIfLppImpact": "Até −CHF {amount} de impostos",
-  "@pulseWhatIfLppImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "@pulseWhatIfLppImpact": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "pulseWhatIfEarlyQuestion": "E se te reformasses 1 ano mais cedo?",
   "pulseWhatIfEarlyImpact": "−CHF {amount}/mês de pensão",
-  "@pulseWhatIfEarlyImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "@pulseWhatIfEarlyImpact": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "pulseActionSignalSingular": "1 ação a fazer",
   "pulseActionSignalPlural": "{count} ações a fazer",
-  "@pulseActionSignalPlural": {"placeholders": {"count": {"type": "String"}}},
+  "@pulseActionSignalPlural": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "agirTopActionCta": "Começar",
   "agirOtherActions": "{count} outras ações",
-  "@agirOtherActions": {"placeholders": {"count": {"type": "String"}}},
+  "@agirOtherActions": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "exploreSuggestionLabel": "Sugestão para ti",
   "exploreSuggestion3aTitle": "Pilar 3a: a tua primeira alavanca fiscal",
   "exploreSuggestion3aSub": "Descobre quanto podes poupar em impostos",
@@ -4346,9 +4579,21 @@
   "pulseReadinessProgress": "Em progresso",
   "pulseReadinessWeak": "A reforçar",
   "pulseReadinessRetireIn": "Reforma em {years} anos",
-  "@pulseReadinessRetireIn": {"placeholders": {"years": {"type": "int"}}},
+  "@pulseReadinessRetireIn": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
   "pulseReadinessYearsToAct": "Ainda {years} anos para agir",
-  "@pulseReadinessYearsToAct": {"placeholders": {"years": {"type": "int"}}},
+  "@pulseReadinessYearsToAct": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
   "pulseReadinessActNow": "O essencial acontece agora",
   "agirBudgetNet": "Líquido",
   "agirBudgetFixed": "Fixos",
@@ -4372,7 +4617,7 @@
   "heroGapRetirement": "Reforma",
   "heroGapConfidence": "Confiança",
   "heroGapScanCta": "Digitalizar certificado LPP",
-  "heroGapBoost": "+{percent}\u00a0% precisão",
+  "heroGapBoost": "+{percent} % precisão",
   "@heroGapBoost": {
     "placeholders": {
       "percent": {
@@ -4395,8 +4640,20 @@
   "apercu3aProjectionLabel": "PROJEÇÃO AOS 65",
   "apercu3aProgressionLabel": "Capital atual vs projeção aposentadoria",
   "apercu3aSimulerCta": "Simular meu 3a",
-  "apercu3aDisclaimer": "Projeção educativa baseada em rendimento líquido de 2%. Não constitui aconselhamento (LSFin)."
-,
+  "apercu3aDisclaimer": "Projeção educativa baseada em rendimento líquido de 2%. Não constitui aconselhamento (LSFin).",
   "consentRevokeButton": "Revogar",
-  "consentAddButton": "Adicionar um consentimento"
+  "consentAddButton": "Adicionar um consentimento",
+  "txTitle": "TRANSAÇÕES",
+  "txFinmaGateTitle": "Funcionalidade em preparação",
+  "txFinmaGateDesc": "Consulta regulatória FINMA em curso. Os dados exibidos são exemplos de demonstração.",
+  "txDemoMode": "MODO DEMO",
+  "txThisMonth": "Este mês",
+  "txLastMonth": "Mês anterior",
+  "txEmptyState": "Sem transações",
+  "txMonthlySummaryTitle": "Resumo do mês",
+  "txIncome": "Receitas",
+  "txExpenses": "Despesas",
+  "txNetSavings": "Poupança líquida",
+  "txSavingsRate": "Taxa de poupança",
+  "txDisclaimer": "Esta funcionalidade está em desenvolvimento. Os dados exibidos são exemplos. A ativação do serviço Open Banking está sujeita a uma consulta regulatória prévia."
 }
