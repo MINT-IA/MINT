@@ -141,29 +141,32 @@ class _BudgetScreenState extends State<BudgetScreen>
                   child: Budget503020Widget(
                     netSalary: widget.inputs.netIncome,
                     chiffreChoc: plan.available > 0
-                        ? 'En épargnant CHF ${(plan.available * 0.20).toStringAsFixed(0)}/mois, tu accumules CHF ${(plan.available * 0.20 * 120).toStringAsFixed(0)} en 10 ans.'
+                        ? S.of(context)!.budgetChiffreChoc503020(
+                            (plan.available * 0.20).toStringAsFixed(0),
+                            (plan.available * 0.20 * 120).toStringAsFixed(0),
+                          )
                         : null,
                     categories: [
                       BudgetCategory(
-                        label: 'Besoins',
+                        label: S.of(context)!.budgetNeeds,
                         emoji: '🏠',
                         percent: 50,
                         amount: plan.available * 0.50,
-                        examples: const ['Loyer', 'LAMal', 'impôts', 'dettes'],
+                        examples: [S.of(context)!.budgetExampleRent, S.of(context)!.budgetExampleLamal, S.of(context)!.budgetExampleTaxes, S.of(context)!.budgetExampleDebts],
                       ),
                       BudgetCategory(
-                        label: 'Vie',
+                        label: S.of(context)!.budgetLife,
                         emoji: '🛒',
                         percent: 30,
                         amount: plan.available * 0.30,
-                        examples: const ['Alimentation', 'transport', 'loisirs'],
+                        examples: [S.of(context)!.budgetExampleFood, S.of(context)!.budgetExampleTransport, S.of(context)!.budgetExampleLeisure],
                       ),
                       BudgetCategory(
-                        label: 'Futur',
+                        label: S.of(context)!.budgetFuture,
                         emoji: '🌱',
                         percent: 20,
                         amount: plan.available * 0.20,
-                        examples: const ['Épargne', '3a', 'projets'],
+                        examples: [S.of(context)!.budgetExampleSavings, S.of(context)!.budgetExample3a, S.of(context)!.budgetExampleProjects],
                       ),
                     ],
                   ),
@@ -175,17 +178,17 @@ class _BudgetScreenState extends State<BudgetScreen>
                   index: 3,
                   child: BudgetSandwichChart(
                     incomes: [
-                      BudgetLineItem(label: 'Revenu net', amount: widget.inputs.netIncome),
+                      BudgetLineItem(label: S.of(context)!.budgetNetIncome, amount: widget.inputs.netIncome),
                     ],
                     expenses: [
                       if (widget.inputs.housingCost > 0)
-                        BudgetLineItem(label: 'Logement', amount: widget.inputs.housingCost),
+                        BudgetLineItem(label: S.of(context)!.budgetHousing, amount: widget.inputs.housingCost),
                       if (widget.inputs.taxProvision > 0)
-                        BudgetLineItem(label: 'Provision impôts', amount: widget.inputs.taxProvision),
+                        BudgetLineItem(label: S.of(context)!.budgetTaxProvision, amount: widget.inputs.taxProvision),
                       if (widget.inputs.healthInsurance > 0)
-                        BudgetLineItem(label: 'LAMal', amount: widget.inputs.healthInsurance),
+                        BudgetLineItem(label: S.of(context)!.budgetExampleLamal, amount: widget.inputs.healthInsurance),
                       if (widget.inputs.debtPayments > 0)
-                        BudgetLineItem(label: 'Dettes', amount: widget.inputs.debtPayments),
+                        BudgetLineItem(label: S.of(context)!.budgetDebts, amount: widget.inputs.debtPayments),
                     ],
                   ),
                 ),
@@ -211,7 +214,7 @@ class _BudgetScreenState extends State<BudgetScreen>
                     lines: [
                       if (widget.inputs.housingCost > 0)
                         BudgetLine(
-                          label: 'Logement',
+                          label: S.of(context)!.budgetHousing,
                           emoji: '🏠',
                           normalAmount: widget.inputs.housingCost,
                           survivalAmount: widget.inputs.housingCost,
@@ -219,7 +222,7 @@ class _BudgetScreenState extends State<BudgetScreen>
                         ),
                       if (widget.inputs.healthInsurance > 0)
                         BudgetLine(
-                          label: 'LAMal',
+                          label: S.of(context)!.budgetExampleLamal,
                           emoji: '🏥',
                           normalAmount: widget.inputs.healthInsurance,
                           survivalAmount: widget.inputs.healthInsurance,
@@ -227,7 +230,7 @@ class _BudgetScreenState extends State<BudgetScreen>
                         ),
                       if (widget.inputs.taxProvision > 0)
                         BudgetLine(
-                          label: 'Impôts',
+                          label: S.of(context)!.budgetExampleTaxes,
                           emoji: '🧾',
                           normalAmount: widget.inputs.taxProvision,
                           survivalAmount: widget.inputs.taxProvision * 0.80,
@@ -235,14 +238,14 @@ class _BudgetScreenState extends State<BudgetScreen>
                         ),
                       if (widget.inputs.debtPayments > 0)
                         BudgetLine(
-                          label: 'Dettes',
+                          label: S.of(context)!.budgetDebts,
                           emoji: '💳',
                           normalAmount: widget.inputs.debtPayments,
                           survivalAmount: widget.inputs.debtPayments,
                           status: BudgetLineStatus.locked,
                         ),
                       BudgetLine(
-                        label: 'Variables',
+                        label: S.of(context)!.budgetVariables,
                         emoji: '🛒',
                         normalAmount: plan.variables,
                         survivalAmount: plan.variables * 0.50,
@@ -298,7 +301,7 @@ class _BudgetScreenState extends State<BudgetScreen>
     return Column(
       children: [
         Text(
-          "Disponible ce mois",
+          S.of(context)!.budgetAvailableThisMonth,
           style: GoogleFonts.inter(
             fontSize: 14,
             color: MintColors.textSecondary,
@@ -344,40 +347,40 @@ class _BudgetScreenState extends State<BudgetScreen>
       ),
       child: Column(
         children: [
-          _breakdownRow('Revenu net', income, isPositive: true),
+          _breakdownRow(S.of(context)!.budgetNetIncome, income, isPositive: true),
           if (housing > 0) ...[
             const SizedBox(height: 8),
-            _breakdownRow('Logement', housing),
+            _breakdownRow(S.of(context)!.budgetHousing, housing),
           ],
           if (debt > 0) ...[
             const SizedBox(height: 8),
-            _breakdownRow('Remboursement dettes', debt),
+            _breakdownRow(S.of(context)!.budgetDebtRepayment, debt),
           ],
           const SizedBox(height: 8),
           _breakdownRow(
-            'Provision impôts${taxes > 0 ? "" : " (non renseigné)"}',
+            '${S.of(context)!.budgetTaxProvision}${taxes > 0 ? "" : " ${S.of(context)!.budgetNotProvided}"}',
             taxes,
-            qualityTag: widget.inputs.isTaxEstimated ? 'estimé' : 'saisi',
+            qualityTag: widget.inputs.isTaxEstimated ? S.of(context)!.budgetQualityEstimated : S.of(context)!.budgetQualityEntered,
           ),
           const SizedBox(height: 8),
           _breakdownRow(
-            'Primes maladie (LAMal)${health > 0 ? "" : " (non renseigné)"}',
+            '${S.of(context)!.budgetHealthInsurance}${health > 0 ? "" : " ${S.of(context)!.budgetNotProvided}"}',
             health,
-            qualityTag: widget.inputs.isHealthEstimated ? 'estimé' : 'saisi',
+            qualityTag: widget.inputs.isHealthEstimated ? S.of(context)!.budgetQualityEstimated : S.of(context)!.budgetQualityEntered,
           ),
           const SizedBox(height: 8),
           _breakdownRow(
-            'Autres charges fixes${otherFixed > 0 ? "" : " (non renseigné)"}',
+            '${S.of(context)!.budgetOtherFixed}${otherFixed > 0 ? "" : " ${S.of(context)!.budgetNotProvided}"}',
             otherFixed,
             qualityTag:
-                widget.inputs.isOtherFixedMissing ? 'manquant' : 'saisi',
+                widget.inputs.isOtherFixedMissing ? S.of(context)!.budgetQualityMissing : S.of(context)!.budgetQualityEntered,
           ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 8),
             child: Divider(height: 1),
           ),
           _breakdownRow(
-            'Disponible',
+            S.of(context)!.budgetAvailable,
             available.clamp(0, double.infinity),
             isPositive: true,
             isBold: true,
@@ -409,9 +412,9 @@ class _BudgetScreenState extends State<BudgetScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 margin: const EdgeInsets.only(right: 8),
                 decoration: BoxDecoration(
-                  color: qualityTag == 'saisi'
+                  color: qualityTag == S.of(context)!.budgetQualityEntered
                       ? MintColors.success.withValues(alpha: 0.12)
-                      : qualityTag == 'estimé'
+                      : qualityTag == S.of(context)!.budgetQualityEstimated
                           ? MintColors.warning.withValues(alpha: 0.12)
                           : MintColors.textMuted.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6),
@@ -421,9 +424,9 @@ class _BudgetScreenState extends State<BudgetScreen>
                   style: GoogleFonts.inter(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
-                    color: qualityTag == 'saisi'
+                    color: qualityTag == S.of(context)!.budgetQualityEntered
                         ? MintColors.success
-                        : qualityTag == 'estimé'
+                        : qualityTag == S.of(context)!.budgetQualityEstimated
                             ? MintColors.warning
                             : MintColors.textSecondary,
                   ),
@@ -455,8 +458,8 @@ class _BudgetScreenState extends State<BudgetScreen>
       return const SizedBox.shrink();
     }
     final message = hasMissing
-        ? 'Certaines charges sont encore manquantes. Complète ton diagnostic pour fiabiliser ce budget.'
-        : 'Ce budget inclut des estimations (impôts/LAMal). Renseigne tes montants réels pour une projection plus fiable.';
+        ? S.of(context)!.budgetMissingDataBanner
+        : S.of(context)!.budgetEstimatedDataBanner;
     return GestureDetector(
       onTap: () => context.push('/profile/bilan'),
       child: Container(
@@ -487,7 +490,7 @@ class _BudgetScreenState extends State<BudgetScreen>
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Compléter mes données →',
+                    S.of(context)!.budgetCompleteData,
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -508,7 +511,7 @@ class _BudgetScreenState extends State<BudgetScreen>
     return Column(
       children: [
         EnvelopeSlider(
-          label: "🔒 Futur (Épargne, Projets)",
+          label: "🔒 ${S.of(context)!.budgetEnvelopeFuture}",
           value: plan.future,
           max: plan.available,
           activeColor: MintColors.info,
@@ -518,7 +521,7 @@ class _BudgetScreenState extends State<BudgetScreen>
         ),
         const SizedBox(height: 16),
         EnvelopeSlider(
-          label: "🛍️ Variables (Vivre)",
+          label: "🛍️ ${S.of(context)!.budgetEnvelopeVariables}",
           value: plan.variables,
           max: plan.available,
           activeColor: MintColors.success,
@@ -542,10 +545,10 @@ class _BudgetScreenState extends State<BudgetScreen>
             : MintColors.error;
 
     final statusText = isComplete
-        ? 'Objectif atteint'
+        ? S.of(context)!.budgetEmergencyGoalReached
         : months >= 3
-            ? 'En bonne voie'
-            : 'A renforcer';
+            ? S.of(context)!.budgetEmergencyOnTrack
+            : S.of(context)!.budgetEmergencyToReinforce;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -574,7 +577,7 @@ class _BudgetScreenState extends State<BudgetScreen>
               ),
               const SizedBox(width: 10),
               Text(
-                "Fonds d'urgence",
+                S.of(context)!.budgetEmergencyFund,
                 style: GoogleFonts.montserrat(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -615,7 +618,7 @@ class _BudgetScreenState extends State<BudgetScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${months.toStringAsFixed(1)} mois couverts',
+                      S.of(context)!.budgetEmergencyMonthsCovered(months.toStringAsFixed(1)),
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -624,7 +627,7 @@ class _BudgetScreenState extends State<BudgetScreen>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Cible : ${target.toStringAsFixed(0)} mois',
+                      S.of(context)!.budgetEmergencyTarget(target.toStringAsFixed(0)),
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: MintColors.textSecondary,
@@ -633,9 +636,8 @@ class _BudgetScreenState extends State<BudgetScreen>
                     const SizedBox(height: 10),
                     Text(
                       isComplete
-                          ? 'Tu es protege contre les imprevu. Continue ainsi.'
-                          : 'Epargne au moins ${target.toStringAsFixed(0)} mois de depenses '
-                              'pour te proteger contre un imprévu (perte d\'emploi, reparation...).',
+                          ? S.of(context)!.budgetEmergencyComplete
+                          : S.of(context)!.budgetEmergencyIncomplete(target.toStringAsFixed(0)),
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: MintColors.textSecondary,
@@ -662,17 +664,17 @@ class _BudgetScreenState extends State<BudgetScreen>
       children: [
         const Divider(),
         const SizedBox(height: 8),
-        Text("IMPORTANT:", style: style?.copyWith(fontWeight: FontWeight.bold)),
+        Text(S.of(context)!.budgetDisclaimerTitle, style: style?.copyWith(fontWeight: FontWeight.bold)),
         Text(
-          "• Ceci est un outil éducatif, ne constitue pas un conseil financier (LSFin).",
+          S.of(context)!.budgetDisclaimerEducational,
           style: style,
         ),
         Text(
-          "• Les montants sont basés sur les informations déclarées.",
+          S.of(context)!.budgetDisclaimerDeclarative,
           style: style,
         ),
         Text(
-          "• 'Disponible' = Revenus - Logement - Dettes - Impôts - LAMal - Charges fixes.",
+          S.of(context)!.budgetDisclaimerFormula,
           style: style,
         ),
       ],
