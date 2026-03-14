@@ -152,7 +152,7 @@ class Apercu3aCard extends StatelessWidget {
                   label: s.apercu3aProjectionLabel,
                   value: formatChfCompact(projectionAvecRendement),
                   sublabel:
-                      '${anneesRestantes > 0 ? "dans $anneesRestantes ans" : ""}',
+                      anneesRestantes > 0 ? 'dans $anneesRestantes ans' : '',
                   color: MintColors.info,
                 ),
               ),
