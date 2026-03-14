@@ -227,7 +227,7 @@ void main() {
 
     test('long JWT token is stored and retrieved correctly', () async {
       // Typical JWT can be 500+ characters
-      final longToken = 'eyJ' + 'a' * 500 + '.payload.signature';
+      final longToken = 'eyJ${'a' * 500}.payload.signature';
       await AuthService.saveToken(longToken, 'uid', 'a@b.ch');
       final retrieved = await AuthService.getToken();
       expect(retrieved, equals(longToken));

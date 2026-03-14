@@ -53,7 +53,7 @@ void main() {
       for (int i = 1; i < points.length; i++) {
         expect(points[i].capitalCumule,
             greaterThanOrEqualTo(points[i - 1].capitalCumule),
-            reason: 'Capital should grow month over month (month ${i})');
+            reason: 'Capital should grow month over month (month $i)');
       }
     });
 

@@ -236,7 +236,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
 
                 // ── Ce mois: contributions + check-in ───────
                 _buildSectionLabel(
-                  s!.agirThisMonth,
+                  s.agirThisMonth,
                   currentMonthLabel,
                 ),
                 const SizedBox(height: 12),
@@ -272,8 +272,8 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                 // ── Mini timeline (3 prochaines échéances) ───
                 if (miniTimeline.isNotEmpty) ...[
                   _buildSectionLabel(
-                    s!.agirTimeline,
-                    s!.agirTimelineSub,
+                    s.agirTimeline,
+                    s.agirTimelineSub,
                   ),
                   const SizedBox(height: 12),
                   ...miniTimeline.asMap().entries.map(
@@ -312,7 +312,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            s!.agirOtherActions(otherTips.length.toString()),
+                            s.agirOtherActions(otherTips.length.toString()),
                             style: GoogleFonts.inter(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -753,7 +753,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                s!.agirCheckinDone(monthLabel),
+                s.agirCheckinDone(monthLabel),
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -771,7 +771,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                s!.agirDone,
+                s.agirDone,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -791,7 +791,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
         onPressed: () => context.push('/coach/checkin'),
         icon: const Icon(Icons.edit_calendar, size: 20),
         label: Text(
-          s!.agirCheckinCta(monthLabel),
+          s.agirCheckinCta(monthLabel),
           style: GoogleFonts.montserrat(
             fontSize: 15,
             fontWeight: FontWeight.w700,
@@ -823,7 +823,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
         const SizedBox(width: 8),
       ],
       title: Text(
-        s!.agirTitle,
+        s.agirTitle,
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w700,
           fontSize: 14,

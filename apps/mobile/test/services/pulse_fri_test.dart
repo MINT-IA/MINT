@@ -329,7 +329,7 @@ void main() {
         replacementRatio: 0.70,
       ));
       // Fiscal should be weakest (no 3a)
-      final components = {
+      final _ = {
         'L': result.liquidite,
         'F': result.fiscalite,
         'R': result.retraite,

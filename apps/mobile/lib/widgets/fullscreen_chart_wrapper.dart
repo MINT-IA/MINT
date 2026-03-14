@@ -51,10 +51,10 @@ class FullscreenChartWrapper extends StatelessWidget {
       barrierColor: Colors.transparent,
       pageBuilder: (_, __, ___) => _FullscreenChartPage(
         title: title,
-        child: child,
         disclaimer: disclaimer,
         legend: legend,
         allowLandscape: allowLandscape,
+        child: child,
       ),
     );
   }
