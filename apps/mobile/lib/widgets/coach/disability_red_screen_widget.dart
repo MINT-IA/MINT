@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
-//  P4-C  L'Écran rouge de l'indépendant — filet vs vide
+//  P4-C  L'Ecran rouge de l'independant — filet vs vide
 //  Charte : L6 (Chiffre-choc) + L4 (Raconte ne montre pas)
 //  Source : LAMal art. 67-77, CO art. 324a, LAVS, LPP art. 23
 // ────────────────────────────────────────────────────────────
@@ -36,8 +37,8 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
     return '$n';
   }
 
-  // Valeur illustrative : APG 80% + rente AI sur salaire médian CH (SFSO 2024 ~6'500/mois).
-  // Varie selon salaire. Affiché avec ≈ pour indiquer l'ordre de grandeur.
+  // Valeur illustrative : APG 80% + rente AI sur salaire median CH (SFSO 2024 ~6'500/mois).
+  // Varie selon salaire. Affiche avec ~ pour indiquer l'ordre de grandeur.
   static const double _salarieMonthly = 4320;
   // Wired to social_insurance.dart (LAVS art. 34)
   static const double _aiRenteMax = aiRenteEntiere;
@@ -46,10 +47,11 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final emergencyNeeded = widget.monthlyExpenses * _aiDelayMonths;
 
     return Semantics(
-      label: 'Écran rouge indépendant invalidité filet inexistant',
+      label: s.disabilityRedSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -59,20 +61,20 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildComparisonTable(),
+                  _buildComparisonTable(s),
                   const SizedBox(height: 20),
-                  _buildChiffreChoc(emergencyNeeded),
+                  _buildChiffreChoc(emergencyNeeded, s),
                   const SizedBox(height: 20),
-                  _buildQuestion(),
-                  if (_answer != null) _buildAnswerFeedback(),
+                  _buildQuestion(s),
+                  if (_answer != null) _buildAnswerFeedback(s),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -82,7 +84,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -99,11 +101,11 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
         children: [
           Row(
             children: [
-              const Text('🚨', style: TextStyle(fontSize: 24)),
+              const Text('\ud83d\udea8', style: TextStyle(fontSize: 24)),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Indépendant·e : ton filet n\'existe pas',
+                  s.disabilityRedTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -115,7 +117,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Si tu ne peux plus travailler demain :',
+            s.disabilityRedSubtitle,
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.white.withValues(alpha: 0.85),
@@ -126,34 +128,36 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
     );
   }
 
-  Widget _buildComparisonTable() {
+  Widget _buildComparisonTable(S s) {
     return Row(
       children: [
         Expanded(
           child: _buildColumn(
-            title: 'Salarié·e',
-            emoji: '👔',
+            title: s.disabilityRedEmployeeTitle,
+            emoji: '\ud83d\udc54',
             color: MintColors.scoreExcellent,
-            items: const [
-              'APG 80%',
-              'LPP invalidité',
-              'AI rente',
+            items: [
+              s.disabilityRedEmployeeApg,
+              s.disabilityRedEmployeeLpp,
+              s.disabilityRedEmployeeAi,
             ],
             totalMonthly: _salarieMonthly,
+            totalLabel: s.disabilityRedEmployeeTotal(_fmt(_salarieMonthly)),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _buildColumn(
-            title: 'Toi',
-            emoji: '🧑‍💼',
+            title: s.disabilityRedYouTitle,
+            emoji: '\ud83e\uddd1\u200d\ud83d\udcbc',
             color: MintColors.scoreCritique,
-            items: const [
-              'RIEN',
-              'pendant',
-              '~14 mois',
+            items: [
+              s.disabilityRedYouNothing,
+              s.disabilityRedYouDuring,
+              s.disabilityRedYouMonths('$_aiDelayMonths'),
             ],
             totalMonthly: 0,
+            totalLabel: s.disabilityRedYouTotal,
             isVoid: true,
           ),
         ),
@@ -167,6 +171,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
     required Color color,
     required List<String> items,
     required double totalMonthly,
+    required String totalLabel,
     bool isVoid = false,
   }) {
     return Container(
@@ -220,7 +225,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
           ),
           const SizedBox(height: 10),
           Text(
-            isVoid ? '= 0 CHF/mois' : '\u2248 CHF ${_fmt(totalMonthly)}/mois',
+            totalLabel,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w800,
@@ -232,7 +237,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
     );
   }
 
-  Widget _buildChiffreChoc(double emergencyNeeded) {
+  Widget _buildChiffreChoc(double emergencyNeeded, S s) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -244,7 +249,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '💰 Chiffre-choc : $_aiDelayMonths mois à 0 CHF.',
+            s.disabilityRedChiffreChocTitle('$_aiDelayMonths'),
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -253,8 +258,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Tu dois avoir CHF ${_fmt(emergencyNeeded)} d\'épargne de sécurité '
-            'pour tenir jusqu\'à la décision AI.',
+            s.disabilityRedChiffreChocBody(_fmt(emergencyNeeded)),
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textPrimary,
@@ -263,7 +267,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Après décision AI : CHF ${_fmt(_aiRenteMax)}/mois (AI seule)',
+            s.disabilityRedAfterAi(_fmt(_aiRenteMax)),
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -274,7 +278,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
     );
   }
 
-  Widget _buildQuestion() {
+  Widget _buildQuestion(S s) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -285,10 +289,10 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('💡', style: TextStyle(fontSize: 18)),
+          const Text('\ud83d\udca1', style: TextStyle(fontSize: 18)),
           const SizedBox(height: 8),
           Text(
-            'As-tu une assurance perte de gain ?',
+            s.disabilityRedQuestion,
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -298,11 +302,11 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
           const SizedBox(height: 12),
           Row(
             children: [
-              _buildAnswerButton(0, 'Oui'),
+              _buildAnswerButton(0, s.disabilityRedAnswerYes),
               const SizedBox(width: 8),
-              _buildAnswerButton(1, 'Non'),
+              _buildAnswerButton(1, s.disabilityRedAnswerNo),
               const SizedBox(width: 8),
-              _buildAnswerButton(2, 'Je ne sais pas'),
+              _buildAnswerButton(2, s.disabilityRedAnswerDontKnow),
             ],
           ),
         ],
@@ -336,11 +340,11 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
     );
   }
 
-  Widget _buildAnswerFeedback() {
+  Widget _buildAnswerFeedback(S s) {
     final (msg, color) = switch (_answer) {
-      0 => ('Bien ! Vérifie que le délai de carence est inférieur à 30 jours.', MintColors.scoreExcellent),
-      1 => ('Action prioritaire : compare 3 assurances perte de gain. Dès CHF 45/mois.', MintColors.scoreCritique),
-      _ => ('Retrouve ton contrat ou contacte ta caisse de compensation.', MintColors.scoreAttention),
+      0 => (s.disabilityRedFeedbackYes, MintColors.scoreExcellent),
+      1 => (s.disabilityRedFeedbackNo, MintColors.scoreCritique),
+      _ => (s.disabilityRedFeedbackDontKnow, MintColors.scoreAttention),
     };
 
     return Padding(
@@ -364,10 +368,9 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : LAMal art. 67-77, CO art. 324a.',
+      s.disabilityRedDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,
