@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -106,12 +107,12 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
     return MintColors.scoreCritique;
   }
 
-  /// Label du niveau
-  String get _levelLabel {
-    if (widget.score >= 80) return 'Excellent';
-    if (widget.score >= 60) return 'Bon';
-    if (widget.score >= 40) return 'Attention';
-    return 'Critique';
+  /// Label du niveau (i18n)
+  String _levelLabel(S s) {
+    if (widget.score >= 80) return s.mintScoreGaugeLevelExcellent;
+    if (widget.score >= 60) return s.mintScoreGaugeLevelGood;
+    if (widget.score >= 40) return s.mintScoreGaugeLevelAttention;
+    return s.mintScoreGaugeLevelCritical;
   }
 
   /// Symbole de tendance
@@ -149,11 +150,9 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Score de forme financière. ${ widget.score} sur 100. '
-          'Niveau $_levelLabel. '
-          'Budget ${widget.budgetScore}, Prévoyance ${widget.prevoyanceScore}, '
-          'Patrimoine ${widget.patrimoineScore}.',
+      label: s.mintScoreGaugeSemantics('${widget.score}', _levelLabel(s), '${widget.budgetScore}', '${widget.prevoyanceScore}', '${widget.patrimoineScore}'),
       child: GestureDetector(
         onTap: widget.onTap,
         child: LayoutBuilder(
@@ -176,24 +175,24 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildHeader(),
+                  _buildHeader(s),
                   const SizedBox(height: 20),
                   _buildGauge(constraints.maxWidth),
                   const SizedBox(height: 24),
-                  _buildSubScores(),
+                  _buildSubScores(s),
                   // P1-H: Gamification panels
                   if (widget.recentGains != null &&
                       widget.recentGains!.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    _buildGainHistory(),
+                    _buildGainHistory(s),
                   ],
                   if (widget.nextActions != null &&
                       widget.nextActions!.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    _buildNextActions(),
+                    _buildNextActions(s),
                   ],
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             );
@@ -207,7 +206,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
   //  HEADER
   // ────────────────────────────────────────────────────────────
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Row(
       children: [
         Container(
@@ -229,7 +228,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Forme financière',
+                s.mintScoreGaugeTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -237,7 +236,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                 ),
               ),
               Text(
-                'Score composite  ·  3 piliers',
+                s.mintScoreGaugeSubtitle,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textSecondary,
@@ -254,7 +253,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
-            _levelLabel,
+            _levelLabel(s),
             style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -352,7 +351,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
   //  SUB-SCORE BARS
   // ────────────────────────────────────────────────────────────
 
-  Widget _buildSubScores() {
+  Widget _buildSubScores(S s) {
     return AnimatedBuilder(
       animation: _fillAnimation,
       builder: (context, _) {
@@ -369,19 +368,19 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
             child: Column(
               children: [
                 _buildSubScoreBar(
-                  label: 'Budget',
+                  label: s.mintScoreGaugeBudget,
                   score: widget.budgetScore,
                   icon: Icons.account_balance_wallet_outlined,
                 ),
                 const SizedBox(height: 12),
                 _buildSubScoreBar(
-                  label: 'Prévoyance',
+                  label: s.mintScoreGaugePrevoyance,
                   score: widget.prevoyanceScore,
                   icon: Icons.shield_outlined,
                 ),
                 const SizedBox(height: 12),
                 _buildSubScoreBar(
-                  label: 'Patrimoine',
+                  label: s.mintScoreGaugePatrimoine,
                   score: widget.patrimoineScore,
                   icon: Icons.trending_up,
                 ),
@@ -460,7 +459,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
   //  P1-H: GAIN HISTORY
   // ────────────────────────────────────────────────────────────
 
-  Widget _buildGainHistory() {
+  Widget _buildGainHistory(S s) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -471,7 +470,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ce qui t\u2019a fait monter',
+            s.mintScoreGaugeGainTitle,
             style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -483,7 +482,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Row(
                   children: [
-                    Icon(Icons.check_circle,
+                    const Icon(Icons.check_circle,
                         size: 14, color: MintColors.scoreExcellent),
                     const SizedBox(width: 6),
                     Expanded(
@@ -496,7 +495,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                       ),
                     ),
                     Text(
-                      '+${gain['points'] ?? 0} pts',
+                      s.mintScoreGaugePoints('${gain['points'] ?? 0}'),
                       style: GoogleFonts.montserrat(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -515,7 +514,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
   //  P1-H: NEXT ACTIONS
   // ────────────────────────────────────────────────────────────
 
-  Widget _buildNextActions() {
+  Widget _buildNextActions(S s) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -526,7 +525,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Pour monter encore',
+            s.mintScoreGaugeNextActionsTitle,
             style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -538,7 +537,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Row(
                   children: [
-                    Icon(Icons.assignment_outlined,
+                    const Icon(Icons.assignment_outlined,
                         size: 14, color: MintColors.primary),
                     const SizedBox(width: 6),
                     Expanded(
@@ -551,7 +550,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                       ),
                     ),
                     Text(
-                      '+${action['points'] ?? 0} pts',
+                      s.mintScoreGaugePoints('${action['points'] ?? 0}'),
                       style: GoogleFonts.montserrat(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -570,9 +569,9 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
   //  DISCLAIMER
   // ────────────────────────────────────────────────────────────
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Estimations éducatives \u2014 ne constitue pas un conseil financier.',
+      s.mintScoreGaugeDisclaimer,
       textAlign: TextAlign.center,
       style: GoogleFonts.inter(
         fontSize: 10,
@@ -651,7 +650,7 @@ class _ScoreGaugePainter extends CustomPainter {
             scoreColor,
           ],
           stops: const [0.0, 0.5, 1.0],
-          transform: GradientRotation(startAngle),
+          transform: const GradientRotation(startAngle),
         ).createShader(arcRect);
 
       canvas.drawArc(arcRect, startAngle, valueSweep, false, fillPaint);
