@@ -5464,5 +5464,106 @@
   "concubinageChecklistDesc7": "A joint account simplifies the management of shared expenses (rent, groceries, bills). Clearly define each person's contribution. In case of separation, the balance is split 50/50 unless otherwise agreed.",
   "concubinageChecklistTitle8": "Joint or individual lease",
   "concubinageChecklistDesc8": "If you are on the lease with your partner, you are jointly liable. In case of separation, both must give notice. If only one is the leaseholder, the other has no right to the housing.",
-  "concubinageDisclaimer": "Simplified information for educational purposes — does not constitute legal or tax advice. Rules depend on the canton, municipality and your personal situation. Consult a legal specialist for personalised advice."
+  "concubinageDisclaimer": "Simplified information for educational purposes — does not constitute legal or tax advice. Rules depend on the canton, municipality and your personal situation. Consult a legal specialist for personalised advice.",
+  "annualRefreshTitle": "Annual check-up",
+  "annualRefreshSubtitle": "A few quick questions to update your profile.",
+  "annualRefreshEmploymentSame": "Same job",
+  "annualRefreshEmploymentNew": "New job",
+  "annualRefreshEmploymentIndependent": "Self-employed",
+  "annualRefreshEmploymentUnemployed": "Unemployed",
+  "annualRefreshNone": "None",
+  "annualRefreshRealEstatePurchase": "Purchase",
+  "annualRefreshRealEstateSale": "Sale",
+  "annualRefreshRealEstateRefinance": "Refinancing",
+  "annualRefreshFamilyMarriage": "Marriage",
+  "annualRefreshFamilyBirth": "Birth",
+  "annualRefreshFamilyDivorce": "Divorce",
+  "annualRefreshFamilyDeath": "Death",
+  "annualRefreshRiskConservative": "Conservative",
+  "annualRefreshRiskModerate": "Moderate",
+  "annualRefreshRiskAggressive": "Aggressive",
+  "annualRefreshQ1Title": "Has your gross monthly salary changed?",
+  "annualRefreshSalaryPerMonth": "{amount} CHF / month",
+  "@annualRefreshSalaryPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "annualRefreshSliderMin": "0 CHF",
+  "annualRefreshSliderMax": "30,000 CHF",
+  "annualRefreshQ2Title": "Your employment status",
+  "annualRefreshQ3Title": "Your current LPP balance",
+  "annualRefreshQ3Help": "Check your pension certificate (you receive it every January)",
+  "annualRefreshAmountMustBePositive": "The amount must be positive",
+  "annualRefreshQ4Title": "Your approximate 3a balance",
+  "annualRefreshQ4Help": "Log in to your 3a app to see the exact balance",
+  "annualRefreshQ5Title": "Any real estate plans?",
+  "annualRefreshQ6Title": "Any family changes this year?",
+  "annualRefreshQ7Title": "Your risk tolerance",
+  "annualRefreshSubmit": "Update my profile",
+  "annualRefreshDisclaimer": "This tool is for educational purposes and does not constitute financial advice under FinSA. Consult a specialist for personalized advice.",
+  "annualRefreshResultTitle": "Profile updated!",
+  "annualRefreshScoreBefore": "Before",
+  "annualRefreshScoreAfter": "After",
+  "annualRefreshScoreOutOf": "/ 100",
+  "annualRefreshScoreImproved": "Your score increased by {delta} points!",
+  "@annualRefreshScoreImproved": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "annualRefreshScoreDropped": "Your score dropped by {delta} points — let's check together",
+  "@annualRefreshScoreDropped": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "annualRefreshScoreStable": "Your score is stable — keep it up!",
+  "annualRefreshBackToDashboard": "Back to dashboard",
+  "openBankingHubTitle": "OPEN BANKING",
+  "openBankingHubFinmaTitle": "Feature in preparation",
+  "openBankingHubFinmaBody": "FINMA regulatory consultation in progress. The data displayed are demonstration examples.",
+  "openBankingHubDemoMode": "DEMO MODE",
+  "openBankingHubSubtitle": "Connect your bank accounts",
+  "openBankingHubSectionAccounts": "CONNECTED ACCOUNTS",
+  "openBankingHubSectionOverview": "FINANCIAL OVERVIEW",
+  "openBankingHubSectionNavigation": "NAVIGATION",
+  "openBankingHubViewTransactions": "View transactions",
+  "openBankingHubTransactionsSubtitle": "Detailed history by category",
+  "openBankingHubManageConsents": "Manage consents",
+  "openBankingHubConsentsSubtitle": "nLPD rights, revocation, scopes",
+  "openBankingHubFinmaTooltip": "Available after FINMA consultation",
+  "openBankingHubAddBank": "Add a bank",
+  "openBankingHubTotalBalance": "Total balance",
+  "openBankingHubAccountsConnected": "3 connected accounts",
+  "openBankingHubIncome": "Income",
+  "openBankingHubExpenses": "Expenses",
+  "openBankingHubNetSavings": "Net savings",
+  "openBankingHubTopExpenses": "Top 3 expenses",
+  "openBankingHubPoweredByBlink": "Powered by bLink (SIX)",
+  "openBankingHubDisclaimer": "This feature is under development. The data displayed are examples. Activation of the Open Banking service is subject to prior regulatory consultation.",
+  "openBankingHubSyncMinutesAgo": "{minutes} min ago",
+  "@openBankingHubSyncMinutesAgo": {"description": "Time since last sync in minutes", "placeholders": {"minutes": {"type": "int"}}},
+  "openBankingHubSyncHoursAgo": "{hours}h ago",
+  "@openBankingHubSyncHoursAgo": {"description": "Time since last sync in hours", "placeholders": {"hours": {"type": "int"}}},
+  "openBankingHubSyncDaysAgo": "{days}d ago",
+  "@openBankingHubSyncDaysAgo": {"description": "Time since last sync in days", "placeholders": {"days": {"type": "int"}}},
+  "openBankingHubCatFood": "Food",
+  "openBankingHubCatTransport": "Transport",
+  "openBankingHubCatHousing": "Housing",
+  "openBankingHubCatTelecom": "Telecom",
+  "openBankingHubCatInsurance": "Insurance",
+  "openBankingHubCatEnergy": "Energy",
+  "openBankingHubCatHealth": "Health",
+  "openBankingHubCatLeisure": "Leisure",
+  "openBankingHubCatTaxes": "Taxes",
+  "openBankingHubCatSavings": "Savings",
+  "openBankingHubCatIncome": "Income",
+  "openBankingHubCatOther": "Other"
 }

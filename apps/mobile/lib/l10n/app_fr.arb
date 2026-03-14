@@ -5509,5 +5509,106 @@
   "concubinageChecklistDesc7": "Un compte commun simplifie la gestion des dépenses partagées (loyer, courses, factures). Définissez clairement la contribution de chacun. En cas de séparation, le solde est partagé à 50/50 sauf convention contraire.",
   "concubinageChecklistTitle8": "Bail commun ou individuel",
   "concubinageChecklistDesc8": "Si tu es sur le bail avec ton/ta partenaire, vous êtes solidairement responsables. En cas de séparation, les deux doivent donner congé. Si un seul est titulaire, l’autre n’a aucun droit sur le logement.",
-  "concubinageDisclaimer": "Informations simplifiées à but éducatif — ne constitue pas un conseil juridique ou fiscal. Les règles dépendent du canton, de la commune et de ta situation personnelle. Consulte un·e spécialiste juridique pour un avis personnalisé."
+  "concubinageDisclaimer": "Informations simplifiées à but éducatif — ne constitue pas un conseil juridique ou fiscal. Les règles dépendent du canton, de la commune et de ta situation personnelle. Consulte un·e spécialiste juridique pour un avis personnalisé.",
+  "annualRefreshTitle": "Check-up annuel",
+  "annualRefreshSubtitle": "Quelques questions rapides pour mettre ton profil à jour.",
+  "annualRefreshEmploymentSame": "Même emploi",
+  "annualRefreshEmploymentNew": "Nouvel emploi",
+  "annualRefreshEmploymentIndependent": "Indépendant·e",
+  "annualRefreshEmploymentUnemployed": "Sans emploi",
+  "annualRefreshNone": "Aucun",
+  "annualRefreshRealEstatePurchase": "Achat",
+  "annualRefreshRealEstateSale": "Vente",
+  "annualRefreshRealEstateRefinance": "Refinancement",
+  "annualRefreshFamilyMarriage": "Mariage",
+  "annualRefreshFamilyBirth": "Naissance",
+  "annualRefreshFamilyDivorce": "Divorce",
+  "annualRefreshFamilyDeath": "Décès",
+  "annualRefreshRiskConservative": "Conservateur",
+  "annualRefreshRiskModerate": "Modéré",
+  "annualRefreshRiskAggressive": "Agressif",
+  "annualRefreshQ1Title": "Ton salaire brut mensuel a-t-il changé\u00a0?",
+  "annualRefreshSalaryPerMonth": "{amount} CHF / mois",
+  "@annualRefreshSalaryPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "annualRefreshSliderMin": "0 CHF",
+  "annualRefreshSliderMax": "30\u2019000 CHF",
+  "annualRefreshQ2Title": "Ta situation professionnelle",
+  "annualRefreshQ3Title": "Ton avoir LPP actuel",
+  "annualRefreshQ3Help": "Regarde ton certificat de prévoyance (tu le reçois chaque janvier)",
+  "annualRefreshAmountMustBePositive": "Le montant doit être positif",
+  "annualRefreshQ4Title": "Ton solde 3a approximatif",
+  "annualRefreshQ4Help": "Connecte-toi sur ton app 3a pour voir le solde exact",
+  "annualRefreshQ5Title": "Un projet immobilier en vue\u00a0?",
+  "annualRefreshQ6Title": "Un changement familial cette année\u00a0?",
+  "annualRefreshQ7Title": "Ta tolérance au risque",
+  "annualRefreshSubmit": "Mettre à jour mon profil",
+  "annualRefreshDisclaimer": "Cet outil est à but éducatif et ne constitue pas un conseil financier au sens de la LSFin. Consulte un·e spécialiste pour des conseils personnalisés.",
+  "annualRefreshResultTitle": "Profil mis à jour\u00a0!",
+  "annualRefreshScoreBefore": "Avant",
+  "annualRefreshScoreAfter": "Après",
+  "annualRefreshScoreOutOf": "/ 100",
+  "annualRefreshScoreImproved": "Ton score a augmenté de {delta} points\u00a0!",
+  "@annualRefreshScoreImproved": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "annualRefreshScoreDropped": "Ton score a baissé de {delta} points — vérifions ensemble",
+  "@annualRefreshScoreDropped": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "annualRefreshScoreStable": "Ton score est stable — continue comme ça\u00a0!",
+  "annualRefreshBackToDashboard": "Retour au dashboard",
+  "openBankingHubTitle": "OPEN BANKING",
+  "openBankingHubFinmaTitle": "Fonctionnalité en préparation",
+  "openBankingHubFinmaBody": "Consultation réglementaire FINMA en cours. Les données affichées sont des exemples de démonstration.",
+  "openBankingHubDemoMode": "MODE DÉMO",
+  "openBankingHubSubtitle": "Connecte tes comptes bancaires",
+  "openBankingHubSectionAccounts": "COMPTES CONNECTÉS",
+  "openBankingHubSectionOverview": "APERÇU FINANCIER",
+  "openBankingHubSectionNavigation": "NAVIGATION",
+  "openBankingHubViewTransactions": "Voir les transactions",
+  "openBankingHubTransactionsSubtitle": "Historique détaillé par catégorie",
+  "openBankingHubManageConsents": "Gérer les consentements",
+  "openBankingHubConsentsSubtitle": "Droits nLPD, révocation, scopes",
+  "openBankingHubFinmaTooltip": "Disponible après consultation FINMA",
+  "openBankingHubAddBank": "Ajouter une banque",
+  "openBankingHubTotalBalance": "Solde total",
+  "openBankingHubAccountsConnected": "3 comptes connectés",
+  "openBankingHubIncome": "Revenus",
+  "openBankingHubExpenses": "Dépenses",
+  "openBankingHubNetSavings": "Épargne nette",
+  "openBankingHubTopExpenses": "Top 3 dépenses",
+  "openBankingHubPoweredByBlink": "Propulsé par bLink (SIX)",
+  "openBankingHubDisclaimer": "Cette fonctionnalité est en cours de développement. Les données affichées sont des exemples. L’activation du service Open Banking est soumise à une consultation réglementaire préalable.",
+  "openBankingHubSyncMinutesAgo": "Il y a {minutes} min",
+  "@openBankingHubSyncMinutesAgo": {"description": "Time since last sync in minutes", "placeholders": {"minutes": {"type": "int"}}},
+  "openBankingHubSyncHoursAgo": "Il y a {hours} h",
+  "@openBankingHubSyncHoursAgo": {"description": "Time since last sync in hours", "placeholders": {"hours": {"type": "int"}}},
+  "openBankingHubSyncDaysAgo": "Il y a {days} j",
+  "@openBankingHubSyncDaysAgo": {"description": "Time since last sync in days", "placeholders": {"days": {"type": "int"}}},
+  "openBankingHubCatFood": "Alimentation",
+  "openBankingHubCatTransport": "Transport",
+  "openBankingHubCatHousing": "Logement",
+  "openBankingHubCatTelecom": "Télécom",
+  "openBankingHubCatInsurance": "Assurances",
+  "openBankingHubCatEnergy": "Énergie",
+  "openBankingHubCatHealth": "Santé",
+  "openBankingHubCatLeisure": "Loisirs",
+  "openBankingHubCatTaxes": "Impôts",
+  "openBankingHubCatSavings": "Épargne",
+  "openBankingHubCatIncome": "Revenu",
+  "openBankingHubCatOther": "Divers"
 }
