@@ -8474,5 +8474,21 @@
   "firstSalaryFilmTask3": "Choisir ta franchise LAMal (recommand\u00e9\u00a0: CHF 1'500)",
   "firstSalaryFilmTask4": "V\u00e9rifier ta RC priv\u00e9e (env. CHF 100/an)",
   "firstSalaryFilmTask5": "Verser le maximum 3a avant le 31 d\u00e9cembre",
-  "firstSalaryFilmDisclaimer": "Outil \u00e9ducatif \u00b7 ne constitue pas un conseil financier au sens de la LSFin. Source\u00a0: LAVS art. 3, LPP art. 7, LACI art. 3, OPP3 art. 7 (3a 7'258 CHF/an). Taux cotisations indicatifs 2026. Projection 3a\u00a0: rendement hypoth\u00e9tique 4\u00a0%/an."
+  "firstSalaryFilmDisclaimer": "Outil \u00e9ducatif \u00b7 ne constitue pas un conseil financier au sens de la LSFin. Source\u00a0: LAVS art. 3, LPP art. 7, LACI art. 3, OPP3 art. 7 (3a 7'258 CHF/an). Taux cotisations indicatifs 2026. Projection 3a\u00a0: rendement hypoth\u00e9tique 4\u00a0%/an.",
+  "adminObsSegment7j": "7j",
+  "adminObsSegment30j": "30j",
+  "adminObsSegment90j": "90j",
+  "adminObsAuthBilling": "Auth & Billing",
+  "adminObsUsers": "Users",
+  "adminObsVerified": "Verified",
+  "adminObsUnverified": "Unverified",
+  "adminObsLockedNow": "Locked now",
+  "adminObsSubActive": "Sub active",
+  "adminObsOnboardingQuality": "Qualit\u00e9 onboarding",
+  "adminObsStarted": "Started",
+  "adminObsCompleted": "Completed",
+  "adminObsCompletion": "Completion",
+  "adminObsAvgStep": "Avg step",
+  "adminObsCohortsTitle": "Cohortes (variant x platform)",
+  "adminObsNoData": "Aucune donn\u00e9e"
 }

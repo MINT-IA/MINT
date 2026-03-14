@@ -73,7 +73,7 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
   }
 
   Future<void> _copyCsvExport() async {
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     try {
       final csv = await (widget.csvLoader ?? _defaultCsvLoader)(days: _days);
       if (!mounted) return;
@@ -81,18 +81,14 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            l10n?.adminObsCsvCopied ?? 'CSV cohortes copié dans le presse-papiers',
-          ),
+          content: Text(l10n.adminObsCsvCopied),
         ),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            '${l10n?.adminObsExportFailed ?? 'Export impossible'}: $e',
-          ),
+          content: Text('${l10n.adminObsExportFailed}\u00a0: $e'),
         ),
       );
     }
@@ -120,13 +116,13 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
         backgroundColor: MintColors.background,
         title: Text(
-          l10n?.adminObsTitle ?? 'Admin Observability',
+          l10n.adminObsTitle,
           style: GoogleFonts.inter(fontWeight: FontWeight.w700),
         ),
       ),
@@ -150,9 +146,7 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
                       OutlinedButton.icon(
                         onPressed: _copyCsvExport,
                         icon: const Icon(Icons.download_outlined),
-                        label: Text(
-                          l10n?.adminObsExportCsv ?? 'Exporter CSV cohortes',
-                        ),
+                        label: Text(l10n.adminObsExportCsv),
                       ),
                     ],
                   ),
@@ -178,18 +172,19 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
         const SizedBox(height: 12),
         FilledButton(
           onPressed: _load,
-          child: Text(S.of(context)?.commonRetry ?? 'Réessayer'),
+          child: Text(S.of(context)!.commonRetry),
         ),
       ],
     );
   }
 
   Widget _buildHeaderControls() {
+    final s = S.of(context)!;
     return Row(
       children: [
         Expanded(
           child: Text(
-            '${S.of(context)?.adminObsWindowLabel ?? 'Fenêtre'}: $_days ${S.of(context)?.commonDays ?? 'jours'}',
+            '${s.adminObsWindowLabel}\u00a0: $_days ${s.commonDays}',
             style: GoogleFonts.inter(
               color: MintColors.textSecondary,
               fontWeight: FontWeight.w600,
@@ -197,10 +192,10 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
           ),
         ),
         SegmentedButton<int>(
-          segments: const [
-            ButtonSegment(value: 7, label: Text('7j')),
-            ButtonSegment(value: 30, label: Text('30j')),
-            ButtonSegment(value: 90, label: Text('90j')),
+          segments: [
+            ButtonSegment(value: 7, label: Text(s.adminObsSegment7j)),
+            ButtonSegment(value: 30, label: Text(s.adminObsSegment30j)),
+            ButtonSegment(value: 90, label: Text(s.adminObsSegment90j)),
           ],
           selected: {_days},
           onSelectionChanged: (values) {
@@ -215,26 +210,28 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
   }
 
   Widget _buildObsCard() {
+    final s = S.of(context)!;
     return _Card(
-      title: 'Auth & Billing',
+      title: s.adminObsAuthBilling,
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
         children: [
-          _chip('Users', '${_obs['users_total'] ?? 0}'),
-          _chip('Verified', '${_obs['users_verified'] ?? 0}'),
-          _chip('Unverified', '${_obs['users_unverified'] ?? 0}'),
-          _chip('Locked now', '${_obs['login_states_locked_now'] ?? 0}'),
-          _chip('Sub active', '${_obs['subscriptions_active_like'] ?? 0}'),
+          _chip(s.adminObsUsers, '${_obs['users_total'] ?? 0}'),
+          _chip(s.adminObsVerified, '${_obs['users_verified'] ?? 0}'),
+          _chip(s.adminObsUnverified, '${_obs['users_unverified'] ?? 0}'),
+          _chip(s.adminObsLockedNow, '${_obs['login_states_locked_now'] ?? 0}'),
+          _chip(s.adminObsSubActive, '${_obs['subscriptions_active_like'] ?? 0}'),
         ],
       ),
     );
   }
 
   Widget _buildQualityCard() {
+    final s = S.of(context)!;
     final score = (_quality['quality_score'] as num?)?.toDouble() ?? 0;
     return _Card(
-      title: 'Qualité onboarding',
+      title: s.adminObsOnboardingQuality,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -256,14 +253,14 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _chip('Started', '${_quality['sessions_started'] ?? 0}'),
-              _chip('Completed', '${_quality['sessions_completed'] ?? 0}'),
+              _chip(s.adminObsStarted, '${_quality['sessions_started'] ?? 0}'),
+              _chip(s.adminObsCompleted, '${_quality['sessions_completed'] ?? 0}'),
               _chip(
-                'Completion',
-                '${(_quality['completion_rate_pct'] ?? 0).toString()}%',
+                s.adminObsCompletion,
+                '${(_quality['completion_rate_pct'] ?? 0).toString()}\u00a0%',
               ),
               _chip(
-                'Avg step',
+                s.adminObsAvgStep,
                 '${(_quality['avg_step_duration_seconds'] ?? 0).toString()}s',
               ),
             ],
@@ -274,12 +271,13 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
   }
 
   Widget _buildCohortsCard() {
+    final s = S.of(context)!;
     final rows = (_cohorts['cohorts'] as List?)?.cast<Map>() ?? const [];
     return _Card(
-      title: 'Cohortes (variant x platform)',
+      title: s.adminObsCohortsTitle,
       child: rows.isEmpty
           ? Text(
-              'Aucune donnée',
+              s.adminObsNoData,
               style: GoogleFonts.inter(color: MintColors.textSecondary),
             )
           : Column(
