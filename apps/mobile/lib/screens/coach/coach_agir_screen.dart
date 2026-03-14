@@ -138,7 +138,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Annuler'),
+            child: Text(S.of(context)!.commonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
@@ -173,7 +173,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final coachProvider = context.watch<CoachProfileProvider>();
     final profile = coachProvider.profile;
     final now = DateTime.now();
@@ -236,7 +236,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
 
                 // ── Ce mois: contributions + check-in ───────
                 _buildSectionLabel(
-                  s?.agirThisMonth ?? 'Ce mois',
+                  s!.agirThisMonth,
                   currentMonthLabel,
                 ),
                 const SizedBox(height: 12),
@@ -272,8 +272,8 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                 // ── Mini timeline (3 prochaines échéances) ───
                 if (miniTimeline.isNotEmpty) ...[
                   _buildSectionLabel(
-                    s?.agirTimeline ?? 'Timeline',
-                    s?.agirTimelineSub ?? 'Tes prochaines échéances',
+                    s!.agirTimeline,
+                    s!.agirTimelineSub,
                   ),
                   const SizedBox(height: 12),
                   ...miniTimeline.asMap().entries.map(
@@ -312,8 +312,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            s?.agirOtherActions(otherTips.length.toString()) ??
-                                '${otherTips.length} autres actions',
+                            s!.agirOtherActions(otherTips.length.toString()),
                             style: GoogleFonts.inter(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -733,7 +732,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     required bool isDone,
     required String monthLabel,
   }) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     if (isDone) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -754,8 +753,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                s?.agirCheckinDone(monthLabel) ??
-                    'Check-in $monthLabel effectué',
+                s!.agirCheckinDone(monthLabel),
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -773,7 +771,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                s?.agirDone ?? 'Fait',
+                s!.agirDone,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -793,7 +791,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
         onPressed: () => context.push('/coach/checkin'),
         icon: const Icon(Icons.edit_calendar, size: 20),
         label: Text(
-          s?.agirCheckinCta(monthLabel) ?? 'Faire mon check-in $monthLabel',
+          s!.agirCheckinCta(monthLabel),
           style: GoogleFonts.montserrat(
             fontSize: 15,
             fontWeight: FontWeight.w700,
@@ -813,7 +811,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
 
   // ── AppBar ─────────────────────────────────────────────────
   Widget _buildAppBar(BuildContext context) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return SliverAppBar(
       pinned: true,
       automaticallyImplyLeading: false,
@@ -825,7 +823,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
         const SizedBox(width: 8),
       ],
       title: Text(
-        s?.agirTitle ?? 'AGIR',
+        s!.agirTitle,
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w700,
           fontSize: 14,
@@ -837,7 +835,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
   }
 
   // ── Empty profile state ───────────────────────────────────
-  Widget _buildEmptyProfile(BuildContext context, S? s) {
+  Widget _buildEmptyProfile(BuildContext context, S s) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -907,7 +905,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
   }
 
   // ── No contributions state ──────────────────────────────
-  Widget _buildNoContributions(BuildContext context, S? s) {
+  Widget _buildNoContributions(BuildContext context, S s) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -970,7 +968,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
   }
 
   // ── Build timeline events ──────────────────────────────────
-  List<_TimelineEvent> _buildTimelineEvents(CoachProfile profile, S? s) {
+  List<_TimelineEvent> _buildTimelineEvents(CoachProfile profile, S s) {
     final now = DateTime.now();
     final events = <_TimelineEvent>[];
 
@@ -982,12 +980,11 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     final dec31 = DateTime(now.year, 12, 31);
     events.add(_TimelineEvent(
       date: dec31,
-      title: s?.agirTimeline3a ?? 'Dernier jour versement 3a',
-      subtitle: s?.agirTimeline3aSub ??
-          'Vérifie que ton plafond est atteint avant fin décembre.',
+      title: s.agirTimeline3a,
+      subtitle: s.agirTimeline3aSub,
       icon: Icons.savings,
       color: isImminent(dec31) ? MintColors.amber : MintColors.indigo,
-      cta: s?.agirTimeline3aCta ?? 'Vérifier mon 3a',
+      cta: s.agirTimeline3aCta,
       isPast: isPastDate(dec31),
       isCompleted: false,
     ));
@@ -997,13 +994,11 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     final taxDeadline = DateTime(taxYear, 3, 31);
     events.add(_TimelineEvent(
       date: taxDeadline,
-      title: s?.agirTimelineTax(profile.canton) ??
-          'Déclaration impôts ${profile.canton}',
-      subtitle: s?.agirTimelineTaxSub ??
-          'Pense à rassembler tes attestations 3a et LPP.',
+      title: s.agirTimelineTax(profile.canton),
+      subtitle: s.agirTimelineTaxSub,
       icon: Icons.description,
       color: isImminent(taxDeadline) ? MintColors.amber : MintColors.warning,
-      cta: s?.agirTimelineTaxCta ?? 'Préparer mes documents',
+      cta: s.agirTimelineTaxCta,
       isPast: isPastDate(taxDeadline),
     ));
 
@@ -1012,12 +1007,11 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     final lamalDeadline = DateTime(lamalYear, 11, 30);
     events.add(_TimelineEvent(
       date: lamalDeadline,
-      title: s?.agirTimelineLamal ?? 'Franchise LAMal (changer ?)',
-      subtitle: s?.agirTimelineLamalSub ??
-          'Évalue si ta franchise actuelle est toujours adaptée.',
+      title: s.agirTimelineLamal,
+      subtitle: s.agirTimelineLamalSub,
       icon: Icons.health_and_safety,
       color: isImminent(lamalDeadline) ? MintColors.amber : MintColors.error,
-      cta: s?.agirTimelineLamalCta ?? 'Simuler les franchises',
+      cta: s.agirTimelineLamalCta,
       isPast: isPastDate(lamalDeadline),
     ));
 
@@ -1063,7 +1057,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
       date: profile.goalA.targetDate,
       title: S.of(context)!
           .agirTimelineRetirementTitle(profile.firstName ?? ''),
-      subtitle: s?.agirTimelineRetireSub ?? 'Ton objectif principal.',
+      subtitle: s.agirTimelineRetireSub,
       icon: Icons.beach_access,
       color: MintColors.trajectoryOptimiste,
       isPast: isPastDate(profile.goalA.targetDate),
@@ -1079,7 +1073,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
   }
 
   // ── Disclaimer ─────────────────────────────────────────────
-  Widget _buildDisclaimer(S? s) {
+  Widget _buildDisclaimer(S s) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1098,10 +1092,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              s?.agirDisclaimer ??
-                  'Outil éducatif — ne constitue pas un conseil financier personnalisé. '
-                      'Les échéances et projections sont indicatives. '
-                      'Consulte un·e spécialiste pour un accompagnement adapté. LSFin.',
+              s.agirDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: MintColors.textMuted,
@@ -1130,7 +1121,7 @@ class _MonthlyContributionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final icon = iconForCategory(contribution.category);
     final color = colorForCategory(contribution.category);
 
@@ -1221,8 +1212,8 @@ class _MonthlyContributionRow extends StatelessWidget {
             ),
             child: Text(
               contribution.isAutomatic
-                  ? (s?.agirAuto ?? 'Auto')
-                  : (s?.agirManuel ?? 'Manuel'),
+                  ? s.agirAuto
+                  : s.agirManuel,
               style: GoogleFonts.inter(
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
