@@ -41,7 +41,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final byok = context.watch<ByokProvider>();
 
     return Scaffold(
@@ -51,7 +51,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
           SliverAppBar(
             backgroundColor: MintColors.background,
             title: Text(
-              s?.byokTitle ?? 'Intelligence artificielle',
+              s.byokTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -67,7 +67,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                 children: [
                   // Header
                   Text(
-                    s?.byokTitle ?? 'Intelligence artificielle',
+                    s.byokTitle,
                     style: GoogleFonts.montserrat(
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
@@ -77,8 +77,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    s?.byokSubtitle ??
-                        'Connecte ton propre LLM pour des r\u00e9ponses personnalis\u00e9es',
+                    s.byokSubtitle,
                     style: const TextStyle(
                       fontSize: 15,
                       color: MintColors.textSecondary,
@@ -92,13 +91,13 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                   const SizedBox(height: 32),
 
                   // Provider selector
-                  _buildSectionLabel(s?.byokProviderLabel ?? 'Fournisseur'),
+                  _buildSectionLabel(s.byokProviderLabel),
                   const SizedBox(height: 12),
                   _buildProviderSelector(),
                   const SizedBox(height: 24),
 
                   // API Key input
-                  _buildSectionLabel(s?.byokApiKeyLabel ?? 'Cl\u00e9 API'),
+                  _buildSectionLabel(s.byokApiKeyLabel),
                   const SizedBox(height: 12),
                   _buildApiKeyInput(s),
                   const SizedBox(height: 8),
@@ -144,7 +143,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
     );
   }
 
-  Widget _buildPrivacyCard(S? s) {
+  Widget _buildPrivacyCard(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -168,7 +167,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
               ),
               const SizedBox(width: 12),
               Text(
-                s?.byokPrivacyTitle ?? 'Ta cl\u00e9, tes donn\u00e9es',
+                s.byokPrivacyTitle,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -179,10 +178,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            s?.byokPrivacyBody ??
-                'Ta cl\u00e9 API est stock\u00e9e de mani\u00e8re chiffr\u00e9e sur ton appareil. '
-                    'Elle est transmise de fa\u00e7on s\u00e9curis\u00e9e (HTTPS) \u00e0 notre serveur pour communiquer '
-                    'avec le fournisseur IA, puis imm\u00e9diatement supprim\u00e9e \u2014 jamais stock\u00e9e c\u00f4t\u00e9 serveur.',
+            s.byokPrivacyBody,
             style: const TextStyle(
               fontSize: 14,
               color: MintColors.textSecondary,
@@ -236,7 +232,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
               if (isRecommended) ...[
                 const SizedBox(height: 4),
                 Text(
-                  S.of(context)?.byokRecommended ?? 'Recommand\u00e9',
+                  S.of(context)!.byokRecommended,
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
@@ -253,7 +249,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
     );
   }
 
-  Widget _buildApiKeyInput(S? s) {
+  Widget _buildApiKeyInput(S s) {
     return TextField(
       controller: _apiKeyController,
       obscureText: _obscureKey,
@@ -309,7 +305,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
           const Icon(Icons.open_in_new, size: 14, color: MintColors.info),
           const SizedBox(width: 6),
           Text(
-            S.of(context)?.byokGetKeyOn(label) ?? 'Obtenir une cl\u00e9 sur $label',
+            S.of(context)!.byokGetKeyOn(label),
             style: const TextStyle(
               fontSize: 13,
               color: MintColors.info,
@@ -322,7 +318,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
     );
   }
 
-  Widget _buildTestButton(ByokProvider byok, S? s) {
+  Widget _buildTestButton(ByokProvider byok, S s) {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
@@ -342,14 +338,14 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
             : const Icon(Icons.science_outlined, size: 18),
         label: Text(
           byok.isTesting
-              ? (s?.byokTesting ?? 'Test en cours...')
-              : (s?.byokTestButton ?? 'Tester la cl\u00e9'),
+              ? s.byokTesting
+              : s.byokTestButton,
         ),
       ),
     );
   }
 
-  Widget _buildSaveButton(ByokProvider byok, S? s) {
+  Widget _buildSaveButton(ByokProvider byok, S s) {
     return SizedBox(
       width: double.infinity,
       child: FilledButton(
@@ -361,7 +357,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(s?.byokSaved ?? 'Cl\u00e9 sauvegard\u00e9e avec succ\u00e8s'),
+                      content: Text(s.byokSaved),
                       backgroundColor: MintColors.success,
                       behavior: SnackBarBehavior.floating,
                       shape: RoundedRectangleBorder(
@@ -370,12 +366,12 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                   );
                 }
               },
-        child: Text(s?.byokSaveButton ?? 'Sauvegarder'),
+        child: Text(s.byokSaveButton),
       ),
     );
   }
 
-  Widget _buildSuccessFeedback(S? s) {
+  Widget _buildSuccessFeedback(S s) {
     return Column(
       children: [
         // Success confirmation
@@ -392,8 +388,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  s?.byokTestSuccess ??
-                      'Connexion r\u00e9ussie ! Ton IA est pr\u00eate.',
+                  s.byokTestSuccess,
                   style: const TextStyle(
                       fontSize: 14, color: MintColors.success, height: 1.4),
                 ),
@@ -441,7 +436,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                s?.byokCopilotActivated ?? 'Ton copilote financier est activ\u00e9',
+                s.byokCopilotActivated,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
@@ -452,9 +447,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                s?.byokCopilotBody ??
-                'Pose ta premi\u00e8re question sur la finance suisse '
-                '\u2014 3e pilier, imp\u00f4ts, LPP, budget...',
+                s.byokCopilotBody,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -468,7 +461,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                 child: FilledButton.icon(
                   onPressed: () => context.push('/ask-mint'),
                   icon: const Icon(Icons.chat_outlined, size: 18),
-                  label: Text(s?.byokTryNow ?? 'Essayer maintenant'),
+                  label: Text(s.byokTryNow),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.white,
                     foregroundColor: MintColors.primary,
@@ -514,7 +507,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
     );
   }
 
-  Widget _buildClearButton(ByokProvider byok, S? s) {
+  Widget _buildClearButton(ByokProvider byok, S s) {
     return Center(
       child: TextButton.icon(
         onPressed: () async {
@@ -523,22 +516,20 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
             builder: (ctx) => AlertDialog(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20)),
-              title: Text(s?.byokClearTitle ?? 'Supprimer la cl\u00e9 ?'),
+              title: Text(s.byokClearTitle),
               content: Text(
-                s?.byokClearMessage ??
-                    'Cela supprimera ta cl\u00e9 API stock\u00e9e localement. '
-                        'Tu pourras en configurer une nouvelle \u00e0 tout moment.',
+                s.byokClearMessage,
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx, false),
-                  child: Text(s?.byokClearCancel ?? 'Annuler'),
+                  child: Text(s.byokClearCancel),
                 ),
                 FilledButton(
                   onPressed: () => Navigator.pop(ctx, true),
                   style:
                       FilledButton.styleFrom(backgroundColor: MintColors.error),
-                  child: Text(s?.byokClearConfirm ?? 'Supprimer'),
+                  child: Text(s.byokClearConfirm),
                 ),
               ],
             ),
@@ -551,17 +542,17 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
           }
         },
         icon: const Icon(Icons.delete_outline, size: 18),
-        label: Text(s?.byokClearButton ?? 'Supprimer la cl\u00e9 sauvegard\u00e9e'),
+        label: Text(s.byokClearButton),
         style: TextButton.styleFrom(foregroundColor: MintColors.error),
       ),
     );
   }
 
-  Widget _buildEducationalSection(S? s) {
+  Widget _buildEducationalSection(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionLabel(s?.byokLearnTitle ?? '\u00c0 propos du BYOK'),
+        _buildSectionLabel(s.byokLearnTitle),
         const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.all(20),
@@ -574,8 +565,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                s?.byokLearnHeading ??
-                    'Qu\'est-ce que le BYOK (Bring Your Own Key) ?',
+                s.byokLearnHeading,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -584,15 +574,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                s?.byokLearnBody ??
-                    'Le BYOK te permet d\'utiliser ta propre cl\u00e9 API d\'un fournisseur d\'IA '
-                        '(Claude, OpenAI, Mistral) pour obtenir des r\u00e9ponses personnalis\u00e9es '
-                        'sur la finance suisse.\n\n'
-                        'Avantages :\n'
-                        '\u2022 Contr\u00f4le total sur tes donn\u00e9es\n'
-                        '\u2022 Aucun co\u00fbt cach\u00e9 c\u00f4t\u00e9 MINT\n'
-                        '\u2022 Tu paies uniquement ce que tu consommes\n'
-                        '\u2022 Cl\u00e9 stock\u00e9e de mani\u00e8re chiffr\u00e9e sur ton appareil',
+                s.byokLearnBody,
                 style: const TextStyle(
                   fontSize: 14,
                   color: MintColors.textSecondary,
