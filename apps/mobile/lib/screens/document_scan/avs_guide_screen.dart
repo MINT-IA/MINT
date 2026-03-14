@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
-import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart';
+
 
 // ────────────────────────────────────────────────────────────
 //  AVS GUIDE SCREEN — Sprint S45
