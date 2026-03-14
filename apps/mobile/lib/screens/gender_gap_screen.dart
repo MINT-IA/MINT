@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/segments_service.dart';
 
@@ -119,7 +120,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         onPressed: () => context.pop(),
       ),
       title: Text(
-        'GENDER GAP PREVOYANCE',
+        AppLocalizations.of(context)!.genderGapAppBarTitle,
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w700,
           fontSize: 14,
@@ -153,7 +154,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Lacune de prevoyance',
+                AppLocalizations.of(context)!.genderGapTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
@@ -162,7 +163,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Impact du temps partiel sur la retraite',
+                AppLocalizations.of(context)!.genderGapSubtitle,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textSecondary,
@@ -192,10 +193,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'La deduction de coordination (CHF\u00A026\'460) n\'est pas '
-              'proratisee pour le temps partiel, ce qui penalise '
-              'davantage les personnes travaillant a temps reduit. '
-              'Deplacez le curseur pour voir l\'impact.',
+              AppLocalizations.of(context)!.genderGapIntroText,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -233,7 +231,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Taux d\'activite',
+                AppLocalizations.of(context)!.genderGapActivityRate,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -311,7 +309,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Parametres',
+            AppLocalizations.of(context)!.genderGapParameters,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -319,15 +317,15 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          _buildInputRow('Revenu annuel brut (100%)', GenderGapService.formatChf(_revenuAnnuel)),
+          _buildInputRow(AppLocalizations.of(context)!.genderGapGrossAnnualIncome, GenderGapService.formatChf(_revenuAnnuel)),
           const SizedBox(height: 8),
-          _buildInputRow('Age', '$_age ans'),
+          _buildInputRow(AppLocalizations.of(context)!.genderGapAge, AppLocalizations.of(context)!.genderGapAgeValue(_age)),
           const SizedBox(height: 8),
-          _buildInputRow('Avoir LPP actuel', GenderGapService.formatChf(_avoirLpp)),
+          _buildInputRow(AppLocalizations.of(context)!.genderGapCurrentLppAssets, GenderGapService.formatChf(_avoirLpp)),
           const SizedBox(height: 8),
-          _buildInputRow('Annees de cotisation', '$_anneesCotisation'),
+          _buildInputRow(AppLocalizations.of(context)!.genderGapContributionYears, '$_anneesCotisation'),
           const SizedBox(height: 8),
-          _buildInputRow('Canton', _canton),
+          _buildInputRow(AppLocalizations.of(context)!.genderGapCanton, _canton),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -341,8 +339,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Mode demo : profil exemple. Complete ton diagnostic '
-                    'pour des resultats personnalises.',
+                    AppLocalizations.of(context)!.genderGapDemoNotice,
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: MintColors.blueDark,
@@ -401,7 +398,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Rente LPP estimee',
+            AppLocalizations.of(context)!.genderGapEstimatedLppPension,
             style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -410,21 +407,21 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Projection a ${result.anneesRestantes} ans (age 65)',
+            AppLocalizations.of(context)!.genderGapProjectionYears(result.anneesRestantes),
             style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
           ),
           const SizedBox(height: 20),
 
           // Visual bars
           _buildPensionBar(
-            label: 'A 100%',
+            label: AppLocalizations.of(context)!.genderGapAt100Pct,
             amount: result.renteAt100Pct,
             maxAmount: result.renteAt100Pct,
             color: MintColors.success,
           ),
           const SizedBox(height: 12),
           _buildPensionBar(
-            label: 'A ${_tauxActivite.round()}%',
+            label: AppLocalizations.of(context)!.genderGapAtTaux(_tauxActivite.round()),
             amount: result.renteAtCurrentTaux,
             maxAmount: result.renteAt100Pct,
             color: _tauxActivite < 60 ? MintColors.error : MintColors.warning,
@@ -445,7 +442,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Lacune annuelle',
+                      AppLocalizations.of(context)!.genderGapAnnualGap,
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -467,7 +464,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Lacune totale (~20 ans)',
+                      AppLocalizations.of(context)!.genderGapTotalGap,
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         color: MintColors.textSecondary,
@@ -513,7 +510,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
               ),
             ),
             Text(
-              '${GenderGapService.formatChf(amount)}/an',
+              AppLocalizations.of(context)!.genderGapPerYear(GenderGapService.formatChf(amount)),
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -555,7 +552,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
               Icon(Icons.school_outlined, color: MintColors.purple, size: 20),
               const SizedBox(width: 8),
               Text(
-                'Comprendre la deduction de coordination',
+                AppLocalizations.of(context)!.genderGapCoordinationTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -566,10 +563,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'La deduction de coordination est un montant fixe de '
-            'CHF\u00A026\'460 soustrait de ton salaire brut pour '
-            'calculer le salaire coordonne (base LPP). Ce montant '
-            'est le meme que tu travailles a 100% ou a 50%.',
+            AppLocalizations.of(context)!.genderGapCoordinationExplanation,
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -588,28 +582,28 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             child: Column(
               children: [
                 _buildComparisonRow(
-                  'Salaire brut a 100%',
+                  AppLocalizations.of(context)!.genderGapGrossSalary100,
                   GenderGapService.formatChf(_revenuAnnuel),
                 ),
                 const Divider(height: 16),
                 _buildComparisonRow(
-                  'Salaire coordonne a 100%',
+                  AppLocalizations.of(context)!.genderGapCoordSalary100,
                   GenderGapService.formatChf(result.salaireCoordonne100),
                 ),
                 const Divider(height: 16),
                 _buildComparisonRow(
-                  'Salaire brut a ${_tauxActivite.round()}%',
+                  AppLocalizations.of(context)!.genderGapGrossSalaryAtTaux(_tauxActivite.round()),
                   GenderGapService.formatChf(_revenuAnnuel * (_tauxActivite / 100)),
                 ),
                 const Divider(height: 16),
                 _buildComparisonRow(
-                  'Salaire coordonne a ${_tauxActivite.round()}%',
+                  AppLocalizations.of(context)!.genderGapCoordSalaryAtTaux(_tauxActivite.round()),
                   GenderGapService.formatChf(result.salaireCoordonneActuel),
                   highlight: true,
                 ),
                 const Divider(height: 16),
                 _buildComparisonRow(
-                  'Deduction coordination (fixe)',
+                  AppLocalizations.of(context)!.genderGapCoordDeductionFixed,
                   GenderGapService.formatChf(result.deductionCoordination),
                 ),
               ],
@@ -617,7 +611,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Source : LPP art. 8, OPP2 art. 5',
+            AppLocalizations.of(context)!.genderGapSourceLpp,
             style: GoogleFonts.inter(
               fontSize: 11,
               color: MintColors.textMuted,
@@ -677,7 +671,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Statistique OFS',
+                  AppLocalizations.of(context)!.genderGapOfsStatistic,
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -715,7 +709,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'RECOMMANDATIONS',
+              AppLocalizations.of(context)!.genderGapRecommendations,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -789,10 +783,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Les resultats presentes sont des estimations simplifiees '
-              'a titre indicatif. Ils ne constituent pas un conseil '
-              'financier personnalise. Consulte ta caisse de pension '
-              'et un professionnel qualifie avant toute decision.',
+              AppLocalizations.of(context)!.genderGapDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.deepOrange,
@@ -812,7 +803,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Sources',
+          AppLocalizations.of(context)!.genderGapSources,
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -821,11 +812,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          'LPP art. 8 (deduction de coordination) / '
-          'LPP art. 14 (taux de conversion 6.8%) / '
-          'OPP2 art. 5 / OPP3 art. 7 / '
-          'LPP art. 79b (rachat volontaire) / '
-          'OFS 2024 (statistiques gender gap)',
+          AppLocalizations.of(context)!.genderGapSourcesDetail,
           style: GoogleFonts.inter(
             fontSize: 11,
             color: MintColors.textMuted,
