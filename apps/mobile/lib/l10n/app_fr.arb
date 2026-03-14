@@ -8490,5 +8490,33 @@
   "adminObsCompletion": "Completion",
   "adminObsAvgStep": "Avg step",
   "adminObsCohortsTitle": "Cohortes (variant x platform)",
-  "adminObsNoData": "Aucune donn\u00e9e"
+  "adminObsNoData": "Aucune donn\u00e9e",
+
+  "emergencyFundTitle": "Ton filet de sécurité",
+  "emergencyFundSubtitle": "Calcule ton fonds d'urgence idéal",
+  "emergencyFundDisclaimer": "L'objectif de 3-6 mois est une recommandation générale. Ta situation personnelle peut nécessiter un montant différent.",
+  "emergencyFundHypothesis1": "Charges fixes = loyer + assurances + abonnements + crédits",
+  "emergencyFundHypothesis2": "Objectif recommandé : 3 mois (minimum) à 6 mois (confort)",
+  "emergencyFundHypothesis3": "Placement suggéré : compte épargne accessible, non investi",
+  "emergencyFundMonthlyExpensesLabel": "Tes charges fixes mensuelles",
+  "emergencyFundMonthlyExpensesHint": "Loyer + assurances + abonnements + crédits",
+  "emergencyFundTargetMonthsLabel": "Objectif en mois de sécurité",
+  "emergencyFundMonthsCount": "{count} mois",
+  "@emergencyFundMonthsCount": {
+    "placeholders": {
+      "count": {"type": "String"}
+    }
+  },
+  "emergencyFundMinimum": "Minimum",
+  "emergencyFundComfort": "Confort",
+  "emergencyFundObjectiveLabel": "Ton objectif de fonds d'urgence",
+  "emergencyFundProgress": "Ta progression",
+  "emergencyFundMissing": "Il te manque {amount}",
+  "@emergencyFundMissing": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "emergencyFundObjectiveReached": "Objectif atteint !",
+  "emergencyFundProtectionText": "Ce fonds te protège des imprévus (perte d'emploi, maladie, réparations) sans toucher à tes investissements."
 }
