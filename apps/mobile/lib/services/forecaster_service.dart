@@ -225,7 +225,7 @@ class ProjectionResult {
   /// decomposition) — monthly [points] are NOT serialised to keep
   /// the snapshot lightweight.
   factory ProjectionResult.fromJson(Map<String, dynamic> json) {
-    ProjectionScenario _scenarioFromJson(Map<String, dynamic> s) {
+    ProjectionScenario scenarioFromJson(Map<String, dynamic> s) {
       return ProjectionScenario(
         label: s['label'] as String? ?? '',
         points: const [], // points are not persisted in snapshots
@@ -239,11 +239,11 @@ class ProjectionResult {
     }
 
     return ProjectionResult(
-      prudent: _scenarioFromJson(
+      prudent: scenarioFromJson(
           json['prudent'] as Map<String, dynamic>? ?? const {}),
-      base: _scenarioFromJson(
+      base: scenarioFromJson(
           json['base'] as Map<String, dynamic>? ?? const {}),
-      optimiste: _scenarioFromJson(
+      optimiste: scenarioFromJson(
           json['optimiste'] as Map<String, dynamic>? ?? const {}),
       tauxRemplacementBase:
           (json['tauxRemplacementBase'] as num?)?.toDouble() ?? 0,
