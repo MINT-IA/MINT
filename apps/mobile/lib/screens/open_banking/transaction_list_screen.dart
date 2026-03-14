@@ -27,20 +27,10 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   String _selectedCategory = 'all';
   String _selectedPeriod = 'this_month';
 
-  static const List<Map<String, String>> _categories = [
-    {'id': 'all', 'label': 'Toutes'},
-    {'id': 'alimentation', 'label': 'Alimentation'},
-    {'id': 'transport', 'label': 'Transport'},
-    {'id': 'logement', 'label': 'Logement'},
-    {'id': 'telecom', 'label': 'Telecom'},
-    {'id': 'assurances', 'label': 'Assurances'},
-    {'id': 'sante', 'label': 'Santé'},
-    {'id': 'loisirs', 'label': 'Loisirs'},
-    {'id': 'impots', 'label': 'Impôts'},
-    {'id': 'energie', 'label': 'Énergie'},
-    {'id': 'epargne', 'label': 'Épargne'},
-    {'id': 'revenu', 'label': 'Revenu'},
-    {'id': 'divers', 'label': 'Divers'},
+  static const List<String> _categoryIds = [
+    'all', 'alimentation', 'transport', 'logement', 'telecom',
+    'assurances', 'sante', 'loisirs', 'impots', 'energie',
+    'epargne', 'revenu', 'divers',
   ];
 
   List<BankTransaction> get _filteredTransactions {
@@ -262,13 +252,13 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
       height: 36,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: _categories.length,
+        itemCount: _categoryIds.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
-          final cat = _categories[index];
-          final isSelected = _selectedCategory == cat['id'];
+          final catId = _categoryIds[index];
+          final isSelected = _selectedCategory == catId;
           return GestureDetector(
-            onTap: () => setState(() => _selectedCategory = cat['id']!),
+            onTap: () => setState(() => _selectedCategory = catId),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
@@ -283,7 +273,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                 ),
               ),
               child: Text(
-                cat['label']!,
+                _categoryLabel(catId),
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
@@ -564,11 +554,26 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   // ── Helpers ────────────────────────────────────────────────
 
   String _formatDateGroup(DateTime date) {
-    const months = [
-      'janvier', 'fevrier', 'mars', 'avril', 'mai', 'juin',
-      'juillet', 'aout', 'septembre', 'octobre', 'novembre', 'decembre',
+    final s = S.of(context)!;
+    final months = [
+      s.transactionListMonthJanvier,
+      s.transactionListMonthFevrier,
+      s.transactionListMonthMars,
+      s.transactionListMonthAvril,
+      s.transactionListMonthMai,
+      s.transactionListMonthJuin,
+      s.transactionListMonthJuillet,
+      s.transactionListMonthAout,
+      s.transactionListMonthSeptembre,
+      s.transactionListMonthOctobre,
+      s.transactionListMonthNovembre,
+      s.transactionListMonthDecembre,
     ];
-    return '${date.day} ${months[date.month - 1]} ${date.year}';
+    return s.transactionListDateGroup(
+      date.day.toString(),
+      months[date.month - 1],
+      date.year.toString(),
+    );
   }
 
   String _formatTransactionDate(DateTime date) {
@@ -576,31 +581,34 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   }
 
   String _categoryLabel(String category) {
+    final s = S.of(context)!;
     switch (category) {
+      case 'all':
+        return s.transactionListCatAll;
       case 'alimentation':
-        return 'Alimentation';
+        return s.transactionListCatAlimentation;
       case 'transport':
-        return 'Transport';
+        return s.transactionListCatTransport;
       case 'logement':
-        return 'Logement';
+        return s.transactionListCatLogement;
       case 'telecom':
-        return 'Telecom';
+        return s.transactionListCatTelecom;
       case 'assurances':
-        return 'Assurances';
+        return s.transactionListCatAssurances;
       case 'energie':
-        return 'Énergie';
+        return s.transactionListCatEnergie;
       case 'sante':
-        return 'Santé';
+        return s.transactionListCatSante;
       case 'loisirs':
-        return 'Loisirs';
+        return s.transactionListCatLoisirs;
       case 'impots':
-        return 'Impôts';
+        return s.transactionListCatImpots;
       case 'epargne':
-        return 'Épargne';
+        return s.transactionListCatEpargne;
       case 'revenu':
-        return 'Revenu';
+        return s.transactionListCatRevenu;
       default:
-        return 'Divers';
+        return s.transactionListCatDivers;
     }
   }
 }
