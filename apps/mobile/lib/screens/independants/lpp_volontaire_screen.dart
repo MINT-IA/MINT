@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/independants_service.dart';
 
@@ -98,7 +99,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 56, bottom: 16, right: 16),
         title: Text(
-          'LPP volontaire',
+          S.of(context)!.lppVolontaireTitle,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -138,10 +139,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'En tant qu\'indépendant\u00B7e, tu peux t\'affilier '
-              'volontairement à une caisse de pension (LPP). Les '
-              'cotisations sont entièrement déductibles de ton revenu '
-              'imposable, et tu construis ton 2e pilier retraite.',
+              S.of(context)!.lppVolontaireHeaderInfo,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -158,10 +156,10 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
 
   Widget _buildRevenuSlider() {
     return _buildSliderCard(
-      title: 'Revenu net annuel',
+      title: S.of(context)!.lppVolontaireRevenuNet,
       valueLabel: IndependantsService.formatChf(_revenuNet),
-      minLabel: 'CHF 0',
-      maxLabel: "CHF 250'000",
+      minLabel: S.of(context)!.lppVolontaireRevenuMin,
+      maxLabel: S.of(context)!.lppVolontaireRevenuMax,
       value: _revenuNet,
       min: 0,
       max: 250000,
@@ -175,10 +173,10 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
 
   Widget _buildAgeSlider() {
     return _buildSliderCard(
-      title: 'Ton âge',
-      valueLabel: '$_age ans',
-      minLabel: '25 ans',
-      maxLabel: '65 ans',
+      title: S.of(context)!.lppVolontaireTonAge,
+      valueLabel: S.of(context)!.lppVolontaireAgeValue(_age.toString()),
+      minLabel: S.of(context)!.lppVolontaireAgeMin,
+      maxLabel: S.of(context)!.lppVolontaireAgeMax,
       value: _age.toDouble(),
       min: 25,
       max: 65,
@@ -192,10 +190,10 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
 
   Widget _buildTauxSlider() {
     return _buildSliderCard(
-      title: 'Taux marginal d\'imposition',
-      valueLabel: '${(_tauxMarginal * 100).toStringAsFixed(0)}%',
-      minLabel: '10%',
-      maxLabel: '45%',
+      title: S.of(context)!.lppVolontaireTauxMarginal,
+      valueLabel: '${(_tauxMarginal * 100).toStringAsFixed(0)}\u00a0%',
+      minLabel: S.of(context)!.lppVolontaireTauxMin,
+      maxLabel: S.of(context)!.lppVolontaireTauxMax,
       value: _tauxMarginal * 100,
       min: 10,
       max: 45,
@@ -300,9 +298,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Sans LPP volontaire, tu perds '
-            '${IndependantsService.formatChf(r.capitalisationAnnuelle)}/an '
-            'de capitalisation retraite',
+            S.of(context)!.lppVolontaireChiffreChocText(IndependantsService.formatChf(r.capitalisationAnnuelle)),
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.white.withValues(alpha: 0.9),
@@ -325,7 +321,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
           children: [
             Expanded(
               child: _buildMetricCard(
-                'Salaire coordonné',
+                S.of(context)!.lppVolontaireSalaireCoordonne,
                 IndependantsService.formatChf(r.salaireCoordonne),
                 Icons.account_balance_outlined,
               ),
@@ -333,7 +329,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildMetricCard(
-                'Taux bonification',
+                S.of(context)!.lppVolontaireTauxBonification,
                 '${(r.tauxBonification * 100).toStringAsFixed(0)}%',
                 Icons.trending_up,
               ),
@@ -345,7 +341,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
           children: [
             Expanded(
               child: _buildMetricCard(
-                'Cotisation /an',
+                S.of(context)!.lppVolontaireCotisationAn,
                 IndependantsService.formatChf(r.cotisationAnnuelle),
                 Icons.calendar_month_outlined,
               ),
@@ -353,7 +349,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildMetricCard(
-                'Économie fiscale /an',
+                S.of(context)!.lppVolontaireEconomieFiscale,
                 IndependantsService.formatChf(r.economieFiscale),
                 Icons.savings_outlined,
                 valueColor: MintColors.success,
@@ -363,7 +359,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
         ),
         const SizedBox(height: 12),
         _buildMetricCard(
-          'Tranche d\'âge',
+          S.of(context)!.lppVolontaireTrancheAge,
           r.ageBracketLabel,
           Icons.person_outline,
           small: true,
@@ -444,7 +440,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
               const Icon(Icons.bar_chart, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'PROJECTION RETRAITE ANNUELLE',
+                S.of(context)!.lppVolontaireProjectionTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -458,7 +454,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
 
           // Sans LPP bar
           _buildProjectionBar(
-            label: 'Sans LPP (AVS seule)',
+            label: S.of(context)!.lppVolontaireSansLpp,
             value: r.projectionSansLpp,
             ratio: sansRatio,
             color: MintColors.error,
@@ -467,7 +463,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
 
           // Avec LPP bar
           _buildProjectionBar(
-            label: 'Avec LPP volontaire',
+            label: S.of(context)!.lppVolontaireAvecLpp,
             value: r.projectionAvecLpp,
             ratio: avecRatio,
             color: MintColors.success,
@@ -487,9 +483,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'La LPP volontaire pourrait ajouter '
-                    '${IndependantsService.formatChf(gap)}/an '
-                    'à ta rente de retraite',
+                    S.of(context)!.lppVolontaireGapText(IndependantsService.formatChf(gap)),
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -524,7 +518,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
               ),
             ),
             Text(
-              '${IndependantsService.formatChf(value)}/an',
+              S.of(context)!.lppVolontairePerAn(IndependantsService.formatChf(value)),
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -551,10 +545,10 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
 
   Widget _buildAgeTable() {
     final brackets = [
-      ('25-34 ans', '7%', _age >= 25 && _age <= 34),
-      ('35-44 ans', '10%', _age >= 35 && _age <= 44),
-      ('45-54 ans', '15%', _age >= 45 && _age <= 54),
-      ('55-65 ans', '18%', _age >= 55 && _age <= 65),
+      (S.of(context)!.lppVolontaireBracket2534, '7\u00a0%', _age >= 25 && _age <= 34),
+      (S.of(context)!.lppVolontaireBracket3544, '10\u00a0%', _age >= 35 && _age <= 44),
+      (S.of(context)!.lppVolontaireBracket4554, '15\u00a0%', _age >= 45 && _age <= 54),
+      (S.of(context)!.lppVolontaireBracket5565, '18\u00a0%', _age >= 55 && _age <= 65),
     ];
 
     return Container(
@@ -572,7 +566,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
               const Icon(Icons.table_chart_outlined, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'TAUX DE BONIFICATION PAR ÂGE',
+                S.of(context)!.lppVolontaireBonificationTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -614,7 +608,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    'TOI',
+                    S.of(context)!.lppVolontaireToi,
                     style: GoogleFonts.inter(
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
@@ -656,7 +650,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
             const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'BON À SAVOIR',
+              S.of(context)!.lppVolontaireBonASavoir,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -669,24 +663,18 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
         const SizedBox(height: 12),
         _buildEduCard(
           Icons.account_balance_outlined,
-          'Affiliation volontaire',
-          'Les indépendant\u00B7e\u00B7s peuvent s\'affilier volontairement '
-          'à la LPP via une fondation collective, une caisse de branche '
-          'ou la caisse cantonale.',
+          S.of(context)!.lppVolontaireEduAffiliationTitle,
+          S.of(context)!.lppVolontaireEduAffiliationBody,
         ),
         _buildEduCard(
           Icons.savings_outlined,
-          'Double avantage fiscal',
-          'Les cotisations LPP volontaires sont entièrement déductibles '
-          'du revenu imposable. De plus, le capital LPP n\'est pas soumis '
-          'à l\'impôt sur la fortune.',
+          S.of(context)!.lppVolontaireEduFiscalTitle,
+          S.of(context)!.lppVolontaireEduFiscalBody,
         ),
         _buildEduCard(
           Icons.warning_amber_rounded,
-          'Impact sur le 3a',
-          'Si tu t\'affilies à une LPP volontaire, ton plafond 3a '
-          'passe du "grand 3a" (max CHF 36\'288) au "petit 3a" '
-          '(CHF 7\'258). Évalue le trade-off.',
+          S.of(context)!.lppVolontaireEduImpact3aTitle,
+          S.of(context)!.lppVolontaireEduImpact3aBody,
         ),
       ],
     );
@@ -760,11 +748,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Les projections de rente sont des estimations basées sur '
-              'un rendement projeté de 1.5%/an et un taux de conversion '
-              'de 6.8%. Les prestations réelles dépendent de la caisse '
-              'de pension choisie et de l\'évolution des marchés. '
-              'Consulte un\u00B7e spécialiste en prévoyance.',
+              S.of(context)!.lppVolontaireDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.deepOrange,
