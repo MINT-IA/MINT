@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart';
 import 'package:mint_mobile/widgets/coach/lpp_rescue_widget.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 /// Ecran de conseil en libre passage.
 ///
@@ -49,7 +50,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
             foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'LIBRE PASSAGE',
+                S.of(context)!.librePassageTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -100,26 +101,26 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                   daysElapsed: 10,
                   options: [
                     LppTransferOption(
-                      label: 'Compte libre passage',
+                      label: S.of(context)!.librePassageCompteLibrePassage,
                       emoji: '🏦',
                       description:
-                          'Sécurité maximale, taux fixe 1-2%. Idéal si tu reprends un emploi rapidement.',
+                          S.of(context)!.librePassageCompteDesc,
                       fiveYearGain: _avoir * 0.07,
                       legalRef: 'LFLP art. 3 — délai 6 mois',
                     ),
                     LppTransferOption(
-                      label: 'Police d\'assurance',
+                      label: S.of(context)!.librePassagePoliceAssurance,
                       emoji: '🛡️',
                       description:
-                          'Protection décès et invalidité incluse. Rendement moyen lié aux taux techniques.',
+                          S.of(context)!.librePassagePoliceDesc,
                       fiveYearGain: _avoir * 0.04,
                       legalRef: 'OPP2 art. 10',
                     ),
                     LppTransferOption(
-                      label: 'Fonds de placement',
+                      label: S.of(context)!.librePassageFondsPlacement,
                       emoji: '📈',
                       description:
-                          'Potentiel de rendement supérieur. Risque de marché à accepter sur l\'horizon.',
+                          S.of(context)!.librePassageFondsDesc,
                       fiveYearGain: _avoir * 0.15,
                       recommended: true,
                       legalRef: 'LFLP art. 4',
@@ -159,7 +160,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'SITUATION',
+            S.of(context)!.librePassageSituation,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -173,19 +174,19 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
             runSpacing: 8,
             children: [
               _buildChoiceChip(
-                label: 'Changement d\'emploi',
+                label: S.of(context)!.librePassageChangementEmploi,
                 selected: _statut == LibrePassageStatut.changementEmploi,
                 onSelected: () => setState(
                     () => _statut = LibrePassageStatut.changementEmploi),
               ),
               _buildChoiceChip(
-                label: 'Depart de Suisse',
+                label: S.of(context)!.librePassageDepartSuisse,
                 selected: _statut == LibrePassageStatut.departSuisse,
                 onSelected: () =>
                     setState(() => _statut = LibrePassageStatut.departSuisse),
               ),
               _buildChoiceChip(
-                label: 'Cessation d\'activite',
+                label: S.of(context)!.librePassageCessationActivite,
                 selected: _statut == LibrePassageStatut.cessationActivite,
                 onSelected: () => setState(
                     () => _statut = LibrePassageStatut.cessationActivite),
@@ -233,7 +234,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'TON PROFIL',
+            S.of(context)!.librePassageTonProfil,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -246,8 +247,8 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Ton âge',
+              Text(
+                S.of(context)!.librePassageTonAge,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -277,8 +278,8 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Avoir de libre passage',
+              Text(
+                S.of(context)!.librePassageAvoirLibrePassage,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -321,18 +322,18 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  'Nouvel employeur',
-                  style: TextStyle(
+                  S.of(context)!.librePassageNouvelEmployeur,
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'As-tu déjà un nouvel employeur ?',
-                  style: TextStyle(
+                  S.of(context)!.librePassageAsNouvelEmployeur,
+                  style: const TextStyle(
                     fontSize: 12,
                     color: MintColors.textSecondary,
                   ),
@@ -355,7 +356,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'ALERTES',
+          S.of(context)!.librePassageAlertes,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -425,7 +426,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'CHECKLIST',
+            S.of(context)!.librePassageChecklist,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -491,13 +492,13 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
     String label;
     switch (urgency) {
       case ChecklistUrgency.critique:
-        label = 'Critique';
+        label = S.of(context)!.librePassageUrgenceCritique;
         break;
       case ChecklistUrgency.haute:
-        label = 'Haute';
+        label = S.of(context)!.librePassageUrgenceHaute;
         break;
       case ChecklistUrgency.moyenne:
-        label = 'Moyenne';
+        label = S.of(context)!.librePassageUrgenceMoyenne;
         break;
     }
     return Container(
@@ -529,7 +530,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'RECOMMANDATIONS',
+            S.of(context)!.librePassageRecommandations,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -590,7 +591,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Centrale du 2e pilier (sfbvg.ch)',
+                    S.of(context)!.librePassageCentrale2ePilier,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -599,7 +600,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Recherchez des avoirs de libre passage oublies',
+                    S.of(context)!.librePassageRechercherAvoirs,
                     style: TextStyle(
                       fontSize: 12,
                       color: MintColors.categoryBlue,
@@ -629,8 +630,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Tes données restent sur ton appareil. Aucune information '
-              'n\'est transmise à des tiers. Conforme à la nLPD.',
+              S.of(context)!.librePassagePrivacy,
               style: TextStyle(
                 fontSize: 11,
                 color: MintColors.textMuted,

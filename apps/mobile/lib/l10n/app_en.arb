@@ -5953,7 +5953,7 @@
   "genderGapAppBarTitle": "PENSION GENDER GAP",
   "genderGapTitle": "Pension gap",
   "genderGapSubtitle": "Impact of part-time work on retirement",
-  "genderGapIntroText": "The coordination deduction (CHF\u00a026,460) is not prorated for part-time work, which further penalises people working reduced hours. Move the slider to see the impact.",
+  "genderGapIntroText": "The coordination deduction (CHF 26,460) is not prorated for part-time work, which further penalises people working reduced hours. Move the slider to see the impact.",
   "genderGapActivityRate": "Activity rate",
   "genderGapParameters": "Parameters",
   "genderGapGrossAnnualIncome": "Gross annual income (100%)",
@@ -5999,7 +5999,7 @@
   "genderGapAnnualGap": "Annual gap",
   "genderGapTotalGap": "Total gap (~20 years)",
   "genderGapCoordinationTitle": "Understanding the coordination deduction",
-  "genderGapCoordinationExplanation": "The coordination deduction is a fixed amount of CHF\u00a026,460 subtracted from your gross salary to calculate the coordinated salary (LPP basis). This amount is the same whether you work at 100% or 50%.",
+  "genderGapCoordinationExplanation": "The coordination deduction is a fixed amount of CHF 26,460 subtracted from your gross salary to calculate the coordinated salary (LPP basis). This amount is the same whether you work at 100% or 50%.",
   "genderGapGrossSalary100": "Gross salary at 100%",
   "genderGapCoordSalary100": "Coordinated salary at 100%",
   "genderGapGrossSalaryAtTaux": "Gross salary at {taux}%",
@@ -6045,8 +6045,14 @@
   "@rachatCalculePour": {
     "description": "Subtitle showing calculated tax rate for canton and status",
     "placeholders": {
-      "canton": { "type": "String", "example": "VD" },
-      "statut": { "type": "String", "example": "single" }
+      "canton": {
+        "type": "String",
+        "example": "VD"
+      },
+      "statut": {
+        "type": "String",
+        "example": "single"
+      }
     }
   },
   "rachatAjuster": "Adjust",
@@ -6057,8 +6063,14 @@
   "@rachatHorizonValue": {
     "description": "Horizon value with plural suffix",
     "placeholders": {
-      "count": { "type": "int", "example": "3" },
-      "suffix": { "type": "String", "example": "s" }
+      "count": {
+        "type": "int",
+        "example": "3"
+      },
+      "suffix": {
+        "type": "String",
+        "example": "s"
+      }
     }
   },
   "rachatComparaison": "COMPARISON",
@@ -6068,7 +6080,10 @@
   "@rachatEchelonneSurNAns": {
     "description": "Staggered over N years card title",
     "placeholders": {
-      "count": { "type": "int", "example": "3" }
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
     }
   },
   "rachatReparti": "Spread buyback",
@@ -6084,14 +6099,20 @@
   "@rachatEconomieChf": {
     "description": "Economy amount with CHF prefix",
     "placeholders": {
-      "amount": { "type": "String", "example": "12'500" }
+      "amount": {
+        "type": "String",
+        "example": "12'500"
+      }
     }
   },
   "rachatCoutNetChf": "Net cost: CHF {amount}",
   "@rachatCoutNetChf": {
     "description": "Net cost amount with CHF prefix",
     "placeholders": {
-      "amount": { "type": "String", "example": "67'500" }
+      "amount": {
+        "type": "String",
+        "example": "67'500"
+      }
     }
   },
   "rachatRachat": "Buyback",
@@ -6099,62 +6120,148 @@
   "@rachatLacuneComblee": {
     "description": "Gap filled percentage",
     "placeholders": {
-      "percent": { "type": "String", "example": "75" }
+      "percent": {
+        "type": "String",
+        "example": "75"
+      }
     }
   },
   "rachatBlockageEplTitle": "LPP art. 79b para. 3 — EPL Lock",
   "rachatBlockageEplBody": "After each buyback, any EPL withdrawal (home ownership encouragement) is locked for 3 years. Plan accordingly if a property purchase is planned.",
   "rachatTauxMarginalTitle": "Marginal tax rate",
   "rachatTauxMarginalBody": "The marginal rate is the tax percentage on your last franc earned. With a rate of 32%, every CHF 1,000 deducted saves you CHF 320. The higher your income, the more this rate increases (Swiss tax progressivity).",
-  "rachatTauxMarginalTip": "That's why staggering your buybacks is smart: each portion stays in a high marginal rate."
-,
+  "rachatTauxMarginalTip": "That's why staggering your buybacks is smart: each portion stays in a high marginal rate.",
   "sourceTaxSemanticsLabel": "Source tax rate heatmap by Swiss canton",
   "sourceTaxTitle": "Source tax rates",
   "sourceTaxSubtitle": "26 cantons  ·  Single, CHF 80,000",
   "sourceTaxAverageRate": "Average rate",
   "sourceTaxIndicativeRate": "Indicative source tax rate",
   "cantonMapSemanticsLabel": "Family allowances map by canton. {count} cantons displayed.",
-  "@cantonMapSemanticsLabel": {"placeholders": {"count": {"type": "int"}}},
+  "@cantonMapSemanticsLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "cantonMapTitle": "Family allowances",
   "cantonMapSubtitle": "per canton (per child/month)",
   "cantonMapRank": "Rank {rank} of {total}",
-  "@cantonMapRank": {"placeholders": {"rank": {"type": "int"}, "total": {"type": "int"}}},
+  "@cantonMapRank": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "interactiveSimEmployeeWithLpp": "EMPLOYEE with LPP",
   "interactiveSimSelfEmployedNoLpp": "SELF-EMPLOYED without LPP",
   "interactiveSimCeiling": "2026 ceiling: CHF {amount}/year",
-  "@interactiveSimCeiling": {"placeholders": {"amount": {"type": "String"}}},
+  "@interactiveSimCeiling": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimMonthlyPayment": "Monthly payment: CHF {amount}",
-  "@interactiveSimMonthlyPayment": {"placeholders": {"amount": {"type": "String"}}},
+  "@interactiveSimMonthlyPayment": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimExceedsCeiling": "Annual payment (CHF {annual}) exceeds the ceiling (CHF {max})",
-  "@interactiveSimExceedsCeiling": {"placeholders": {"annual": {"type": "String"}, "max": {"type": "String"}}},
+  "@interactiveSimExceedsCeiling": {
+    "placeholders": {
+      "annual": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimDuration": "Duration: {years} years",
-  "@interactiveSimDuration": {"placeholders": {"years": {"type": "int"}}},
+  "@interactiveSimDuration": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
   "interactiveSimMarginalTaxRate": "Marginal tax rate: {rate}%",
-  "@interactiveSimMarginalTaxRate": {"placeholders": {"rate": {"type": "String"}}},
+  "@interactiveSimMarginalTaxRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimMarginalTaxHint": "Estimated by canton/income (ranges from 15% to 45%)",
   "interactiveSimAnnualPayment": "Annual payment",
   "interactiveSimTaxSavings": "Tax savings (estimated)",
   "interactiveSimRealCost": "Real cost",
   "interactiveSimProjectionTitle": "Projection {years} years (educational scenarios)",
-  "@interactiveSimProjectionTitle": {"placeholders": {"years": {"type": "int"}}},
+  "@interactiveSimProjectionTitle": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
   "interactiveSimPrudence": "Prudent (1%)",
   "interactiveSimCentral": "Central (3%)",
   "interactiveSimStress": "Stress (5%)",
   "interactiveSimCumulativeTaxSavings": "Cumulative tax savings ({years} years)",
-  "@interactiveSimCumulativeTaxSavings": {"placeholders": {"years": {"type": "int"}}},
+  "@interactiveSimCumulativeTaxSavings": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
   "interactiveSimDisclaimer": "Educational assumptions. Past returns do not guarantee future returns.",
   "interactiveSimLppBuybackTitle": "LPP Buyback Simulation",
   "interactiveSimBuybackAmount": "Buyback amount: CHF {amount}",
-  "@interactiveSimBuybackAmount": {"placeholders": {"amount": {"type": "String"}}},
+  "@interactiveSimBuybackAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimMarginalTaxHintShort": "Estimated by canton/income",
   "interactiveSimBuyback": "Buyback",
   "interactiveSimRetirementImpact": "Retirement impact (educational scenarios)",
   "interactiveSimPrudenceRate": "Prudent (rate {rate}%)",
-  "@interactiveSimPrudenceRate": {"placeholders": {"rate": {"type": "String"}}},
+  "@interactiveSimPrudenceRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimCentralRate": "Central (rate {rate}%)",
-  "@interactiveSimCentralRate": {"placeholders": {"rate": {"type": "String"}}},
+  "@interactiveSimCentralRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimStressRate": "Stress (rate {rate}%)",
-  "@interactiveSimStressRate": {"placeholders": {"rate": {"type": "String"}}},
+  "@interactiveSimStressRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimHypothesesTitle": "Assumptions and limits:",
   "interactiveSimHypothesesBody": "• Tax deduction per applicable rules\n• Conversion rate: current assumption, may decrease\n• Verify with LPP certificate and a tax specialist",
   "lifeEventMarriage": "Marriage",
@@ -6187,7 +6294,13 @@
   "arbitrageTornadoTitle": "Key sensitivities",
   "arbitrageTornadoDisclaimer": "Educational simulation — transparency on assumptions, without recommendation.",
   "coupleTimelineChartFrom": "From {year}",
-  "@coupleTimelineChartFrom": {"placeholders": {"year": {"type": "int"}}},
+  "@coupleTimelineChartFrom": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
   "coupleTimelineChartPhase1": "Phase 1",
   "coupleTimelineChartPhase2": "Phase 2",
   "coupleTimelineChartPerMonth": "/month",
@@ -6215,10 +6328,22 @@
   "paywallFeatureJointOptimization": "Joint optimization",
   "paywallTrialBadge": "14-day free trial",
   "paywallUpgradeSuccess": "{tier} subscription activated successfully.",
-  "@paywallUpgradeSuccess": { "placeholders": { "tier": { "type": "String" } } },
+  "@paywallUpgradeSuccess": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
   "paywallTrialSuccess": "Free trial activated! Enjoy MINT Coach for 14 days.",
   "paywallChooseTier": "Choose {tier}",
-  "@paywallChooseTier": { "placeholders": { "tier": { "type": "String" } } },
+  "@paywallChooseTier": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
   "paywallStartTrial": "Start free trial",
   "paywallRestorePurchase": "Restore a purchase",
   "paywallRestoreSuccess": "Subscription restored successfully!",
@@ -6227,7 +6352,16 @@
   "mortgageJourneyTitle": "Property purchase journey",
   "mortgageJourneySubtitle": "7 steps from \"can I afford it?\" to \"I signed!\".",
   "mortgageJourneyStepLabel": "Step {number} · {title}",
-  "@mortgageJourneyStepLabel": { "placeholders": { "number": { "type": "int" }, "title": { "type": "String" } } },
+  "@mortgageJourneyStepLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "mortgageJourneyPrevious": "Previous",
   "mortgageJourneyNextStep": "Next step",
   "mortgageJourneyComplete": "Journey complete!",
@@ -6262,23 +6396,68 @@
   "mortgageJourneyDisclaimer": "Educational tool · not financial advice under FinSA. Consult a mortgage specialist before any decision. Sources: FINMA Circular 2008/10, LPP art. 30c, DTIA art. 21, CC art. 652.",
   "mortgageJourneySemantics": "Property purchase guided journey 7 steps mortgage own funds FINMA LPP",
   "mortgageJourneyStepCounter": "{current} / {total}",
-  "@mortgageJourneyStepCounter": { "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } } },
+  "@mortgageJourneyStepCounter": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "whatIfTitle": "What could change everything",
   "whatIfDisclaimer": "Educational estimates — not financial advice (FinSA).",
   "whatIfImpactPerMonth": "{sign}{amount}/month at 65",
-  "@whatIfImpactPerMonth": { "placeholders": { "sign": { "type": "String" }, "amount": { "type": "String" } } },
+  "@whatIfImpactPerMonth": {
+    "placeholders": {
+      "sign": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "coupleTimelineTitle": "Your story together",
   "coupleTimelineActLabel": "ACT {number} · {period}",
-  "@coupleTimelineActLabel": { "placeholders": { "number": { "type": "int" }, "period": { "type": "String" } } },
+  "@coupleTimelineActLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
   "coupleTimelineIncome": "Income: {amount}/month",
-  "@coupleTimelineIncome": { "placeholders": { "amount": { "type": "String" } } },
+  "@coupleTimelineIncome": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "coupleTimelineDisclaimer": "Educational estimates — not financial advice (FinSA).",
   "budget503020Title": "Your 50 / 30 / 20 budget",
   "budget503020BasedOn": "Based on {amount} net/month",
-  "@budget503020BasedOn": { "placeholders": { "amount": { "type": "String" } } },
+  "@budget503020BasedOn": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "budget503020Disclaimer": "Indicative budget rule. Educational tool — not financial advice (FinSA).",
   "budget503020Semantics": "50/30/20 Budget. Net salary: {amount}/month.",
-  "@budget503020Semantics": { "placeholders": { "amount": { "type": "String" } } },
+  "@budget503020Semantics": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "confidenceBlocksBase": "Base",
   "confidenceBlocksObjective": "Objective",
   "confidenceBlocksHousehold": "Household",
@@ -6318,15 +6497,420 @@
   "focusSelectorFamilyEventApercu": "Marriage, birth, divorce...",
   "focusSelectorSalaryApercu": "Discover your payslip",
   "focusSelectorChargesPerMonth": "~CHF {amount}/month in charges",
-  "@focusSelectorChargesPerMonth": { "placeholders": { "amount": { "type": "String" } } },
+  "@focusSelectorChargesPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "focusSelectorRetirementApercu": "Estimate your retirement",
   "focusSelectorKeepPercent": "You keep {percent} of your income",
-  "@focusSelectorKeepPercent": { "placeholders": { "percent": { "type": "String" } } },
+  "@focusSelectorKeepPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "focusSelectorTaxSavings": "Potential savings",
   "focusSelectorTaxRecoverable": "~CHF {amount}/year recoverable",
-  "@focusSelectorTaxRecoverable": { "placeholders": { "amount": { "type": "String" } } },
+  "@focusSelectorTaxRecoverable": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "focusSelectorBuildPatrimoine": "Build your wealth",
   "focusSelectorHousingCapacity": "Calculate your capacity",
   "focusSelectorHousingPossible": "~CHF {amount}k possible",
-  "@focusSelectorHousingPossible": { "placeholders": { "amount": { "type": "String" } } }
+  "@focusSelectorHousingPossible": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "amortizationAppBarTitle": "DIRECT VS INDIRECT",
+  "amortizationDurationYears": "{years} years",
+  "@amortizationDurationYears": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "eplCombinedAppBarTitle": "EPL MULTI-SOURCES",
+  "eplCombinedMinimumRequired": "Minimum required: 20%",
+  "eplCombinedDistributionTitle": "OWN FUNDS DISTRIBUTION",
+  "eplCombinedOfPrice": "of price",
+  "eplCombinedParameters": "PARAMETERS",
+  "eplCombinedCanton": "Canton",
+  "eplCombinedTargetPrice": "Target purchase price",
+  "eplCombinedCashSavings": "Cash savings",
+  "eplCombinedAvoir3a": "Pillar 3a assets",
+  "eplCombinedAvoirLpp": "LPP assets",
+  "eplCombinedSourcesDetail": "SOURCES DETAIL",
+  "eplCombinedTotalEquity": "Total own funds",
+  "eplCombinedEstimatedTaxes": "Estimated taxes (3a + LPP)",
+  "eplCombinedNetTotal": "Total net amount",
+  "eplCombinedRequiredEquity": "Required own funds (20%)",
+  "eplCombinedEstimatedTax": "Estimated tax",
+  "eplCombinedNet": "Net",
+  "eplCombinedRecommendedOrder": "RECOMMENDED ORDER",
+  "eplCombinedCashReason": "No tax, no impact on pension",
+  "eplCombinedWithdraw3a": "Pillar 3a withdrawal",
+  "eplCombined3aReason": "Reduced tax on withdrawal, limited impact on old-age pension",
+  "eplCombinedWithdrawLpp": "LPP withdrawal (EPL)",
+  "eplCombinedLppReason": "Direct impact on risk benefits (disability, death). Use as a last resort.",
+  "eplCombinedAttentionPoints": "ATTENTION POINTS",
+  "eplCombinedSource": "Source: LPP art. 30c (EPL), OPP3, LIFD art. 38. Cantonal rates estimated for educational purposes.",
+  "imputedRentalAppBarTitle": "IMPUTED RENTAL VALUE",
+  "imputedRentalIntroTitle": "What is the imputed rental value?",
+  "imputedRentalIntroBody": "In Switzerland, property owners must declare a fictitious income (imputed rental value) corresponding to the rent they could obtain by renting out their property. In return, they can deduct mortgage interest and maintenance costs.",
+  "imputedRentalDecomposition": "BREAKDOWN",
+  "imputedRentalAddedIncome": "Added taxable income",
+  "imputedRentalRentalValue": "Imputed rental value",
+  "imputedRentalDeductions": "Deductions",
+  "imputedRentalMortgageInterests": "Mortgage interest",
+  "imputedRentalMaintenanceCosts": "Maintenance costs",
+  "imputedRentalBuildingInsurance": "Building insurance (estimate)",
+  "imputedRentalTotalDeductions": "Total deductions",
+  "imputedRentalNetImpact": "Net impact on taxable income",
+  "imputedRentalTaxImpact": "Estimated tax impact (marginal rate {rate}%)",
+  "@imputedRentalTaxImpact": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "imputedRentalParameters": "PARAMETERS",
+  "imputedRentalCanton": "Canton",
+  "imputedRentalMarketValue": "Property market value",
+  "imputedRentalAnnualInterests": "Annual mortgage interest",
+  "imputedRentalEffectiveMaintenance": "Effective maintenance costs",
+  "imputedRentalOldProperty": "Old property (>= 10 years)",
+  "imputedRentalMaintenanceFlatRate20": "Maintenance flat rate: 20% of rental value",
+  "imputedRentalMaintenanceFlatRate10": "Maintenance flat rate: 10% of rental value",
+  "imputedRentalMarginalRate": "Estimated marginal rate",
+  "imputedRentalSource": "Source: LIFD art. 21 par. 1 let. b, art. 32. Cantonal rates estimated for educational purposes.",
+  "saronVsFixedAppBarTitle": "SARON VS FIXED",
+  "saronVsFixedCumulativeCost": "CUMULATIVE COST OVER {years} YEARS",
+  "@saronVsFixedCumulativeCost": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "saronVsFixedLegendFixed": "Fixed",
+  "saronVsFixedLegendStable": "SARON stable",
+  "saronVsFixedLegendRise": "SARON rising",
+  "saronVsFixedParameters": "PARAMETERS",
+  "saronVsFixedMortgageAmount": "Mortgage amount",
+  "saronVsFixedDuration": "Duration",
+  "saronVsFixedYears": "{years} years",
+  "@saronVsFixedYears": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "saronVsFixedCostComparison": "COST COMPARISON",
+  "saronVsFixedInitial": "initial",
+  "saronVsFixedExplanation": "The rising SARON simulates +0.25%/year for the first 3 years. In reality, the evolution depends on the SNB's monetary policy.",
+  "saronVsFixedRate": "Rate: {rate}",
+  "@saronVsFixedRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "saronVsFixedSource": "Source: indicative Swiss market rates 2026. Does not constitute mortgage advice.",
+  "debtRatioTitle": "DEBT DIAGNOSTIC",
+  "debtRatioLabelSain": "HEALTHY",
+  "debtRatioLabelAttention": "WARNING",
+  "debtRatioLabelCritique": "CRITICAL",
+  "debtRatioDebtRevenueRatio": "Debt / income ratio",
+  "debtRatioParametres": "PARAMETERS",
+  "debtRatioRevenuMensuelNet": "Net monthly income",
+  "debtRatioChargesDetteMensuelles": "Monthly debt payments",
+  "debtRatioLoyer": "Rent",
+  "debtRatioAutresChargesFixes": "Other fixed expenses",
+  "debtRatioCelibataire": "Single",
+  "debtRatioNombreEnfants": "Number of children",
+  "debtRatioMinimumVitalTitle": "VITAL MINIMUM (LP ART. 93)",
+  "debtRatioMinimumVital": "Vital minimum",
+  "debtRatioMargeDisponible": "Available margin",
+  "debtRatioMinVitalWarning": "Your residual margin is below the vital minimum. Contact a professional help service.",
+  "debtRatioRecommandations": "RECOMMENDATIONS",
+  "debtRatioAideProfessionnelle": "PROFESSIONAL HELP",
+  "debtRatioDettesConseilsSuisse": "Debt Counseling Switzerland",
+  "debtRatioConseilGratuit": "Free and confidential counseling",
+  "debtRatioCaritasAide": "Caritas — Debt assistance",
+  "debtRatioCaritasDesc": "Debt relief and negotiation assistance",
+  "helpResourcesTitle": "DEBT HELP RESOURCES",
+  "helpResourcesIntroTitle": "You are not alone",
+  "helpResourcesIntroBody": "In Switzerland, many professional services offer free and confidential support for people facing financial difficulties. Asking for help is an act of courage, not a sign of weakness.",
+  "helpResourcesExternalLinks": "All links below lead to external websites. MINT does not transmit any data to these services.",
+  "helpResourcesDettesConseilsDesc": "Umbrella federation of debt counseling services in Switzerland. Free, confidential and professional counseling. Over 30 member services throughout Switzerland.",
+  "helpResourcesCaritasDesc": "Caritas Switzerland assistance service for people in debt. Debt relief, creditor negotiation, personalized budget support.",
+  "helpResourcesCaritasTitle": "Caritas — Debt counseling",
+  "helpResourcesGratuit": "FREE",
+  "helpResourcesSiteWeb": "Website",
+  "helpResourcesServiceCantonal": "CANTONAL SERVICE",
+  "helpResourcesVotreCanton": "Your canton",
+  "helpResourcesAucunServiceCantonal": "No cantonal service listed for this canton. Contact Debt Counseling Switzerland for guidance.",
+  "helpResourcesPrivacyTitle": "Data protection (nFADP)",
+  "helpResourcesPrivacyBody": "MINT does not transmit any personal data to the services listed above. External links open your browser. Your use of this screen remains strictly confidential and is neither recorded nor shared.",
+  "helpResourcesDisclaimer": "MINT provides these links for informational and educational purposes. These services are independent of MINT. MINT does not provide legal or financial advice. In case of financial difficulty, contact specialized services directly.",
+  "repaymentTitle": "REPAYMENT PLAN",
+  "repaymentLibereDans": "Free in",
+  "repaymentMois": "{count} months",
+  "@repaymentMois": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "repaymentInteretsEconomises": "CHF {amount} interest saved with avalanche",
+  "@repaymentInteretsEconomises": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "repaymentMesDettes": "MY DEBTS",
+  "repaymentAjouterDette": "Add a debt",
+  "repaymentAjoutezDettes": "Add your debts to generate a repayment plan.",
+  "repaymentNomDette": "Debt name",
+  "repaymentMontant": "Amount",
+  "repaymentTauxAnnuel": "Annual rate",
+  "repaymentMensualiteMin": "Min payment",
+  "repaymentNouvelleDette": "New debt",
+  "repaymentBudgetMensuel": "MONTHLY REPAYMENT BUDGET",
+  "repaymentBudgetTotalMois": "Total budget / month",
+  "repaymentComparaisonStrategies": "STRATEGY COMPARISON",
+  "repaymentAvalanche": "AVALANCHE",
+  "repaymentAvalancheSubtitle": "Highest rate first",
+  "repaymentBouleDeNeige": "SNOWBALL",
+  "repaymentBouleDeNeigeSubtitle": "Smallest balance first",
+  "repaymentInterets": "interest",
+  "repaymentDateLiberation": "Freedom date",
+  "repaymentInteretsTotaux": "Total interest",
+  "repaymentDifference": "Difference: CHF {amount}",
+  "@repaymentDifference": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "repaymentTimelineAvalanche": "TIMELINE (AVALANCHE)",
+  "repaymentColMois": "Month",
+  "repaymentColPaiement": "Payment",
+  "repaymentColSoldeRestant": "Remaining balance",
+  "repaymentEmptyState": "Add your debts and set your monthly repayment budget to see the plan.",
+  "providerComparatorTitle": "3A COMPARATOR",
+  "providerComparatorDifference": "Difference over {duree} years",
+  "@providerComparatorDifference": {
+    "placeholders": {
+      "duree": {
+        "type": "String"
+      }
+    }
+  },
+  "providerComparatorEntreProviders": "between the best and worst performing provider",
+  "providerComparatorParametres": "PARAMETERS",
+  "providerComparatorAge": "Age",
+  "providerComparatorVersementAnnuel": "Annual contribution",
+  "providerComparatorDuree": "Duration",
+  "providerComparatorProfilRisque": "Risk profile",
+  "providerComparatorPrudent": "Conservative",
+  "providerComparatorEquilibre": "Balanced",
+  "providerComparatorDynamique": "Dynamic",
+  "providerComparatorComparaison": "COMPARISON",
+  "providerComparatorRendement": "Return",
+  "providerComparatorFrais": "Fees",
+  "providerComparatorCapitalFinal": "Final capital",
+  "providerComparatorVsPremier": "-CHF {amount} vs first",
+  "@providerComparatorVsPremier": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "providerComparatorAttentionAssurance": "WARNING — 3a Insurance",
+  "providerComparatorAssuranceWarning": "3a insurance combines savings and risk coverage, but high fees (often > 1.5%) and contract rigidity make them unfavorable for young savers.",
+  "realReturnTitle": "REAL RETURN 3A",
+  "realReturnTauxEquivalent": "Equivalent rate on net effort",
+  "realReturnVsTaux": "vs {taux}% net 3a rate (gross - fees)",
+  "@realReturnVsTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
+  "realReturnEffortNet": "Net effort: {effortNet}/yr | Implicit tax premium: +{premium} pts",
+  "@realReturnEffortNet": {
+    "placeholders": {
+      "effortNet": {
+        "type": "String"
+      },
+      "premium": {
+        "type": "String"
+      }
+    }
+  },
+  "realReturnParametres": "PARAMETERS",
+  "realReturnVersementAnnuel": "Annual contribution",
+  "realReturnTauxMarginal": "Marginal tax rate",
+  "realReturnRendementBrut": "Gross return",
+  "realReturnFraisGestion": "Management fees",
+  "realReturnDureePlacement": "Investment period",
+  "realReturnRendementsCompares": "COMPARED RETURNS",
+  "realReturnRendementNominal3a": "Nominal 3a return",
+  "realReturnRendementReelAvecFiscal": "Real return (with tax benefit)",
+  "realReturnTauxEquivalentNote": "This is an equivalent rate: it does not represent an expected market return.",
+  "realReturnRendementEpargne": "Savings account return",
+  "realReturnCapitalFinalApres": "FINAL CAPITAL AFTER {duree} YEARS",
+  "@realReturnCapitalFinalApres": {
+    "placeholders": {
+      "duree": {
+        "type": "String"
+      }
+    }
+  },
+  "realReturn3aFintechFiscal": "3a Fintech + tax benefit",
+  "realReturnCompteEpargne": "Savings account 1.5%",
+  "realReturnGainVsEpargne": "Gain vs savings account: CHF {amount}",
+  "@realReturnGainVsEpargne": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "realReturnDetailEconomieFiscale": "TAX SAVINGS DETAIL",
+  "realReturnTotalVersements": "Total contributions",
+  "realReturnCapitalFinal3a": "Final 3a capital (excl. tax benefit)",
+  "realReturnEconomieFiscaleCumulee": "Cumulated tax savings",
+  "realReturnTotalAvecAvantageFiscal": "Total with tax benefit",
+  "staggeredWithdrawalTitle": "STAGGERED 3A WITHDRAWAL",
+  "staggeredWithdrawalEconomieEstimee": "Estimated savings",
+  "staggeredWithdrawalEchelonneSurComptes": "by staggering over {count} accounts",
+  "@staggeredWithdrawalEchelonneSurComptes": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "staggeredWithdrawalNombreAdapte": "Recommended: {count} accounts",
+  "@staggeredWithdrawalNombreAdapte": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "staggeredWithdrawalPourquoiTitle": "Why stagger 3a withdrawals?",
+  "staggeredWithdrawalPourquoiBody": "The tax on capital withdrawal from pension is progressive. By spreading your 3a assets across multiple accounts and withdrawing them in different tax years, you reduce the average tax rate. The law allows up to 5 3a accounts per person (OPP3). Since the AHV21 reform (2024), early withdrawals are possible from age 60 (5 years before retirement age of 65 for everyone).",
+  "staggeredWithdrawalParametres": "PARAMETERS",
+  "staggeredWithdrawalAvoir3aTotal": "Total 3a assets",
+  "staggeredWithdrawalNbComptes": "Number of 3a accounts",
+  "staggeredWithdrawalCanton": "Canton",
+  "staggeredWithdrawalRevenuImposable": "Taxable income",
+  "staggeredWithdrawalAgeDebutRetraits": "Withdrawal start age",
+  "staggeredWithdrawalAgeDernierRetrait": "Last withdrawal age",
+  "staggeredWithdrawalResultat": "RESULT",
+  "staggeredWithdrawalEnBloc": "LUMP SUM",
+  "staggeredWithdrawalRetraitUnique": "Single withdrawal",
+  "staggeredWithdrawalEchelonne": "STAGGERED",
+  "staggeredWithdrawalNRetraits": "{count} withdrawals",
+  "@staggeredWithdrawalNRetraits": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "staggeredWithdrawalImpotEstime": "Estimated tax",
+  "staggeredWithdrawalEchelonnerGain": "By staggering, you pay CHF {amount} less in taxes.",
+  "@staggeredWithdrawalEchelonnerGain": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "staggeredWithdrawalPlanAnnuel": "ANNUAL PLAN",
+  "staggeredWithdrawalColAge": "Age",
+  "staggeredWithdrawalColRetrait": "Withdrawal",
+  "staggeredWithdrawalColImpot": "Tax",
+  "staggeredWithdrawalColNet": "Net",
+  "staggeredWithdrawalTotal": "Total",
+  "librePassageTitle": "VESTED BENEFITS",
+  "librePassageSituation": "SITUATION",
+  "librePassageChangementEmploi": "Job change",
+  "librePassageDepartSuisse": "Leaving Switzerland",
+  "librePassageCessationActivite": "Activity cessation",
+  "librePassageTonProfil": "YOUR PROFILE",
+  "librePassageTonAge": "Your age",
+  "librePassageAvoirLibrePassage": "Vested benefits",
+  "librePassageNouvelEmployeur": "New employer",
+  "librePassageAsNouvelEmployeur": "Do you already have a new employer?",
+  "librePassageAlertes": "ALERTS",
+  "librePassageChecklist": "CHECKLIST",
+  "librePassageUrgenceCritique": "Critical",
+  "librePassageUrgenceHaute": "High",
+  "librePassageUrgenceMoyenne": "Medium",
+  "librePassageRecommandations": "RECOMMENDATIONS",
+  "librePassageCompteLibrePassage": "Vested benefits account",
+  "librePassageCompteDesc": "Maximum security, fixed rate 1-2%. Ideal if you resume employment quickly.",
+  "librePassagePoliceAssurance": "Insurance policy",
+  "librePassagePoliceDesc": "Death and disability protection included. Average return linked to technical rates.",
+  "librePassageFondsPlacement": "Investment fund",
+  "librePassageFondsDesc": "Higher return potential. Market risk to accept over the horizon.",
+  "librePassageCentrale2ePilier": "2nd pillar central office (sfbvg.ch)",
+  "librePassageRechercherAvoirs": "Search for forgotten vested benefits",
+  "librePassagePrivacy": "Your data stays on your device. No information is transmitted to third parties. Compliant with nFADP.",
+  "eplTitle": "EPL WITHDRAWAL",
+  "eplIntroTitle": "EPL Withdrawal — Home ownership",
+  "eplIntroBody": "EPL allows you to use your LPP assets to finance the purchase of a home, pay down a mortgage or finance renovations. Minimum amount: CHF 20,000. This withdrawal has a direct impact on your risk benefits.",
+  "eplParametres": "PARAMETERS",
+  "eplAvoirLppTotal": "Total LPP assets",
+  "eplAge": "Age",
+  "eplMontantSouhaite": "Desired amount",
+  "eplCanton": "Canton",
+  "eplRachatsRecents": "Recent LPP buybacks",
+  "eplRachatsQuestion": "Have you made an LPP buyback in the last 3 years?",
+  "eplAnneesDepuisRachat": "Years since buyback",
+  "eplResultat": "RESULT",
+  "eplMontantMaxRetirable": "Maximum withdrawable amount",
+  "eplMontantApplicable": "Applicable amount",
+  "eplRetraitImpossible": "Withdrawal is not possible with the current configuration.",
+  "eplImpactPrestations": "IMPACT ON BENEFITS",
+  "eplReductionRenteInvalidite": "Disability pension reduction (annual estimate)",
+  "eplReductionCapitalDeces": "Death capital reduction (estimate)",
+  "eplImpactPrestationsBody": "EPL withdrawal proportionally reduces your risk benefits. Check with your pension fund for exact amounts and supplementary insurance options.",
+  "eplImpactRente": "IMPACT ON PENSION",
+  "eplRenteSansEpl": "Pension without EPL",
+  "eplRenteAvecEpl": "Pension with EPL",
+  "eplPerteMensuelle": "Monthly loss",
+  "eplEstimationEducative": "Educational estimate based on a salary of CHF 100,000, fund return 2%, conversion rate 6.8%. The actual amount depends on your situation.",
+  "eplEstimationFiscale": "TAX ESTIMATE",
+  "eplMontantRetire": "Withdrawn amount",
+  "eplImpotEstimeSurRetrait": "Estimated tax on withdrawal",
+  "eplMontantNetApresImpot": "Net amount after tax",
+  "eplTaxNote": "Capital withdrawal is taxed at a reduced rate (approximately 1/5 of the ordinary scale). The exact rate depends on the canton, municipality and personal situation.",
+  "eplPointsAttention": "POINTS OF ATTENTION"
 }

@@ -19,7 +19,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 // actuelles et on ne met a jour que ce qui a change.
 // Duree cible : 2-3 minutes max.
 //
-// Tous les textes internationalisés via AppLocalizations.
+// Tous les textes internationalisés via S.
 // Aucun terme banni (pas de "garanti", "certain", "optimal", etc.).
 // ────────────────────────────────────────────────────────────
 
@@ -104,7 +104,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
     return double.tryParse(cleaned) ?? 0;
   }
 
-  String _employmentLabel(String status, AppLocalizations l10n) {
+  String _employmentLabel(String status, S l10n) {
     switch (status) {
       case 'salarie':
         return l10n.annualRefreshEmploymentSame;
@@ -120,7 +120,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
     }
   }
 
-  String _realEstateLabel(String project, AppLocalizations l10n) {
+  String _realEstateLabel(String project, S l10n) {
     switch (project) {
       case 'aucun':
         return l10n.annualRefreshNone;
@@ -135,7 +135,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
     }
   }
 
-  String _familyLabel(String change, AppLocalizations l10n) {
+  String _familyLabel(String change, S l10n) {
     switch (change) {
       case 'aucun':
         return l10n.annualRefreshNone;
@@ -152,7 +152,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
     }
   }
 
-  String _riskLabel(String risk, AppLocalizations l10n) {
+  String _riskLabel(String risk, S l10n) {
     switch (risk) {
       case 'conservateur':
         return l10n.annualRefreshRiskConservative;
@@ -228,7 +228,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = S.of(context)!;
 
     if (_showResult) {
       return _buildResultScreen(l10n);
@@ -288,7 +288,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  APP BAR
   // ════════════════════════════════════════════════════════════════
 
-  SliverAppBar _buildAppBar(AppLocalizations l10n) {
+  SliverAppBar _buildAppBar(S l10n) {
     return SliverAppBar(
       expandedHeight: 120,
       pinned: true,
@@ -324,7 +324,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  Q1 — SALAIRE
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildSalaireCard(AppLocalizations l10n) {
+  Widget _buildSalaireCard(S l10n) {
     return _questionCard(
       number: 1,
       title: l10n.annualRefreshQ1Title,
@@ -369,7 +369,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  Q2 — EMPLOI
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildEmploiCard(AppLocalizations l10n) {
+  Widget _buildEmploiCard(S l10n) {
     final options = ['salarie', 'nouvel_emploi', 'independant', 'sans_emploi'];
 
     return _questionCard(
@@ -411,7 +411,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  Q3 — AVOIR LPP
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildLppCard(AppLocalizations l10n) {
+  Widget _buildLppCard(S l10n) {
     return _questionCard(
       number: 3,
       title: l10n.annualRefreshQ3Title,
@@ -451,7 +451,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  Q4 — SOLDE 3A
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildThreeACard(AppLocalizations l10n) {
+  Widget _buildThreeACard(S l10n) {
     return _questionCard(
       number: 4,
       title: l10n.annualRefreshQ4Title,
@@ -491,7 +491,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  Q5 — PROJET IMMOBILIER
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildRealEstateCard(AppLocalizations l10n) {
+  Widget _buildRealEstateCard(S l10n) {
     final options = ['aucun', 'achat', 'vente', 'refinancement'];
 
     return _questionCard(
@@ -533,7 +533,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  Q6 — CHANGEMENT FAMILIAL
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildFamilyCard(AppLocalizations l10n) {
+  Widget _buildFamilyCard(S l10n) {
     final options = ['aucun', 'mariage', 'naissance', 'divorce', 'deces'];
 
     return _questionCard(
@@ -575,7 +575,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  Q7 — TOLERANCE AU RISQUE
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildRiskCard(AppLocalizations l10n) {
+  Widget _buildRiskCard(S l10n) {
     final options = ['conservateur', 'modere', 'agressif'];
 
     return _questionCard(
@@ -641,7 +641,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  SUBMIT BUTTON
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildSubmitButton(AppLocalizations l10n) {
+  Widget _buildSubmitButton(S l10n) {
     return SizedBox(
       width: double.infinity,
       height: 52,
@@ -679,7 +679,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  DISCLAIMER
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildDisclaimer(AppLocalizations l10n) {
+  Widget _buildDisclaimer(S l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Text(
@@ -698,7 +698,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   //  RESULT SCREEN
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildResultScreen(AppLocalizations l10n) {
+  Widget _buildResultScreen(S l10n) {
     final delta = (_newScore ?? 0) - (_oldScore ?? 0);
     final improved = delta > 0;
     final dropped = delta < 0;
@@ -861,7 +861,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
     );
   }
 
-  Widget _scoreColumn(String label, int score, Color color, AppLocalizations l10n) {
+  Widget _scoreColumn(String label, int score, Color color, S l10n) {
     return Column(
       children: [
         Text(

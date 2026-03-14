@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -208,8 +208,8 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(AppLocalizations.of(context)!.firstSalaryBrutLabel(_fmt(widget.grossMonthly)), style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary)),
-            Text(AppLocalizations.of(context)!.firstSalaryNetLabel(_fmt(_netMonthly)), style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w800, color: MintColors.scoreExcellent)),
+            Text(S.of(context)!.firstSalaryBrutLabel(_fmt(widget.grossMonthly)), style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary)),
+            Text(S.of(context)!.firstSalaryNetLabel(_fmt(_netMonthly)), style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w800, color: MintColors.scoreExcellent)),
           ],
         ),
         const SizedBox(height: 6),
@@ -297,7 +297,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppLocalizations.of(context)!.firstSalaryEmployerCost, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
+              Text(S.of(context)!.firstSalaryEmployerCost, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
               Text(
                 'CHF ${_fmt(_totalEmployerCost)}/mois',
                 style: GoogleFonts.montserrat(fontSize: 15, fontWeight: FontWeight.w800, color: MintColors.primary),
@@ -386,7 +386,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(label, style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary)),
-            Text(AppLocalizations.of(context)!.firstSalaryChfValue(_fmt(value)), style: GoogleFonts.montserrat(fontSize: 13, fontWeight: FontWeight.w800, color: MintColors.primary)),
+            Text(S.of(context)!.firstSalaryChfValue(_fmt(value)), style: GoogleFonts.montserrat(fontSize: 13, fontWeight: FontWeight.w800, color: MintColors.primary)),
           ],
         ),
         const SizedBox(height: 4),
@@ -444,7 +444,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(AppLocalizations.of(context)!.firstSalaryFranchiseLabel(f.label), style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
+                      Text(S.of(context)!.firstSalaryFranchiseLabel(f.label), style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
                       Text(f.advice, style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary)),
                     ],
                   ),
@@ -531,8 +531,8 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(AppLocalizations.of(context)!.firstSalaryFirstStep, style: GoogleFonts.montserrat(fontSize: 14, fontWeight: FontWeight.w800, color: MintColors.scoreExcellent)),
-                    Text(AppLocalizations.of(context)!.firstSalaryFirstStepSub, style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary)),
+                    Text(S.of(context)!.firstSalaryFirstStep, style: GoogleFonts.montserrat(fontSize: 14, fontWeight: FontWeight.w800, color: MintColors.scoreExcellent)),
+                    Text(S.of(context)!.firstSalaryFirstStepSub, style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary)),
                   ],
                 ),
               ),

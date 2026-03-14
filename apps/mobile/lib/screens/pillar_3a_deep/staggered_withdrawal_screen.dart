@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/pillar_3a_deep_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 /// Ecran de simulation du retrait 3a echelonne multi-comptes.
 ///
@@ -50,7 +51,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
             foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'RETRAIT 3A ÉCHELONNÉ',
+                S.of(context)!.staggeredWithdrawalTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -117,7 +118,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
       child: Column(
         children: [
           Text(
-            'Économie estimée',
+            S.of(context)!.staggeredWithdrawalEconomieEstimee,
             style: GoogleFonts.montserrat(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -139,7 +140,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'en échelonnant sur $_nbComptes comptes',
+            S.of(context)!.staggeredWithdrawalEchelonneSurComptes(_nbComptes.toString()),
             style: TextStyle(
               fontSize: 12,
               color: result.economie > 0
@@ -150,7 +151,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           if (result.nbComptesOptimal != _nbComptes) ...[
             const SizedBox(height: 8),
             Text(
-              'Nombre adapté : ${result.nbComptesOptimal} comptes',
+              S.of(context)!.staggeredWithdrawalNombreAdapte(result.nbComptesOptimal.toString()),
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -175,21 +176,15 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Pourquoi échelonner les retraits 3a ?',
+            S.of(context)!.staggeredWithdrawalPourquoiTitle,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'L\'impôt sur le retrait en capital de prévoyance est progressif. '
-            'En répartissant tes avoirs 3a sur plusieurs comptes et en les '
-            'retirant sur différentes années fiscales, tu réduis le taux '
-            'moyen d\'imposition. La loi autorise jusqu\'à 5 comptes 3a par '
-            'personne (OPP3). Depuis la réforme AHV21 (2024), les retraits '
-            'anticipés sont possibles dès l\'âge de 60 ans (5 ans avant '
-            'l\'âge de retraite à 65 ans pour tous).',
+          Text(
+            S.of(context)!.staggeredWithdrawalPourquoiBody,
             style: TextStyle(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -213,7 +208,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAMÈTRES',
+            S.of(context)!.staggeredWithdrawalParametres,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -225,7 +220,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
 
           // Avoir total
           _buildSliderRow(
-            label: 'Avoir 3a total',
+            label: S.of(context)!.staggeredWithdrawalAvoir3aTotal,
             value: _avoirTotal,
             min: 0,
             max: 1000000,
@@ -237,7 +232,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
 
           // Nombre de comptes
           _buildSliderRow(
-            label: 'Nombre de comptes 3a',
+            label: S.of(context)!.staggeredWithdrawalNbComptes,
             value: _nbComptes.toDouble(),
             min: 1,
             max: 5,
@@ -253,7 +248,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
 
           // Revenu imposable
           _buildSliderRow(
-            label: 'Revenu imposable',
+            label: S.of(context)!.staggeredWithdrawalRevenuImposable,
             value: _revenuImposable,
             min: 30000,
             max: 300000,
@@ -267,7 +262,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           // OPP3 art. 3 : retrait anticipé dès 5 ans avant l'âge de retraite.
           // Depuis AHV21 (2024), l'âge de retraite est 65 pour tous → min = 60.
           _buildSliderRow(
-            label: 'Âge début retraits',
+            label: S.of(context)!.staggeredWithdrawalAgeDebutRetraits,
             value: _ageRetraitDebut.toDouble(),
             min: 60,
             max: 65,
@@ -284,7 +279,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
 
           // Age retrait fin
           _buildSliderRow(
-            label: 'Âge dernier retrait',
+            label: S.of(context)!.staggeredWithdrawalAgeDernierRetrait,
             value: _ageRetraitFin.toDouble(),
             min: _ageRetraitDebut.toDouble(),
             max: 65,
@@ -301,8 +296,8 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          'Canton',
+        Text(
+          S.of(context)!.staggeredWithdrawalCanton,
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -387,7 +382,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'RÉSULTAT',
+          S.of(context)!.staggeredWithdrawalResultat,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -400,8 +395,8 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           children: [
             Expanded(
               child: _buildComparisonCard(
-                title: 'EN BLOC',
-                subtitle: 'Retrait unique',
+                title: S.of(context)!.staggeredWithdrawalEnBloc,
+                subtitle: S.of(context)!.staggeredWithdrawalRetraitUnique,
                 amount: result.impotBloc,
                 color: MintColors.warning,
                 isWinner: false,
@@ -410,8 +405,8 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildComparisonCard(
-                title: 'ÉCHELONNÉ',
-                subtitle: '$_nbComptes retraits',
+                title: S.of(context)!.staggeredWithdrawalEchelonne,
+                subtitle: S.of(context)!.staggeredWithdrawalNRetraits(_nbComptes.toString()),
                 amount: result.impotEchelonne,
                 color: MintColors.success,
                 isWinner: result.economie > 0,
@@ -434,8 +429,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'En échelonnant, tu paies CHF ${formatChf(result.economie)} '
-                    'de moins en impôts.',
+                    S.of(context)!.staggeredWithdrawalEchelonnerGain(formatChf(result.economie)),
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -498,8 +492,8 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Impôt estimé',
+          Text(
+            S.of(context)!.staggeredWithdrawalImpotEstime,
             style: TextStyle(
               fontSize: 11,
               color: MintColors.textMuted,
@@ -522,7 +516,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PLAN ANNUEL',
+            S.of(context)!.staggeredWithdrawalPlanAnnuel,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -534,26 +528,26 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
 
           // Header
           Row(
-            children: const [
+            children: [
               SizedBox(
                 width: 40,
-                child: Text('Age',
-                    style:
+                child: Text(S.of(context)!.staggeredWithdrawalColAge,
+                    style: const
                         TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
               ),
               Expanded(
-                child: Text('Retrait',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                child: Text(S.of(context)!.staggeredWithdrawalColRetrait,
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.right),
               ),
               Expanded(
-                child: Text('Impôt',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                child: Text(S.of(context)!.staggeredWithdrawalColImpot,
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.right),
               ),
               Expanded(
-                child: Text('Net',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                child: Text(S.of(context)!.staggeredWithdrawalColNet,
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.right),
               ),
             ],
@@ -611,10 +605,10 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           // Total
           Row(
             children: [
-              const SizedBox(
+              SizedBox(
                 width: 40,
-                child: Text('Total',
-                    style:
+                child: Text(S.of(context)!.staggeredWithdrawalTotal,
+                    style: const
                         TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
               ),
               Expanded(

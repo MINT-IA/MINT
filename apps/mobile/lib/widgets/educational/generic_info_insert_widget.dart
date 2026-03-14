@@ -66,7 +66,7 @@ class GenericInfoInsertWidget extends StatelessWidget {
 
           // Learning goals
           Text(
-            AppLocalizations.of(context)!.whatYouWillUnderstand,
+            S.of(context)!.whatYouWillUnderstand,
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w700,

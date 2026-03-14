@@ -31,7 +31,7 @@ class ConfidenceBreakdownCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.dataPrecisionTitle,
+            S.of(context)!.dataPrecisionTitle,
             style: GoogleFonts.montserrat(
               fontSize: 15,
               fontWeight: FontWeight.w700,

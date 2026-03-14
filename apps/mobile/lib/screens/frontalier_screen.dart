@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -131,7 +131,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: 16),
         title: Text(
-          AppLocalizations.of(context)!.frontalierTitle,
+          S.of(context)!.frontalierTitle,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -166,9 +166,9 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           fontWeight: FontWeight.w400,
         ),
         tabs: [
-          Tab(text: AppLocalizations.of(context)!.frontalierTabTax),
-          Tab(text: AppLocalizations.of(context)!.frontalierTab90Days),
-          Tab(text: AppLocalizations.of(context)!.frontalierTabCharges),
+          Tab(text: S.of(context)!.frontalierTabTax),
+          Tab(text: S.of(context)!.frontalierTab90Days),
+          Tab(text: S.of(context)!.frontalierTabCharges),
         ],
       ),
     );
@@ -195,7 +195,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           if (_taxResult!['isTessin'] == true) const SizedBox(height: 20),
         ],
         _buildEducationalInsert(
-          AppLocalizations.of(context)!.frontalierEduTax,
+          S.of(context)!.frontalierEduTax,
         ),
         const SizedBox(height: 20),
         _buildDisclaimer(),
@@ -222,7 +222,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             children: [
               Expanded(
                 child: Text(
-                  AppLocalizations.of(context)!.frontalierWorkCanton,
+                  S.of(context)!.frontalierWorkCanton,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -265,7 +265,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
 
           // Salary slider
           _buildSlider(
-            label: AppLocalizations.of(context)!.frontalierGrossMonthlySalary,
+            label: S.of(context)!.frontalierGrossMonthlySalary,
             value: _taxSalary,
             min: 3000,
             max: 25000,
@@ -279,7 +279,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
 
           // Marital status segmented button
           Text(
-            AppLocalizations.of(context)!.frontalierMaritalStatus,
+            S.of(context)!.frontalierMaritalStatus,
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -312,7 +312,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                     ),
                     child: Center(
                       child: Text(
-                        AppLocalizations.of(context)!.frontalierSingle,
+                        S.of(context)!.frontalierSingle,
                         style: GoogleFonts.inter(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -348,7 +348,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                     ),
                     child: Center(
                       child: Text(
-                        AppLocalizations.of(context)!.frontalierMarried,
+                        S.of(context)!.frontalierMarried,
                         style: GoogleFonts.inter(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -370,7 +370,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             children: [
               Expanded(
                 child: Text(
-                  AppLocalizations.of(context)!.frontalierDependentChildren,
+                  S.of(context)!.frontalierDependentChildren,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -427,7 +427,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               const Icon(Icons.receipt_long, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                AppLocalizations.of(context)!.frontalierSourceTaxHeader(cantonNom).toUpperCase(),
+                S.of(context)!.frontalierSourceTaxHeader(cantonNom).toUpperCase(),
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -453,7 +453,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  AppLocalizations.of(context)!.frontalierPerMonth,
+                  S.of(context)!.frontalierPerMonth,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     color: MintColors.textMuted,
@@ -469,7 +469,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                AppLocalizations.of(context)!.frontalierEffectiveRate,
+                S.of(context)!.frontalierEffectiveRate,
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   color: MintColors.textSecondary,
@@ -509,7 +509,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  AppLocalizations.of(context)!.frontalierAnnualTotal,
+                  S.of(context)!.frontalierAnnualTotal,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -558,7 +558,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppLocalizations.of(context)!.frontalierQuasiResidentTitle,
+                  S.of(context)!.frontalierQuasiResidentTitle,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -567,7 +567,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  AppLocalizations.of(context)!.frontalierQuasiResidentDesc,
+                  S.of(context)!.frontalierQuasiResidentDesc,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -601,7 +601,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppLocalizations.of(context)!.frontalierTessinTitle,
+                  S.of(context)!.frontalierTessinTitle,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -652,7 +652,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
         ],
 
         _buildEducationalInsert(
-          AppLocalizations.of(context)!.frontalierEdu90Days,
+          S.of(context)!.frontalierEdu90Days,
         ),
         const SizedBox(height: 20),
         _buildDisclaimer(),
@@ -673,7 +673,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSlider(
-            label: AppLocalizations.of(context)!.frontalierOfficeDaysInSwitzerland,
+            label: S.of(context)!.frontalierOfficeDaysInSwitzerland,
             value: _bureauDays.toDouble(),
             min: 0,
             max: 250,
@@ -683,11 +683,11 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               _recalculate90Day();
             },
             formatAsInt: true,
-            suffix: AppLocalizations.of(context)!.frontalierDaysSuffix,
+            suffix: S.of(context)!.frontalierDaysSuffix,
           ),
           const SizedBox(height: 20),
           _buildSlider(
-            label: AppLocalizations.of(context)!.frontalierHomeOfficeDaysAbroad,
+            label: S.of(context)!.frontalierHomeOfficeDaysAbroad,
             value: _homeOfficeDays.toDouble(),
             min: 0,
             max: 250,
@@ -697,7 +697,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               _recalculate90Day();
             },
             formatAsInt: true,
-            suffix: AppLocalizations.of(context)!.frontalierDaysSuffix,
+            suffix: S.of(context)!.frontalierDaysSuffix,
           ),
         ],
       ),
@@ -714,7 +714,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     String statusLabel;
     IconData statusIcon;
 
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = S.of(context)!;
     switch (riskLevel) {
       case 'low':
         gaugeColor = MintColors.success;
@@ -756,7 +756,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               const Icon(Icons.speed, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                AppLocalizations.of(context)!.frontalierRiskGauge,
+                S.of(context)!.frontalierRiskGauge,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -778,7 +778,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             ),
           ),
           Text(
-            AppLocalizations.of(context)!.frontalierHomeOfficeDays,
+            S.of(context)!.frontalierHomeOfficeDays,
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.textMuted,
@@ -833,7 +833,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           if (riskLevel != 'high') ...[
             const SizedBox(height: 12),
             Text(
-              AppLocalizations.of(context)!.frontalierDaysRemaining(daysRemaining),
+              S.of(context)!.frontalierDaysRemaining(daysRemaining),
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -964,7 +964,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               const Icon(Icons.tips_and_updates, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                AppLocalizations.of(context)!.frontalierRecommendation,
+                S.of(context)!.frontalierRecommendation,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -1037,7 +1037,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           const SizedBox(height: 20),
         ],
         _buildEducationalInsert(
-          AppLocalizations.of(context)!.frontalierEduCharges,
+          S.of(context)!.frontalierEduCharges,
         ),
         const SizedBox(height: 20),
         _buildDisclaimer(),
@@ -1060,7 +1060,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSlider(
-            label: AppLocalizations.of(context)!.frontalierGrossMonthlySalary,
+            label: S.of(context)!.frontalierGrossMonthlySalary,
             value: _chargesSalary,
             min: 3000,
             max: 25000,
@@ -1073,7 +1073,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           const SizedBox(height: 20),
 
           Text(
-            AppLocalizations.of(context)!.frontalierResidenceCountry,
+            S.of(context)!.frontalierResidenceCountry,
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -1151,7 +1151,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppLocalizations.of(context)!.frontalierChargesCH,
+                  S.of(context)!.frontalierChargesCH,
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -1161,12 +1161,12 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                 const SizedBox(height: 12),
                 _buildChargeRow('AVS/AI/APG', ch['avs_ai_apg'] as double),
                 _buildChargeRow('AC', ch['ac'] as double),
-                _buildChargeRow(AppLocalizations.of(context)!.frontalierLppEstimate, ch['lpp'] as double),
+                _buildChargeRow(S.of(context)!.frontalierLppEstimate, ch['lpp'] as double),
                 const Divider(height: 16),
-                _buildChargeRow(AppLocalizations.of(context)!.frontalierTotal, ch['total'] as double, bold: true),
+                _buildChargeRow(S.of(context)!.frontalierTotal, ch['total'] as double, bold: true),
                 const SizedBox(height: 4),
                 Text(
-                  AppLocalizations.of(context)!.frontalierOfSalary(((ch['totalRate'] as double) * 100).toStringAsFixed(1)),
+                  S.of(context)!.frontalierOfSalary(((ch['totalRate'] as double) * 100).toStringAsFixed(1)),
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: MintColors.textMuted,
@@ -1190,7 +1190,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppLocalizations.of(context)!.frontalierChargesCountry(country),
+                  S.of(context)!.frontalierChargesCountry(country),
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -1201,10 +1201,10 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                 ..._buildForeignChargeRows(foreign),
                 const Divider(height: 16),
                 _buildChargeRow(
-                    AppLocalizations.of(context)!.frontalierTotal, foreign['total'] as double, bold: true),
+                    S.of(context)!.frontalierTotal, foreign['total'] as double, bold: true),
                 const SizedBox(height: 4),
                 Text(
-                  AppLocalizations.of(context)!.frontalierOfSalary(((foreign['totalRate'] as double) * 100).toStringAsFixed(1)),
+                  S.of(context)!.frontalierOfSalary(((foreign['totalRate'] as double) * 100).toStringAsFixed(1)),
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: MintColors.textMuted,
@@ -1298,8 +1298,8 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           Flexible(
             child: Text(
               chLessCostly
-                  ? AppLocalizations.of(context)!.frontalierChargesCHLower(ExpatService.formatChf(difference.abs()))
-                  : AppLocalizations.of(context)!.frontalierChargesCHHigher(ExpatService.formatChf(difference.abs())),
+                  ? S.of(context)!.frontalierChargesCHLower(ExpatService.formatChf(difference.abs()))
+                  : S.of(context)!.frontalierChargesCHHigher(ExpatService.formatChf(difference.abs())),
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
@@ -1328,7 +1328,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               const Icon(Icons.local_hospital, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                AppLocalizations.of(context)!.frontalierHealthInsurance,
+                S.of(context)!.frontalierHealthInsurance,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -1340,20 +1340,20 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           ),
           const SizedBox(height: 12),
           _buildLamalOptionRow(
-            AppLocalizations.of(context)!.frontalierLamalSwiss,
-            AppLocalizations.of(context)!.frontalierLamalSwissDesc,
+            S.of(context)!.frontalierLamalSwiss,
+            S.of(context)!.frontalierLamalSwissDesc,
             Icons.shield_outlined,
           ),
           const SizedBox(height: 10),
           _buildLamalOptionRow(
-            AppLocalizations.of(context)!.frontalierCmuFrance,
-            AppLocalizations.of(context)!.frontalierCmuFranceDesc,
+            S.of(context)!.frontalierCmuFrance,
+            S.of(context)!.frontalierCmuFranceDesc,
             Icons.health_and_safety_outlined,
           ),
           const SizedBox(height: 10),
           _buildLamalOptionRow(
-            AppLocalizations.of(context)!.frontalierPrivateInsurance,
-            AppLocalizations.of(context)!.frontalierPrivateInsuranceDesc,
+            S.of(context)!.frontalierPrivateInsurance,
+            S.of(context)!.frontalierPrivateInsuranceDesc,
             Icons.security_outlined,
           ),
         ],
@@ -1544,7 +1544,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppLocalizations.of(context)!.frontalierDidYouKnow,
+                  S.of(context)!.frontalierDidYouKnow,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,

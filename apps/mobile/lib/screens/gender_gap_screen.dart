@@ -120,7 +120,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         onPressed: () => context.pop(),
       ),
       title: Text(
-        AppLocalizations.of(context)!.genderGapAppBarTitle,
+        S.of(context)!.genderGapAppBarTitle,
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w700,
           fontSize: 14,
@@ -154,7 +154,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                AppLocalizations.of(context)!.genderGapTitle,
+                S.of(context)!.genderGapTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
@@ -163,7 +163,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                AppLocalizations.of(context)!.genderGapSubtitle,
+                S.of(context)!.genderGapSubtitle,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textSecondary,
@@ -193,7 +193,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              AppLocalizations.of(context)!.genderGapIntroText,
+              S.of(context)!.genderGapIntroText,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -231,7 +231,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                AppLocalizations.of(context)!.genderGapActivityRate,
+                S.of(context)!.genderGapActivityRate,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -309,7 +309,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.genderGapParameters,
+            S.of(context)!.genderGapParameters,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -317,15 +317,15 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          _buildInputRow(AppLocalizations.of(context)!.genderGapGrossAnnualIncome, GenderGapService.formatChf(_revenuAnnuel)),
+          _buildInputRow(S.of(context)!.genderGapGrossAnnualIncome, GenderGapService.formatChf(_revenuAnnuel)),
           const SizedBox(height: 8),
-          _buildInputRow(AppLocalizations.of(context)!.genderGapAge, AppLocalizations.of(context)!.genderGapAgeValue(_age)),
+          _buildInputRow(S.of(context)!.genderGapAge, S.of(context)!.genderGapAgeValue(_age)),
           const SizedBox(height: 8),
-          _buildInputRow(AppLocalizations.of(context)!.genderGapCurrentLppAssets, GenderGapService.formatChf(_avoirLpp)),
+          _buildInputRow(S.of(context)!.genderGapCurrentLppAssets, GenderGapService.formatChf(_avoirLpp)),
           const SizedBox(height: 8),
-          _buildInputRow(AppLocalizations.of(context)!.genderGapContributionYears, '$_anneesCotisation'),
+          _buildInputRow(S.of(context)!.genderGapContributionYears, '$_anneesCotisation'),
           const SizedBox(height: 8),
-          _buildInputRow(AppLocalizations.of(context)!.genderGapCanton, _canton),
+          _buildInputRow(S.of(context)!.genderGapCanton, _canton),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -339,7 +339,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    AppLocalizations.of(context)!.genderGapDemoNotice,
+                    S.of(context)!.genderGapDemoNotice,
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: MintColors.blueDark,
@@ -398,7 +398,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.genderGapEstimatedLppPension,
+            S.of(context)!.genderGapEstimatedLppPension,
             style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -407,21 +407,21 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            AppLocalizations.of(context)!.genderGapProjectionYears(result.anneesRestantes),
+            S.of(context)!.genderGapProjectionYears(result.anneesRestantes),
             style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
           ),
           const SizedBox(height: 20),
 
           // Visual bars
           _buildPensionBar(
-            label: AppLocalizations.of(context)!.genderGapAt100Pct,
+            label: S.of(context)!.genderGapAt100Pct,
             amount: result.renteAt100Pct,
             maxAmount: result.renteAt100Pct,
             color: MintColors.success,
           ),
           const SizedBox(height: 12),
           _buildPensionBar(
-            label: AppLocalizations.of(context)!.genderGapAtTaux(_tauxActivite.round()),
+            label: S.of(context)!.genderGapAtTaux(_tauxActivite.round()),
             amount: result.renteAtCurrentTaux,
             maxAmount: result.renteAt100Pct,
             color: _tauxActivite < 60 ? MintColors.error : MintColors.warning,
@@ -442,7 +442,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.genderGapAnnualGap,
+                      S.of(context)!.genderGapAnnualGap,
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -464,7 +464,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.genderGapTotalGap,
+                      S.of(context)!.genderGapTotalGap,
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         color: MintColors.textSecondary,
@@ -510,7 +510,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
               ),
             ),
             Text(
-              AppLocalizations.of(context)!.genderGapPerYear(GenderGapService.formatChf(amount)),
+              S.of(context)!.genderGapPerYear(GenderGapService.formatChf(amount)),
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -552,7 +552,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
               Icon(Icons.school_outlined, color: MintColors.purple, size: 20),
               const SizedBox(width: 8),
               Text(
-                AppLocalizations.of(context)!.genderGapCoordinationTitle,
+                S.of(context)!.genderGapCoordinationTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -563,7 +563,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            AppLocalizations.of(context)!.genderGapCoordinationExplanation,
+            S.of(context)!.genderGapCoordinationExplanation,
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -582,28 +582,28 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             child: Column(
               children: [
                 _buildComparisonRow(
-                  AppLocalizations.of(context)!.genderGapGrossSalary100,
+                  S.of(context)!.genderGapGrossSalary100,
                   GenderGapService.formatChf(_revenuAnnuel),
                 ),
                 const Divider(height: 16),
                 _buildComparisonRow(
-                  AppLocalizations.of(context)!.genderGapCoordSalary100,
+                  S.of(context)!.genderGapCoordSalary100,
                   GenderGapService.formatChf(result.salaireCoordonne100),
                 ),
                 const Divider(height: 16),
                 _buildComparisonRow(
-                  AppLocalizations.of(context)!.genderGapGrossSalaryAtTaux(_tauxActivite.round()),
+                  S.of(context)!.genderGapGrossSalaryAtTaux(_tauxActivite.round()),
                   GenderGapService.formatChf(_revenuAnnuel * (_tauxActivite / 100)),
                 ),
                 const Divider(height: 16),
                 _buildComparisonRow(
-                  AppLocalizations.of(context)!.genderGapCoordSalaryAtTaux(_tauxActivite.round()),
+                  S.of(context)!.genderGapCoordSalaryAtTaux(_tauxActivite.round()),
                   GenderGapService.formatChf(result.salaireCoordonneActuel),
                   highlight: true,
                 ),
                 const Divider(height: 16),
                 _buildComparisonRow(
-                  AppLocalizations.of(context)!.genderGapCoordDeductionFixed,
+                  S.of(context)!.genderGapCoordDeductionFixed,
                   GenderGapService.formatChf(result.deductionCoordination),
                 ),
               ],
@@ -611,7 +611,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            AppLocalizations.of(context)!.genderGapSourceLpp,
+            S.of(context)!.genderGapSourceLpp,
             style: GoogleFonts.inter(
               fontSize: 11,
               color: MintColors.textMuted,
@@ -671,7 +671,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppLocalizations.of(context)!.genderGapOfsStatistic,
+                  S.of(context)!.genderGapOfsStatistic,
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -709,7 +709,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              AppLocalizations.of(context)!.genderGapRecommendations,
+              S.of(context)!.genderGapRecommendations,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -783,7 +783,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              AppLocalizations.of(context)!.genderGapDisclaimer,
+              S.of(context)!.genderGapDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.deepOrange,
@@ -803,7 +803,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppLocalizations.of(context)!.genderGapSources,
+          S.of(context)!.genderGapSources,
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -812,7 +812,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          AppLocalizations.of(context)!.genderGapSourcesDetail,
+          S.of(context)!.genderGapSourcesDetail,
           style: GoogleFonts.inter(
             fontSize: 11,
             color: MintColors.textMuted,

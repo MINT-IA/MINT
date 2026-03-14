@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
@@ -377,7 +377,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                AppLocalizations.of(context)!.renteCapitalTitle,
+                S.of(context)!.renteCapitalTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -426,7 +426,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: SmartDefaultIndicator(
-                        source: AppLocalizations.of(context)!.renteCapitalAutoFillSource,
+                        source: S.of(context)!.renteCapitalAutoFillSource,
                         confidence: _result!.confidenceScore / 100,
                       ),
                     ),
@@ -489,7 +489,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.renteCapitalHeroIntro,
+            S.of(context)!.renteCapitalHeroIntro,
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.textPrimary,
@@ -498,16 +498,16 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           ),
           const SizedBox(height: 14),
           _introPuce(
-            AppLocalizations.of(context)!.renteCapitalOptionRente,
-            AppLocalizations.of(context)!.renteCapitalExplRente,
+            S.of(context)!.renteCapitalOptionRente,
+            S.of(context)!.renteCapitalExplRente,
           ),
           _introPuce(
-            AppLocalizations.of(context)!.renteCapitalOptionCapital,
-            AppLocalizations.of(context)!.renteCapitalExplCapital,
+            S.of(context)!.renteCapitalOptionCapital,
+            S.of(context)!.renteCapitalExplCapital,
           ),
           _introPuce(
-            AppLocalizations.of(context)!.renteCapitalOptionMixte,
-            AppLocalizations.of(context)!.renteCapitalExplMixte,
+            S.of(context)!.renteCapitalOptionMixte,
+            S.of(context)!.renteCapitalExplMixte,
           ),
         ],
       ),
@@ -608,12 +608,12 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               segments: [
                 ButtonSegment(
                   value: _InputMode.estimate,
-                  label: Text(AppLocalizations.of(context)!.renteCapitalModeEstimate),
+                  label: Text(S.of(context)!.renteCapitalModeEstimate),
                   icon: const Icon(Icons.auto_fix_high, size: 16),
                 ),
                 ButtonSegment(
                   value: _InputMode.certificate,
-                  label: Text(AppLocalizations.of(context)!.renteCapitalModeCertificate),
+                  label: Text(S.of(context)!.renteCapitalModeCertificate),
                   icon: const Icon(Icons.description_outlined, size: 16),
                 ),
               ],
@@ -634,7 +634,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           if (_inputMode == _InputMode.estimate) ...[
             _buildLabeledField(
               controller: _ageCtrl,
-              label: AppLocalizations.of(context)!.renteCapitalLabelAge,
+              label: S.of(context)!.renteCapitalLabelAge,
               fieldName: 'age',
             ),
             const SizedBox(height: 12),
@@ -643,13 +643,13 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             const SizedBox(height: 12),
             _buildLabeledField(
               controller: _salaryCtrl,
-              label: AppLocalizations.of(context)!.renteCapitalLabelSalary,
+              label: S.of(context)!.renteCapitalLabelSalary,
               fieldName: 'salaire_brut',
             ),
             const SizedBox(height: 12),
             _buildLabeledField(
               controller: _lppTotalCtrl,
-              label: AppLocalizations.of(context)!.renteCapitalLabelLppTotal,
+              label: S.of(context)!.renteCapitalLabelLppTotal,
               fieldName: 'lpp_total',
             ),
             const SizedBox(height: 12),
@@ -671,7 +671,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.renteCapitalEstimatedCapital(_ageRetraite, formatChf(_result!.capitalProjecte)),
+                      S.of(context)!.renteCapitalEstimatedCapital(_ageRetraite, formatChf(_result!.capitalProjecte)),
                       style: GoogleFonts.inter(
                         fontSize: 13, fontWeight: FontWeight.w600,
                         color: MintColors.textPrimary,
@@ -679,7 +679,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      AppLocalizations.of(context)!.renteCapitalEstimatedRente(formatChf(_result!.renteNetMensuelle * 12)),
+                      S.of(context)!.renteCapitalEstimatedRente(formatChf(_result!.renteNetMensuelle * 12)),
                       style: GoogleFonts.inter(
                         fontSize: 12, color: MintColors.textSecondary,
                       ),
@@ -688,7 +688,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     Row(
                       children: [
                         SmartDefaultIndicator(
-                          source: AppLocalizations.of(context)!.renteCapitalProjectionSource,
+                          source: S.of(context)!.renteCapitalProjectionSource,
                           confidence: _result!.confidenceScore / 100,
                         ),
                       ],
@@ -701,19 +701,19 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             // Certificate mode
             _buildLabeledField(
               controller: _capitalObligCtrl,
-              label: AppLocalizations.of(context)!.renteCapitalLabelLppOblig,
+              label: S.of(context)!.renteCapitalLabelLppOblig,
               fieldName: 'lpp_obligatoire',
             ),
             const SizedBox(height: 12),
             _buildLabeledField(
               controller: _capitalSurobCtrl,
-              label: AppLocalizations.of(context)!.renteCapitalLabelLppSurob,
+              label: S.of(context)!.renteCapitalLabelLppSurob,
               fieldName: 'lpp_surobligatoire',
             ),
             const SizedBox(height: 12),
             _buildLabeledField(
               controller: _renteCtrl,
-              label: AppLocalizations.of(context)!.renteCapitalLabelRenteAnnuelle,
+              label: S.of(context)!.renteCapitalLabelRenteAnnuelle,
               fieldName: 'rente_projetee',
             ),
             const SizedBox(height: 12),
@@ -722,7 +722,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 Expanded(
                   child: _buildLabeledField(
                     controller: _tcObligCtrl,
-                    label: AppLocalizations.of(context)!.renteCapitalLabelTcOblig,
+                    label: S.of(context)!.renteCapitalLabelTcOblig,
                     isPercent: true,
                   ),
                 ),
@@ -730,7 +730,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 Expanded(
                   child: _buildLabeledField(
                     controller: _tcSurobCtrl,
-                    label: AppLocalizations.of(context)!.renteCapitalLabelTcSurob,
+                    label: S.of(context)!.renteCapitalLabelTcSurob,
                     isPercent: true,
                   ),
                 ),
@@ -754,7 +754,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          AppLocalizations.of(context)!.renteCapitalCertificatePrecision,
+                          S.of(context)!.renteCapitalCertificatePrecision,
                           style: GoogleFonts.inter(
                             fontSize: 12, color: MintColors.success,
                             fontWeight: FontWeight.w500,
@@ -775,7 +775,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(AppLocalizations.of(context)!.renteCapitalLabelCanton, style: _labelStyle),
+                    Text(S.of(context)!.renteCapitalLabelCanton, style: _labelStyle),
                     const SizedBox(height: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -807,7 +807,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(AppLocalizations.of(context)!.renteCapitalLabelMarried, style: _labelStyle),
+                  Text(S.of(context)!.renteCapitalLabelMarried, style: _labelStyle),
                   const SizedBox(height: 6),
                   Switch(
                     value: _isMarried,
@@ -829,12 +829,12 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       children: [
         Row(
           children: [
-            Text(AppLocalizations.of(context)!.renteCapitalLabelRetirementAge, style: _labelStyle),
+            Text(S.of(context)!.renteCapitalLabelRetirementAge, style: _labelStyle),
             const Spacer(),
             ValueListenableBuilder<double>(
               valueListenable: _ageRetraiteSlider,
               builder: (_, v, __) => Text(
-                AppLocalizations.of(context)!.renteCapitalRetirementAgeValue(v.round()),
+                S.of(context)!.renteCapitalRetirementAgeValue(v.round()),
                 style: GoogleFonts.inter(
                   fontSize: 13, fontWeight: FontWeight.w600,
                   color: MintColors.primary,
@@ -922,13 +922,13 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
     // Dynamic accroche that adapts to the user's numbers
     String accroche;
-    final S = AppLocalizations.of(context)!;
+    final l = S.of(context)!;
     if (taxDelta > 10000 && epuiseAge != null) {
-      accroche = S.renteCapitalAccrocheTaxAndAge(formatChf(taxDelta), epuiseAge);
+      accroche = l.renteCapitalAccrocheTaxAndAge(formatChf(taxDelta), epuiseAge);
     } else if (taxDelta > 10000) {
-      accroche = S.renteCapitalAccrocheTaxOnly(formatChf(taxDelta));
+      accroche = l.renteCapitalAccrocheTaxOnly(formatChf(taxDelta));
     } else if (epuiseAge != null) {
-      accroche = S.renteCapitalAccrocheAgeOnly(epuiseAge);
+      accroche = l.renteCapitalAccrocheAgeOnly(epuiseAge);
     } else {
       accroche = r.chiffreChoc;
     }
@@ -966,7 +966,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     final renteMois = r.renteNetMensuelle;
     final capitalMois = r.capitalRetraitMensuel;
     final delta = (capitalMois - renteMois).abs();
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = S.of(context)!;
     final capitalDuration = r.capitalEpuiseAge != null
         ? l10n.renteCapitalDurationYears(r.capitalEpuiseAge! - _ageRetraite)
         : l10n.renteCapitalDuration30Plus;
@@ -1164,7 +1164,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         children: [
           // ── Slider: "Et si je vis jusqu'a..." ──
           Text(
-            AppLocalizations.of(context)!.renteCapitalExplorerTitle,
+            S.of(context)!.renteCapitalExplorerTitle,
             style: GoogleFonts.montserrat(
               fontSize: 15, fontWeight: FontWeight.w700,
               color: MintColors.textPrimary,
@@ -1185,7 +1185,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             child: Slider(
               value: _lifeExpectancy,
               min: 70, max: 100, divisions: 30,
-              label: AppLocalizations.of(context)!.renteCapitalRetirementAgeValue(_lifeExpectancy.round()),
+              label: S.of(context)!.renteCapitalRetirementAgeValue(_lifeExpectancy.round()),
               onChanged: (v) {
                 setState(() => _lifeExpectancy = v);
                 _recalculate();
@@ -1195,7 +1195,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           _buildDeltaAtAge(_lifeExpectancy.round()),
           const SizedBox(height: 6),
           Text(
-            AppLocalizations.of(context)!.renteCapitalLifeExpStat,
+            S.of(context)!.renteCapitalLifeExpStat,
             style: GoogleFonts.inter(
               fontSize: 11, color: MintColors.textMuted,
             ),
@@ -1205,7 +1205,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
           // ── Chart: capital restant vs revenus cumules de la rente ──
           Text(
-            AppLocalizations.of(context)!.renteCapitalChartTitle,
+            S.of(context)!.renteCapitalChartTitle,
             style: GoogleFonts.montserrat(
               fontSize: 15, fontWeight: FontWeight.w700,
               color: MintColors.textPrimary,
@@ -1213,7 +1213,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            AppLocalizations.of(context)!.renteCapitalChartExplain,
+            S.of(context)!.renteCapitalChartExplain,
             style: GoogleFonts.inter(
               fontSize: 12, color: MintColors.textSecondary,
             ),
@@ -1222,7 +1222,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           TrajectoryComparisonChart(
             options: chartOptions,
             breakevenYear: _result!.breakevenYear,
-            selectedAxisLabel: AppLocalizations.of(context)!.renteCapitalChartAxisLabel,
+            selectedAxisLabel: S.of(context)!.renteCapitalChartAxisLabel,
           ),
         ],
       ),
@@ -1245,7 +1245,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         yearIndex >= capitalOption.trajectory.length) {
       // Should not happen now that horizon is dynamic, but safety fallback
       return Text(
-        AppLocalizations.of(context)!.renteCapitalDeltaBeyondHorizon(age),
+        S.of(context)!.renteCapitalDeltaBeyondHorizon(age),
         style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
       );
     }
@@ -1253,7 +1253,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     final renteVal = renteOption.trajectory[yearIndex].netPatrimony;
     final capitalVal = capitalOption.trajectory[yearIndex].netPatrimony;
     final delta = capitalVal - renteVal;
-    final winner = delta > 0 ? AppLocalizations.of(context)!.renteCapitalOptionCapital : AppLocalizations.of(context)!.renteCapitalOptionRente;
+    final winner = delta > 0 ? S.of(context)!.renteCapitalOptionCapital : S.of(context)!.renteCapitalOptionRente;
     final winnerColor = delta > 0 ? MintColors.retirementLpp : MintColors.retirementAvs;
 
     return Container(
@@ -1273,21 +1273,21 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             child: Text.rich(
               TextSpan(children: [
                 TextSpan(
-                  text: AppLocalizations.of(context)!.renteCapitalDeltaAtAge(age),
+                  text: S.of(context)!.renteCapitalDeltaAtAge(age),
                   style: GoogleFonts.inter(
                     fontSize: 13, color: MintColors.textPrimary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 TextSpan(
-                  text: AppLocalizations.of(context)!.renteCapitalDeltaWinner(winner, formatChf(delta.abs())),
+                  text: S.of(context)!.renteCapitalDeltaWinner(winner, formatChf(delta.abs())),
                   style: GoogleFonts.inter(
                     fontSize: 13, fontWeight: FontWeight.w700,
                     color: winnerColor,
                   ),
                 ),
                 TextSpan(
-                  text: AppLocalizations.of(context)!.renteCapitalDeltaAhead,
+                  text: S.of(context)!.renteCapitalDeltaAhead,
                   style: GoogleFonts.inter(
                     fontSize: 13, color: MintColors.textSecondary,
                   ),
@@ -1312,7 +1312,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppLocalizations.of(context)!.renteCapitalSectionComprendre,
+          S.of(context)!.renteCapitalSectionComprendre,
           style: GoogleFonts.montserrat(
             fontSize: 16, fontWeight: FontWeight.w700,
             color: MintColors.textPrimary,
@@ -1324,18 +1324,18 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         _educationalCard(
           icon: Icons.receipt_long,
           iconColor: MintColors.pillarLpp,
-          title: AppLocalizations.of(context)!.renteCapitalCardFiscaliteTitle,
-          leftTitle: AppLocalizations.of(context)!.renteCapitalOptionRente,
-          leftSubtitle: AppLocalizations.of(context)!.renteCapitalCardFiscaliteLeftSub,
+          title: S.of(context)!.renteCapitalCardFiscaliteTitle,
+          leftTitle: S.of(context)!.renteCapitalOptionRente,
+          leftSubtitle: S.of(context)!.renteCapitalCardFiscaliteLeftSub,
           leftValue: '~${formatChf(r.impotCumulRente)}',
-          leftDetail: AppLocalizations.of(context)!.renteCapitalCardFiscaliteOnYears,
-          rightTitle: AppLocalizations.of(context)!.renteCapitalOptionCapital,
-          rightSubtitle: AppLocalizations.of(context)!.renteCapitalCardFiscaliteRightSub,
+          leftDetail: S.of(context)!.renteCapitalCardFiscaliteOnYears,
+          rightTitle: S.of(context)!.renteCapitalOptionCapital,
+          rightSubtitle: S.of(context)!.renteCapitalCardFiscaliteRightSub,
           rightValue: '~${formatChf(r.impotRetraitCapital)}',
-          rightDetail: AppLocalizations.of(context)!.renteCapitalCardFiscaliteRightDetail,
+          rightDetail: S.of(context)!.renteCapitalCardFiscaliteRightDetail,
           bottomText: r.impotCumulRente > r.impotRetraitCapital
-              ? AppLocalizations.of(context)!.renteCapitalCardFiscaliteCapitalSaves(formatChf(r.impotCumulRente - r.impotRetraitCapital))
-              : AppLocalizations.of(context)!.renteCapitalCardFiscaliteRenteSaves(formatChf(r.impotRetraitCapital - r.impotCumulRente)),
+              ? S.of(context)!.renteCapitalCardFiscaliteCapitalSaves(formatChf(r.impotCumulRente - r.impotRetraitCapital))
+              : S.of(context)!.renteCapitalCardFiscaliteRenteSaves(formatChf(r.impotRetraitCapital - r.impotCumulRente)),
         ),
         const SizedBox(height: 12),
 
@@ -1343,16 +1343,16 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         _educationalCard(
           icon: Icons.trending_down,
           iconColor: MintColors.warning,
-          title: AppLocalizations.of(context)!.renteCapitalCardInflationTitle,
-          leftTitle: AppLocalizations.of(context)!.renteCapitalCardInflationLeftTitle,
+          title: S.of(context)!.renteCapitalCardInflationTitle,
+          leftTitle: S.of(context)!.renteCapitalCardInflationLeftTitle,
           leftSubtitle: '',
           leftValue: formatChf(r.renteNetMensuelle),
-          leftDetail: AppLocalizations.of(context)!.renteCapitalPerMonth,
-          rightTitle: AppLocalizations.of(context)!.renteCapitalCardInflationRightTitle,
-          rightSubtitle: AppLocalizations.of(context)!.renteCapitalCardInflationRightSub,
+          leftDetail: S.of(context)!.renteCapitalPerMonth,
+          rightTitle: S.of(context)!.renteCapitalCardInflationRightTitle,
+          rightSubtitle: S.of(context)!.renteCapitalCardInflationRightSub,
           rightValue: formatChf(r.renteReelleAn20 / 12),
-          rightDetail: AppLocalizations.of(context)!.renteCapitalPerMonth,
-          bottomText: AppLocalizations.of(context)!.renteCapitalCardInflationBottom(((1 - 1 / math.pow(1 + inflation, 20)) * 100).round()),
+          rightDetail: S.of(context)!.renteCapitalPerMonth,
+          bottomText: S.of(context)!.renteCapitalCardInflationBottom(((1 - 1 / math.pow(1 + inflation, 20)) * 100).round()),
         ),
         const SizedBox(height: 12),
 
@@ -1360,20 +1360,20 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         _educationalCard(
           icon: Icons.family_restroom,
           iconColor: MintColors.primary,
-          title: AppLocalizations.of(context)!.renteCapitalCardTransmissionTitle,
-          leftTitle: AppLocalizations.of(context)!.renteCapitalOptionRente,
-          leftSubtitle: _isMarried ? AppLocalizations.of(context)!.renteCapitalCardTransmissionLeftSubMarried : AppLocalizations.of(context)!.renteCapitalCardTransmissionLeftSubSingle,
+          title: S.of(context)!.renteCapitalCardTransmissionTitle,
+          leftTitle: S.of(context)!.renteCapitalOptionRente,
+          leftSubtitle: _isMarried ? S.of(context)!.renteCapitalCardTransmissionLeftSubMarried : S.of(context)!.renteCapitalCardTransmissionLeftSubSingle,
           leftValue: _isMarried
-              ? AppLocalizations.of(context)!.renteCapitalCardTransmissionLeftValMarried(formatChf(r.renteSurvivant / 12))
-              : AppLocalizations.of(context)!.renteCapitalCardTransmissionLeftValSingle,
-          leftDetail: _isMarried ? AppLocalizations.of(context)!.renteCapitalCardTransmissionLeftDetailMarried : AppLocalizations.of(context)!.renteCapitalCardTransmissionLeftDetailSingle,
-          rightTitle: AppLocalizations.of(context)!.renteCapitalOptionCapital,
-          rightSubtitle: AppLocalizations.of(context)!.renteCapitalCardTransmissionRightSub,
-          rightValue: AppLocalizations.of(context)!.renteCapitalCardTransmissionRightVal,
-          rightDetail: AppLocalizations.of(context)!.renteCapitalCardTransmissionRightDetail,
+              ? S.of(context)!.renteCapitalCardTransmissionLeftValMarried(formatChf(r.renteSurvivant / 12))
+              : S.of(context)!.renteCapitalCardTransmissionLeftValSingle,
+          leftDetail: _isMarried ? S.of(context)!.renteCapitalCardTransmissionLeftDetailMarried : S.of(context)!.renteCapitalCardTransmissionLeftDetailSingle,
+          rightTitle: S.of(context)!.renteCapitalOptionCapital,
+          rightSubtitle: S.of(context)!.renteCapitalCardTransmissionRightSub,
+          rightValue: S.of(context)!.renteCapitalCardTransmissionRightVal,
+          rightDetail: S.of(context)!.renteCapitalCardTransmissionRightDetail,
           bottomText: _isMarried
-              ? AppLocalizations.of(context)!.renteCapitalCardTransmissionBottomMarried
-              : AppLocalizations.of(context)!.renteCapitalCardTransmissionBottomSingle,
+              ? S.of(context)!.renteCapitalCardTransmissionBottomMarried
+              : S.of(context)!.renteCapitalCardTransmissionBottomSingle,
         ),
       ],
     );
@@ -1504,7 +1504,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppLocalizations.of(context)!.renteCapitalSectionAffiner,
+          S.of(context)!.renteCapitalSectionAffiner,
           style: GoogleFonts.montserrat(
             fontSize: 16, fontWeight: FontWeight.w700,
             color: MintColors.textPrimary,
@@ -1512,7 +1512,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          AppLocalizations.of(context)!.renteCapitalAffinerSubtitle,
+          S.of(context)!.renteCapitalAffinerSubtitle,
           style: GoogleFonts.inter(
             fontSize: 12, color: MintColors.textSecondary,
           ),
@@ -1524,17 +1524,17 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           hypotheses: [
             HypothesisConfig(
               key: 'rendement',
-              label: AppLocalizations.of(context)!.renteCapitalHypRendement,
+              label: S.of(context)!.renteCapitalHypRendement,
               min: 0, max: 8, divisions: 16, defaultValue: 3,
             ),
             HypothesisConfig(
               key: 'swr',
-              label: AppLocalizations.of(context)!.renteCapitalHypSwr,
+              label: S.of(context)!.renteCapitalHypSwr,
               min: 2, max: 6, divisions: 8, defaultValue: 4,
             ),
             HypothesisConfig(
               key: 'inflation',
-              label: AppLocalizations.of(context)!.renteCapitalHypInflation,
+              label: S.of(context)!.renteCapitalHypInflation,
               min: 0, max: 4, divisions: 8, defaultValue: 2,
             ),
           ],
@@ -1555,7 +1555,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           tilePadding: EdgeInsets.zero,
           childrenPadding: const EdgeInsets.only(bottom: 8),
           title: Text(
-            AppLocalizations.of(context)!.renteCapitalTornadoExpand,
+            S.of(context)!.renteCapitalTornadoExpand,
             style: GoogleFonts.inter(
               fontSize: 13, fontWeight: FontWeight.w500,
               color: MintColors.textSecondary,
@@ -1590,7 +1590,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppLocalizations.of(context)!.renteCapitalSensitivityTitle,
+          S.of(context)!.renteCapitalSensitivityTitle,
           style: GoogleFonts.montserrat(
             fontSize: 15, fontWeight: FontWeight.w700,
             color: MintColors.textPrimary,
@@ -1598,7 +1598,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          AppLocalizations.of(context)!.renteCapitalSensitivitySubtitle,
+          S.of(context)!.renteCapitalSensitivitySubtitle,
           style: GoogleFonts.inter(
             fontSize: 12, color: MintColors.textSecondary,
           ),
@@ -1705,7 +1705,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       tilePadding: EdgeInsets.zero,
       childrenPadding: const EdgeInsets.only(bottom: 8),
       title: Text(
-        AppLocalizations.of(context)!.renteCapitalHypothesesTitle,
+        S.of(context)!.renteCapitalHypothesesTitle,
         style: GoogleFonts.montserrat(
           fontSize: 14, fontWeight: FontWeight.w600,
           color: MintColors.textPrimary,
@@ -1753,7 +1753,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               const Icon(Icons.info_outline_rounded,
                   size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
-              Text(AppLocalizations.of(context)!.renteCapitalDisclaimerTitle, style: GoogleFonts.inter(
+              Text(S.of(context)!.renteCapitalDisclaimerTitle, style: GoogleFonts.inter(
                 fontSize: 12, fontWeight: FontWeight.w600,
                 color: MintColors.textMuted,
               )),
@@ -1765,7 +1765,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           )),
           const SizedBox(height: 8),
           Text(
-            AppLocalizations.of(context)!.renteCapitalSourcesPrefix(_result!.sources.join(' | ')),
+            S.of(context)!.renteCapitalSourcesPrefix(_result!.sources.join(' | ')),
             style: GoogleFonts.inter(
               fontSize: 10, color: MintColors.textMuted, height: 1.3,
             ),
@@ -1793,13 +1793,13 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           children: [
             Expanded(
               child: Text(
-                AppLocalizations.of(context)!.renteCapitalLabelRachat,
+                S.of(context)!.renteCapitalLabelRachat,
                 style: _labelStyle,
               ),
             ),
             if (maxRachat > 0)
               Text(
-                AppLocalizations.of(context)!.renteCapitalRachatMax(formatChf(maxRachat)),
+                S.of(context)!.renteCapitalRachatMax(formatChf(maxRachat)),
                 style: GoogleFonts.inter(
                   fontSize: 11, color: MintColors.textMuted,
                 ),
@@ -1814,7 +1814,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           style: GoogleFonts.inter(fontSize: 14, color: MintColors.textPrimary),
           decoration: InputDecoration(
-            hintText: AppLocalizations.of(context)!.renteCapitalRachatHint,
+            hintText: S.of(context)!.renteCapitalRachatHint,
             hintStyle: GoogleFonts.inter(color: MintColors.textMuted),
             prefixText: 'CHF ',
             filled: true,
@@ -1824,7 +1824,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               borderSide: BorderSide.none,
             ),
             suffixIcon: Tooltip(
-              message: AppLocalizations.of(context)!.renteCapitalRachatTooltip,
+              message: S.of(context)!.renteCapitalRachatTooltip,
               child: const Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
             ),
           ),
@@ -1842,7 +1842,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           children: [
             Expanded(
               child: Text(
-                AppLocalizations.of(context)!.renteCapitalLabelEpl,
+                S.of(context)!.renteCapitalLabelEpl,
                 style: _labelStyle,
               ),
             ),
@@ -1862,7 +1862,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             style: GoogleFonts.inter(fontSize: 14, color: MintColors.textPrimary),
             decoration: InputDecoration(
-              hintText: AppLocalizations.of(context)!.renteCapitalEplHint,
+              hintText: S.of(context)!.renteCapitalEplHint,
               hintStyle: GoogleFonts.inter(color: MintColors.textMuted),
               prefixText: 'CHF ',
               filled: true,
@@ -1872,7 +1872,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 borderSide: BorderSide.none,
               ),
               suffixIcon: Tooltip(
-                message: AppLocalizations.of(context)!.renteCapitalEplTooltip,
+                message: S.of(context)!.renteCapitalEplTooltip,
                 child: const Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
               ),
             ),
@@ -1880,7 +1880,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            AppLocalizations.of(context)!.renteCapitalEplLegalRef,
+            S.of(context)!.renteCapitalEplLegalRef,
             style: GoogleFonts.inter(fontSize: 10, color: MintColors.textMuted),
           ),
         ],

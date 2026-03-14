@@ -6531,5 +6531,386 @@
         "type": "String"
       }
     }
-  }
+  },
+  "amortizationAppBarTitle": "DIRETO VS INDIRETO",
+  "amortizationDurationYears": "{years} anos",
+  "@amortizationDurationYears": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "eplCombinedAppBarTitle": "EPL MULTI-FONTES",
+  "eplCombinedMinimumRequired": "Mínimo exigido: 20 %",
+  "eplCombinedDistributionTitle": "DISTRIBUIÇÃO DOS FUNDOS PRÓPRIOS",
+  "eplCombinedOfPrice": "do preço",
+  "eplCombinedParameters": "PARÂMETROS",
+  "eplCombinedCanton": "Cantão",
+  "eplCombinedTargetPrice": "Preço de compra alvo",
+  "eplCombinedCashSavings": "Poupança em dinheiro",
+  "eplCombinedAvoir3a": "Ativos pilar 3a",
+  "eplCombinedAvoirLpp": "Ativos LPP",
+  "eplCombinedSourcesDetail": "DETALHE DAS FONTES",
+  "eplCombinedTotalEquity": "Total fundos próprios",
+  "eplCombinedEstimatedTaxes": "Impostos estimados (3a + LPP)",
+  "eplCombinedNetTotal": "Montante líquido total",
+  "eplCombinedRequiredEquity": "Fundos próprios exigidos (20 %)",
+  "eplCombinedEstimatedTax": "Imposto estimado",
+  "eplCombinedNet": "Líquido",
+  "eplCombinedRecommendedOrder": "ORDEM RECOMENDADA",
+  "eplCombinedCashReason": "Sem impostos, sem impacto na previdência",
+  "eplCombinedWithdraw3a": "Levantamento pilar 3a",
+  "eplCombined3aReason": "Imposto reduzido no levantamento, impacto limitado na previdência de velhice",
+  "eplCombinedWithdrawLpp": "Levantamento LPP (EPL)",
+  "eplCombinedLppReason": "Impacto direto nas prestações de risco (invalidez, falecimento). Usar como último recurso.",
+  "eplCombinedAttentionPoints": "PONTOS DE ATENÇÃO",
+  "eplCombinedSource": "Fonte: LPP art. 30c (EPL), OPP3, LIFD art. 38. Taxas cantonais estimadas para fins pedagógicos.",
+  "imputedRentalAppBarTitle": "VALOR LOCATIVO",
+  "imputedRentalIntroTitle": "O que é o valor locativo?",
+  "imputedRentalIntroBody": "Na Suíça, os proprietários devem declarar um rendimento fictício (valor locativo) correspondente à renda que poderiam obter alugando o seu imóvel. Em contrapartida, podem deduzir os juros hipotecários e os custos de manutenção.",
+  "imputedRentalDecomposition": "DECOMPOSIÇÃO",
+  "imputedRentalAddedIncome": "Rendimento tributável adicionado",
+  "imputedRentalRentalValue": "Valor locativo",
+  "imputedRentalDeductions": "Deduções",
+  "imputedRentalMortgageInterests": "Juros hipotecários",
+  "imputedRentalMaintenanceCosts": "Custos de manutenção",
+  "imputedRentalBuildingInsurance": "Seguro do edifício (estimativa)",
+  "imputedRentalTotalDeductions": "Total deduções",
+  "imputedRentalNetImpact": "Impacto líquido no rendimento tributável",
+  "imputedRentalTaxImpact": "Impacto fiscal estimado (taxa marginal {rate} %)",
+  "@imputedRentalTaxImpact": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "imputedRentalParameters": "PARÂMETROS",
+  "imputedRentalCanton": "Cantão",
+  "imputedRentalMarketValue": "Valor de mercado do imóvel",
+  "imputedRentalAnnualInterests": "Juros hipotecários anuais",
+  "imputedRentalEffectiveMaintenance": "Custos de manutenção efetivos",
+  "imputedRentalOldProperty": "Imóvel antigo (>= 10 anos)",
+  "imputedRentalMaintenanceFlatRate20": "Taxa fixa de manutenção: 20 % do valor locativo",
+  "imputedRentalMaintenanceFlatRate10": "Taxa fixa de manutenção: 10 % do valor locativo",
+  "imputedRentalMarginalRate": "Taxa marginal estimada",
+  "imputedRentalSource": "Fonte: LIFD art. 21 par. 1 let. b, art. 32. Taxas cantonais estimadas para fins pedagógicos.",
+  "saronVsFixedAppBarTitle": "SARON VS FIXO",
+  "saronVsFixedCumulativeCost": "CUSTO ACUMULADO EM {years} ANOS",
+  "@saronVsFixedCumulativeCost": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "saronVsFixedLegendFixed": "Fixo",
+  "saronVsFixedLegendStable": "SARON estável",
+  "saronVsFixedLegendRise": "SARON em alta",
+  "saronVsFixedParameters": "PARÂMETROS",
+  "saronVsFixedMortgageAmount": "Montante hipotecário",
+  "saronVsFixedDuration": "Duração",
+  "saronVsFixedYears": "{years} anos",
+  "@saronVsFixedYears": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "saronVsFixedCostComparison": "COMPARAÇÃO DE CUSTOS",
+  "saronVsFixedInitial": "inicial",
+  "saronVsFixedExplanation": "O SARON em alta simula +0,25 %/ano nos 3 primeiros anos. Na realidade, a evolução depende da política monetária do BNS.",
+  "saronVsFixedRate": "Taxa: {rate}",
+  "@saronVsFixedRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "saronVsFixedSource": "Fonte: taxas indicativas mercado suíço 2026. Não constitui aconselhamento hipotecário.",
+  "debtRatioTitle": "DIAGNÓSTICO DE DÍVIDA",
+  "debtRatioLabelSain": "SAUDÁVEL",
+  "debtRatioLabelAttention": "ATENÇÃO",
+  "debtRatioLabelCritique": "CRÍTICO",
+  "debtRatioDebtRevenueRatio": "Rácio dívida / rendimentos",
+  "debtRatioParametres": "PARÂMETROS",
+  "debtRatioRevenuMensuelNet": "Rendimento mensal líquido",
+  "debtRatioChargesDetteMensuelles": "Pagamentos mensais de dívida",
+  "debtRatioLoyer": "Renda",
+  "debtRatioAutresChargesFixes": "Outras despesas fixas",
+  "debtRatioCelibataire": "Solteiro/a",
+  "debtRatioNombreEnfants": "Número de filhos",
+  "debtRatioMinimumVitalTitle": "MÍNIMO VITAL (LP ART. 93)",
+  "debtRatioMinimumVital": "Mínimo vital",
+  "debtRatioMargeDisponible": "Margem disponível",
+  "debtRatioMinVitalWarning": "A sua margem residual está abaixo do mínimo vital. Contacte um serviço de ajuda profissional.",
+  "debtRatioRecommandations": "RECOMENDAÇÕES",
+  "debtRatioAideProfessionnelle": "AJUDA PROFISSIONAL",
+  "debtRatioDettesConseilsSuisse": "Aconselhamento de Dívidas Suíça",
+  "debtRatioConseilGratuit": "Aconselhamento gratuito e confidencial",
+  "debtRatioCaritasAide": "Caritas — Ajuda com dívidas",
+  "debtRatioCaritasDesc": "Ajuda para o desendividamento e negociação",
+  "helpResourcesTitle": "AJUDA EM CASO DE DÍVIDA",
+  "helpResourcesIntroTitle": "Não está sozinho/a",
+  "helpResourcesIntroBody": "Na Suíça, numerosos serviços profissionais oferecem acompanhamento gratuito e confidencial para pessoas que enfrentam dificuldades financeiras. Pedir ajuda é um ato de coragem, não um sinal de fraqueza.",
+  "helpResourcesExternalLinks": "Todos os links abaixo levam a sites externos. MINT não transmite nenhum dado a estes serviços.",
+  "helpResourcesDettesConseilsDesc": "Federação dos serviços de aconselhamento sobre dívidas na Suíça. Aconselhamento gratuito, confidencial e profissional. Mais de 30 serviços membros em toda a Suíça.",
+  "helpResourcesCaritasDesc": "Serviço de ajuda da Caritas Suíça para pessoas endividadas. Ajuda ao desendividamento, negociação com credores, acompanhamento orçamental personalizado.",
+  "helpResourcesCaritasTitle": "Caritas — Aconselhamento de dívidas",
+  "helpResourcesGratuit": "GRATUITO",
+  "helpResourcesSiteWeb": "Site web",
+  "helpResourcesServiceCantonal": "SERVIÇO CANTONAL",
+  "helpResourcesVotreCanton": "O seu cantão",
+  "helpResourcesAucunServiceCantonal": "Nenhum serviço cantonal registado para este cantão. Contacte o Aconselhamento de Dívidas Suíça para orientação.",
+  "helpResourcesPrivacyTitle": "Proteção de dados (nLPD)",
+  "helpResourcesPrivacyBody": "MINT não transmite nenhum dado pessoal aos serviços acima referenciados. Os links externos abrem o seu navegador. A sua utilização deste ecrã é estritamente confidencial e não é registada nem partilhada.",
+  "helpResourcesDisclaimer": "MINT fornece estes links a título informativo e educativo. Estes serviços são independentes do MINT. MINT não fornece aconselhamento jurídico ou financeiro. Em caso de dificuldade financeira, contacte diretamente os serviços especializados.",
+  "repaymentTitle": "PLANO DE REEMBOLSO",
+  "repaymentLibereDans": "Livre em",
+  "repaymentMois": "{count} meses",
+  "@repaymentMois": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "repaymentInteretsEconomises": "CHF {amount} de juros poupados com avalanche",
+  "@repaymentInteretsEconomises": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "repaymentMesDettes": "AS MINHAS DÍVIDAS",
+  "repaymentAjouterDette": "Adicionar uma dívida",
+  "repaymentAjoutezDettes": "Adicione as suas dívidas para gerar um plano de reembolso.",
+  "repaymentNomDette": "Nome da dívida",
+  "repaymentMontant": "Montante",
+  "repaymentTauxAnnuel": "Taxa anual",
+  "repaymentMensualiteMin": "Prestação mín",
+  "repaymentNouvelleDette": "Nova dívida",
+  "repaymentBudgetMensuel": "ORÇAMENTO MENSAL DE REEMBOLSO",
+  "repaymentBudgetTotalMois": "Orçamento total / mês",
+  "repaymentComparaisonStrategies": "COMPARAÇÃO DAS ESTRATÉGIAS",
+  "repaymentAvalanche": "AVALANCHE",
+  "repaymentAvalancheSubtitle": "Taxa mais alta primeiro",
+  "repaymentBouleDeNeige": "BOLA DE NEVE",
+  "repaymentBouleDeNeigeSubtitle": "Saldo mais pequeno primeiro",
+  "repaymentInterets": "juros",
+  "repaymentDateLiberation": "Data de libertação",
+  "repaymentInteretsTotaux": "Juros totais",
+  "repaymentDifference": "Diferença: CHF {amount}",
+  "@repaymentDifference": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "repaymentTimelineAvalanche": "CRONOLOGIA (AVALANCHE)",
+  "repaymentColMois": "Mês",
+  "repaymentColPaiement": "Pagamento",
+  "repaymentColSoldeRestant": "Saldo restante",
+  "repaymentEmptyState": "Adicione as suas dívidas e defina o seu orçamento mensal de reembolso para ver o plano.",
+  "providerComparatorTitle": "COMPARADOR 3A",
+  "providerComparatorDifference": "Diferença em {duree} anos",
+  "@providerComparatorDifference": {
+    "placeholders": {
+      "duree": {
+        "type": "String"
+      }
+    }
+  },
+  "providerComparatorEntreProviders": "entre o fornecedor mais e menos rentável",
+  "providerComparatorParametres": "PARÂMETROS",
+  "providerComparatorAge": "Idade",
+  "providerComparatorVersementAnnuel": "Contribuição anual",
+  "providerComparatorDuree": "Duração",
+  "providerComparatorProfilRisque": "Perfil de risco",
+  "providerComparatorPrudent": "Prudente",
+  "providerComparatorEquilibre": "Equilibrado",
+  "providerComparatorDynamique": "Dinâmico",
+  "providerComparatorComparaison": "COMPARAÇÃO",
+  "providerComparatorRendement": "Rendimento",
+  "providerComparatorFrais": "Comissões",
+  "providerComparatorCapitalFinal": "Capital final",
+  "providerComparatorVsPremier": "-CHF {amount} vs primeiro",
+  "@providerComparatorVsPremier": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "providerComparatorAttentionAssurance": "ATENÇÃO — Seguro 3a",
+  "providerComparatorAssuranceWarning": "Os seguros 3a combinam poupança e cobertura de risco, mas as comissões elevadas (frequentemente > 1,5 %) e a rigidez do contrato tornam-nos desfavoráveis para jovens poupadores.",
+  "realReturnTitle": "RENDIMENTO REAL 3A",
+  "realReturnTauxEquivalent": "Taxa equivalente sobre esforço líquido",
+  "realReturnVsTaux": "vs {taux} % taxa líquida 3a (bruto - comissões)",
+  "@realReturnVsTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
+  "realReturnEffortNet": "Esforço líquido: {effortNet}/ano | Prémio fiscal implícito: +{premium} pts",
+  "@realReturnEffortNet": {
+    "placeholders": {
+      "effortNet": {
+        "type": "String"
+      },
+      "premium": {
+        "type": "String"
+      }
+    }
+  },
+  "realReturnParametres": "PARÂMETROS",
+  "realReturnVersementAnnuel": "Contribuição anual",
+  "realReturnTauxMarginal": "Taxa marginal",
+  "realReturnRendementBrut": "Rendimento bruto",
+  "realReturnFraisGestion": "Comissões de gestão",
+  "realReturnDureePlacement": "Duração do investimento",
+  "realReturnRendementsCompares": "RENDIMENTOS COMPARADOS",
+  "realReturnRendementNominal3a": "Rendimento nominal 3a",
+  "realReturnRendementReelAvecFiscal": "Rendimento real (com fiscal)",
+  "realReturnTauxEquivalentNote": "Esta taxa é uma taxa equivalente: não representa um rendimento de mercado esperado.",
+  "realReturnRendementEpargne": "Rendimento conta poupança",
+  "realReturnCapitalFinalApres": "CAPITAL FINAL APÓS {duree} ANOS",
+  "@realReturnCapitalFinalApres": {
+    "placeholders": {
+      "duree": {
+        "type": "String"
+      }
+    }
+  },
+  "realReturn3aFintechFiscal": "3a Fintech + fiscal",
+  "realReturnCompteEpargne": "Conta poupança 1,5 %",
+  "realReturnGainVsEpargne": "Ganho vs poupança clássica: CHF {amount}",
+  "@realReturnGainVsEpargne": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "realReturnDetailEconomieFiscale": "DETALHE POUPANÇA FISCAL",
+  "realReturnTotalVersements": "Total contribuições",
+  "realReturnCapitalFinal3a": "Capital final 3a (excl. fiscal)",
+  "realReturnEconomieFiscaleCumulee": "Poupança fiscal acumulada",
+  "realReturnTotalAvecAvantageFiscal": "Total com vantagem fiscal",
+  "staggeredWithdrawalTitle": "LEVANTAMENTO 3A ESCALONADO",
+  "staggeredWithdrawalEconomieEstimee": "Poupança estimada",
+  "staggeredWithdrawalEchelonneSurComptes": "escalonando em {count} contas",
+  "@staggeredWithdrawalEchelonneSurComptes": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "staggeredWithdrawalNombreAdapte": "Recomendado: {count} contas",
+  "@staggeredWithdrawalNombreAdapte": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "staggeredWithdrawalPourquoiTitle": "Porquê escalonar os levantamentos 3a?",
+  "staggeredWithdrawalPourquoiBody": "O imposto sobre o levantamento de capital de previdência é progressivo. Ao distribuir os seus ativos 3a por várias contas e levantá-los em diferentes anos fiscais, reduz a taxa média de imposição. A lei autoriza até 5 contas 3a por pessoa (OPP3). Desde a reforma AHV21 (2024), os levantamentos antecipados são possíveis a partir dos 60 anos (5 anos antes da idade de reforma de 65 anos para todos).",
+  "staggeredWithdrawalParametres": "PARÂMETROS",
+  "staggeredWithdrawalAvoir3aTotal": "Ativos 3a totais",
+  "staggeredWithdrawalNbComptes": "Número de contas 3a",
+  "staggeredWithdrawalCanton": "Cantão",
+  "staggeredWithdrawalRevenuImposable": "Rendimento tributável",
+  "staggeredWithdrawalAgeDebutRetraits": "Idade início levantamentos",
+  "staggeredWithdrawalAgeDernierRetrait": "Idade último levantamento",
+  "staggeredWithdrawalResultat": "RESULTADO",
+  "staggeredWithdrawalEnBloc": "EM BLOCO",
+  "staggeredWithdrawalRetraitUnique": "Levantamento único",
+  "staggeredWithdrawalEchelonne": "ESCALONADO",
+  "staggeredWithdrawalNRetraits": "{count} levantamentos",
+  "@staggeredWithdrawalNRetraits": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "staggeredWithdrawalImpotEstime": "Imposto estimado",
+  "staggeredWithdrawalEchelonnerGain": "Escalonando, pagas CHF {amount} a menos em impostos.",
+  "@staggeredWithdrawalEchelonnerGain": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "staggeredWithdrawalPlanAnnuel": "PLANO ANUAL",
+  "staggeredWithdrawalColAge": "Idade",
+  "staggeredWithdrawalColRetrait": "Levantamento",
+  "staggeredWithdrawalColImpot": "Imposto",
+  "staggeredWithdrawalColNet": "Líquido",
+  "staggeredWithdrawalTotal": "Total",
+  "librePassageTitle": "LIVRE PASSAGEM",
+  "librePassageSituation": "SITUAÇÃO",
+  "librePassageChangementEmploi": "Mudança de emprego",
+  "librePassageDepartSuisse": "Saída da Suíça",
+  "librePassageCessationActivite": "Cessação de atividade",
+  "librePassageTonProfil": "O TEU PERFIL",
+  "librePassageTonAge": "A tua idade",
+  "librePassageAvoirLibrePassage": "Ativos de livre passagem",
+  "librePassageNouvelEmployeur": "Novo empregador",
+  "librePassageAsNouvelEmployeur": "Já tens um novo empregador?",
+  "librePassageAlertes": "ALERTAS",
+  "librePassageChecklist": "CHECKLIST",
+  "librePassageUrgenceCritique": "Crítico",
+  "librePassageUrgenceHaute": "Alta",
+  "librePassageUrgenceMoyenne": "Média",
+  "librePassageRecommandations": "RECOMENDAÇÕES",
+  "librePassageCompteLibrePassage": "Conta de livre passagem",
+  "librePassageCompteDesc": "Segurança máxima, taxa fixa 1-2 %. Ideal se retomas um emprego rapidamente.",
+  "librePassagePoliceAssurance": "Apólice de seguro",
+  "librePassagePoliceDesc": "Proteção por morte e invalidez incluída. Rendimento médio ligado às taxas técnicas.",
+  "librePassageFondsPlacement": "Fundo de investimento",
+  "librePassageFondsDesc": "Potencial de rendimento superior. Risco de mercado a aceitar no horizonte.",
+  "librePassageCentrale2ePilier": "Central do 2o pilar (sfbvg.ch)",
+  "librePassageRechercherAvoirs": "Procure ativos de livre passagem esquecidos",
+  "librePassagePrivacy": "Os teus dados ficam no teu dispositivo. Nenhuma informação é transmitida a terceiros. Conforme com a nLPD.",
+  "eplTitle": "LEVANTAMENTO EPL",
+  "eplIntroTitle": "Levantamento EPL — Propriedade imobiliária",
+  "eplIntroBody": "O EPL permite utilizar os teus ativos LPP para financiar a compra de um imóvel, amortizar uma hipoteca ou financiar renovações. Montante mínimo: CHF 20'000. Este levantamento tem um impacto direto nas tuas prestações de risco.",
+  "eplParametres": "PARÂMETROS",
+  "eplAvoirLppTotal": "Ativos LPP totais",
+  "eplAge": "Idade",
+  "eplMontantSouhaite": "Montante desejado",
+  "eplCanton": "Cantão",
+  "eplRachatsRecents": "Recompras LPP recentes",
+  "eplRachatsQuestion": "Efetuaste uma recompra LPP nos últimos 3 anos?",
+  "eplAnneesDepuisRachat": "Anos desde a recompra",
+  "eplResultat": "RESULTADO",
+  "eplMontantMaxRetirable": "Montante máximo levantável",
+  "eplMontantApplicable": "Montante aplicável",
+  "eplRetraitImpossible": "O levantamento não é possível com a configuração atual.",
+  "eplImpactPrestations": "IMPACTO NAS PRESTAÇÕES",
+  "eplReductionRenteInvalidite": "Redução renda invalidez (estimativa anual)",
+  "eplReductionCapitalDeces": "Redução capital-falecimento (estimativa)",
+  "eplImpactPrestationsBody": "O levantamento EPL reduz proporcionalmente as tuas prestações de risco. Verifica junto da tua caixa de pensões os montantes exatos e as possibilidades de seguro complementar.",
+  "eplImpactRente": "IMPACTO NA RENDA",
+  "eplRenteSansEpl": "Renda sem EPL",
+  "eplRenteAvecEpl": "Renda com EPL",
+  "eplPerteMensuelle": "Perda mensal",
+  "eplEstimationEducative": "Estimativa educativa baseada num salário de CHF 100'000, rendimento caixa 2 %, taxa de conversão 6,8 %. O montante real depende da tua situação.",
+  "eplEstimationFiscale": "ESTIMATIVA FISCAL",
+  "eplMontantRetire": "Montante levantado",
+  "eplImpotEstimeSurRetrait": "Imposto estimado sobre o levantamento",
+  "eplMontantNetApresImpot": "Montante líquido após imposto",
+  "eplTaxNote": "O levantamento de capital é tributado a uma taxa reduzida (aproximadamente 1/5 da escala ordinária). A taxa exata depende do cantão, do município e da situação pessoal.",
+  "eplPointsAttention": "PONTOS DE ATENÇÃO"
 }

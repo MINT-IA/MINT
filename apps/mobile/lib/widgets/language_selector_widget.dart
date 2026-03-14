@@ -59,7 +59,7 @@ class LanguageSelectorSheet extends StatelessWidget {
                   const Icon(Icons.language, size: 22, color: MintColors.textPrimary),
                   const SizedBox(width: 10),
                   Text(
-                    AppLocalizations.of(context)!.languageSelectorTitle,
+                    S.of(context)!.languageSelectorTitle,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w700,
                           color: MintColors.textPrimary,

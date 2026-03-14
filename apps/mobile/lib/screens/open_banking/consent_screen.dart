@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -373,7 +373,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               child: OutlinedButton.icon(
                 onPressed: () => _revokeConsent(index),
                 icon: const Icon(Icons.cancel_outlined, size: 16),
-                label: Text(AppLocalizations.of(context)!.consentRevokeButton),
+                label: Text(S.of(context)!.consentRevokeButton),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: MintColors.error,
                   side: BorderSide(color: MintColors.error.withOpacity(0.5)),
@@ -491,7 +491,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
       child: OutlinedButton.icon(
         onPressed: _startNewConsentFlow,
         icon: const Icon(Icons.add, size: 18),
-        label: Text(AppLocalizations.of(context)!.consentAddButton),
+        label: Text(S.of(context)!.consentAddButton),
         style: OutlinedButton.styleFrom(
           foregroundColor: MintColors.textPrimary,
           side: const BorderSide(color: MintColors.border),
@@ -823,7 +823,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: Text(AppLocalizations.of(context)!.openBankingBack),
+                  child: Text(S.of(context)!.openBankingBack),
                 ),
               ),
               const SizedBox(width: 12),
@@ -840,7 +840,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: Text(AppLocalizations.of(context)!.openBankingNext),
+                  child: Text(S.of(context)!.openBankingNext),
                 ),
               ),
             ],
@@ -956,7 +956,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: Text(AppLocalizations.of(context)!.openBankingBack),
+                  child: Text(S.of(context)!.openBankingBack),
                 ),
               ),
               const SizedBox(width: 12),
@@ -991,7 +991,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: Text(AppLocalizations.of(context)!.openBankingConfirm),
+                  child: Text(S.of(context)!.openBankingConfirm),
                 ),
               ),
             ],

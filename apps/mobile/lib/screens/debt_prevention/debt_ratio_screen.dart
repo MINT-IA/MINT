@@ -7,6 +7,7 @@ import 'package:mint_mobile/services/debt_prevention_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 /// Ecran de diagnostic du ratio d'endettement.
 ///
@@ -61,7 +62,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
             foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'DIAGNOSTIC DETTE',
+                S.of(context)!.debtRatioTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -116,9 +117,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     };
 
     final label = switch (result.niveau) {
-      DebtRiskLevel.vert => 'SAIN',
-      DebtRiskLevel.orange => 'ATTENTION',
-      DebtRiskLevel.rouge => 'CRITIQUE',
+      DebtRiskLevel.vert => S.of(context)!.debtRatioLabelSain,
+      DebtRiskLevel.orange => S.of(context)!.debtRatioLabelAttention,
+      DebtRiskLevel.rouge => S.of(context)!.debtRatioLabelCritique,
     };
 
     return Container(
@@ -168,7 +169,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Ratio dette / revenus',
+            S.of(context)!.debtRatioDebtRevenueRatio,
             style: const TextStyle(
               fontSize: 12,
               color: MintColors.textMuted,
@@ -223,7 +224,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAMETRES',
+            S.of(context)!.debtRatioParametres,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -235,7 +236,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
 
           // Revenu mensuel
           _buildSliderRow(
-            label: 'Revenu mensuel net',
+            label: S.of(context)!.debtRatioRevenuMensuelNet,
             value: _revenusMensuels,
             min: 2000,
             max: 20000,
@@ -247,7 +248,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
 
           // Charges dette
           _buildSliderRow(
-            label: 'Charges de dette mensuelles',
+            label: S.of(context)!.debtRatioChargesDetteMensuelles,
             value: _chargesDetteMensuelles,
             min: 0,
             max: 10000,
@@ -260,7 +261,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
 
           // Loyer
           _buildSliderRow(
-            label: 'Loyer',
+            label: S.of(context)!.debtRatioLoyer,
             value: _loyer,
             min: 0,
             max: 5000,
@@ -272,7 +273,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
 
           // Autres charges
           _buildSliderRow(
-            label: 'Autres charges fixes',
+            label: S.of(context)!.debtRatioAutresChargesFixes,
             value: _autresCharges,
             min: 0,
             max: 3000,
@@ -286,8 +287,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           Row(
             children: [
               Expanded(
-                child: const Text(
-                  'Celibataire',
+                child: Text(
+                  S.of(context)!.debtRatioCelibataire,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -303,7 +304,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           ),
 
           _buildSliderRow(
-            label: 'Nombre d\'enfants',
+            label: S.of(context)!.debtRatioNombreEnfants,
             value: _nombreEnfants.toDouble(),
             min: 0,
             max: 6,
@@ -378,7 +379,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'MINIMUM VITAL (LP ART. 93)',
+            S.of(context)!.debtRatioMinimumVitalTitle,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -388,12 +389,12 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           ),
           const SizedBox(height: 16),
           _buildInfoRow(
-            'Minimum vital',
+            S.of(context)!.debtRatioMinimumVital,
             'CHF ${formatChf(result.minimumVital)} / mois',
           ),
           const Divider(height: 20),
           _buildInfoRow(
-            'Marge disponible',
+            S.of(context)!.debtRatioMargeDisponible,
             'CHF ${formatChf(result.margeDisponible)} / mois',
             color: result.margeDisponible > result.minimumVital
                 ? MintColors.success
@@ -415,8 +416,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Votre marge residuelle est inferieure au minimum vital. '
-                      'Contactez un service d\'aide professionnelle.',
+                      S.of(context)!.debtRatioMinVitalWarning,
                       style: TextStyle(
                         fontSize: 12,
                         color: MintColors.redDark,
@@ -472,7 +472,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'RECOMMANDATIONS',
+            S.of(context)!.debtRatioRecommandations,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -525,7 +525,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               Icon(Icons.support_agent, color: MintColors.redMedium, size: 24),
               const SizedBox(width: 12),
               Text(
-                'AIDE PROFESSIONNELLE',
+                S.of(context)!.debtRatioAideProfessionnelle,
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -538,8 +538,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
 
           // Dettes Conseils
           _buildResourceLink(
-            nom: 'Dettes Conseils Suisse',
-            description: 'Conseil gratuit et confidentiel',
+            nom: S.of(context)!.debtRatioDettesConseilsSuisse,
+            description: S.of(context)!.debtRatioConseilGratuit,
             url: 'https://www.dettes.ch',
             telephone: '0800 40 40 40',
           ),
@@ -547,8 +547,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
 
           // Caritas
           _buildResourceLink(
-            nom: 'Caritas — Aide aux dettes',
-            description: 'Aide au desendettement et negociation',
+            nom: S.of(context)!.debtRatioCaritasAide,
+            description: S.of(context)!.debtRatioCaritasDesc,
             url: 'https://www.caritas.ch/dettes',
             telephone: '0800 708 708',
           ),

@@ -129,7 +129,7 @@ class ChiffreChocCard extends StatelessWidget {
                 const Icon(Icons.auto_awesome, size: 12, color: MintColors.coachAccent),
                 const SizedBox(width: 4),
                 Text(
-                  AppLocalizations.of(context)!.coachMintLabel,
+                  S.of(context)!.coachMintLabel,
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: MintColors.textMuted,

@@ -49,7 +49,7 @@ class FriRadarChart extends StatelessWidget {
         child: Column(
           children: [
             Text(
-              AppLocalizations.of(context)!.financialResilienceTitle,
+              S.of(context)!.financialResilienceTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,

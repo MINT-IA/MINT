@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
@@ -47,7 +48,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
             foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'VALEUR LOCATIVE',
+                S.of(context)!.imputedRentalAppBarTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -83,8 +84,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
 
                 // Source legale
                 Text(
-                  'Source : LIFD art. 21 al. 1 let. b, art. 32. '
-                  'Taux cantonaux estimés à titre pédagogique.',
+                  S.of(context)!.imputedRentalSource,
                   style: TextStyle(
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
@@ -112,7 +112,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Qu\'est-ce que la valeur locative ?',
+            S.of(context)!.imputedRentalIntroTitle,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -120,10 +120,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'En Suisse, les propriétaires doivent déclarer un revenu fictif '
-            '(valeur locative) correspondant au loyer qu\'ils pourraient obtenir '
-            'en louant leur bien. En contrepartie, ils peuvent déduire les '
-            'intérêts hypothécaires et les frais d\'entretien.',
+            S.of(context)!.imputedRentalIntroBody,
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -189,7 +186,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'DÉCOMPOSITION',
+            S.of(context)!.imputedRentalDecomposition,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -204,33 +201,33 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
           const SizedBox(height: 20),
 
           // Revenus ajoutes
-          _buildSectionLabel('Revenu imposable ajouté', MintColors.error),
+          _buildSectionLabel(S.of(context)!.imputedRentalAddedIncome, MintColors.error),
           _buildInfoRow(
-            'Valeur locative',
+            S.of(context)!.imputedRentalRentalValue,
             '+CHF ${formatChf(result.valeurLocative)}',
             color: MintColors.error,
           ),
           const Divider(height: 20),
 
           // Deductions
-          _buildSectionLabel('Déductions', MintColors.success),
+          _buildSectionLabel(S.of(context)!.imputedRentalDeductions, MintColors.success),
           _buildInfoRow(
-            'Intérêts hypothécaires',
+            S.of(context)!.imputedRentalMortgageInterests,
             '-CHF ${formatChf(result.deductionInterets)}',
             color: MintColors.success,
           ),
           _buildInfoRow(
-            'Frais d\'entretien',
+            S.of(context)!.imputedRentalMaintenanceCosts,
             '-CHF ${formatChf(result.deductionFraisEntretien)}',
             color: MintColors.success,
           ),
           _buildInfoRow(
-            'Assurance bâtiment (estimation)',
+            S.of(context)!.imputedRentalBuildingInsurance,
             '-CHF ${formatChf(result.deductionAssurance)}',
             color: MintColors.success,
           ),
           _buildInfoRow(
-            'Total déductions',
+            S.of(context)!.imputedRentalTotalDeductions,
             '-CHF ${formatChf(result.totalDeductions)}',
             isBold: true,
             color: MintColors.success,
@@ -239,13 +236,13 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
 
           // Impact net
           _buildInfoRow(
-            'Impact net sur le revenu imposable',
+            S.of(context)!.imputedRentalNetImpact,
             '${result.impactNet >= 0 ? "+" : "-"}CHF ${formatChf(result.impactNet.abs())}',
             isBold: true,
             color: result.impactNet > 0 ? MintColors.error : MintColors.success,
           ),
           _buildInfoRow(
-            'Impact fiscal estimé (taux marginal ${(_tauxMarginal * 100).toStringAsFixed(0)}%)',
+            S.of(context)!.imputedRentalTaxImpact((_tauxMarginal * 100).toStringAsFixed(0)),
             '${result.impotSupplementaire >= 0 ? "+" : "-"}CHF ${formatChf(result.impotSupplementaire.abs())}/an',
             isBold: true,
             color: result.impotSupplementaire > 0
@@ -280,7 +277,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  'Valeur locative',
+                  S.of(context)!.imputedRentalRentalValue,
                   style: TextStyle(fontSize: 10, color: MintColors.error),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -298,7 +295,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  'Déductions',
+                  S.of(context)!.imputedRentalDeductions,
                   style: TextStyle(fontSize: 10, color: MintColors.success),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -336,7 +333,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAMÈTRES',
+            S.of(context)!.imputedRentalParameters,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -350,9 +347,9 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Canton',
-                style: TextStyle(
+              Text(
+                S.of(context)!.imputedRentalCanton,
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: MintColors.textPrimary,
@@ -386,7 +383,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
 
           // Valeur venale
           _buildSliderRow(
-            label: 'Valeur vénale du bien',
+            label: S.of(context)!.imputedRentalMarketValue,
             value: _valeurVenale,
             min: 200000,
             max: 3000000,
@@ -398,7 +395,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
 
           // Interets annuels
           _buildSliderRow(
-            label: 'Intérêts hypothécaires annuels',
+            label: S.of(context)!.imputedRentalAnnualInterests,
             value: _interetsAnnuels,
             min: 0,
             max: 80000,
@@ -410,7 +407,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
 
           // Frais d'entretien
           _buildSliderRow(
-            label: 'Frais d\'entretien effectifs',
+            label: S.of(context)!.imputedRentalEffectiveMaintenance,
             value: _fraisEntretien,
             min: 0,
             max: 30000,
@@ -428,17 +425,17 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Bien ancien (>= 10 ans)',
-                      style: TextStyle(
+                    Text(
+                      S.of(context)!.imputedRentalOldProperty,
+                      style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     Text(
                       _bienAncien
-                          ? 'Forfait entretien : 20% de la valeur locative'
-                          : 'Forfait entretien : 10% de la valeur locative',
+                          ? S.of(context)!.imputedRentalMaintenanceFlatRate20
+                          : S.of(context)!.imputedRentalMaintenanceFlatRate10,
                       style: const TextStyle(
                         fontSize: 11,
                         color: MintColors.textSecondary,
@@ -458,7 +455,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
 
           // Taux marginal
           _buildSliderRow(
-            label: 'Taux marginal estimé',
+            label: S.of(context)!.imputedRentalMarginalRate,
             value: _tauxMarginal,
             min: 0.15,
             max: 0.45,

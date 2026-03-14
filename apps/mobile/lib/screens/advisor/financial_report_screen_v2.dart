@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -47,7 +47,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = S.of(context)!;
     final reportService = FinancialReportService();
     final report = reportService.generateReport(wizardAnswers);
     final hasDebt = WizardService.isSafeModeActive(wizardAnswers);
@@ -240,7 +240,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  HEADER — Greeting + contextual status (replaces numeric score)
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildHeader(AppLocalizations l10n, UserProfile profile, FinancialHealthScore healthScore) {
+  Widget _buildHeader(S l10n, UserProfile profile, FinancialHealthScore healthScore) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -281,7 +281,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusSummary(AppLocalizations l10n, FinancialHealthScore healthScore) {
+  Widget _buildStatusSummary(S l10n, FinancialHealthScore healthScore) {
     final level = healthScore.overallScore;
     String message;
     String emoji;
@@ -349,7 +349,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ? CardStatus.aRenforcer
             : CardStatus.alerte;
 
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = S.of(context)!;
     return ThematicCard(
       emoji: '\ud83d\udcb0', // money bag
       title: l10n.reportV2BudgetTitle,
@@ -393,25 +393,25 @@ class FinancialReportScreenV2 extends StatelessWidget {
     return baseAdult * adults;
   }
 
-  List<String> _buildSafeModeReasons(AppLocalizations l10n, Map<String, dynamic> answers) {
+  List<String> _buildSafeModeReasons(S l10n, Map<String, dynamic> answers) {
     final reasons = <String>[];
 
-    if (answers[‘q_has_consumer_credit’] == ‘yes’ ||
-        answers[‘q_has_consumer_debt’] == ‘yes’) {
+    if (answers['q_has_consumer_credit'] == 'yes' ||
+        answers['q_has_consumer_debt'] == 'yes') {
       reasons.add(l10n.reportV2DebtConsumer);
     }
-    if (answers[‘q_has_leasing’] == ‘yes’) {
+    if (answers['q_has_leasing'] == 'yes') {
       reasons.add(l10n.reportV2LeasingActive);
     }
 
     final debtPayment =
-        (answers[‘q_debt_payments_period_chf’] as num?)?.toDouble() ?? 0;
+        (answers['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0;
     if (debtPayment > 0) {
       reasons.add(l10n.reportV2DebtPayments(debtPayment.toStringAsFixed(0)));
     }
 
-    final emergencyFund = answers[‘q_emergency_fund’] as String?;
-    if (emergencyFund == null || emergencyFund == ‘no’) {
+    final emergencyFund = answers['q_emergency_fund'] as String?;
+    if (emergencyFund == null || emergencyFund == 'no') {
       reasons.add(l10n.reportV2EmergencyFundInsufficient);
     }
 
@@ -441,7 +441,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ? '3-6'
             : '< 3';
 
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = S.of(context)!;
     return ThematicCard(
       emoji: '\ud83d\udee1\ufe0f', // shield
       title: l10n.reportV2ProtectionTitle,
@@ -508,7 +508,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
     final nb3a =
         int.tryParse(answers['q_3a_accounts_count']?.toString() ?? '0') ?? 0;
 
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = S.of(context)!;
     final String threeAText;
     if (!has3a || nb3a == 0) {
       threeAText = l10n.reportV2No3aYet;
@@ -569,7 +569,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ? CardStatus.aRenforcer
             : CardStatus.alerte;
 
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = S.of(context)!;
     return ThematicCard(
       emoji: '\ud83d\udcca', // bar chart
       title: l10n.reportV2TaxTitle,
@@ -660,7 +660,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  TOP PRIORITIES (kept from original)
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildTopPriorities(BuildContext context, AppLocalizations l10n, List<ActionItem> actions) {
+  Widget _buildTopPriorities(BuildContext context, S l10n, List<ActionItem> actions) {
     if (actions.isEmpty) return const SizedBox.shrink();
 
     return Padding(
@@ -684,7 +684,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
   // _getActionRoute removed — use _routeForCategory(action.category) instead
 
-  Widget _buildActionCard(BuildContext context, AppLocalizations l10n, ActionItem action) {
+  Widget _buildActionCard(BuildContext context, S l10n, ActionItem action) {
     Color priorityColor;
     switch (action.priority) {
       case ActionPriority.critical:
@@ -795,7 +795,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  LPP BUYBACK SECTION (kept from original)
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildLppBuybackSection(AppLocalizations l10n, LppBuybackStrategy strategy, UserProfile profile) {
+  Widget _buildLppBuybackSection(S l10n, LppBuybackStrategy strategy, UserProfile profile) {
     // Taux marginal estimé selon canton + revenu (LIFD + ICC)
     final double marginalRate = profile.canton.isNotEmpty && profile.canton != 'CH'
         ? TaxEstimatorService.estimateMarginalTaxRate(
@@ -899,7 +899,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  SOA COMPLIANCE SECTION — Transparence reglementaire
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildSoaComplianceSection(AppLocalizations l10n, FinancialReport report) {
+  Widget _buildSoaComplianceSection(S l10n, FinancialReport report) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
@@ -1075,7 +1075,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  DISCLAIMER FOOTER — Mention legale obligatoire
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildDisclaimerFooter(AppLocalizations l10n) {
+  Widget _buildDisclaimerFooter(S l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(

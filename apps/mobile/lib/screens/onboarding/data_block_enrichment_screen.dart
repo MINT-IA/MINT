@@ -520,47 +520,47 @@ class _DataBlockEnrichmentScreenState
   _BlockMeta _blockMeta(String type) {
     final l = S.of(context)!;
     return switch (type) {
-      ‘revenu’ => _BlockMeta(
+      'revenu' => _BlockMeta(
           title: l.enrichmentRevenuTitle,
           description: l.enrichmentRevenuDescription,
           ctaLabel: l.enrichmentRevenuCta,
         ),
-      ‘lpp’ => _BlockMeta(
+      'lpp' => _BlockMeta(
           title: l.enrichmentLppTitle,
           description: l.enrichmentLppDescription,
           ctaLabel: l.enrichmentLppCta,
         ),
-      ‘avs’ => _BlockMeta(
+      'avs' => _BlockMeta(
           title: l.enrichmentAvsTitle,
           description: l.enrichmentAvsDescription,
           ctaLabel: l.enrichmentAvsCta,
         ),
-      ‘3a’ => _BlockMeta(
+      '3a' => _BlockMeta(
           title: l.enrichment3aTitle,
           description: l.enrichment3aDescription,
           ctaLabel: l.enrichment3aCta,
         ),
-      ‘patrimoine’ => _BlockMeta(
+      'patrimoine' => _BlockMeta(
           title: l.enrichmentPatrimoineTitle,
           description: l.enrichmentPatrimoineDescription,
           ctaLabel: l.enrichmentPatrimoineCta,
         ),
-      ‘fiscalite’ => _BlockMeta(
+      'fiscalite' => _BlockMeta(
           title: l.enrichmentFiscaliteTitle,
           description: l.enrichmentFiscaliteDescription,
           ctaLabel: l.enrichmentFiscaliteCta,
         ),
-      ‘objectifRetraite’ => _BlockMeta(
+      'objectifRetraite' => _BlockMeta(
           title: l.enrichmentObjectifTitle,
           description: l.enrichmentObjectifDescription,
           ctaLabel: l.enrichmentObjectifCta,
         ),
-      ‘compositionMenage’ => _BlockMeta(
+      'compositionMenage' => _BlockMeta(
           title: l.enrichmentMenageTitle,
           description: l.enrichmentMenageDescription,
           ctaLabel: l.enrichmentMenageCta,
         ),
-      ‘unknown’ => _BlockMeta(
+      'unknown' => _BlockMeta(
           title: l.enrichmentUnknownTitle,
           description: l.enrichmentUnknownDescription,
           ctaLabel: l.enrichmentUnknownCta,

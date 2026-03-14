@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -170,7 +170,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                AppLocalizations.of(context)!.rachatTitle,
+                S.of(context)!.rachatTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -260,7 +260,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.rachatIntroTitle,
+            S.of(context)!.rachatIntroTitle,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -268,7 +268,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           ),
           const SizedBox(height: 8),
           Text(
-            AppLocalizations.of(context)!.rachatIntroBody,
+            S.of(context)!.rachatIntroBody,
             style: const TextStyle(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -332,8 +332,8 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               const SizedBox(height: 8),
               Text(
                 showSavings
-                    ? AppLocalizations.of(context)!.rachatHeroSavingsLabel
-                    : AppLocalizations.of(context)!.rachatHeroBlocLabel,
+                    ? S.of(context)!.rachatHeroSavingsLabel
+                    : S.of(context)!.rachatHeroBlocLabel,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -376,7 +376,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               ),
               const SizedBox(width: 12),
               Text(
-                AppLocalizations.of(context)!.rachatSituationLpp,
+                S.of(context)!.rachatSituationLpp,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -388,7 +388,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           ),
           const SizedBox(height: 20),
           _buildSliderRow(
-            label: AppLocalizations.of(context)!.rachatAvoirActuel,
+            label: S.of(context)!.rachatAvoirActuel,
             value: _avoirActuel,
             min: 0,
             max: 500000,
@@ -401,7 +401,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           ),
           const SizedBox(height: 12),
           _buildSliderRow(
-            label: AppLocalizations.of(context)!.rachatMaximum,
+            label: S.of(context)!.rachatMaximum,
             value: _rachatMax,
             min: 0,
             max: 500000,
@@ -448,7 +448,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               ),
               const SizedBox(width: 12),
               Text(
-                AppLocalizations.of(context)!.rachatSituationFiscale,
+                S.of(context)!.rachatSituationFiscale,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -465,7 +465,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                AppLocalizations.of(context)!.rachatCanton,
+                S.of(context)!.rachatCanton,
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -512,7 +512,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                AppLocalizations.of(context)!.rachatEtatCivil,
+                S.of(context)!.rachatEtatCivil,
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -528,8 +528,8 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _buildStatusChip(AppLocalizations.of(context)!.rachatCelibataire, 'single'),
-                    _buildStatusChip(AppLocalizations.of(context)!.rachatMarie, 'married'),
+                    _buildStatusChip(S.of(context)!.rachatCelibataire, 'single'),
+                    _buildStatusChip(S.of(context)!.rachatMarie, 'married'),
                   ],
                 ),
               ),
@@ -539,7 +539,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
 
           // Revenu slider
           _buildSliderRow(
-            label: AppLocalizations.of(context)!.rachatRevenuImposable,
+            label: S.of(context)!.rachatRevenuImposable,
             value: _revenu,
             min: 50000,
             max: 300000,
@@ -572,7 +572,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                           Row(
                             children: [
                               Text(
-                                AppLocalizations.of(context)!.rachatTauxMarginalEstime,
+                                S.of(context)!.rachatTauxMarginalEstime,
                                 style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
@@ -600,12 +600,12 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                           const SizedBox(height: 4),
                           Text(
                             _manualTauxOverride
-                                ? AppLocalizations.of(context)!.rachatValeurAjustee
-                                : AppLocalizations.of(context)!.rachatCalculePour(
+                                ? S.of(context)!.rachatValeurAjustee
+                                : S.of(context)!.rachatCalculePour(
                                     _canton,
                                     _civilStatus == 'married'
-                                        ? AppLocalizations.of(context)!.rachatMarie
-                                        : AppLocalizations.of(context)!.rachatCelibataire,
+                                        ? S.of(context)!.rachatMarie
+                                        : S.of(context)!.rachatCelibataire,
                                   ),
                             style: const TextStyle(
                               fontSize: 11,
@@ -647,7 +647,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                         });
                       },
                       icon: const Icon(Icons.tune, size: 16),
-                      label: Text(AppLocalizations.of(context)!.rachatAjuster),
+                      label: Text(S.of(context)!.rachatAjuster),
                       style: TextButton.styleFrom(
                         foregroundColor: MintColors.textMuted,
                         textStyle: const TextStyle(fontSize: 12),
@@ -687,7 +687,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                           padding: EdgeInsets.zero,
                           minimumSize: const Size(0, 32),
                         ),
-                        child: Text(AppLocalizations.of(context)!.rachatAuto),
+                        child: Text(S.of(context)!.rachatAuto),
                       ),
                     ],
                   ),
@@ -751,7 +751,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               ),
               const SizedBox(height: 24),
               Text(
-                AppLocalizations.of(context)!.rachatTauxMarginalTitle,
+                S.of(context)!.rachatTauxMarginalTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -760,7 +760,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               ),
               const SizedBox(height: 16),
               Text(
-                AppLocalizations.of(context)!.rachatTauxMarginalBody,
+                S.of(context)!.rachatTauxMarginalBody,
                 style: const TextStyle(
                   fontSize: 15,
                   color: MintColors.textPrimary,
@@ -781,7 +781,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        AppLocalizations.of(context)!.rachatTauxMarginalTip,
+                        S.of(context)!.rachatTauxMarginalTip,
                         style: TextStyle(
                           fontSize: 13,
                           color: MintColors.greenForest,
@@ -828,7 +828,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               ),
               const SizedBox(width: 12),
               Text(
-                AppLocalizations.of(context)!.rachatStrategie,
+                S.of(context)!.rachatStrategie,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -840,12 +840,12 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           ),
           const SizedBox(height: 20),
           _buildSliderRow(
-            label: AppLocalizations.of(context)!.rachatHorizonLabel,
+            label: S.of(context)!.rachatHorizonLabel,
             value: _horizon.toDouble(),
             min: 1,
             max: 15,
             divisions: 14,
-            format: AppLocalizations.of(context)!.rachatHorizonValue(_horizon, _horizon > 1 ? 's' : ''),
+            format: S.of(context)!.rachatHorizonValue(_horizon, _horizon > 1 ? 's' : ''),
             onChanged: (v) {
               _horizon = v.round();
               _onInputChanged();
@@ -914,7 +914,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppLocalizations.of(context)!.rachatComparaison,
+          S.of(context)!.rachatComparaison,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -927,8 +927,8 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           children: [
             Expanded(
               child: _buildComparisonCard(
-                title: AppLocalizations.of(context)!.rachatToutEn1An,
-                subtitle: AppLocalizations.of(context)!.rachatBloc,
+                title: S.of(context)!.rachatToutEn1An,
+                subtitle: S.of(context)!.rachatBloc,
                 amount: result.economieBlocTotal,
                 color: MintColors.warning,
                 isWinner: result.delta <= 0,
@@ -937,8 +937,8 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             const SizedBox(width: 12),
             Expanded(
               child: _buildComparisonCard(
-                title: AppLocalizations.of(context)!.rachatEchelonneSurNAns(_horizon),
-                subtitle: AppLocalizations.of(context)!.rachatReparti,
+                title: S.of(context)!.rachatEchelonneSurNAns(_horizon),
+                subtitle: S.of(context)!.rachatReparti,
                 amount: result.economieEchelonneTotal,
                 color: MintColors.success,
                 isWinner: result.delta > 0,
@@ -979,7 +979,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                AppLocalizations.of(context)!.rachatLePlusAdapte,
+                S.of(context)!.rachatLePlusAdapte,
                 style: GoogleFonts.montserrat(
                   fontSize: 9,
                   fontWeight: FontWeight.w800,
@@ -1016,7 +1016,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           ),
           const SizedBox(height: 4),
           Text(
-            AppLocalizations.of(context)!.rachatEconomieFiscale,
+            S.of(context)!.rachatEconomieFiscale,
             style: const TextStyle(
               fontSize: 11,
               color: MintColors.textMuted,
@@ -1043,7 +1043,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.rachatImpactTrancheFiscale,
+            S.of(context)!.rachatImpactTrancheFiscale,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -1053,7 +1053,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           ),
           const SizedBox(height: 8),
           Text(
-            AppLocalizations.of(context)!.rachatWaterfallExplanation,
+            S.of(context)!.rachatWaterfallExplanation,
             style: const TextStyle(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -1077,9 +1077,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegendDot(MintColors.warning, AppLocalizations.of(context)!.rachatLegendBloc),
+              _buildLegendDot(MintColors.warning, S.of(context)!.rachatLegendBloc),
               const SizedBox(width: 24),
-              _buildLegendDot(MintColors.success, AppLocalizations.of(context)!.rachatLegendEchelonne),
+              _buildLegendDot(MintColors.success, S.of(context)!.rachatLegendEchelonne),
             ],
           ),
         ],
@@ -1135,7 +1135,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.rachatPlanAnnuel,
+            S.of(context)!.rachatPlanAnnuel,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -1166,7 +1166,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  AppLocalizations.of(context)!.rachatTotal,
+                  S.of(context)!.rachatTotal,
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -1177,7 +1177,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.rachatEconomieChf(formatChf(result.economieEchelonneTotal)),
+                      S.of(context)!.rachatEconomieChf(formatChf(result.economieEchelonneTotal)),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -1186,7 +1186,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      AppLocalizations.of(context)!.rachatCoutNetChf(formatChf(_rachatMax - result.economieEchelonneTotal)),
+                      S.of(context)!.rachatCoutNetChf(formatChf(_rachatMax - result.economieEchelonneTotal)),
                       style: const TextStyle(
                         fontSize: 12,
                         color: MintColors.textSecondary,
@@ -1310,14 +1310,14 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        AppLocalizations.of(context)!.rachatRachat,
+                        S.of(context)!.rachatRachat,
                         style: const TextStyle(
                           fontSize: 11,
                           color: MintColors.textMuted,
                         ),
                       ),
                       Text(
-                        AppLocalizations.of(context)!.rachatEconomieFiscale,
+                        S.of(context)!.rachatEconomieFiscale,
                         style: TextStyle(
                           fontSize: 11,
                           color: MintColors.greenPastel,
@@ -1329,7 +1329,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                   Row(
                     children: [
                       Text(
-                        AppLocalizations.of(context)!.rachatCoutNetChf(formatChf(year.coutNet)),
+                        S.of(context)!.rachatCoutNetChf(formatChf(year.coutNet)),
                         style: const TextStyle(
                           fontSize: 12,
                           color: MintColors.textSecondary,
@@ -1344,7 +1344,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          AppLocalizations.of(context)!.rachatLacuneComblee(lacunePercent.toStringAsFixed(0)),
+                          S.of(context)!.rachatLacuneComblee(lacunePercent.toStringAsFixed(0)),
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
@@ -1385,7 +1385,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppLocalizations.of(context)!.rachatBlockageEplTitle,
+                  S.of(context)!.rachatBlockageEplTitle,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
@@ -1394,7 +1394,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  AppLocalizations.of(context)!.rachatBlockageEplBody,
+                  S.of(context)!.rachatBlockageEplBody,
                   style: TextStyle(
                     fontSize: 12,
                     color: MintColors.redMedium,

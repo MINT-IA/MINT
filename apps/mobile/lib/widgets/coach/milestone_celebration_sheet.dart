@@ -202,7 +202,7 @@ class _MilestoneCelebrationSheetState extends State<MilestoneCelebrationSheet>
                       elevation: 0,
                     ),
                     child: Text(
-                      AppLocalizations.of(context)!.continueButton,
+                      S.of(context)!.continueButton,
                       style: GoogleFonts.montserrat(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,

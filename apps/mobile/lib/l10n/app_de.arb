@@ -6531,5 +6531,386 @@
         "type": "String"
       }
     }
-  }
+  },
+  "amortizationAppBarTitle": "DIREKT VS INDIREKT",
+  "amortizationDurationYears": "{years} Jahre",
+  "@amortizationDurationYears": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "eplCombinedAppBarTitle": "WEF MULTI-QUELLEN",
+  "eplCombinedMinimumRequired": "Minimum erforderlich: 20 %",
+  "eplCombinedDistributionTitle": "VERTEILUNG DER EIGENMITTEL",
+  "eplCombinedOfPrice": "des Preises",
+  "eplCombinedParameters": "PARAMETER",
+  "eplCombinedCanton": "Kanton",
+  "eplCombinedTargetPrice": "Zielkaufpreis",
+  "eplCombinedCashSavings": "Barersparnisse",
+  "eplCombinedAvoir3a": "Säule-3a-Guthaben",
+  "eplCombinedAvoirLpp": "BVG-Guthaben",
+  "eplCombinedSourcesDetail": "QUELLENDETAIL",
+  "eplCombinedTotalEquity": "Eigenmittel total",
+  "eplCombinedEstimatedTaxes": "Geschätzte Steuern (3a + BVG)",
+  "eplCombinedNetTotal": "Nettobetrag total",
+  "eplCombinedRequiredEquity": "Erforderliche Eigenmittel (20 %)",
+  "eplCombinedEstimatedTax": "Geschätzte Steuer",
+  "eplCombinedNet": "Netto",
+  "eplCombinedRecommendedOrder": "EMPFOHLENE REIHENFOLGE",
+  "eplCombinedCashReason": "Keine Steuer, kein Einfluss auf die Vorsorge",
+  "eplCombinedWithdraw3a": "Bezug Säule 3a",
+  "eplCombined3aReason": "Reduzierte Steuer auf den Bezug, begrenzter Einfluss auf die Altersvorsorge",
+  "eplCombinedWithdrawLpp": "BVG-Bezug (WEF)",
+  "eplCombinedLppReason": "Direkter Einfluss auf Risikoleistungen (Invalidität, Tod). Nur als letztes Mittel einsetzen.",
+  "eplCombinedAttentionPoints": "ACHTUNGSPUNKTE",
+  "eplCombinedSource": "Quelle: BVG Art. 30c (WEF), BVV3, DBG Art. 38. Kantonale Steuersätze zu Bildungszwecken geschätzt.",
+  "imputedRentalAppBarTitle": "EIGENMIETWERT",
+  "imputedRentalIntroTitle": "Was ist der Eigenmietwert?",
+  "imputedRentalIntroBody": "In der Schweiz müssen Eigentümer ein fiktives Einkommen (Eigenmietwert) deklarieren, das der Miete entspricht, die sie durch Vermietung erzielen könnten. Im Gegenzug können sie Hypothekarzinsen und Unterhaltskosten abziehen.",
+  "imputedRentalDecomposition": "AUFSCHLÜSSELUNG",
+  "imputedRentalAddedIncome": "Hinzugefügtes steuerbares Einkommen",
+  "imputedRentalRentalValue": "Eigenmietwert",
+  "imputedRentalDeductions": "Abzüge",
+  "imputedRentalMortgageInterests": "Hypothekarzinsen",
+  "imputedRentalMaintenanceCosts": "Unterhaltskosten",
+  "imputedRentalBuildingInsurance": "Gebäudeversicherung (Schätzung)",
+  "imputedRentalTotalDeductions": "Abzüge total",
+  "imputedRentalNetImpact": "Nettoauswirkung auf das steuerbare Einkommen",
+  "imputedRentalTaxImpact": "Geschätzte steuerliche Auswirkung (Grenzsteuersatz {rate} %)",
+  "@imputedRentalTaxImpact": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "imputedRentalParameters": "PARAMETER",
+  "imputedRentalCanton": "Kanton",
+  "imputedRentalMarketValue": "Verkehrswert der Immobilie",
+  "imputedRentalAnnualInterests": "Jährliche Hypothekarzinsen",
+  "imputedRentalEffectiveMaintenance": "Tatsächliche Unterhaltskosten",
+  "imputedRentalOldProperty": "Altbau (>= 10 Jahre)",
+  "imputedRentalMaintenanceFlatRate20": "Unterhaltspauschal: 20 % des Eigenmietwerts",
+  "imputedRentalMaintenanceFlatRate10": "Unterhaltspauschal: 10 % des Eigenmietwerts",
+  "imputedRentalMarginalRate": "Geschätzter Grenzsteuersatz",
+  "imputedRentalSource": "Quelle: DBG Art. 21 Abs. 1 Bst. b, Art. 32. Kantonale Steuersätze zu Bildungszwecken geschätzt.",
+  "saronVsFixedAppBarTitle": "SARON VS FEST",
+  "saronVsFixedCumulativeCost": "KUMULIERTE KOSTEN ÜBER {years} JAHRE",
+  "@saronVsFixedCumulativeCost": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "saronVsFixedLegendFixed": "Fest",
+  "saronVsFixedLegendStable": "SARON stabil",
+  "saronVsFixedLegendRise": "SARON steigend",
+  "saronVsFixedParameters": "PARAMETER",
+  "saronVsFixedMortgageAmount": "Hypothekarbetrag",
+  "saronVsFixedDuration": "Laufzeit",
+  "saronVsFixedYears": "{years} Jahre",
+  "@saronVsFixedYears": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "saronVsFixedCostComparison": "KOSTENVERGLEICH",
+  "saronVsFixedInitial": "initial",
+  "saronVsFixedExplanation": "Der steigende SARON simuliert +0,25 %/Jahr in den ersten 3 Jahren. In Wirklichkeit hängt die Entwicklung von der Geldpolitik der SNB ab.",
+  "saronVsFixedRate": "Zinssatz: {rate}",
+  "@saronVsFixedRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "saronVsFixedSource": "Quelle: indikative Schweizer Marktzinsen 2026. Stellt keine Hypothekenberatung dar.",
+  "debtRatioTitle": "SCHULDENDIAGNOSE",
+  "debtRatioLabelSain": "GESUND",
+  "debtRatioLabelAttention": "ACHTUNG",
+  "debtRatioLabelCritique": "KRITISCH",
+  "debtRatioDebtRevenueRatio": "Schulden-/Einkommensquote",
+  "debtRatioParametres": "PARAMETER",
+  "debtRatioRevenuMensuelNet": "Monatliches Nettoeinkommen",
+  "debtRatioChargesDetteMensuelles": "Monatliche Schuldenbelastung",
+  "debtRatioLoyer": "Miete",
+  "debtRatioAutresChargesFixes": "Andere Fixkosten",
+  "debtRatioCelibataire": "Ledig",
+  "debtRatioNombreEnfants": "Anzahl Kinder",
+  "debtRatioMinimumVitalTitle": "EXISTENZMINIMUM (SchKG ART. 93)",
+  "debtRatioMinimumVital": "Existenzminimum",
+  "debtRatioMargeDisponible": "Verfügbare Marge",
+  "debtRatioMinVitalWarning": "Ihre Restmarge liegt unter dem Existenzminimum. Kontaktieren Sie eine professionelle Beratungsstelle.",
+  "debtRatioRecommandations": "EMPFEHLUNGEN",
+  "debtRatioAideProfessionnelle": "PROFESSIONELLE HILFE",
+  "debtRatioDettesConseilsSuisse": "Schuldenberatung Schweiz",
+  "debtRatioConseilGratuit": "Kostenlose und vertrauliche Beratung",
+  "debtRatioCaritasAide": "Caritas — Schuldenhilfe",
+  "debtRatioCaritasDesc": "Entschuldungs- und Verhandlungshilfe",
+  "helpResourcesTitle": "HILFE BEI SCHULDEN",
+  "helpResourcesIntroTitle": "Sie sind nicht allein",
+  "helpResourcesIntroBody": "In der Schweiz bieten zahlreiche professionelle Dienste kostenlose und vertrauliche Unterstützung für Menschen in finanziellen Schwierigkeiten. Um Hilfe zu bitten ist ein Akt des Mutes, kein Zeichen von Schwäche.",
+  "helpResourcesExternalLinks": "Alle untenstehenden Links führen zu externen Websites. MINT übermittelt keine Daten an diese Dienste.",
+  "helpResourcesDettesConseilsDesc": "Dachverband der Schuldenberatungsstellen in der Schweiz. Kostenlose, vertrauliche und professionelle Beratung. Über 30 Mitgliederdienste in der ganzen Schweiz.",
+  "helpResourcesCaritasDesc": "Hilfsdienst von Caritas Schweiz für verschuldete Personen. Entschuldungshilfe, Verhandlung mit Gläubigern, personalisierte Budgetberatung.",
+  "helpResourcesCaritasTitle": "Caritas — Schuldenberatung",
+  "helpResourcesGratuit": "KOSTENLOS",
+  "helpResourcesSiteWeb": "Website",
+  "helpResourcesServiceCantonal": "KANTONALER DIENST",
+  "helpResourcesVotreCanton": "Ihr Kanton",
+  "helpResourcesAucunServiceCantonal": "Kein kantonaler Dienst für diesen Kanton verzeichnet. Kontaktieren Sie die Schuldenberatung Schweiz für eine Orientierung.",
+  "helpResourcesPrivacyTitle": "Datenschutz (nDSG)",
+  "helpResourcesPrivacyBody": "MINT übermittelt keine persönlichen Daten an die oben aufgeführten Dienste. Externe Links öffnen Ihren Browser. Ihre Nutzung dieses Bildschirms bleibt streng vertraulich und wird weder aufgezeichnet noch weitergegeben.",
+  "helpResourcesDisclaimer": "MINT stellt diese Links zu Informations- und Bildungszwecken bereit. Diese Dienste sind unabhängig von MINT. MINT bietet keine Rechts- oder Finanzberatung. Bei finanziellen Schwierigkeiten wenden Sie sich direkt an die spezialisierten Dienste.",
+  "repaymentTitle": "RÜCKZAHLUNGSPLAN",
+  "repaymentLibereDans": "Schuldenfrei in",
+  "repaymentMois": "{count} Monate",
+  "@repaymentMois": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "repaymentInteretsEconomises": "CHF {amount} Zinsen gespart mit Lawine",
+  "@repaymentInteretsEconomises": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "repaymentMesDettes": "MEINE SCHULDEN",
+  "repaymentAjouterDette": "Schuld hinzufügen",
+  "repaymentAjoutezDettes": "Fügen Sie Ihre Schulden hinzu, um einen Rückzahlungsplan zu erstellen.",
+  "repaymentNomDette": "Schuldenname",
+  "repaymentMontant": "Betrag",
+  "repaymentTauxAnnuel": "Jahreszins",
+  "repaymentMensualiteMin": "Mindestrate",
+  "repaymentNouvelleDette": "Neue Schuld",
+  "repaymentBudgetMensuel": "MONATLICHES RÜCKZAHLUNGSBUDGET",
+  "repaymentBudgetTotalMois": "Gesamtbudget / Monat",
+  "repaymentComparaisonStrategies": "STRATEGIEVERGLEICH",
+  "repaymentAvalanche": "LAWINE",
+  "repaymentAvalancheSubtitle": "Höchster Zins zuerst",
+  "repaymentBouleDeNeige": "SCHNEEBALL",
+  "repaymentBouleDeNeigeSubtitle": "Kleinstes Saldo zuerst",
+  "repaymentInterets": "Zinsen",
+  "repaymentDateLiberation": "Befreiungsdatum",
+  "repaymentInteretsTotaux": "Gesamtzinsen",
+  "repaymentDifference": "Differenz: CHF {amount}",
+  "@repaymentDifference": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "repaymentTimelineAvalanche": "ZEITPLAN (LAWINE)",
+  "repaymentColMois": "Monat",
+  "repaymentColPaiement": "Zahlung",
+  "repaymentColSoldeRestant": "Restsaldo",
+  "repaymentEmptyState": "Fügen Sie Ihre Schulden hinzu und legen Sie Ihr monatliches Rückzahlungsbudget fest, um den Plan zu sehen.",
+  "providerComparatorTitle": "3A-VERGLEICH",
+  "providerComparatorDifference": "Differenz über {duree} Jahre",
+  "@providerComparatorDifference": {
+    "placeholders": {
+      "duree": {
+        "type": "String"
+      }
+    }
+  },
+  "providerComparatorEntreProviders": "zwischen dem leistungsstärksten und -schwächsten Anbieter",
+  "providerComparatorParametres": "PARAMETER",
+  "providerComparatorAge": "Alter",
+  "providerComparatorVersementAnnuel": "Jährliche Einzahlung",
+  "providerComparatorDuree": "Dauer",
+  "providerComparatorProfilRisque": "Risikoprofil",
+  "providerComparatorPrudent": "Konservativ",
+  "providerComparatorEquilibre": "Ausgewogen",
+  "providerComparatorDynamique": "Dynamisch",
+  "providerComparatorComparaison": "VERGLEICH",
+  "providerComparatorRendement": "Rendite",
+  "providerComparatorFrais": "Gebühren",
+  "providerComparatorCapitalFinal": "Endkapital",
+  "providerComparatorVsPremier": "-CHF {amount} vs. Erster",
+  "@providerComparatorVsPremier": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "providerComparatorAttentionAssurance": "ACHTUNG — 3a-Versicherung",
+  "providerComparatorAssuranceWarning": "3a-Versicherungen kombinieren Sparen und Risikoabdeckung, aber hohe Gebühren (oft > 1,5 %) und Vertragsstarrheit machen sie für junge Sparer ungünstig.",
+  "realReturnTitle": "REALE RENDITE 3A",
+  "realReturnTauxEquivalent": "Äquivalenter Zinssatz auf Netto-Aufwand",
+  "realReturnVsTaux": "vs. {taux} % Netto-3a-Zins (brutto - Gebühren)",
+  "@realReturnVsTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
+  "realReturnEffortNet": "Netto-Aufwand: {effortNet}/Jahr | Implizite Steuerprämie: +{premium} Pkt.",
+  "@realReturnEffortNet": {
+    "placeholders": {
+      "effortNet": {
+        "type": "String"
+      },
+      "premium": {
+        "type": "String"
+      }
+    }
+  },
+  "realReturnParametres": "PARAMETER",
+  "realReturnVersementAnnuel": "Jährliche Einzahlung",
+  "realReturnTauxMarginal": "Grenzsteuersatz",
+  "realReturnRendementBrut": "Bruttorendite",
+  "realReturnFraisGestion": "Verwaltungsgebühren",
+  "realReturnDureePlacement": "Anlagedauer",
+  "realReturnRendementsCompares": "VERGLICHENE RENDITEN",
+  "realReturnRendementNominal3a": "Nominale 3a-Rendite",
+  "realReturnRendementReelAvecFiscal": "Reale Rendite (mit Steuervorteil)",
+  "realReturnTauxEquivalentNote": "Dieser Zinssatz ist ein Äquivalenzsatz: Er stellt keine erwartete Marktrendite dar.",
+  "realReturnRendementEpargne": "Sparkonto-Rendite",
+  "realReturnCapitalFinalApres": "ENDKAPITAL NACH {duree} JAHREN",
+  "@realReturnCapitalFinalApres": {
+    "placeholders": {
+      "duree": {
+        "type": "String"
+      }
+    }
+  },
+  "realReturn3aFintechFiscal": "3a Fintech + Steuervorteil",
+  "realReturnCompteEpargne": "Sparkonto 1,5 %",
+  "realReturnGainVsEpargne": "Gewinn vs. Sparkonto: CHF {amount}",
+  "@realReturnGainVsEpargne": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "realReturnDetailEconomieFiscale": "STEUERERSPARNIS DETAIL",
+  "realReturnTotalVersements": "Gesamteinzahlungen",
+  "realReturnCapitalFinal3a": "3a-Endkapital (ohne Steuervorteil)",
+  "realReturnEconomieFiscaleCumulee": "Kumulierte Steuerersparnis",
+  "realReturnTotalAvecAvantageFiscal": "Gesamt mit Steuervorteil",
+  "staggeredWithdrawalTitle": "GESTAFFELTER 3A-BEZUG",
+  "staggeredWithdrawalEconomieEstimee": "Geschätzte Ersparnis",
+  "staggeredWithdrawalEchelonneSurComptes": "durch Staffelung über {count} Konten",
+  "@staggeredWithdrawalEchelonneSurComptes": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "staggeredWithdrawalNombreAdapte": "Empfohlen: {count} Konten",
+  "@staggeredWithdrawalNombreAdapte": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "staggeredWithdrawalPourquoiTitle": "Warum 3a-Bezüge staffeln?",
+  "staggeredWithdrawalPourquoiBody": "Die Steuer auf Kapitalentnahme aus der Vorsorge ist progressiv. Durch Verteilung Ihrer 3a-Guthaben auf mehrere Konten und Bezug in verschiedenen Steuerjahren reduzieren Sie den durchschnittlichen Steuersatz. Das Gesetz erlaubt bis zu 5 3a-Konten pro Person (BVV3). Seit der AHV21-Reform (2024) sind vorzeitige Bezüge ab dem Alter von 60 Jahren möglich (5 Jahre vor dem Rentenalter von 65 für alle).",
+  "staggeredWithdrawalParametres": "PARAMETER",
+  "staggeredWithdrawalAvoir3aTotal": "3a-Gesamtguthaben",
+  "staggeredWithdrawalNbComptes": "Anzahl 3a-Konten",
+  "staggeredWithdrawalCanton": "Kanton",
+  "staggeredWithdrawalRevenuImposable": "Steuerbares Einkommen",
+  "staggeredWithdrawalAgeDebutRetraits": "Beginn Bezugsalter",
+  "staggeredWithdrawalAgeDernierRetrait": "Alter letzter Bezug",
+  "staggeredWithdrawalResultat": "ERGEBNIS",
+  "staggeredWithdrawalEnBloc": "AUF EINMAL",
+  "staggeredWithdrawalRetraitUnique": "Einzelbezug",
+  "staggeredWithdrawalEchelonne": "GESTAFFELT",
+  "staggeredWithdrawalNRetraits": "{count} Bezüge",
+  "@staggeredWithdrawalNRetraits": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "staggeredWithdrawalImpotEstime": "Geschätzte Steuer",
+  "staggeredWithdrawalEchelonnerGain": "Durch Staffelung zahlst du CHF {amount} weniger Steuern.",
+  "@staggeredWithdrawalEchelonnerGain": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "staggeredWithdrawalPlanAnnuel": "JAHRESPLAN",
+  "staggeredWithdrawalColAge": "Alter",
+  "staggeredWithdrawalColRetrait": "Bezug",
+  "staggeredWithdrawalColImpot": "Steuer",
+  "staggeredWithdrawalColNet": "Netto",
+  "staggeredWithdrawalTotal": "Total",
+  "librePassageTitle": "FREIZÜGIGKEIT",
+  "librePassageSituation": "SITUATION",
+  "librePassageChangementEmploi": "Stellenwechsel",
+  "librePassageDepartSuisse": "Wegzug aus der Schweiz",
+  "librePassageCessationActivite": "Aufgabe der Erwerbstätigkeit",
+  "librePassageTonProfil": "DEIN PROFIL",
+  "librePassageTonAge": "Dein Alter",
+  "librePassageAvoirLibrePassage": "Freizügigkeitsguthaben",
+  "librePassageNouvelEmployeur": "Neuer Arbeitgeber",
+  "librePassageAsNouvelEmployeur": "Hast du bereits einen neuen Arbeitgeber?",
+  "librePassageAlertes": "WARNUNGEN",
+  "librePassageChecklist": "CHECKLISTE",
+  "librePassageUrgenceCritique": "Kritisch",
+  "librePassageUrgenceHaute": "Hoch",
+  "librePassageUrgenceMoyenne": "Mittel",
+  "librePassageRecommandations": "EMPFEHLUNGEN",
+  "librePassageCompteLibrePassage": "Freizügigkeitskonto",
+  "librePassageCompteDesc": "Maximale Sicherheit, Festzins 1-2 %. Ideal, wenn du schnell wieder eine Stelle antrittst.",
+  "librePassagePoliceAssurance": "Versicherungspolice",
+  "librePassagePoliceDesc": "Todes- und Invaliditätsschutz inklusive. Durchschnittsrendite an technische Zinssätze gebunden.",
+  "librePassageFondsPlacement": "Anlagefonds",
+  "librePassageFondsDesc": "Höheres Renditepotenzial. Marktrisiko über den Anlagehorizont zu akzeptieren.",
+  "librePassageCentrale2ePilier": "Zentralstelle 2. Säule (sfbvg.ch)",
+  "librePassageRechercherAvoirs": "Suchen Sie vergessene Freizügigkeitsguthaben",
+  "librePassagePrivacy": "Deine Daten bleiben auf deinem Gerät. Keine Informationen werden an Dritte übermittelt. Konform mit dem nDSG.",
+  "eplTitle": "WEF-BEZUG",
+  "eplIntroTitle": "WEF-Bezug — Wohneigentum",
+  "eplIntroBody": "WEF ermöglicht dir, dein BVG-Guthaben zur Finanzierung eines Eigenheimkaufs, zur Amortisation einer Hypothek oder zur Finanzierung von Renovierungen einzusetzen. Mindestbetrag: CHF 20'000. Dieser Bezug hat direkte Auswirkungen auf deine Risikoleistungen.",
+  "eplParametres": "PARAMETER",
+  "eplAvoirLppTotal": "BVG-Gesamtguthaben",
+  "eplAge": "Alter",
+  "eplMontantSouhaite": "Gewünschter Betrag",
+  "eplCanton": "Kanton",
+  "eplRachatsRecents": "Aktuelle BVG-Einkäufe",
+  "eplRachatsQuestion": "Hast du in den letzten 3 Jahren einen BVG-Einkauf getätigt?",
+  "eplAnneesDepuisRachat": "Jahre seit dem Einkauf",
+  "eplResultat": "ERGEBNIS",
+  "eplMontantMaxRetirable": "Maximal beziehbarer Betrag",
+  "eplMontantApplicable": "Anwendbarer Betrag",
+  "eplRetraitImpossible": "Der Bezug ist mit der aktuellen Konfiguration nicht möglich.",
+  "eplImpactPrestations": "AUSWIRKUNGEN AUF LEISTUNGEN",
+  "eplReductionRenteInvalidite": "Reduktion Invalidenrente (jährliche Schätzung)",
+  "eplReductionCapitalDeces": "Reduktion Todesfallkapital (Schätzung)",
+  "eplImpactPrestationsBody": "Der WEF-Bezug reduziert proportional deine Risikoleistungen. Erkundige dich bei deiner Pensionskasse nach den genauen Beträgen und den Möglichkeiten einer Zusatzversicherung.",
+  "eplImpactRente": "AUSWIRKUNGEN AUF DIE RENTE",
+  "eplRenteSansEpl": "Rente ohne WEF",
+  "eplRenteAvecEpl": "Rente mit WEF",
+  "eplPerteMensuelle": "Monatlicher Verlust",
+  "eplEstimationEducative": "Bildungsschätzung basierend auf einem Gehalt von CHF 100'000, Kassenrendite 2 %, Umwandlungssatz 6,8 %. Der tatsächliche Betrag hängt von deiner Situation ab.",
+  "eplEstimationFiscale": "STEUERSCHÄTZUNG",
+  "eplMontantRetire": "Bezogener Betrag",
+  "eplImpotEstimeSurRetrait": "Geschätzte Steuer auf Bezug",
+  "eplMontantNetApresImpot": "Nettobetrag nach Steuern",
+  "eplTaxNote": "Der Kapitalbezug wird zu einem reduzierten Satz besteuert (ca. 1/5 des ordentlichen Tarifs). Der genaue Satz hängt vom Kanton, der Gemeinde und der persönlichen Situation ab.",
+  "eplPointsAttention": "AUFMERKSAMKEITSPUNKTE"
 }

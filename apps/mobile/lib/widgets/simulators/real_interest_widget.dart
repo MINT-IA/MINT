@@ -39,7 +39,7 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
     );
 
     return SimulatorCard(
-      title: AppLocalizations.of(context)!.realInterestSimulatorTitle,
+      title: S.of(context)!.realInterestSimulatorTitle,
       subtitle: "Capital + Économie d'impôt réinvestie (Virtuel)",
       icon: Icons.auto_graph,
       child: Column(

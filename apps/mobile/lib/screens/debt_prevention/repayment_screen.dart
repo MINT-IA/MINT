@@ -4,6 +4,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/debt_prevention_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/widgets/coach/debt_survival_widget.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 /// Ecran de planification du remboursement de dettes.
 ///
@@ -67,7 +68,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'PLAN DE REMBOURSEMENT',
+                S.of(context)!.repaymentTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
@@ -152,7 +153,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       child: Column(
         children: [
           Text(
-            'Libere dans',
+            S.of(context)!.repaymentLibereDans,
             style: GoogleFonts.montserrat(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -161,7 +162,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            '${meilleur.moisJusquaLiberation} mois',
+            S.of(context)!.repaymentMois(meilleur.moisJusquaLiberation.toString()),
             style: GoogleFonts.montserrat(
               fontSize: 36,
               fontWeight: FontWeight.w800,
@@ -171,7 +172,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           const SizedBox(height: 4),
           if (result.economieInterets > 0)
             Text(
-              'CHF ${formatChf(result.economieInterets)} d\'interets economises avec avalanche',
+              S.of(context)!.repaymentInteretsEconomises(formatChf(result.economieInterets)),
               style: TextStyle(
                 fontSize: 12,
                 color: color,
@@ -197,7 +198,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'MES DETTES',
+                S.of(context)!.repaymentMesDettes,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -209,7 +210,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 icon: const Icon(Icons.add_circle_outline,
                     color: MintColors.primary),
                 onPressed: _addDebt,
-                tooltip: 'Ajouter une dette',
+                tooltip: S.of(context)!.repaymentAjouterDette,
               ),
             ],
           ),
@@ -221,11 +222,11 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           ],
 
           if (_dettes.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(20),
+            Padding(
+              padding: const EdgeInsets.all(20),
               child: Center(
                 child: Text(
-                  'Ajoutez vos dettes pour generer un plan de remboursement.',
+                  S.of(context)!.repaymentAjoutezDettes,
                   style: TextStyle(
                     fontSize: 13,
                     color: MintColors.textMuted,
@@ -261,11 +262,11 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     isDense: true,
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.zero,
-                    hintText: 'Nom de la dette',
+                    hintText: S.of(context)!.repaymentNomDette,
                   ),
                   onChanged: (v) => setState(() => dette.nom = v),
                 ),
@@ -283,7 +284,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
 
           // Montant
           _buildMiniSlider(
-            label: 'Montant',
+            label: S.of(context)!.repaymentMontant,
             value: dette.montant,
             min: 500,
             max: 100000,
@@ -295,7 +296,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
 
           // Taux
           _buildMiniSlider(
-            label: 'Taux annuel',
+            label: S.of(context)!.repaymentTauxAnnuel,
             value: dette.tauxAnnuel,
             min: 0.5,
             max: 20.0,
@@ -307,7 +308,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
 
           // Mensualite min
           _buildMiniSlider(
-            label: 'Mensualite min',
+            label: S.of(context)!.repaymentMensualiteMin,
             value: dette.mensualiteMin,
             min: 50,
             max: 3000,
@@ -375,7 +376,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   void _addDebt() {
     setState(() {
       _dettes.add(_DebtInput(
-        nom: 'Nouvelle dette',
+        nom: S.of(context)!.repaymentNouvelleDette,
         montant: 5000,
         tauxAnnuel: 5.0,
         mensualiteMin: 100,
@@ -395,7 +396,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'BUDGET MENSUEL REMBOURSEMENT',
+            S.of(context)!.repaymentBudgetMensuel,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -405,7 +406,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           ),
           const SizedBox(height: 12),
           _buildSliderRow(
-            label: 'Budget total / mois',
+            label: S.of(context)!.repaymentBudgetTotalMois,
             value: _budgetMensuel,
             min: 200,
             max: 5000,
@@ -468,7 +469,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'COMPARAISON DES STRATEGIES',
+          S.of(context)!.repaymentComparaisonStrategies,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -481,8 +482,8 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           children: [
             Expanded(
               child: _buildStrategyCard(
-                title: 'AVALANCHE',
-                subtitle: 'Taux haut d\'abord',
+                title: S.of(context)!.repaymentAvalanche,
+                subtitle: S.of(context)!.repaymentAvalancheSubtitle,
                 mois: result.avalanche.moisJusquaLiberation,
                 interets: result.avalanche.interetsTotaux,
                 isWinner: result.avalanche.interetsTotaux <=
@@ -493,8 +494,8 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildStrategyCard(
-                title: 'BOULE DE NEIGE',
-                subtitle: 'Petit solde d\'abord',
+                title: S.of(context)!.repaymentBouleDeNeige,
+                subtitle: S.of(context)!.repaymentBouleDeNeigeSubtitle,
                 mois: result.bouleDeNeige.moisJusquaLiberation,
                 interets: result.bouleDeNeige.interetsTotaux,
                 isWinner: result.bouleDeNeige.interetsTotaux <
@@ -514,20 +515,20 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           child: Column(
             children: [
               _buildComparisonRow(
-                'Date liberation',
+                S.of(context)!.repaymentDateLiberation,
                 '${result.avalanche.moisJusquaLiberation} mois',
                 '${result.bouleDeNeige.moisJusquaLiberation} mois',
               ),
               const SizedBox(height: 8),
               _buildComparisonRow(
-                'Interets totaux',
+                S.of(context)!.repaymentInteretsTotaux,
                 'CHF ${formatChf(result.avalanche.interetsTotaux)}',
                 'CHF ${formatChf(result.bouleDeNeige.interetsTotaux)}',
               ),
               if (result.economieInterets > 0) ...[
                 const Divider(height: 16),
                 Text(
-                  'Difference : CHF ${formatChf(result.economieInterets)}',
+                  S.of(context)!.repaymentDifference(formatChf(result.economieInterets)),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -597,7 +598,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'CHF ${formatChf(interets)} interets',
+            '\${S.of(context)!.repaymentInterets}: CHF ${formatChf(interets)}',
             style: TextStyle(
               fontSize: 11,
               color: MintColors.redDeep,
@@ -664,7 +665,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'TIMELINE (AVALANCHE)',
+            S.of(context)!.repaymentTimelineAvalanche,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -676,21 +677,21 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
 
           // Header
           Row(
-            children: const [
+            children: [
               SizedBox(
                 width: 50,
-                child: Text('Mois',
-                    style:
+                child: Text(S.of(context)!.repaymentColMois,
+                    style: const
                         TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
               ),
               Expanded(
-                child: Text('Paiement',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                child: Text(S.of(context)!.repaymentColPaiement,
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.right),
               ),
               Expanded(
-                child: Text('Solde restant',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                child: Text(S.of(context)!.repaymentColSoldeRestant,
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.right),
               ),
             ],
@@ -760,9 +761,8 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           Icon(Icons.account_balance_wallet_outlined,
               color: MintColors.textMuted, size: 48),
           const SizedBox(height: 16),
-          const Text(
-            'Ajoutez vos dettes et definissez votre budget mensuel '
-            'de remboursement pour voir le plan.',
+          Text(
+            S.of(context)!.repaymentEmptyState,
             style: TextStyle(
               fontSize: 14,
               color: MintColors.textSecondary,

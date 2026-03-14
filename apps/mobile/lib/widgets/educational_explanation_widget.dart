@@ -158,7 +158,7 @@ class _EducationalExplanationWidgetState
                           color: MintColors.warning, size: 16),
                       const SizedBox(width: 6),
                       Text(
-                        AppLocalizations.of(context)!.concreteExample,
+                        S.of(context)!.concreteExample,
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,

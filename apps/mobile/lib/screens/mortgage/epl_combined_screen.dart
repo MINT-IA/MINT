@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
@@ -48,7 +49,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
             foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'EPL MULTI-SOURCES',
+                S.of(context)!.eplCombinedAppBarTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -94,8 +95,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
 
                 // Source legale
                 Text(
-                  'Source : LPP art. 30c (EPL), OPP3, LIFD art. 38. '
-                  'Taux cantonaux estimes a titre pedagogique.',
+                  S.of(context)!.eplCombinedSource,
                   style: TextStyle(
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
@@ -152,7 +152,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
           if (!result.objectifAtteint) ...[
             const SizedBox(height: 8),
             Text(
-              'Minimum requis : 20%',
+              S.of(context)!.eplCombinedMinimumRequired,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -181,7 +181,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'REPARTITION DES FONDS PROPRES',
+            S.of(context)!.eplCombinedDistributionTitle,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -211,7 +211,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
               label: result.sources[i].label,
               amount: 'CHF ${formatChf(result.sources[i].montant)}',
               percentage:
-                  '${result.sources[i].pourcentageDuPrix.toStringAsFixed(1)}% du prix',
+                  '${result.sources[i].pourcentageDuPrix.toStringAsFixed(1)}% ${S.of(context)!.eplCombinedOfPrice}',
             ),
         ],
       ),
@@ -288,7 +288,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAMETRES',
+            S.of(context)!.eplCombinedParameters,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -302,9 +302,9 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Canton',
-                style: TextStyle(
+              Text(
+                S.of(context)!.eplCombinedCanton,
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: MintColors.textPrimary,
@@ -338,7 +338,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
 
           // Prix cible
           _buildSliderRow(
-            label: 'Prix d\'achat cible',
+            label: S.of(context)!.eplCombinedTargetPrice,
             value: _prixCible,
             min: 200000,
             max: 3000000,
@@ -350,7 +350,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
 
           // Epargne cash
           _buildSliderRow(
-            label: 'Epargne cash',
+            label: S.of(context)!.eplCombinedCashSavings,
             value: _epargneCash,
             min: 0,
             max: 500000,
@@ -362,7 +362,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
 
           // Avoir 3a
           _buildSliderRow(
-            label: 'Avoir 3a',
+            label: S.of(context)!.eplCombinedAvoir3a,
             value: _avoir3a,
             min: 0,
             max: 300000,
@@ -374,7 +374,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
 
           // Avoir LPP
           _buildSliderRow(
-            label: 'Avoir LPP',
+            label: S.of(context)!.eplCombinedAvoirLpp,
             value: _avoirLpp,
             min: 0,
             max: 500000,
@@ -446,7 +446,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'DETAIL DES SOURCES',
+            S.of(context)!.eplCombinedSourcesDetail,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -463,17 +463,17 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
 
           // Totaux
           _buildInfoRow(
-            'Total fonds propres',
+            S.of(context)!.eplCombinedTotalEquity,
             'CHF ${formatChf(result.fondsPropresTotal)}',
             isBold: true,
           ),
           _buildInfoRow(
-            'Impots estimes (3a + LPP)',
+            S.of(context)!.eplCombinedEstimatedTaxes,
             '-CHF ${formatChf(result.totalImpots)}',
             color: MintColors.error,
           ),
           _buildInfoRow(
-            'Montant net total',
+            S.of(context)!.eplCombinedNetTotal,
             'CHF ${formatChf(result.montantNetTotal)}',
             isBold: true,
             color: result.objectifAtteint
@@ -481,7 +481,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
                 : MintColors.error,
           ),
           _buildInfoRow(
-            'Fonds propres requis (20%)',
+            S.of(context)!.eplCombinedRequiredEquity,
             'CHF ${formatChf(result.fondsPropresRequis)}',
           ),
         ],
@@ -518,7 +518,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Impot estime',
+                S.of(context)!.eplCombinedEstimatedTax,
                 style: TextStyle(
                   fontSize: 11,
                   color: MintColors.error,
@@ -537,9 +537,9 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Net',
-                style: TextStyle(fontSize: 11, color: MintColors.textMuted),
+              Text(
+                S.of(context)!.eplCombinedNet,
+                style: const TextStyle(fontSize: 11, color: MintColors.textMuted),
               ),
               Text(
                 'CHF ${formatChf(source.montantNet)}',
@@ -573,7 +573,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
                   color: MintColors.primary, size: 20),
               const SizedBox(width: 8),
               Text(
-                'ORDRE RECOMMANDE',
+                S.of(context)!.eplCombinedRecommendedOrder,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -586,24 +586,22 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
           const SizedBox(height: 16),
           _buildOrderItem(
             number: '1',
-            title: 'Epargne cash',
-            reason: 'Aucun impot, pas d\'impact sur la prevoyance',
+            title: S.of(context)!.eplCombinedCashSavings,
+            reason: S.of(context)!.eplCombinedCashReason,
             color: MintColors.success,
           ),
           const SizedBox(height: 10),
           _buildOrderItem(
             number: '2',
-            title: 'Retrait 3a',
-            reason:
-                'Impot reduit sur le retrait, impact limite sur la prevoyance vieillesse',
+            title: S.of(context)!.eplCombinedWithdraw3a,
+            reason: S.of(context)!.eplCombined3aReason,
             color: MintColors.info,
           ),
           const SizedBox(height: 10),
           _buildOrderItem(
             number: '3',
-            title: 'Retrait LPP (EPL)',
-            reason:
-                'Impact direct sur les prestations de risque (invalidite, deces). A utiliser en dernier recours.',
+            title: S.of(context)!.eplCombinedWithdrawLpp,
+            reason: S.of(context)!.eplCombinedLppReason,
             color: MintColors.warning,
           ),
         ],
@@ -670,7 +668,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'POINTS D\'ATTENTION',
+          S.of(context)!.eplCombinedAttentionPoints,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,

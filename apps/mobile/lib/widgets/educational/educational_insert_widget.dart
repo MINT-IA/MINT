@@ -119,7 +119,7 @@ class EducationalInsertWidget extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: ExpansionTile(
                 title: Text(
-                  AppLocalizations.of(context)!.calculationAssumptions,
+                  S.of(context)!.calculationAssumptions,
                   style: GoogleFonts.inter(fontSize: 12, color: MintColors.textMuted, fontWeight: FontWeight.w500),
                 ),
                 tilePadding: EdgeInsets.zero,

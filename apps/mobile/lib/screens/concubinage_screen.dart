@@ -14,7 +14,7 @@ import 'package:mint_mobile/widgets/visualizations/concubinage_decision_matrix.d
 //   Tab 1: "Comparateur" — Mariage vs Concubinage matrix
 //   Tab 2: "Checklist"   — Essential protections for concubins
 //
-// All text via AppLocalizations (i18n).
+// All text via S (i18n).
 // Material 3, MintColors theme, GoogleFonts.
 // Ne constitue pas un conseil juridique ou fiscal (LSFin).
 // ────────────────────────────────────────────────────────────

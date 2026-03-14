@@ -87,7 +87,7 @@ class EduLegalSources extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.legalSourcesTitle,
+            S.of(context)!.legalSourcesTitle,
             style: GoogleFonts.inter(
               fontSize: 11,
               fontWeight: FontWeight.w600,

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/debt_prevention_service.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 /// Ecran des ressources d'aide en cas de dette.
 ///
@@ -46,7 +47,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                 ),
               ),
               title: Text(
-                'AIDE EN CAS DE DETTE',
+                S.of(context)!.helpResourcesTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
@@ -66,11 +67,9 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
 
                 // Dettes Conseils Suisse
                 _buildNationalResourceCard(
-                  nom: 'Dettes Conseils Suisse',
+                  nom: S.of(context)!.debtRatioDettesConseilsSuisse,
                   description:
-                      'Fédération faîtière des services de conseil en dettes '
-                      'en Suisse. Conseil gratuit, confidentiel et professionnel. '
-                      'Plus de 30 services membres dans toute la Suisse.',
+                      S.of(context)!.helpResourcesDettesConseilsDesc,
                   url: 'https://www.dettes.ch',
                   telephone: '0800 40 40 40',
                   icon: Icons.phone_in_talk,
@@ -80,12 +79,9 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
 
                 // Caritas
                 _buildNationalResourceCard(
-                  nom: 'Caritas — Conseil en dettes',
+                  nom: S.of(context)!.helpResourcesCaritasTitle,
                   description:
-                      'Service d\'aide de Caritas Suisse pour les personnes '
-                      'en situation d\'endettement. Aide au désendettement, '
-                      'négociation avec les créanciers, accompagnement '
-                      'budgétaire personnalisé.',
+                      S.of(context)!.helpResourcesCaritasDesc,
                   url: 'https://www.caritas.ch/dettes',
                   telephone: '0800 708 708',
                   icon: Icons.favorite_outline,
@@ -129,7 +125,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                   color: MintColors.primary, size: 24),
               const SizedBox(width: 12),
               Text(
-                'Vous n\'êtes pas seul',
+                S.of(context)!.helpResourcesIntroTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -138,11 +134,8 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          const Text(
-            'En Suisse, de nombreux services professionnels offrent un '
-            'accompagnement gratuit et confidentiel pour les personnes '
-            'confrontées à des difficultés financières. Demander de l\'aide '
-            'est un acte de courage, pas un signe de faiblesse.',
+          Text(
+            S.of(context)!.helpResourcesIntroBody,
             style: TextStyle(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -150,9 +143,8 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Tous les liens ci-dessous mènent vers des sites externes. '
-            'MINT ne transmet aucune donnée à ces services.',
+          Text(
+            S.of(context)!.helpResourcesExternalLinks,
             style: TextStyle(
               fontSize: 12,
               color: MintColors.textMuted,
@@ -212,8 +204,8 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                         color: MintColors.successBg,
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: const Text(
-                        'GRATUIT',
+                      child: Text(
+                        S.of(context)!.helpResourcesGratuit,
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -242,7 +234,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () => _launchUrl(url),
                   icon: const Icon(Icons.open_in_new, size: 16),
-                  label: const Text('Site web'),
+                  label: Text(S.of(context)!.helpResourcesSiteWeb),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: color,
                     side: BorderSide(color: color.withOpacity(0.5)),
@@ -279,7 +271,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'SERVICE CANTONAL',
+            S.of(context)!.helpResourcesServiceCantonal,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -293,8 +285,8 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Votre canton',
+              Text(
+                S.of(context)!.helpResourcesVotreCanton,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -380,11 +372,10 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
               ),
             ),
           ] else
-            const Padding(
-              padding: EdgeInsets.all(16),
+            Padding(
+              padding: const EdgeInsets.all(16),
               child: Text(
-                'Aucun service cantonal référencé pour ce canton. '
-                'Contactez Dettes Conseils Suisse pour être orienté.',
+                S.of(context)!.helpResourcesAucunServiceCantonal,
                 style: TextStyle(
                   fontSize: 13,
                   color: MintColors.textMuted,
@@ -414,7 +405,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Protection des données (nLPD)',
+                  S.of(context)!.helpResourcesPrivacyTitle,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -423,10 +414,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'MINT ne transmet aucune donnée personnelle aux services '
-                  'référencés ci-dessus. Les liens externes ouvrent votre '
-                  'navigateur. Votre utilisation de cet écran reste strictement '
-                  'confidentielle et n\'est ni enregistrée ni partagée.',
+                  S.of(context)!.helpResourcesPrivacyBody,
                   style: TextStyle(
                     fontSize: 12,
                     color: MintColors.blueDark,
@@ -456,10 +444,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'MINT fournit ces liens à titre informatif et pédagogique. '
-              'Ces services sont indépendants de MINT. MINT ne fournit '
-              'pas de conseil juridique ou financier. En cas de difficulté '
-              'financière, contactez directement les services spécialisés.',
+              S.of(context)!.helpResourcesDisclaimer,
               style: TextStyle(
                 fontSize: 11,
                 color: MintColors.deepOrange,

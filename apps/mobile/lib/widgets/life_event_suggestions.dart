@@ -34,7 +34,7 @@ class LifeEventSuggestion {
 
 /// Generates contextual life event suggestions based on profile.
 ///
-/// When [context] is provided, strings are resolved via AppLocalizations.
+/// When [context] is provided, strings are resolved via S.
 /// When omitted (unit tests), French fallback strings are used.
 List<LifeEventSuggestion> buildLifeEventSuggestions({
   BuildContext? context,

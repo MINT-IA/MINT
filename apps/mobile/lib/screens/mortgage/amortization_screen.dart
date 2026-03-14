@@ -46,7 +46,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
             foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'DIRECT VS INDIRECT',
+                S.of(context)!.amortizationAppBarTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -357,7 +357,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
             min: 5,
             max: 30,
             divisions: 25,
-            format: '$_dureeAns ans',
+            format: S.of(context)!.amortizationDurationYears(_dureeAns),
             onChanged: (v) => setState(() => _dureeAns = v.round()),
           ),
           const SizedBox(height: 12),

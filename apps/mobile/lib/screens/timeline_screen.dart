@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -66,7 +66,7 @@ class _QuickAction {
 //  LOCALIZED DATA BUILDERS
 // ────────────────────────────────────────────────────────────
 
-List<_EventCategory> _buildCategories(AppLocalizations s) => [
+List<_EventCategory> _buildCategories(S s) => [
       _EventCategory(
         label: s.timelineCategoryFamily,
         icon: Icons.family_restroom,
@@ -237,7 +237,7 @@ List<_EventCategory> _buildCategories(AppLocalizations s) => [
       ),
     ];
 
-List<_QuickAction> _buildQuickActions(AppLocalizations s) => [
+List<_QuickAction> _buildQuickActions(S s) => [
       _QuickAction(
         title: s.timelineQuickCheckupTitle,
         subtitle: s.timelineQuickCheckupSubtitle,
@@ -277,7 +277,7 @@ class TimelineScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = AppLocalizations.of(context)!;
+    final s = S.of(context)!;
     final categories = _buildCategories(s);
 
     return Scaffold(
@@ -323,7 +323,7 @@ class TimelineScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar(AppLocalizations s) {
+  Widget _buildAppBar(S s) {
     return SliverAppBar(
       floating: true,
       backgroundColor: MintColors.background,
@@ -339,7 +339,7 @@ class TimelineScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTimelineHeader(AppLocalizations s) {
+  Widget _buildTimelineHeader(S s) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
       child: Column(
@@ -369,7 +369,7 @@ class TimelineScreen extends StatelessWidget {
 
   // ── Quick actions (horizontal scroll) ──────────────────────
 
-  Widget _buildQuickActionsRow(BuildContext context, AppLocalizations s) {
+  Widget _buildQuickActionsRow(BuildContext context, S s) {
     final quickActions = _buildQuickActions(s);
     return SizedBox(
       height: 110,

@@ -37,7 +37,7 @@ class BudgetReportSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                AppLocalizations.of(context)!.budgetReportTitle,
+                S.of(context)!.budgetReportTitle,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
@@ -44,7 +45,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
             foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'SARON VS FIXE',
+                S.of(context)!.saronVsFixedAppBarTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -80,7 +81,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
 
                 // Source legale
                 Text(
-                  'Source : taux indicatifs marche suisse 2026. Ne constitue pas un conseil hypothecaire.',
+                  S.of(context)!.saronVsFixedSource,
                   style: TextStyle(
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
@@ -143,7 +144,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'COUT CUMULE SUR $_dureeAns ANS',
+            S.of(context)!.saronVsFixedCumulativeCost(_dureeAns),
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -169,11 +170,11 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegendItem(MintColors.primary, 'Fixe'),
+              _buildLegendItem(MintColors.primary, S.of(context)!.saronVsFixedLegendFixed),
               const SizedBox(width: 16),
-              _buildLegendItem(MintColors.success, 'SARON stable'),
+              _buildLegendItem(MintColors.success, S.of(context)!.saronVsFixedLegendStable),
               const SizedBox(width: 16),
-              _buildLegendItem(MintColors.error, 'SARON hausse'),
+              _buildLegendItem(MintColors.error, S.of(context)!.saronVsFixedLegendRise),
             ],
           ),
         ],
@@ -213,7 +214,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAMETRES',
+            S.of(context)!.saronVsFixedParameters,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -225,7 +226,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
 
           // Montant hypothecaire
           _buildSliderRow(
-            label: 'Montant hypothecaire',
+            label: S.of(context)!.saronVsFixedMortgageAmount,
             value: _montantHypothecaire,
             min: 200000,
             max: 2000000,
@@ -239,9 +240,9 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Duree',
-                style: TextStyle(
+              Text(
+                S.of(context)!.saronVsFixedDuration,
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: MintColors.textPrimary,
@@ -259,7 +260,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
                     items: _dureesDisponibles
                         .map((d) => DropdownMenuItem(
                               value: d,
-                              child: Text('$d ans',
+                              child: Text(S.of(context)!.saronVsFixedYears(d),
                                   style: const TextStyle(fontSize: 13)),
                             ))
                         .toList(),
@@ -333,7 +334,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'COMPARAISON DES COUTS',
+            S.of(context)!.saronVsFixedCostComparison,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -360,7 +361,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
           _buildCostRow(
             label: result.saronHausse.label,
             taux:
-                '${(result.saronHausse.tauxInitial * 100).toStringAsFixed(2)}% initial',
+                '${(result.saronHausse.tauxInitial * 100).toStringAsFixed(2)}% ${S.of(context)!.saronVsFixedInitial}',
             total: 'CHF ${formatChf(result.saronHausse.coutTotal)}',
             color: MintColors.error,
           ),
@@ -378,8 +379,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Le SARON hausse simule +0.25%/an les 3 premieres annees. '
-                    'En realite, l\'evolution depend de la politique monetaire de la BNS.',
+                    S.of(context)!.saronVsFixedExplanation,
                     style: TextStyle(
                       fontSize: 11,
                       color: MintColors.textSecondary,
@@ -425,7 +425,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
                 ),
               ),
               Text(
-                'Taux : $taux',
+                S.of(context)!.saronVsFixedRate(taux),
                 style: const TextStyle(
                   fontSize: 11,
                   color: MintColors.textMuted,

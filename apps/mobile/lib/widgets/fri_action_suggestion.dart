@@ -80,7 +80,7 @@ class FriActionSuggestion extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.progressionTrack,
+                      S.of(context)!.progressionTrack,
                       style: GoogleFonts.montserrat(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,

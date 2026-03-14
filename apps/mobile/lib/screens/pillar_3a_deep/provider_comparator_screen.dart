@@ -4,6 +4,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/pillar_3a_deep_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 /// Ecran comparateur de providers 3a (fintech / banque / assurance).
 ///
@@ -58,7 +59,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                 ),
               ),
               title: Text(
-                'COMPARATEUR 3A',
+                S.of(context)!.providerComparatorTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -111,7 +112,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
       child: Column(
         children: [
           Text(
-            'Difference sur $_duree ans',
+            S.of(context)!.providerComparatorDifference(_duree.toString()),
             style: GoogleFonts.montserrat(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -129,7 +130,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'entre le provider le plus et le moins performant',
+            S.of(context)!.providerComparatorEntreProviders,
             style: TextStyle(
               fontSize: 12,
               color: MintColors.categoryGreen,
@@ -152,7 +153,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAMETRES',
+            S.of(context)!.providerComparatorParametres,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -164,7 +165,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
 
           // Age
           _buildSliderRow(
-            label: 'Age',
+            label: S.of(context)!.providerComparatorAge,
             value: _age.toDouble(),
             min: 18,
             max: 60,
@@ -179,7 +180,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
 
           // Versement
           _buildSliderRow(
-            label: 'Versement annuel',
+            label: S.of(context)!.providerComparatorVersementAnnuel,
             value: _versementAnnuel,
             min: 1000,
             max: pilier3aPlafondAvecLpp,
@@ -191,7 +192,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
 
           // Duree
           _buildSliderRow(
-            label: 'Duree',
+            label: S.of(context)!.providerComparatorDuree,
             value: _duree.toDouble(),
             min: 5,
             max: 45,
@@ -212,9 +213,9 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Profil de risque',
-          style: TextStyle(
+        Text(
+          S.of(context)!.providerComparatorProfilRisque,
+          style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w500,
             color: MintColors.textPrimary,
@@ -225,9 +226,9 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
           children: ProfilRisque.values.map((profil) {
             final isSelected = _profilRisque == profil;
             final label = switch (profil) {
-              ProfilRisque.prudent => 'Prudent',
-              ProfilRisque.equilibre => 'Equilibre',
-              ProfilRisque.dynamique => 'Dynamique',
+              ProfilRisque.prudent => S.of(context)!.providerComparatorPrudent,
+              ProfilRisque.equilibre => S.of(context)!.providerComparatorEquilibre,
+              ProfilRisque.dynamique => S.of(context)!.providerComparatorDynamique,
             };
             return Expanded(
               child: GestureDetector(
@@ -320,7 +321,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'COMPARAISON',
+          S.of(context)!.providerComparatorComparaison,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -438,7 +439,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Rendement',
+                  Text(S.of(context)!.providerComparatorRendement,
                       style:
                           TextStyle(fontSize: 10, color: MintColors.textMuted)),
                   Text(
@@ -451,7 +452,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Frais',
+                  Text(S.of(context)!.providerComparatorFrais,
                       style:
                           TextStyle(fontSize: 10, color: MintColors.textMuted)),
                   Text(
@@ -464,7 +465,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  const Text('Capital final',
+                  Text(S.of(context)!.providerComparatorCapitalFinal,
                       style:
                           TextStyle(fontSize: 10, color: MintColors.textMuted)),
                   Text(
@@ -494,7 +495,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                '-CHF ${formatChf(maxCapital - result.capitalFinal)} vs premier',
+                S.of(context)!.providerComparatorVsPremier(formatChf(maxCapital - result.capitalFinal)),
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
@@ -536,7 +537,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'ATTENTION — Assurance 3a',
+                      S.of(context)!.providerComparatorAttentionAssurance,
                       style: GoogleFonts.montserrat(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -557,9 +558,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Les assurances 3a combinent epargne et couverture risque, '
-                'mais les frais eleves (souvent > 1.5%) et la rigidite du '
-                'contrat les rendent defavorables pour les jeunes epargnants.',
+                S.of(context)!.providerComparatorAssuranceWarning,
                 style: TextStyle(
                   fontSize: 12,
                   color: MintColors.redDeep,

@@ -107,7 +107,7 @@ class CoupleNarrativeTimeline extends StatelessWidget {
             const SizedBox(height: 16),
 
             // ── Acts ──
-            ...acts.map((act) => _buildAct(act)),
+            ...acts.map((act) => _buildAct(context, act)),
 
             // ── Coach tip ──
             if (coachTip != null) ...[
@@ -131,7 +131,7 @@ class CoupleNarrativeTimeline extends StatelessWidget {
     );
   }
 
-  Widget _buildAct(CoupleAct act) {
+  Widget _buildAct(BuildContext context, CoupleAct act) {
     final actColor = act.isDip ? MintColors.scoreAttention : MintColors.primary;
 
     return Padding(

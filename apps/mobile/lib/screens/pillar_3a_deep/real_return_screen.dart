@@ -4,6 +4,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/pillar_3a_deep_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 /// Ecran de simulation du rendement reel 3a avec economie fiscale.
 ///
@@ -47,7 +48,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'RENDEMENT REEL 3A',
+                S.of(context)!.realReturnTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -107,7 +108,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
       child: Column(
         children: [
           Text(
-            'Taux equivalent sur effort net',
+            S.of(context)!.realReturnTauxEquivalent,
             style: GoogleFonts.montserrat(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -125,7 +126,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'vs ${result.rendementNominal.toStringAsFixed(1)}% taux net 3a (brut - frais)',
+            S.of(context)!.realReturnVsTaux(result.rendementNominal.toStringAsFixed(1)),
             style: TextStyle(
               fontSize: 13,
               color: MintColors.categoryGreen,
@@ -133,7 +134,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Effort net: ${formatChf(effortNet)}/an | Prime fiscale implicite: +${premiumPts.toStringAsFixed(1)} pts',
+            S.of(context)!.realReturnEffortNet(formatChf(effortNet), premiumPts.toStringAsFixed(1)),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 11,
@@ -158,7 +159,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAMETRES',
+            S.of(context)!.realReturnParametres,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -170,7 +171,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
 
           // Versement annuel
           _buildSliderRow(
-            label: 'Versement annuel',
+            label: S.of(context)!.realReturnVersementAnnuel,
             value: _versementAnnuel,
             min: 1000,
             max: pilier3aPlafondAvecLpp,
@@ -183,7 +184,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
 
           // Taux marginal
           _buildSliderRow(
-            label: 'Taux marginal',
+            label: S.of(context)!.realReturnTauxMarginal,
             value: _tauxMarginal,
             min: 0.00,
             max: 0.50,
@@ -195,7 +196,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
 
           // Rendement brut
           _buildSliderRow(
-            label: 'Rendement brut',
+            label: S.of(context)!.realReturnRendementBrut,
             value: _rendementBrut,
             min: 0.01,
             max: 0.08,
@@ -207,7 +208,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
 
           // Frais de gestion
           _buildSliderRow(
-            label: 'Frais de gestion',
+            label: S.of(context)!.realReturnFraisGestion,
             value: _fraisGestion,
             min: 0.0,
             max: 0.02,
@@ -219,7 +220,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
 
           // Duree
           _buildSliderRow(
-            label: 'Duree de placement',
+            label: S.of(context)!.realReturnDureePlacement,
             value: _dureeAnnees.toDouble(),
             min: 5,
             max: 40,
@@ -301,7 +302,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'RENDEMENTS COMPARES',
+            S.of(context)!.realReturnRendementsCompares,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -311,19 +312,19 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
           ),
           const SizedBox(height: 16),
           _buildResultRow(
-            'Rendement nominal 3a',
+            S.of(context)!.realReturnRendementNominal3a,
             '${result.rendementNominal.toStringAsFixed(1)}% / an',
           ),
           const Divider(height: 20),
           _buildResultRow(
-            'Rendement reel (avec fiscal)',
+            S.of(context)!.realReturnRendementReelAvecFiscal,
             '${result.rendementReel.toStringAsFixed(1)}% / an',
             isBold: true,
             color: MintColors.success,
           ),
           const SizedBox(height: 6),
           Text(
-            'Ce taux est un taux equivalent: il ne represente pas un rendement de marche attendu.',
+            S.of(context)!.realReturnTauxEquivalentNote,
             style: GoogleFonts.inter(
               fontSize: 11,
               color: MintColors.textMuted,
@@ -332,7 +333,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
           ),
           const Divider(height: 20),
           _buildResultRow(
-            'Rendement compte epargne',
+            S.of(context)!.realReturnRendementEpargne,
             '${result.rendementEpargne.toStringAsFixed(1)}% / an',
             color: MintColors.textMuted,
           ),
@@ -365,7 +366,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'CAPITAL FINAL APRES $_dureeAnnees ANS',
+            S.of(context)!.realReturnCapitalFinalApres(_dureeAnnees.toString()),
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -377,7 +378,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
 
           // 3a Fintech bar
           _buildBar(
-            label: '3a Fintech + fiscal',
+            label: S.of(context)!.realReturn3aFintechFiscal,
             amount: result.capitalFinal3a + result.economieFiscaleTotale,
             ratio: ratio3a,
             color: MintColors.success,
@@ -386,7 +387,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
 
           // Compte epargne bar
           _buildBar(
-            label: 'Compte epargne 1.5%',
+            label: S.of(context)!.realReturnCompteEpargne,
             amount: result.capitalFinalEpargne,
             ratio: ratioEpargne,
             color: MintColors.textMuted,
@@ -405,7 +406,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Gain vs epargne classique : CHF ${formatChf(result.gainVsEpargne)}',
+                    S.of(context)!.realReturnGainVsEpargne(formatChf(result.gainVsEpargne)),
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -473,7 +474,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'DETAIL ECONOMIE FISCALE',
+            S.of(context)!.realReturnDetailEconomieFiscale,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -483,22 +484,22 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
           ),
           const SizedBox(height: 16),
           _buildResultRow(
-            'Total versements',
+            S.of(context)!.realReturnTotalVersements,
             'CHF ${formatChf(result.totalVersements)}',
           ),
           const Divider(height: 20),
           _buildResultRow(
-            'Capital final 3a (hors fiscal)',
+            S.of(context)!.realReturnCapitalFinal3a,
             'CHF ${formatChf(result.capitalFinal3a)}',
           ),
           _buildResultRow(
-            'Economie fiscale cumulee',
+            S.of(context)!.realReturnEconomieFiscaleCumulee,
             'CHF ${formatChf(result.economieFiscaleTotale)}',
             color: MintColors.success,
           ),
           const Divider(height: 20),
           _buildResultRow(
-            'Total avec avantage fiscal',
+            S.of(context)!.realReturnTotalAvecAvantageFiscal,
             'CHF ${formatChf(result.capitalFinal3a + result.economieFiscaleTotale)}',
             isBold: true,
             color: MintColors.success,
