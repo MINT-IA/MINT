@@ -4800,7 +4800,7 @@
   "frontalierEffectiveRate": "Tasso effettivo",
   "frontalierAnnualTotal": "Totale annuale",
   "frontalierQuasiResidentTitle": "Quasi-residente (Ginevra)",
-  "frontalierQuasiResidentDesc": "Se oltre il 90\u00a0% del tuo reddito mondiale proviene dalla Svizzera, puoi richiedere la tassazione ordinaria con deduzioni (3a, spese effettive, ecc.). Questo può ridurre significativamente la tua imposta.",
+  "frontalierQuasiResidentDesc": "Se oltre il 90 % del tuo reddito mondiale proviene dalla Svizzera, puoi richiedere la tassazione ordinaria con deduzioni (3a, spese effettive, ecc.). Questo può ridurre significativamente la tua imposta.",
   "frontalierTessinTitle": "Ticino — regime speciale",
   "frontalierRiskGauge": "INDICATORE DI RISCHIO",
   "frontalierHomeOfficeDays": "giorni di home office",
@@ -4831,7 +4831,7 @@
       }
     }
   },
-  "frontalierOfSalary": "{rate}\u00a0% dello stipendio",
+  "frontalierOfSalary": "{rate} % dello stipendio",
   "@frontalierOfSalary": {
     "placeholders": {
       "rate": {
@@ -4862,11 +4862,11 @@
   "frontalierLamalSwiss": "LAMal (svizzera)",
   "frontalierLamalSwissDesc": "Obbligatoria se lavori in CH. Premio individuale (~CHF 300-500/mese).",
   "frontalierCmuFrance": "CMU/Previdenza sociale (Francia)",
-  "frontalierCmuFranceDesc": "Diritto d'opzione possibile per i frontalieri FR. Contributo ~8\u00a0% del reddito fiscale.",
+  "frontalierCmuFranceDesc": "Diritto d'opzione possibile per i frontalieri FR. Contributo ~8 % del reddito fiscale.",
   "frontalierPrivateInsurance": "Assicurazione privata (DE/IT/AT)",
   "frontalierPrivateInsuranceDesc": "In Germania, opzione PKV per redditi alti. IT/AT: regime obbligatorio del paese.",
   "frontalierDidYouKnow": "Lo sapevi?",
-  "frontalierEduTax": "In Svizzera, i frontalieri sono tassati alla fonte (barema C). L'aliquota varia in base al cantone, allo stato civile e al numero di figli. A Ginevra, se oltre il 90\u00a0% del tuo reddito mondiale proviene dalla Svizzera, puoi richiedere lo statuto di quasi-residente per beneficiare delle deduzioni.",
+  "frontalierEduTax": "In Svizzera, i frontalieri sono tassati alla fonte (barema C). L'aliquota varia in base al cantone, allo stato civile e al numero di figli. A Ginevra, se oltre il 90 % del tuo reddito mondiale proviene dalla Svizzera, puoi richiedere lo statuto di quasi-residente per beneficiare delle deduzioni.",
   "frontalierEdu90Days": "Dal 2023, gli accordi amichevoli tra la Svizzera e i suoi vicini fissano una soglia di tolleranza per il telelavoro dei frontalieri. Oltre i 90 giorni di home office all'anno, i contributi sociali e l'imposizione possono passare al paese di residenza.",
   "frontalierEduCharges": "Come frontaliere, contribuisci alle assicurazioni sociali svizzere (AVS/AI/IPG, AD, LPP). Le aliquote sono generalmente più basse che in Francia o Germania — ma la LAMal è a tuo carico individualmente, il che può compensare il vantaggio.",
   "frontalierLppEstimate": "LPP (stim.)",
@@ -4882,5 +4882,7 @@
   "concreteExample": "Esempio concreto",
   "progressionTrack": "Pista di progressione",
   "languageSelectorTitle": "Langue / Sprache / Language",
-  "realInterestSimulatorTitle": "Simulatore di Interesse Reale"
+  "realInterestSimulatorTitle": "Simulatore di Interesse Reale",
+  "affordabilityMax33": "Max 33%",
+  "affordabilityMin20": "Min 20%"
 }

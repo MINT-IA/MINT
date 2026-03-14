@@ -4882,5 +4882,7 @@
   "concreteExample": "Konkretes Beispiel",
   "progressionTrack": "Fortschrittspfad",
   "languageSelectorTitle": "Langue / Sprache / Language",
-  "realInterestSimulatorTitle": "Realzins-Simulator"
+  "realInterestSimulatorTitle": "Realzins-Simulator",
+  "affordabilityMax33": "Max 33%",
+  "affordabilityMin20": "Min 20%"
 }

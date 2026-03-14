@@ -4800,7 +4800,7 @@
   "frontalierEffectiveRate": "Taxa efetiva",
   "frontalierAnnualTotal": "Total anual",
   "frontalierQuasiResidentTitle": "Quase-residente (Genebra)",
-  "frontalierQuasiResidentDesc": "Se mais de 90\u00a0% dos teus rendimentos mundiais provêm da Suíça, podes solicitar a tributação ordinária com deduções (3a, despesas efetivas, etc.). Isto pode reduzir significativamente o teu imposto.",
+  "frontalierQuasiResidentDesc": "Se mais de 90 % dos teus rendimentos mundiais provêm da Suíça, podes solicitar a tributação ordinária com deduções (3a, despesas efetivas, etc.). Isto pode reduzir significativamente o teu imposto.",
   "frontalierTessinTitle": "Ticino — regime especial",
   "frontalierRiskGauge": "INDICADOR DE RISCO",
   "frontalierHomeOfficeDays": "dias de teletrabalho",
@@ -4831,7 +4831,7 @@
       }
     }
   },
-  "frontalierOfSalary": "{rate}\u00a0% do salário",
+  "frontalierOfSalary": "{rate} % do salário",
   "@frontalierOfSalary": {
     "placeholders": {
       "rate": {
@@ -4862,11 +4862,11 @@
   "frontalierLamalSwiss": "LAMal (suíça)",
   "frontalierLamalSwissDesc": "Obrigatório se trabalhas na CH. Prémio individual (~CHF 300-500/mês).",
   "frontalierCmuFrance": "CMU/Segurança Social (França)",
-  "frontalierCmuFranceDesc": "Direito de opção possível para fronteiriços FR. Contribuição ~8\u00a0% do rendimento fiscal.",
+  "frontalierCmuFranceDesc": "Direito de opção possível para fronteiriços FR. Contribuição ~8 % do rendimento fiscal.",
   "frontalierPrivateInsurance": "Seguro privado (DE/IT/AT)",
   "frontalierPrivateInsuranceDesc": "Na Alemanha, opção PKV para altos rendimentos. IT/AT: regime obrigatório do país.",
   "frontalierDidYouKnow": "Sabias?",
-  "frontalierEduTax": "Na Suíça, os trabalhadores fronteiriços são tributados na fonte (tabela C). A taxa varia por cantão, estado civil e número de filhos. Em Genebra, se mais de 90\u00a0% dos teus rendimentos mundiais provêm da Suíça, podes solicitar o estatuto de quase-residente para beneficiares das deduções.",
+  "frontalierEduTax": "Na Suíça, os trabalhadores fronteiriços são tributados na fonte (tabela C). A taxa varia por cantão, estado civil e número de filhos. Em Genebra, se mais de 90 % dos teus rendimentos mundiais provêm da Suíça, podes solicitar o estatuto de quase-residente para beneficiares das deduções.",
   "frontalierEdu90Days": "Desde 2023, os acordos amigáveis entre a Suíça e os seus vizinhos fixam um limiar de tolerância para o teletrabalho dos fronteiriços. Para além de 90 dias de teletrabalho por ano, as contribuições sociais e a tributação podem passar para o país de residência.",
   "frontalierEduCharges": "Como trabalhador fronteiriço, contribuis para os seguros sociais suíços (AVS/AI/APG, AC, LPP). As taxas são geralmente mais baixas do que em França ou na Alemanha — mas o seguro de saúde LAMal é da tua responsabilidade individual, o que pode compensar a vantagem.",
   "frontalierLppEstimate": "LPP (est.)",
@@ -4882,5 +4882,7 @@
   "concreteExample": "Exemplo concreto",
   "progressionTrack": "Pista de progressão",
   "languageSelectorTitle": "Langue / Sprache / Language",
-  "realInterestSimulatorTitle": "Simulador de Juro Real"
+  "realInterestSimulatorTitle": "Simulador de Juro Real",
+  "affordabilityMax33": "Máx 33%",
+  "affordabilityMin20": "Mín 20%"
 }

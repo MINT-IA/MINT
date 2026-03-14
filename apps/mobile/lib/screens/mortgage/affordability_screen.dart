@@ -196,7 +196,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
             maxValue: 0.50,
             threshold: 0.33,
             displayValue: '${(result.ratioCharges * 100).toStringAsFixed(1)}%',
-            thresholdLabel: 'Max 33%',
+            thresholdLabel: S.of(context)?.affordabilityMax33 ?? 'Max 33\u00a0%',
             isOk: result.capaciteOk,
           ),
           const SizedBox(height: 24),
@@ -209,7 +209,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
             threshold: 1.0,
             displayValue:
                 'CHF ${formatChf(result.fondsPropresTotal)} / ${formatChf(result.fondsPropresRequis)}',
-            thresholdLabel: 'Min 20%',
+            thresholdLabel: S.of(context)?.affordabilityMin20 ?? 'Min 20\u00a0%',
             isOk: result.fondsPropresOk,
           ),
         ],

@@ -4927,5 +4927,7 @@
   "concreteExample": "Exemple concret",
   "progressionTrack": "Piste de progression",
   "languageSelectorTitle": "Langue / Sprache / Language",
-  "realInterestSimulatorTitle": "Simulateur d'Intérêt Réel"
+  "realInterestSimulatorTitle": "Simulateur d'Intérêt Réel",
+  "affordabilityMax33": "Max 33 %",
+  "affordabilityMin20": "Min 20 %"
 }
