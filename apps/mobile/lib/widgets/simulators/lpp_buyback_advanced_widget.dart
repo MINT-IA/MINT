@@ -25,7 +25,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
   int _staggeringYears = 5;
   double _fundRate = 0.02;
   double _taxableIncome = 120000;
-  String _canton = 'ZH';
+  final String _canton = 'ZH';
 
   @override
   void initState() {
