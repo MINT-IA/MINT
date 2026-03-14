@@ -219,7 +219,8 @@ class FirstJobService {
     // Chiffre choc
     final chiffreChoc =
         'Ton employeur paie ~${formatChf(employeurTotal)}/mois '
-        'en plus de ton salaire — des charges que tu ne vois jamais';
+        'en plus de ton salaire — des charges que tu ne vois jamais. '
+        'Vérifie ta fiche de paie.';
 
     return FirstJobResult(
       brut: brut,

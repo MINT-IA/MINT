@@ -247,7 +247,7 @@ class FiscalService {
           'Attention : ce déménagement te coûterait ~${formatChf(-economieAnnuelle)}/an '
           'en impôts supplémentaires';
     } else {
-      chiffreChoc = 'Charge fiscale équivalente dans les deux cantons';
+      chiffreChoc = 'Charge fiscale équivalente dans les deux cantons. Compare les autres avantages (LAMal, allocations).';
     }
 
     return {

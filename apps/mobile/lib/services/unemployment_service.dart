@@ -157,8 +157,9 @@ class UnemploymentService {
     final perteMensuelle = gainAssureMensuel - indemniteMensuelle;
     final pctPerte = ((1 - taux) * 100).toStringAsFixed(0);
     final chiffreChoc =
-        'Tu perdras ~${formatChf(perteMensuelle)}/mois '
-        'soit $pctPerte% de ton salaire';
+        'Tu perdras ~${formatChf(perteMensuelle)}/mois, '
+        'soit $pctPerte\u00a0% de ton salaire. '
+        'Planifie ta réserve de sécurité.';
 
     return UnemploymentResult(
       eligible: true,
