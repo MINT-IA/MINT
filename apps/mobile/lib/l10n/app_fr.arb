@@ -8385,5 +8385,94 @@
   "consumerCreditTrustCircleBody": "Un pr\u00eat familial peut souvent \u00eatre obtenu \u00e0 0% d'int\u00e9r\u00eat.",
   "consumerCreditDebtCounseling": "Dettes Conseils Suisse",
   "consumerCreditDebtCounselingBody": "Contacte-les AVANT de signer si ta situation est fragile.",
-  "consumerCreditDisclaimer": "Information \u00e0 but pr\u00e9ventif. Ne constitue pas un conseil juridique ou financier. Loi suisse sur le cr\u00e9dit \u00e0 la consommation (LCC) appliqu\u00e9e."
+  "consumerCreditDisclaimer": "Information \u00e0 but pr\u00e9ventif. Ne constitue pas un conseil juridique ou financier. Loi suisse sur le cr\u00e9dit \u00e0 la consommation (LCC) appliqu\u00e9e.",
+
+  "firstSalaryFilmTitle": "Le film de ton premier salaire",
+  "firstSalaryFilmSubtitle": "CHF {amount} brut \u2014 5 actes pour tout comprendre.",
+  "@firstSalaryFilmSubtitle": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "firstSalaryFilmTab1": "1 \u00b7 Brut\u2192Net",
+  "firstSalaryFilmTab2": "2 \u00b7 Invisible",
+  "firstSalaryFilmTab3": "3 \u00b7 3a",
+  "firstSalaryFilmTab4": "4 \u00b7 LAMal",
+  "firstSalaryFilmTab5": "5 \u00b7 Action",
+  "firstSalaryFilmAct1Title": "La douche froide",
+  "firstSalaryFilmAct1Quote": "\"{amount} CHF disparaissent. Mais ce n'est pas perdu \u2014 c'est ton futur.\"",
+  "@firstSalaryFilmAct1Quote": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "firstSalaryFilmNetPercent": "{percent}\u00a0% net",
+  "@firstSalaryFilmNetPercent": {
+    "placeholders": {
+      "percent": {"type": "String"}
+    }
+  },
+  "firstSalaryFilmDeductionAvs": "AVS/AI/APG 5.30\u00a0%",
+  "firstSalaryFilmDeductionLpp": "LPP ~3.5\u00a0%",
+  "firstSalaryFilmDeductionAc": "AC 1.10\u00a0%",
+  "firstSalaryFilmDeductionAanp": "AANP 1.30\u00a0%",
+  "firstSalaryFilmDeductionAmount": "\u2212 CHF {amount}",
+  "@firstSalaryFilmDeductionAmount": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "firstSalaryFilmAct2Title": "L'argent invisible",
+  "firstSalaryFilmAct2Quote": "\"Ton vrai salaire est CHF {amount}. Ton employeur paie bien plus que tu ne crois.\"",
+  "@firstSalaryFilmAct2Quote": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "firstSalaryFilmVisibleNet": "\ud83c\udf0a Visible\u00a0: ton salaire net",
+  "firstSalaryFilmVisibleNetSub": "Ce que tu touches",
+  "firstSalaryFilmYourContributions": "\ud83d\udca7 Tes cotisations",
+  "firstSalaryFilmYourContributionsSub": "D\u00e9duits de ton brut",
+  "firstSalaryFilmEmployerContributions": "\u26f0\ufe0f Cotisations employeur",
+  "firstSalaryFilmEmployerContributionsSub": "Invisibles sur ta fiche",
+  "firstSalaryFilmChfPerMonth": "CHF {amount}/mois",
+  "@firstSalaryFilmChfPerMonth": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "firstSalaryFilmAct3Title": "Le cadeau fiscal 3a",
+  "firstSalaryFilmAct3Quote": "\"CHF {amount}/mois \u2192 potentiellement millionnaire. Commence maintenant.\"",
+  "@firstSalaryFilmAct3Quote": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "firstSalaryFilmAt30": "\u00c0 30 ans",
+  "firstSalaryFilmAt40": "\u00c0 40 ans",
+  "firstSalaryFilmAt65": "\u00c0 65 ans",
+  "firstSalaryFilm3aInfo": "\ud83d\udcb0 Plafond 2026\u00a0: CHF 7'258/an \u00b7 D\u00e9duction fiscale directe \u00b7 OPP3 art. 7",
+  "firstSalaryFilmAct4Title": "Le pi\u00e8ge LAMal",
+  "firstSalaryFilmAct4Quote": "\"La franchise pas ch\u00e8re peut te co\u00fbter cher si tu tombes malade.\"",
+  "firstSalaryFilmFranchise300Advice": "Conseill\u00e9 si maladies chroniques",
+  "firstSalaryFilmFranchise1500Advice": "Bon compromis \u00b7 Recommand\u00e9",
+  "firstSalaryFilmFranchise2500Advice": "\u00c9conomise la prime \u00b7 Si tu es en bonne sant\u00e9",
+  "firstSalaryFilmPrimeMonthly": "\u2212CHF {amount}/mois prime",
+  "@firstSalaryFilmPrimeMonthly": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "firstSalaryFilmLamalInfo": "\ud83d\udca1 LAMal art. 64 \u2014 Franchise annuelle choisie, renouvelable chaque ann\u00e9e.",
+  "firstSalaryFilmAct5Title": "Ta checklist de d\u00e9marrage",
+  "firstSalaryFilmAct5Quote": "\"5 actions. C'est tout. Commence cette semaine.\"",
+  "firstSalaryFilmWeek1": "Semaine 1",
+  "firstSalaryFilmWeek2": "Semaine 2",
+  "firstSalaryFilmBefore31Dec": "Avant 31.12",
+  "firstSalaryFilmTask1": "Ouvrir un compte 3a (banque ou fintech)",
+  "firstSalaryFilmTask2": "Mettre en place un virement automatique mensuel",
+  "firstSalaryFilmTask3": "Choisir ta franchise LAMal (recommand\u00e9\u00a0: CHF 1'500)",
+  "firstSalaryFilmTask4": "V\u00e9rifier ta RC priv\u00e9e (env. CHF 100/an)",
+  "firstSalaryFilmTask5": "Verser le maximum 3a avant le 31 d\u00e9cembre",
+  "firstSalaryFilmDisclaimer": "Outil \u00e9ducatif \u00b7 ne constitue pas un conseil financier au sens de la LSFin. Source\u00a0: LAVS art. 3, LPP art. 7, LACI art. 3, OPP3 art. 7 (3a 7'258 CHF/an). Taux cotisations indicatifs 2026. Projection 3a\u00a0: rendement hypoth\u00e9tique 4\u00a0%/an."
 }
