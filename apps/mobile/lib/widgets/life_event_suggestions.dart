@@ -33,11 +33,8 @@ class LifeEventSuggestion {
 }
 
 /// Generates contextual life event suggestions based on profile.
-///
-/// When [context] is provided, strings are resolved via S.
-/// When omitted (unit tests), French fallback strings are used.
 List<LifeEventSuggestion> buildLifeEventSuggestions({
-  BuildContext? context,
+  required BuildContext context,
   required int age,
   required String civilStatus,
   required int childrenCount,
@@ -45,15 +42,15 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   required double monthlyNetIncome,
   required String canton,
 }) {
-  final s = context != null ? S.of(context)! : null;
+  final s = S.of(context)!;
   final suggestions = <LifeEventSuggestion>[];
 
   // ── Family ─────────────────────────────────────────────
 
   if (civilStatus == 'single' || civilStatus == 'concubinage') {
     suggestions.add(LifeEventSuggestion(
-      title: s?.lifeEventMarriage ?? 'Mariage',
-      reason: s?.lifeEventMarriageReason ?? 'Découvre l\u2019impact fiscal et patrimonial du mariage.',
+      title: s.lifeEventMarriage,
+      reason: s.lifeEventMarriageReason,
       icon: Icons.favorite_outline,
       route: '/mariage',
       color: MintColors.error,
@@ -62,8 +59,8 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
 
   if (civilStatus == 'concubinage') {
     suggestions.add(LifeEventSuggestion(
-      title: s?.lifeEventConcubinage ?? 'Concubinage',
-      reason: s?.lifeEventConcubinageReason ?? 'Protège ton couple\u00a0: droits, risques et solutions.',
+      title: s.lifeEventConcubinage,
+      reason: s.lifeEventConcubinageReason,
       icon: Icons.people_outline,
       route: '/concubinage',
       color: MintColors.warning,
@@ -72,8 +69,8 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
 
   if (civilStatus == 'married' && childrenCount == 0) {
     suggestions.add(LifeEventSuggestion(
-      title: s?.lifeEventBirth ?? 'Naissance',
-      reason: s?.lifeEventBirthReason ?? 'Anticipe l\u2019impact financier d\u2019un enfant.',
+      title: s.lifeEventBirth,
+      reason: s.lifeEventBirthReason,
       icon: Icons.child_care,
       route: '/naissance',
       color: MintColors.info,
@@ -84,8 +81,8 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
 
   if (age >= 50 && childrenCount > 0) {
     suggestions.add(LifeEventSuggestion(
-      title: s?.lifeEventSuccession ?? 'Planification successorale',
-      reason: s?.lifeEventSuccessionReason ?? 'Optimise la transmission de ton patrimoine.',
+      title: s.lifeEventSuccession,
+      reason: s.lifeEventSuccessionReason,
       icon: Icons.account_balance_outlined,
       route: '/life-event/succession',
       color: MintColors.primary,
@@ -94,8 +91,8 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
 
   if (age >= 55 && monthlyNetIncome * 12 > 100000) {
     suggestions.add(LifeEventSuggestion(
-      title: s?.lifeEventDonation ?? 'Donation',
-      reason: s?.lifeEventDonationReason ?? 'Explore les avantages d\u2019une donation de ton vivant.',
+      title: s.lifeEventDonation,
+      reason: s.lifeEventDonationReason,
       icon: Icons.card_giftcard,
       route: '/life-event/donation',
       color: MintColors.info,
@@ -106,8 +103,8 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
 
   if (age <= 28) {
     suggestions.add(LifeEventSuggestion(
-      title: s?.lifeEventFirstJob ?? 'Premier emploi',
-      reason: s?.lifeEventFirstJobReason ?? 'Les bons réflexes financiers dès le départ.',
+      title: s.lifeEventFirstJob,
+      reason: s.lifeEventFirstJobReason,
       icon: Icons.school_outlined,
       route: '/first-job',
       color: MintColors.info,
@@ -116,8 +113,8 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
 
   if (employmentStatus == 'employee' && age >= 30 && age <= 50) {
     suggestions.add(LifeEventSuggestion(
-      title: s?.lifeEventJobChange ?? 'Changement d\u2019emploi',
-      reason: s?.lifeEventJobChangeReason ?? 'Compare salaire, LPP et fiscalité entre deux postes.',
+      title: s.lifeEventJobChange,
+      reason: s.lifeEventJobChangeReason,
       icon: Icons.swap_horiz,
       route: '/simulator/job-comparison',
       color: MintColors.primary,
@@ -126,8 +123,8 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
 
   if (employmentStatus == 'independent') {
     suggestions.add(LifeEventSuggestion(
-      title: s?.lifeEventSelfEmployedTools ?? 'Outils indépendant',
-      reason: s?.lifeEventSelfEmployedReason ?? 'Pilier 3a élargi, LPP facultative, cotisations AVS.',
+      title: s.lifeEventSelfEmployedTools,
+      reason: s.lifeEventSelfEmployedReason,
       icon: Icons.storefront_outlined,
       route: '/segments/independant',
       color: MintColors.success,
@@ -136,8 +133,8 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
 
   if (age >= 55) {
     suggestions.add(LifeEventSuggestion(
-      title: s?.lifeEventRetirementPlanning ?? 'Planification retraite',
-      reason: s?.lifeEventRetirementReason ?? 'Prépare ta transition vers la retraite.',
+      title: s.lifeEventRetirementPlanning,
+      reason: s.lifeEventRetirementReason,
       icon: Icons.elderly,
       route: '/retirement',
       color: MintColors.primary,
@@ -148,8 +145,8 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
 
   if (monthlyNetIncome >= 5000 && age >= 25 && age <= 50) {
     suggestions.add(LifeEventSuggestion(
-      title: s?.lifeEventHomePurchase ?? 'Achat immobilier',
-      reason: s?.lifeEventHomePurchaseReason ?? 'Simule ta capacité d\u2019emprunt et les fonds propres nécessaires.',
+      title: s.lifeEventHomePurchase,
+      reason: s.lifeEventHomePurchaseReason,
       icon: Icons.home_outlined,
       route: '/mortgage/affordability',
       color: MintColors.success,
@@ -162,8 +159,8 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   const highTaxCantons = ['GE', 'VD', 'NE', 'JU', 'BE', 'BS'];
   if (highTaxCantons.contains(canton.toUpperCase())) {
     suggestions.add(LifeEventSuggestion(
-      title: s?.lifeEventCantonMove ?? 'Déménagement cantonal',
-      reason: s?.lifeEventCantonMoveReason ?? 'Compare l\u2019impact fiscal d\u2019un changement de canton.',
+      title: s.lifeEventCantonMove,
+      reason: s.lifeEventCantonMoveReason,
       icon: Icons.map_outlined,
       route: '/fiscal',
       color: MintColors.warning,
@@ -174,8 +171,8 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
 
   if (childrenCount > 0 || monthlyNetIncome > 6000) {
     suggestions.add(LifeEventSuggestion(
-      title: s?.lifeEventDisability ?? 'Invalidité',
-      reason: s?.lifeEventDisabilityReason ?? 'Mesure ton gap de revenus en cas d\u2019invalidité.',
+      title: s.lifeEventDisability,
+      reason: s.lifeEventDisabilityReason,
       icon: Icons.accessible,
       route: '/simulator/disability-gap',
       color: MintColors.error,

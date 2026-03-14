@@ -375,15 +375,34 @@ void main() {
   // GROUP 3: buildLifeEventSuggestions logic
   // ────────────────────────────────────────────────────────────
   group('buildLifeEventSuggestions', () {
-    test('returns max 5 suggestions', () {
-      // Profile that triggers many rules:
-      // concubinage -> Mariage + Concubinage (2)
-      // age <= 28 -> Premier emploi (3)
-      // independent -> Outils independant (4)
-      // income >= 5000 & age 25-50 -> Achat immobilier (5)
-      // high-tax canton GE -> Déménagement cantonal (6 - would be 6th)
-      // children > 0 -> Invalidite (7 - would be 7th)
+    late BuildContext testContext;
+
+    Future<void> pumpContext(WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          locale: const Locale('fr'),
+          home: Builder(
+            builder: (context) {
+              testContext = context;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('returns max 5 suggestions', (tester) async {
+      await pumpContext(tester);
       final suggestions = buildLifeEventSuggestions(
+        context: testContext,
         age: 27,
         civilStatus: 'concubinage',
         childrenCount: 1,
@@ -395,8 +414,10 @@ void main() {
       expect(suggestions.length, lessThanOrEqualTo(5));
     });
 
-    test('marriage suggested for single status', () {
+    testWidgets('marriage suggested for single status', (tester) async {
+      await pumpContext(tester);
       final suggestions = buildLifeEventSuggestions(
+        context: testContext,
         age: 30,
         civilStatus: 'single',
         childrenCount: 0,
@@ -405,12 +426,14 @@ void main() {
         canton: 'ZH',
       );
 
-      final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Mariage'));
+      final routes = suggestions.map((s) => s.route).toList();
+      expect(routes, contains('/mariage'));
     });
 
-    test('concubinage suggested for concubinage status', () {
+    testWidgets('concubinage suggested for concubinage status', (tester) async {
+      await pumpContext(tester);
       final suggestions = buildLifeEventSuggestions(
+        context: testContext,
         age: 30,
         civilStatus: 'concubinage',
         childrenCount: 0,
@@ -419,12 +442,14 @@ void main() {
         canton: 'ZH',
       );
 
-      final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Concubinage'));
+      final routes = suggestions.map((s) => s.route).toList();
+      expect(routes, contains('/concubinage'));
     });
 
-    test('naissance suggested for married with 0 children', () {
+    testWidgets('naissance suggested for married with 0 children', (tester) async {
+      await pumpContext(tester);
       final suggestions = buildLifeEventSuggestions(
+        context: testContext,
         age: 32,
         civilStatus: 'married',
         childrenCount: 0,
@@ -433,12 +458,14 @@ void main() {
         canton: 'ZH',
       );
 
-      final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Naissance'));
+      final routes = suggestions.map((s) => s.route).toList();
+      expect(routes, contains('/naissance'));
     });
 
-    test('succession suggested for age >= 50 with children', () {
+    testWidgets('succession suggested for age >= 50 with children', (tester) async {
+      await pumpContext(tester);
       final suggestions = buildLifeEventSuggestions(
+        context: testContext,
         age: 52,
         civilStatus: 'married',
         childrenCount: 2,
@@ -447,12 +474,14 @@ void main() {
         canton: 'ZH',
       );
 
-      final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Planification successorale'));
+      final routes = suggestions.map((s) => s.route).toList();
+      expect(routes, contains('/life-event/succession'));
     });
 
-    test('first job suggested for age <= 28', () {
+    testWidgets('first job suggested for age <= 28', (tester) async {
+      await pumpContext(tester);
       final suggestions = buildLifeEventSuggestions(
+        context: testContext,
         age: 25,
         civilStatus: 'single',
         childrenCount: 0,
@@ -461,12 +490,14 @@ void main() {
         canton: 'ZH',
       );
 
-      final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Premier emploi'));
+      final routes = suggestions.map((s) => s.route).toList();
+      expect(routes, contains('/first-job'));
     });
 
-    test('housing suggested for income >= 5000 and age 25-50', () {
+    testWidgets('housing suggested for income >= 5000 and age 25-50', (tester) async {
+      await pumpContext(tester);
       final suggestions = buildLifeEventSuggestions(
+        context: testContext,
         age: 35,
         civilStatus: 'married',
         childrenCount: 1,
@@ -475,16 +506,18 @@ void main() {
         canton: 'ZH',
       );
 
-      final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Achat immobilier'));
+      final routes = suggestions.map((s) => s.route).toList();
+      expect(routes, contains('/mortgage/affordability'));
     });
 
-    test('canton move suggested for high-tax cantons (GE, VD, NE, JU, BE, BS)',
-        () {
+    testWidgets('canton move suggested for high-tax cantons (GE, VD, NE, JU, BE, BS)',
+        (tester) async {
+      await pumpContext(tester);
       const highTaxCantons = ['GE', 'VD', 'NE', 'JU', 'BE', 'BS'];
 
       for (final canton in highTaxCantons) {
         final suggestions = buildLifeEventSuggestions(
+          context: testContext,
           age: 35,
           civilStatus: 'married',
           childrenCount: 0,
@@ -493,16 +526,17 @@ void main() {
           canton: canton,
         );
 
-        final titles = suggestions.map((s) => s.title).toList();
+        final routes = suggestions.map((s) => s.route).toList();
         expect(
-          titles,
-          contains('Déménagement cantonal'),
+          routes,
+          contains('/fiscal'),
           reason: 'Canton $canton should trigger canton move suggestion',
         );
       }
 
       // Verify a low-tax canton does NOT trigger the suggestion
       final suggestionsLowTax = buildLifeEventSuggestions(
+        context: testContext,
         age: 35,
         civilStatus: 'married',
         childrenCount: 0,
@@ -511,10 +545,10 @@ void main() {
         canton: 'ZG',
       );
 
-      final titlesLowTax = suggestionsLowTax.map((s) => s.title).toList();
+      final routesLowTax = suggestionsLowTax.map((s) => s.route).toList();
       expect(
-        titlesLowTax,
-        isNot(contains('Déménagement cantonal')),
+        routesLowTax,
+        isNot(contains('/fiscal')),
         reason: 'Low-tax canton ZG should not trigger canton move suggestion',
       );
     });
