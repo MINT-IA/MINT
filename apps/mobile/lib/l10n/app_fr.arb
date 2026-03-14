@@ -7478,7 +7478,6 @@
   "documentsFieldTauxEnveloppe": "Taux de conversion enveloppe",
   "docExplTauxEnveloppe": "Taux moyen pond\u00e9r\u00e9",
   "documentsCategoryRisque": "Couverture risque",
-  "documentsFieldRenteInvalidite": "Rente d'invalidit\u00e9 annuelle",
   "docExplRenteInvalidite": "Rente en cas d'incapacit\u00e9 de travail",
   "documentsFieldCapitalDeces": "Capital-d\u00e9c\u00e8s",
   "docExplCapitalDeces": "Montant vers\u00e9 aux b\u00e9n\u00e9ficiaires en cas de d\u00e9c\u00e8s",

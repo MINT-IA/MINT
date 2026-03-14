@@ -116,7 +116,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // 1. App Bar — SliverAppBar with gradient
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildAppBar(S? s, SubscriptionProvider sub) {
+  Widget _buildAppBar(S s, SubscriptionProvider sub) {
     return SliverAppBar(
       expandedHeight: 100,
       pinned: true,
@@ -188,7 +188,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // 2. Header Card — glassmorphism-style
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildHeaderCard(S? s, int totalDocs) {
+  Widget _buildHeaderCard(S s, int totalDocs) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -277,7 +277,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // 3. Category Grid — 2-column grid of tappable category cards
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildCategoryGrid(S? s, DocumentProvider docProvider) {
+  Widget _buildCategoryGrid(S s, DocumentProvider docProvider) {
     final categories = _getCategoryDefinitions(s);
 
     return GridView.builder(
@@ -300,7 +300,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Widget _buildCategoryCard(
-    S? s,
+    S s,
     VaultDocumentType type,
     IconData icon,
     Color color,
@@ -367,7 +367,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // 4. Legal Guidance Section
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildGuidanceSection(S? s) {
+  Widget _buildGuidanceSection(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -387,10 +387,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           s,
           icon: Icons.home_outlined,
           title: s.vaultGuidanceLeaseTitle,
-          body: s.vaultGuidanceLeaseBody
-                  'le rendement admissible (CO art. 269). Le pr\u00e9avis l\u00e9gal est '
-                  'de 3 mois pour un appartement, sauf clause contraire dans le bail. '
-                  'L\u2019ASLOCA offre des consultations gratuites dans la plupart des cantons.',
+          body: s.vaultGuidanceLeaseBody,
           source:
               s.vaultGuidanceLeaseSource,
         ),
@@ -401,11 +398,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           s,
           icon: Icons.health_and_safety_outlined,
           title: s.vaultGuidanceInsuranceTitle,
-          body: s.vaultGuidanceInsuranceBody
-                  'en Suisse, mais fortement recommand\u00e9es. V\u00e9rifie que ta somme '
-                  'assur\u00e9e m\u00e9nage couvre la valeur r\u00e9elle de tes biens. '
-                  'La sous-assurance peut r\u00e9duire l\u2019indemnisation proportionnellement '
-                  '(LCA art. 69).',
+          body: s.vaultGuidanceInsuranceBody,
           source:
               s.vaultGuidanceInsuranceSource,
         ),
@@ -416,10 +409,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           s,
           icon: Icons.local_hospital_outlined,
           title: s.vaultGuidanceLamalTitle,
-          body: s.vaultGuidanceLamalBody
-                  '(franchise plus haute) ou au 31 d\u00e9cembre (franchise plus basse). '
-                  'Un\u00b7e adulte en bonne sant\u00e9 peut \u00e9conomiser jusqu\u2019\u00e0 '
-                  '1\u2019500 CHF/an avec une franchise de 2\u2019500 CHF vs 300 CHF.',
+          body: s.vaultGuidanceLamalBody,
           source:
               s.vaultGuidanceLamalSource,
         ),
@@ -430,10 +420,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           s,
           icon: Icons.payments_outlined,
           title: s.vaultGuidanceSalaryTitle,
-          body: s.vaultGuidanceSalaryBody
-                  'd\u00e9claration fiscale. V\u00e9rifie que les cotisations LPP, AVS et '
-                  'allocations familiales correspondent \u00e0 tes fiches de paie. '
-                  'Toute erreur peut impacter tes imp\u00f4ts et ta pr\u00e9voyance.',
+          body: s.vaultGuidanceSalaryBody,
           source: s.vaultGuidanceSalarySource,
         ),
       ],
@@ -441,7 +428,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Widget _buildGuidanceCard(
-    S? s, {
+    S s, {
     required IconData icon,
     required String title,
     required String body,
@@ -511,7 +498,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // ──────────────────────────────────────────────────────────
 
   Widget _buildDocumentsList(
-      S? s, DocumentProvider docProvider, SubscriptionProvider sub) {
+      S s, DocumentProvider docProvider, SubscriptionProvider sub) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -543,7 +530,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   List<Widget> _buildGroupedDocuments(
-      S? s, DocumentProvider docProvider, SubscriptionProvider sub) {
+      S s, DocumentProvider docProvider, SubscriptionProvider sub) {
     final docs = sub.isCoach
         ? docProvider.documents
         : docProvider.documents.take(_freeDocLimit).toList();
@@ -590,7 +577,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Widget _buildDocumentListItem(
-      S? s, DocumentSummary doc, DocumentProvider docProvider) {
+      S s, DocumentSummary doc, DocumentProvider docProvider) {
     final typeLabel = _labelForType(s, doc.documentType);
     final typeIcon = _iconForType(doc.documentType);
     final typeColor = _colorForType(doc.documentType);
@@ -693,7 +680,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  Widget _buildEmptyState(S? s) {
+  Widget _buildEmptyState(S s) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(32),
@@ -747,7 +734,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  Widget _buildPremiumUpsellCard(S? s) {
+  Widget _buildPremiumUpsellCard(S s) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -797,8 +784,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            s.vaultPremiumBody
-                    'et d\u00e9bloquer l\u2019audit de couverture automatique',
+            s.vaultPremiumBody,
             style: TextStyle(
               fontSize: 14,
               color: MintColors.white.withValues(alpha: 0.9),
@@ -838,7 +824,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Uploading Indicator (kept)
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildUploadingIndicator(S? s) {
+  Widget _buildUploadingIndicator(S s) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -909,7 +895,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Upload Result Section (kept, handles new types gracefully)
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildResultSection(S? s, DocumentUploadResult result) {
+  Widget _buildResultSection(S s, DocumentUploadResult result) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -937,7 +923,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  Widget _buildConfidenceCard(S? s, DocumentUploadResult result) {
+  Widget _buildConfidenceCard(S s, DocumentUploadResult result) {
     final confidence = (result.confidence * 100).round();
     final Color color = _confidenceColor(confidence);
 
@@ -996,7 +982,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  Widget _buildExtractedFieldsPreview(S? s, LppExtractedFields fields) {
+  Widget _buildExtractedFieldsPreview(S s, LppExtractedFields fields) {
     final entries = _buildFieldEntries(s, fields);
     if (entries.isEmpty) return const SizedBox.shrink();
 
@@ -1053,7 +1039,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  Widget _buildWarningsCard(S? s, List<String> warnings) {
+  Widget _buildWarningsCard(S s, List<String> warnings) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1070,7 +1056,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   size: 18, color: MintColors.warning.withValues(alpha: 0.8)),
               const SizedBox(width: 8),
               Text(
-                s.documentsWarningsTitleattention',
+                s.documentsWarningsTitle,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -1111,7 +1097,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Bank Import Card (kept as fallback)
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildBankImportCard(S? s) {
+  Widget _buildBankImportCard(S s) {
     return InkWell(
       onTap: () => context.push('/bank-import'),
       borderRadius: BorderRadius.circular(20),
@@ -1169,7 +1155,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Privacy Footer (kept)
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildPrivacyFooter(S? s) {
+  Widget _buildPrivacyFooter(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1192,9 +1178,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              s.vaultPrivacy
-                      'jamais partag\u00e9s avec des tiers. Tu peux les supprimer '
-                      '\u00e0 tout moment.',
+              s.vaultPrivacy,
               style: const TextStyle(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -1211,7 +1195,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Disclaimer (compliance — MANDATORY)
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildDisclaimer(S? s) {
+  Widget _buildDisclaimer(S s) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1227,11 +1211,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              s.vaultDisclaimer
-                      'pr\u00e9sent\u00e9es sont \u00e0 titre informatif et ne constituent '
-                      'pas un conseil juridique personnalis\u00e9 (LSFin, nLPD). '
-                      'Pour toute question sp\u00e9cifique, consulte un\u00b7e '
-                      'sp\u00e9cialiste qualifi\u00e9\u00b7e.',
+              s.vaultDisclaimer,
               style: const TextStyle(
                 fontSize: 12,
                 color: MintColors.textMuted,
@@ -1248,7 +1228,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Upload Bottom Sheet
   // ──────────────────────────────────────────────────────────
 
-  void _showUploadTypeSheet(S? s) {
+  void _showUploadTypeSheet(S s) {
     final sub = context.read<SubscriptionProvider>();
     final docProvider = context.read<DocumentProvider>();
 
@@ -1292,7 +1272,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  Widget _buildUploadTypeSheet(BuildContext ctx, S? s) {
+  Widget _buildUploadTypeSheet(BuildContext ctx, S s) {
     final categories = _getCategoryDefinitions(s);
 
     return SafeArea(
@@ -1407,7 +1387,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Future<void> _confirmDelete(
-      S? s, String docId, DocumentProvider docProvider) async {
+      S s, String docId, DocumentProvider docProvider) async {
     final confirm = await _confirmDeleteDialog(s, docId, docProvider);
     if (confirm == true) {
       await docProvider.deleteDocument(docId);
@@ -1415,7 +1395,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Future<bool?> _confirmDeleteDialog(
-      S? s, String docId, DocumentProvider docProvider) async {
+      S s, String docId, DocumentProvider docProvider) async {
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -1452,9 +1432,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           ),
         ),
         content: Text(
-          s.vaultPrivacy
-                  'jamais partag\u00e9s avec des tiers. Tu peux les supprimer '
-                  '\u00e0 tout moment.',
+          s.vaultPrivacy,
           style: const TextStyle(
             fontSize: 14,
             color: MintColors.textSecondary,
@@ -1476,7 +1454,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // ──────────────────────────────────────────────────────────
 
   /// Category definitions (excluding "other" which is handled separately).
-  List<_CategoryDef> _getCategoryDefinitions(S? s) {
+  List<_CategoryDef> _getCategoryDefinitions(S s) {
     return [
       _CategoryDef(
         type: VaultDocumentType.lppCertificate,
@@ -1524,7 +1502,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   /// Get the display label for a document type.
-  String _labelForType(S? s, VaultDocumentType type) {
+  String _labelForType(S s, VaultDocumentType type) {
     switch (type) {
       case VaultDocumentType.lppCertificate:
         return s.vaultCategoryLpp;
@@ -1594,7 +1572,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Helpers — Field entries (LPP-specific, kept for backward compat)
   // ──────────────────────────────────────────────────────────
 
-  List<(String, String)> _buildFieldEntries(S? s, LppExtractedFields fields) {
+  List<(String, String)> _buildFieldEntries(S s, LppExtractedFields fields) {
     final entries = <(String, String)>[];
 
     if (fields.avoirVieillesseTotal != null) {
@@ -1623,7 +1601,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     }
     if (fields.renteInvalidite != null) {
       entries.add((
-        s.documentsFieldRenteInvaliditeinvalidit\u00e9 annuelle',
+        s.documentsFieldRenteInvalidite,
         '${_formatChf(fields.renteInvalidite!)}/an',
       ));
     }
