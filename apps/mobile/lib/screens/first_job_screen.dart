@@ -121,34 +121,28 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                     employerHiddenCost: _salaire * 1.13,
                     deductions: [
                       PayslipLine(
-                        label: 'AVS/AI/APG',
+                        label: S.of(context)!.firstJobPayslipAvs,
                         emoji: '🛡️',
                         amount: _salaire * 0.053,
                         percentage: 5.3,
-                        explanation:
-                            'Cotisation salarié·e : 5.3% du brut. '
-                            'Ton employeur paie aussi 5.3% en plus.',
-                        legalRef: 'LAVS art. 5',
+                        explanation: S.of(context)!.firstJobPayslipAvsExpl,
+                        legalRef: S.of(context)!.firstJobPayslipAvsRef,
                       ),
                       PayslipLine(
-                        label: 'LPP (2e pilier)',
+                        label: S.of(context)!.firstJobPayslipLpp,
                         emoji: '🏦',
                         amount: _salaire * 0.08,
                         percentage: 8.0,
-                        explanation:
-                            'Épargne vieillesse obligatoire dès 25 ans. '
-                            'Le taux exact dépend de ta caisse et ton âge.',
-                        legalRef: 'LPP art. 16',
+                        explanation: S.of(context)!.firstJobPayslipLppExpl,
+                        legalRef: S.of(context)!.firstJobPayslipLppRef,
                       ),
                       PayslipLine(
-                        label: 'Impôt à la source (estimation)',
+                        label: S.of(context)!.firstJobPayslipTax,
                         emoji: '🏛️',
                         amount: _salaire * 0.09,
                         percentage: 9.0,
-                        explanation:
-                            'Retenu directement sur le salaire si tu es imposé·e '
-                            'à la source. Le taux varie selon canton, statut et revenu.',
-                        legalRef: 'LIFD art. 83',
+                        explanation: S.of(context)!.firstJobPayslipTaxExpl,
+                        legalRef: S.of(context)!.firstJobPayslipTaxRef,
                       ),
                     ],
                   ),
@@ -163,43 +157,32 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   const SizedBox(height: 24),
                   // ── P11-C : Checklist changement de job ────────
                   JobChangeChecklistWidget(
-                    items: const [
+                    items: [
                       ChecklistItem(
-                        deadline: 'Avant de quitter',
+                        deadline: S.of(context)!.firstJobChecklistDeadlineBefore,
                         emoji: '📄',
-                        action:
-                            'Demande ton certificat LPP à ton employeur actuel.',
-                        legalRef: 'LPP art. 3 — libre passage',
-                        consequence:
-                            'Sans certificat, tu ne peux pas vérifier que le '
-                            'montant transféré est correct.',
+                        action: S.of(context)!.firstJobChecklistActionLpp,
+                        legalRef: S.of(context)!.firstJobChecklistRefLpp,
+                        consequence: S.of(context)!.firstJobChecklistConsequenceLpp,
                       ),
                       ChecklistItem(
-                        deadline: '30 jours',
+                        deadline: S.of(context)!.firstJobChecklistDeadline30,
                         emoji: '🏦',
-                        action:
-                            'Vérifie que ton avoir LPP a été transféré à la '
-                            'caisse de ton nouvel employeur.',
-                        legalRef: 'OLP art. 3 — délai de transfert',
-                        consequence:
-                            'Sans transfert, ton capital va à la Fondation '
-                            'supplétive à un taux de 0.05%.',
+                        action: S.of(context)!.firstJobChecklistActionTransfer,
+                        legalRef: S.of(context)!.firstJobChecklistRefTransfer,
+                        consequence: S.of(context)!.firstJobChecklistConsequenceTransfer,
                       ),
                       ChecklistItem(
-                        deadline: '1 mois',
+                        deadline: S.of(context)!.firstJobChecklistDeadline1Month,
                         emoji: '🛡️',
-                        action:
-                            'Informe ton assurance-maladie LAMal du changement '
-                            'd\'employeur si tu bénéficiais d\'une couverture collective.',
-                        legalRef: 'LAMal art. 3',
+                        action: S.of(context)!.firstJobChecklistActionLamal,
+                        legalRef: S.of(context)!.firstJobChecklistRefLamal,
                       ),
                       ChecklistItem(
-                        deadline: 'Dès le premier salaire',
+                        deadline: S.of(context)!.firstJobChecklistDeadlineFirstSalary,
                         emoji: '🏦',
-                        action:
-                            'Continue tes versements au pilier 3a — '
-                            'l\'interruption te coûte des déductions fiscales.',
-                        legalRef: 'OPP3 art. 1',
+                        action: S.of(context)!.firstJobChecklistAction3a,
+                        legalRef: S.of(context)!.firstJobChecklistRef3a,
                       ),
                     ],
                   ),
@@ -292,8 +275,8 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     return _buildSliderCard(
       title: S.of(context)!.firstJobSalaryTitle,
       valueLabel: FirstJobService.formatChf(_salaire),
-      minLabel: "CHF 2'000",
-      maxLabel: "CHF 15'000",
+      minLabel: S.of(context)!.firstJobSalaryMin,
+      maxLabel: S.of(context)!.firstJobSalaryMax,
       value: _salaire,
       min: 2000,
       max: 15000,
@@ -419,7 +402,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Canton',
+                S.of(context)!.firstJobCanton,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -501,10 +484,10 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('10%',
+              Text(S.of(context)!.firstJobActivityMin,
                   style: GoogleFonts.inter(
                       fontSize: 11, color: MintColors.textMuted)),
-              Text('100%',
+              Text(S.of(context)!.firstJobActivityMax,
                   style: GoogleFonts.inter(
                       fontSize: 11, color: MintColors.textMuted)),
             ],
@@ -611,7 +594,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Économie fiscale estimée : ~${FirstJobService.formatChf(r.economieFiscaleEstimee3a)}/an',
+                    S.of(context)!.firstJobTaxSavings(FirstJobService.formatChf(r.economieFiscaleEstimee3a)),
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -766,7 +749,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        'TOP',
+                        S.of(context)!.firstJobLamalTop,
                         style: GoogleFonts.inter(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
@@ -777,7 +760,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   Expanded(
                     flex: 2,
                     child: Text(
-                      'CHF ${option.franchise}',
+                      S.of(context)!.firstJobLamalFranchise('${option.franchise}'),
                       style: GoogleFonts.montserrat(
                         fontSize: 14,
                         fontWeight:
@@ -791,7 +774,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   Expanded(
                     flex: 3,
                     child: Text(
-                      '${FirstJobService.formatChf(option.primeMensuelle)}/mois',
+                      S.of(context)!.firstJobLamalPerMonth(FirstJobService.formatChf(option.primeMensuelle)),
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: MintColors.textSecondary,
@@ -799,7 +782,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                     ),
                   ),
                   Text(
-                    'Max ${FirstJobService.formatChf(option.coutAnnuelMax)}/an',
+                    S.of(context)!.firstJobLamalMaxPerYear(FirstJobService.formatChf(option.coutAnnuelMax)),
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
@@ -827,8 +810,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Franchise 2500 vs 300 : économie estimée de ~'
-                    '${FirstJobService.formatChf(r.economieAnnuelleVs300)}/an en primes',
+                    S.of(context)!.firstJobLamalSavingsHighlight(FirstJobService.formatChf(r.economieAnnuelleVs300)),
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -1090,29 +1072,31 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       netSalary: net,
       categories: [
         BudgetCategory(
-          label: 'Besoins',
+          label: S.of(context)!.firstJobBudgetNeeds,
           emoji: '🏠',
           percent: 50,
           amount: net * 0.50,
-          examples: const ['Loyer', 'LAMal', 'Transport', 'Alimentation'],
+          examples: [S.of(context)!.firstJobBudgetExRent, S.of(context)!.firstJobBudgetExLamal, S.of(context)!.firstJobBudgetExTransport, S.of(context)!.firstJobBudgetExFood],
         ),
         BudgetCategory(
-          label: 'Envies',
+          label: S.of(context)!.firstJobBudgetWants,
           emoji: '✨',
           percent: 30,
           amount: net * 0.30,
-          examples: const ['Loisirs', 'Restaurants', 'Voyages', 'Shopping'],
+          examples: [S.of(context)!.firstJobBudgetExLeisure, S.of(context)!.firstJobBudgetExRestaurants, S.of(context)!.firstJobBudgetExTravel, S.of(context)!.firstJobBudgetExShopping],
         ),
         BudgetCategory(
-          label: 'Épargne & 3a',
+          label: S.of(context)!.firstJobBudgetSavings,
           emoji: '🏦',
           percent: 20,
           amount: net * 0.20,
-          examples: const ['Pilier 3a', 'Épargne', 'Fonds d\'urgence'],
+          examples: [S.of(context)!.firstJobBudgetEx3a, S.of(context)!.firstJobBudgetExSavings, S.of(context)!.firstJobBudgetExEmergency],
         ),
       ],
-      chiffreChoc: 'Si tu épargnes ${(annualSavings.round() ~/ 1000)}\'000 CHF/an '
-          'dès maintenant, tu auras ~${(fv.round() ~/ 1000)}\'000 CHF à 65 ans.',
+      chiffreChoc: S.of(context)!.firstJobBudgetChiffreChoc(
+        "${(annualSavings.round() ~/ 1000)}'000",
+        "${(fv.round() ~/ 1000)}'000",
+      ),
     );
   }
 
@@ -1186,17 +1170,17 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
     final scenarios = [
       (
-        label: _seededFromProfile ? '📍 Mon salaire' : '📍 Défaut',
+        label: _seededFromProfile ? '\u{1F4CD} ${S.of(context)!.firstJobScenarioMySalary}' : '\u{1F4CD} ${S.of(context)!.firstJobScenarioDefault}',
         value: profileVal.clamp(2000.0, 15000.0),
         active: (_salaire - profileVal.clamp(2000.0, 15000.0)).abs() < 50,
       ),
       (
-        label: '🇨🇭 Médian CH',
+        label: '\u{1F1E8}\u{1F1ED} ${S.of(context)!.firstJobScenarioMedian}',
         value: median,
         active: (_salaire - median).abs() < 50,
       ),
       (
-        label: '✨ +20%',
+        label: '\u2728 ${S.of(context)!.firstJobScenarioPlus20}',
         value: boosted,
         active: (_salaire - boosted).abs() < 50,
       ),
