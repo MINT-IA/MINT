@@ -4730,5 +4730,145 @@
   "timelineQuickPillar3aSubtitle": "Otimizar a dedução fiscal",
   "timelineQuickTaxTitle": "Fiscalidade",
   "timelineQuickTaxSubtitle": "Comparar 26 cantões",
-  "checkinEvolutionTitle": "A tua evolução"
+  "checkinEvolutionTitle": "A tua evolução",
+  "enrichmentRevenuTitle": "Rendimento",
+  "enrichmentRevenuDescription": "O teu salário bruto é a base de todas as projeções: previdência, impostos, orçamento. Quanto mais preciso for, mais fiáveis serão os teus resultados.",
+  "enrichmentRevenuCta": "Precisar o meu rendimento",
+  "enrichmentLppTitle": "Previdência LPP",
+  "enrichmentLppDescription": "O teu capital LPP (2.º pilar) representa frequentemente o maior capital da tua previdência. Um certificado de previdência dá um valor exato em vez de uma estimativa.",
+  "enrichmentLppCta": "Adicionar o meu certificado LPP",
+  "enrichmentAvsTitle": "Extrato AVS",
+  "enrichmentAvsDescription": "O extrato AVS confirma os teus anos de contribuição efetivos. Lacunas (estadia no estrangeiro, anos em falta) reduzem a tua renda AVS.",
+  "enrichmentAvsCta": "Encomendar o meu extrato AVS",
+  "enrichment3aTitle": "3.º pilar (3a)",
+  "enrichment3aDescription": "As tuas contas 3a somam-se à tua previdência e oferecem uma vantagem fiscal. Indica os saldos atuais para uma visão completa.",
+  "enrichment3aCta": "Simular o meu 3a",
+  "enrichmentPatrimoineTitle": "Património",
+  "enrichmentPatrimoineDescription": "Poupança livre, investimentos, imóveis: estes dados completam a tua projeção e permitem calcular o teu Financial Resilience Index.",
+  "enrichmentPatrimoineCta": "Informar o meu património",
+  "enrichmentFiscaliteTitle": "Fiscalidade",
+  "enrichmentFiscaliteDescription": "A tua comuna, o teu rendimento tributável e a tua fortuna determinam a tua taxa marginal de imposição. Uma declaração fiscal ou um aviso de tributação dá uma taxa real em vez de estimada (coeficiente comunal 60%-130%).",
+  "enrichmentFiscaliteCta": "Comparar a minha fiscalidade",
+  "enrichmentObjectifTitle": "Objetivo de reforma",
+  "enrichmentObjectifDescription": "Com que idade gostarias de parar de trabalhar? Um objetivo claro permite calcular o esforço de poupança necessário e as opções (antecipação, reforma parcial).",
+  "enrichmentObjectifCta": "Ver a minha projeção",
+  "enrichmentMenageTitle": "Composição do agregado familiar",
+  "enrichmentMenageDescription": "Em casal, as projeções mudam: AVS limitado para casados (LAVS art. 35), renda de sobrevivência (LPP art. 19), otimização fiscal conjunta.",
+  "enrichmentMenageCta": "Gerir o meu agregado familiar",
+  "enrichmentUnknownTitle": "Dados",
+  "enrichmentUnknownDescription": "Este link de dados já não está atualizado. Usa a secção recomendada para completar o teu perfil.",
+  "enrichmentUnknownCta": "Abrir o diagnóstico",
+  "enrichmentDefaultDescription": "Completa este bloco para melhorar a precisão das tuas projeções.",
+  "enrichmentDefaultCta": "Completar",
+  "enrichmentDisclaimer": "Ferramenta educativa simplificada. Não constitui aconselhamento financeiro (LSFin).",
+  "enrichmentBlockIncomplete": "Este bloco está ainda incompleto. Abre a secção dedicada para adicionar os dados em falta.",
+  "enrichmentBlockComplete": "Este bloco está completo.",
+  "enrichmentStatusComplete": "Completo",
+  "enrichmentStatusPartial": "Parcial",
+  "enrichmentStatusMissing": "Em falta",
+  "enrichmentModeForm": "Formulário",
+  "enrichmentModeCoach": "Fala com o coach",
+  "enrichmentCoachPrompt3a": "Quero compreender o meu 3.º pilar: quantas contas abrir, com que fornecedor, e como maximizar a minha vantagem fiscal.",
+  "enrichmentCoachPromptLpp": "Explica-me o meu 2.º pilar LPP: o meu capital atual, a lacuna de resgate, e o que posso fazer para melhorar a minha situação.",
+  "enrichmentCoachPromptAvs": "Fala-me da minha renda AVS: tenho lacunas de contribuição e como preenchê-las?",
+  "enrichmentCoachPromptPatrimoine": "Quero fazer o ponto sobre o meu património global e compreender como estruturá-lo.",
+  "enrichmentCoachPromptFiscalite": "Ajuda-me a compreender a minha situação fiscal e as alavancas de otimização possíveis.",
+  "enrichmentCoachPromptRevenu": "Quero compreender o impacto do meu rendimento na minha previdência e impostos.",
+  "enrichmentCoachPromptObjectif": "Qual seria o impacto se me reformasse mais cedo ou mais tarde?",
+  "enrichmentCoachPromptMenage": "Como a situação de casal influencia as minhas projeções de reforma?",
+  "enrichmentCoachPromptDefault": "Ajuda-me a completar o meu perfil financeiro.",
+  "frontalierTitle": "Trabalhador fronteiriço",
+  "frontalierTabTax": "Impostos",
+  "frontalierTab90Days": "90 dias",
+  "frontalierTabCharges": "Encargos",
+  "frontalierWorkCanton": "Cantão de trabalho",
+  "frontalierGrossMonthlySalary": "Salário bruto mensal",
+  "frontalierMaritalStatus": "Estado civil",
+  "frontalierSingle": "Solteiro/a",
+  "frontalierMarried": "Casado/a",
+  "frontalierDependentChildren": "Filhos dependentes",
+  "frontalierSourceTaxHeader": "IMPOSTO NA FONTE — {cantonName}",
+  "@frontalierSourceTaxHeader": {
+    "placeholders": {
+      "cantonName": {
+        "type": "String",
+        "example": "GENEBRA"
+      }
+    }
+  },
+  "frontalierPerMonth": "por mês",
+  "frontalierEffectiveRate": "Taxa efetiva",
+  "frontalierAnnualTotal": "Total anual",
+  "frontalierQuasiResidentTitle": "Quase-residente (Genebra)",
+  "frontalierQuasiResidentDesc": "Se mais de 90\u00a0% dos teus rendimentos mundiais provêm da Suíça, podes solicitar a tributação ordinária com deduções (3a, despesas efetivas, etc.). Isto pode reduzir significativamente o teu imposto.",
+  "frontalierTessinTitle": "Ticino — regime especial",
+  "frontalierRiskGauge": "INDICADOR DE RISCO",
+  "frontalierHomeOfficeDays": "dias de teletrabalho",
+  "frontalierNoRisk": "Sem risco",
+  "frontalierAttentionZone": "Zona de atenção",
+  "frontalierFiscalRisk": "Risco fiscal — a tributação muda",
+  "frontalierDaysRemaining": "Tens {days} dias de margem restantes",
+  "@frontalierDaysRemaining": {
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "50"
+      }
+    }
+  },
+  "frontalierOfficeDaysInSwitzerland": "Dias no escritório na Suíça",
+  "frontalierDaysSuffix": "dias",
+  "frontalierHomeOfficeDaysAbroad": "Dias de teletrabalho no estrangeiro",
+  "frontalierRecommendation": "RECOMENDAÇÃO",
+  "frontalierResidenceCountry": "País de residência",
+  "frontalierChargesCH": "Encargos CH",
+  "frontalierChargesCountry": "Encargos {country}",
+  "@frontalierChargesCountry": {
+    "placeholders": {
+      "country": {
+        "type": "String",
+        "example": "França"
+      }
+    }
+  },
+  "frontalierOfSalary": "{rate}\u00a0% do salário",
+  "@frontalierOfSalary": {
+    "placeholders": {
+      "rate": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
+  },
+  "frontalierChargesCHLower": "Encargos CH mais baixos: {amount}/ano",
+  "@frontalierChargesCHLower": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "CHF 3'200"
+      }
+    }
+  },
+  "frontalierChargesCHHigher": "Encargos CH mais altos: +{amount}/ano",
+  "@frontalierChargesCHHigher": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "CHF 1'500"
+      }
+    }
+  },
+  "frontalierHealthInsurance": "SEGURO DE SAÚDE",
+  "frontalierLamalSwiss": "LAMal (suíça)",
+  "frontalierLamalSwissDesc": "Obrigatório se trabalhas na CH. Prémio individual (~CHF 300-500/mês).",
+  "frontalierCmuFrance": "CMU/Segurança Social (França)",
+  "frontalierCmuFranceDesc": "Direito de opção possível para fronteiriços FR. Contribuição ~8\u00a0% do rendimento fiscal.",
+  "frontalierPrivateInsurance": "Seguro privado (DE/IT/AT)",
+  "frontalierPrivateInsuranceDesc": "Na Alemanha, opção PKV para altos rendimentos. IT/AT: regime obrigatório do país.",
+  "frontalierDidYouKnow": "Sabias?",
+  "frontalierEduTax": "Na Suíça, os trabalhadores fronteiriços são tributados na fonte (tabela C). A taxa varia por cantão, estado civil e número de filhos. Em Genebra, se mais de 90\u00a0% dos teus rendimentos mundiais provêm da Suíça, podes solicitar o estatuto de quase-residente para beneficiares das deduções.",
+  "frontalierEdu90Days": "Desde 2023, os acordos amigáveis entre a Suíça e os seus vizinhos fixam um limiar de tolerância para o teletrabalho dos fronteiriços. Para além de 90 dias de teletrabalho por ano, as contribuições sociais e a tributação podem passar para o país de residência.",
+  "frontalierEduCharges": "Como trabalhador fronteiriço, contribuis para os seguros sociais suíços (AVS/AI/APG, AC, LPP). As taxas são geralmente mais baixas do que em França ou na Alemanha — mas o seguro de saúde LAMal é da tua responsabilidade individual, o que pode compensar a vantagem.",
+  "frontalierLppEstimate": "LPP (est.)",
+  "frontalierTotal": "Total"
 }

@@ -4730,5 +4730,145 @@
   "timelineQuickPillar3aSubtitle": "Optimise the tax deduction",
   "timelineQuickTaxTitle": "Taxation",
   "timelineQuickTaxSubtitle": "Compare 26 cantons",
-  "checkinEvolutionTitle": "Your evolution"
+  "checkinEvolutionTitle": "Your evolution",
+  "frontalierTitle": "Cross-border worker",
+  "frontalierTabTax": "Taxes",
+  "frontalierTab90Days": "90 days",
+  "frontalierTabCharges": "Charges",
+  "frontalierWorkCanton": "Work canton",
+  "frontalierGrossMonthlySalary": "Gross monthly salary",
+  "frontalierMaritalStatus": "Marital status",
+  "frontalierSingle": "Single",
+  "frontalierMarried": "Married",
+  "frontalierDependentChildren": "Dependent children",
+  "frontalierSourceTaxHeader": "SOURCE TAX — {cantonName}",
+  "@frontalierSourceTaxHeader": {
+    "placeholders": {
+      "cantonName": {
+        "type": "String",
+        "example": "GENEVA"
+      }
+    }
+  },
+  "frontalierPerMonth": "per month",
+  "frontalierEffectiveRate": "Effective rate",
+  "frontalierAnnualTotal": "Annual total",
+  "frontalierQuasiResidentTitle": "Quasi-resident (Geneva)",
+  "frontalierQuasiResidentDesc": "If more than 90% of your worldwide income comes from Switzerland, you can request ordinary taxation with deductions (3a, actual expenses, etc.). This can significantly reduce your tax.",
+  "frontalierTessinTitle": "Ticino — special regime",
+  "frontalierRiskGauge": "RISK GAUGE",
+  "frontalierHomeOfficeDays": "home office days",
+  "frontalierNoRisk": "No risk",
+  "frontalierAttentionZone": "Attention zone",
+  "frontalierFiscalRisk": "Tax risk — taxation switches",
+  "frontalierDaysRemaining": "You have {days} days of margin left",
+  "@frontalierDaysRemaining": {
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "50"
+      }
+    }
+  },
+  "frontalierOfficeDaysInSwitzerland": "Office days in Switzerland",
+  "frontalierDaysSuffix": "days",
+  "frontalierHomeOfficeDaysAbroad": "Home office days abroad",
+  "frontalierRecommendation": "RECOMMENDATION",
+  "frontalierResidenceCountry": "Country of residence",
+  "frontalierChargesCH": "CH charges",
+  "frontalierChargesCountry": "Charges {country}",
+  "@frontalierChargesCountry": {
+    "placeholders": {
+      "country": {
+        "type": "String",
+        "example": "France"
+      }
+    }
+  },
+  "frontalierOfSalary": "{rate}% of salary",
+  "@frontalierOfSalary": {
+    "placeholders": {
+      "rate": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
+  },
+  "frontalierChargesCHLower": "CH charges lower: {amount}/year",
+  "@frontalierChargesCHLower": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "CHF 3'200"
+      }
+    }
+  },
+  "frontalierChargesCHHigher": "CH charges higher: +{amount}/year",
+  "@frontalierChargesCHHigher": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "CHF 1'500"
+      }
+    }
+  },
+  "frontalierHealthInsurance": "HEALTH INSURANCE",
+  "frontalierLamalSwiss": "KVG (Swiss)",
+  "frontalierLamalSwissDesc": "Mandatory if you work in CH. Individual premium (~CHF 300-500/month).",
+  "frontalierCmuFrance": "CMU/Social Security (France)",
+  "frontalierCmuFranceDesc": "Option right available for FR cross-border workers. Contribution ~8% of taxable income.",
+  "frontalierPrivateInsurance": "Private insurance (DE/IT/AT)",
+  "frontalierPrivateInsuranceDesc": "In Germany, PKV option for high earners. IT/AT: mandatory country regime.",
+  "frontalierDidYouKnow": "Did you know?",
+  "frontalierEduTax": "In Switzerland, cross-border workers are taxed at source (scale C). The rate varies by canton, marital status and number of children. In Geneva, if more than 90% of your worldwide income comes from Switzerland, you can apply for quasi-resident status to benefit from deductions.",
+  "frontalierEdu90Days": "Since 2023, mutual agreements between Switzerland and its neighbours set a tolerance threshold for cross-border teleworking. Beyond 90 home office days per year, social contributions and taxation may switch to the country of residence.",
+  "frontalierEduCharges": "As a cross-border worker, you contribute to Swiss social insurance (AHV/IV/EO, ALV, BVG). Rates are generally lower than in France or Germany — but KVG health insurance is your individual responsibility, which can offset the advantage.",
+  "frontalierLppEstimate": "BVG (est.)",
+  "frontalierTotal": "Total",
+  "enrichmentRevenuTitle": "Income",
+  "enrichmentRevenuDescription": "Your gross salary is the basis of all projections: pension, taxes, budget. The more accurate it is, the more reliable your results will be.",
+  "enrichmentRevenuCta": "Specify my income",
+  "enrichmentLppTitle": "LPP Pension",
+  "enrichmentLppDescription": "Your LPP assets (2nd pillar) often represent the largest part of your pension. A pension certificate gives an exact value rather than an estimate.",
+  "enrichmentLppCta": "Add my LPP certificate",
+  "enrichmentAvsTitle": "AVS Extract",
+  "enrichmentAvsDescription": "The AVS extract confirms your effective contribution years. Gaps (time abroad, missing years) reduce your AVS pension.",
+  "enrichmentAvsCta": "Order my AVS extract",
+  "enrichment3aTitle": "3rd pillar (3a)",
+  "enrichment3aDescription": "Your 3a accounts add to your pension and offer a tax advantage. Enter the current balances for a complete overview.",
+  "enrichment3aCta": "Simulate my 3a",
+  "enrichmentPatrimoineTitle": "Wealth",
+  "enrichmentPatrimoineDescription": "Savings, investments, real estate: this data completes your projection and enables calculation of your Financial Resilience Index.",
+  "enrichmentPatrimoineCta": "Enter my wealth data",
+  "enrichmentFiscaliteTitle": "Taxation",
+  "enrichmentFiscaliteDescription": "Your municipality, taxable income, and wealth determine your marginal tax rate. A tax return or assessment gives an actual rate rather than an estimate (municipal coefficient 60%-130%).",
+  "enrichmentFiscaliteCta": "Compare my taxation",
+  "enrichmentObjectifTitle": "Retirement goal",
+  "enrichmentObjectifDescription": "At what age would you like to stop working? A clear goal allows calculating the required savings effort and options (early retirement, partial retirement).",
+  "enrichmentObjectifCta": "View my projection",
+  "enrichmentMenageTitle": "Household composition",
+  "enrichmentMenageDescription": "As a couple, projections change: AVS capped for married couples (LAVS art. 35), survivor pension (LPP art. 19), tax optimization together.",
+  "enrichmentMenageCta": "Manage my household",
+  "enrichmentUnknownTitle": "Data",
+  "enrichmentUnknownDescription": "This data link is no longer up to date. Use the recommended section to complete your profile.",
+  "enrichmentUnknownCta": "Open diagnostic",
+  "enrichmentDefaultDescription": "Complete this block to improve the accuracy of your projections.",
+  "enrichmentDefaultCta": "Complete",
+  "enrichmentDisclaimer": "Simplified educational tool. Does not constitute financial advice (FinSA).",
+  "enrichmentBlockIncomplete": "This block is still incomplete. Open the dedicated section to add the missing data.",
+  "enrichmentBlockComplete": "This block is complete.",
+  "enrichmentStatusComplete": "Complete",
+  "enrichmentStatusPartial": "Partial",
+  "enrichmentStatusMissing": "Missing",
+  "enrichmentModeForm": "Form",
+  "enrichmentModeCoach": "Talk to coach",
+  "enrichmentCoachPrompt3a": "I want to understand my 3rd pillar: how many accounts to open, with which provider, and how to maximize my tax advantage.",
+  "enrichmentCoachPromptLpp": "Explain my 2nd pillar LPP: my current assets, the buyback gap, and what I can do to improve my situation.",
+  "enrichmentCoachPromptAvs": "Tell me about my AVS pension: do I have contribution gaps and how to fill them?",
+  "enrichmentCoachPromptPatrimoine": "I want to take stock of my overall wealth and understand how to structure it.",
+  "enrichmentCoachPromptFiscalite": "Help me understand my tax situation and possible optimization levers.",
+  "enrichmentCoachPromptRevenu": "I want to understand the impact of my income on my pension and taxes.",
+  "enrichmentCoachPromptObjectif": "What would be the impact if I retired earlier or later?",
+  "enrichmentCoachPromptMenage": "How does the couple situation influence my retirement projections?",
+  "enrichmentCoachPromptDefault": "Help me complete my financial profile."
 }

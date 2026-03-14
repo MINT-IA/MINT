@@ -4775,5 +4775,145 @@
   "timelineQuickPillar3aSubtitle": "Optimiser la déduction fiscale",
   "timelineQuickTaxTitle": "Fiscalité",
   "timelineQuickTaxSubtitle": "Comparer 26 cantons",
-  "checkinEvolutionTitle": "Ton évolution"
+  "checkinEvolutionTitle": "Ton évolution",
+  "frontalierTitle": "Frontalier",
+  "frontalierTabTax": "Impôts",
+  "frontalierTab90Days": "90 jours",
+  "frontalierTabCharges": "Charges",
+  "frontalierWorkCanton": "Canton de travail",
+  "frontalierGrossMonthlySalary": "Salaire brut mensuel",
+  "frontalierMaritalStatus": "État civil",
+  "frontalierSingle": "Célibataire",
+  "frontalierMarried": "Marié·e",
+  "frontalierDependentChildren": "Enfants à charge",
+  "frontalierSourceTaxHeader": "IMPÔT À LA SOURCE — {cantonName}",
+  "@frontalierSourceTaxHeader": {
+    "placeholders": {
+      "cantonName": {
+        "type": "String",
+        "example": "GENÈVE"
+      }
+    }
+  },
+  "frontalierPerMonth": "par mois",
+  "frontalierEffectiveRate": "Taux effectif",
+  "frontalierAnnualTotal": "Total annuel",
+  "frontalierQuasiResidentTitle": "Quasi-résident (Genève)",
+  "frontalierQuasiResidentDesc": "Si plus de 90 % de tes revenus mondiaux proviennent de Suisse, tu peux demander la taxation ordinaire avec déductions (3a, frais effectifs, etc.). Cela peut réduire significativement ton impôt.",
+  "frontalierTessinTitle": "Tessin — régime spécial",
+  "frontalierRiskGauge": "JAUGE DE RISQUE",
+  "frontalierHomeOfficeDays": "jours de home office",
+  "frontalierNoRisk": "Pas de risque",
+  "frontalierAttentionZone": "Zone d'attention",
+  "frontalierFiscalRisk": "Risque fiscal — l'imposition bascule",
+  "frontalierDaysRemaining": "Il te reste {days} jours de marge",
+  "@frontalierDaysRemaining": {
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "50"
+      }
+    }
+  },
+  "frontalierOfficeDaysInSwitzerland": "Jours au bureau en Suisse",
+  "frontalierDaysSuffix": "jours",
+  "frontalierHomeOfficeDaysAbroad": "Jours en home office à l'étranger",
+  "frontalierRecommendation": "RECOMMANDATION",
+  "frontalierResidenceCountry": "Pays de résidence",
+  "frontalierChargesCH": "Charges CH",
+  "frontalierChargesCountry": "Charges {country}",
+  "@frontalierChargesCountry": {
+    "placeholders": {
+      "country": {
+        "type": "String",
+        "example": "France"
+      }
+    }
+  },
+  "frontalierOfSalary": "{rate} % du salaire",
+  "@frontalierOfSalary": {
+    "placeholders": {
+      "rate": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
+  },
+  "frontalierChargesCHLower": "Charges CH moins élevées : {amount}/an",
+  "@frontalierChargesCHLower": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "CHF 3'200"
+      }
+    }
+  },
+  "frontalierChargesCHHigher": "Charges CH plus élevées : +{amount}/an",
+  "@frontalierChargesCHHigher": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "CHF 1'500"
+      }
+    }
+  },
+  "frontalierHealthInsurance": "ASSURANCE MALADIE",
+  "frontalierLamalSwiss": "LAMal (suisse)",
+  "frontalierLamalSwissDesc": "Obligatoire si tu travailles en CH. Prime individuelle (~CHF 300-500/mois).",
+  "frontalierCmuFrance": "CMU/Sécu (France)",
+  "frontalierCmuFranceDesc": "Droit d'option possible pour les frontaliers FR. Cotisation ~8 % du revenu fiscal.",
+  "frontalierPrivateInsurance": "Assurance privée (DE/IT/AT)",
+  "frontalierPrivateInsuranceDesc": "En Allemagne, option PKV pour hauts revenus. IT/AT : régime obligatoire du pays.",
+  "frontalierDidYouKnow": "Le savais-tu ?",
+  "frontalierEduTax": "En Suisse, les frontaliers sont imposés à la source (barème C). Le taux varie selon le canton, l'état civil et le nombre d'enfants. À Genève, si plus de 90 % de tes revenus mondiaux proviennent de Suisse, tu peux demander le statut de quasi-résident pour bénéficier des déductions.",
+  "frontalierEdu90Days": "Depuis 2023, les accords amiables entre la Suisse et ses voisins fixent un seuil de tolérance pour le télétravail des frontaliers. Au-delà de 90 jours de home office par an, les cotisations sociales et l'imposition peuvent basculer vers le pays de résidence.",
+  "frontalierEduCharges": "En tant que frontalier, tu cotises aux assurances sociales suisses (AVS/AI/APG, AC, LPP). Les taux sont généralement plus bas qu'en France ou en Allemagne — mais la LAMal est à ta charge individuellement, ce qui peut compenser l'avantage.",
+  "frontalierLppEstimate": "LPP (est.)",
+  "frontalierTotal": "Total",
+  "enrichmentRevenuTitle": "Revenu",
+  "enrichmentRevenuDescription": "Ton salaire brut est la base de toutes les projections : prévoyance, impôts, budget. Plus il est précis, plus tes résultats seront fiables.",
+  "enrichmentRevenuCta": "Préciser mon revenu",
+  "enrichmentLppTitle": "Prévoyance LPP",
+  "enrichmentLppDescription": "Ton avoir LPP (2e pilier) représente souvent le plus gros capital de ta prévoyance. Un certificat de prévoyance donne une valeur exacte plutôt qu’une estimation.",
+  "enrichmentLppCta": "Ajouter mon certificat LPP",
+  "enrichmentAvsTitle": "Extrait AVS",
+  "enrichmentAvsDescription": "L’extrait AVS confirme tes années de cotisation effectives. Des lacunes (séjour à l’étranger, années manquantes) réduisent ta rente AVS.",
+  "enrichmentAvsCta": "Commander mon extrait AVS",
+  "enrichment3aTitle": "3e pilier (3a)",
+  "enrichment3aDescription": "Tes comptes 3a s’ajoutent à ta prévoyance et offrent un avantage fiscal. Renseigne les soldes actuels pour une vue complète.",
+  "enrichment3aCta": "Simuler mon 3a",
+  "enrichmentPatrimoineTitle": "Patrimoine",
+  "enrichmentPatrimoineDescription": "Épargne libre, investissements, immobilier : ces données complètent ta projection et permettent de calculer ton Financial Resilience Index.",
+  "enrichmentPatrimoineCta": "Renseigner mon patrimoine",
+  "enrichmentFiscaliteTitle": "Fiscalité",
+  "enrichmentFiscaliteDescription": "Ta commune, ton revenu imposable et ta fortune déterminent ton taux marginal d’imposition. Une déclaration fiscale ou un avis de taxation donne un taux réel plutôt qu’estimé (coefficient communal 60 %-130 %).",
+  "enrichmentFiscaliteCta": "Comparer ma fiscalité",
+  "enrichmentObjectifTitle": "Objectif retraite",
+  "enrichmentObjectifDescription": "À quel âge souhaites-tu arrêter de travailler ? Un objectif clair permet de calculer l’effort d’épargne nécessaire et les options (anticipation, retraite partielle).",
+  "enrichmentObjectifCta": "Voir ma projection",
+  "enrichmentMenageTitle": "Composition du ménage",
+  "enrichmentMenageDescription": "En couple, les projections changent : AVS plafonnée pour les mariés (LAVS art. 35), rente de survivant (LPP art. 19), optimisation fiscale à deux.",
+  "enrichmentMenageCta": "Gérer mon ménage",
+  "enrichmentUnknownTitle": "Données",
+  "enrichmentUnknownDescription": "Ce lien de données n’est plus à jour. Utilise la section recommandée pour compléter ton profil.",
+  "enrichmentUnknownCta": "Ouvrir le diagnostic",
+  "enrichmentDefaultDescription": "Complète ce bloc pour améliorer la précision de tes projections.",
+  "enrichmentDefaultCta": "Compléter",
+  "enrichmentDisclaimer": "Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin).",
+  "enrichmentBlockIncomplete": "Ce bloc est encore incomplet. Ouvre la section dédiée pour ajouter les données manquantes.",
+  "enrichmentBlockComplete": "Ce bloc est complet.",
+  "enrichmentStatusComplete": "Complet",
+  "enrichmentStatusPartial": "Partiel",
+  "enrichmentStatusMissing": "Manquant",
+  "enrichmentModeForm": "Formulaire",
+  "enrichmentModeCoach": "Parle au coach",
+  "enrichmentCoachPrompt3a": "Je veux comprendre mon 3e pilier : combien de comptes ouvrir, chez quel provider, et comment maximiser mon avantage fiscal.",
+  "enrichmentCoachPromptLpp": "Explique-moi mon 2e pilier LPP : mon avoir actuel, la lacune de rachat, et ce que je peux faire pour améliorer ma situation.",
+  "enrichmentCoachPromptAvs": "Parle-moi de ma rente AVS : est-ce que j’ai des lacunes de cotisation et comment les combler ?",
+  "enrichmentCoachPromptPatrimoine": "Je veux faire le point sur mon patrimoine global et comprendre comment le structurer.",
+  "enrichmentCoachPromptFiscalite": "Aide-moi à comprendre ma situation fiscale et les leviers d’optimisation possibles.",
+  "enrichmentCoachPromptRevenu": "Je veux comprendre l’impact de mon revenu sur ma prévoyance et mes impôts.",
+  "enrichmentCoachPromptObjectif": "Quel serait l’impact si je partais à la retraite plus tôt ou plus tard ?",
+  "enrichmentCoachPromptMenage": "Comment la situation de couple influence mes projections de retraite ?",
+  "enrichmentCoachPromptDefault": "Aide-moi à compléter mon profil financier."
 }

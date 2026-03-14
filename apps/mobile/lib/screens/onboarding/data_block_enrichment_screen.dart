@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
@@ -179,8 +180,7 @@ class _DataBlockEnrichmentScreenState
 
               // ── Disclaimer ───────────────────────────────────────
               Text(
-                'Outil éducatif simplifié. Ne constitue pas un conseil '
-                'financier (LSFin).',
+                S.of(context)!.enrichmentDisclaimer,
                 style: GoogleFonts.inter(
                   fontSize: 10,
                   color: MintColors.textMuted,
@@ -219,8 +219,7 @@ class _DataBlockEnrichmentScreenState
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Ce bloc est encore incomplet. Ouvre la section dédiée pour '
-                  'ajouter les données manquantes.',
+                  S.of(context)!.enrichmentBlockIncomplete,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     color: MintColors.textPrimary,
@@ -245,7 +244,7 @@ class _DataBlockEnrichmentScreenState
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Ce bloc est complet.',
+                S.of(context)!.enrichmentBlockComplete,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.success,
@@ -409,16 +408,17 @@ class _DataBlockEnrichmentScreenState
   }
 
   String _coachPromptForBlock(String type) {
+    final l = S.of(context)!;
     return switch (type) {
-      '3a' => 'Je veux comprendre mon 3e pilier : combien de comptes ouvrir, chez quel provider, et comment maximiser mon avantage fiscal.',
-      'lpp' => 'Explique-moi mon 2e pilier LPP : mon avoir actuel, la lacune de rachat, et ce que je peux faire pour ameliorer ma situation.',
-      'avs' => 'Parle-moi de ma rente AVS : est-ce que j\'ai des lacunes de cotisation et comment les combler ?',
-      'patrimoine' => 'Je veux faire le point sur mon patrimoine global et comprendre comment le structurer.',
-      'fiscalite' => 'Aide-moi a comprendre ma situation fiscale et les leviers d\'optimisation possibles.',
-      'revenu' => 'Je veux comprendre l\'impact de mon revenu sur ma prevoyance et mes impots.',
-      'objectifRetraite' => 'Quel serait l\'impact si je partais a la retraite plus tot ou plus tard ?',
-      'compositionMenage' => 'Comment la situation de couple influence mes projections de retraite ?',
-      _ => 'Aide-moi a completer mon profil financier.',
+      '3a' => l.enrichmentCoachPrompt3a,
+      'lpp' => l.enrichmentCoachPromptLpp,
+      'avs' => l.enrichmentCoachPromptAvs,
+      'patrimoine' => l.enrichmentCoachPromptPatrimoine,
+      'fiscalite' => l.enrichmentCoachPromptFiscalite,
+      'revenu' => l.enrichmentCoachPromptRevenu,
+      'objectifRetraite' => l.enrichmentCoachPromptObjectif,
+      'compositionMenage' => l.enrichmentCoachPromptMenage,
+      _ => l.enrichmentCoachPromptDefault,
     };
   }
 
@@ -518,83 +518,57 @@ class _DataBlockEnrichmentScreenState
   }
 
   _BlockMeta _blockMeta(String type) {
+    final l = S.of(context)!;
     return switch (type) {
-      'revenu' => const _BlockMeta(
-          title: 'Revenu',
-          description:
-              'Ton salaire brut est la base de toutes les projections : '
-              'prévoyance, impôts, budget. Plus il est précis, plus tes '
-              'résultats seront fiables.',
-          ctaLabel: 'Préciser mon revenu',
+      ‘revenu’ => _BlockMeta(
+          title: l.enrichmentRevenuTitle,
+          description: l.enrichmentRevenuDescription,
+          ctaLabel: l.enrichmentRevenuCta,
         ),
-      'lpp' => const _BlockMeta(
-          title: 'Prévoyance LPP',
-          description:
-              'Ton avoir LPP (2e pilier) représente souvent le plus gros '
-              'capital de ta prévoyance. Un certificat de prévoyance donne '
-              'une valeur exacte plutôt qu\'une estimation.',
-          ctaLabel: 'Ajouter mon certificat LPP',
+      ‘lpp’ => _BlockMeta(
+          title: l.enrichmentLppTitle,
+          description: l.enrichmentLppDescription,
+          ctaLabel: l.enrichmentLppCta,
         ),
-      'avs' => const _BlockMeta(
-          title: 'Extrait AVS',
-          description:
-              "L'extrait AVS confirme tes années de cotisation effectives. "
-              "Des lacunes (séjour à l'étranger, années manquantes) réduisent "
-              'ta rente AVS.',
-          ctaLabel: 'Commander mon extrait AVS',
+      ‘avs’ => _BlockMeta(
+          title: l.enrichmentAvsTitle,
+          description: l.enrichmentAvsDescription,
+          ctaLabel: l.enrichmentAvsCta,
         ),
-      '3a' => const _BlockMeta(
-          title: '3e pilier (3a)',
-          description:
-              "Tes comptes 3a s'ajoutent à ta prévoyance et offrent un "
-              'avantage fiscal. Renseigne les soldes actuels pour une vue '
-              'complète.',
-          ctaLabel: 'Simuler mon 3a',
+      ‘3a’ => _BlockMeta(
+          title: l.enrichment3aTitle,
+          description: l.enrichment3aDescription,
+          ctaLabel: l.enrichment3aCta,
         ),
-      'patrimoine' => const _BlockMeta(
-          title: 'Patrimoine',
-          description:
-              'Épargne libre, investissements, immobilier : ces données '
-              'complètent ta projection et permettent de calculer ton '
-              'Financial Resilience Index.',
-          ctaLabel: 'Renseigner mon patrimoine',
+      ‘patrimoine’ => _BlockMeta(
+          title: l.enrichmentPatrimoineTitle,
+          description: l.enrichmentPatrimoineDescription,
+          ctaLabel: l.enrichmentPatrimoineCta,
         ),
-      'fiscalite' => const _BlockMeta(
-          title: 'Fiscalité',
-          description:
-              'Ta commune, ton revenu imposable et ta fortune déterminent '
-              'ton taux marginal d\'imposition. Une déclaration fiscale '
-              'ou un avis de taxation donne un taux réel plutôt qu\'estimé '
-              '(coefficient communal 60%-130%).',
-          ctaLabel: 'Comparer ma fiscalité',
+      ‘fiscalite’ => _BlockMeta(
+          title: l.enrichmentFiscaliteTitle,
+          description: l.enrichmentFiscaliteDescription,
+          ctaLabel: l.enrichmentFiscaliteCta,
         ),
-      'objectifRetraite' => const _BlockMeta(
-          title: 'Objectif retraite',
-          description: 'À quel âge souhaites-tu arrêter de travailler ? '
-              "Un objectif clair permet de calculer l'effort d'épargne "
-              'nécessaire et les options (anticipation, retraite partielle).',
-          ctaLabel: 'Voir ma projection',
+      ‘objectifRetraite’ => _BlockMeta(
+          title: l.enrichmentObjectifTitle,
+          description: l.enrichmentObjectifDescription,
+          ctaLabel: l.enrichmentObjectifCta,
         ),
-      'compositionMenage' => const _BlockMeta(
-          title: 'Composition du ménage',
-          description:
-              'En couple, les projections changent : AVS plafonnée pour '
-              'les mariés (LAVS art. 35), rente de survivant (LPP art. 19), '
-              'optimisation fiscale à deux.',
-          ctaLabel: 'Gérer mon ménage',
+      ‘compositionMenage’ => _BlockMeta(
+          title: l.enrichmentMenageTitle,
+          description: l.enrichmentMenageDescription,
+          ctaLabel: l.enrichmentMenageCta,
         ),
-      'unknown' => const _BlockMeta(
-          title: 'Données',
-          description:
-              'Ce lien de données n’est plus à jour. Utilise la section '
-              'recommandée pour compléter ton profil.',
-          ctaLabel: 'Ouvrir le diagnostic',
+      ‘unknown’ => _BlockMeta(
+          title: l.enrichmentUnknownTitle,
+          description: l.enrichmentUnknownDescription,
+          ctaLabel: l.enrichmentUnknownCta,
         ),
-      _ => const _BlockMeta(
-          title: 'Données',
-          description: 'Complète ce bloc pour améliorer la précision de '
-              'tes projections.',
-          ctaLabel: 'Compléter',
+      _ => _BlockMeta(
+          title: l.enrichmentUnknownTitle,
+          description: l.enrichmentDefaultDescription,
+          ctaLabel: l.enrichmentDefaultCta,
         ),
     };
   }
@@ -648,9 +622,9 @@ class _BlockScoreBar extends StatelessWidget {
               ),
               child: Text(
                 switch (bloc.status) {
-                  'complete' => 'Complet',
-                  'partial' => 'Partiel',
-                  _ => 'Manquant',
+                  'complete' => S.of(context)!.enrichmentStatusComplete,
+                  'partial' => S.of(context)!.enrichmentStatusPartial,
+                  _ => S.of(context)!.enrichmentStatusMissing,
                 },
                 style: GoogleFonts.inter(
                   fontSize: 12,
@@ -697,7 +671,7 @@ class _CoachModeToggle extends StatelessWidget {
       children: [
         Expanded(
           child: _ModeChip(
-            label: 'Formulaire',
+            label: S.of(context)!.enrichmentModeForm,
             icon: Icons.edit_note,
             isSelected: !isCoachMode,
             onTap: () => onToggle(false),
@@ -706,7 +680,7 @@ class _CoachModeToggle extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: _ModeChip(
-            label: 'Parle au coach',
+            label: S.of(context)!.enrichmentModeCoach,
             icon: Icons.smart_toy_outlined,
             isSelected: isCoachMode,
             isDisabled: !coachAvailable,

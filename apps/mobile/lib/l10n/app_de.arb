@@ -4730,5 +4730,145 @@
   "timelineQuickPillar3aSubtitle": "Steuerabzug optimieren",
   "timelineQuickTaxTitle": "Steuern",
   "timelineQuickTaxSubtitle": "26 Kantone vergleichen",
-  "checkinEvolutionTitle": "Deine Entwicklung"
+  "checkinEvolutionTitle": "Deine Entwicklung",
+  "frontalierTitle": "Grenzgänger",
+  "frontalierTabTax": "Steuern",
+  "frontalierTab90Days": "90 Tage",
+  "frontalierTabCharges": "Abgaben",
+  "frontalierWorkCanton": "Arbeitskanton",
+  "frontalierGrossMonthlySalary": "Monatlicher Bruttolohn",
+  "frontalierMaritalStatus": "Zivilstand",
+  "frontalierSingle": "Ledig",
+  "frontalierMarried": "Verheiratet",
+  "frontalierDependentChildren": "Unterhaltsberechtigte Kinder",
+  "frontalierSourceTaxHeader": "QUELLENSTEUER — {cantonName}",
+  "@frontalierSourceTaxHeader": {
+    "placeholders": {
+      "cantonName": {
+        "type": "String",
+        "example": "GENF"
+      }
+    }
+  },
+  "frontalierPerMonth": "pro Monat",
+  "frontalierEffectiveRate": "Effektiver Satz",
+  "frontalierAnnualTotal": "Jahrestotal",
+  "frontalierQuasiResidentTitle": "Quasi-Ansässiger (Genf)",
+  "frontalierQuasiResidentDesc": "Wenn mehr als 90 % deines weltweiten Einkommens aus der Schweiz stammen, kannst du die ordentliche Besteuerung mit Abzügen beantragen (3a, effektive Kosten usw.). Das kann deine Steuern erheblich senken.",
+  "frontalierTessinTitle": "Tessin — Sonderregelung",
+  "frontalierRiskGauge": "RISIKOMESSER",
+  "frontalierHomeOfficeDays": "Home-Office-Tage",
+  "frontalierNoRisk": "Kein Risiko",
+  "frontalierAttentionZone": "Aufmerksamkeitszone",
+  "frontalierFiscalRisk": "Steuerrisiko — Besteuerung wechselt",
+  "frontalierDaysRemaining": "Dir bleiben noch {days} Tage Spielraum",
+  "@frontalierDaysRemaining": {
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "50"
+      }
+    }
+  },
+  "frontalierOfficeDaysInSwitzerland": "Bürotage in der Schweiz",
+  "frontalierDaysSuffix": "Tage",
+  "frontalierHomeOfficeDaysAbroad": "Home-Office-Tage im Ausland",
+  "frontalierRecommendation": "EMPFEHLUNG",
+  "frontalierResidenceCountry": "Wohnsitzland",
+  "frontalierChargesCH": "CH-Abgaben",
+  "frontalierChargesCountry": "Abgaben {country}",
+  "@frontalierChargesCountry": {
+    "placeholders": {
+      "country": {
+        "type": "String",
+        "example": "Frankreich"
+      }
+    }
+  },
+  "frontalierOfSalary": "{rate} % des Gehalts",
+  "@frontalierOfSalary": {
+    "placeholders": {
+      "rate": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
+  },
+  "frontalierChargesCHLower": "CH-Abgaben niedriger: {amount}/Jahr",
+  "@frontalierChargesCHLower": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "CHF 3'200"
+      }
+    }
+  },
+  "frontalierChargesCHHigher": "CH-Abgaben höher: +{amount}/Jahr",
+  "@frontalierChargesCHHigher": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "CHF 1'500"
+      }
+    }
+  },
+  "frontalierHealthInsurance": "KRANKENVERSICHERUNG",
+  "frontalierLamalSwiss": "KVG (Schweiz)",
+  "frontalierLamalSwissDesc": "Obligatorisch wenn du in der CH arbeitest. Individuelle Prämie (~CHF 300-500/Monat).",
+  "frontalierCmuFrance": "CMU/Sozialversicherung (Frankreich)",
+  "frontalierCmuFranceDesc": "Optionsrecht möglich für FR-Grenzgänger. Beitrag ~8 % des steuerbaren Einkommens.",
+  "frontalierPrivateInsurance": "Privatversicherung (DE/IT/AT)",
+  "frontalierPrivateInsuranceDesc": "In Deutschland PKV-Option für hohe Einkommen. IT/AT: obligatorisches Landesregime.",
+  "frontalierDidYouKnow": "Wusstest du?",
+  "frontalierEduTax": "In der Schweiz werden Grenzgänger an der Quelle besteuert (Tarif C). Der Satz variiert nach Kanton, Zivilstand und Kinderzahl. In Genf kannst du, wenn mehr als 90 % deines weltweiten Einkommens aus der Schweiz stammen, den Quasi-Ansässigen-Status beantragen, um von Abzügen zu profitieren.",
+  "frontalierEdu90Days": "Seit 2023 legen Verständigungsvereinbarungen zwischen der Schweiz und ihren Nachbarländern eine Toleranzschwelle für Telearbeit von Grenzgängern fest. Über 90 Home-Office-Tage pro Jahr können Sozialabgaben und Besteuerung in das Wohnsitzland wechseln.",
+  "frontalierEduCharges": "Als Grenzgänger zahlst du in die Schweizer Sozialversicherungen ein (AHV/IV/EO, ALV, BVG). Die Sätze sind in der Regel niedriger als in Frankreich oder Deutschland — aber die KVG-Krankenversicherung trägst du individuell, was den Vorteil ausgleichen kann.",
+  "frontalierLppEstimate": "BVG (gesch.)",
+  "frontalierTotal": "Total",
+  "enrichmentRevenuTitle": "Einkommen",
+  "enrichmentRevenuDescription": "Dein Bruttolohn ist die Grundlage aller Projektionen: Vorsorge, Steuern, Budget. Je genauer er ist, desto zuverlässiger sind deine Ergebnisse.",
+  "enrichmentRevenuCta": "Mein Einkommen angeben",
+  "enrichmentLppTitle": "BVG-Vorsorge",
+  "enrichmentLppDescription": "Dein BVG-Guthaben (2. Säule) stellt oft das grösste Kapital deiner Vorsorge dar. Ein Vorsorgeausweis gibt einen genauen Wert statt einer Schätzung.",
+  "enrichmentLppCta": "Mein BVG-Ausweis hinzufügen",
+  "enrichmentAvsTitle": "AHV-Auszug",
+  "enrichmentAvsDescription": "Der AHV-Auszug bestätigt deine effektiven Beitragsjahre. Lücken (Auslandsaufenthalt, fehlende Jahre) reduzieren deine AHV-Rente.",
+  "enrichmentAvsCta": "Meinen AHV-Auszug bestellen",
+  "enrichment3aTitle": "3. Säule (3a)",
+  "enrichment3aDescription": "Deine 3a-Konten ergänzen deine Vorsorge und bieten einen Steuervorteil. Gib die aktuellen Saldi ein für eine vollständige Übersicht.",
+  "enrichment3aCta": "Mein 3a simulieren",
+  "enrichmentPatrimoineTitle": "Vermögen",
+  "enrichmentPatrimoineDescription": "Freie Ersparnisse, Investitionen, Immobilien: diese Daten vervollständigen deine Projektion und ermöglichen die Berechnung deines Financial Resilience Index.",
+  "enrichmentPatrimoineCta": "Mein Vermögen angeben",
+  "enrichmentFiscaliteTitle": "Steuern",
+  "enrichmentFiscaliteDescription": "Deine Gemeinde, dein steuerbares Einkommen und dein Vermögen bestimmen deinen Grenzsteuersatz. Eine Steuererklärung oder Veranlagung gibt einen realen Satz statt einer Schätzung (Gemeindekoeffizient 60%-130%).",
+  "enrichmentFiscaliteCta": "Meine Steuern vergleichen",
+  "enrichmentObjectifTitle": "Pensionierungsziel",
+  "enrichmentObjectifDescription": "In welchem Alter möchtest du aufhören zu arbeiten? Ein klares Ziel ermöglicht die Berechnung des nötigen Sparaufwands und der Optionen (Frühpensionierung, Teilpensionierung).",
+  "enrichmentObjectifCta": "Meine Projektion ansehen",
+  "enrichmentMenageTitle": "Haushaltszusammensetzung",
+  "enrichmentMenageDescription": "Als Paar ändern sich die Projektionen: AHV-Plafonierung für Verheiratete (AHVG Art. 35), Hinterlassenenrente (BVG Art. 19), gemeinsame Steueroptimierung.",
+  "enrichmentMenageCta": "Meinen Haushalt verwalten",
+  "enrichmentUnknownTitle": "Daten",
+  "enrichmentUnknownDescription": "Dieser Datenlink ist nicht mehr aktuell. Nutze den empfohlenen Bereich, um dein Profil zu vervollständigen.",
+  "enrichmentUnknownCta": "Diagnose öffnen",
+  "enrichmentDefaultDescription": "Vervollständige diesen Block, um die Genauigkeit deiner Projektionen zu verbessern.",
+  "enrichmentDefaultCta": "Vervollständigen",
+  "enrichmentDisclaimer": "Vereinfachtes Bildungstool. Stellt keine Finanzberatung dar (FIDLEG).",
+  "enrichmentBlockIncomplete": "Dieser Block ist noch unvollständig. Öffne den entsprechenden Bereich, um die fehlenden Daten hinzuzufügen.",
+  "enrichmentBlockComplete": "Dieser Block ist vollständig.",
+  "enrichmentStatusComplete": "Vollständig",
+  "enrichmentStatusPartial": "Teilweise",
+  "enrichmentStatusMissing": "Fehlend",
+  "enrichmentModeForm": "Formular",
+  "enrichmentModeCoach": "Mit dem Coach sprechen",
+  "enrichmentCoachPrompt3a": "Ich möchte meine 3. Säule verstehen: wie viele Konten eröffnen, bei welchem Anbieter, und wie ich meinen Steuervorteil maximieren kann.",
+  "enrichmentCoachPromptLpp": "Erkläre mir meine 2. Säule BVG: mein aktuelles Guthaben, die Einkaufslücke, und was ich tun kann, um meine Situation zu verbessern.",
+  "enrichmentCoachPromptAvs": "Erzähl mir von meiner AHV-Rente: habe ich Beitragslücken und wie kann ich sie schliessen?",
+  "enrichmentCoachPromptPatrimoine": "Ich möchte eine Bestandsaufnahme meines Gesamtvermögens machen und verstehen, wie ich es strukturieren kann.",
+  "enrichmentCoachPromptFiscalite": "Hilf mir, meine steuerliche Situation und die möglichen Optimierungshebel zu verstehen.",
+  "enrichmentCoachPromptRevenu": "Ich möchte die Auswirkungen meines Einkommens auf meine Vorsorge und Steuern verstehen.",
+  "enrichmentCoachPromptObjectif": "Was wäre die Auswirkung, wenn ich früher oder später in Rente ginge?",
+  "enrichmentCoachPromptMenage": "Wie beeinflusst die Paarsituation meine Pensionierungsprojektionen?",
+  "enrichmentCoachPromptDefault": "Hilf mir, mein Finanzprofil zu vervollständigen."
 }
