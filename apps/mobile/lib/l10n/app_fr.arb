@@ -8756,5 +8756,40 @@
   },
   "minimumVitalActionTitle": "Si un créancier saisit plus que la limite",
   "minimumVitalActionBody": "Contacte un·e avocat·e ou le service des poursuites de ta commune. La LP art. 93 est impérative — aucun contrat ne peut y déroger.",
-  "minimumVitalDisclaimer": "Outil éducatif · ne constitue pas un conseil juridique au sens de la LSFin. Source : LP art. 92 (biens insaisissables), LP art. 93 (minimum vital). Les montants varient selon le canton et la situation familiale."
+  "minimumVitalDisclaimer": "Outil éducatif · ne constitue pas un conseil juridique au sens de la LSFin. Source : LP art. 92 (biens insaisissables), LP art. 93 (minimum vital). Les montants varient selon le canton et la situation familiale.",
+  "clause3aDefaultPartner": "ton·ta partenaire",
+  "clause3aSemanticsLabel": "Clause 3a bénéficiaire OPP3 succession",
+  "clause3aHeaderTitle": "La clause 3a oubliée",
+  "clause3aHeaderSubtitle": "OPP3 art. 2 — Le 3e pilier ne suit PAS les règles successorales ordinaires.",
+  "clause3aBalanceChip": "Ton 3e pilier : CHF {amount}",
+  "@clause3aBalanceChip": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "clause3aChiffreChoc": "Sans clause : ton 3a de CHF {amount} part à tes parents, pas à {partner}.",
+  "@clause3aChiffreChoc": {
+    "placeholders": {
+      "amount": {"type": "String"},
+      "partner": {"type": "String"}
+    }
+  },
+  "clause3aChiffreChocDetail": "La clause bénéficiaire déroge à la succession ordinaire (OPP3 art. 2). Sans clause déposée auprès de ta fondation, la loi s'applique par défaut.",
+  "clause3aQuestion": "As-tu déposé une clause bénéficiaire ?",
+  "clause3aYes": "Oui",
+  "clause3aNo": "Non",
+  "clause3aFeedbackYes": "Bien ! Vérifie que la clause désigne bien {partner} — et qu'elle est à jour après chaque événement de vie.",
+  "@clause3aFeedbackYes": {
+    "placeholders": {
+      "partner": {"type": "String"}
+    }
+  },
+  "clause3aFeedbackNo": "Action prioritaire : dépose ta clause bénéficiaire auprès de ta fondation 3a — en 5 minutes.",
+  "clause3aStepsTitle": "Comment déposer une clause en 5 minutes :",
+  "clause3aStep1": "Contacte ta fondation 3a (banque ou assurance)",
+  "clause3aStep2": "Demande le formulaire \"clause bénéficiaire\"",
+  "clause3aStep3": "Désigne ton·ta partenaire ou tes héritiers",
+  "clause3aStep4": "Renouvelle à chaque changement de situation",
+  "clause3aDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : OPP3 art. 2 al. 1 let. a, CC art. 457-462."
+
 }

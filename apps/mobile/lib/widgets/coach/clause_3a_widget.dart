@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -45,10 +46,11 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final partner = widget.partnerName ?? 'ton·ta partenaire';
+    final s = S.of(context)!;
+    final partner = widget.partnerName ?? s.clause3aDefaultPartner;
 
     return Semantics(
-      label: 'Clause 3a bénéficiaire OPP3 succession',
+      label: s.clause3aSemanticsLabel,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -100,7 +102,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'La clause 3a oubliée',
+                  S.of(context)!.clause3aHeaderTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -109,7 +111,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'OPP3 art. 2 — Le 3e pilier ne suit PAS les règles successorales ordinaires.',
+                  S.of(context)!.clause3aHeaderSubtitle,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -137,7 +139,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
           const Icon(Icons.savings_outlined, color: MintColors.primary, size: 18),
           const SizedBox(width: 10),
           Text(
-            'Ton 3e pilier : CHF ${_fmt(widget.balance3a)}',
+            S.of(context)!.clause3aBalanceChip(_fmt(widget.balance3a)),
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -161,7 +163,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '💰 Sans clause : ton 3a de CHF ${_fmt(widget.balance3a)} part à tes parents, pas à $partner.',
+            S.of(context)!.clause3aChiffreChoc(_fmt(widget.balance3a), partner),
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -170,8 +172,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
           ),
           const SizedBox(height: 6),
           Text(
-            'La clause bénéficiaire déroge à la succession ordinaire (OPP3 art. 2). '
-            'Sans clause déposée auprès de ta fondation, la loi s\'applique par défaut.',
+            S.of(context)!.clause3aChiffreChocDetail,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -188,7 +189,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'As-tu déposé une clause bénéficiaire ?',
+          S.of(context)!.clause3aQuestion,
           style: GoogleFonts.inter(
             fontSize: 14,
             fontWeight: FontWeight.w700,
@@ -198,9 +199,9 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
         const SizedBox(height: 8),
         Row(
           children: [
-            _buildToggle('Oui', true),
+            _buildToggle(S.of(context)!.clause3aYes, true),
             const SizedBox(width: 8),
-            _buildToggle('Non', false),
+            _buildToggle(S.of(context)!.clause3aNo, false),
           ],
         ),
       ],
@@ -248,7 +249,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Bien ! Vérifie que la clause désigne bien $partner — et qu\'elle est à jour après chaque événement de vie.',
+                S.of(context)!.clause3aFeedbackYes(partner),
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textPrimary,
@@ -272,7 +273,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Action prioritaire : dépose ta clause bénéficiaire auprès de ta fondation 3a — en 5 minutes.',
+                S.of(context)!.clause3aFeedbackNo,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -288,11 +289,12 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
   }
 
   Widget _buildSteps() {
+    final s = S.of(context)!;
     final steps = [
-      'Contacte ta fondation 3a (banque ou assurance)',
-      'Demande le formulaire "clause bénéficiaire"',
-      'Désigne ton·ta partenaire ou tes héritiers',
-      'Renouvelle à chaque changement de situation',
+      s.clause3aStep1,
+      s.clause3aStep2,
+      s.clause3aStep3,
+      s.clause3aStep4,
     ];
 
     return Container(
@@ -306,7 +308,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Comment déposer une clause en 5 minutes :',
+            s.clause3aStepsTitle,
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -350,8 +352,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
 
   Widget _buildDisclaimer() {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : OPP3 art. 2 al. 1 let. a, CC art. 457-462.',
+      S.of(context)!.clause3aDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,
