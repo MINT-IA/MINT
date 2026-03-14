@@ -164,7 +164,8 @@ class DebtRatioCalculator {
       minimumVitalMenace: minimumVitalMenace,
       chiffreChoc: DebtChiffreChoc(
         montant: ratio,
-        texte: 'Ratio dette\u00a0: ${ratio.toStringAsFixed(1)}\u00a0%. Vérifie ta marge disponible.',
+        texte: '${ratio.toStringAsFixed(0)}\u00a0% de tes revenus partent en remboursement de dettes. '
+            'Il te reste ${formatChf(margeDisponible)} CHF/mois pour vivre.',
         niveau: niveau,
       ),
       recommandations: recommandations,
@@ -307,10 +308,11 @@ class RepaymentPlanner {
       economieInterets: economieInterets.abs(),
       chiffreChoc: DebtChiffreChoc(
         montant: meilleur.moisJusquaLiberation.toDouble(),
-        texte:
-            'Libéré dans ${meilleur.moisJusquaLiberation} mois — '
-            'CHF ${formatChf(economieInterets.abs())} d\'intérêts économisés. '
-            'Compare les deux stratégies.',
+        texte: meilleur.moisJusquaLiberation <= 24
+            ? 'Dans ${meilleur.moisJusquaLiberation} mois, tu es libre. '
+                'Et tu gardes ${formatChf(economieInterets.abs())} CHF qui seraient partis en intérêts.'
+            : 'Encore ${meilleur.moisJusquaLiberation} mois de remboursement. '
+                'Avec la bonne stratégie, tu économises ${formatChf(economieInterets.abs())} CHF d\'intérêts.',
         niveau: meilleur.moisJusquaLiberation <= 24
             ? DebtRiskLevel.vert
             : meilleur.moisJusquaLiberation <= 60

@@ -218,9 +218,9 @@ class FirstJobService {
 
     // Chiffre choc
     final chiffreChoc =
-        'Ton employeur paie ~${formatChf(employeurTotal)}/mois '
-        'en plus de ton salaire — des charges que tu ne vois jamais. '
-        'Vérifie ta fiche de paie.';
+        'Surprise\u00a0: ton employeur verse ~${formatChf(employeurTotal)} CHF/mois '
+        'en plus de ce que tu vois sur ta fiche de paie. '
+        'Retraite, accident, chômage — c\'est ton filet de sécurité invisible.';
 
     return FirstJobResult(
       brut: brut,
