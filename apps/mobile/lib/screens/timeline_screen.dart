@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -42,182 +43,7 @@ class _EventCategory {
 }
 
 // ────────────────────────────────────────────────────────────
-//  ALL 18 LIFE EVENTS — organized by 6 categories
-// ────────────────────────────────────────────────────────────
-
-const _categories = <_EventCategory>[
-  _EventCategory(
-    label: 'FAMILLE',
-    icon: Icons.family_restroom,
-    color: MintColors.error,
-    events: [
-      _LifeEvent(
-        title: 'Mariage',
-        subtitle: 'Impact LPP, AVS, impôts et régime matrimonial',
-        icon: Icons.favorite_outline,
-        route: '/mariage',
-        accentColor: MintColors.error,
-      ),
-      _LifeEvent(
-        title: 'Concubinage',
-        subtitle: 'Prévoyance, succession et fiscalité du couple non marié',
-        icon: Icons.people_outline,
-        route: '/concubinage',
-        accentColor: MintColors.warning,
-      ),
-      _LifeEvent(
-        title: 'Naissance',
-        subtitle: 'Allocations, déductions fiscales et assurances',
-        icon: Icons.child_care,
-        route: '/naissance',
-        accentColor: MintColors.info,
-      ),
-      _LifeEvent(
-        title: 'Divorce',
-        subtitle: 'Partage LPP, pension et réorganisation financière',
-        icon: Icons.heart_broken_outlined,
-        route: '/life-event/divorce',
-        accentColor: MintColors.warning,
-      ),
-      _LifeEvent(
-        title: 'Succession',
-        subtitle: 'Réserves héréditaires, partage et impôts (CC art. 457ss)',
-        icon: Icons.account_balance_outlined,
-        route: '/life-event/succession',
-        accentColor: MintColors.primary,
-      ),
-    ],
-  ),
-  _EventCategory(
-    label: 'PROFESSIONNEL',
-    icon: Icons.work_outline,
-    color: MintColors.info,
-    events: [
-      _LifeEvent(
-        title: 'Premier emploi',
-        subtitle: 'Premiers pas\u00a0: AVS, LPP, 3a et budget',
-        icon: Icons.school_outlined,
-        route: '/first-job',
-        accentColor: MintColors.info,
-      ),
-      _LifeEvent(
-        title: 'Changement d\'emploi',
-        subtitle: 'Comparaison LPP, libre passage et négociation',
-        icon: Icons.swap_horiz,
-        route: '/simulator/job-comparison',
-        accentColor: MintColors.primary,
-      ),
-      _LifeEvent(
-        title: 'Indépendant',
-        subtitle: 'AVS, LPP volontaire, 3a élargi et dividende vs salaire',
-        icon: Icons.storefront_outlined,
-        route: '/segments/independant',
-        accentColor: MintColors.success,
-      ),
-      _LifeEvent(
-        title: 'Perte d\'emploi',
-        subtitle: 'Chômage, délai de carence et protection prévoyance',
-        icon: Icons.trending_down,
-        route: '/unemployment',
-        accentColor: MintColors.warning,
-      ),
-      _LifeEvent(
-        title: 'Retraite',
-        subtitle: 'Rente vs capital, échelonnement 3a, lacune AVS',
-        icon: Icons.elderly,
-        route: '/retirement',
-        accentColor: MintColors.primary,
-      ),
-    ],
-  ),
-  _EventCategory(
-    label: 'PATRIMOINE',
-    icon: Icons.account_balance_wallet_outlined,
-    color: MintColors.success,
-    events: [
-      _LifeEvent(
-        title: 'Achat immobilier',
-        subtitle: 'Capacité d\'emprunt, EPL et impôt sur la valeur locative',
-        icon: Icons.home_outlined,
-        route: '/mortgage/affordability',
-        accentColor: MintColors.success,
-      ),
-      _LifeEvent(
-        title: 'Vente immobilière',
-        subtitle: 'Plus-value, impôt cantonal et remploi',
-        icon: Icons.real_estate_agent,
-        route: '/life-event/housing-sale',
-        accentColor: MintColors.warning,
-      ),
-      _LifeEvent(
-        title: 'Héritage',
-        subtitle: 'Estimation, impôt cantonal et partage successoral',
-        icon: Icons.volunteer_activism,
-        route: '/life-event/succession',
-        accentColor: MintColors.info,
-      ),
-      _LifeEvent(
-        title: 'Donation',
-        subtitle: 'Impôt cantonal, réserves et quotité disponible',
-        icon: Icons.card_giftcard,
-        route: '/life-event/donation',
-        accentColor: MintColors.primary,
-      ),
-    ],
-  ),
-  _EventCategory(
-    label: 'SANTÉ',
-    icon: Icons.health_and_safety_outlined,
-    color: MintColors.error,
-    events: [
-      _LifeEvent(
-        title: 'Invalidité',
-        subtitle: 'Lacune de couverture AI + LPP et prévention',
-        icon: Icons.accessible,
-        route: '/simulator/disability-gap',
-        accentColor: MintColors.error,
-      ),
-    ],
-  ),
-  _EventCategory(
-    label: 'MOBILITÉ',
-    icon: Icons.flight_takeoff,
-    color: MintColors.warning,
-    events: [
-      _LifeEvent(
-        title: 'Déménagement cantonal',
-        subtitle: 'Impact fiscal du changement de canton (26 barèmes)',
-        icon: Icons.map_outlined,
-        route: '/fiscal',
-        accentColor: MintColors.warning,
-      ),
-      _LifeEvent(
-        title: 'Expatriation / Frontalier',
-        subtitle: 'Double imposition, 3a et couverture sociale',
-        icon: Icons.public,
-        route: '/expatriation',
-        accentColor: MintColors.info,
-      ),
-    ],
-  ),
-  _EventCategory(
-    label: 'CRISE',
-    icon: Icons.warning_amber_rounded,
-    color: MintColors.error,
-    events: [
-      _LifeEvent(
-        title: 'Surendettement',
-        subtitle: 'Ratio d\'endettement, plan de remboursement et aide',
-        icon: Icons.crisis_alert,
-        route: '/check/debt',
-        accentColor: MintColors.error,
-      ),
-    ],
-  ),
-];
-
-// ────────────────────────────────────────────────────────────
-//  QUICK ACTIONS (outils essentiels)
+//  QUICK ACTION DEFINITION
 // ────────────────────────────────────────────────────────────
 
 class _QuickAction {
@@ -236,36 +62,211 @@ class _QuickAction {
   });
 }
 
-const _quickActions = <_QuickAction>[
-  _QuickAction(
-    title: 'Check-up financier',
-    subtitle: 'Lancer le diagnostic complet',
-    icon: Icons.shield_outlined,
-    route: '/onboarding/quick',
-    color: MintColors.primary,
-  ),
-  _QuickAction(
-    title: 'Budget',
-    subtitle: 'Gérer le cashflow mensuel',
-    icon: Icons.pie_chart_outline,
-    route: '/budget',
-    color: MintColors.success,
-  ),
-  _QuickAction(
-    title: 'Pilier 3a',
-    subtitle: 'Optimiser la déduction fiscale',
-    icon: Icons.savings_outlined,
-    route: '/simulator/3a',
-    color: MintColors.info,
-  ),
-  _QuickAction(
-    title: 'Fiscalité',
-    subtitle: 'Comparer 26 cantons',
-    icon: Icons.receipt_long,
-    route: '/fiscal',
-    color: MintColors.warning,
-  ),
-];
+// ────────────────────────────────────────────────────────────
+//  LOCALIZED DATA BUILDERS
+// ────────────────────────────────────────────────────────────
+
+List<_EventCategory> _buildCategories(AppLocalizations s) => [
+      _EventCategory(
+        label: s.timelineCategoryFamily,
+        icon: Icons.family_restroom,
+        color: MintColors.error,
+        events: [
+          _LifeEvent(
+            title: s.timelineEventMarriageTitle,
+            subtitle: s.timelineEventMarriageSubtitle,
+            icon: Icons.favorite_outline,
+            route: '/mariage',
+            accentColor: MintColors.error,
+          ),
+          _LifeEvent(
+            title: s.timelineEventCohabitationTitle,
+            subtitle: s.timelineEventCohabitationSubtitle,
+            icon: Icons.people_outline,
+            route: '/concubinage',
+            accentColor: MintColors.warning,
+          ),
+          _LifeEvent(
+            title: s.timelineEventBirthTitle,
+            subtitle: s.timelineEventBirthSubtitle,
+            icon: Icons.child_care,
+            route: '/naissance',
+            accentColor: MintColors.info,
+          ),
+          _LifeEvent(
+            title: s.timelineEventDivorceTitle,
+            subtitle: s.timelineEventDivorceSubtitle,
+            icon: Icons.heart_broken_outlined,
+            route: '/life-event/divorce',
+            accentColor: MintColors.warning,
+          ),
+          _LifeEvent(
+            title: s.timelineEventSuccessionTitle,
+            subtitle: s.timelineEventSuccessionSubtitle,
+            icon: Icons.account_balance_outlined,
+            route: '/life-event/succession',
+            accentColor: MintColors.primary,
+          ),
+        ],
+      ),
+      _EventCategory(
+        label: s.timelineCategoryProfessional,
+        icon: Icons.work_outline,
+        color: MintColors.info,
+        events: [
+          _LifeEvent(
+            title: s.timelineEventFirstJobTitle,
+            subtitle: s.timelineEventFirstJobSubtitle,
+            icon: Icons.school_outlined,
+            route: '/first-job',
+            accentColor: MintColors.info,
+          ),
+          _LifeEvent(
+            title: s.timelineEventJobChangeTitle,
+            subtitle: s.timelineEventJobChangeSubtitle,
+            icon: Icons.swap_horiz,
+            route: '/simulator/job-comparison',
+            accentColor: MintColors.primary,
+          ),
+          _LifeEvent(
+            title: s.timelineEventSelfEmployedTitle,
+            subtitle: s.timelineEventSelfEmployedSubtitle,
+            icon: Icons.storefront_outlined,
+            route: '/segments/independant',
+            accentColor: MintColors.success,
+          ),
+          _LifeEvent(
+            title: s.timelineEventJobLossTitle,
+            subtitle: s.timelineEventJobLossSubtitle,
+            icon: Icons.trending_down,
+            route: '/unemployment',
+            accentColor: MintColors.warning,
+          ),
+          _LifeEvent(
+            title: s.timelineEventRetirementTitle,
+            subtitle: s.timelineEventRetirementSubtitle,
+            icon: Icons.elderly,
+            route: '/retirement',
+            accentColor: MintColors.primary,
+          ),
+        ],
+      ),
+      _EventCategory(
+        label: s.timelineCategoryWealth,
+        icon: Icons.account_balance_wallet_outlined,
+        color: MintColors.success,
+        events: [
+          _LifeEvent(
+            title: s.timelineEventHomePurchaseTitle,
+            subtitle: s.timelineEventHomePurchaseSubtitle,
+            icon: Icons.home_outlined,
+            route: '/mortgage/affordability',
+            accentColor: MintColors.success,
+          ),
+          _LifeEvent(
+            title: s.timelineEventHomeSaleTitle,
+            subtitle: s.timelineEventHomeSaleSubtitle,
+            icon: Icons.real_estate_agent,
+            route: '/life-event/housing-sale',
+            accentColor: MintColors.warning,
+          ),
+          _LifeEvent(
+            title: s.timelineEventInheritanceTitle,
+            subtitle: s.timelineEventInheritanceSubtitle,
+            icon: Icons.volunteer_activism,
+            route: '/life-event/succession',
+            accentColor: MintColors.info,
+          ),
+          _LifeEvent(
+            title: s.timelineEventDonationTitle,
+            subtitle: s.timelineEventDonationSubtitle,
+            icon: Icons.card_giftcard,
+            route: '/life-event/donation',
+            accentColor: MintColors.primary,
+          ),
+        ],
+      ),
+      _EventCategory(
+        label: s.timelineCategoryHealth,
+        icon: Icons.health_and_safety_outlined,
+        color: MintColors.error,
+        events: [
+          _LifeEvent(
+            title: s.timelineEventDisabilityTitle,
+            subtitle: s.timelineEventDisabilitySubtitle,
+            icon: Icons.accessible,
+            route: '/simulator/disability-gap',
+            accentColor: MintColors.error,
+          ),
+        ],
+      ),
+      _EventCategory(
+        label: s.timelineCategoryMobility,
+        icon: Icons.flight_takeoff,
+        color: MintColors.warning,
+        events: [
+          _LifeEvent(
+            title: s.timelineEventCantonMoveTitle,
+            subtitle: s.timelineEventCantonMoveSubtitle,
+            icon: Icons.map_outlined,
+            route: '/fiscal',
+            accentColor: MintColors.warning,
+          ),
+          _LifeEvent(
+            title: s.timelineEventExpatTitle,
+            subtitle: s.timelineEventExpatSubtitle,
+            icon: Icons.public,
+            route: '/expatriation',
+            accentColor: MintColors.info,
+          ),
+        ],
+      ),
+      _EventCategory(
+        label: s.timelineCategoryCrisis,
+        icon: Icons.warning_amber_rounded,
+        color: MintColors.error,
+        events: [
+          _LifeEvent(
+            title: s.timelineEventDebtTitle,
+            subtitle: s.timelineEventDebtSubtitle,
+            icon: Icons.crisis_alert,
+            route: '/check/debt',
+            accentColor: MintColors.error,
+          ),
+        ],
+      ),
+    ];
+
+List<_QuickAction> _buildQuickActions(AppLocalizations s) => [
+      _QuickAction(
+        title: s.timelineQuickCheckupTitle,
+        subtitle: s.timelineQuickCheckupSubtitle,
+        icon: Icons.shield_outlined,
+        route: '/onboarding/quick',
+        color: MintColors.primary,
+      ),
+      _QuickAction(
+        title: s.timelineQuickBudgetTitle,
+        subtitle: s.timelineQuickBudgetSubtitle,
+        icon: Icons.pie_chart_outline,
+        route: '/budget',
+        color: MintColors.success,
+      ),
+      _QuickAction(
+        title: s.timelineQuickPillar3aTitle,
+        subtitle: s.timelineQuickPillar3aSubtitle,
+        icon: Icons.savings_outlined,
+        route: '/simulator/3a',
+        color: MintColors.info,
+      ),
+      _QuickAction(
+        title: s.timelineQuickTaxTitle,
+        subtitle: s.timelineQuickTaxSubtitle,
+        icon: Icons.receipt_long,
+        route: '/fiscal',
+        color: MintColors.warning,
+      ),
+    ];
 
 // ────────────────────────────────────────────────────────────
 //  TIMELINE SCREEN
@@ -276,31 +277,34 @@ class TimelineScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = AppLocalizations.of(context)!;
+    final categories = _buildCategories(s);
+
     return Scaffold(
       backgroundColor: MintColors.background,
       body: CustomScrollView(
         slivers: [
-          _buildAppBar(),
-          SliverToBoxAdapter(child: _buildTimelineHeader()),
+          _buildAppBar(s),
+          SliverToBoxAdapter(child: _buildTimelineHeader(s)),
           // Quick actions row
-          SliverToBoxAdapter(child: _buildQuickActions(context)),
+          SliverToBoxAdapter(child: _buildQuickActionsRow(context, s)),
           // Life events by category
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 24),
-                _buildSectionTitle('ÉVÉNEMENTS DE VIE', Icons.timeline),
+                _buildSectionTitle(s.timelineLifeEventsSection, Icons.timeline),
                 const SizedBox(height: 4),
                 Text(
-                  'Sélectionne un événement pour simuler son impact financier.',
+                  s.timelineLifeEventsInstruction,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 16),
-                for (final category in _categories) ...[
+                for (final category in categories) ...[
                   _buildCategoryHeader(category),
                   const SizedBox(height: 8),
                   for (var i = 0; i < category.events.length; i++) ...[
@@ -319,12 +323,12 @@ class TimelineScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(AppLocalizations s) {
     return SliverAppBar(
       floating: true,
       backgroundColor: MintColors.background,
       title: Text(
-        'MON PARCOURS',
+        s.timelineAppBarTitle,
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w700,
           letterSpacing: 2.0,
@@ -335,14 +339,14 @@ class TimelineScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTimelineHeader() {
+  Widget _buildTimelineHeader(AppLocalizations s) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ta vie financière,\nétape par étape.',
+            s.timelineHeaderTitle,
             style: GoogleFonts.montserrat(
               fontSize: 24,
               fontWeight: FontWeight.w800,
@@ -351,7 +355,7 @@ class TimelineScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Outils essentiels et événements de vie — tout est là.',
+            s.timelineHeaderSubtitle,
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.textSecondary,
@@ -365,16 +369,17 @@ class TimelineScreen extends StatelessWidget {
 
   // ── Quick actions (horizontal scroll) ──────────────────────
 
-  Widget _buildQuickActions(BuildContext context) {
+  Widget _buildQuickActionsRow(BuildContext context, AppLocalizations s) {
+    final quickActions = _buildQuickActions(s);
     return SizedBox(
       height: 110,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        itemCount: _quickActions.length,
+        itemCount: quickActions.length,
         separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
-          final action = _quickActions[index];
+          final action = quickActions[index];
           return _buildQuickActionCard(context, action);
         },
       ),
