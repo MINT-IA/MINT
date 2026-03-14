@@ -6977,7 +6977,7 @@
   "docScanEmptyTextFile": "Le fichier texte est vide.",
   "docScanFileUnusable": "Fichier non exploitable",
   "docScanFileUnusableMessage": "Nous n'avons pas pu lire ce fichier directement depuis ton appareil. Prends une photo du document ou colle un texte OCR.",
-  "docScanImportError": "Impossible d'importer le fichier\u00a0: {error}",
+  "docScanImportError": "Impossible d'importer le fichier : {error}",
   "@docScanImportError": {
     "placeholders": {
       "error": {}
@@ -6989,7 +6989,7 @@
   "docScanPhotoAnalysisUnavailableMessage": "Nous n'avons pas pu extraire le texte automatiquement. Réessaie avec une photo plus nette ou colle le texte OCR.",
   "docScanNoFieldsRecognized": "Aucun champ reconnu automatiquement",
   "docScanNoFieldsRecognizedHint": "Ajoute ou corrige le texte OCR pour améliorer l'analyse, puis relance.",
-  "docScanParsingError": "Parsing impossible pour ce document\u00a0: {error}",
+  "docScanParsingError": "Parsing impossible pour ce document : {error}",
   "@docScanParsingError": {
     "placeholders": {
       "error": {}
@@ -7006,13 +7006,13 @@
   "docScanVisionDisclaimer": "L'image sera envoyée à ton fournisseur IA via ta clé API.",
   "docScanPdfTypeNotSupported": "Type de document non pris en charge pour le parsing PDF.",
   "docScanPdfNoDataExtracted": "Aucune donnée utile n'a été extraite depuis ce PDF.",
-  "docScanBackendPdfError": "Erreur backend pendant le parsing PDF\u00a0: {error}",
+  "docScanBackendPdfError": "Erreur backend pendant le parsing PDF : {error}",
   "@docScanBackendPdfError": {
     "placeholders": {
       "error": {}
     }
   },
-  "docScanDisclaimerAutoExtracted": "Données extraites automatiquement\u00a0: vérifie chaque valeur avant confirmation.",
+  "docScanDisclaimerAutoExtracted": "Données extraites automatiquement : vérifie chaque valeur avant confirmation.",
   "docScanLabelAvoirLppTotal": "Avoir LPP total",
   "docScanLabelPartObligatoire": "Part obligatoire",
   "docScanLabelPartSurobligatoire": "Part surobligatoire",
@@ -7024,25 +7024,38 @@
   "docScanDisclaimerVerify": "Vérifie les montants avant confirmation. Outil éducatif (LSFin).",
   "docScanConfigureApiKey": "Configure une clé API dans les paramètres Coach.",
   "docScanVisionNoFieldsExtracted": "L'IA n'a pas pu extraire de champs de ce document.",
-  "docScanDisclaimerVisionDefault": "Données extraites par IA\u00a0: vérifie chaque valeur. Outil éducatif, ne constitue pas un conseil (LSFin).",
-  "docScanVisionError": "Erreur Vision IA\u00a0: {error}",
+  "docScanDisclaimerVisionDefault": "Données extraites par IA : vérifie chaque valeur. Outil éducatif, ne constitue pas un conseil (LSFin).",
+  "docScanVisionError": "Erreur Vision IA : {error}",
   "@docScanVisionError": {
     "placeholders": {
       "error": {}
     }
   },
-  "docScanUnsupportedType": "Type non supporté pour le moment\u00a0: {label}",
+  "docScanUnsupportedType": "Type non supporté pour le moment : {label}",
   "@docScanUnsupportedType": {
     "placeholders": {
       "label": {}
     }
   },
-  "expatForfaitBase": "Base\u00a0: {amount}",
-  "@expatForfaitBase": {"placeholders": {"amount": {}}},
-  "expatSavings": "Économie\u00a0: {amount} (-{percent}%)",
-  "@expatSavings": {"placeholders": {"amount": {}, "percent": {}}},
-  "expatForfaitMoreExpensive": "Forfait plus coûteux\u00a0: +{amount}",
-  "@expatForfaitMoreExpensive": {"placeholders": {"amount": {}}},
+  "expatForfaitBase": "Base : {amount}",
+  "@expatForfaitBase": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "expatSavings": "Économie : {amount} (-{percent}%)",
+  "@expatSavings": {
+    "placeholders": {
+      "amount": {},
+      "percent": {}
+    }
+  },
+  "expatForfaitMoreExpensive": "Forfait plus coûteux : +{amount}",
+  "@expatForfaitMoreExpensive": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
   "expatDeadline3aLabel": "3ème pilier 3a — clôture ou gel",
   "expatDeadline3aAction": "Contacte ta banque pour planifier la clôture ou le transfert du 3a.",
   "expatDeadline3aConsequence": "Un 3a non géré avant le départ peut bloquer des fonds pendant des années.",
@@ -7078,49 +7091,81 @@
   "expatTimeline2to3Months": "2-3 mois avant",
   "expatTimeline2to3MonthsDesc": "Annoncer à la commune, résilier LAMal",
   "expatTimelineInMonths": "Dans ~{months} mois",
-  "@expatTimelineInMonths": {"placeholders": {"months": {}}},
-  "expatTimelineUrgent": "Urgent\u00a0!",
+  "@expatTimelineInMonths": {
+    "placeholders": {
+      "months": {}
+    }
+  },
+  "expatTimelineUrgent": "Urgent !",
   "expatTimeline1Month": "1 mois avant",
   "expatTimeline1MonthDesc": "Retirer 3a, transférer LPP",
   "expatTimelineDDay": "Jour J",
   "expatTimelineDDayDesc": "Départ effectif",
   "expatTimelineInDays": "Dans {days} jours",
-  "@expatTimelineInDays": {"placeholders": {"days": {}}},
+  "@expatTimelineInDays": {
+    "placeholders": {
+      "days": {}
+    }
+  },
   "expatTimelinePast": "Passé",
   "expatTimeline30After": "30 jours après",
   "expatTimeline30AfterDesc": "Déclarer impôts prorata temporis",
   "expatTimelineAfterDeparture": "Après le départ",
   "expatYearsSuffix": "ans",
   "expatEstimatedRentePerMonth": "{amount}/mois",
-  "@expatEstimatedRentePerMonth": {"placeholders": {"amount": {}}},
+  "@expatEstimatedRentePerMonth": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
   "expatMissingYearsValue": "{years} ans",
-  "@expatMissingYearsValue": {"placeholders": {"years": {}}},
+  "@expatMissingYearsValue": {
+    "placeholders": {
+      "years": {}
+    }
+  },
   "expatReductionPerYearNote": "Chaque année manquante réduit ta rente d'environ {percent}%. La réduction est définitive et s'applique à vie.",
-  "@expatReductionPerYearNote": {"placeholders": {"percent": {}}},
+  "@expatReductionPerYearNote": {
+    "placeholders": {
+      "percent": {}
+    }
+  },
   "expatAmountPerYear": "{amount}/an",
-  "@expatAmountPerYear": {"placeholders": {"amount": {}}},
+  "@expatAmountPerYear": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
   "dividendeVsSalaireTitle": "Dividende vs Salaire",
-  "dividendeVsSalaireHeaderInfo": "Si tu possèdes une SA ou Sàrl, tu peux te verser une combinaison de salaire et de dividendes. Le dividende est imposé à 50\u00a0% (participation qualifiante) et échappe aux cotisations AVS. Trouve le split le plus adapté.",
+  "dividendeVsSalaireHeaderInfo": "Si tu possèdes une SA ou Sàrl, tu peux te verser une combinaison de salaire et de dividendes. Le dividende est imposé à 50 % (participation qualifiante) et échappe aux cotisations AVS. Trouve le split le plus adapté.",
   "dividendeVsSalaireBeneficeTotal": "Bénéfice total",
   "dividendeVsSalaireChfZero": "CHF 0",
   "dividendeVsSalaireChf500k": "CHF 500'000",
   "dividendeVsSalairePartSalaire": "Part salaire",
   "dividendeVsSalaireTauxMarginal": "Taux marginal d'imposition",
-  "dividendeVsSalaireSavingPositive": "Le split adapté te fait économiser {amount}/an par rapport à 100\u00a0% salaire",
-  "@dividendeVsSalaireSavingPositive": {"placeholders": {"amount": {}}},
+  "dividendeVsSalaireSavingPositive": "Le split adapté te fait économiser {amount}/an par rapport à 100 % salaire",
+  "@dividendeVsSalaireSavingPositive": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
   "dividendeVsSalaireSavingZero": "Ajuste le split pour trouver une économie",
   "dividendeVsSalaireRequalificationTitle": "Risque de requalification",
-  "dividendeVsSalaireRequalificationBody": "Si la part salaire est inférieure à ~60\u00a0% du bénéfice, l'administration fiscale peut requalifier une partie des dividendes en salaire (pratique cantonale variable). Cela entraîne des cotisations AVS rétroactives.",
+  "dividendeVsSalaireRequalificationBody": "Si la part salaire est inférieure à ~60 % du bénéfice, l'administration fiscale peut requalifier une partie des dividendes en salaire (pratique cantonale variable). Cela entraîne des cotisations AVS rétroactives.",
   "dividendeVsSalairePartDividende": "Part dividende",
-  "dividendeVsSalairePctBenefice": "{pct}\u00a0% du bénéfice",
-  "@dividendeVsSalairePctBenefice": {"placeholders": {"pct": {}}},
+  "dividendeVsSalairePctBenefice": "{pct} % du bénéfice",
+  "@dividendeVsSalairePctBenefice": {
+    "placeholders": {
+      "pct": {}
+    }
+  },
   "dividendeVsSalaireChargeSalaire": "Charge sur salaire",
   "dividendeVsSalaireChargeDividende": "Charge sur dividende",
   "dividendeVsSalaireChargeTotalSplit": "Charge totale (split)",
-  "dividendeVsSalaireCharge100Salaire": "Charge si 100\u00a0% salaire",
+  "dividendeVsSalaireCharge100Salaire": "Charge si 100 % salaire",
   "dividendeVsSalaireChartTitle": "CHARGE TOTALE PAR SPLIT",
-  "dividendeVsSalaireAxis0": "0\u00a0% salaire",
-  "dividendeVsSalaireAxis100": "100\u00a0% salaire",
+  "dividendeVsSalaireAxis0": "0 % salaire",
+  "dividendeVsSalaireAxis100": "100 % salaire",
   "dividendeVsSalaireLegendChargeTotal": "Charge totale",
   "dividendeVsSalaireLegendSplitAdapte": "Split adapté",
   "dividendeVsSalaireLegendPositionActuelle": "Position actuelle",
@@ -7128,9 +7173,211 @@
   "dividendeVsSalaireEduImpotTitle": "Impôt sur le bénéfice",
   "dividendeVsSalaireEduImpotBody": "Rappelle-toi que le bénéfice distribué en dividende est imposé d'abord au niveau de la société (impôt sur le bénéfice), puis au niveau personnel (double imposition économique).",
   "dividendeVsSalaireEduAvsTitle": "AVS uniquement sur le salaire",
-  "dividendeVsSalaireEduAvsBody": "Les cotisations AVS (environ 12,5\u00a0% au total) ne s'appliquent qu'à la part salaire. Le dividende échappe aux charges sociales, d'où l'intérêt d'optimiser le split.",
+  "dividendeVsSalaireEduAvsBody": "Les cotisations AVS (environ 12,5 % au total) ne s'appliquent qu'à la part salaire. Le dividende échappe aux charges sociales, d'où l'intérêt d'optimiser le split.",
   "dividendeVsSalaireEduCantonTitle": "Pratique cantonale",
-  "dividendeVsSalaireEduCantonBody": "Les autorités fiscales surveillent les distributions excessives de dividendes. Un salaire «\u00a0conforme au marché\u00a0» est attendu. La limite varie selon les cantons.",
+  "dividendeVsSalaireEduCantonBody": "Les autorités fiscales surveillent les distributions excessives de dividendes. Un salaire « conforme au marché » est attendu. La limite varie selon les cantons.",
   "dividendeVsSalaireDisclaimer": "Simulation simplifiée. L'impôt sur le bénéfice de la société, les déductions personnelles et les règles cantonales ne sont pas intégrés dans ce calcul. Consulte un·e spécialiste pour une analyse complète.",
-  "dividendeVsSalaireCantonalDisclaimer": "L'optimisation fiscale dépend de la pratique cantonale. Les seuils de requalification varient d'un canton à l'autre."
+  "dividendeVsSalaireCantonalDisclaimer": "L'optimisation fiscale dépend de la pratique cantonale. Les seuils de requalification varient d'un canton à l'autre.",
+  "pillar3aIndepTitle": "3e pilier indépendant",
+  "pillar3aIndepHeaderInfo": "En tant qu'indépendant·e sans LPP, tu as accès au « grand 3a » : tu peux déduire jusqu'à 20 % de ton revenu net (max CHF 36'288/an), au lieu de CHF 7'258 pour un·e salarié·e. C'est un avantage fiscal majeur.",
+  "pillar3aIndepLppToggle": "Affilié·e à une LPP volontaire ?",
+  "pillar3aIndepPlafondWithLpp": "Plafond 3a : CHF 7'258 (petit 3a)",
+  "pillar3aIndepPlafondWithoutLpp": "Plafond 3a : 20 % du revenu, max CHF 36'288 (grand 3a)",
+  "pillar3aIndepRevenuNet": "Revenu net annuel",
+  "pillar3aIndepChf0": "CHF 0",
+  "pillar3aIndepChf300k": "CHF 300'000",
+  "pillar3aIndepTauxMarginal": "Taux marginal d'imposition",
+  "pillar3aIndepTaux10": "10 %",
+  "pillar3aIndepTaux45": "45 %",
+  "pillar3aIndepEconomieFiscale": "d'économie fiscale annuelle grâce au 3e pilier",
+  "pillar3aIndepChiffreChoc": "Tu économises {montant}/an d'impôts de plus qu'un·e salarié·e grâce au grand 3a",
+  "@pillar3aIndepChiffreChoc": {
+    "placeholders": {
+      "montant": {}
+    }
+  },
+  "pillar3aIndepPlafondApplicable": "Plafond applicable",
+  "pillar3aIndepEconomieFiscaleAn": "Économie fiscale /an",
+  "pillar3aIndepPlafondSalarie": "Plafond salarié·e",
+  "pillar3aIndepEconomieSalarie": "Économie salarié·e",
+  "pillar3aIndepPlafondsCompares": "PLAFONDS COMPARÉS",
+  "pillar3aIndepSuperPouvoir": "×{multiplier} ton super-pouvoir",
+  "@pillar3aIndepSuperPouvoir": {
+    "placeholders": {
+      "multiplier": {}
+    }
+  },
+  "pillar3aIndepSalarie": "Salarié·e",
+  "pillar3aIndepIndependantToi": "Indépendant·e (toi)",
+  "pillar3aIndepGrand3aMax": "Grand 3a (max légal)",
+  "pillar3aIndepEn20Ans": "En 20 ans à 4 %",
+  "pillar3aIndepVs": "vs",
+  "pillar3aIndepToi": "Toi",
+  "pillar3aIndepDifference": "Différence : +{montant}",
+  "@pillar3aIndepDifference": {
+    "placeholders": {
+      "montant": {}
+    }
+  },
+  "pillar3aIndepBonASavoir": "BON À SAVOIR",
+  "pillar3aIndepEduMultiTitle": "Ouvre plusieurs comptes 3a",
+  "pillar3aIndepEduMultiBody": "Même avec le grand 3a, la stratégie des comptes multiples (jusqu'à 5) est recommandée pour optimiser le retrait échelonné à la retraite.",
+  "pillar3aIndepEduConditionTitle": "Condition : pas de LPP",
+  "pillar3aIndepEduConditionBody": "Le grand 3a (20 % du revenu, max 36'288) n'est accessible que si tu n'es pas affilié·e à une LPP volontaire. Avec LPP, le plafond tombe à 7'258.",
+  "pillar3aIndepEduInvestTitle": "Investir plutôt qu'épargner",
+  "pillar3aIndepEduInvestBody": "Pour un horizon long (>10 ans), un 3a investi en actions peut offrir un rendement bien supérieur à un compte d'épargne 3a classique.",
+  "pillar3aIndepDisclaimer": "Les économies fiscales sont calculées sur la base du taux marginal indiqué. Le taux réel dépend de ton canton, de ta commune et de ta situation familiale. Consulte un·e spécialiste pour un calcul personnalisé.",
+  "ijmTitle": "Assurance IJM",
+  "ijmHeaderInfo": "L'assurance IJM (indemnité journalière maladie) compense ta perte de revenu en cas de maladie. En tant qu'indépendant·e, aucune protection n'est prévue par défaut : c'est à toi de t'assurer.",
+  "ijmRevenuMensuel": "Revenu mensuel",
+  "ijmSliderMinChf0": "CHF 0",
+  "ijmSliderMaxChf20k": "CHF 20'000",
+  "ijmTonAge": "Ton âge",
+  "ijmAgeValue": "{age} ans",
+  "@ijmAgeValue": {
+    "placeholders": {
+      "age": {}
+    }
+  },
+  "ijmAgeMin": "18 ans",
+  "ijmAgeMax": "65 ans",
+  "ijmDelaiCarence": "Délai de carence",
+  "ijmDelaiCarenceDesc": "Période pendant laquelle tu ne reçois aucune indemnité",
+  "ijmCarenceJoursShort": "{jours} j",
+  "@ijmCarenceJoursShort": {
+    "placeholders": {
+      "jours": {}
+    }
+  },
+  "ijmJours": "jours",
+  "ijmChiffreChocText": "Sans assurance IJM, tu perds {montant} pendant le délai de carence de {jours} jours",
+  "@ijmChiffreChocText": {
+    "placeholders": {
+      "montant": {},
+      "jours": {}
+    }
+  },
+  "ijmHighRiskTitle": "Primes élevées après 50 ans",
+  "ijmHighRiskBody": "Les primes IJM augmentent fortement avec l'âge. Après 50 ans, le coût peut être 3 à 4 fois supérieur à celui d'un·e assuré·e de 30 ans. Considère un délai de carence plus long pour réduire la prime.",
+  "ijmPrimeMois": "Prime /mois",
+  "ijmPrimeAn": "Prime /an",
+  "ijmIndemniteJour": "Indemnité /jour",
+  "ijmTrancheAge": "Tranche d'âge",
+  "ijmChronologieCouverture": "CHRONOLOGIE DE COUVERTURE",
+  "ijmCouvert": "Couvert",
+  "ijmPasDeCouverture": "Pas de couverture",
+  "ijmCouvertureIjm80": "Couverture IJM (80 %)",
+  "ijmTimelineSummary": "Pendant les {jours} premiers jours de maladie, tu n'as aucun revenu. Ensuite, tu reçois {montant}/jour (80 % de ton revenu mensuel).",
+  "@ijmTimelineSummary": {
+    "placeholders": {
+      "jours": {},
+      "montant": {}
+    }
+  },
+  "ijmStrategies": "STRATÉGIES",
+  "ijmEduFondsCarenceTitle": "Constitution d'un fonds de carence",
+  "ijmEduFondsCarenceBody": "Mets de côté l'équivalent de 3 mois de revenus pour couvrir le délai de carence. Cela te permet de choisir un délai de 90 jours et de réduire ta prime.",
+  "ijmEduComparerTitle": "Comparer les offres",
+  "ijmEduComparerBody": "Les primes varient fortement entre assureurs. Demande plusieurs devis et compare les conditions (exclusions, durée des prestations, montant couvert).",
+  "ijmEduLamalTitle": "Couverture LAMal insuffisante",
+  "ijmEduLamalBody": "La LAMal ne couvre que les frais médicaux, pas la perte de gain. L'IJM est indispensable pour protéger ton revenu.",
+  "ijmDisclaimer": "Les primes présentées sont des estimations basées sur des moyennes du marché. Les primes réelles dépendent de l'assureur, de ta profession et de ton état de santé. Demande un devis personnalisé à un·e spécialiste.",
+  "avsCotisationsTitle": "Cotisations AVS",
+  "avsCotisationsHeaderInfo": "En tant qu'indépendant·e, tu paies l'intégralité des cotisations AVS/AI/APG toi-même. Un·e salarié·e n'en paie que la moitié (5.3 %), l'employeur couvrant le reste.",
+  "avsCotisationsRevenuNetAnnuel": "Ton revenu net annuel",
+  "avsCotisationsSliderMin": "CHF 0",
+  "avsCotisationsSliderMax": "CHF 250'000",
+  "avsCotisationsChiffreChocBody": "En tant qu'indépendant·e, tu paies {montant}/an de plus qu'un·e salarié·e",
+  "@avsCotisationsChiffreChocBody": {
+    "placeholders": {
+      "montant": {}
+    }
+  },
+  "avsCotisationsTauxEffectif": "Taux effectif",
+  "avsCotisationsCotisationAn": "Cotisation /an",
+  "avsCotisationsCotisationMois": "Cotisation /mois",
+  "avsCotisationsTranche": "Tranche",
+  "avsCotisationsComparaisonAnnuelle": "COMPARAISON ANNUELLE",
+  "avsCotisationsIndependant": "Indépendant·e",
+  "avsCotisationsSalariePartEmployee": "Salarié·e (part employée)",
+  "avsCotisationsSurcout": "Surcoût indépendant·e : +{montant}/an",
+  "@avsCotisationsSurcout": {
+    "placeholders": {
+      "montant": {}
+    }
+  },
+  "avsCotisationsPositionnementBareme": "TON POSITIONNEMENT SUR LE BARÈME",
+  "avsCotisationsBaremeMin": "5.37 %",
+  "avsCotisationsBaremeMax": "10.6 %",
+  "avsCotisationsTonTauxEffectif": "Ton taux effectif : {taux} %",
+  "@avsCotisationsTonTauxEffectif": {
+    "placeholders": {
+      "taux": {}
+    }
+  },
+  "avsCotisationsBonASavoir": "BON À SAVOIR",
+  "avsCotisationsEduBaremeTitle": "Barème dégressif",
+  "avsCotisationsEduBaremeBody": "Le taux diminue pour les bas revenus (entre CHF 10'100 et CHF 60'500). Au-dessus de CHF 60'500, le taux plein de 10.6 % s'applique.",
+  "avsCotisationsEduDoubleChargeTitle": "Double charge",
+  "avsCotisationsEduDoubleChargeBody": "Un·e salarié·e ne paie que 5.3 % ; l'employeur prend en charge l'autre moitié. En tant qu'indépendant·e, tu assumes la totalité.",
+  "avsCotisationsEduCotisationMinTitle": "Cotisation minimale",
+  "avsCotisationsEduCotisationMinBody": "Même avec un revenu très faible, la cotisation minimale est de CHF 530/an.",
+  "avsCotisationsDisclaimer": "Les montants présentés sont des estimations basées sur le barème AVS/AI/APG en vigueur. Les cotisations réelles peuvent varier selon ta situation personnelle. Consulte ta caisse de compensation pour un décompte exact.",
+  "lppVolontaireTitle": "LPP volontaire",
+  "lppVolontaireHeaderInfo": "En tant qu'indépendant·e, tu peux t'affilier volontairement à une caisse de pension (LPP). Les cotisations sont entièrement déductibles de ton revenu imposable, et tu construis ton 2e pilier retraite.",
+  "lppVolontaireRevenuNet": "Revenu net annuel",
+  "lppVolontaireRevenuMin": "CHF 0",
+  "lppVolontaireRevenuMax": "CHF 250'000",
+  "lppVolontaireTonAge": "Ton âge",
+  "lppVolontaireAgeValue": "{age} ans",
+  "@lppVolontaireAgeValue": {
+    "placeholders": {
+      "age": {}
+    }
+  },
+  "lppVolontaireAgeMin": "25 ans",
+  "lppVolontaireAgeMax": "65 ans",
+  "lppVolontaireTauxMarginal": "Taux marginal d'imposition",
+  "lppVolontaireTauxMin": "10 %",
+  "lppVolontaireTauxMax": "45 %",
+  "lppVolontaireChiffreChocText": "Sans LPP volontaire, tu perds {amount}/an de capitalisation retraite",
+  "@lppVolontaireChiffreChocText": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "lppVolontaireSalaireCoordonne": "Salaire coordonné",
+  "lppVolontaireTauxBonification": "Taux bonification",
+  "lppVolontaireCotisationAn": "Cotisation /an",
+  "lppVolontaireEconomieFiscale": "Économie fiscale /an",
+  "lppVolontaireTrancheAge": "Tranche d'âge",
+  "lppVolontaireProjectionTitle": "PROJECTION RETRAITE ANNUELLE",
+  "lppVolontaireSansLpp": "Sans LPP (AVS seule)",
+  "lppVolontaireAvecLpp": "Avec LPP volontaire",
+  "lppVolontairePerAn": "{amount}/an",
+  "@lppVolontairePerAn": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "lppVolontaireGapText": "La LPP volontaire pourrait ajouter {amount}/an à ta rente de retraite",
+  "@lppVolontaireGapText": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "lppVolontaireBonificationTitle": "TAUX DE BONIFICATION PAR ÂGE",
+  "lppVolontaireBracket2534": "25-34 ans",
+  "lppVolontaireBracket3544": "35-44 ans",
+  "lppVolontaireBracket4554": "45-54 ans",
+  "lppVolontaireBracket5565": "55-65 ans",
+  "lppVolontaireToi": "TOI",
+  "lppVolontaireBonASavoir": "BON À SAVOIR",
+  "lppVolontaireEduAffiliationTitle": "Affiliation volontaire",
+  "lppVolontaireEduAffiliationBody": "Les indépendant·e·s peuvent s'affilier volontairement à la LPP via une fondation collective, une caisse de branche ou la caisse cantonale.",
+  "lppVolontaireEduFiscalTitle": "Double avantage fiscal",
+  "lppVolontaireEduFiscalBody": "Les cotisations LPP volontaires sont entièrement déductibles du revenu imposable. De plus, le capital LPP n'est pas soumis à l'impôt sur la fortune.",
+  "lppVolontaireEduImpact3aTitle": "Impact sur le 3a",
+  "lppVolontaireEduImpact3aBody": "Si tu t'affilies à une LPP volontaire, ton plafond 3a passe du « grand 3a » (max CHF 36'288) au « petit 3a » (CHF 7'258). Évalue le trade-off.",
+  "lppVolontaireDisclaimer": "Les projections de rente sont des estimations basées sur un rendement projeté de 1.5 %/an et un taux de conversion de 6.8 %. Les prestations réelles dépendent de la caisse de pension choisie et de l'évolution des marchés. Consulte un·e spécialiste en prévoyance."
 }
