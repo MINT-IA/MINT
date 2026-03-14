@@ -124,26 +124,26 @@ class _IndependantScreenState extends State<IndependantScreen> {
                     LppRescueWidget(
                       lppBalance: _revenuNet * 0.15,
                       daysElapsed: 0,
-                      options: const [
+                      options: [
                         LppTransferOption(
-                          label: 'Fondation de libre passage',
+                          label: S.of(context)!.independantRescueLibrePassage,
                           emoji: '🏦',
-                          description: 'Place ton avoir en libre passage avec un rendement correct.',
+                          description: S.of(context)!.independantRescueLibrePassageDesc,
                           fiveYearGain: 8500,
                           recommended: true,
                           legalRef: 'LFLP art. 4',
                         ),
                         LppTransferOption(
-                          label: 'Institution suppletive',
+                          label: S.of(context)!.independantRescueSuppletive,
                           emoji: '⚠️',
-                          description: 'Transfert automatique apres 6 mois — rendement minimal.',
+                          description: S.of(context)!.independantRescueSuppletiveDesc,
                           fiveYearGain: 1200,
                           legalRef: 'OPP2 art. 10',
                         ),
                         LppTransferOption(
-                          label: 'Nouvelle caisse LPP',
+                          label: S.of(context)!.independantRescueNouvelleCaisse,
                           emoji: '🔄',
-                          description: 'Tu t\'affilies volontairement a une caisse LPP.',
+                          description: S.of(context)!.independantRescueNouvelleCaisseDesc,
                           fiveYearGain: 12000,
                           legalRef: 'LPP art. 44',
                         ),
@@ -273,12 +273,12 @@ class _IndependantScreenState extends State<IndependantScreen> {
   //  Dramatic before/after: every protection ON vs OFF.
   //  Computed from result or estimated from revenuNet.
 
-  static const _protections = [
-    ('AVS', '\ud83e\uddf1', 'Double ta cotisation'),
-    ('LPP', '\ud83c\udfe6', 'Dispara\u00eet \u2014 choix volontaire'),
-    ('LAA', '\ud83c\udfe5', 'Dispara\u00eet \u2014 accident hors travail'),
-    ('IJM', '\ud83e\ude7a', 'Dispara\u00eet \u2014 maladie 0 CHF'),
-    ('APG', '\ud83d\udc76', 'Dispara\u00eet \u2014 cong\u00e9 parental'),
+  List<(String, String, String)> _protections(BuildContext context) => [
+    ('AVS', '\ud83e\uddf1', S.of(context)!.independantProtAvs),
+    ('LPP', '\ud83c\udfe6', S.of(context)!.independantProtLpp),
+    ('LAA', '\ud83c\udfe5', S.of(context)!.independantProtLaa),
+    ('IJM', '\ud83e\ude7a', S.of(context)!.independantProtIjm),
+    ('APG', '\ud83d\udc76', S.of(context)!.independantProtApg),
   ];
 
   Widget _buildJourJSection() {
@@ -372,7 +372,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
           const SizedBox(height: 8),
 
           // Protection rows
-          ..._protections.map((p) => _buildProtectionRow(p.$1, p.$2, p.$3)),
+          ..._protections(context).map((p) => _buildProtectionRow(p.$1, p.$2, p.$3)),
 
           const SizedBox(height: 10),
 
@@ -514,8 +514,8 @@ class _IndependantScreenState extends State<IndependantScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('CHF\u00A020k', style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
-              Text('CHF\u00A0200k', style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
+              Text(S.of(context)!.independantSliderMin, style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
+              Text(S.of(context)!.independantSliderMax, style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
             ],
           ),
         ],
@@ -682,12 +682,12 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 : MintColors.info;
 
     final statusLabel = gap.isCovered
-        ? 'Couvert'
+        ? S.of(context)!.independantStatusCovered
         : gap.urgency == 'critique'
-            ? 'NON COUVERT — Critique'
+            ? S.of(context)!.independantStatusCritical
             : gap.urgency == 'haute'
-                ? 'NON COUVERT'
-                : 'Non couvert';
+                ? S.of(context)!.independantStatusNotCovered
+                : S.of(context)!.independantStatusNotCoveredLow;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1100,32 +1100,32 @@ class _IndependantScreenState extends State<IndependantScreen> {
         LppVs3aDecisionTree(
           expectedIncome: _revenuNet,
           lppOption: DecisionOption(
-            title: 'Caisse LPP facultative',
+            title: S.of(context)!.independantLppOptionTitle,
             emoji: '🏛️',
-            subtitle: 'Protection rente invalidité + retraite',
-            pros: const [
-              'Couverture invalidité incluse',
-              'Cotisations déductibles',
-              'Rente prévue à la retraite',
+            subtitle: S.of(context)!.independantLppOptionSubtitle,
+            pros: [
+              S.of(context)!.independantLppPro1,
+              S.of(context)!.independantLppPro2,
+              S.of(context)!.independantLppPro3,
             ],
-            cons: const [
-              'Cotisations obligatoires élevées',
-              'Moins flexible',
+            cons: [
+              S.of(context)!.independantLppCon1,
+              S.of(context)!.independantLppCon2,
             ],
             annualTaxSavings: _revenuNet * 0.08,
           ),
           grand3aOption: DecisionOption(
-            title: 'Grand 3a (sans LPP)',
+            title: S.of(context)!.independant3aOptionTitle,
             emoji: '🏦',
-            subtitle: '20% du revenu net, max CHF 36\'288/an',
-            pros: const [
-              'Flexibilité totale',
-              'Déduction fiscale maximale',
-              'Capital disponible à 60 ans',
+            subtitle: S.of(context)!.independant3aOptionSubtitle,
+            pros: [
+              S.of(context)!.independant3aPro1,
+              S.of(context)!.independant3aPro2,
+              S.of(context)!.independant3aPro3,
             ],
-            cons: const [
-              'Pas de couverture invalidité',
-              'Pas de rente prévue',
+            cons: [
+              S.of(context)!.independant3aCon1,
+              S.of(context)!.independant3aCon2,
             ],
             annualTaxSavings: (_revenuNet * pilier3aTauxRevenuSansLpp).clamp(0, pilier3aPlafondSansLpp) * 0.25,
           ),
@@ -1136,10 +1136,10 @@ class _IndependantScreenState extends State<IndependantScreen> {
         TrueHourlyRateWidget(
           desiredNetAnnual: desiredNet,
           layers: [
-            RateLayer(label: 'Impôts (estimation)', amount: taxes, emoji: '🏛️'),
-            RateLayer(label: 'Charges sociales AVS/AI', amount: socialCharges, emoji: '🛡️'),
-            RateLayer(label: 'Frais professionnels', amount: businessExp, emoji: '💼'),
-            RateLayer(label: 'Jours non facturables', amount: unpaidDays, emoji: '📅'),
+            RateLayer(label: S.of(context)!.independantLayerTaxes, amount: taxes, emoji: '🏛️'),
+            RateLayer(label: S.of(context)!.independantLayerSocial, amount: socialCharges, emoji: '🛡️'),
+            RateLayer(label: S.of(context)!.independantLayerBusiness, amount: businessExp, emoji: '💼'),
+            RateLayer(label: S.of(context)!.independantLayerUnpaid, amount: unpaidDays, emoji: '📅'),
           ],
           requiredRevenue: requiredRevenue,
         ),
@@ -1150,23 +1150,23 @@ class _IndependantScreenState extends State<IndependantScreen> {
           taxRate: 0.25,
           superpowers: [
             FiscalSuperpower(
-              label: 'Pilier 3a grand versement',
+              label: S.of(context)!.independantFiscal3aLabel,
               emoji: '🏦',
               annualDeduction: 20000,
               taxSaving: 20000 * 0.25,
               legalRef: 'OPP3 art. 1',
-              note: 'Max 20% du revenu net, plafonné à CHF 36\'288/an sans LPP',
+              note: S.of(context)!.independantFiscal3aNote,
             ),
             FiscalSuperpower(
-              label: 'Frais professionnels effectifs',
+              label: S.of(context)!.independantFiscalFraisLabel,
               emoji: '💼',
               annualDeduction: desiredNet * 0.15,
               taxSaving: desiredNet * 0.15 * 0.25,
               legalRef: 'LIFD art. 27 al. 2',
-              note: 'Loyer bureau, matériel, formation — déductibles au réel',
+              note: S.of(context)!.independantFiscalFraisNote,
             ),
             FiscalSuperpower(
-              label: 'Primes assurance maladie (LPP vol.)',
+              label: S.of(context)!.independantFiscalPrimesLabel,
               emoji: '🛡️',
               annualDeduction: 3600,
               taxSaving: 3600 * 0.25,
@@ -1181,28 +1181,28 @@ class _IndependantScreenState extends State<IndependantScreen> {
           grossIncome: _revenuNet,
           charges: [
             ChargeLine(
-              label: 'AVS / AI / APG',
+              label: S.of(context)!.independantChargeAvs,
               employeeAmount: _revenuNet * 0.0530,
               selfEmployedAmount: _revenuNet * 0.1010,
-              note: 'LAVS art. 8 — indép. paie les 2 parts',
+              note: S.of(context)!.independantChargeAvsNote,
             ),
             ChargeLine(
-              label: 'LPP (2e pilier)',
+              label: S.of(context)!.independantChargeLpp,
               employeeAmount: _revenuNet * 0.070,
               selfEmployedAmount: 0,
-              note: 'Facultatif pour indépendant (LPP art. 4)',
+              note: S.of(context)!.independantChargeLppNote,
             ),
             ChargeLine(
-              label: 'Chômage (AC)',
+              label: S.of(context)!.independantChargeAc,
               employeeAmount: _revenuNet * 0.011,
               selfEmployedAmount: 0,
-              note: 'Pas d\'AC pour indépendant (LACI art. 2)',
+              note: S.of(context)!.independantChargeAcNote,
             ),
             ChargeLine(
-              label: 'Cotisations pro (IJM/LAA)',
+              label: S.of(context)!.independantChargePro,
               employeeAmount: _revenuNet * 0.020,
               selfEmployedAmount: _revenuNet * 0.040,
-              note: 'À charge entière de l\'indépendant',
+              note: S.of(context)!.independantChargeProNote,
             ),
           ],
           totalEmployee: _revenuNet * (0.0530 + 0.070 + 0.011 + 0.020),
@@ -1214,47 +1214,47 @@ class _IndependantScreenState extends State<IndependantScreen> {
         NinetyDayPlanWidget(
           phases: [
             PlanPhase(
-              title: 'Administratif urgent',
+              title: S.of(context)!.independantPhase1Title,
               emoji: '📋',
-              deadline: 'J+30',
+              deadline: S.of(context)!.independantPhase1Deadline,
               urgencyColor: MintColors.scoreCritique,
-              actions: const [
+              actions: [
                 PlanAction(
-                  label: 'Inscription caisse AVS indépendants',
-                  consequence: 'Amendes rétroactives si délai dépassé',
+                  label: S.of(context)!.independantPhase1Action1,
+                  consequence: S.of(context)!.independantPhase1Consequence1,
                   legalRef: 'LAVS art. 12',
                 ),
                 PlanAction(
-                  label: 'Assurance accidents LAA (si pas LPP)',
-                  consequence: 'Pas de couverture accident professionnel',
+                  label: S.of(context)!.independantPhase1Action2,
+                  consequence: S.of(context)!.independantPhase1Consequence2,
                   legalRef: 'LAA art. 4',
                 ),
               ],
             ),
             PlanPhase(
-              title: 'Prévoyance',
+              title: S.of(context)!.independantPhase2Title,
               emoji: '🏦',
-              deadline: 'J+60',
+              deadline: S.of(context)!.independantPhase2Deadline,
               urgencyColor: MintColors.scoreAttention,
-              actions: const [
+              actions: [
                 PlanAction(
-                  label: 'Ouvrir compte 3a (déduction jusqu\'à CHF 36\'288)',
+                  label: S.of(context)!.independantPhase2Action1,
                   legalRef: 'OPP3',
                 ),
                 PlanAction(
-                  label: 'Évaluer IJM (indemnité journalière maladie)',
-                  consequence: 'Perte de revenus dès J+3 en cas de maladie',
+                  label: S.of(context)!.independantPhase2Action2,
+                  consequence: S.of(context)!.independantPhase2Consequence2,
                 ),
               ],
             ),
             PlanPhase(
-              title: 'Optimisation fiscale',
+              title: S.of(context)!.independantPhase3Title,
               emoji: '💡',
-              deadline: 'J+90',
+              deadline: S.of(context)!.independantPhase3Deadline,
               urgencyColor: MintColors.primary,
-              actions: const [
-                PlanAction(label: 'Frais professionnels déductibles — tenir registre'),
-                PlanAction(label: 'Acomptes impôts cantonaux — éviter les intérêts'),
+              actions: [
+                PlanAction(label: S.of(context)!.independantPhase3Action1),
+                PlanAction(label: S.of(context)!.independantPhase3Action2),
               ],
             ),
           ],
