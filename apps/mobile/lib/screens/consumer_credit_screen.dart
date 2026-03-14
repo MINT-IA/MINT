@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:intl/intl.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/debt_repayment_widget.dart';
 
@@ -55,6 +56,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.background,
       body: CustomScrollView(
@@ -66,13 +68,13 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
               IconButton(
                 icon: const Icon(Icons.picture_as_pdf_outlined, color: MintColors.white),
                 onPressed: _exportPdf,
-                tooltip: 'Exporter mon bilan',
+                tooltip: s.consumerCreditExportTooltip,
               ),
               const SizedBox(width: 8),
             ],
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Crédit à la Consommation',
+                s.consumerCreditTitle,
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -96,13 +98,13 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _buildCoachSection(),
+                  _buildCoachSection(s),
                   const SizedBox(height: 32),
-                  _buildInputSection(),
+                  _buildInputSection(s),
                   const SizedBox(height: 32),
-                  if (_result != null) _buildResultSection(),
+                  if (_result != null) _buildResultSection(s),
                   const SizedBox(height: 32),
-                  _buildGuidanceSection(),
+                  _buildGuidanceSection(s),
                   const SizedBox(height: 32),
                   // ── P10-B : Avalanche vs Boule de neige ──────────────
                   DebtRepaymentWidget(
@@ -132,7 +134,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
                     extraMonthly: 150,
                   ),
                   const SizedBox(height: 48),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                   const SizedBox(height: 40),
                 ],
               ),
@@ -143,46 +145,46 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
     );
   }
 
-  Widget _buildCoachSection() {
+  Widget _buildCoachSection(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.surface,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.warning_amber_rounded, color: MintColors.warning, size: 24),
-              SizedBox(width: 12),
+              const Icon(Icons.warning_amber_rounded, color: MintColors.warning, size: 24),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Points d\'attention du Mentor',
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                  s.consumerCreditCoachTitle,
+                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(
-            'En Suisse, un crédit coûte entre 4% et 10%. Cet argent "perdu" en intérêts pourrait être investi pour ton avenir.',
-            style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
+            s.consumerCreditCoachBody,
+            style: const TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildInputSection() {
+  Widget _buildInputSection(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Paramètres'),
+        _buildSectionHeader(s.consumerCreditParameters),
         const SizedBox(height: 24),
         _buildSlider(
-          label: 'Montant à emprunter',
+          label: s.consumerCreditBorrowAmount,
           value: _amount,
           min: 1000,
           max: 50000,
@@ -195,12 +197,12 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
         ),
         const SizedBox(height: 20),
         _buildSlider(
-          label: 'Durée du remboursement',
+          label: s.consumerCreditRepaymentDuration,
           value: _durationMonths.toDouble(),
           min: 6,
           max: 60,
           divisions: 54,
-          format: (v) => '${v.toInt()} mois',
+          format: (v) => s.consumerCreditMonths(v.toInt()),
           onChanged: (v) {
             _durationMonths = v.toInt();
             _calculate();
@@ -208,7 +210,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
         ),
         const SizedBox(height: 20),
         _buildSlider(
-          label: 'Taux annuel effectif',
+          label: s.consumerCreditEffectiveRate,
           value: _annualRate,
           min: 1,
           max: 15,
@@ -285,7 +287,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
     );
   }
 
-  Widget _buildResultSection() {
+  Widget _buildResultSection(S s) {
     final monthlyPayment = _result!['monthlyPayment'] as double;
     final totalInterest = _result!['totalInterest'] as double;
     final rateWarning = _result!['rateWarning'] as bool;
@@ -301,7 +303,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
       ),
       child: Column(
         children: [
-          const Text('Ta Mensualité', style: TextStyle(fontSize: 14, color: MintColors.textSecondary)),
+          Text(s.consumerCreditYourMonthly, style: const TextStyle(fontSize: 14, color: MintColors.textSecondary)),
           const SizedBox(height: 8),
           Text(
             _currencyFormat.format(monthlyPayment),
@@ -313,7 +315,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Coût des intérêts :', style: TextStyle(fontSize: 14, color: MintColors.textSecondary)),
+              Text(s.consumerCreditInterestCost, style: const TextStyle(fontSize: 14, color: MintColors.textSecondary)),
               Text(
                 _currencyFormat.format(totalInterest),
                 style: const TextStyle(fontWeight: FontWeight.w600, color: MintColors.error),
@@ -328,14 +330,14 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
                 color: MintColors.error.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.error_outline, color: MintColors.error, size: 20),
-                  SizedBox(width: 12),
+                  const Icon(Icons.error_outline, color: MintColors.error, size: 20),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Attention : Ce taux dépasse le max légal suisse de 10%.',
-                      style: TextStyle(color: MintColors.error, fontSize: 12, fontWeight: FontWeight.w600),
+                      s.consumerCreditRateWarning,
+                      style: const TextStyle(color: MintColors.error, fontSize: 12, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -347,15 +349,15 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
     );
   }
 
-  Widget _buildGuidanceSection() {
+  Widget _buildGuidanceSection(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Conseils du Mentor'),
+        _buildSectionHeader(s.consumerCreditMentorAdvice),
         const SizedBox(height: 24),
-        _buildGuidanceItem(Icons.savings_outlined, 'Épargner d\'abord', 'En économisant pendant 12 mois au lieu d\'emprunter, tu gardes ${_currencyFormat.format(_result!['totalInterest'])} dans ta poche.'),
-        _buildGuidanceItem(Icons.family_restroom_outlined, 'Cercle de confiance', 'Un prêt familial peut souvent être obtenu à 0% d\'intérêt.'),
-        _buildGuidanceItem(Icons.help_outline_rounded, 'Dettes Conseils Suisse', 'Contacte-les AVANT de signer si ta situation est fragile.'),
+        _buildGuidanceItem(Icons.savings_outlined, s.consumerCreditSaveFirst, s.consumerCreditSaveFirstBody(_currencyFormat.format(_result!['totalInterest']))),
+        _buildGuidanceItem(Icons.family_restroom_outlined, s.consumerCreditTrustCircle, s.consumerCreditTrustCircleBody),
+        _buildGuidanceItem(Icons.help_outline_rounded, s.consumerCreditDebtCounseling, s.consumerCreditDebtCounselingBody),
       ],
     );
   }
@@ -390,14 +392,13 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
     );
   }
 
-  Widget _buildDisclaimer() {
-    return const Center(
+  Widget _buildDisclaimer(S s) {
+    return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Text(
-          'Information à but préventif. Ne constitue pas un conseil juridique ou financier. '
-          'Loi suisse sur le crédit à la consommation (LCC) appliquée.',
-          style: TextStyle(color: MintColors.textMuted, fontSize: 11),
+          s.consumerCreditDisclaimer,
+          style: const TextStyle(color: MintColors.textMuted, fontSize: 11),
           textAlign: TextAlign.center,
         ),
       ),

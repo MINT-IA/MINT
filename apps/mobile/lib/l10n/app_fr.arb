@@ -8354,5 +8354,36 @@
     }
   },
   "disabilityGapDisclaimer": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil en assurance au sens de la LSFin. Tes couvertures r\u00e9elles d\u00e9pendent de ton contrat de travail et de ta caisse de pension.",
-  "disabilityGapLegalSources": "\u2022 LAI art. 28-29 (rente AI)\n\u2022 LPP art. 23-26 (invalidit\u00e9 2e pilier)\n\u2022 CO art. 324a (maintien salaire employeur)\n\u2022 LPGA art. 19 (d\u00e9lai de carence)"
+  "disabilityGapLegalSources": "\u2022 LAI art. 28-29 (rente AI)\n\u2022 LPP art. 23-26 (invalidit\u00e9 2e pilier)\n\u2022 CO art. 324a (maintien salaire employeur)\n\u2022 LPGA art. 19 (d\u00e9lai de carence)",
+
+  "consumerCreditTitle": "Cr\u00e9dit \u00e0 la Consommation",
+  "consumerCreditExportTooltip": "Exporter mon bilan",
+  "consumerCreditCoachTitle": "Points d'attention du Mentor",
+  "consumerCreditCoachBody": "En Suisse, un cr\u00e9dit co\u00fbte entre 4% et 10%. Cet argent \"perdu\" en int\u00e9r\u00eats pourrait \u00eatre investi pour ton avenir.",
+  "consumerCreditParameters": "Param\u00e8tres",
+  "consumerCreditBorrowAmount": "Montant \u00e0 emprunter",
+  "consumerCreditRepaymentDuration": "Dur\u00e9e du remboursement",
+  "consumerCreditMonths": "{count} mois",
+  "@consumerCreditMonths": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "consumerCreditEffectiveRate": "Taux annuel effectif",
+  "consumerCreditYourMonthly": "Ta Mensualit\u00e9",
+  "consumerCreditInterestCost": "Co\u00fbt des int\u00e9r\u00eats\u00a0:",
+  "consumerCreditRateWarning": "Attention\u00a0: Ce taux d\u00e9passe le max l\u00e9gal suisse de 10%.",
+  "consumerCreditMentorAdvice": "Conseils du Mentor",
+  "consumerCreditSaveFirst": "\u00c9pargner d'abord",
+  "consumerCreditSaveFirstBody": "En \u00e9conomisant pendant 12 mois au lieu d'emprunter, tu gardes {amount} dans ta poche.",
+  "@consumerCreditSaveFirstBody": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "consumerCreditTrustCircle": "Cercle de confiance",
+  "consumerCreditTrustCircleBody": "Un pr\u00eat familial peut souvent \u00eatre obtenu \u00e0 0% d'int\u00e9r\u00eat.",
+  "consumerCreditDebtCounseling": "Dettes Conseils Suisse",
+  "consumerCreditDebtCounselingBody": "Contacte-les AVANT de signer si ta situation est fragile.",
+  "consumerCreditDisclaimer": "Information \u00e0 but pr\u00e9ventif. Ne constitue pas un conseil juridique ou financier. Loi suisse sur le cr\u00e9dit \u00e0 la consommation (LCC) appliqu\u00e9e."
 }
