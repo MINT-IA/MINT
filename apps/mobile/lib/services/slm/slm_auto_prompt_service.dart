@@ -48,6 +48,8 @@ class SlmAutoPromptService {
     // Already prompted this install → skip.
     if (await _wasPrompted()) return;
 
+    if (!context.mounted) return;
+
     // Model already downloaded → mark and skip.
     final slm = context.read<SlmProvider>();
     if (slm.isModelReady) {
