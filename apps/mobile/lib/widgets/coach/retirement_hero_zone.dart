@@ -315,15 +315,15 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
         (deco['avs_conjoint'] ?? 0);
     final lpp = (deco['lpp'] ?? deco['lpp_user'] ?? 0) +
         (deco['lpp_conjoint'] ?? 0);
-    final trois_a = deco['3a'] ?? deco['pilier3a'] ?? 0;
+    final troisA = deco['3a'] ?? deco['pilier3a'] ?? 0;
     final autre = (deco['libre'] ?? 0) + (deco['market'] ?? 0);
-    final total = avs + lpp + trois_a + autre;
+    final total = avs + lpp + troisA + autre;
     if (total <= 0) return const SizedBox.shrink();
 
     final segments = <_PillarSegment>[
       _PillarSegment('AVS', avs, MintColors.pillarAvs),
       _PillarSegment('LPP', lpp, MintColors.pillarLppAccent),
-      _PillarSegment('3a', trois_a, MintColors.pillar3a),
+      _PillarSegment('3a', troisA, MintColors.pillar3a),
       if (autre > 0) _PillarSegment('Autre', autre, MintColors.purple),
     ];
 
