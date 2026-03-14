@@ -429,7 +429,7 @@ class ArbitrageEngine {
         if (isMarried) 'Rente de survivant : 60 % (LPP art. 19)',
       ],
       disclaimer:
-          'Outil educatif — ne constitue pas un conseil financier (LSFin). '
+          'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
           'Les projections reposent sur des hypotheses simplifiees. '
           'Les rendements passes ne presagent pas des rendements futurs.',
       sources: [
@@ -837,7 +837,7 @@ class ArbitrageEngine {
           'Potentiel de rachat LPP : ${_formatChf(potentielRachatLpp)}',
       ],
       disclaimer:
-          'Outil educatif — ne constitue pas un conseil financier (LSFin). '
+          'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
           'Les projections reposent sur des hypotheses simplifiees. '
           'Les rendements passes ne presagent pas des rendements futurs.',
       sources: [
@@ -1000,9 +1000,9 @@ class ArbitrageEngine {
     final delta = (optionA.terminalValue - optionB.terminalValue).abs();
     final betterLabel =
         optionA.terminalValue > optionB.terminalValue ? 'louer' : 'acheter';
-    final chiffreChoc = 'Dans ce scenario simule, $betterLabel genere '
-        '~${_formatChf(delta)} de patrimoine net supplementaire sur '
-        '$horizonAnnees ans.';
+    final chiffreChoc = 'Dans ce scénario simulé, $betterLabel génère '
+        '~${_formatChf(delta)} de patrimoine net supplémentaire sur '
+        '$horizonAnnees ans. Compare les hypothèses.';
 
     // FINMA affordability check
     final alertes = <String>[];
@@ -1010,9 +1010,9 @@ class ArbitrageEngine {
         prixBien * 0.05 + prixBien * 0.01 + prixBien * 0.01;
     // We can't know gross income here, but flag the theoretical charge
     alertes.add(
-      'Charge theorique FINMA : ${_formatChf(chargesTheorique)}/an '
-      '(taux theorique 5 % + amortissement 1 % + entretien 1 %). '
-      'Verifie que cela ne depasse pas 1/3 de ton revenu brut.',
+      'Charge théorique FINMA\u00a0: ${_formatChf(chargesTheorique)}/an '
+      '(taux théorique 5\u00a0% + amortissement 1\u00a0% + entretien 1\u00a0%). '
+      'Vérifie que cela ne dépasse pas 1/3 de ton revenu brut.',
     );
 
     final displaySummary = breakevenYear != null
@@ -1094,7 +1094,7 @@ class ArbitrageEngine {
         ...alertes,
       ],
       disclaimer:
-          'Outil educatif — ne constitue pas un conseil financier (LSFin). '
+          'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
           'Les projections reposent sur des hypotheses simplifiees. '
           'Les rendements passes ne presagent pas des rendements futurs.',
       sources: [
@@ -1366,7 +1366,7 @@ class ArbitrageEngine {
         if (isMarried) 'Splitting marie',
       ],
       disclaimer:
-          'Outil educatif — ne constitue pas un conseil financier (LSFin). '
+          'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
           'Les projections reposent sur des hypotheses simplifiees. '
           'Les rendements passes ne presagent pas des rendements futurs.',
       sources: [
@@ -1410,7 +1410,7 @@ class ArbitrageEngine {
         displaySummary: '',
         hypotheses: const [],
         disclaimer:
-            'Outil educatif — ne constitue pas un conseil financier (LSFin).',
+            'Outil éducatif — ne constitue pas un conseil financier (LSFin).',
         sources: const ['LIFD art. 38 (impot sur retrait en capital)'],
         confidenceScore: _computeArbitrageConfidence([], dataSources),
         sensitivity: const {},
@@ -1590,7 +1590,7 @@ class ArbitrageEngine {
         ...withdrawalDetails,
       ],
       disclaimer:
-          'Outil educatif — ne constitue pas un conseil financier (LSFin). '
+          'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
           'Les projections reposent sur des hypotheses simplifiees. '
           'L\'impot effectif depend des circonstances individuelles.',
       sources: [
