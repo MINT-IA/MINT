@@ -5527,7 +5527,7 @@
   "annualRefreshRiskConservative": "Conservateur",
   "annualRefreshRiskModerate": "Modéré",
   "annualRefreshRiskAggressive": "Agressif",
-  "annualRefreshQ1Title": "Ton salaire brut mensuel a-t-il changé\u00a0?",
+  "annualRefreshQ1Title": "Ton salaire brut mensuel a-t-il changé ?",
   "annualRefreshSalaryPerMonth": "{amount} CHF / mois",
   "@annualRefreshSalaryPerMonth": {
     "placeholders": {
@@ -5537,23 +5537,23 @@
     }
   },
   "annualRefreshSliderMin": "0 CHF",
-  "annualRefreshSliderMax": "30\u2019000 CHF",
+  "annualRefreshSliderMax": "30’000 CHF",
   "annualRefreshQ2Title": "Ta situation professionnelle",
   "annualRefreshQ3Title": "Ton avoir LPP actuel",
   "annualRefreshQ3Help": "Regarde ton certificat de prévoyance (tu le reçois chaque janvier)",
   "annualRefreshAmountMustBePositive": "Le montant doit être positif",
   "annualRefreshQ4Title": "Ton solde 3a approximatif",
   "annualRefreshQ4Help": "Connecte-toi sur ton app 3a pour voir le solde exact",
-  "annualRefreshQ5Title": "Un projet immobilier en vue\u00a0?",
-  "annualRefreshQ6Title": "Un changement familial cette année\u00a0?",
+  "annualRefreshQ5Title": "Un projet immobilier en vue ?",
+  "annualRefreshQ6Title": "Un changement familial cette année ?",
   "annualRefreshQ7Title": "Ta tolérance au risque",
   "annualRefreshSubmit": "Mettre à jour mon profil",
   "annualRefreshDisclaimer": "Cet outil est à but éducatif et ne constitue pas un conseil financier au sens de la LSFin. Consulte un·e spécialiste pour des conseils personnalisés.",
-  "annualRefreshResultTitle": "Profil mis à jour\u00a0!",
+  "annualRefreshResultTitle": "Profil mis à jour !",
   "annualRefreshScoreBefore": "Avant",
   "annualRefreshScoreAfter": "Après",
   "annualRefreshScoreOutOf": "/ 100",
-  "annualRefreshScoreImproved": "Ton score a augmenté de {delta} points\u00a0!",
+  "annualRefreshScoreImproved": "Ton score a augmenté de {delta} points !",
   "@annualRefreshScoreImproved": {
     "placeholders": {
       "delta": {
@@ -5569,46 +5569,176 @@
       }
     }
   },
-  "annualRefreshScoreStable": "Ton score est stable — continue comme ça\u00a0!",
+  "annualRefreshScoreStable": "Ton score est stable — continue comme ça !",
   "annualRefreshBackToDashboard": "Retour au dashboard",
-  "openBankingHubTitle": "OPEN BANKING",
-  "openBankingHubFinmaTitle": "Fonctionnalité en préparation",
-  "openBankingHubFinmaBody": "Consultation réglementaire FINMA en cours. Les données affichées sont des exemples de démonstration.",
-  "openBankingHubDemoMode": "MODE DÉMO",
-  "openBankingHubSubtitle": "Connecte tes comptes bancaires",
-  "openBankingHubSectionAccounts": "COMPTES CONNECTÉS",
-  "openBankingHubSectionOverview": "APERÇU FINANCIER",
-  "openBankingHubSectionNavigation": "NAVIGATION",
-  "openBankingHubViewTransactions": "Voir les transactions",
-  "openBankingHubTransactionsSubtitle": "Historique détaillé par catégorie",
-  "openBankingHubManageConsents": "Gérer les consentements",
-  "openBankingHubConsentsSubtitle": "Droits nLPD, révocation, scopes",
-  "openBankingHubFinmaTooltip": "Disponible après consultation FINMA",
-  "openBankingHubAddBank": "Ajouter une banque",
-  "openBankingHubTotalBalance": "Solde total",
-  "openBankingHubAccountsConnected": "3 comptes connectés",
-  "openBankingHubIncome": "Revenus",
-  "openBankingHubExpenses": "Dépenses",
-  "openBankingHubNetSavings": "Épargne nette",
-  "openBankingHubTopExpenses": "Top 3 dépenses",
-  "openBankingHubPoweredByBlink": "Propulsé par bLink (SIX)",
-  "openBankingHubDisclaimer": "Cette fonctionnalité est en cours de développement. Les données affichées sont des exemples. L’activation du service Open Banking est soumise à une consultation réglementaire préalable.",
-  "openBankingHubSyncMinutesAgo": "Il y a {minutes} min",
-  "@openBankingHubSyncMinutesAgo": {"description": "Time since last sync in minutes", "placeholders": {"minutes": {"type": "int"}}},
-  "openBankingHubSyncHoursAgo": "Il y a {hours} h",
-  "@openBankingHubSyncHoursAgo": {"description": "Time since last sync in hours", "placeholders": {"hours": {"type": "int"}}},
-  "openBankingHubSyncDaysAgo": "Il y a {days} j",
-  "@openBankingHubSyncDaysAgo": {"description": "Time since last sync in days", "placeholders": {"days": {"type": "int"}}},
-  "openBankingHubCatFood": "Alimentation",
-  "openBankingHubCatTransport": "Transport",
-  "openBankingHubCatHousing": "Logement",
-  "openBankingHubCatTelecom": "Télécom",
-  "openBankingHubCatInsurance": "Assurances",
-  "openBankingHubCatEnergy": "Énergie",
-  "openBankingHubCatHealth": "Santé",
-  "openBankingHubCatLeisure": "Loisirs",
-  "openBankingHubCatTaxes": "Impôts",
-  "openBankingHubCatSavings": "Épargne",
-  "openBankingHubCatIncome": "Revenu",
-  "openBankingHubCatOther": "Divers"
+  "slmSettingsChooseModel": "Choisis ton modèle",
+  "slmSettingsTwoSizesAvailable": "Deux tailles disponibles selon ton appareil",
+  "slmSettingsRecommended": "Recommandé",
+  "slmSettingsTierDetails": "{size} • ~{minutes} min • {compatibility}",
+  "@slmSettingsTierDetails": {
+    "description": "Tier detail line",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      },
+      "compatibility": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsModelSize": "Taille : {size}",
+  "@slmSettingsModelSize": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsModelVersion": "Version : {version}",
+  "@slmSettingsModelVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsDownloadFailedDefault": "Le téléchargement a échoué. Vérifie ta connexion WiFi et l'espace disponible sur ton appareil.",
+  "slmSettingsDownloadButton": "Télécharger ({size})",
+  "@slmSettingsDownloadButton": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsBuildDownloadUnavailable": "Ce build ne permet pas le téléchargement du modèle.",
+  "slmSettingsDownloadDialogContent": "Le modèle fait {size}. Assure-toi d'être connecté en WiFi pour éviter une consommation importante de données mobiles.\n\n~{minutes} min sur WiFi. Compatible : {compatibility}.",
+  "@slmSettingsDownloadDialogContent": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      },
+      "compatibility": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsCheckWifiAndStorage": "Vérifie ta connexion WiFi et l'espace disponible.",
+  "slmSettingsDownloadFailed": "Échec du téléchargement. {reason}",
+  "@slmSettingsDownloadFailed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsRetryAction": "Réessayer",
+  "slmSettingsEstimatedTime": "~{minutes} min sur WiFi",
+  "@slmSettingsEstimatedTime": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsStatusRunning": "Prêt — le coach utilise l'IA on-device",
+  "slmSettingsStatusReady": "Modèle téléchargé — initialisation requise",
+  "slmSettingsStatusError": "Erreur — appareil non compatible ou mémoire insuffisante",
+  "slmSettingsStatusDownloading": "Téléchargement en cours…",
+  "slmSettingsStatusModelReady": "Modèle prêt — lance l'initialisation",
+  "slmSettingsStatusNotDownloaded": "Modèle non téléchargé",
+  "slmSettingsInitError": "Erreur d'initialisation du modèle. Vérifie que ton appareil est compatible.",
+  "slmSettingsInitializing": "Initialisation…",
+  "slmSettingsInitializeEngine": "Initialiser le moteur",
+  "slmSettingsInfoDownload": "Télécharge le modèle une fois (~{minutes} min sur WiFi)",
+  "@slmSettingsInfoDownload": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsInfoOnDevice": "L'IA tourne directement sur ton téléphone",
+  "slmSettingsInfoOffline": "Fonctionne même sans connexion internet",
+  "slmSettingsInfoPrivacy": "Tes données ne quittent jamais ton appareil",
+  "slmSettingsInfoSpeed": "Réponses en 2-4 secondes sur un appareil récent",
+  "slmSettingsInfoSource": "Source modèle : {modelId}",
+  "@slmSettingsInfoSource": {
+    "placeholders": {
+      "modelId": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsAuthConfigured": "Authentification HuggingFace : configurée",
+  "slmSettingsAuthNotConfigured": "Authentification HuggingFace : non configurée (download impossible si URL Gemma gated)",
+  "slmSettingsCompatibilityInfo": "Compatibilité : {compatibility}.\nLe modèle nécessite {diskSize} d'espace disque et ~{ramGb} Go de RAM.",
+  "@slmSettingsCompatibilityInfo": {
+    "placeholders": {
+      "compatibility": {
+        "type": "String"
+      },
+      "diskSize": {
+        "type": "String"
+      },
+      "ramGb": {
+        "type": "String"
+      }
+    }
+  },
+  "successionPatrimoineTitle": "Succession & transmission",
+  "successionPatrimoineAlertTitle": "Sans testament, ton concubin·e hérite de RIEN",
+  "successionPatrimoineAlertBody": "Le droit successoral suisse (CC art. 457 ss) protège d’abord les descendants, puis les parents et le conjoint·e légal·e. Sans lien légal et sans testament, un·e concubin·e est exclu·e de la succession — quelle que soit la durée de la vie commune.",
+  "successionPatrimoineNotionsCles": "Les notions clés",
+  "successionPatrimoineReservesTitle": "Réserves héréditaires",
+  "successionPatrimoineReservesSubtitle": "CC art. 470–471",
+  "successionPatrimoineReservesBody": "Une part de ta succession est réservée par la loi à tes descendants (1/2 de leur part légale) et à ton conjoint·e (1/2 de sa part légale). Cette part ne peut pas être écartée par testament, sauf révocation pour cause ingratitude.",
+  "successionPatrimoineQuotiteTitle": "Quotité disponible",
+  "successionPatrimoineQuotiteSubtitle": "CC art. 470 al. 2",
+  "successionPatrimoineQuotiteBody": "Ce qui reste après les réserves héréditaires est ta «quotité disponible» — la part que tu peux léguer librement à qui tu veux : conjoint·e non marié·e, amis, associations. Si tu as des enfants, ta quotité disponible est 1/2 de ta succession.",
+  "successionPatrimoineTestamentTitle": "Testament",
+  "successionPatrimoineTestamentSubtitle": "CC art. 498–504",
+  "successionPatrimoineTestamentBody": "Deux formes valides :\n• Olographe : entièrement manuscrit, daté et signé — pas de témoin requis.\n• Notarié : devant notaire avec 2 témoins — recommandé pour les situations complexes.\nPas de testament = succession légale par défaut.",
+  "successionPatrimoineDonationTitle": "Donation du vivant",
+  "successionPatrimoineDonationSubtitle": "CO art. 239 ss",
+  "successionPatrimoineDonationBody": "Transmettre de ton vivant permet d’anticiper la succession et de réduire potentiellement l’impôt successoral (variable par canton). Attention : les donations sont rapportables à la succession si tu as des héritiers réservataires. Les 5 années précédant le décès sont particulièrement scrutées.",
+  "successionPatrimoineBeneficiairesTitle": "Bénéficiaires LPP et 3a",
+  "successionPatrimoineBeneficiairesSubtitle": "LPP art. 20 · OPP3 art. 2",
+  "successionPatrimoineBeneficiairesBody": "Le capital LPP non converti en rente et le solde 3a ne font PAS partie de ta succession ordinaire — ils sont versés aux bénéficiaires désignés. Si tu ne désignes personne, l’ordre légal s’applique : conjoint·e marié·e ou partenaire enregistré·e, puis descendants, puis parents. Un·e concubin·e doit être explicitement désigné·e.",
+  "successionPatrimoineDecesProche": "En cas de décès d’un proche",
+  "successionPatrimoinePhase1Timeframe": "J+1 à J+7",
+  "successionPatrimoinePhase1Title": "Urgence immédiate",
+  "successionPatrimoinePhase1Action1": "Déclarer le décès à l’état civil dans les 2 jours",
+  "successionPatrimoinePhase1Action2": "Informer l’employeur et les assurances (LAMal, LPP)",
+  "successionPatrimoinePhase1Action3": "Bloquer les comptes bancaires conjoints si nécessaire",
+  "successionPatrimoinePhase1Action4": "Contacter le notaire si la personne avait un testament",
+  "successionPatrimoinePhase2Timeframe": "J+8 à J+30",
+  "successionPatrimoinePhase2Title": "Démarches administratives",
+  "successionPatrimoinePhase2Action1": "Demander les rentes de survivants AVS (LAVS art. 23)",
+  "successionPatrimoinePhase2Action2": "Contacter la caisse LPP pour le capital décès",
+  "successionPatrimoinePhase2Action3": "Résilier les abonnements et contrats au nom du défunt",
+  "successionPatrimoinePhase2Action4": "Faire l’inventaire des avoirs et dettes",
+  "successionPatrimoinePhase2Action5": "Demander les certificats d’héritiers au notaire",
+  "successionPatrimoinePhase3Timeframe": "J+31 à J+365",
+  "successionPatrimoinePhase3Title": "Succession légale",
+  "successionPatrimoinePhase3Action1": "Ouvrir la procédure de succession avec le notaire",
+  "successionPatrimoinePhase3Action2": "Partager les biens selon le testament ou la loi (CC art. 537)",
+  "successionPatrimoinePhase3Action3": "Déposer la déclaration fiscale pour l’année du décès",
+  "successionPatrimoinePhase3Action4": "Mettre à jour les bénéficiaires de vos propres contrats",
+  "successionPatrimoineChecklistTitle": "Checklist protection patrimoine",
+  "successionPatrimoineChecklist1": "Vérifier la désignation des bénéficiaires sur chaque compte 3a",
+  "successionPatrimoineChecklist2": "Vérifier la désignation de bénéficiaire LPP auprès de ta caisse",
+  "successionPatrimoineChecklist3": "Rédiger ou mettre à jour ton testament",
+  "successionPatrimoineChecklist4": "Vérifier ton régime matrimonial si marié·e (CC art. 181 ss)",
+  "successionPatrimoineChecklist5": "Informer tes proches de l’emplacement de ton testament",
+  "successionPatrimoineCtaTitle": "Consulter un·e notaire ou spécialiste",
+  "successionPatrimoineCtaBody": "Un·e notaire ou spécialiste en droit successoral peut rédiger ou réviser ton testament et t’orienter sur l’organisation successorale adaptée à ta situation.",
+  "successionPatrimoineLegalSources": "• CC art. 457–640 — Droit des successions\n• CC art. 470–471 — Réserves héréditaires\n• CC art. 498–504 — Formes du testament\n• LPP art. 20 — Bénéficiaires du capital LPP\n• OPP3 art. 2 — Bénéficiaires du pilier 3a",
+  "successionPatrimoineDisclaimer": "Information à caractère éducatif, ne constitue pas un conseil juridique ou patrimonial au sens de la LSFin ou du CC. Les règles successorales varient selon la situation familiale, le régime matrimonial et le canton. Consulte un·e notaire ou un·e spécialiste en droit successoral pour ta situation personnelle."
 }
