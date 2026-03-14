@@ -466,7 +466,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Base: ${ExpatService.formatChf(forfaitBase)}',
+                        S.of(context)!.expatForfaitBase(ExpatService.formatChf(forfaitBase)),
                         style: GoogleFonts.inter(
                           fontSize: 11,
                           color: MintColors.textMuted,
@@ -553,8 +553,8 @@ class _ExpatScreenState extends State<ExpatScreen>
                 Flexible(
                   child: Text(
                     isFavorable
-                        ? 'Économie: ${ExpatService.formatChf(savings.abs())} (-${savingsPercent.toStringAsFixed(0)}%)'
-                        : 'Forfait plus coûteux: +${ExpatService.formatChf(savings.abs())}',
+                        ? S.of(context)!.expatSavings(ExpatService.formatChf(savings.abs()), savingsPercent.toStringAsFixed(0))
+                        : S.of(context)!.expatForfaitMoreExpensive(ExpatService.formatChf(savings.abs())),
                     style: GoogleFonts.montserrat(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -633,27 +633,27 @@ class _ExpatScreenState extends State<ExpatScreen>
         const SizedBox(height: 20),
         ExpatCountdownWidget(
           departureDate: _departureDate,
-          deadlines: const [
+          deadlines: [
             ExpatDeadline(
-              label: '3ème pilier 3a — clôture ou gel',
+              label: S.of(context)!.expatDeadline3aLabel,
               emoji: '🏦',
               daysFromDeparture: -90,
-              action: 'Contacte ta banque pour planifier la clôture ou le transfert du 3a.',
+              action: S.of(context)!.expatDeadline3aAction,
               legalRef: 'OPP3 art. 1',
-              consequence: 'Un 3a non géré avant le départ peut bloquer des fonds pendant des années.',
+              consequence: S.of(context)!.expatDeadline3aConsequence,
             ),
             ExpatDeadline(
-              label: 'LPP — libre passage',
+              label: S.of(context)!.expatDeadlineLppLabel,
               emoji: '💼',
               daysFromDeparture: -60,
-              action: 'Demande le transfert de ton avoir LPP sur un compte de libre passage ou une police.',
+              action: S.of(context)!.expatDeadlineLppAction,
               legalRef: 'LPP art. 5 + LFLP art. 4',
             ),
             ExpatDeadline(
-              label: 'AVS — cotisation volontaire',
+              label: S.of(context)!.expatDeadlineAvsLabel,
               emoji: '🛡️',
               daysFromDeparture: 0,
-              action: 'Si tu t\'installes hors EU/AELE, tu peux t\'affilier volontairement à l\'AVS pour éviter des lacunes.',
+              action: S.of(context)!.expatDeadlineAvsAction,
               legalRef: 'LAVS art. 2',
               isEuOnly: false,
             ),
@@ -667,67 +667,54 @@ class _ExpatScreenState extends State<ExpatScreen>
           const SizedBox(height: 20),
         ],
         _buildEducationalInsert(
-          'La Suisse ne prélève pas de taxe de sortie (exit tax) — '
-          'contrairement aux États-Unis ou à la France. '
-          'Tes gains en capital latents ne sont pas imposés au moment du départ. '
-          'C\'est un avantage majeur pour les expatriés.',
+          S.of(context)!.expatExitTaxEducation,
         ),
         const SizedBox(height: 20),
         // ── P13-A : 5 choses que tu perds en partant ───────────
         ExpatRightsLossWidget(
-          destination: 'l\'étranger',
+          destination: S.of(context)!.expatDestinationAbroad,
           isEuDestination: false,
-          rights: const [
+          rights: [
             ExpatRight(
-              label: 'AVS — cotisation obligatoire',
+              label: S.of(context)!.expatRightAvsLabel,
               emoji: '🛡️',
-              before: 'Cotisation automatique via employeur',
-              after: 'Lacunes AVS → rente réduite',
+              before: S.of(context)!.expatRightAvsBefore,
+              after: S.of(context)!.expatRightAvsAfter,
               legalRef: 'LAVS art. 1a',
-              impact:
-                  'Chaque année manquante réduit ta rente AVS de ~2.3%. '
-                  '10 ans = −23% à vie.',
+              impact: S.of(context)!.expatRightAvsImpact,
               isIrreversible: true,
             ),
             ExpatRight(
-              label: 'LPP — 2e pilier',
+              label: S.of(context)!.expatRightLppLabel,
               emoji: '🏦',
-              before: 'Épargne retraite obligatoire',
-              after: 'Capital bloqué ou retiré sans rendement',
+              before: S.of(context)!.expatRightLppBefore,
+              after: S.of(context)!.expatRightLppAfter,
               legalRef: 'LPP art. 5',
-              impact:
-                  'Tu peux retirer ton avoir LPP, mais tu paies l\'impôt '
-                  'sur le capital retiré. La reconstitution est impossible à l\'étranger.',
+              impact: S.of(context)!.expatRightLppImpact,
             ),
             ExpatRight(
-              label: 'Pilier 3a',
+              label: S.of(context)!.expatRight3aLabel,
               emoji: '🏛️',
-              before: 'Déductions fiscales annuelles',
-              after: 'Compte bloqué — aucun nouveau versement possible',
+              before: S.of(context)!.expatRight3aBefore,
+              after: S.of(context)!.expatRight3aAfter,
               legalRef: 'OPP3 art. 1',
-              impact:
-                  'Tu perds le droit de verser dans le 3a dès que tu n\'as '
-                  'plus de revenu soumis à l\'AVS suisse.',
+              impact: S.of(context)!.expatRight3aImpact,
             ),
             ExpatRight(
-              label: 'LAMal — assurance maladie',
+              label: S.of(context)!.expatRightLamalLabel,
               emoji: '🏥',
-              before: 'Couverture universelle en Suisse',
-              after: 'Tu dois t\'assurer dans le pays de résidence',
+              before: S.of(context)!.expatRightLamalBefore,
+              after: S.of(context)!.expatRightLamalAfter,
               legalRef: 'LAMal art. 3',
-              impact:
-                  'La couverture internationale est souvent partielle et '
-                  'coûteuse. Vérifie les conventions bilatérales.',
+              impact: S.of(context)!.expatRightLamalImpact,
             ),
             ExpatRight(
-              label: 'Chômage AC',
+              label: S.of(context)!.expatRightAcLabel,
               emoji: '💼',
-              before: 'Indemnités AC jusqu\'à 520 jours',
-              after: 'Aucun droit AC suisse si tu travailles à l\'étranger',
+              before: S.of(context)!.expatRightAcBefore,
+              after: S.of(context)!.expatRightAcAfter,
               legalRef: 'LACI art. 8',
-              impact:
-                  'Si tu perds ton emploi à l\'étranger, seul le régime '
-                  'local s\'applique — souvent moins généreux.',
+              impact: S.of(context)!.expatRightAcImpact,
             ),
           ],
         ),
@@ -930,35 +917,35 @@ class _ExpatScreenState extends State<ExpatScreen>
     // Simple timeline with key dates
     final items = <Map<String, String>>[
       {
-        'label': 'Aujourd\'hui',
-        'desc': 'Commence à planifier',
-        'timing': 'Maintenant',
+        'label': S.of(context)!.expatTimelineToday,
+        'desc': S.of(context)!.expatTimelineTodayDesc,
+        'timing': S.of(context)!.expatTimelineNow,
       },
       {
-        'label': '2-3 mois avant',
-        'desc': 'Annoncer à la commune, résilier LAMal',
+        'label': S.of(context)!.expatTimeline2to3Months,
+        'desc': S.of(context)!.expatTimeline2to3MonthsDesc,
         'timing': daysUntil > 90
-            ? 'Dans ~${((daysUntil - 90) / 30).round()} mois'
-            : 'Urgent !',
+            ? S.of(context)!.expatTimelineInMonths(((daysUntil - 90) / 30).round().toString())
+            : S.of(context)!.expatTimelineUrgent,
       },
       {
-        'label': '1 mois avant',
-        'desc': 'Retirer 3a, transférer LPP',
+        'label': S.of(context)!.expatTimeline1Month,
+        'desc': S.of(context)!.expatTimeline1MonthDesc,
         'timing': daysUntil > 30
-            ? 'Dans ~${((daysUntil - 30) / 30).round()} mois'
-            : 'Urgent !',
+            ? S.of(context)!.expatTimelineInMonths(((daysUntil - 30) / 30).round().toString())
+            : S.of(context)!.expatTimelineUrgent,
       },
       {
-        'label': 'Jour J',
-        'desc': 'Départ effectif',
+        'label': S.of(context)!.expatTimelineDDay,
+        'desc': S.of(context)!.expatTimelineDDayDesc,
         'timing': daysUntil > 0
-            ? 'Dans $daysUntil jours'
-            : 'Passé',
+            ? S.of(context)!.expatTimelineInDays(daysUntil.toString())
+            : S.of(context)!.expatTimelinePast,
       },
       {
-        'label': '30 jours après',
-        'desc': 'Déclarer impôts prorata temporis',
-        'timing': 'Après le départ',
+        'label': S.of(context)!.expatTimeline30After,
+        'desc': S.of(context)!.expatTimeline30AfterDesc,
+        'timing': S.of(context)!.expatTimelineAfterDeparture,
       },
     ];
 
@@ -1295,7 +1282,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               _recalculateAvs();
             },
             formatAsInt: true,
-            suffix: 'ans',
+            suffix: S.of(context)!.expatYearsSuffix,
           ),
           const SizedBox(height: 20),
           _buildSlider(
@@ -1309,7 +1296,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               _recalculateAvs();
             },
             formatAsInt: true,
-            suffix: 'ans',
+            suffix: S.of(context)!.expatYearsSuffix,
           ),
         ],
       ),
@@ -1426,7 +1413,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                   ),
                 ),
                 Text(
-                  '${ExpatService.formatChf(estimatedRente)}/mois',
+                  S.of(context)!.expatEstimatedRentePerMonth(ExpatService.formatChf(estimatedRente)),
                   style: GoogleFonts.montserrat(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -1503,7 +1490,7 @@ class _ExpatScreenState extends State<ExpatScreen>
           const SizedBox(height: 16),
           _buildResultRow(
             S.of(context)!.expatMissingYears,
-            '$missingYears ans',
+            S.of(context)!.expatMissingYearsValue(missingYears.toString()),
           ),
           const SizedBox(height: 8),
           _buildResultRow(
@@ -1532,9 +1519,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              'Chaque année manquante réduit ta rente d\'environ '
-              '${(ExpatService.reductionPerMissingYear * 100).toStringAsFixed(1)}%. '
-              'La réduction est définitive et s\'applique à vie.',
+              S.of(context)!.expatReductionPerYearNote((ExpatService.reductionPerMissingYear * 100).toStringAsFixed(1)),
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textSecondary,
@@ -1594,12 +1579,12 @@ class _ExpatScreenState extends State<ExpatScreen>
                 const SizedBox(height: 8),
                 _buildResultRow(
                   S.of(context)!.expatMinContribution,
-                  '${ExpatService.formatChf(ExpatService.avsVoluntaryMin)}/an',
+                  S.of(context)!.expatAmountPerYear(ExpatService.formatChf(ExpatService.avsVoluntaryMin)),
                 ),
                 const SizedBox(height: 6),
                 _buildResultRow(
                   S.of(context)!.expatMaxContribution,
-                  '${ExpatService.formatChf(ExpatService.avsVoluntaryMax)}/an',
+                  S.of(context)!.expatAmountPerYear(ExpatService.formatChf(ExpatService.avsVoluntaryMax)),
                 ),
                 const SizedBox(height: 12),
                 Text(
