@@ -381,6 +381,40 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
     );
   }
 
+  /// Look up the i18n name for a canton abbreviation.
+  String _cantonDisplayName(String abbreviation) {
+    final s = S.of(context)!;
+    return switch (abbreviation) {
+      'ZH' => s.sourceTaxHeatmapCantonZH,
+      'BE' => s.sourceTaxHeatmapCantonBE,
+      'LU' => s.sourceTaxHeatmapCantonLU,
+      'UR' => s.sourceTaxHeatmapCantonUR,
+      'SZ' => s.sourceTaxHeatmapCantonSZ,
+      'OW' => s.sourceTaxHeatmapCantonOW,
+      'NW' => s.sourceTaxHeatmapCantonNW,
+      'GL' => s.sourceTaxHeatmapCantonGL,
+      'ZG' => s.sourceTaxHeatmapCantonZG,
+      'FR' => s.sourceTaxHeatmapCantonFR,
+      'SO' => s.sourceTaxHeatmapCantonSO,
+      'BS' => s.sourceTaxHeatmapCantonBS,
+      'BL' => s.sourceTaxHeatmapCantonBL,
+      'SH' => s.sourceTaxHeatmapCantonSH,
+      'AR' => s.sourceTaxHeatmapCantonAR,
+      'AI' => s.sourceTaxHeatmapCantonAI,
+      'SG' => s.sourceTaxHeatmapCantonSG,
+      'GR' => s.sourceTaxHeatmapCantonGR,
+      'AG' => s.sourceTaxHeatmapCantonAG,
+      'TG' => s.sourceTaxHeatmapCantonTG,
+      'TI' => s.sourceTaxHeatmapCantonTI,
+      'VD' => s.sourceTaxHeatmapCantonVD,
+      'VS' => s.sourceTaxHeatmapCantonVS,
+      'NE' => s.sourceTaxHeatmapCantonNE,
+      'GE' => s.sourceTaxHeatmapCantonGE,
+      'JU' => s.sourceTaxHeatmapCantonJU,
+      _ => abbreviation,
+    };
+  }
+
   Widget _buildSelectedDetail() {
     final canton = widget.cantonRates[widget.selectedIndex];
     return AnimatedContainer(
@@ -421,7 +455,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  canton.name,
+                  _cantonDisplayName(canton.abbreviation),
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
