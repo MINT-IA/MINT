@@ -7507,5 +7507,166 @@
   "documentsWarningsTitle": "Points d'attention",
   "documentsDeleteTitle": "Supprimer le document\u00a0?",
   "documentsDeleteMessage": "Cette action est irr\u00e9versible.",
-  "docDetailCancel": "Annuler"
+  "docDetailCancel": "Annuler",
+  "consentScreenTitle": "CONSENTEMENTS",
+  "consentActiveSection": "CONSENTEMENTS ACTIFS",
+  "consentFinmaTitle": "Fonctionnalit\u00e9 en pr\u00e9paration",
+  "consentFinmaBody": "Consultation r\u00e9glementaire FINMA en cours. Les donn\u00e9es affich\u00e9es sont des exemples de d\u00e9monstration.",
+  "consentDemoMode": "MODE D\u00c9MO",
+  "consentAuthLabel": "Autorisations",
+  "consentGrantedOn": "Accord\u00e9 le {date}",
+  "@consentGrantedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "consentExpiresOn": "Expire le {date}",
+  "@consentExpiresOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "consentRevokedLabel": "Consentement r\u00e9voqu\u00e9",
+  "consentNlpdTitle": "Tes droits (nLPD)",
+  "consentNlpdIntro": "Tes droits selon la nLPD (Loi f\u00e9d\u00e9rale sur la protection des donn\u00e9es)\u00a0:",
+  "consentNlpdRevoke": "\u2022 Tu peux r\u00e9voquer ton consentement \u00e0 tout moment",
+  "consentNlpdNoSharing": "\u2022 Tes donn\u00e9es ne sont jamais partag\u00e9es avec des tiers",
+  "consentNlpdReadOnly": "\u2022 Acc\u00e8s en lecture seule \u2014 aucune op\u00e9ration financi\u00e8re",
+  "consentNlpdDuration": "\u2022 Dur\u00e9e maximale de consentement\u00a0: 90 jours (renouvelable)",
+  "consentCancel": "Annuler",
+  "consentStepBank": "Banque",
+  "consentStepAuth": "Autorisations",
+  "consentStepConfirm": "Confirmation",
+  "consentSelectBank": "Choisir une banque",
+  "consentSelectScopes": "Choisir les autorisations",
+  "consentSelectedBank": "Banque s\u00e9lectionn\u00e9e\u00a0: {bankName}",
+  "@consentSelectedBank": {
+    "placeholders": {
+      "bankName": {
+        "type": "String"
+      }
+    }
+  },
+  "consentScopeAccounts": "Comptes (liste de tes comptes)",
+  "consentScopeBalances": "Soldes (solde actuel de tes comptes)",
+  "consentScopeTransactions": "Transactions (historique des mouvements)",
+  "consentReadOnlyInfo": "Acc\u00e8s en lecture seule. Aucune op\u00e9ration financi\u00e8re ne peut \u00eatre effectu\u00e9e.",
+  "consentConfirmTitle": "Confirmation",
+  "consentConfirmLabelBank": "Banque",
+  "consentConfirmLabelAuth": "Autorisations",
+  "consentConfirmLabelDuration": "Dur\u00e9e",
+  "consentConfirmLabelAccess": "Acc\u00e8s",
+  "consentConfirmDuration90": "90 jours",
+  "consentConfirmReadOnly": "Lecture seule",
+  "consentConfirmDisclaimer": "En confirmant, tu autorises MINT \u00e0 acc\u00e9der aux donn\u00e9es s\u00e9lectionn\u00e9es en lecture seule pour une dur\u00e9e de 90 jours. Tu peux r\u00e9voquer ce consentement \u00e0 tout moment.",
+  "consentDisclaimerBottom": "Cette fonctionnalit\u00e9 est en cours de d\u00e9veloppement. Les donn\u00e9es affich\u00e9es sont des exemples. L'activation du service Open Banking est soumise \u00e0 une consultation r\u00e9glementaire pr\u00e9alable.",
+  "consentStatusActive": "Actif",
+  "consentStatusExpiringSoon": "Expire bient\u00f4t",
+  "consentStatusExpired": "Expir\u00e9",
+  "consentStatusRevoked": "R\u00e9voqu\u00e9",
+  "consentStatusUnknown": "Inconnu",
+  "consentScopeLabelAccounts": "Comptes",
+  "consentScopeLabelBalances": "Soldes",
+  "consentScopeLabelTransactions": "Transactions",
+  "firstJobSalaryMin": "CHF 2\u2019000",
+  "firstJobSalaryMax": "CHF 15\u2019000",
+  "firstJobCanton": "Canton",
+  "firstJobActivityMin": "10\u00a0%",
+  "firstJobActivityMax": "100\u00a0%",
+  "firstJobTaxSavings": "Economie fiscale estim\u00e9e\u00a0: ~{amount}/an",
+  "@firstJobTaxSavings": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "firstJobLamalTop": "TOP",
+  "firstJobLamalFranchise": "CHF {amount}",
+  "@firstJobLamalFranchise": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "firstJobLamalPerMonth": "{amount}/mois",
+  "@firstJobLamalPerMonth": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "firstJobLamalMaxPerYear": "Max {amount}/an",
+  "@firstJobLamalMaxPerYear": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "firstJobLamalSavingsHighlight": "Franchise 2500 vs 300\u00a0: \u00e9conomie estim\u00e9e de ~{amount}/an en primes",
+  "@firstJobLamalSavingsHighlight": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "firstJobPayslipAvs": "AVS/AI/APG",
+  "firstJobPayslipAvsExpl": "Cotisation salari\u00e9\u00b7e\u00a0: 5.3\u00a0% du brut. Ton employeur paie aussi 5.3\u00a0% en plus.",
+  "firstJobPayslipAvsRef": "LAVS art. 5",
+  "firstJobPayslipLpp": "LPP (2e pilier)",
+  "firstJobPayslipLppExpl": "Epargne vieillesse obligatoire d\u00e8s 25 ans. Le taux exact d\u00e9pend de ta caisse et ton \u00e2ge.",
+  "firstJobPayslipLppRef": "LPP art. 16",
+  "firstJobPayslipTax": "Imp\u00f4t \u00e0 la source (estimation)",
+  "firstJobPayslipTaxExpl": "Retenu directement sur le salaire si tu es impos\u00e9\u00b7e \u00e0 la source. Le taux varie selon canton, statut et revenu.",
+  "firstJobPayslipTaxRef": "LIFD art. 83",
+  "firstJobChecklistDeadlineBefore": "Avant de quitter",
+  "firstJobChecklistActionLpp": "Demande ton certificat LPP \u00e0 ton employeur actuel.",
+  "firstJobChecklistRefLpp": "LPP art. 3 \u2014 libre passage",
+  "firstJobChecklistConsequenceLpp": "Sans certificat, tu ne peux pas v\u00e9rifier que le montant transf\u00e9r\u00e9 est correct.",
+  "firstJobChecklistDeadline30": "30 jours",
+  "firstJobChecklistActionTransfer": "V\u00e9rifie que ton avoir LPP a \u00e9t\u00e9 transf\u00e9r\u00e9 \u00e0 la caisse de ton nouvel employeur.",
+  "firstJobChecklistRefTransfer": "OLP art. 3 \u2014 d\u00e9lai de transfert",
+  "firstJobChecklistConsequenceTransfer": "Sans transfert, ton capital va \u00e0 la Fondation suppl\u00e9tive \u00e0 un taux de 0.05\u00a0%.",
+  "firstJobChecklistDeadline1Month": "1 mois",
+  "firstJobChecklistActionLamal": "Informe ton assurance-maladie LAMal du changement d'employeur si tu b\u00e9n\u00e9ficiais d'une couverture collective.",
+  "firstJobChecklistRefLamal": "LAMal art. 3",
+  "firstJobChecklistDeadlineFirstSalary": "D\u00e8s le premier salaire",
+  "firstJobChecklistAction3a": "Continue tes versements au pilier 3a \u2014 l'interruption te co\u00fbte des d\u00e9ductions fiscales.",
+  "firstJobChecklistRef3a": "OPP3 art. 1",
+  "firstJobBudgetNeeds": "Besoins",
+  "firstJobBudgetWants": "Envies",
+  "firstJobBudgetSavings": "Epargne & 3a",
+  "firstJobBudgetExRent": "Loyer",
+  "firstJobBudgetExLamal": "LAMal",
+  "firstJobBudgetExTransport": "Transport",
+  "firstJobBudgetExFood": "Alimentation",
+  "firstJobBudgetExLeisure": "Loisirs",
+  "firstJobBudgetExRestaurants": "Restaurants",
+  "firstJobBudgetExTravel": "Voyages",
+  "firstJobBudgetExShopping": "Shopping",
+  "firstJobBudgetEx3a": "Pilier 3a",
+  "firstJobBudgetExSavings": "Epargne",
+  "firstJobBudgetExEmergency": "Fonds d'urgence",
+  "firstJobBudgetChiffreChoc": "Si tu \u00e9pargnes {annualAmount} CHF/an d\u00e8s maintenant, tu auras ~{totalAmount} CHF \u00e0 65 ans.",
+  "@firstJobBudgetChiffreChoc": {
+    "placeholders": {
+      "annualAmount": {"type": "String"},
+      "totalAmount": {"type": "String"}
+    }
+  },
+  "firstJobScenarioMySalary": "Mon salaire",
+  "firstJobScenarioDefault": "D\u00e9faut",
+  "firstJobScenarioMedian": "M\u00e9dian CH",
+  "firstJobScenarioPlus20": "+20\u00a0%",
+  "registerSubtitle": "Compte optionnel\u00a0: tes donn\u00e9es restent locales par d\u00e9faut",
+  "registerWhyCreateAccount": "Pourquoi cr\u00e9er un compte\u00a0?",
+  "registerBenefitProjections": "Projections AVS/LPP align\u00e9es \u00e0 ta situation",
+  "registerBenefitCoach": "Coach personnalis\u00e9 avec ton pr\u00e9nom",
+  "registerBenefitCloud": "Sauvegarde cloud + synchronisation multi-appareils",
+  "registerFirstName": "Pr\u00e9nom",
+  "registerFirstNameRequired": "Le pr\u00e9nom est n\u00e9cessaire pour personnaliser ton coach",
+  "registerBirthYear": "Ann\u00e9e de naissance",
+  "registerBirthYearRequired": "N\u00e9cessaire pour les projections AVS/LPP",
+  "registerPasswordRequired": "Mot de passe requis",
+  "registerPasswordHintDetail": "Utilise au moins 8 caract\u00e8res pour s\u00e9curiser ton compte",
+  "registerContinueLocal": "Continuer en mode local",
+  "registerBack": "Retour"
 }

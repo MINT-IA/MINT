@@ -105,7 +105,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 32),
                 // Title
                 Text(
-                  S.of(context)?.authRegisterTitle ?? 'Créer ton compte',
+                  S.of(context)!.authRegisterTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 32,
                     fontWeight: FontWeight.w700,
@@ -116,7 +116,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Compte optionnel: tes données restent locales par défaut',
+                  S.of(context)!.registerSubtitle,
                   style: GoogleFonts.inter(
                     fontSize: 16,
                     color: MintColors.textSecondary,
@@ -137,7 +137,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Pourquoi créer un compte ?',
+                        S.of(context)!.registerWhyCreateAccount,
                         style: GoogleFonts.inter(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -145,14 +145,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const _RegisterBenefitRow(
-                        text: 'Projections AVS/LPP alignees a ta situation',
+                      _RegisterBenefitRow(
+                        text: S.of(context)!.registerBenefitProjections,
                       ),
-                      const _RegisterBenefitRow(
-                        text: 'Coach personnalise avec ton prenom',
+                      _RegisterBenefitRow(
+                        text: S.of(context)!.registerBenefitCoach,
                       ),
-                      const _RegisterBenefitRow(
-                        text: 'Sauvegarde cloud + synchronisation multi-appareils',
+                      _RegisterBenefitRow(
+                        text: S.of(context)!.registerBenefitCloud,
                       ),
                     ],
                   ),
@@ -164,17 +164,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   keyboardType: TextInputType.emailAddress,
                   autofillHints: const [AutofillHints.email],
                   decoration: InputDecoration(
-                    labelText: S.of(context)?.authEmail ?? 'Adresse e-mail',
+                    labelText: S.of(context)!.authEmail,
                     prefixIcon: const Icon(Icons.email_outlined),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return S.of(context)?.authEmailInvalid ??
-                          'Adresse e-mail invalide';
+                      return S.of(context)!.authEmailInvalid;
                     }
                     if (!value.contains('@')) {
-                      return S.of(context)?.authEmailInvalid ??
-                          'Adresse e-mail invalide';
+                      return S.of(context)!.authEmailInvalid;
                     }
                     return null;
                   },
@@ -185,13 +183,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   controller: _displayNameController,
                   autofillHints: const [AutofillHints.givenName],
                   textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(
-                    labelText: 'Prenom',
-                    prefixIcon: Icon(Icons.person_outline),
+                  decoration: InputDecoration(
+                    labelText: S.of(context)!.registerFirstName,
+                    prefixIcon: const Icon(Icons.person_outline),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Le prenom est necessaire pour personnaliser ton coach';
+                      return S.of(context)!.registerFirstNameRequired;
                     }
                     return null;
                   },
@@ -200,9 +198,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 // Birth year dropdown (LPD minimisation: only year needed for AVS/LPP)
                 DropdownButtonFormField<int>(
                   value: _birthYear,
-                  decoration: const InputDecoration(
-                    labelText: 'Annee de naissance',
-                    prefixIcon: Icon(Icons.cake_outlined),
+                  decoration: InputDecoration(
+                    labelText: S.of(context)!.registerBirthYear,
+                    prefixIcon: const Icon(Icons.cake_outlined),
                   ),
                   items: List.generate(
                     DateTime.now().year - 1940 + 1,
@@ -217,7 +215,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onChanged: (value) => setState(() => _birthYear = value),
                   validator: (value) {
                     if (value == null) {
-                      return 'Necessaire pour les projections AVS/LPP';
+                      return S.of(context)!.registerBirthYearRequired;
                     }
                     return null;
                   },
@@ -229,10 +227,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   obscureText: _obscurePassword,
                   autofillHints: const [AutofillHints.newPassword],
                   decoration: InputDecoration(
-                    labelText: S.of(context)?.authPassword ?? 'Mot de passe',
+                    labelText: S.of(context)!.authPassword,
                     prefixIcon: const Icon(Icons.lock_outline),
                     hintText:
-                        S.of(context)?.authPasswordHint ?? 'Minimum 8 caractères',
+                        S.of(context)!.authPasswordHint,
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
@@ -248,11 +246,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Mot de passe requis';
+                      return S.of(context)!.registerPasswordRequired;
                     }
                     if (value.length < 8) {
-                      return S.of(context)?.authPasswordTooShort ??
-                          'Le mot de passe doit contenir au moins 8 caractères';
+                      return S.of(context)!.authPasswordTooShort;
                     }
                     return null;
                   },
@@ -264,8 +261,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   obscureText: _obscureConfirmPassword,
                   autofillHints: const [AutofillHints.newPassword],
                   decoration: InputDecoration(
-                    labelText: S.of(context)?.authConfirmPassword ??
-                        'Confirmer le mot de passe',
+                    labelText: S.of(context)!.authConfirmPassword,
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -282,8 +278,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   validator: (value) {
                     if (value != _passwordController.text) {
-                      return S.of(context)?.authPasswordMismatch ??
-                          'Les mots de passe ne correspondent pas';
+                      return S.of(context)!.authPasswordMismatch;
                     }
                     return null;
                   },
@@ -306,7 +301,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Utilise au moins 8 caractères pour sécuriser ton compte',
+                          S.of(context)!.registerPasswordHintDetail,
                           style: GoogleFonts.inter(
                             color: MintColors.textSecondary,
                             fontSize: 13,
@@ -360,8 +355,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         )
                       : Text(
-                          S.of(context)?.authCreateAccount ??
-                              'Créer mon compte',
+                          S.of(context)!.authCreateAccount,
                           style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -376,7 +370,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           context.go('/onboarding/quick');
                         },
                   child: Text(
-                    'Continuer en mode local',
+                    S.of(context)!.registerContinueLocal,
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -389,7 +383,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      S.of(context)?.authAlreadyAccount ?? 'Déjà inscrit ?',
+                      S.of(context)!.authAlreadyAccount,
                       style: GoogleFonts.inter(
                         color: MintColors.textSecondary,
                         fontSize: 14,
@@ -401,7 +395,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         context.go('/auth/login');
                       },
                       child: Text(
-                        S.of(context)?.authLogin ?? 'Se connecter',
+                        S.of(context)!.authLogin,
                         style: GoogleFonts.inter(
                           color: MintColors.primary,
                           fontSize: 14,
@@ -418,7 +412,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     context.go('/');
                   },
                   child: Text(
-                    'Retour',
+                    S.of(context)!.registerBack,
                     style: GoogleFonts.inter(
                       color: MintColors.textMuted,
                       fontSize: 14,
