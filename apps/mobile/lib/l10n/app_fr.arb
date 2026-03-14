@@ -8010,5 +8010,202 @@
   "optimDecaissementCtaTitle": "Consulter un\u00b7e sp\u00e9cialiste",
   "optimDecaissementCtaBody": "Un\u00b7e sp\u00e9cialiste en pr\u00e9voyance peut mod\u00e9liser ton plan de d\u00e9caissement pr\u00e9cis selon ta situation.",
   "optimDecaissementSources": "\u2022 LIFD art.\u00a038 \u2014 Imposition s\u00e9par\u00e9e des prestations en capital\n\u2022 OPP3 art.\u00a03 \u2014 Conditions de retrait anticip\u00e9 du pilier 3a\n\u2022 OPP3 art.\u00a07 \u2014 Plafonds de d\u00e9duction\n\u2022 OPP3 (r\u00e9vision 2026) \u2014 Possibilit\u00e9 de d\u00e9tenir plusieurs comptes 3a",
-  "optimDecaissementDisclaimer": "Information \u00e0 caract\u00e8re \u00e9ducatif, ne constitue pas un conseil fiscal au sens de la LSFin. Les montants illustr\u00e9s sont indicatifs. L'impact exact d\u00e9pend de ton canton de r\u00e9sidence, de tes autres revenus et de ta situation fiscale individuelle. Consulte un\u00b7e sp\u00e9cialiste avant toute d\u00e9cision de retrait."
+  "optimDecaissementDisclaimer": "Information \u00e0 caract\u00e8re \u00e9ducatif, ne constitue pas un conseil fiscal au sens de la LSFin. Les montants illustr\u00e9s sont indicatifs. L'impact exact d\u00e9pend de ton canton de r\u00e9sidence, de tes autres revenus et de ta situation fiscale individuelle. Consulte un\u00b7e sp\u00e9cialiste avant toute d\u00e9cision de retrait.",
+
+  "debtSurvivalSemanticsLabel": "Mode survie dette ratio KPIs actions urgentes Dettes Conseils",
+  "debtSurvivalTitle": "Mode survie MINT",
+  "debtSurvivalActivated": "ACTIV\u00c9",
+  "debtSurvivalCriticalSubtitle": "Ton ratio dette/revenu est critique. 3 actions pour stabiliser.",
+  "debtSurvivalWarningSubtitle": "Surveille ces 3 indicateurs. Agis avant que la situation empire.",
+  "debtSurvivalTotalDebt": "Dette totale",
+  "debtSurvivalAnnualRevenuePercent": "{percent}\u00a0% du revenu annuel",
+  "@debtSurvivalAnnualRevenuePercent": {
+    "placeholders": {
+      "percent": { "type": "int" }
+    }
+  },
+  "debtSurvivalMonthlyMargin": "Marge mensuelle",
+  "debtSurvivalDeficit": "d\u00e9ficit",
+  "debtSurvivalAvailable": "disponible",
+  "debtSurvivalLastLate": "Dernier retard",
+  "debtSurvivalNone": "Aucun",
+  "debtSurvivalDays": "{days} j",
+  "@debtSurvivalDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "debtSurvivalUpToDate": "\u00e0 jour",
+  "debtSurvivalSince": "depuis",
+  "debtSurvivalActionsTitle": "Tes 3 actions maintenant",
+  "debtSurvivalActionCutTitle": "Couper les loisirs",
+  "debtSurvivalActionCutDetail": "Streaming, sorties, abonnements \u2014 lib\u00e8re CHF 200-400/mois imm\u00e9diatement.",
+  "debtSurvivalActionSuspendTitle": "Suspendre le versement 3a",
+  "debtSurvivalActionSuspendDetail": "L\u00e9gal. Reprends d\u00e8s que possible \u2014 chaque mois compte, mais pas plus que manger.",
+  "debtSurvivalActionCallTitle": "Appeler Dettes Conseils",
+  "debtSurvivalActionCallDetail": "0800 40 40 40 \u2014 gratuit, confidentiel, sans jugement. 1 appel change tout.",
+  "debtSurvivalHelplineTitle": "Dettes Conseils Suisse",
+  "debtSurvivalHelplineSubtitle": "0800 40 40 40 \u00b7 Gratuit \u00b7 Confidentiel \u00b7 Sans jugement",
+  "debtSurvivalDisclaimer": "Outil \u00e9ducatif \u00b7 ne constitue pas un conseil financier au sens de la LSFin. Source\u00a0: LP art. 93 (minimum vital insaisissable). Ratio critique\u00a0: dette > 30\u00a0% du revenu annuel.",
+
+  "wizardScoreDrawing": "Ton score se dessine...",
+  "wizardScoreProfileDrawing": "Ton profil se dessine...",
+  "wizardScoreProtectionScore": "Protection\u00a0: {score}/100",
+  "@wizardScoreProtectionScore": {
+    "placeholders": {
+      "score": { "type": "int" }
+    }
+  },
+  "wizardScoreProtectionAnalyzing": "Protection\u00a0: en analyse...",
+  "wizardScorePrevoyancePlus": "Pr\u00e9voyance\u00a0: +{delta} pts",
+  "@wizardScorePrevoyancePlus": {
+    "placeholders": {
+      "delta": { "type": "int" }
+    }
+  },
+  "wizardScorePrevoyanceScore": "Pr\u00e9voyance\u00a0: {score}/100",
+  "@wizardScorePrevoyanceScore": {
+    "placeholders": {
+      "score": { "type": "int" }
+    }
+  },
+  "wizardScorePrevoyanceAnalyzing": "Pr\u00e9voyance\u00a0: en analyse...",
+  "wizardScorePatrimoineScore": "Patrimoine\u00a0: {score}/100",
+  "@wizardScorePatrimoineScore": {
+    "placeholders": {
+      "score": { "type": "int" }
+    }
+  },
+  "wizardScorePatrimoineBuilding": "Patrimoine\u00a0: en construction...",
+  "wizardScoreDefault": "Score\u00a0: {score}/100",
+  "@wizardScoreDefault": {
+    "placeholders": {
+      "score": { "type": "int" }
+    }
+  },
+  "wizardScoreBudgetTooltip": "Budget",
+  "wizardScorePrevoyanceTooltip": "Pr\u00e9voyance",
+  "wizardScorePatrimoineTooltip": "Patrimoine",
+
+  "rachatVsMarcheTitle": "Rachat LPP ou investissement libre\u00a0?",
+  "rachatVsMarcheProfileSource": "Valeurs pr\u00e9-remplies depuis ton profil",
+  "rachatVsMarcheTrajectories": "Trajectoires compar\u00e9es",
+  "rachatVsMarcheChartHint": "Touche le graphique pour voir les valeurs \u00e0 chaque ann\u00e9e.",
+  "rachatVsMarcheInputTitle": "Ton rachat potentiel",
+  "rachatVsMarcheAmountLabel": "Montant \u00e0 investir (CHF)",
+  "rachatVsMarche\u0054auxLabel": "Taux marginal d'imposition estim\u00e9",
+  "rachatVsMarcheYearsLabel": "Ann\u00e9es avant la retraite",
+  "rachatVsMarcheYearsValue": "{years} ans",
+  "@rachatVsMarcheYearsValue": {
+    "placeholders": {
+      "years": { "type": "int" }
+    }
+  },
+  "rachatVsMarcheCantonLabel": "Canton",
+  "rachatVsMarcheMarriedLabel": "Mari\u00e9\u00b7e",
+  "rachatVsMarcheCompare": "Comparer les strat\u00e9gies",
+  "rachatVsMarche BlocageTitle": "Blocage 3 ans (LPP art. 79b al. 3)",
+  "rachatVsMarche BlocageDetail": "Apr\u00e8s un rachat LPP, tu ne peux pas retirer ton capital sous forme de capital pendant 3 ans. Si tu pr\u00e9vois un retrait (retraite, EPL, d\u00e9part \u00e0 l'\u00e9tranger), planifie en cons\u00e9quence.",
+  "rachatVsMarcheHypotheses": "Hypoth\u00e8ses utilis\u00e9es",
+  "rachatVsMarcheWarning": "Avertissement",
+  "rachatVsMarcheSourcesPrefix": "Sources\u00a0: {sources}",
+  "@rachatVsMarcheSourcesPrefix": {
+    "placeholders": {
+      "sources": { "type": "String" }
+    }
+  },
+
+  "divorceFilmSemanticsLabel": "Film du divorce LPP partage imp\u00f4ts pensions actes CC LIFD",
+  "divorceFilmTitle": "Le film du divorce en 3 actes",
+  "divorceFilmSubtitle": "Dans l'ordre chronologique de ce que tu vas vivre \u2014 chiffres r\u00e9els, pas de tabous.",
+  "divorceFilmAct1": "Acte 1",
+  "divorceFilmAct1Title": "Le partage obligatoire",
+  "divorceFilmAct1LegalRef": "CC art. 122 \u2014 non n\u00e9gociable",
+  "divorceFilmAct1Quote": "\"Vos LPP accumul\u00e9s pendant le mariage sont coup\u00e9s en deux. Point.\"",
+  "divorceFilmYou": "Toi",
+  "divorceFilmYouAfter": "Toi (apr\u00e8s)",
+  "divorceFilmTransferImpact": "Tu transf\u00e8res CHF {transfer} \u2192 ta rente LPP baisse de ~CHF {loss}/mois",
+  "@divorceFilmTransferImpact": {
+    "placeholders": {
+      "transfer": {"type": "String"},
+      "loss": {"type": "String"}
+    }
+  },
+  "divorceFilmAct2": "Acte 2",
+  "divorceFilmAct2Title": "L'imp\u00f4t change",
+  "divorceFilmAct2LegalRef": "LIFD art. 35 (d\u00e9duction parent isol\u00e9)",
+  "divorceFilmMarried": "Mari\u00e9s",
+  "divorceFilmSeparated": "S\u00e9par\u00e9\u00b7e",
+  "divorceFilmTaxIncrease": "+CHF {amount}/mois d'imp\u00f4ts \u2014 tu perds le splitting mari\u00e9.",
+  "@divorceFilmTaxIncrease": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "divorceFilmTaxDecrease": "-CHF {amount}/mois d'imp\u00f4ts \u2014 tu gagnes en ind\u00e9pendance.",
+  "@divorceFilmTaxDecrease": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "divorceFilmChildcareTip": "\uD83D\uDCA1 Avec la garde des enfants, tu peux d\u00e9duire les frais de garde (LIFD art. 35).",
+  "divorceFilmAct3": "Acte 3",
+  "divorceFilmAct3Title": "Les pensions alimentaires",
+  "divorceFilmAct3LegalRef": "LIFD art. 33 (d\u00e9ductible) / art. 23 (imposable b\u00e9n\u00e9ficiaire)",
+  "divorceFilmChildrenSingular": "Enfant ({count})",
+  "@divorceFilmChildrenSingular": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "divorceFilmChildrenPlural": "Enfants ({count})",
+  "@divorceFilmChildrenPlural": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "divorceFilmSpouseMaintenance": "Entretien conjoint\u00b7e (3-5 ans)",
+  "divorceFilmMonthlyTotal": "Total mensuel",
+  "divorceFilmChfPerMonth": "CHF {amount}/mois",
+  "@divorceFilmChfPerMonth": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "divorceFilmPensionTaxWarning": "\u26A0\uFE0F La pension vers\u00e9e est d\u00e9ductible de TES imp\u00f4ts. Elle est imposable pour l'autre.",
+  "divorceFilmDisclaimer": "Outil \u00e9ducatif \u00b7 ne constitue pas un conseil juridique au sens de la LSFin. Source\u00a0: CC art. 122 (partage LPP), LIFD art. 33/23/35 (pensions alimentaires). Pension indicative\u00a0: CHF 1'500/enfant + CHF 500 conjoint\u00b7e.",
+
+  "testamentInvisibleTitle": "Si tu mourais ce soir\u2026",
+  "testamentInvisibleSubtitle": "Distribution l\u00e9gale automatique vs avec testament \u00b7 CC art. 457-462",
+  "testamentInvisibleYourSituation": "Ta situation",
+  "testamentInvisibleStatusMarried": "\ud83d\udc8d Mari\u00e9\u00b7e",
+  "testamentInvisibleStatusConcubin": "\ud83c\udfe0 Concubin\u00b7e",
+  "testamentInvisibleStatusCouple": "\ud83d\udc91 Partenaire enregistr\u00e9\u00b7e",
+  "testamentInvisibleStatusSingle": "\ud83d\udc64 C\u00e9libataire",
+  "testamentInvisiblePatrimoine": "Patrimoine\u00a0: {amount}",
+  "@testamentInvisiblePatrimoine": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "testamentInvisibleWithout": "Sans testament",
+  "testamentInvisibleWith": "Avec testament",
+  "testamentInvisiblePartnerReceives": "Partenaire re\u00e7oit",
+  "testamentInvisibleZeroChf": "0 CHF",
+  "testamentInvisibleMarriedWith": "Conjoint h\u00e9rite de 50\u00a0%+. Imp\u00f4t = 0\u00a0%.",
+  "testamentInvisibleMarriedWithout": "Conjoint h\u00e9rite selon CC. Imp\u00f4t = 0\u00a0%.",
+  "testamentInvisibleConcubinWith": "Clause b\u00e9n\u00e9ficiaire 3a + testament indispensables.",
+  "testamentInvisibleConcubinWithout": "Ton partenaire h\u00e9rite 0\u00a0%. L'\u00c9tat ou tes parents touchent tout.",
+  "testamentInvisibleCoupleWith": "Droits h\u00e9r\u00e9ditaires \u00e9quivalents au conjoint depuis 2022 (CC art. 462).",
+  "testamentInvisibleCoupleWithout": "Partenaire enregistr\u00e9\u00b7e h\u00e9rite selon CC art. 462 \u2014 m\u00eame droits que conjoint. Imp\u00f4t = 0\u00a0%.",
+  "testamentInvisibleSingleWith": "Libre de l\u00e9guer \u00e0 qui tu veux.",
+  "testamentInvisibleSingleWithout": "La loi distribue selon CC art. 457-462.",
+  "testamentInvisibleChiffreChocTitle": "\ud83d\udcb0 Concubin\u00b7e\u00a0: 0\u00a0% d'h\u00e9ritage + imp\u00f4t jusqu'\u00e0 24\u00a0%",
+  "testamentInvisibleChiffreChocBody": "Sans testament ni clause 3a, ton partenaire ne re\u00e7oit rien. Un testament co\u00fbte ~500 CHF. Le silence peut co\u00fbter {taxAmount} d'imp\u00f4ts.",
+  "@testamentInvisibleChiffreChocBody": {
+    "placeholders": {
+      "taxAmount": {"type": "String"}
+    }
+  },
+  "testamentInvisibleDisclaimer": "Outil \u00e9ducatif \u00b7 ne constitue pas un conseil financier au sens de la LSFin. Source\u00a0: CC art. 457-462, OPP3 art. 2. Taux successoral concubin\u00b7e illustratif (ex. VD) \u2014 varie de 0\u00a0% \u00e0 40\u00a0% selon canton et lien de parent\u00e9."
 }

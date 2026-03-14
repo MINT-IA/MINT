@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -53,8 +54,9 @@ class DivorceFilmWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Film du divorce LPP partage impôts pensions actes CC LIFD',
+      label: s.divorceFilmSemanticsLabel,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -64,40 +66,40 @@ class DivorceFilmWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildAct(
-                    number: 'Acte 1',
-                    emoji: '⚖️',
-                    title: 'Le partage obligatoire',
+                    number: s.divorceFilmAct1,
+                    emoji: '\u2696\uFE0F',
+                    title: s.divorceFilmAct1Title,
                     color: MintColors.scoreCritique,
-                    content: _buildAct1Content(),
-                    legalRef: 'CC art. 122 — non négociable',
+                    content: _buildAct1Content(s),
+                    legalRef: s.divorceFilmAct1LegalRef,
                   ),
                   const SizedBox(height: 12),
                   _buildAct(
-                    number: 'Acte 2',
-                    emoji: '📊',
-                    title: 'L\'impôt change',
+                    number: s.divorceFilmAct2,
+                    emoji: '\uD83D\uDCCA',
+                    title: s.divorceFilmAct2Title,
                     color: MintColors.scoreAttention,
-                    content: _buildAct2Content(),
-                    legalRef: 'LIFD art. 35 (déduction parent isolé)',
+                    content: _buildAct2Content(context, s),
+                    legalRef: s.divorceFilmAct2LegalRef,
                   ),
                   const SizedBox(height: 12),
                   _buildAct(
-                    number: 'Acte 3',
-                    emoji: '👧',
-                    title: 'Les pensions alimentaires',
+                    number: s.divorceFilmAct3,
+                    emoji: '\uD83D\uDC67',
+                    title: s.divorceFilmAct3Title,
                     color: MintColors.info,
-                    content: _buildAct3Content(),
-                    legalRef: 'LIFD art. 33 (déductible) / art. 23 (imposable bénéficiaire)',
+                    content: _buildAct3Content(s),
+                    legalRef: s.divorceFilmAct3LegalRef,
                   ),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -107,7 +109,7 @@ class DivorceFilmWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -119,11 +121,11 @@ class DivorceFilmWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Text('🎬', style: TextStyle(fontSize: 22)),
+              const Text('\uD83C\uDFAC', style: TextStyle(fontSize: 22)),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Le film du divorce en 3 actes',
+                  s.divorceFilmTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -135,7 +137,7 @@ class DivorceFilmWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Dans l\'ordre chronologique de ce que tu vas vivre — chiffres réels, pas de tabous.',
+            s.divorceFilmSubtitle,
             style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4),
           ),
         ],
@@ -218,12 +220,12 @@ class DivorceFilmWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildAct1Content() {
+  Widget _buildAct1Content(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '"Vos LPP accumulés pendant le mariage sont coupés en deux. Point."',
+          s.divorceFilmAct1Quote,
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textPrimary,
@@ -234,12 +236,12 @@ class DivorceFilmWidget extends StatelessWidget {
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(child: _buildLppCard('Toi', myLpp, MintColors.scoreCritique)),
+            Expanded(child: _buildLppCard(s.divorceFilmYou, myLpp, MintColors.scoreCritique)),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 8),
               child: Icon(Icons.arrow_forward, size: 20, color: MintColors.textSecondary),
             ),
-            Expanded(child: _buildLppCard('Toi (après)', _equalShare, MintColors.scoreAttention)),
+            Expanded(child: _buildLppCard(s.divorceFilmYouAfter, _equalShare, MintColors.scoreAttention)),
           ],
         ),
         if (_lppTransfer > 0) ...[
@@ -251,7 +253,7 @@ class DivorceFilmWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
-              'Tu transfères CHF ${_fmt(_lppTransfer)} → ta rente LPP baisse de ~CHF ${_fmt(_lppMonthlyRenteLoss)}/mois',
+              s.divorceFilmTransferImpact(_fmt(_lppTransfer), _fmt(_lppMonthlyRenteLoss)),
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -286,19 +288,19 @@ class DivorceFilmWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildAct2Content() {
+  Widget _buildAct2Content(BuildContext context, S s) {
     final positive = _annualTaxDelta > 0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Expanded(child: _buildTaxCard('Mariés', annualTaxMarried, MintColors.scoreExcellent)),
+            Expanded(child: _buildTaxCard(s.divorceFilmMarried, annualTaxMarried, MintColors.scoreExcellent)),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 8),
               child: Icon(Icons.arrow_forward, size: 20, color: MintColors.textSecondary),
             ),
-            Expanded(child: _buildTaxCard('Séparé·e', annualTaxSingle, MintColors.scoreCritique)),
+            Expanded(child: _buildTaxCard(s.divorceFilmSeparated, annualTaxSingle, MintColors.scoreCritique)),
           ],
         ),
         const SizedBox(height: 10),
@@ -311,8 +313,8 @@ class DivorceFilmWidget extends StatelessWidget {
           ),
           child: Text(
             positive
-                ? '+CHF ${_fmt(_monthlyTaxDelta)}/mois d\'impôts — tu perds le splitting marié.'
-                : '-CHF ${_fmt(_monthlyTaxDelta.abs())}/mois d\'impôts — tu gagnes en indépendance.',
+                ? s.divorceFilmTaxIncrease(_fmt(_monthlyTaxDelta))
+                : s.divorceFilmTaxDecrease(_fmt(_monthlyTaxDelta.abs())),
             style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -325,7 +327,7 @@ class DivorceFilmWidget extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Text(
-              '💡 Avec la garde des enfants, tu peux déduire les frais de garde (LIFD art. 35).',
+              s.divorceFilmChildcareTip,
               style: GoogleFonts.inter(fontSize: 11, color: MintColors.info, height: 1.4),
             ),
           ),
@@ -354,14 +356,19 @@ class DivorceFilmWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildAct3Content() {
+  Widget _buildAct3Content(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (childrenCount > 0)
-          _buildPensionRow('Enfant${childrenCount > 1 ? 's' : ''} ($childrenCount)', _monthlyChildPension),
+          _buildPensionRow(
+            childrenCount > 1
+                ? s.divorceFilmChildrenPlural(childrenCount)
+                : s.divorceFilmChildrenSingular(childrenCount),
+            _monthlyChildPension,
+          ),
         if (hasAlimony)
-          _buildPensionRow('Entretien conjoint·e (3-5 ans)', _monthlyAlimony),
+          _buildPensionRow(s.divorceFilmSpouseMaintenance, _monthlyAlimony),
         if (_totalMonthlyPension > 0) ...[
           const SizedBox(height: 8),
           const Divider(),
@@ -369,16 +376,16 @@ class DivorceFilmWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Total mensuel', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
+              Text(s.divorceFilmMonthlyTotal, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
               Text(
-                'CHF ${_fmt(_totalMonthlyPension)}/mois',
+                s.divorceFilmChfPerMonth(_fmt(_totalMonthlyPension)),
                 style: GoogleFonts.montserrat(fontSize: 15, fontWeight: FontWeight.w800, color: MintColors.info),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            '⚠️ La pension versée est déductible de TES impôts. Elle est imposable pour l\'autre.',
+            s.divorceFilmPensionTaxWarning,
             style: GoogleFonts.inter(fontSize: 11, color: MintColors.scoreAttention, height: 1.4),
           ),
         ],
@@ -402,11 +409,9 @@ class DivorceFilmWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil juridique au sens de la LSFin. '
-      'Source : CC art. 122 (partage LPP), LIFD art. 33/23/35 (pensions alimentaires). '
-      'Pension indicative : CHF 1\'500/enfant + CHF 500 conjoint·e.',
+      s.divorceFilmDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,
