@@ -5916,7 +5916,7 @@
     }
   },
   "annualRefreshSliderMin": "0 CHF",
-  "annualRefreshSliderMax": "30\u2019000 CHF",
+  "annualRefreshSliderMax": "30’000 CHF",
   "annualRefreshQ2Title": "Deine berufliche Situation",
   "annualRefreshQ3Title": "Dein aktuelles BVG-Guthaben",
   "annualRefreshQ3Help": "Schau auf deinen Vorsorgeausweis (du erhältst ihn jeden Januar)",
@@ -5953,10 +5953,10 @@
   "genderGapAppBarTitle": "GENDER GAP VORSORGE",
   "genderGapTitle": "Vorsorgelücke",
   "genderGapSubtitle": "Auswirkung von Teilzeitarbeit auf die Rente",
-  "genderGapIntroText": "Der Koordinationsabzug (CHF\u00a026'460) wird nicht anteilmässig für Teilzeitarbeit berechnet, was Teilzeitbeschäftigte zusätzlich benachteiligt. Verschiebe den Regler, um die Auswirkung zu sehen.",
+  "genderGapIntroText": "Der Koordinationsabzug (CHF 26'460) wird nicht anteilmässig für Teilzeitarbeit berechnet, was Teilzeitbeschäftigte zusätzlich benachteiligt. Verschiebe den Regler, um die Auswirkung zu sehen.",
   "genderGapActivityRate": "Beschäftigungsgrad",
   "genderGapParameters": "Parameter",
-  "genderGapGrossAnnualIncome": "Bruttojahreseinkommen (100\u00a0%)",
+  "genderGapGrossAnnualIncome": "Bruttojahreseinkommen (100 %)",
   "genderGapAge": "Alter",
   "genderGapAgeValue": "{age} Jahre",
   "@genderGapAgeValue": {
@@ -5969,7 +5969,7 @@
   "genderGapCurrentLppAssets": "Aktuelles BVG-Guthaben",
   "genderGapContributionYears": "Beitragsjahre",
   "genderGapCanton": "Kanton",
-  "genderGapDemoNotice": "Demo-Modus\u00a0: Beispielprofil. Vervollständige deine Analyse für personalisierte Ergebnisse.",
+  "genderGapDemoNotice": "Demo-Modus : Beispielprofil. Vervollständige deine Analyse für personalisierte Ergebnisse.",
   "genderGapEstimatedLppPension": "Geschätzte BVG-Rente",
   "genderGapProjectionYears": "Projektion in {years} Jahren (Alter 65)",
   "@genderGapProjectionYears": {
@@ -5979,8 +5979,8 @@
       }
     }
   },
-  "genderGapAt100Pct": "Bei 100\u00a0%",
-  "genderGapAtTaux": "Bei {taux}\u00a0%",
+  "genderGapAt100Pct": "Bei 100 %",
+  "genderGapAtTaux": "Bei {taux} %",
   "@genderGapAtTaux": {
     "placeholders": {
       "taux": {
@@ -5999,10 +5999,10 @@
   "genderGapAnnualGap": "Jährliche Lücke",
   "genderGapTotalGap": "Gesamtlücke (~20 Jahre)",
   "genderGapCoordinationTitle": "Den Koordinationsabzug verstehen",
-  "genderGapCoordinationExplanation": "Der Koordinationsabzug ist ein fester Betrag von CHF\u00a026'460, der von deinem Bruttolohn abgezogen wird, um den koordinierten Lohn (BVG-Basis) zu berechnen. Dieser Betrag ist gleich, ob du zu 100\u00a0% oder 50\u00a0% arbeitest.",
-  "genderGapGrossSalary100": "Bruttolohn bei 100\u00a0%",
-  "genderGapCoordSalary100": "Koordinierter Lohn bei 100\u00a0%",
-  "genderGapGrossSalaryAtTaux": "Bruttolohn bei {taux}\u00a0%",
+  "genderGapCoordinationExplanation": "Der Koordinationsabzug ist ein fester Betrag von CHF 26'460, der von deinem Bruttolohn abgezogen wird, um den koordinierten Lohn (BVG-Basis) zu berechnen. Dieser Betrag ist gleich, ob du zu 100 % oder 50 % arbeitest.",
+  "genderGapGrossSalary100": "Bruttolohn bei 100 %",
+  "genderGapCoordSalary100": "Koordinierter Lohn bei 100 %",
+  "genderGapGrossSalaryAtTaux": "Bruttolohn bei {taux} %",
   "@genderGapGrossSalaryAtTaux": {
     "placeholders": {
       "taux": {
@@ -6010,7 +6010,7 @@
       }
     }
   },
-  "genderGapCoordSalaryAtTaux": "Koordinierter Lohn bei {taux}\u00a0%",
+  "genderGapCoordSalaryAtTaux": "Koordinierter Lohn bei {taux} %",
   "@genderGapCoordSalaryAtTaux": {
     "placeholders": {
       "taux": {
@@ -6019,12 +6019,12 @@
     }
   },
   "genderGapCoordDeductionFixed": "Koordinationsabzug (fix)",
-  "genderGapSourceLpp": "Quelle\u00a0: BVG Art. 8, BVV2 Art. 5",
+  "genderGapSourceLpp": "Quelle : BVG Art. 8, BVV2 Art. 5",
   "genderGapOfsStatistic": "BFS-Statistik",
   "genderGapRecommendations": "EMPFEHLUNGEN",
   "genderGapDisclaimer": "Die dargestellten Ergebnisse sind vereinfachte Schätzungen zu Informationszwecken. Sie stellen keine persönliche Finanzberatung dar. Konsultiere deine Pensionskasse und eine qualifizierte Fachperson vor jeder Entscheidung.",
   "genderGapSources": "Quellen",
-  "genderGapSourcesDetail": "BVG Art. 8 (Koordinationsabzug) / BVG Art. 14 (Umwandlungssatz 6.8\u00a0%) / BVV2 Art. 5 / BVV3 Art. 7 / BVG Art. 79b (freiwilliger Einkauf) / BFS 2024 (Gender-Gap-Statistik)",
+  "genderGapSourcesDetail": "BVG Art. 8 (Koordinationsabzug) / BVG Art. 14 (Umwandlungssatz 6.8 %) / BVV2 Art. 5 / BVV3 Art. 7 / BVG Art. 79b (freiwilliger Einkauf) / BFS 2024 (Gender-Gap-Statistik)",
   "rachatTitle": "GESTAFFELTER BVG-EINKAUF",
   "rachatIntroTitle": "Warum Einkäufe staffeln?",
   "rachatIntroBody": "Da die Schweizer Steuer progressiv ist, ermöglicht die Verteilung eines BVG-Einkaufs auf mehrere Jahre, in höheren Grenzsteuersätzen zu bleiben und so die gesamte Steuerersparnis zu maximieren. Dieser Simulator vergleicht beide Ansätze.",
@@ -6045,8 +6045,14 @@
   "@rachatCalculePour": {
     "description": "Subtitle showing calculated tax rate for canton and status",
     "placeholders": {
-      "canton": { "type": "String", "example": "VD" },
-      "statut": { "type": "String", "example": "ledig" }
+      "canton": {
+        "type": "String",
+        "example": "VD"
+      },
+      "statut": {
+        "type": "String",
+        "example": "ledig"
+      }
     }
   },
   "rachatAjuster": "Anpassen",
@@ -6057,8 +6063,14 @@
   "@rachatHorizonValue": {
     "description": "Horizon value with plural suffix",
     "placeholders": {
-      "count": { "type": "int", "example": "3" },
-      "suffix": { "type": "String", "example": "e" }
+      "count": {
+        "type": "int",
+        "example": "3"
+      },
+      "suffix": {
+        "type": "String",
+        "example": "e"
+      }
     }
   },
   "rachatComparaison": "VERGLEICH",
@@ -6068,7 +6080,10 @@
   "@rachatEchelonneSurNAns": {
     "description": "Staggered over N years card title",
     "placeholders": {
-      "count": { "type": "int", "example": "3" }
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
     }
   },
   "rachatReparti": "Verteilter Einkauf",
@@ -6084,14 +6099,20 @@
   "@rachatEconomieChf": {
     "description": "Economy amount with CHF prefix",
     "placeholders": {
-      "amount": { "type": "String", "example": "12'500" }
+      "amount": {
+        "type": "String",
+        "example": "12'500"
+      }
     }
   },
   "rachatCoutNetChf": "Nettokosten: CHF {amount}",
   "@rachatCoutNetChf": {
     "description": "Net cost amount with CHF prefix",
     "placeholders": {
-      "amount": { "type": "String", "example": "67'500" }
+      "amount": {
+        "type": "String",
+        "example": "67'500"
+      }
     }
   },
   "rachatRachat": "Einkauf",
@@ -6099,62 +6120,148 @@
   "@rachatLacuneComblee": {
     "description": "Gap filled percentage",
     "placeholders": {
-      "percent": { "type": "String", "example": "75" }
+      "percent": {
+        "type": "String",
+        "example": "75"
+      }
     }
   },
   "rachatBlockageEplTitle": "BVG Art. 79b Abs. 3 — WEF-Sperre",
   "rachatBlockageEplBody": "Nach jedem Einkauf ist jeder WEF-Bezug (Wohneigentumsförderung) für 3 Jahre gesperrt. Plane entsprechend, wenn ein Immobilienkauf geplant ist.",
   "rachatTauxMarginalTitle": "Grenzsteuersatz",
   "rachatTauxMarginalBody": "Der Grenzsteuersatz ist der Steuerprozentsatz auf Ihren letzten verdienten Franken. Bei einem Satz von 32% sparen Sie mit jedem abgezogenen CHF 1'000 CHF 320. Je höher Ihr Einkommen, desto höher dieser Satz (Progression der Schweizer Steuer).",
-  "rachatTauxMarginalTip": "Deshalb ist die Staffelung Ihrer Einkäufe klug: Jede Tranche bleibt in einem hohen Grenzsteuersatz."
-,
+  "rachatTauxMarginalTip": "Deshalb ist die Staffelung Ihrer Einkäufe klug: Jede Tranche bleibt in einem hohen Grenzsteuersatz.",
   "sourceTaxSemanticsLabel": "Heatmap der Quellensteuer nach Schweizer Kanton",
   "sourceTaxTitle": "Quellensteuersätze",
   "sourceTaxSubtitle": "26 Kantone  ·  Ledig, CHF 80'000",
   "sourceTaxAverageRate": "Durchschnittlicher Satz",
   "sourceTaxIndicativeRate": "Indikativer Quellensteuersatz",
   "cantonMapSemanticsLabel": "Karte der Familienzulagen nach Kanton. {count} Kantone angezeigt.",
-  "@cantonMapSemanticsLabel": {"placeholders": {"count": {"type": "int"}}},
+  "@cantonMapSemanticsLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "cantonMapTitle": "Familienzulagen",
   "cantonMapSubtitle": "pro Kanton (pro Kind/Monat)",
   "cantonMapRank": "Rang {rank} von {total}",
-  "@cantonMapRank": {"placeholders": {"rank": {"type": "int"}, "total": {"type": "int"}}},
+  "@cantonMapRank": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "interactiveSimEmployeeWithLpp": "ANGESTELLTE/R mit BVG",
   "interactiveSimSelfEmployedNoLpp": "SELBSTSTÄNDIGE/R ohne BVG",
   "interactiveSimCeiling": "Obergrenze 2026: CHF {amount}/Jahr",
-  "@interactiveSimCeiling": {"placeholders": {"amount": {"type": "String"}}},
+  "@interactiveSimCeiling": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimMonthlyPayment": "Monatliche Einzahlung: CHF {amount}",
-  "@interactiveSimMonthlyPayment": {"placeholders": {"amount": {"type": "String"}}},
+  "@interactiveSimMonthlyPayment": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimExceedsCeiling": "Jährliche Einzahlung (CHF {annual}) übersteigt die Obergrenze (CHF {max})",
-  "@interactiveSimExceedsCeiling": {"placeholders": {"annual": {"type": "String"}, "max": {"type": "String"}}},
+  "@interactiveSimExceedsCeiling": {
+    "placeholders": {
+      "annual": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimDuration": "Dauer: {years} Jahre",
-  "@interactiveSimDuration": {"placeholders": {"years": {"type": "int"}}},
+  "@interactiveSimDuration": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
   "interactiveSimMarginalTaxRate": "Grenzsteuersatz: {rate} %",
-  "@interactiveSimMarginalTaxRate": {"placeholders": {"rate": {"type": "String"}}},
+  "@interactiveSimMarginalTaxRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimMarginalTaxHint": "Geschätzt nach Kanton/Einkommen (15 % bis 45 %)",
   "interactiveSimAnnualPayment": "Jährliche Einzahlung",
   "interactiveSimTaxSavings": "Steuerersparnis (geschätzt)",
   "interactiveSimRealCost": "Reale Kosten",
   "interactiveSimProjectionTitle": "Projektion {years} Jahre (pädagogische Szenarien)",
-  "@interactiveSimProjectionTitle": {"placeholders": {"years": {"type": "int"}}},
+  "@interactiveSimProjectionTitle": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
   "interactiveSimPrudence": "Vorsichtig (1 %)",
   "interactiveSimCentral": "Zentral (3 %)",
   "interactiveSimStress": "Stress (5 %)",
   "interactiveSimCumulativeTaxSavings": "Kumulative Steuerersparnis ({years} Jahre)",
-  "@interactiveSimCumulativeTaxSavings": {"placeholders": {"years": {"type": "int"}}},
+  "@interactiveSimCumulativeTaxSavings": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
   "interactiveSimDisclaimer": "Pädagogische Hypothesen. Vergangene Renditen garantieren keine zukünftigen Renditen.",
   "interactiveSimLppBuybackTitle": "BVG-Einkauf Simulation",
   "interactiveSimBuybackAmount": "Einkaufsbetrag: CHF {amount}",
-  "@interactiveSimBuybackAmount": {"placeholders": {"amount": {"type": "String"}}},
+  "@interactiveSimBuybackAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimMarginalTaxHintShort": "Geschätzt nach Kanton/Einkommen",
   "interactiveSimBuyback": "Einkauf",
   "interactiveSimRetirementImpact": "Auswirkung auf die Rente (pädagogische Szenarien)",
   "interactiveSimPrudenceRate": "Vorsichtig (Satz {rate} %)",
-  "@interactiveSimPrudenceRate": {"placeholders": {"rate": {"type": "String"}}},
+  "@interactiveSimPrudenceRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimCentralRate": "Zentral (Satz {rate} %)",
-  "@interactiveSimCentralRate": {"placeholders": {"rate": {"type": "String"}}},
+  "@interactiveSimCentralRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimStressRate": "Stress (Satz {rate} %)",
-  "@interactiveSimStressRate": {"placeholders": {"rate": {"type": "String"}}},
+  "@interactiveSimStressRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimHypothesesTitle": "Hypothesen und Grenzen:",
   "interactiveSimHypothesesBody": "• Steuerabzug gemäss geltenden Regeln\n• Umwandlungssatz: aktuelle Annahme, kann sinken\n• Mit BVG-Ausweis und Steuerfachperson prüfen",
   "lifeEventMarriage": "Heirat",
@@ -6187,9 +6294,242 @@
   "arbitrageTornadoTitle": "Schlüsselempfindlichkeiten",
   "arbitrageTornadoDisclaimer": "Pädagogische Simulation — Transparenz bei den Hypothesen, ohne Empfehlung.",
   "coupleTimelineChartFrom": "Ab {year}",
-  "@coupleTimelineChartFrom": {"placeholders": {"year": {"type": "int"}}},
+  "@coupleTimelineChartFrom": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
   "coupleTimelineChartPhase1": "Phase 1",
   "coupleTimelineChartPhase2": "Phase 2",
   "coupleTimelineChartPerMonth": "/Monat",
-  "coupleTimelineChartRetirementAge": "65 Jahre"
+  "coupleTimelineChartRetirementAge": "65 Jahre",
+  "paywallTitle": "MINT Coach freischalten",
+  "paywallSubtitle": "Dein persönlicher Finanzcoach",
+  "paywallTierStarter": "Starter",
+  "paywallTierPremium": "Premium",
+  "paywallTierCouplePlus": "Couple+",
+  "paywallRecommendedBadge": "Top",
+  "paywallPricePerMonth": "/Monat",
+  "paywallFeatureDashboard": "Trajektorien-Dashboard",
+  "paywallFeatureForecast": "Adaptiver Forecast",
+  "paywallFeatureCheckIn": "Monatlicher Check-in",
+  "paywallFeatureAlerts": "Proaktive Warnungen",
+  "paywallFeatureAllStarter": "Alles in Starter +",
+  "paywallFeatureScore": "Evolutiver Score",
+  "paywallFeatureCoachLLM": "LLM-Coach",
+  "paywallFeatureWhatIf": "\"Was wäre wenn...\"-Szenarien",
+  "paywallFeatureExportPDF": "PDF-Export",
+  "paywallFeatureMonteCarlo": "Monte Carlo",
+  "paywallFeatureArbitrage": "Arbitrage-Module",
+  "paywallFeatureAllPremium": "Alles in Premium +",
+  "paywallFeatureTwoProfiles": "2 aktive Profile",
+  "paywallFeatureJointOptimization": "Gemeinsame Optimierung",
+  "paywallTrialBadge": "14 Tage kostenlos testen",
+  "paywallUpgradeSuccess": "{tier}-Abonnement erfolgreich aktiviert.",
+  "paywallTrialSuccess": "Kostenlose Testversion aktiviert! Nutze MINT Coach 14 Tage lang.",
+  "paywallChooseTier": "{tier} wählen",
+  "paywallStartTrial": "Kostenlose Testversion starten",
+  "paywallRestorePurchase": "Kauf wiederherstellen",
+  "paywallRestoreSuccess": "Abonnement erfolgreich wiederhergestellt!",
+  "paywallNoPurchaseFound": "Kein früherer Kauf gefunden.",
+  "paywallDisclaimer": "Bildungswerkzeug — keine Finanzberatung. FIDLEG. Du kannst jederzeit in deinen Kontoeinstellungen kündigen.",
+  "mortgageJourneyTitle": "Immobilienkauf-Parcours",
+  "mortgageJourneySubtitle": "7 Schritte von \"Kann ich mir das leisten?\" bis \"Ich habe unterschrieben!\".",
+  "mortgageJourneyStepLabel": "Schritt {number} · {title}",
+  "mortgageJourneyPrevious": "Zurück",
+  "mortgageJourneyNextStep": "Nächster Schritt",
+  "mortgageJourneyComplete": "Parcours abgeschlossen!",
+  "mortgageJourneyStep1Title": "Kann ich mir das leisten?",
+  "mortgageJourneyStep1Subtitle": "Drittel-Regel: die Kosten (theoretischer Zins 5% + 1% Amortisation + 1% Unterhalt) dürfen 1/3 deines Bruttoeinkommens nicht übersteigen.",
+  "mortgageJourneyStep1Action": "Berechne deine Kapazität mit dem MINT-Simulator",
+  "mortgageJourneyStep1Legal": "FINMA/SBVg — theoretischer Zinssatz 5%",
+  "mortgageJourneyStep2Title": "Woher kommen meine Eigenmittel?",
+  "mortgageJourneyStep2Subtitle": "Du brauchst 20% des Preises als Eigenmittel. Mögliche Quellen: Ersparnisse, 3a, WEF (2. Säule, max. 10% des Preises). Achtung: WEF blockiert den BVG-Einkauf für 3 Jahre.",
+  "mortgageJourneyStep2Action": "Überprüfe deinen 3a- und BVG-Saldo in MINT",
+  "mortgageJourneyStep2Legal": "BVG Art. 30c (WEF) — BVV2 Art. 5 (min. CHF 20'000)",
+  "mortgageJourneyStep3Title": "Welche Art von Hypothek?",
+  "mortgageJourneyStep3Subtitle": "Festhypothek: Sicherheit, fester Zins für 2-15 Jahre. SARON (variabel): niedrigerer Zins, aber Risiko eines Anstiegs. Mix möglich. Aktueller Zins ≠ theoretischer Zins 5%.",
+  "mortgageJourneyStep3Action": "Vergleiche Angebote von mindestens 3 Banken",
+  "mortgageJourneyStep3Legal": "FINMA — Rundschreiben 2008/10 (Hypothekenstandards)",
+  "mortgageJourneyStep4Title": "Direkte oder indirekte Amortisation?",
+  "mortgageJourneyStep4Subtitle": "Direkt: Du zahlst der Bank jährlich zurück (Schulden sinken, Steuerabzug sinkt). Indirekt: Du zahlst in deine 3a ein, dann tilgst du auf einen Schlag. Steuervorteil der indirekten Methode.",
+  "mortgageJourneyStep4Action": "Konsultiere eine Steuerfachperson für deinen Kanton",
+  "mortgageJourneyStep4Legal": "DBG Art. 33 Abs. 1 lit. a (Zinsabzug)",
+  "mortgageJourneyStep5Title": "Und der Eigenmietwert?",
+  "mortgageJourneyStep5Subtitle": "Wenn du in deiner Immobilie wohnst, zahlst du Steuern auf den Eigenmietwert (fiktive Miete). Im Gegenzug kannst du Hypothekarzinsen und Unterhaltskosten abziehen.",
+  "mortgageJourneyStep5Action": "Schätze deine Eigenmietwertsteuer in MINT",
+  "mortgageJourneyStep5Legal": "DBG Art. 21 Abs. 1 lit. b (Eigenmietwert)",
+  "mortgageJourneyStep6Title": "Am Ende: Mieten oder Kaufen?",
+  "mortgageJourneyStep6Subtitle": "Eine ebenso persönliche wie finanzielle Entscheidung. Faktoren: geplante Wohndauer, berufliche Stabilität, gewünschte Flexibilität. Typischer Break-even: 7-12 Jahre.",
+  "mortgageJourneyStep6Action": "Starte den Match-Vergleich in MINT",
+  "mortgageJourneyStep6Legal": "OR Art. 261ff (Mietvertrag)",
+  "mortgageJourneyStep7Title": "Mein Aktionsplan",
+  "mortgageJourneyStep7Subtitle": "Vor der Unterschrift: Miteigentümerreglement, Gebäudebewertung, geplante Arbeiten, Renovierungsfonds prüfen. Kaufvertrag überprüfen lassen.",
+  "mortgageJourneyStep7Action": "Lade die MINT-Kaufcheckliste herunter",
+  "mortgageJourneyStep7Legal": "ZGB Art. 652 (Stockwerkeigentum)",
+  "mortgageJourneyDisclaimer": "Bildungswerkzeug · keine Finanzberatung im Sinne des FIDLEG. Konsultiere eine Hypothekarfachperson vor jeder Entscheidung. Quellen: FINMA-Rundschreiben 2008/10, BVG Art. 30c, DBG Art. 21, ZGB Art. 652.",
+  "mortgageJourneySemantics": "Immobilienkauf geführter Parcours 7 Schritte Hypothek Eigenmittel FINMA BVG",
+  "mortgageJourneyStepCounter": "{current} / {total}",
+  "whatIfTitle": "Was alles verändern könnte",
+  "whatIfDisclaimer": "Bildungsschätzungen — keine Finanzberatung (FIDLEG).",
+  "whatIfImpactPerMonth": "{sign}{amount}/Monat mit 65",
+  "coupleTimelineTitle": "Eure gemeinsame Geschichte",
+  "coupleTimelineActLabel": "AKT {number} · {period}",
+  "coupleTimelineIncome": "Einkommen: {amount}/Monat",
+  "coupleTimelineDisclaimer": "Bildungsschätzungen — keine Finanzberatung (FIDLEG).",
+  "budget503020Title": "Dein 50 / 30 / 20 Budget",
+  "budget503020BasedOn": "Basierend auf {amount} netto/Monat",
+  "budget503020Disclaimer": "Indikative Budgetregel. Bildungswerkzeug — keine Finanzberatung (FIDLEG).",
+  "budget503020Semantics": "50/30/20 Budget. Nettolohn: {amount}/Monat.",
+  "confidenceBlocksBase": "Basis",
+  "confidenceBlocksObjective": "Ziel",
+  "confidenceBlocksHousehold": "Haushalt",
+  "confidenceBlocksLpp": "BVG",
+  "confidenceBlocksSavings": "Ersparnis",
+  "focusSelectorTitle": "Was beschäftigt dich?",
+  "focusSelectorComprendre": "Verstehen",
+  "focusSelectorComprendreSubtitle": "Mein Geld",
+  "focusSelectorProteger": "Schützen",
+  "focusSelectorProtegerSubtitle": "Rente, Familie",
+  "focusSelectorOptimiser": "Optimieren",
+  "focusSelectorOptimiserSubtitle": "Steuern, Ersparnis",
+  "focusSelectorNaviguer": "Navigieren",
+  "focusSelectorNaviguerSubtitle": "Lebensveränderung",
+  "focusSelectorSalary": "Wohin geht mein Gehalt?",
+  "focusSelectorSystem": "Das Schweizer System?",
+  "focusSelectorSystemApercu": "AHV + BVG + 3a = ?",
+  "focusSelectorSituation": "Meine finanzielle Situation?",
+  "focusSelectorSituationApercu": "Sichtbarkeits-Score",
+  "focusSelectorRetirement": "Meine Rente",
+  "focusSelectorFamily": "Meine Familie / mein Paar",
+  "focusSelectorFamilyApercu": "Kombinierte Ansicht zu zweit",
+  "focusSelectorDebtRepay": "Meine Schulden zurückzahlen",
+  "focusSelectorDebtApercu": "Rückzahlungsplan",
+  "focusSelectorSafetyNet": "Mein Sicherheitsnetz aufbauen",
+  "focusSelectorSafetyNetApercu": "BVG + Versicherungen",
+  "focusSelectorTaxes": "Meine Steuern",
+  "focusSelectorPatrimoine": "Mein Vermögen",
+  "focusSelectorCapitalRente": "Kapital oder Rente?",
+  "focusSelectorCapitalRenteApercu": "Beide Optionen vergleichen",
+  "focusSelectorExpat": "Ich komme in die Schweiz",
+  "focusSelectorExpatApercu": "Rechte, Lücken, Fallen",
+  "focusSelectorHousing": "Ich kaufe eine Immobilie",
+  "focusSelectorIndependent": "Ich werde selbstständig",
+  "focusSelectorIndependentApercu": "Netz ohne Arbeitgeber",
+  "focusSelectorFamilyEvent": "Ein Familienereignis",
+  "focusSelectorFamilyEventApercu": "Hochzeit, Geburt, Scheidung...",
+  "focusSelectorSalaryApercu": "Entdecke deine Lohnabrechnung",
+  "focusSelectorChargesPerMonth": "~CHF {amount}/Monat an Abgaben",
+  "focusSelectorRetirementApercu": "Schätze deine Rente",
+  "focusSelectorKeepPercent": "Du behältst {percent} deines Einkommens",
+  "focusSelectorTaxSavings": "Mögliche Einsparungen",
+  "focusSelectorTaxRecoverable": "~CHF {amount}/Jahr rückforderbar",
+  "focusSelectorBuildPatrimoine": "Baue dein Vermögen auf",
+  "focusSelectorHousingCapacity": "Berechne deine Kapazität",
+  "focusSelectorHousingPossible": "~CHF {amount}k möglich",
+  "@paywallUpgradeSuccess": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
+  "@paywallChooseTier": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
+  "@mortgageJourneyStepLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@mortgageJourneyStepCounter": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "@whatIfImpactPerMonth": {
+    "placeholders": {
+      "sign": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@coupleTimelineActLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "@coupleTimelineIncome": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@budget503020BasedOn": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@budget503020Semantics": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@focusSelectorChargesPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@focusSelectorKeepPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "@focusSelectorTaxRecoverable": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@focusSelectorHousingPossible": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  }
 }

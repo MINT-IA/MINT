@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -28,62 +29,62 @@ class MortgageStep {
   final String legalRef;
 }
 
-const _kSteps = [
+List<MortgageStep> _buildSteps(S l) => [
   MortgageStep(
     number: 1,
     emoji: '🧮',
-    title: 'Est-ce que je peux acheter ?',
-    subtitle: 'Règle des 3 tiers : les charges (intérêts théoriques à 5% + amortissement 1% + entretien 1%) ne doivent pas dépasser 1/3 de ton revenu brut.',
-    action: 'Calcule ta capacité avec le simulateur MINT',
-    legalRef: 'FINMA/ASB — taux théorique 5%',
+    title: l.mortgageJourneyStep1Title,
+    subtitle: l.mortgageJourneyStep1Subtitle,
+    action: l.mortgageJourneyStep1Action,
+    legalRef: l.mortgageJourneyStep1Legal,
   ),
   MortgageStep(
     number: 2,
     emoji: '💰',
-    title: 'D\'où viennent mes fonds propres ?',
-    subtitle: 'Il te faut 20% du prix en fonds propres. Sources possibles : épargne, 3a, EPL (2e pilier, max 10% du prix). Attention : l\'EPL bloque le rachat LPP 3 ans.',
-    action: 'Vérifie ton solde 3a et LPP dans MINT',
-    legalRef: 'LPP art. 30c (EPL) — OPP2 art. 5 (min CHF 20\'000)',
+    title: l.mortgageJourneyStep2Title,
+    subtitle: l.mortgageJourneyStep2Subtitle,
+    action: l.mortgageJourneyStep2Action,
+    legalRef: l.mortgageJourneyStep2Legal,
   ),
   MortgageStep(
     number: 3,
     emoji: '📊',
-    title: 'Quel type d\'hypothèque ?',
-    subtitle: 'Hypothèque fixe : sécurité, taux fixe pour 2-15 ans. SARON (variable) : taux plus bas mais risque de hausse. Mix possible. Taux actuel ≠ taux théorique 5%.',
-    action: 'Compare les offres de 3 banques minimum',
-    legalRef: 'FINMA — Circular 2008/10 (standards hypothécaires)',
+    title: l.mortgageJourneyStep3Title,
+    subtitle: l.mortgageJourneyStep3Subtitle,
+    action: l.mortgageJourneyStep3Action,
+    legalRef: l.mortgageJourneyStep3Legal,
   ),
   MortgageStep(
     number: 4,
     emoji: '📉',
-    title: 'Amortissement direct ou indirect ?',
-    subtitle: 'Direct : tu rembourses la banque chaque année (dette baisse, déduction fiscale baisse). Indirect : tu verses dans ton 3a, puis tu rembourses en bloc. Avantage fiscal de l\'indirect.',
-    action: 'Consulte un·e spécialiste fiscal pour ton canton',
-    legalRef: 'LIFD art. 33 al. 1 let. a (déduction intérêts)',
+    title: l.mortgageJourneyStep4Title,
+    subtitle: l.mortgageJourneyStep4Subtitle,
+    action: l.mortgageJourneyStep4Action,
+    legalRef: l.mortgageJourneyStep4Legal,
   ),
   MortgageStep(
     number: 5,
     emoji: '🏠',
-    title: 'Et la valeur locative ?',
-    subtitle: 'Si tu occupes ton bien, tu paies l\'impôt sur la valeur locative (loyer fictif). Contre-partie : tu peux déduire les intérêts hypothécaires et les frais d\'entretien.',
-    action: 'Estime ton impôt valeur locative dans MINT',
-    legalRef: 'LIFD art. 21 al. 1 let. b (valeur locative)',
+    title: l.mortgageJourneyStep5Title,
+    subtitle: l.mortgageJourneyStep5Subtitle,
+    action: l.mortgageJourneyStep5Action,
+    legalRef: l.mortgageJourneyStep5Legal,
   ),
   MortgageStep(
     number: 6,
     emoji: '⚖️',
-    title: 'Au final : louer ou acheter ?',
-    subtitle: 'Décision personnelle autant que financière. Facteurs : durée de résidence prévue, stabilité professionnelle, flexibilité souhaitée. Break-even typique : 7-12 ans.',
-    action: 'Lance le Bilan de match dans MINT',
-    legalRef: 'CO art. 261ss (bail à loyer)',
+    title: l.mortgageJourneyStep6Title,
+    subtitle: l.mortgageJourneyStep6Subtitle,
+    action: l.mortgageJourneyStep6Action,
+    legalRef: l.mortgageJourneyStep6Legal,
   ),
   MortgageStep(
     number: 7,
     emoji: '📋',
-    title: 'Mon plan d\'action',
-    subtitle: 'Avant de signer : vérifier le règlement de co-propriété, la cote de l\'immeuble, les travaux planifiés, l\'état du fonds de rénovation. Faire relire l\'acte de vente.',
-    action: 'Télécharge la checklist achat MINT',
-    legalRef: 'CC art. 652 (propriété par étages)',
+    title: l.mortgageJourneyStep7Title,
+    subtitle: l.mortgageJourneyStep7Subtitle,
+    action: l.mortgageJourneyStep7Action,
+    legalRef: l.mortgageJourneyStep7Legal,
   ),
 ];
 
@@ -102,17 +103,25 @@ class MortgageJourneyWidget extends StatefulWidget {
 
 class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
   late int _activeStep;
+  late List<MortgageStep> _steps;
 
   @override
   void initState() {
     super.initState();
-    _activeStep = widget.currentStep.clamp(0, _kSteps.length - 1);
+    _activeStep = widget.currentStep.clamp(0, 6);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _steps = _buildSteps(S.of(context)!);
+    _activeStep = _activeStep.clamp(0, _steps.length - 1);
   }
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Parcours fléché achat immobilier 7 étapes hypothèque fonds propres FINMA LPP',
+      label: S.of(context)!.mortgageJourneySemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -160,7 +169,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Parcours achat immobilier',
+                  S.of(context)!.mortgageJourneyTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -176,7 +185,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  '${_activeStep + 1} / ${_kSteps.length}',
+                  S.of(context)!.mortgageJourneyStepCounter(_activeStep + 1, _steps.length),
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
@@ -188,7 +197,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
           ),
           const SizedBox(height: 8),
           Text(
-            '7 étapes pour passer de "est-ce que je peux ?" à "j\'ai signé !".',
+            S.of(context)!.mortgageJourneySubtitle,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -202,7 +211,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
 
   Widget _buildStepper() {
     return Row(
-      children: List.generate(_kSteps.length, (i) {
+      children: List.generate(_steps.length, (i) {
         final isDone = i < _activeStep;
         final isActive = i == _activeStep;
 
@@ -241,7 +250,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
                   ),
                 ),
               ),
-              if (i < _kSteps.length - 1)
+              if (i < _steps.length - 1)
                 Expanded(
                   child: Container(
                     height: 2,
@@ -258,7 +267,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
   }
 
   Widget _buildActiveStepDetail() {
-    final step = _kSteps[_activeStep];
+    final step = _steps[_activeStep];
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 250),
@@ -280,7 +289,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Étape ${step.number} · ${step.title}',
+                    S.of(context)!.mortgageJourneyStepLabel(step.number, step.title),
                     style: GoogleFonts.montserrat(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -348,7 +357,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
           TextButton.icon(
             onPressed: () => setState(() => _activeStep--),
             icon: const Icon(Icons.arrow_back_rounded, size: 16),
-            label: const Text('Précédent'),
+            label: Text(S.of(context)!.mortgageJourneyPrevious),
             style: TextButton.styleFrom(
               foregroundColor: MintColors.textSecondary,
               padding:
@@ -357,10 +366,10 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
           )
         else
           const SizedBox.shrink(),
-        if (_activeStep < _kSteps.length - 1)
+        if (_activeStep < _steps.length - 1)
           ElevatedButton.icon(
             onPressed: () => setState(() => _activeStep++),
-            icon: const Text('Étape suivante'),
+            icon: Text(S.of(context)!.mortgageJourneyNextStep),
             label: const Icon(Icons.arrow_forward_rounded, size: 16),
             style: ElevatedButton.styleFrom(
               backgroundColor: MintColors.primary,
@@ -381,7 +390,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              '✅ Parcours complet !',
+              '✅ ${S.of(context)!.mortgageJourneyComplete}',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
@@ -395,9 +404,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
 
   Widget _buildDisclaimer() {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Consulte un·e spécialiste hypothécaire avant toute décision. '
-      'Sources : FINMA Circular 2008/10, LPP art. 30c, LIFD art. 21, CC art. 652.',
+      S.of(context)!.mortgageJourneyDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

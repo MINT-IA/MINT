@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -76,7 +77,7 @@ class WhatIfStoriesWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Ce qui pourrait tout changer',
+              S.of(context)!.whatIfTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -92,7 +93,7 @@ class WhatIfStoriesWidget extends StatelessWidget {
                 .map((e) => _buildStoryCard(context, e.key, e.value)),
             const SizedBox(height: 8),
             Text(
-              'Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier (LSFin).',
+              S.of(context)!.whatIfDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 10,
                 color: MintColors.textMuted,
@@ -165,7 +166,10 @@ class WhatIfStoriesWidget extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${isPositive ? "+" : ""}${formatChfWithPrefix(story.monthlyImpactChf)}/mois \u00e0 65 ans',
+                          S.of(context)!.whatIfImpactPerMonth(
+                            isPositive ? '+' : '',
+                            formatChfWithPrefix(story.monthlyImpactChf),
+                          ),
                           style: GoogleFonts.montserrat(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,

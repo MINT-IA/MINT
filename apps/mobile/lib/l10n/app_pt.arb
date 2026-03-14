@@ -5785,27 +5785,33 @@
   "coachChatBadgeOnDevice": "No dispositivo",
   "coachChatBadgeCloud": "Nuvem",
   "coachChatBadgeOffline": "Offline",
-  "coachChatDisclaimer": "Ferramenta educativa\u00a0— as respostas não constituem aconselhamento financeiro. LSFin.",
+  "coachChatDisclaimer": "Ferramenta educativa — as respostas não constituem aconselhamento financeiro. LSFin.",
   "coachChatLoading": "A refletir...",
   "coachChatSources": "Fontes",
   "coachChatInputHint": "Faz a tua pergunta...",
   "coachChatDefaultName": "amigo·a",
-  "coachChatGreetingSlm": "Olá {name}! Sou o teu coach MINT\u00a0— funciono diretamente no teu iPhone, nenhum dado sai do teu dispositivo. Pergunta-me sobre previdência, impostos ou reforma.",
+  "coachChatGreetingSlm": "Olá {name}! Sou o teu coach MINT — funciono diretamente no teu iPhone, nenhum dado sai do teu dispositivo. Pergunta-me sobre previdência, impostos ou reforma.",
   "@coachChatGreetingSlm": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "coachChatGreetingFallback": "Olá {name}! Sou o teu coach MINT. Pergunta-me sobre previdência, impostos, orçamento ou reforma na Suíça.",
   "@coachChatGreetingFallback": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "coachChatFitnessScore": " A tua pontuação Fitness é de {score}/100.",
   "@coachChatFitnessScore": {
     "placeholders": {
-      "score": {"type": "int"}
+      "score": {
+        "type": "int"
+      }
     }
   },
   "coachChatComplianceFallback": "Não consegui formular uma resposta conforme. Reformula a tua pergunta ou explora os simuladores.",
@@ -5827,24 +5833,78 @@
   "slmSettingsChooseModel": "Escolhe o teu modelo",
   "slmSettingsTwoSizesAvailable": "Dois tamanhos disponíveis consoante o teu dispositivo",
   "slmSettingsRecommended": "Recomendado",
-  "slmSettingsTierDetails": "{size} • ~{minutes}\u00a0min • {compatibility}",
-  "@slmSettingsTierDetails": {"placeholders": {"size": {"type": "String"}, "minutes": {"type": "String"}, "compatibility": {"type": "String"}}},
-  "slmSettingsModelSize": "Tamanho\u00a0: {size}",
-  "@slmSettingsModelSize": {"placeholders": {"size": {"type": "String"}}},
-  "slmSettingsModelVersion": "Versão\u00a0: {version}",
-  "@slmSettingsModelVersion": {"placeholders": {"version": {"type": "String"}}},
+  "slmSettingsTierDetails": "{size} • ~{minutes} min • {compatibility}",
+  "@slmSettingsTierDetails": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      },
+      "compatibility": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsModelSize": "Tamanho : {size}",
+  "@slmSettingsModelSize": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsModelVersion": "Versão : {version}",
+  "@slmSettingsModelVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "slmSettingsDownloadFailedDefault": "O download falhou. Verifica a tua ligação WiFi e o espaço disponível no dispositivo.",
   "slmSettingsDownloadButton": "Transferir ({size})",
-  "@slmSettingsDownloadButton": {"placeholders": {"size": {"type": "String"}}},
+  "@slmSettingsDownloadButton": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "slmSettingsBuildDownloadUnavailable": "Esta versão não permite o download do modelo.",
-  "slmSettingsDownloadDialogContent": "O modelo tem {size}. Certifica-te de que estás ligado ao WiFi para evitar consumo elevado de dados móveis.\n\n~{minutes}\u00a0min em WiFi. Compatível\u00a0: {compatibility}.",
-  "@slmSettingsDownloadDialogContent": {"placeholders": {"size": {"type": "String"}, "minutes": {"type": "String"}, "compatibility": {"type": "String"}}},
+  "slmSettingsDownloadDialogContent": "O modelo tem {size}. Certifica-te de que estás ligado ao WiFi para evitar consumo elevado de dados móveis.\n\n~{minutes} min em WiFi. Compatível : {compatibility}.",
+  "@slmSettingsDownloadDialogContent": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      },
+      "compatibility": {
+        "type": "String"
+      }
+    }
+  },
   "slmSettingsCheckWifiAndStorage": "Verifica a tua ligação WiFi e o espaço disponível.",
   "slmSettingsDownloadFailed": "Download falhado. {reason}",
-  "@slmSettingsDownloadFailed": {"placeholders": {"reason": {"type": "String"}}},
+  "@slmSettingsDownloadFailed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
   "slmSettingsRetryAction": "Tentar novamente",
-  "slmSettingsEstimatedTime": "~{minutes}\u00a0min em WiFi",
-  "@slmSettingsEstimatedTime": {"placeholders": {"minutes": {"type": "String"}}},
+  "slmSettingsEstimatedTime": "~{minutes} min em WiFi",
+  "@slmSettingsEstimatedTime": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
   "slmSettingsStatusRunning": "Pronto — o coach usa a IA on-device",
   "slmSettingsStatusReady": "Modelo transferido — inicialização necessária",
   "slmSettingsStatusError": "Erro — dispositivo não compatível ou memória insuficiente",
@@ -5854,25 +5914,49 @@
   "slmSettingsInitError": "Erro de inicialização do modelo. Verifica se o teu dispositivo é compatível.",
   "slmSettingsInitializing": "A inicializar…",
   "slmSettingsInitializeEngine": "Inicializar o motor",
-  "slmSettingsInfoDownload": "Transfere o modelo uma vez (~{minutes}\u00a0min em WiFi)",
-  "@slmSettingsInfoDownload": {"placeholders": {"minutes": {"type": "String"}}},
+  "slmSettingsInfoDownload": "Transfere o modelo uma vez (~{minutes} min em WiFi)",
+  "@slmSettingsInfoDownload": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
   "slmSettingsInfoOnDevice": "A IA funciona diretamente no teu telemóvel",
   "slmSettingsInfoOffline": "Funciona mesmo sem ligação à internet",
   "slmSettingsInfoPrivacy": "Os teus dados nunca saem do dispositivo",
   "slmSettingsInfoSpeed": "Respostas em 2-4 segundos num dispositivo recente",
-  "slmSettingsInfoSource": "Fonte do modelo\u00a0: {modelId}",
-  "@slmSettingsInfoSource": {"placeholders": {"modelId": {"type": "String"}}},
-  "slmSettingsAuthConfigured": "Autenticação HuggingFace\u00a0: configurada",
-  "slmSettingsAuthNotConfigured": "Autenticação HuggingFace\u00a0: não configurada (download impossível se URL Gemma for restrita)",
-  "slmSettingsCompatibilityInfo": "Compatibilidade\u00a0: {compatibility}.\nO modelo necessita de {diskSize} de espaço em disco e ~{ramGb}\u00a0GB de RAM.",
-  "@slmSettingsCompatibilityInfo": {"placeholders": {"compatibility": {"type": "String"}, "diskSize": {"type": "String"}, "ramGb": {"type": "String"}}},
+  "slmSettingsInfoSource": "Fonte do modelo : {modelId}",
+  "@slmSettingsInfoSource": {
+    "placeholders": {
+      "modelId": {
+        "type": "String"
+      }
+    }
+  },
+  "slmSettingsAuthConfigured": "Autenticação HuggingFace : configurada",
+  "slmSettingsAuthNotConfigured": "Autenticação HuggingFace : não configurada (download impossível se URL Gemma for restrita)",
+  "slmSettingsCompatibilityInfo": "Compatibilidade : {compatibility}.\nO modelo necessita de {diskSize} de espaço em disco e ~{ramGb} GB de RAM.",
+  "@slmSettingsCompatibilityInfo": {
+    "placeholders": {
+      "compatibility": {
+        "type": "String"
+      },
+      "diskSize": {
+        "type": "String"
+      },
+      "ramGb": {
+        "type": "String"
+      }
+    }
+  },
   "genderGapAppBarTitle": "GENDER GAP PREVIDÊNCIA",
   "genderGapTitle": "Lacuna de previdência",
   "genderGapSubtitle": "Impacto do trabalho a tempo parcial na reforma",
-  "genderGapIntroText": "A dedução de coordenação (CHF\u00a026\u2019460) não é rateada para trabalho a tempo parcial, o que penaliza mais quem trabalha horas reduzidas. Move o cursor para ver o impacto.",
+  "genderGapIntroText": "A dedução de coordenação (CHF 26’460) não é rateada para trabalho a tempo parcial, o que penaliza mais quem trabalha horas reduzidas. Move o cursor para ver o impacto.",
   "genderGapActivityRate": "Taxa de atividade",
   "genderGapParameters": "Parâmetros",
-  "genderGapGrossAnnualIncome": "Rendimento anual bruto (100\u00a0%)",
+  "genderGapGrossAnnualIncome": "Rendimento anual bruto (100 %)",
   "genderGapAge": "Idade",
   "genderGapAgeValue": "{age} anos",
   "@genderGapAgeValue": {
@@ -5885,7 +5969,7 @@
   "genderGapCurrentLppAssets": "Ativos LPP atuais",
   "genderGapContributionYears": "Anos de contribuição",
   "genderGapCanton": "Cantão",
-  "genderGapDemoNotice": "Modo demo\u00a0: perfil exemplo. Completa o teu diagnóstico para resultados personalizados.",
+  "genderGapDemoNotice": "Modo demo : perfil exemplo. Completa o teu diagnóstico para resultados personalizados.",
   "genderGapEstimatedLppPension": "Renda LPP estimada",
   "genderGapProjectionYears": "Projeção a {years} anos (idade 65)",
   "@genderGapProjectionYears": {
@@ -5895,8 +5979,8 @@
       }
     }
   },
-  "genderGapAt100Pct": "A 100\u00a0%",
-  "genderGapAtTaux": "A {taux}\u00a0%",
+  "genderGapAt100Pct": "A 100 %",
+  "genderGapAtTaux": "A {taux} %",
   "@genderGapAtTaux": {
     "placeholders": {
       "taux": {
@@ -5915,10 +5999,10 @@
   "genderGapAnnualGap": "Lacuna anual",
   "genderGapTotalGap": "Lacuna total (~20 anos)",
   "genderGapCoordinationTitle": "Compreender a dedução de coordenação",
-  "genderGapCoordinationExplanation": "A dedução de coordenação é um montante fixo de CHF\u00a026\u2019460 subtraído do teu salário bruto para calcular o salário coordenado (base LPP). Este montante é o mesmo quer trabalhe a 100\u00a0% ou a 50\u00a0%.",
-  "genderGapGrossSalary100": "Salário bruto a 100\u00a0%",
-  "genderGapCoordSalary100": "Salário coordenado a 100\u00a0%",
-  "genderGapGrossSalaryAtTaux": "Salário bruto a {taux}\u00a0%",
+  "genderGapCoordinationExplanation": "A dedução de coordenação é um montante fixo de CHF 26’460 subtraído do teu salário bruto para calcular o salário coordenado (base LPP). Este montante é o mesmo quer trabalhe a 100 % ou a 50 %.",
+  "genderGapGrossSalary100": "Salário bruto a 100 %",
+  "genderGapCoordSalary100": "Salário coordenado a 100 %",
+  "genderGapGrossSalaryAtTaux": "Salário bruto a {taux} %",
   "@genderGapGrossSalaryAtTaux": {
     "placeholders": {
       "taux": {
@@ -5926,7 +6010,7 @@
       }
     }
   },
-  "genderGapCoordSalaryAtTaux": "Salário coordenado a {taux}\u00a0%",
+  "genderGapCoordSalaryAtTaux": "Salário coordenado a {taux} %",
   "@genderGapCoordSalaryAtTaux": {
     "placeholders": {
       "taux": {
@@ -5935,60 +6019,143 @@
     }
   },
   "genderGapCoordDeductionFixed": "Dedução coordenação (fixa)",
-  "genderGapSourceLpp": "Fonte\u00a0: LPP art. 8, OPP2 art. 5",
+  "genderGapSourceLpp": "Fonte : LPP art. 8, OPP2 art. 5",
   "genderGapOfsStatistic": "Estatística OFS",
   "genderGapRecommendations": "RECOMENDAÇÕES",
   "genderGapDisclaimer": "Os resultados apresentados são estimativas simplificadas a título indicativo. Não constituem aconselhamento financeiro personalizado. Consulta a tua caixa de pensões e um·a profissional qualificado·a antes de qualquer decisão.",
   "genderGapSources": "Fontes",
-  "genderGapSourcesDetail": "LPP art. 8 (dedução de coordenação) / LPP art. 14 (taxa de conversão 6.8\u00a0%) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (resgate voluntário) / OFS 2024 (estatísticas gender gap)"
-,
+  "genderGapSourcesDetail": "LPP art. 8 (dedução de coordenação) / LPP art. 14 (taxa de conversão 6.8 %) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (resgate voluntário) / OFS 2024 (estatísticas gender gap)",
   "sourceTaxSemanticsLabel": "Mapa de calor das taxas de imposto na fonte por cantão suíço",
   "sourceTaxTitle": "Taxas de imposto na fonte",
   "sourceTaxSubtitle": "26 cantões  ·  Solteiro/a, CHF 80'000",
   "sourceTaxAverageRate": "Taxa média",
   "sourceTaxIndicativeRate": "Taxa indicativa de imposto na fonte",
   "cantonMapSemanticsLabel": "Mapa de abonos de família por cantão. {count} cantões exibidos.",
-  "@cantonMapSemanticsLabel": {"placeholders": {"count": {"type": "int"}}},
+  "@cantonMapSemanticsLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "cantonMapTitle": "Abonos de família",
   "cantonMapSubtitle": "por cantão (por filho/mês)",
   "cantonMapRank": "Posição {rank} de {total}",
-  "@cantonMapRank": {"placeholders": {"rank": {"type": "int"}, "total": {"type": "int"}}},
+  "@cantonMapRank": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "interactiveSimEmployeeWithLpp": "EMPREGADO com LPP",
   "interactiveSimSelfEmployedNoLpp": "INDEPENDENTE sem LPP",
   "interactiveSimCeiling": "Teto 2026: CHF {amount}/ano",
-  "@interactiveSimCeiling": {"placeholders": {"amount": {"type": "String"}}},
+  "@interactiveSimCeiling": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimMonthlyPayment": "Pagamento mensal: CHF {amount}",
-  "@interactiveSimMonthlyPayment": {"placeholders": {"amount": {"type": "String"}}},
+  "@interactiveSimMonthlyPayment": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimExceedsCeiling": "Pagamento anual (CHF {annual}) excede o teto (CHF {max})",
-  "@interactiveSimExceedsCeiling": {"placeholders": {"annual": {"type": "String"}, "max": {"type": "String"}}},
+  "@interactiveSimExceedsCeiling": {
+    "placeholders": {
+      "annual": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimDuration": "Duração: {years} anos",
-  "@interactiveSimDuration": {"placeholders": {"years": {"type": "int"}}},
+  "@interactiveSimDuration": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
   "interactiveSimMarginalTaxRate": "Taxa marginal de tributação: {rate} %",
-  "@interactiveSimMarginalTaxRate": {"placeholders": {"rate": {"type": "String"}}},
+  "@interactiveSimMarginalTaxRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimMarginalTaxHint": "Estimado por cantão/rendimento (varia de 15 % a 45 %)",
   "interactiveSimAnnualPayment": "Pagamento anual",
   "interactiveSimTaxSavings": "Poupança fiscal (estimada)",
   "interactiveSimRealCost": "Custo real",
   "interactiveSimProjectionTitle": "Projeção {years} anos (cenários educativos)",
-  "@interactiveSimProjectionTitle": {"placeholders": {"years": {"type": "int"}}},
+  "@interactiveSimProjectionTitle": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
   "interactiveSimPrudence": "Prudência (1 %)",
   "interactiveSimCentral": "Central (3 %)",
   "interactiveSimStress": "Stress (5 %)",
   "interactiveSimCumulativeTaxSavings": "Poupanças fiscais acumuladas ({years} anos)",
-  "@interactiveSimCumulativeTaxSavings": {"placeholders": {"years": {"type": "int"}}},
+  "@interactiveSimCumulativeTaxSavings": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
   "interactiveSimDisclaimer": "Hipóteses educativas. Rendimentos passados não garantem rendimentos futuros.",
   "interactiveSimLppBuybackTitle": "Simulação Recompra LPP",
   "interactiveSimBuybackAmount": "Montante de recompra: CHF {amount}",
-  "@interactiveSimBuybackAmount": {"placeholders": {"amount": {"type": "String"}}},
+  "@interactiveSimBuybackAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimMarginalTaxHintShort": "Estimado por cantão/rendimento",
   "interactiveSimBuyback": "Recompra",
   "interactiveSimRetirementImpact": "Impacto na reforma (cenários educativos)",
   "interactiveSimPrudenceRate": "Prudência (taxa {rate} %)",
-  "@interactiveSimPrudenceRate": {"placeholders": {"rate": {"type": "String"}}},
+  "@interactiveSimPrudenceRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimCentralRate": "Central (taxa {rate} %)",
-  "@interactiveSimCentralRate": {"placeholders": {"rate": {"type": "String"}}},
+  "@interactiveSimCentralRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimStressRate": "Stress (taxa {rate} %)",
-  "@interactiveSimStressRate": {"placeholders": {"rate": {"type": "String"}}},
+  "@interactiveSimStressRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "interactiveSimHypothesesTitle": "Hipóteses e limites:",
   "interactiveSimHypothesesBody": "• Dedução fiscal conforme regras aplicáveis\n• Taxa de conversão: hipótese atual, pode baixar\n• Verificar com certificado LPP e um/a especialista fiscal",
   "lifeEventMarriage": "Casamento",
@@ -6021,7 +6188,13 @@
   "arbitrageTornadoTitle": "Sensibilidades-chave",
   "arbitrageTornadoDisclaimer": "Simulação educativa — transparência sobre as hipóteses, sem recomendação.",
   "coupleTimelineChartFrom": "A partir de {year}",
-  "@coupleTimelineChartFrom": {"placeholders": {"year": {"type": "int"}}},
+  "@coupleTimelineChartFrom": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
   "coupleTimelineChartPhase1": "Fase 1",
   "coupleTimelineChartPhase2": "Fase 2",
   "coupleTimelineChartPerMonth": "/mês",
@@ -6046,8 +6219,14 @@
   "@rachatCalculePour": {
     "description": "Subtitle showing calculated tax rate for canton and status",
     "placeholders": {
-      "canton": { "type": "String", "example": "VD" },
-      "statut": { "type": "String", "example": "solteiro" }
+      "canton": {
+        "type": "String",
+        "example": "VD"
+      },
+      "statut": {
+        "type": "String",
+        "example": "solteiro"
+      }
     }
   },
   "rachatAjuster": "Ajustar",
@@ -6058,8 +6237,14 @@
   "@rachatHorizonValue": {
     "description": "Horizon value with plural suffix",
     "placeholders": {
-      "count": { "type": "int", "example": "3" },
-      "suffix": { "type": "String", "example": "s" }
+      "count": {
+        "type": "int",
+        "example": "3"
+      },
+      "suffix": {
+        "type": "String",
+        "example": "s"
+      }
     }
   },
   "rachatComparaison": "COMPARAÇÃO",
@@ -6069,7 +6254,10 @@
   "@rachatEchelonneSurNAns": {
     "description": "Staggered over N years card title",
     "placeholders": {
-      "count": { "type": "int", "example": "3" }
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
     }
   },
   "rachatReparti": "Resgate distribuído",
@@ -6085,14 +6273,20 @@
   "@rachatEconomieChf": {
     "description": "Economy amount with CHF prefix",
     "placeholders": {
-      "amount": { "type": "String", "example": "12'500" }
+      "amount": {
+        "type": "String",
+        "example": "12'500"
+      }
     }
   },
   "rachatCoutNetChf": "Custo líquido: CHF {amount}",
   "@rachatCoutNetChf": {
     "description": "Net cost amount with CHF prefix",
     "placeholders": {
-      "amount": { "type": "String", "example": "67'500" }
+      "amount": {
+        "type": "String",
+        "example": "67'500"
+      }
     }
   },
   "rachatRachat": "Resgate",
@@ -6100,12 +6294,242 @@
   "@rachatLacuneComblee": {
     "description": "Gap filled percentage",
     "placeholders": {
-      "percent": { "type": "String", "example": "75" }
+      "percent": {
+        "type": "String",
+        "example": "75"
+      }
     }
   },
   "rachatBlockageEplTitle": "LPP art. 79b al. 3 — Bloqueio EPL",
   "rachatBlockageEplBody": "Após cada resgate, qualquer retirada EPL (incentivo à propriedade) fica bloqueada por 3 anos. Planeja em conformidade se uma compra imobiliária está prevista.",
   "rachatTauxMarginalTitle": "Taxa marginal de imposição",
   "rachatTauxMarginalBody": "A taxa marginal é a percentagem de imposto sobre o último franco ganho. Com uma taxa de 32%, cada CHF 1'000 deduzido economiza CHF 320. Quanto maior a renda, mais essa taxa aumenta (progressividade do imposto suíço).",
-  "rachatTauxMarginalTip": "É por isso que escalonar seus resgates é inteligente: cada parcela permanece em uma taxa marginal alta."
+  "rachatTauxMarginalTip": "É por isso que escalonar seus resgates é inteligente: cada parcela permanece em uma taxa marginal alta.",
+  "paywallTitle": "Desbloqueia MINT Coach",
+  "paywallSubtitle": "O teu coach financeiro pessoal",
+  "paywallTierStarter": "Starter",
+  "paywallTierPremium": "Premium",
+  "paywallTierCouplePlus": "Couple+",
+  "paywallRecommendedBadge": "Top",
+  "paywallPricePerMonth": "/mês",
+  "paywallFeatureDashboard": "Dashboard de trajetória",
+  "paywallFeatureForecast": "Previsão adaptativa",
+  "paywallFeatureCheckIn": "Check-in mensal",
+  "paywallFeatureAlerts": "Alertas proativos",
+  "paywallFeatureAllStarter": "Tudo Starter +",
+  "paywallFeatureScore": "Pontuação evolutiva",
+  "paywallFeatureCoachLLM": "Coach LLM",
+  "paywallFeatureWhatIf": "Cenários \"E se...\"",
+  "paywallFeatureExportPDF": "Exportar PDF",
+  "paywallFeatureMonteCarlo": "Monte Carlo",
+  "paywallFeatureArbitrage": "Módulos de arbitragem",
+  "paywallFeatureAllPremium": "Tudo Premium +",
+  "paywallFeatureTwoProfiles": "2 perfis ativos",
+  "paywallFeatureJointOptimization": "Otimização conjunta",
+  "paywallTrialBadge": "Teste gratuito 14 dias",
+  "paywallUpgradeSuccess": "Assinatura {tier} ativada com sucesso.",
+  "paywallTrialSuccess": "Teste gratuito ativado! Aproveita o MINT Coach durante 14 dias.",
+  "paywallChooseTier": "Escolher {tier}",
+  "paywallStartTrial": "Começar teste gratuito",
+  "paywallRestorePurchase": "Restaurar uma compra",
+  "paywallRestoreSuccess": "Assinatura restaurada com sucesso!",
+  "paywallNoPurchaseFound": "Nenhuma compra anterior encontrada.",
+  "paywallDisclaimer": "Ferramenta educativa — não constitui aconselhamento financeiro. LSFin. Podes cancelar a qualquer momento nas definições da tua conta.",
+  "mortgageJourneyTitle": "Percurso de compra imobiliária",
+  "mortgageJourneySubtitle": "7 passos de \"posso comprar?\" a \"assinei!\".",
+  "mortgageJourneyStepLabel": "Passo {number} · {title}",
+  "mortgageJourneyPrevious": "Anterior",
+  "mortgageJourneyNextStep": "Próximo passo",
+  "mortgageJourneyComplete": "Percurso completo!",
+  "mortgageJourneyStep1Title": "Posso comprar?",
+  "mortgageJourneyStep1Subtitle": "Regra dos terços: os encargos (juros teóricos a 5% + amortização 1% + manutenção 1%) não devem exceder 1/3 do rendimento bruto.",
+  "mortgageJourneyStep1Action": "Calcula a tua capacidade com o simulador MINT",
+  "mortgageJourneyStep1Legal": "FINMA/ASB — taxa teórica 5%",
+  "mortgageJourneyStep2Title": "De onde vêm os meus fundos próprios?",
+  "mortgageJourneyStep2Subtitle": "Precisas de 20% do preço em fundos próprios. Fontes possíveis: poupanças, 3a, EPL (2.º pilar, máx. 10% do preço). Atenção: o EPL bloqueia o resgate LPP durante 3 anos.",
+  "mortgageJourneyStep2Action": "Verifica o teu saldo 3a e LPP no MINT",
+  "mortgageJourneyStep2Legal": "LPP art. 30c (EPL) — OPP2 art. 5 (mín. CHF 20'000)",
+  "mortgageJourneyStep3Title": "Que tipo de hipoteca?",
+  "mortgageJourneyStep3Subtitle": "Hipoteca fixa: segurança, taxa fixa por 2-15 anos. SARON (variável): taxa mais baixa mas risco de aumento. Mix possível. Taxa atual ≠ taxa teórica 5%.",
+  "mortgageJourneyStep3Action": "Compara ofertas de pelo menos 3 bancos",
+  "mortgageJourneyStep3Legal": "FINMA — Circular 2008/10 (padrões hipotecários)",
+  "mortgageJourneyStep4Title": "Amortização direta ou indireta?",
+  "mortgageJourneyStep4Subtitle": "Direta: reembolsas o banco a cada ano (dívida desce, dedução fiscal desce). Indireta: contribuis para o teu 3a, depois reembolsas em bloco. Vantagem fiscal da indireta.",
+  "mortgageJourneyStep4Action": "Consulta um·a especialista fiscal do teu cantão",
+  "mortgageJourneyStep4Legal": "LIFD art. 33 par. 1 al. a (dedução de juros)",
+  "mortgageJourneyStep5Title": "E o valor locativo?",
+  "mortgageJourneyStep5Subtitle": "Se ocupas o teu imóvel, pagas imposto sobre o valor locativo (renda fictícia). Em contrapartida, podes deduzir os juros hipotecários e os custos de manutenção.",
+  "mortgageJourneyStep5Action": "Estima o teu imposto de valor locativo no MINT",
+  "mortgageJourneyStep5Legal": "LIFD art. 21 par. 1 al. b (valor locativo)",
+  "mortgageJourneyStep6Title": "No final: arrendar ou comprar?",
+  "mortgageJourneyStep6Subtitle": "Decisão pessoal tanto quanto financeira. Fatores: duração prevista de residência, estabilidade profissional, flexibilidade desejada. Break-even típico: 7-12 anos.",
+  "mortgageJourneyStep6Action": "Lança a comparação no MINT",
+  "mortgageJourneyStep6Legal": "CO art. 261ss (contrato de arrendamento)",
+  "mortgageJourneyStep7Title": "O meu plano de ação",
+  "mortgageJourneyStep7Subtitle": "Antes de assinar: verificar o regulamento de copropriedade, a classificação do edifício, as obras planeadas, o estado do fundo de renovação. Fazer rever a escritura de venda.",
+  "mortgageJourneyStep7Action": "Descarrega a checklist de compra MINT",
+  "mortgageJourneyStep7Legal": "CC art. 652 (propriedade por andares)",
+  "mortgageJourneyDisclaimer": "Ferramenta educativa · não constitui aconselhamento financeiro nos termos da LSFin. Consulta um·a especialista hipotecário antes de qualquer decisão. Fontes: FINMA Circular 2008/10, LPP art. 30c, LIFD art. 21, CC art. 652.",
+  "mortgageJourneySemantics": "Percurso guiado compra imobiliária 7 passos hipoteca fundos próprios FINMA LPP",
+  "mortgageJourneyStepCounter": "{current} / {total}",
+  "whatIfTitle": "O que poderia mudar tudo",
+  "whatIfDisclaimer": "Estimativas educativas — não constitui aconselhamento financeiro (LSFin).",
+  "whatIfImpactPerMonth": "{sign}{amount}/mês aos 65",
+  "coupleTimelineTitle": "A vossa história a dois",
+  "coupleTimelineActLabel": "ATO {number} · {period}",
+  "coupleTimelineIncome": "Rendimentos: {amount}/mês",
+  "coupleTimelineDisclaimer": "Estimativas educativas — não constitui aconselhamento financeiro (LSFin).",
+  "budget503020Title": "O teu orçamento 50 / 30 / 20",
+  "budget503020BasedOn": "Baseado em {amount} líquido/mês",
+  "budget503020Disclaimer": "Regra orçamental indicativa. Ferramenta educativa — não constitui aconselhamento financeiro (LSFin).",
+  "budget503020Semantics": "Orçamento 50/30/20. Salário líquido: {amount}/mês.",
+  "confidenceBlocksBase": "Base",
+  "confidenceBlocksObjective": "Objetivo",
+  "confidenceBlocksHousehold": "Agregado",
+  "confidenceBlocksLpp": "LPP",
+  "confidenceBlocksSavings": "Poupança",
+  "focusSelectorTitle": "O que te preocupa?",
+  "focusSelectorComprendre": "Compreender",
+  "focusSelectorComprendreSubtitle": "O meu dinheiro",
+  "focusSelectorProteger": "Proteger",
+  "focusSelectorProtegerSubtitle": "Reforma, família",
+  "focusSelectorOptimiser": "Otimizar",
+  "focusSelectorOptimiserSubtitle": "Impostos, poupança",
+  "focusSelectorNaviguer": "Navegar",
+  "focusSelectorNaviguerSubtitle": "Mudança de vida",
+  "focusSelectorSalary": "Para onde vai o meu salário?",
+  "focusSelectorSystem": "O sistema suíço?",
+  "focusSelectorSystemApercu": "AVS + LPP + 3a = ?",
+  "focusSelectorSituation": "A minha situação financeira?",
+  "focusSelectorSituationApercu": "Pontuação de visibilidade",
+  "focusSelectorRetirement": "A minha reforma",
+  "focusSelectorFamily": "A minha família / o meu casal",
+  "focusSelectorFamilyApercu": "Vista combinada a dois",
+  "focusSelectorDebtRepay": "Reembolsar as minhas dívidas",
+  "focusSelectorDebtApercu": "Plano de reembolso",
+  "focusSelectorSafetyNet": "Construir a minha rede de segurança",
+  "focusSelectorSafetyNetApercu": "LPP + seguros",
+  "focusSelectorTaxes": "Os meus impostos",
+  "focusSelectorPatrimoine": "O meu património",
+  "focusSelectorCapitalRente": "Capital ou Renda?",
+  "focusSelectorCapitalRenteApercu": "Comparar ambas as opções",
+  "focusSelectorExpat": "Chego à Suíça",
+  "focusSelectorExpatApercu": "Direitos, lacunas, armadilhas",
+  "focusSelectorHousing": "Compro um imóvel",
+  "focusSelectorIndependent": "Torno-me independente",
+  "focusSelectorIndependentApercu": "Rede sem empregador",
+  "focusSelectorFamilyEvent": "Um evento familiar",
+  "focusSelectorFamilyEventApercu": "Casamento, nascimento, divórcio...",
+  "focusSelectorSalaryApercu": "Descobre o teu recibo de vencimento",
+  "focusSelectorChargesPerMonth": "~CHF {amount}/mês de encargos",
+  "focusSelectorRetirementApercu": "Estima a tua reforma",
+  "focusSelectorKeepPercent": "Manténs {percent} do teu rendimento",
+  "focusSelectorTaxSavings": "Poupanças potenciais",
+  "focusSelectorTaxRecoverable": "~CHF {amount}/ano recuperáveis",
+  "focusSelectorBuildPatrimoine": "Constrói o teu património",
+  "focusSelectorHousingCapacity": "Calcula a tua capacidade",
+  "focusSelectorHousingPossible": "~CHF {amount}k possíveis",
+  "@paywallUpgradeSuccess": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
+  "@paywallChooseTier": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
+  "@mortgageJourneyStepLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@mortgageJourneyStepCounter": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "@whatIfImpactPerMonth": {
+    "placeholders": {
+      "sign": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@coupleTimelineActLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "@coupleTimelineIncome": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@budget503020BasedOn": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@budget503020Semantics": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@focusSelectorChargesPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@focusSelectorKeepPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "@focusSelectorTaxRecoverable": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@focusSelectorHousingPossible": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  }
 }

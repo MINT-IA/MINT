@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -17,34 +18,34 @@ class ConfidenceBlocksBar extends StatelessWidget {
 
   const ConfidenceBlocksBar({super.key, required this.blocs});
 
-  static const _displayBlocks = [
+  static List<_DisplayBlock> _displayBlocks(S l) => [
     _DisplayBlock(
-      keys: ['revenu', 'age_canton', 'archetype'],
-      label: 'Base',
+      keys: const ['revenu', 'age_canton', 'archetype'],
+      label: l.confidenceBlocksBase,
       icon: Icons.person,
       dataBlockType: 'revenu',
     ),
     _DisplayBlock(
-      keys: ['objectifRetraite'],
-      label: 'Objectif',
+      keys: const ['objectifRetraite'],
+      label: l.confidenceBlocksObjective,
       icon: Icons.flag,
       dataBlockType: 'objectifRetraite',
     ),
     _DisplayBlock(
-      keys: ['compositionMenage'],
-      label: 'Ménage',
+      keys: const ['compositionMenage'],
+      label: l.confidenceBlocksHousehold,
       icon: Icons.people,
       dataBlockType: 'compositionMenage',
     ),
     _DisplayBlock(
-      keys: ['lpp', 'taux_conversion'],
-      label: 'LPP',
+      keys: const ['lpp', 'taux_conversion'],
+      label: l.confidenceBlocksLpp,
       icon: Icons.account_balance,
       dataBlockType: 'lpp',
     ),
     _DisplayBlock(
-      keys: ['avs', '3a', 'patrimoine', 'foreign_pension'],
-      label: 'Épargne',
+      keys: const ['avs', '3a', 'patrimoine', 'foreign_pension'],
+      label: l.confidenceBlocksSavings,
       icon: Icons.savings,
       dataBlockType: '3a',
     ),
@@ -55,7 +56,7 @@ class ConfidenceBlocksBar extends StatelessWidget {
     return SizedBox(
       height: 72,
       child: Row(
-        children: _displayBlocks.map((db) {
+        children: _displayBlocks(S.of(context)!).map((db) {
           double score = 0;
           double maxScore = 0;
           for (final key in db.keys) {
@@ -144,7 +145,7 @@ class _DisplayBlock {
   final IconData icon;
   final String dataBlockType;
 
-  const _DisplayBlock({
+  _DisplayBlock({
     required this.keys,
     required this.label,
     required this.icon,

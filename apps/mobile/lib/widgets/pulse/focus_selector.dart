@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -30,33 +31,34 @@ class _FocusSelectorState extends State<FocusSelector> {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     final categories = [
       _FocusCategory(
         key: 'comprendre',
         icon: Icons.explore_outlined,
-        label: 'Comprendre',
-        subtitle: 'Mon argent',
+        label: l.focusSelectorComprendre,
+        subtitle: l.focusSelectorComprendreSubtitle,
         color: MintColors.info,
       ),
       _FocusCategory(
         key: 'proteger',
         icon: Icons.shield_outlined,
-        label: 'Protéger',
-        subtitle: 'Retraite, famille',
+        label: l.focusSelectorProteger,
+        subtitle: l.focusSelectorProtegerSubtitle,
         color: MintColors.success,
       ),
       _FocusCategory(
         key: 'optimiser',
         icon: Icons.trending_up_outlined,
-        label: 'Optimiser',
-        subtitle: 'Impôts, épargne',
+        label: l.focusSelectorOptimiser,
+        subtitle: l.focusSelectorOptimiserSubtitle,
         color: MintColors.warning,
       ),
       _FocusCategory(
         key: 'naviguer',
         icon: Icons.compass_calibration_outlined,
-        label: 'Naviguer',
-        subtitle: 'Changement de vie',
+        label: l.focusSelectorNaviguer,
+        subtitle: l.focusSelectorNaviguerSubtitle,
         color: MintColors.primary,
       ),
     ];
@@ -67,7 +69,7 @@ class _FocusSelectorState extends State<FocusSelector> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
-            "Qu'est-ce qui t'occupe ?",
+            l.focusSelectorTitle,
             style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -183,6 +185,7 @@ class _FocusSelectorState extends State<FocusSelector> {
     final isCouple = profile.isCouple;
     final isIndependant = profile.employmentStatus == 'independant';
     final hasDebt = profile.dettes.hasDette;
+    final l = S.of(context)!;
 
     List<_SubOption> options;
 
@@ -192,21 +195,21 @@ class _FocusSelectorState extends State<FocusSelector> {
           _SubOption(
             focus: 'comprendre_salaire',
             icon: Icons.receipt_long_outlined,
-            label: 'Où va mon salaire ?',
+            label: l.focusSelectorSalary,
             apercu: _salaryApercu(profile),
           ),
           if (isExpat || age < 28)
             _SubOption(
               focus: 'comprendre_systeme',
               icon: Icons.account_balance_outlined,
-              label: 'Le système suisse ?',
-              apercu: 'AVS + LPP + 3a = ?',
+              label: l.focusSelectorSystem,
+              apercu: l.focusSelectorSystemApercu,
             ),
           _SubOption(
             focus: 'comprendre_situation',
             icon: Icons.pie_chart_outline,
-            label: 'Ma situation financière ?',
-            apercu: 'Score de visibilité',
+            label: l.focusSelectorSituation,
+            apercu: l.focusSelectorSituationApercu,
           ),
         ];
       case 'proteger':
@@ -214,22 +217,22 @@ class _FocusSelectorState extends State<FocusSelector> {
           _SubOption(
             focus: 'proteger_retraite',
             icon: Icons.beach_access_outlined,
-            label: 'Ma retraite',
+            label: l.focusSelectorRetirement,
             apercu: _retirementApercu(profile),
           ),
           if (isCouple)
             _SubOption(
               focus: 'proteger_famille',
               icon: Icons.people_outline,
-              label: 'Ma famille / mon couple',
-              apercu: 'Vue combinée à deux',
+              label: l.focusSelectorFamily,
+              apercu: l.focusSelectorFamilyApercu,
             ),
           if (hasDebt || isIndependant)
             _SubOption(
               focus: 'proteger_urgence',
               icon: Icons.warning_amber_outlined,
-              label: hasDebt ? 'Rembourser mes dettes' : 'Construire mon filet',
-              apercu: hasDebt ? 'Plan de remboursement' : 'LPP + assurances',
+              label: hasDebt ? l.focusSelectorDebtRepay : l.focusSelectorSafetyNet,
+              apercu: hasDebt ? l.focusSelectorDebtApercu : l.focusSelectorSafetyNetApercu,
             ),
         ];
       case 'optimiser':
@@ -237,21 +240,21 @@ class _FocusSelectorState extends State<FocusSelector> {
           _SubOption(
             focus: 'optimiser_fiscal',
             icon: Icons.savings_outlined,
-            label: 'Mes impôts',
+            label: l.focusSelectorTaxes,
             apercu: _taxApercu(profile),
           ),
           _SubOption(
             focus: 'optimiser_patrimoine',
             icon: Icons.account_balance_wallet_outlined,
-            label: 'Mon patrimoine',
+            label: l.focusSelectorPatrimoine,
             apercu: _patrimoineApercu(profile),
           ),
           if (age > 50)
             _SubOption(
               focus: 'optimiser_capital_rente',
               icon: Icons.compare_arrows_outlined,
-              label: 'Capital ou Rente ?',
-              apercu: 'Comparer les deux options',
+              label: l.focusSelectorCapitalRente,
+              apercu: l.focusSelectorCapitalRenteApercu,
             ),
         ];
       case 'naviguer':
@@ -260,27 +263,27 @@ class _FocusSelectorState extends State<FocusSelector> {
             _SubOption(
               focus: 'naviguer_expat',
               icon: Icons.flight_land_outlined,
-              label: "J'arrive en Suisse",
-              apercu: 'Droits, lacunes, pièges',
+              label: l.focusSelectorExpat,
+              apercu: l.focusSelectorExpatApercu,
             ),
           _SubOption(
             focus: 'naviguer_achat',
             icon: Icons.home_outlined,
-            label: "J'achète un bien",
+            label: l.focusSelectorHousing,
             apercu: _housingApercu(profile),
           ),
           if (profile.employmentStatus != 'independant')
             _SubOption(
               focus: 'naviguer_independant',
               icon: Icons.business_center_outlined,
-              label: 'Je deviens indépendant·e',
-              apercu: 'Filet sans employeur',
+              label: l.focusSelectorIndependent,
+              apercu: l.focusSelectorIndependentApercu,
             ),
           _SubOption(
             focus: 'naviguer_evenement',
             icon: Icons.family_restroom_outlined,
-            label: 'Un événement familial',
-            apercu: 'Mariage, naissance, divorce...',
+            label: l.focusSelectorFamilyEvent,
+            apercu: l.focusSelectorFamilyEventApercu,
           ),
         ];
       default:
@@ -345,30 +348,34 @@ class _FocusSelectorState extends State<FocusSelector> {
   // ── Mini-aperçu helpers ──────────────────────────────────
 
   String _salaryApercu(CoachProfile p) {
-    if (p.salaireBrutMensuel <= 0) return 'Découvre ta fiche de paie';
+    final l = S.of(context)!;
+    if (p.salaireBrutMensuel <= 0) return l.focusSelectorSalaryApercu;
     final charges = (p.salaireBrutMensuel * 0.13).round();
-    return '~CHF $charges/mois de charges';
+    return l.focusSelectorChargesPerMonth('$charges');
   }
 
   String _retirementApercu(CoachProfile p) {
-    if (p.salaireBrutMensuel <= 0) return 'Estime ta retraite';
-    final replacement = (p.age < 55) ? '~65-75%' : '~70-80%';
-    return 'Tu gardes $replacement de ton revenu';
+    final l = S.of(context)!;
+    if (p.salaireBrutMensuel <= 0) return l.focusSelectorRetirementApercu;
+    final replacement = (p.age < 55) ? '~65-75\u00a0%' : '~70-80\u00a0%';
+    return l.focusSelectorKeepPercent(replacement);
   }
 
   String _taxApercu(CoachProfile p) {
-    if (p.salaireBrutMensuel <= 0) return 'Économies potentielles';
+    final l = S.of(context)!;
+    if (p.salaireBrutMensuel <= 0) return l.focusSelectorTaxSavings;
     // Rough 3a tax saving estimate
     const marginalRate = 0.25; // ~25% average marginal rate
     final saving3a = (7258 * marginalRate).round();
-    return '~CHF $saving3a/an récupérables';
+    return l.focusSelectorTaxRecoverable('$saving3a');
   }
 
   String _patrimoineApercu(CoachProfile p) {
+    final l = S.of(context)!;
     final total = p.patrimoine.totalPatrimoine +
         (p.prevoyance.avoirLppTotal ?? 0) +
         p.prevoyance.totalEpargne3a;
-    if (total < 1000) return 'Construis ton patrimoine';
+    if (total < 1000) return l.focusSelectorBuildPatrimoine;
     if (total >= 1000000) {
       return 'CHF ${(total / 1000000).toStringAsFixed(1)}M';
     }
@@ -376,10 +383,11 @@ class _FocusSelectorState extends State<FocusSelector> {
   }
 
   String _housingApercu(CoachProfile p) {
-    if (p.salaireBrutMensuel <= 0) return 'Calcule ta capacité';
+    final l = S.of(context)!;
+    if (p.salaireBrutMensuel <= 0) return l.focusSelectorHousingCapacity;
     // Rough affordability: gross salary * 12 / 0.05 * 0.80
     final capacity = (p.salaireBrutMensuel * 12 / 0.05 * 0.80 / 1000).round();
-    return '~CHF ${capacity}k possibles';
+    return l.focusSelectorHousingPossible('$capacity');
   }
 }
 

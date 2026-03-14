@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -93,7 +94,7 @@ class CoupleNarrativeTimeline extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Votre histoire \u00e0 deux',
+                    S.of(context)!.coupleTimelineTitle,
                     style: GoogleFonts.montserrat(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -117,7 +118,7 @@ class CoupleNarrativeTimeline extends StatelessWidget {
             // ── Disclaimer ──
             const SizedBox(height: 12),
             Text(
-              'Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier (LSFin).',
+              S.of(context)!.coupleTimelineDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 10,
                 color: MintColors.textMuted,
@@ -184,7 +185,7 @@ class CoupleNarrativeTimeline extends StatelessWidget {
                 children: [
                   // Act label
                   Text(
-                    'ACTE ${act.number} \u00b7 ${act.period}',
+                    S.of(context)!.coupleTimelineActLabel(act.number, act.period),
                     style: GoogleFonts.inter(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
@@ -209,7 +210,7 @@ class CoupleNarrativeTimeline extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        'Revenus\u00a0: ${formatChfWithPrefix(act.monthlyIncome)}/mois',
+                        S.of(context)!.coupleTimelineIncome(formatChfWithPrefix(act.monthlyIncome)),
                         style: GoogleFonts.montserrat(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -48,8 +49,8 @@ class Budget503020Widget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Budget 50/30/20. Salaire net\u00a0: '
-          '${formatChfWithPrefix(netSalary)}/mois.',
+      label: S.of(context)!.budget503020Semantics(
+          formatChfWithPrefix(netSalary)),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(20),
@@ -62,7 +63,7 @@ class Budget503020Widget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Ton budget 50 / 30 / 20',
+              S.of(context)!.budget503020Title,
               style: GoogleFonts.montserrat(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -71,7 +72,7 @@ class Budget503020Widget extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Basé sur ${formatChfWithPrefix(netSalary)} net/mois',
+              S.of(context)!.budget503020BasedOn(formatChfWithPrefix(netSalary)),
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textMuted,
@@ -112,8 +113,7 @@ class Budget503020Widget extends StatelessWidget {
 
             const SizedBox(height: 12),
             Text(
-              'R\u00e8gle budg\u00e9taire indicative. '
-              'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin).',
+              S.of(context)!.budget503020Disclaimer,
               style: GoogleFonts.inter(
                 fontSize: 10,
                 color: MintColors.textMuted,

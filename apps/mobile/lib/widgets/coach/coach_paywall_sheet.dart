@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
@@ -169,7 +170,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Debloque MINT Coach',
+            S.of(context)!.paywallTitle,
             style: GoogleFonts.montserrat(
               fontSize: 22,
               fontWeight: FontWeight.w700,
@@ -178,7 +179,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Ton coach financier personnel',
+            S.of(context)!.paywallSubtitle,
             style: GoogleFonts.inter(
               fontSize: 15,
               fontWeight: FontWeight.w400,
@@ -196,6 +197,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
 
   Widget _buildTierComparison() {
     final showCouplePlus = FeatureFlags.enableCouplePlusTier;
+    final l = S.of(context)!;
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -204,43 +206,43 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
         children: [
           _buildTierCard(
             tier: SubscriptionTier.starter,
-            name: 'Starter',
+            name: l.paywallTierStarter,
             price: '4.90',
             isRecommended: false,
-            features: const [
-              'Dashboard trajectoire',
-              'Forecast adaptatif',
-              'Check-in mensuel',
-              'Alertes proactives',
+            features: [
+              l.paywallFeatureDashboard,
+              l.paywallFeatureForecast,
+              l.paywallFeatureCheckIn,
+              l.paywallFeatureAlerts,
             ],
           ),
           const SizedBox(width: 12),
           _buildTierCard(
             tier: SubscriptionTier.premium,
-            name: 'Premium',
+            name: l.paywallTierPremium,
             price: '9.90',
             isRecommended: true,
-            features: const [
-              'Tout Starter +',
-              'Score evolutif',
-              'Coach LLM',
-              'Scenarios "Et si..."',
-              'Export PDF',
-              'Monte Carlo',
-              'Modules arbitrage',
+            features: [
+              l.paywallFeatureAllStarter,
+              l.paywallFeatureScore,
+              l.paywallFeatureCoachLLM,
+              l.paywallFeatureWhatIf,
+              l.paywallFeatureExportPDF,
+              l.paywallFeatureMonteCarlo,
+              l.paywallFeatureArbitrage,
             ],
           ),
           if (showCouplePlus) ...[
             const SizedBox(width: 12),
             _buildTierCard(
               tier: SubscriptionTier.couplePlus,
-              name: 'Couple+',
+              name: l.paywallTierCouplePlus,
               price: '14.90',
               isRecommended: false,
-              features: const [
-                'Tout Premium +',
-                '2 profils actifs',
-                'Optimisation conjointe',
+              features: [
+                l.paywallFeatureAllPremium,
+                l.paywallFeatureTwoProfiles,
+                l.paywallFeatureJointOptimization,
               ],
             ),
           ],
@@ -304,7 +306,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      'Top',
+                      S.of(context)!.paywallRecommendedBadge,
                       style: GoogleFonts.inter(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -330,7 +332,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                     ),
                   ),
                   TextSpan(
-                    text: ' /mois',
+                    text: ' ${S.of(context)!.paywallPricePerMonth}',
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -421,7 +423,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
           ),
           const SizedBox(width: 8),
           Text(
-            'Essai gratuit 14 jours',
+            S.of(context)!.paywallTrialBadge,
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -439,11 +441,12 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
 
   Widget _buildPrimaryCTA(BuildContext context) {
     final isIosIap = IosIapService.isSupportedPlatform;
+    final l = S.of(context)!;
     final tierLabel = switch (_selectedTier) {
-      SubscriptionTier.starter => 'Starter',
-      SubscriptionTier.premium => 'Premium',
-      SubscriptionTier.couplePlus => 'Couple+',
-      SubscriptionTier.free => 'Starter',
+      SubscriptionTier.starter => l.paywallTierStarter,
+      SubscriptionTier.premium => l.paywallTierPremium,
+      SubscriptionTier.couplePlus => l.paywallTierCouplePlus,
+      SubscriptionTier.free => l.paywallTierStarter,
     };
 
     return SizedBox(
@@ -479,8 +482,8 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
               SnackBar(
                 content: Text(
                   isIosIap
-                      ? 'Abonnement $tierLabel active avec succes.'
-                      : 'Essai gratuit active ! Profite de MINT Coach pendant 14 jours.',
+                      ? l.paywallUpgradeSuccess(tierLabel)
+                      : l.paywallTrialSuccess,
                 ),
               ),
             );
@@ -496,8 +499,8 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
         ),
         child: Text(
           isIosIap
-              ? 'Choisir $tierLabel'
-              : 'Commencer l\'essai gratuit',
+              ? l.paywallChooseTier(tierLabel)
+              : l.paywallStartTrial,
           style: GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -525,17 +528,17 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
           if (isCoach) {
             Navigator.of(context).pop();
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Abonnement restaure avec succes !')),
+              SnackBar(content: Text(S.of(context)!.paywallRestoreSuccess)),
             );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Aucun achat precedent trouve.')),
+              SnackBar(content: Text(S.of(context)!.paywallNoPurchaseFound)),
             );
           }
         }
       },
       child: Text(
-        'Restaurer un achat',
+        S.of(context)!.paywallRestorePurchase,
         style: GoogleFonts.inter(
           fontSize: 14,
           fontWeight: FontWeight.w500,
@@ -552,8 +555,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
 
   Widget _buildDisclaimer() {
     return Text(
-      'Outil educatif — ne constitue pas un conseil financier. LSFin. '
-      'Tu peux annuler a tout moment depuis les reglages de ton compte.',
+      S.of(context)!.paywallDisclaimer,
       textAlign: TextAlign.center,
       style: GoogleFonts.inter(
         fontSize: 11,
