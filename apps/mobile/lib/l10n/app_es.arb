@@ -5996,9 +5996,7 @@
   "interactiveSimStressRate": "Estrés (tasa {rate} %)",
   "@interactiveSimStressRate": {"placeholders": {"rate": {"type": "String"}}},
   "interactiveSimHypothesesTitle": "Hipótesis y límites:",
-  "interactiveSimHypothesesBody": "• Deducción fiscal según reglas aplicables
-• Tasa de conversión: hipótesis actual, puede bajar
-• Verificar con certificado LPP y un especialista fiscal",
+  "interactiveSimHypothesesBody": "• Deducción fiscal según reglas aplicables\n• Tasa de conversión: hipótesis actual, puede bajar\n• Verificar con certificado LPP y un especialista fiscal",
   "lifeEventMarriage": "Matrimonio",
   "lifeEventMarriageReason": "Descubre el impacto fiscal y en la previsión",
   "lifeEventConcubinage": "Concubinato",
@@ -6033,5 +6031,87 @@
   "coupleTimelineChartPhase1": "Fase 1",
   "coupleTimelineChartPhase2": "Fase 2",
   "coupleTimelineChartPerMonth": "/mes",
-  "coupleTimelineChartRetirementAge": "65 años"
+  "coupleTimelineChartRetirementAge": "65 años",
+  "rachatTitle": "RESCATE LPP ESCALONADO",
+  "rachatIntroTitle": "¿Por qué escalonar los rescates?",
+  "rachatIntroBody": "Dado que el impuesto suizo es progresivo, distribuir un rescate LPP en varios años permite mantenerse en tramos marginales más altos cada año, maximizando así el ahorro fiscal total. Este simulador compara ambos enfoques.",
+  "rachatHeroSavingsLabel": "de ahorro adicional al escalonar",
+  "rachatHeroBlocLabel": "Rescate en bloque más ventajoso en este caso",
+  "rachatSituationLpp": "SITUACIÓN LPP",
+  "rachatAvoirActuel": "Activo actual LPP",
+  "rachatMaximum": "Rescate máximo",
+  "rachatSituationFiscale": "SITUACIÓN FISCAL",
+  "rachatCanton": "Cantón",
+  "rachatEtatCivil": "Estado civil",
+  "rachatCelibataire": "Soltero/a",
+  "rachatMarie": "Casado/a",
+  "rachatRevenuImposable": "Ingresos imponibles",
+  "rachatTauxMarginalEstime": "Tasa marginal estimada",
+  "rachatValeurAjustee": "Valor ajustado manualmente",
+  "rachatCalculePour": "Calculado para {canton}, {statut}",
+  "@rachatCalculePour": {
+    "description": "Subtitle showing calculated tax rate for canton and status",
+    "placeholders": {
+      "canton": { "type": "String", "example": "VD" },
+      "statut": { "type": "String", "example": "soltero" }
+    }
+  },
+  "rachatAjuster": "Ajustar",
+  "rachatAuto": "Auto",
+  "rachatStrategie": "ESTRATEGIA",
+  "rachatHorizonLabel": "Horizonte (años)",
+  "rachatHorizonValue": "{count} año{suffix}",
+  "@rachatHorizonValue": {
+    "description": "Horizon value with plural suffix",
+    "placeholders": {
+      "count": { "type": "int", "example": "3" },
+      "suffix": { "type": "String", "example": "s" }
+    }
+  },
+  "rachatComparaison": "COMPARACIÓN",
+  "rachatToutEn1An": "TODO EN 1 AÑO",
+  "rachatBloc": "Rescate en bloque",
+  "rachatEchelonneSurNAns": "ESCALONADO EN {count} AÑOS",
+  "@rachatEchelonneSurNAns": {
+    "description": "Staggered over N years card title",
+    "placeholders": {
+      "count": { "type": "int", "example": "3" }
+    }
+  },
+  "rachatReparti": "Rescate distribuido",
+  "rachatLePlusAdapte": "EL MÁS ADECUADO",
+  "rachatEconomieFiscale": "Ahorro fiscal",
+  "rachatImpactTrancheFiscale": "IMPACTO POR TRAMO FISCAL",
+  "rachatWaterfallExplanation": "En bloque, la deducción atraviesa varios tramos (tasa media más baja). Al escalonar, cada deducción permanece en el tramo más alto.",
+  "rachatLegendBloc": "Bloque",
+  "rachatLegendEchelonne": "Escalonado",
+  "rachatPlanAnnuel": "PLAN ANUAL",
+  "rachatTotal": "Total",
+  "rachatEconomieChf": "Ahorro: CHF {amount}",
+  "@rachatEconomieChf": {
+    "description": "Economy amount with CHF prefix",
+    "placeholders": {
+      "amount": { "type": "String", "example": "12'500" }
+    }
+  },
+  "rachatCoutNetChf": "Coste neto: CHF {amount}",
+  "@rachatCoutNetChf": {
+    "description": "Net cost amount with CHF prefix",
+    "placeholders": {
+      "amount": { "type": "String", "example": "67'500" }
+    }
+  },
+  "rachatRachat": "Rescate",
+  "rachatLacuneComblee": "Brecha cubierta: {percent}%",
+  "@rachatLacuneComblee": {
+    "description": "Gap filled percentage",
+    "placeholders": {
+      "percent": { "type": "String", "example": "75" }
+    }
+  },
+  "rachatBlockageEplTitle": "LPP art. 79b al. 3 — Bloqueo EPL",
+  "rachatBlockageEplBody": "Después de cada rescate, cualquier retiro EPL (fomento de la propiedad) queda bloqueado durante 3 años. Planifica en consecuencia si tienes prevista una compra inmobiliaria.",
+  "rachatTauxMarginalTitle": "Tasa marginal de imposición",
+  "rachatTauxMarginalBody": "La tasa marginal es el porcentaje de impuesto sobre tu último franco ganado. Con una tasa del 32%, cada CHF 1'000 deducido te ahorra CHF 320. Cuanto mayor sea tu ingreso, más aumenta esta tasa (progresividad del impuesto suizo).",
+  "rachatTauxMarginalTip": "Por eso escalonar tus rescates es inteligente: cada tramo permanece en una tasa marginal alta."
 }

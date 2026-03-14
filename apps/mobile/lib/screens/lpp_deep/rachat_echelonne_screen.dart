@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -169,7 +170,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'RACHAT LPP ECHELONNE',
+                AppLocalizations.of(context)!.rachatTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -259,19 +260,16 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Pourquoi échelonner ses rachats ?',
+            AppLocalizations.of(context)!.rachatIntroTitle,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'L\'impôt suisse étant progressif, répartir un rachat LPP sur '
-            'plusieurs années permet de rester dans des tranches marginales '
-            'plus élevées chaque année, maximisant ainsi l\'économie fiscale '
-            'totale. Ce simulateur compare les deux approches.',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.rachatIntroBody,
+            style: const TextStyle(
               fontSize: 13,
               color: MintColors.textSecondary,
               height: 1.5,
@@ -334,8 +332,8 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               const SizedBox(height: 8),
               Text(
                 showSavings
-                    ? 'd\'économie supplémentaire en échelonnant'
-                    : 'Rachat en bloc plus avantageux dans ce cas',
+                    ? AppLocalizations.of(context)!.rachatHeroSavingsLabel
+                    : AppLocalizations.of(context)!.rachatHeroBlocLabel,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -378,7 +376,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               ),
               const SizedBox(width: 12),
               Text(
-                'SITUATION LPP',
+                AppLocalizations.of(context)!.rachatSituationLpp,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -390,7 +388,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           ),
           const SizedBox(height: 20),
           _buildSliderRow(
-            label: 'Avoir actuel LPP',
+            label: AppLocalizations.of(context)!.rachatAvoirActuel,
             value: _avoirActuel,
             min: 0,
             max: 500000,
@@ -403,7 +401,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           ),
           const SizedBox(height: 12),
           _buildSliderRow(
-            label: 'Rachat maximum',
+            label: AppLocalizations.of(context)!.rachatMaximum,
             value: _rachatMax,
             min: 0,
             max: 500000,
@@ -450,7 +448,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               ),
               const SizedBox(width: 12),
               Text(
-                'SITUATION FISCALE',
+                AppLocalizations.of(context)!.rachatSituationFiscale,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -466,9 +464,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Canton',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.rachatCanton,
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: MintColors.textPrimary,
@@ -513,9 +511,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Etat civil',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.rachatEtatCivil,
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: MintColors.textPrimary,
@@ -530,8 +528,8 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _buildStatusChip('Celibataire', 'single'),
-                    _buildStatusChip('Marie\u00b7e', 'married'),
+                    _buildStatusChip(AppLocalizations.of(context)!.rachatCelibataire, 'single'),
+                    _buildStatusChip(AppLocalizations.of(context)!.rachatMarie, 'married'),
                   ],
                 ),
               ),
@@ -541,7 +539,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
 
           // Revenu slider
           _buildSliderRow(
-            label: 'Revenu imposable',
+            label: AppLocalizations.of(context)!.rachatRevenuImposable,
             value: _revenu,
             min: 50000,
             max: 300000,
@@ -573,9 +571,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                         children: [
                           Row(
                             children: [
-                              const Text(
-                                'Taux marginal estime',
-                                style: TextStyle(
+                              Text(
+                                AppLocalizations.of(context)!.rachatTauxMarginalEstime,
+                                style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
                                   color: MintColors.textPrimary,
@@ -602,8 +600,13 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                           const SizedBox(height: 4),
                           Text(
                             _manualTauxOverride
-                                ? 'Valeur ajustee manuellement'
-                                : 'Calcule pour $_canton, ${_civilStatus == 'married' ? 'marie\u00b7e' : 'celibataire'}',
+                                ? AppLocalizations.of(context)!.rachatValeurAjustee
+                                : AppLocalizations.of(context)!.rachatCalculePour(
+                                    _canton,
+                                    _civilStatus == 'married'
+                                        ? AppLocalizations.of(context)!.rachatMarie
+                                        : AppLocalizations.of(context)!.rachatCelibataire,
+                                  ),
                             style: const TextStyle(
                               fontSize: 11,
                               color: MintColors.textMuted,
@@ -644,7 +647,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                         });
                       },
                       icon: const Icon(Icons.tune, size: 16),
-                      label: const Text('Ajuster'),
+                      label: Text(AppLocalizations.of(context)!.rachatAjuster),
                       style: TextButton.styleFrom(
                         foregroundColor: MintColors.textMuted,
                         textStyle: const TextStyle(fontSize: 12),
@@ -684,7 +687,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                           padding: EdgeInsets.zero,
                           minimumSize: const Size(0, 32),
                         ),
-                        child: const Text('Auto'),
+                        child: Text(AppLocalizations.of(context)!.rachatAuto),
                       ),
                     ],
                   ),
@@ -748,7 +751,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               ),
               const SizedBox(height: 24),
               Text(
-                'Taux marginal d\'imposition',
+                AppLocalizations.of(context)!.rachatTauxMarginalTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -756,12 +759,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Le taux marginal est le pourcentage d\'impot sur ton dernier '
-                'franc gagne. Avec un taux de 32%, chaque CHF 1\'000 deduit '
-                'te fait economiser CHF 320. Plus ton revenu est eleve, plus '
-                'ce taux augmente (progressivite de l\'impot suisse).',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.rachatTauxMarginalBody,
+                style: const TextStyle(
                   fontSize: 15,
                   color: MintColors.textPrimary,
                   height: 1.6,
@@ -781,8 +781,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'C\'est pour ça qu\'échelonner tes rachats est malin : '
-                        'chaque tranche reste dans un taux marginal élevé.',
+                        AppLocalizations.of(context)!.rachatTauxMarginalTip,
                         style: TextStyle(
                           fontSize: 13,
                           color: MintColors.greenForest,
@@ -829,7 +828,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               ),
               const SizedBox(width: 12),
               Text(
-                'STRATEGIE',
+                AppLocalizations.of(context)!.rachatStrategie,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -841,12 +840,12 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           ),
           const SizedBox(height: 20),
           _buildSliderRow(
-            label: 'Horizon (annees)',
+            label: AppLocalizations.of(context)!.rachatHorizonLabel,
             value: _horizon.toDouble(),
             min: 1,
             max: 15,
             divisions: 14,
-            format: '$_horizon an${_horizon > 1 ? 's' : ''}',
+            format: AppLocalizations.of(context)!.rachatHorizonValue(_horizon, _horizon > 1 ? 's' : ''),
             onChanged: (v) {
               _horizon = v.round();
               _onInputChanged();
@@ -915,7 +914,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'COMPARAISON',
+          AppLocalizations.of(context)!.rachatComparaison,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -928,8 +927,8 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           children: [
             Expanded(
               child: _buildComparisonCard(
-                title: 'TOUT EN 1 AN',
-                subtitle: 'Rachat bloc',
+                title: AppLocalizations.of(context)!.rachatToutEn1An,
+                subtitle: AppLocalizations.of(context)!.rachatBloc,
                 amount: result.economieBlocTotal,
                 color: MintColors.warning,
                 isWinner: result.delta <= 0,
@@ -938,8 +937,8 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             const SizedBox(width: 12),
             Expanded(
               child: _buildComparisonCard(
-                title: 'ECHELONNE SUR $_horizon ANS',
-                subtitle: 'Rachat reparti',
+                title: AppLocalizations.of(context)!.rachatEchelonneSurNAns(_horizon),
+                subtitle: AppLocalizations.of(context)!.rachatReparti,
                 amount: result.economieEchelonneTotal,
                 color: MintColors.success,
                 isWinner: result.delta > 0,
@@ -980,7 +979,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                'LE PLUS ADAPTE',
+                AppLocalizations.of(context)!.rachatLePlusAdapte,
                 style: GoogleFonts.montserrat(
                   fontSize: 9,
                   fontWeight: FontWeight.w800,
@@ -1016,9 +1015,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Economie fiscale',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.rachatEconomieFiscale,
+            style: const TextStyle(
               fontSize: 11,
               color: MintColors.textMuted,
             ),
@@ -1044,7 +1043,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'IMPACT PAR TRANCHE FISCALE',
+            AppLocalizations.of(context)!.rachatImpactTrancheFiscale,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -1053,10 +1052,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'En bloc, la deduction traverse plusieurs tranches (taux moyen plus bas). '
-            'En echelonnant, chaque deduction reste dans la tranche la plus haute.',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.rachatWaterfallExplanation,
+            style: const TextStyle(
               fontSize: 12,
               color: MintColors.textSecondary,
               height: 1.4,
@@ -1079,9 +1077,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegendDot(MintColors.warning, 'Bloc'),
+              _buildLegendDot(MintColors.warning, AppLocalizations.of(context)!.rachatLegendBloc),
               const SizedBox(width: 24),
-              _buildLegendDot(MintColors.success, 'Echelonne'),
+              _buildLegendDot(MintColors.success, AppLocalizations.of(context)!.rachatLegendEchelonne),
             ],
           ),
         ],
@@ -1137,7 +1135,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PLAN ANNUEL',
+            AppLocalizations.of(context)!.rachatPlanAnnuel,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -1168,7 +1166,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Total',
+                  AppLocalizations.of(context)!.rachatTotal,
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -1179,7 +1177,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'Economie : CHF ${formatChf(result.economieEchelonneTotal)}',
+                      AppLocalizations.of(context)!.rachatEconomieChf(formatChf(result.economieEchelonneTotal)),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -1188,7 +1186,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Cout net : CHF ${formatChf(_rachatMax - result.economieEchelonneTotal)}',
+                      AppLocalizations.of(context)!.rachatCoutNetChf(formatChf(_rachatMax - result.economieEchelonneTotal)),
                       style: const TextStyle(
                         fontSize: 12,
                         color: MintColors.textSecondary,
@@ -1311,15 +1309,15 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Rachat',
-                        style: TextStyle(
+                      Text(
+                        AppLocalizations.of(context)!.rachatRachat,
+                        style: const TextStyle(
                           fontSize: 11,
                           color: MintColors.textMuted,
                         ),
                       ),
                       Text(
-                        'Economie fiscale',
+                        AppLocalizations.of(context)!.rachatEconomieFiscale,
                         style: TextStyle(
                           fontSize: 11,
                           color: MintColors.greenPastel,
@@ -1331,7 +1329,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                   Row(
                     children: [
                       Text(
-                        'Cout net : CHF ${formatChf(year.coutNet)}',
+                        AppLocalizations.of(context)!.rachatCoutNetChf(formatChf(year.coutNet)),
                         style: const TextStyle(
                           fontSize: 12,
                           color: MintColors.textSecondary,
@@ -1346,7 +1344,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          'Lacune comblee : ${lacunePercent.toStringAsFixed(0)}%',
+                          AppLocalizations.of(context)!.rachatLacuneComblee(lacunePercent.toStringAsFixed(0)),
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
@@ -1387,7 +1385,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'LPP art. 79b al. 3 — Blocage EPL',
+                  AppLocalizations.of(context)!.rachatBlockageEplTitle,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
@@ -1396,9 +1394,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Apres chaque rachat, tout retrait EPL (encouragement a la '
-                  'propriete du logement) est bloque pendant 3 ans. '
-                  'Planifie en consequence si un achat immobilier est prevu.',
+                  AppLocalizations.of(context)!.rachatBlockageEplBody,
                   style: TextStyle(
                     fontSize: 12,
                     color: MintColors.redMedium,

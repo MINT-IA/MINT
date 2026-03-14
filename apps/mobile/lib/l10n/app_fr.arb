@@ -6196,9 +6196,7 @@
   "interactiveSimStressRate": "Stress (taux {rate} %)",
   "@interactiveSimStressRate": {"placeholders": {"rate": {"type": "String"}}},
   "interactiveSimHypothesesTitle": "Hypothèses et limites :",
-  "interactiveSimHypothesesBody": "• Déduction fiscale selon règles applicables
-• Taux de conversion : hypothèse actuelle, peut baisser
-• Vérifier avec certificat LPP et un·e spécialiste en fiscalité",
+  "interactiveSimHypothesesBody": "• Déduction fiscale selon règles applicables\n• Taux de conversion : hypothèse actuelle, peut baisser\n• Vérifier avec certificat LPP et un·e spécialiste en fiscalité",
   "lifeEventMarriage": "Mariage",
   "lifeEventMarriageReason": "Découvre l'impact fiscal et sur la prévoyance",
   "lifeEventConcubinage": "Concubinage",

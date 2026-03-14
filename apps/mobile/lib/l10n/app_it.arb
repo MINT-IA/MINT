@@ -5990,9 +5990,7 @@
   "interactiveSimStressRate": "Stress (tasso {rate} %)",
   "@interactiveSimStressRate": {"placeholders": {"rate": {"type": "String"}}},
   "interactiveSimHypothesesTitle": "Ipotesi e limiti:",
-  "interactiveSimHypothesesBody": "• Deduzione fiscale secondo le regole applicabili
-• Tasso di conversione: ipotesi attuale, può diminuire
-• Verificare con certificato LPP e uno/a specialista fiscale",
+  "interactiveSimHypothesesBody": "• Deduzione fiscale secondo le regole applicabili\n• Tasso di conversione: ipotesi attuale, può diminuire\n• Verificare con certificato LPP e uno/a specialista fiscale",
   "lifeEventMarriage": "Matrimonio",
   "lifeEventMarriageReason": "Scopri l'impatto fiscale e sulla previdenza",
   "lifeEventConcubinage": "Concubinato",
@@ -6027,5 +6025,87 @@
   "coupleTimelineChartPhase1": "Fase 1",
   "coupleTimelineChartPhase2": "Fase 2",
   "coupleTimelineChartPerMonth": "/mese",
-  "coupleTimelineChartRetirementAge": "65 anni"
+  "coupleTimelineChartRetirementAge": "65 anni",
+  "rachatTitle": "RISCATTO LPP SCAGLIONATO",
+  "rachatIntroTitle": "Perché scaglionare i riscatti?",
+  "rachatIntroBody": "Poiché l'imposta svizzera è progressiva, distribuire un riscatto LPP su più anni permette di restare nelle fasce marginali più alte ogni anno, massimizzando così il risparmio fiscale totale. Questo simulatore confronta i due approcci.",
+  "rachatHeroSavingsLabel": "di risparmio aggiuntivo con lo scaglionamento",
+  "rachatHeroBlocLabel": "Riscatto in blocco più vantaggioso in questo caso",
+  "rachatSituationLpp": "SITUAZIONE LPP",
+  "rachatAvoirActuel": "Avere attuale LPP",
+  "rachatMaximum": "Riscatto massimo",
+  "rachatSituationFiscale": "SITUAZIONE FISCALE",
+  "rachatCanton": "Cantone",
+  "rachatEtatCivil": "Stato civile",
+  "rachatCelibataire": "Celibe/Nubile",
+  "rachatMarie": "Sposato/a",
+  "rachatRevenuImposable": "Reddito imponibile",
+  "rachatTauxMarginalEstime": "Aliquota marginale stimata",
+  "rachatValeurAjustee": "Valore regolato manualmente",
+  "rachatCalculePour": "Calcolato per {canton}, {statut}",
+  "@rachatCalculePour": {
+    "description": "Subtitle showing calculated tax rate for canton and status",
+    "placeholders": {
+      "canton": { "type": "String", "example": "VD" },
+      "statut": { "type": "String", "example": "celibe" }
+    }
+  },
+  "rachatAjuster": "Regolare",
+  "rachatAuto": "Auto",
+  "rachatStrategie": "STRATEGIA",
+  "rachatHorizonLabel": "Orizzonte (anni)",
+  "rachatHorizonValue": "{count} anno{suffix}",
+  "@rachatHorizonValue": {
+    "description": "Horizon value with plural suffix",
+    "placeholders": {
+      "count": { "type": "int", "example": "3" },
+      "suffix": { "type": "String", "example": "i" }
+    }
+  },
+  "rachatComparaison": "CONFRONTO",
+  "rachatToutEn1An": "TUTTO IN 1 ANNO",
+  "rachatBloc": "Riscatto in blocco",
+  "rachatEchelonneSurNAns": "SCAGLIONATO SU {count} ANNI",
+  "@rachatEchelonneSurNAns": {
+    "description": "Staggered over N years card title",
+    "placeholders": {
+      "count": { "type": "int", "example": "3" }
+    }
+  },
+  "rachatReparti": "Riscatto distribuito",
+  "rachatLePlusAdapte": "IL PIÙ ADATTO",
+  "rachatEconomieFiscale": "Risparmio fiscale",
+  "rachatImpactTrancheFiscale": "IMPATTO PER FASCIA FISCALE",
+  "rachatWaterfallExplanation": "In blocco, la deduzione attraversa diverse fasce (aliquota media più bassa). Scaglionando, ogni deduzione resta nella fascia più alta.",
+  "rachatLegendBloc": "Blocco",
+  "rachatLegendEchelonne": "Scaglionato",
+  "rachatPlanAnnuel": "PIANO ANNUALE",
+  "rachatTotal": "Totale",
+  "rachatEconomieChf": "Risparmio: CHF {amount}",
+  "@rachatEconomieChf": {
+    "description": "Economy amount with CHF prefix",
+    "placeholders": {
+      "amount": { "type": "String", "example": "12'500" }
+    }
+  },
+  "rachatCoutNetChf": "Costo netto: CHF {amount}",
+  "@rachatCoutNetChf": {
+    "description": "Net cost amount with CHF prefix",
+    "placeholders": {
+      "amount": { "type": "String", "example": "67'500" }
+    }
+  },
+  "rachatRachat": "Riscatto",
+  "rachatLacuneComblee": "Lacuna colmata: {percent}%",
+  "@rachatLacuneComblee": {
+    "description": "Gap filled percentage",
+    "placeholders": {
+      "percent": { "type": "String", "example": "75" }
+    }
+  },
+  "rachatBlockageEplTitle": "LPP art. 79b cpv. 3 — Blocco EPL",
+  "rachatBlockageEplBody": "Dopo ogni riscatto, qualsiasi prelievo EPL (promozione della proprietà abitativa) è bloccato per 3 anni. Pianifica di conseguenza se è previsto un acquisto immobiliare.",
+  "rachatTauxMarginalTitle": "Aliquota marginale d'imposizione",
+  "rachatTauxMarginalBody": "L'aliquota marginale è la percentuale d'imposta sull'ultimo franco guadagnato. Con un'aliquota del 32%, ogni CHF 1'000 dedotto fa risparmiare CHF 320. Più alto è il reddito, più aumenta questa aliquota (progressività dell'imposta svizzera).",
+  "rachatTauxMarginalTip": "Ecco perché scaglionare i riscatti è astuto: ogni tranche resta in un'aliquota marginale elevata."
 }

@@ -6156,9 +6156,7 @@
   "interactiveSimStressRate": "Stress (rate {rate}%)",
   "@interactiveSimStressRate": {"placeholders": {"rate": {"type": "String"}}},
   "interactiveSimHypothesesTitle": "Assumptions and limits:",
-  "interactiveSimHypothesesBody": "• Tax deduction per applicable rules
-• Conversion rate: current assumption, may decrease
-• Verify with LPP certificate and a tax specialist",
+  "interactiveSimHypothesesBody": "• Tax deduction per applicable rules\n• Conversion rate: current assumption, may decrease\n• Verify with LPP certificate and a tax specialist",
   "lifeEventMarriage": "Marriage",
   "lifeEventMarriageReason": "Discover the tax and pension impact",
   "lifeEventConcubinage": "Cohabitation",

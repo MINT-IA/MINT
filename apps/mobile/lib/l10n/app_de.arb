@@ -6156,9 +6156,7 @@
   "interactiveSimStressRate": "Stress (Satz {rate} %)",
   "@interactiveSimStressRate": {"placeholders": {"rate": {"type": "String"}}},
   "interactiveSimHypothesesTitle": "Hypothesen und Grenzen:",
-  "interactiveSimHypothesesBody": "• Steuerabzug gemäss geltenden Regeln
-• Umwandlungssatz: aktuelle Annahme, kann sinken
-• Mit BVG-Ausweis und Steuerfachperson prüfen",
+  "interactiveSimHypothesesBody": "• Steuerabzug gemäss geltenden Regeln\n• Umwandlungssatz: aktuelle Annahme, kann sinken\n• Mit BVG-Ausweis und Steuerfachperson prüfen",
   "lifeEventMarriage": "Heirat",
   "lifeEventMarriageReason": "Entdecke die steuerlichen und vorsorgerechtlichen Auswirkungen",
   "lifeEventConcubinage": "Konkubinat",
