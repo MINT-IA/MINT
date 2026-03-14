@@ -2,7 +2,6 @@
 name: mint-commit
 description: Standardized git commit workflow for MINT. Use when committing changes, creating PRs, or pushing code. Enforces conventional commits, test verification, and Co-Authored-By attribution.
 compatibility: Requires git.
-allowed-tools: Bash(git:*)
 metadata:
   author: mint-team
   version: "1.0"

@@ -2,7 +2,6 @@
 name: autoresearch-coach-evolution
 description: Autonomous autoresearch loop for coaching content quality. Generates N variants of coaching text (tips, chiffres-chocs, alertes), scores them mechanically, keeps the best. Invoke with /autoresearch-coach-evolution or /autoresearch-coach-evolution 30.
 compatibility: Requires Flutter SDK, git. Works on education/inserts/ and apps/mobile/lib/.
-allowed-tools: Bash(flutter:*) Bash(grep:*) Bash(git:*) Bash(wc:*) Bash(cd:*) Bash(tail:*) Bash(date:*) Bash(echo:*) Bash(cat:*)
 metadata:
   author: mint-team
   version: "1.0"

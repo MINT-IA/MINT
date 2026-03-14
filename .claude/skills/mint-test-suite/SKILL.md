@@ -2,7 +2,6 @@
 name: mint-test-suite
 description: Run and fix the MINT test suite. Use when running tests, diagnosing test failures, or fixing broken tests. Covers both Flutter (114 tests in apps/mobile/) and Python backend (59 tests in services/backend/).
 compatibility: Requires Flutter SDK and Python 3.10+ with pytest.
-allowed-tools: Bash(flutter:*) Bash(pytest:*)
 metadata:
   author: mint-team
   version: "1.0"

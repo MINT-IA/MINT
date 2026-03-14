@@ -2,7 +2,6 @@
 name: mint-audit-complet
 description: Audit croisé complet de MINT. Lance 5 équipes spécialisées en parallèle (actuariat, juridique, UX, 3 piliers, DevOps), converge les findings, et produit un rapport unifié PASS/FAIL. Invoke avec /audit-complet ou quand on demande un audit global.
 compatibility: Requires Flutter SDK, Python 3.10+, pytest, curl. Works across entire MINT codebase.
-allowed-tools: Bash(grep:*) Bash(ls:*) Bash(wc:*) Bash(flutter:*) Bash(pytest:*) Bash(git:*) Bash(cat:*) Bash(find:*) Bash(diff:*) Bash(curl:*) Bash(cd:*) Read Glob Grep Agent
 metadata:
   author: mint-team
   version: "1.0"

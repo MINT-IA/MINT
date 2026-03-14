@@ -2,7 +2,6 @@
 name: mint-phase-audit
 description: Audit a P8 Digital Twin phase after coding. Runs mechanical gate checks from P8_EXECUTION.md and reports PASS/FAIL per gate. Use after a coding agent commits a phase. Invoke with /mint-phase-audit or when asked to audit a P8 phase.
 compatibility: Requires Flutter SDK, git. Works in apps/mobile/ and services/backend/.
-allowed-tools: Bash(grep:*) Bash(ls:*) Bash(wc:*) Bash(flutter:*) Bash(pytest:*) Bash(git:*) Bash(cat:*) Bash(find:*)
 metadata:
   author: mint-team
   version: "1.0"
