@@ -24,11 +24,11 @@ class GenderGapScreen extends StatefulWidget {
 class _GenderGapScreenState extends State<GenderGapScreen> {
   // ── State ──────────────────────────────────────────────────
   double _tauxActivite = 60;
-  double _revenuAnnuel = 85000;
-  int _age = 40;
-  double _avoirLpp = 120000;
-  int _anneesCotisation = 15;
-  String _canton = 'VD';
+  final double _revenuAnnuel = 85000;
+  final int _age = 40;
+  final double _avoirLpp = 120000;
+  final int _anneesCotisation = 15;
+  final String _canton = 'VD';
 
   GenderGapResult? _result;
 
