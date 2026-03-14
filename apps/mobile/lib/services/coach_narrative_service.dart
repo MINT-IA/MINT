@@ -182,7 +182,7 @@ class CoachNarrativeService {
 
   /// Disclaimer standard
   static const disclaimer =
-      'Outil educatif — ne constitue pas un conseil financier. LSFin.';
+      'Outil éducatif — ne constitue pas un conseil financier. LSFin.';
 
   /// Termes bannis — delegue a ComplianceGuard (source unique).
   static List<String> get _bannedTerms => ComplianceGuard.bannedTerms;

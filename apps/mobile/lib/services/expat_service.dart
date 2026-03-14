@@ -28,10 +28,10 @@ class ExpatService {
   // ════════════════════════════════════════════════════════════
 
   static const String disclaimer =
-      'Estimations simplifiees a but educatif — ne constitue pas '
-      'un conseil fiscal ou juridique. Les montants dependent de nombreux '
-      'facteurs (deductions, commune, fortune, convention internationale, etc.). '
-      'Consulte un-e specialiste fiscal-e pour une analyse personnalisee.';
+      'Estimations simplifiées à but éducatif — ne constitue pas '
+      'un conseil fiscal ou juridique. Les montants dépendent de nombreux '
+      'facteurs (déductions, commune, fortune, convention internationale, etc.). '
+      'Consulte un·e spécialiste fiscal·e pour une analyse personnalisée.';
 
   // ════════════════════════════════════════════════════════════
   //  FRONTALIER — SOURCE TAX (Bareme C) BY CANTON

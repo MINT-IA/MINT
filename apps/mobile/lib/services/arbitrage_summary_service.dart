@@ -494,7 +494,7 @@ class ArbitrageSummaryService {
         'Retraits en 2 annees fiscales distinctes',
       ],
       disclaimer:
-          'Outil educatif — ne constitue pas un conseil financier au sens de la LSFin.',
+          'Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin.',
       sources: const ['LIFD art. 38', 'LPP art. 37'],
       confidenceScore: 60.0,
       sensitivity: const {},

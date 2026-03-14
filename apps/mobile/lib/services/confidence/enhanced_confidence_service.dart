@@ -326,9 +326,9 @@ class EnhancedConfidenceService {
       enrichmentPrompts: prompts,
       featureGates: gates,
       disclaimer:
-          'Outil educatif — ne constitue pas un conseil financier (LSFin). '
-          'Le score de confiance reflete la qualite des donnees fournies, '
-          'pas la fiabilite du systeme.',
+          'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
+          'Le score de confiance reflète la qualité des données fournies, '
+          'pas la fiabilité du système.',
       sources: const [
         'DATA_ACQUISITION_STRATEGY.md',
         'LPP art. 7-16',

@@ -192,9 +192,9 @@ class AnnualRefreshService {
       monthsSinceUpdate: months,
       questions: questions,
       disclaimer:
-          'Outil educatif — ne constitue pas un conseil financier au sens '
-          'de la LSFin. Consulte un\u00b7e specialiste pour des conseils '
-          'personnalises.',
+          'Outil éducatif — ne constitue pas un conseil financier au sens '
+          'de la LSFin. Consulte un·e spécialiste pour des conseils '
+          'personnalisés.',
       sources: [
         'LPP art. 8-10 (salaire coordonne)',
         'LAVS art. 29 (duree de cotisation)',

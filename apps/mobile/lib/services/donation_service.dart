@@ -316,11 +316,11 @@ class DonationService {
 
     // ── Disclaimer ──
     const disclaimer =
-        'Cet outil educatif fournit des estimations indicatives et '
+        'Cet outil éducatif fournit des estimations indicatives et '
         'ne constitue pas un conseil juridique, fiscal ou notarial '
-        'personnalise au sens de la LSFin. Le droit des donations '
-        'et successions comporte de nombreuses subtilites cantonales. '
-        'Consulte un·e specialiste (notaire) pour ta situation.';
+        'personnalisé au sens de la LSFin. Le droit des donations '
+        'et successions comporte de nombreuses subtilités cantonales. '
+        'Consulte un·e spécialiste (notaire) pour ta situation.';
 
     // ── Sources ──
     const sources = [

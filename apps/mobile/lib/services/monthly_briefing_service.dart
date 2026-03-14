@@ -82,7 +82,7 @@ class MonthlyBriefingService {
   MonthlyBriefingService._();
 
   static const _disclaimer =
-      'Outil educatif — ne constitue pas un conseil financier. LSFin.';
+      'Outil éducatif — ne constitue pas un conseil financier. LSFin.';
 
   /// Compare two consecutive monthly check-ins and generate a briefing.
   ///

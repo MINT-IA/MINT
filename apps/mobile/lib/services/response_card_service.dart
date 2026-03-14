@@ -20,7 +20,7 @@ class ResponseCardService {
   ResponseCardService._();
 
   static const _disclaimer =
-      'Outil educatif — ne constitue pas un conseil financier (LSFin art. 3).';
+      'Outil éducatif — ne constitue pas un conseil financier (LSFin art. 3).';
 
   /// Genere les cartes prioritaires pour le dashboard Pulse.
   /// Max [limit] cartes, triees par urgence puis impact.

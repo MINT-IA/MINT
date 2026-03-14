@@ -112,10 +112,10 @@ class ScenarioNarratorService {
     return ScenarioNarrationResult(
       scenarios: scenarios,
       disclaimer:
-          'Outil educatif — ne constitue pas un conseil financier au sens '
-          'de la LSFin. Les projections reposent sur des hypotheses de '
-          'rendement et ne presagent pas des resultats futurs. '
-          'Consulte un\u00b7e specialiste pour un plan personnalise.',
+          'Outil éducatif — ne constitue pas un conseil financier au sens '
+          'de la LSFin. Les projections reposent sur des hypothèses de '
+          'rendement et ne présagent pas des résultats futurs. '
+          'Consulte un·e spécialiste pour un plan personnalisé.',
       sources: [
         'LAVS art. 21-29 (rente AVS)',
         'LPP art. 14 (taux de conversion)',
