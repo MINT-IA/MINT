@@ -69,12 +69,18 @@ class FallbackTemplates {
 
   /// Generates a score summary with trend indication.
   static String scoreSummary(CoachContext ctx) {
+    final score = ctx.friTotal;
+    final interpretation = score >= 70
+        ? 'Tu as une bonne visibilité sur ta situation.'
+        : score >= 40
+            ? 'Il y a encore des zones floues dans ta situation financière.'
+            : 'On manque de données pour te donner des chiffres fiables.';
     final trend = ctx.friDelta > 0
-        ? 'En progression de ${ctx.friDelta.toStringAsFixed(0)} points.'
+        ? ' +${ctx.friDelta.toStringAsFixed(0)} pts depuis ta dernière visite.'
         : ctx.friDelta < 0
-            ? 'En recul de ${ctx.friDelta.abs().toStringAsFixed(0)} points.'
-            : 'Stable.';
-    return 'Solidité financière : ${ctx.friTotal.toStringAsFixed(0)}/100. $trend';
+            ? ' ${ctx.friDelta.toStringAsFixed(0)} pts depuis ta dernière visite.'
+            : '';
+    return '$interpretation$trend';
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -90,34 +96,36 @@ class FallbackTemplates {
 
     // Tax optimization lever (> CHF 1000 potential)
     if (taxSaving > 1000) {
-      return '${ctx.firstName}, un versement 3a pourrait réduire ton impôt '
-          'd\'environ CHF ${taxSaving.toStringAsFixed(0)} cette année. '
-          'Simule l\'impact sur ton profil.';
+      return '${ctx.firstName}, chaque année sans versement 3a, '
+          'c\'est ~${taxSaving.toStringAsFixed(0)} CHF offerts au fisc. '
+          'Un virement prend 2 minutes depuis ton app bancaire.';
     }
 
     // Liquidity alert (< 3 months of reserves)
     if (liquidity < 3) {
-      return 'Ta réserve de liquidité couvre environ '
-          '${liquidity.toStringAsFixed(1)} mois. '
-          'Un objectif de 3 à 6 mois est souvent considéré comme une base solide.';
+      return '${ctx.firstName}, si un imprévu arrive demain '
+          '(panne, frais médicaux, perte de revenu), ta réserve tient '
+          '${liquidity.toStringAsFixed(0)} mois. '
+          'Objectif\u00a0: 3 mois minimum pour dormir tranquille.';
     }
 
     // Retirement gap (replacement ratio < 55%)
     if (replacement < 55) {
-      return 'Ton taux de remplacement estimé à la retraite est de '
-          '${replacement.toStringAsFixed(0)}%. '
-          'Explore les options pour combler l\'écart dans le simulateur.';
+      return '${ctx.firstName}, à la retraite, tu vivras avec '
+          '~${replacement.toStringAsFixed(0)}\u00a0% de ton revenu actuel. '
+          'Concrètement, chaque sortie resto ou vacances devra être repensée. '
+          'Il y a des leviers pour améliorer ça.';
     }
 
     // Default: encourage profile completion with specific enrichment action
     final enrichment = _topEnrichmentAction(ctx);
     if (enrichment != null) {
-      return 'Ton score de solidité est de '
-          '${ctx.friTotal.toStringAsFixed(0)}/100. $enrichment';
+      return '${ctx.firstName}, plus MINT te connaît, plus les chiffres '
+          'sont fiables. $enrichment';
     }
-    return 'Ton score de solidité est de '
-        '${ctx.friTotal.toStringAsFixed(0)}/100. '
-        'Continue à affiner ton profil pour des estimations plus précises.';
+    return '${ctx.firstName}, tes projections reposent encore sur '
+        'des estimations. Ajoute tes vrais chiffres pour voir ta '
+        'situation réelle — pas une moyenne suisse.';
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -132,14 +140,18 @@ class FallbackTemplates {
         .any((v) => v == 'certified');
 
     if (hasCertifiedData) {
-      return 'Ce chiffre s\'appuie sur des données certifiées '
-          '(confiance : ${confidence.toStringAsFixed(0)}%). '
-          'Continue à enrichir ton profil pour affiner l\'estimation.';
+      return 'Ce chiffre s\'appuie sur tes vrais documents — '
+          'c\'est proche de ta réalité. '
+          'Chaque donnée ajoutée affine encore la précision.';
     }
     final enrichment = _topEnrichmentAction(ctx);
-    return 'Ce chiffre est basé sur '
-        '${confidence.toStringAsFixed(0)}% de données concrètes. '
-        '${enrichment ?? 'Plus tu précises ton profil, plus l\'estimation s\'affine.'}';
+    if (confidence < 40) {
+      return 'Attention\u00a0: ce chiffre est une estimation large. '
+          'On travaille avec ${confidence.toStringAsFixed(0)}\u00a0% de données réelles. '
+          '${enrichment ?? 'Ajoute tes vrais chiffres pour un résultat fiable.'}';
+    }
+    return 'Ce chiffre repose sur ${confidence.toStringAsFixed(0)}\u00a0% de données réelles. '
+        '${enrichment ?? 'Plus tu précises, plus c\'est fiable.'}';
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -152,41 +164,40 @@ class FallbackTemplates {
     final name = ctx.firstName;
     return switch (blockType) {
       'lpp' =>
-        '$name, connais-tu ton avoir LPP actuel ? '
-        'Ton certificat de prévoyance (2e pilier) indique le montant exact. '
-        'Avec ton salaire et ton âge, l\'estimation pourrait varier '
-        'significativement du réel. Un scan du certificat affinerait '
-        'tes projections de +18 points de confiance.',
+        '$name, l\'argent que ton employeur met de côté pour ta retraite '
+        '(ton 2e pilier), c\'est souvent le plus gros montant de ta vie — '
+        'et la plupart des gens ne savent pas combien ils ont. '
+        'Ton certificat de prévoyance (reçu en janvier) donne le chiffre exact. '
+        'Un scan prend 30 secondes.',
       'avs' =>
-        '$name, as-tu déjà demandé ton extrait de compte AVS ? '
-        'Il confirme tes années de cotisation effectives. '
-        '${ctx.archetype.contains('expat') ? 'En tant qu\'expatrié, des lacunes sont probables. ' : ''}'
-        'Commander un extrait est gratuit sur le site de ta caisse de compensation.',
+        '$name, ta rente AVS dépend du nombre d\'années où tu as cotisé. '
+        '${ctx.archetype.contains('expat') ? 'Si tu n\'as pas toujours travaillé en Suisse, il te manque probablement des années. ' : ''}'
+        'Ton extrait de compte (gratuit) te dit exactement où tu en es. '
+        'Commande-le sur le site de ta caisse de compensation.',
       '3a' =>
-        '$name, combien de comptes 3a as-tu et chez quel provider ? '
-        'Connaître les soldes exacts permet de calculer ton avantage fiscal '
-        'et de projeter ta prévoyance complète.',
+        '$name, ton 3a c\'est de l\'argent que tu mets de côté pour toi — '
+        'et qui réduit tes impôts chaque année. '
+        'Note tes soldes exacts pour voir ce que ça change concrètement.',
       'patrimoine' =>
-        '$name, as-tu de l\'épargne en dehors de la prévoyance ? '
-        'Comptes courants, investissements, immobilier — ces données '
-        'complètent ton Financial Resilience Index.',
+        '$name, en dehors de ta prévoyance, combien as-tu de côté\u00a0? '
+        'Compte courant, investissements, immobilier — '
+        'c\'est ton filet de sécurité si la vie te réserve une surprise.',
       'fiscalite' =>
-        '$name, dans quelle commune habites-tu ? '
-        'Le coefficient communal varie de 60% à 130% et impacte '
-        'directement ton taux d\'imposition réel. '
-        'Une déclaration fiscale ou un avis de taxation donnerait un calcul précis.',
+        '$name, ta commune change tout pour tes impôts. '
+        'Entre deux communes du même canton, la différence peut dépasser 30\u00a0%. '
+        'Regarde ton dernier avis de taxation — le taux effectif y figure.',
       'objectifRetraite' =>
-        '$name, à quel âge souhaiterais-tu arrêter de travailler ? '
-        'Entre 58 et 70 ans, chaque année change la donne : '
-        'rente réduite avant 65 ans, majorée après.',
+        '$name, à quel âge voudrais-tu décrocher\u00a0? '
+        'Partir à 62 au lieu de 65, c\'est 3 ans de rente en moins — '
+        'mais aussi 3 ans de liberté en plus. Tout est une question d\'arbitrage.',
       'compositionMenage' =>
-        '$name, es-tu en couple ? '
-        'Si oui, les projections changent significativement : '
-        'AVS plafonnée pour les mariés, rente de survivant LPP, '
-        'et possibilités d\'optimisation fiscale à deux.',
+        '$name, en couple, tout change\u00a0: '
+        'les impôts, la rente AVS (plafonnée pour les mariés), '
+        'la protection en cas de décès. '
+        'Ajoute les infos de ton ou ta partenaire pour voir la vraie image.',
       _ =>
-        '$name, continue à enrichir ton profil. '
-        'Chaque donnée ajoutée améliore la précision de tes projections.',
+        '$name, chaque info que tu ajoutes remplace une estimation par un fait. '
+        'Tes projections passent du flou au concret.',
     };
   }
 
@@ -305,18 +316,21 @@ class FallbackTemplates {
     final hasLpp = rel.entries.any(
         (e) => e.key.contains('avoirLpp') && e.value == 'certified');
     if (!hasLpp) {
-      return 'Scanne ton certificat LPP pour des projections plus fiables.';
+      return 'Prends ton certificat de prévoyance (tu l\'as reçu en janvier) '
+          'et scanne-le — ça prend 30 secondes.';
     }
     // Priority 2: no certified AVS → suggest scan
     final hasAvs = rel.entries.any(
         (e) => e.key.contains('anneesContribuees') && e.value == 'certified');
     if (!hasAvs) {
-      return 'Scanne ton extrait AVS pour affiner ta rente estimée.';
+      return 'Commande ton extrait AVS sur le site de ta caisse de compensation — '
+          'c\'est gratuit et ça arrive en quelques jours.';
     }
     // Priority 3: no salary data
     final hasSalary = rel.containsKey('salaireBrutMensuel');
     if (!hasSalary) {
-      return 'Renseigne ton salaire brut pour des projections personnalisées.';
+      return 'Ouvre ta dernière fiche de paie et note ton salaire brut — '
+          'ça change tout pour les projections.';
     }
     return null;
   }
