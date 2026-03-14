@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -131,6 +132,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -142,7 +144,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
             foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Louer ou acheter ?',
+                s.locationVsProprieteTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -181,12 +183,12 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: SmartDefaultIndicator(
-                        source: 'Valeurs pre-remplies depuis ton profil',
+                        source: s.locationVsProprieteAutoFillSource,
                         confidence: _result!.confidenceScore / 100,
                       ),
                     ),
                   Text(
-                    'Trajectoires comparees',
+                    s.locationVsProprieteTrajectories,
                     style: GoogleFonts.montserrat(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -195,7 +197,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Touche le graphique pour voir les valeurs a chaque annee.',
+                    s.locationVsProprieteChartHint,
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       color: MintColors.textSecondary,
@@ -234,10 +236,10 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
 
                   // ── Hypothesis sliders ──
                   HypothesisEditorWidget(
-                    hypotheses: const [
+                    hypotheses: [
                       HypothesisConfig(
                         key: 'rendement_marche',
-                        label: 'Rendement marche',
+                        label: s.locationVsProprieteRendementMarche,
                         min: 0,
                         max: 8,
                         divisions: 16,
@@ -245,7 +247,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                       ),
                       HypothesisConfig(
                         key: 'appreciation_immo',
-                        label: 'Appreciation immobiliere',
+                        label: s.locationVsProprieteAppreciationImmo,
                         min: 0,
                         max: 4,
                         divisions: 8,
@@ -253,7 +255,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                       ),
                       HypothesisConfig(
                         key: 'taux_hypo',
-                        label: 'Taux hypothecaire',
+                        label: s.locationVsProprieteTauxHypo,
                         min: 0.5,
                         max: 5,
                         divisions: 9,
@@ -261,12 +263,12 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                       ),
                       HypothesisConfig(
                         key: 'horizon',
-                        label: 'Horizon',
+                        label: s.locationVsProprieteHorizon,
                         min: 5,
                         max: 30,
                         divisions: 25,
                         defaultValue: 20,
-                        unit: 'ans',
+                        unit: s.locationVsProprieteUnitAns,
                       ),
                     ],
                     values: _hypotheses,
@@ -325,6 +327,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildInputSection() {
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -336,7 +339,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ton projet immobilier',
+            s.locationVsProprieteSectionTitle,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -346,17 +349,17 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
           const SizedBox(height: 16),
           _buildTextField(
             controller: _capitalCtrl,
-            label: 'Capital disponible / fonds propres (CHF)',
+            label: s.locationVsProprieteCapitalLabel,
           ),
           const SizedBox(height: 12),
           _buildTextField(
             controller: _loyerCtrl,
-            label: 'Loyer mensuel actuel (CHF)',
+            label: s.locationVsProprieteLoyerLabel,
           ),
           const SizedBox(height: 12),
           _buildTextField(
             controller: _prixBienCtrl,
-            label: 'Prix du bien immobilier (CHF)',
+            label: s.locationVsProprietePrixBienLabel,
           ),
           const SizedBox(height: 16),
 
@@ -368,7 +371,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Canton',
+                      s.locationVsProprieteCanton,
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -412,7 +415,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Marie\u00b7e',
+                    s.locationVsProprieteMarried,
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
@@ -446,7 +449,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                 ),
               ),
               child: Text(
-                'Comparer les trajectoires',
+                s.locationVsProprieteCompare,
                 style: GoogleFonts.inter(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -507,6 +510,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildAffordabilityWarning() {
+    final s = S.of(context)!;
     final prixBien =
         double.tryParse(_prixBienCtrl.text.replaceAll("'", '')) ?? 800000;
     // FINMA theoretical charge: 5% interest + 1% amortization + 1% maintenance
@@ -534,7 +538,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Verification de la capacite financiere (FINMA)',
+                  s.locationVsProprieteAffordabilityTitle,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -543,10 +547,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Charge theorique annuelle : ${_formatChf(chargeTheorique)} '
-                  '(taux theorique 5 % + amortissement 1 % + entretien 1 %). '
-                  'Les banques exigent que cette charge ne depasse pas 1/3 de '
-                  'ton revenu brut annuel.',
+                  s.locationVsProprieteAffordabilityBody(_formatChf(chargeTheorique)),
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -555,7 +556,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Revenu brut minimum necessaire : ${_formatChf(chargeTheorique * 3)}',
+                  s.locationVsProprieteMinIncome(_formatChf(chargeTheorique * 3)),
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -642,7 +643,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
       tilePadding: EdgeInsets.zero,
       childrenPadding: const EdgeInsets.only(bottom: 8),
       title: Text(
-        'Hypotheses utilisees',
+        S.of(context)!.locationVsProprieteHypotheses,
         style: GoogleFonts.montserrat(
           fontSize: 14,
           fontWeight: FontWeight.w600,
@@ -681,6 +682,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
 
   Widget _buildDisclaimerCard() {
     if (_result == null) return const SizedBox.shrink();
+    final s = S.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -700,7 +702,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                'Avertissement',
+                s.locationVsProprieteWarning,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -720,7 +722,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Sources : ${_result!.sources.join(' | ')}',
+            s.locationVsProprieteSources(_result!.sources.join(' | ')),
             style: GoogleFonts.inter(
               fontSize: 10,
               color: MintColors.textMuted,
