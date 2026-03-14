@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -48,8 +49,9 @@ class SaleSurprisesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Surprises vente immobilière impôt gain capital EPL remploi',
+      label: 'Surprises vente immobiliere impot gain capital EPL remploi',
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -59,17 +61,17 @@ class SaleSurprisesWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildActs(),
+                  _buildActs(s),
                   const SizedBox(height: 16),
-                  _buildNetCascade(),
+                  _buildNetCascade(s),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -79,7 +81,7 @@ class SaleSurprisesWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -91,11 +93,11 @@ class SaleSurprisesWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Text('🏠', style: TextStyle(fontSize: 22)),
+              const Text('\u{1F3E0}', style: TextStyle(fontSize: 22)),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Les 3 surprises de la vente',
+                  s.saleSurprisesTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -107,8 +109,11 @@ class SaleSurprisesWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Tu vends ${formatChfWithPrefix(salePrice)}. Tu penses toucher ${formatChfWithPrefix(_netReal + _gainTax)}. '
-            'Tu reçois ${formatChfWithPrefix(_netReal)}.',
+            s.saleSurprisesSubtitle(
+              formatChfWithPrefix(salePrice),
+              formatChfWithPrefix(_netReal + _gainTax),
+              formatChfWithPrefix(_netReal),
+            ),
             style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary, height: 1.4),
           ),
         ],
@@ -116,36 +121,36 @@ class SaleSurprisesWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildActs() {
+  Widget _buildActs(S s) {
     final acts = [
       (
-        number: 'Acte 1',
-        emoji: '📊',
-        title: 'Impôt sur le gain en capital',
-        detail:
-            'Plus-value de ${formatChfWithPrefix(_capitalGain)} × ${(_gainTaxRate * 100).toStringAsFixed(0)}% ($holdingYears ans de détention à $canton).',
+        number: s.saleSurprisesAct1,
+        emoji: '\u{1F4CA}',
+        title: s.saleSurprisesAct1Title,
+        detail: s.saleSurprisesAct1Detail(
+          formatChfWithPrefix(_capitalGain),
+          (_gainTaxRate * 100).toStringAsFixed(0),
+          holdingYears.toString(),
+          canton,
+        ),
         amount: _gainTax,
         color: MintColors.scoreAttention,
         ref: 'LIFD art. 12',
       ),
       (
-        number: 'Acte 2',
-        emoji: '🏦',
-        title: 'Remboursement EPL obligatoire',
-        detail:
-            'Tu as retiré ${formatChfWithPrefix(eplWithdrawn)} de ton LPP via l\'EPL. '
-            'La vente oblige le remboursement intégral.',
+        number: s.saleSurprisesAct2,
+        emoji: '\u{1F3E6}',
+        title: s.saleSurprisesAct2Title,
+        detail: s.saleSurprisesAct2Detail(formatChfWithPrefix(eplWithdrawn)),
         amount: eplWithdrawn,
         color: MintColors.scoreCritique,
         ref: 'LPP art. 30c',
       ),
       (
-        number: 'Acte 3',
-        emoji: '⏰',
-        title: 'Remploi — 2 ans pour racheter',
-        detail:
-            'Si tu ne rachètes pas dans les 2 ans, l\'impôt sur le gain n\'est pas différé. '
-            'Tu dois ${formatChfWithPrefix(_gainTax)}.',
+        number: s.saleSurprisesAct3,
+        emoji: '\u23F0',
+        title: s.saleSurprisesAct3Title,
+        detail: s.saleSurprisesAct3Detail(formatChfWithPrefix(_gainTax)),
         amount: _gainTax,
         color: MintColors.scoreCritique,
         ref: 'LIFD art. 12 al. 3',
@@ -227,7 +232,7 @@ class SaleSurprisesWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildNetCascade() {
+  Widget _buildNetCascade(S s) {
     return Container(
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
@@ -236,13 +241,13 @@ class SaleSurprisesWidget extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildCascadeRow('Prix de vente', salePrice, isPositive: true),
-          _buildCascadeRow('− Hypothèque', _mortgage, isPositive: false),
-          _buildCascadeRow('− Impôt gain', _gainTax, isPositive: false),
-          _buildCascadeRow('− EPL remboursé', _eplReturn, isPositive: false),
-          _buildCascadeRow('− Frais notaire', _notaryFees, isPositive: false),
+          _buildCascadeRow(s.saleSurprisesSalePrice, salePrice, isPositive: true),
+          _buildCascadeRow(s.saleSurprisesMortgage, _mortgage, isPositive: false),
+          _buildCascadeRow(s.saleSurprisesGainTax, _gainTax, isPositive: false),
+          _buildCascadeRow(s.saleSurprisesEplRepaid, _eplReturn, isPositive: false),
+          _buildCascadeRow(s.saleSurprisesNotaryFees, _notaryFees, isPositive: false),
           const Divider(height: 1, thickness: 2),
-          _buildCascadeRow('= Net réel', _netReal, isPositive: true, isTotal: true),
+          _buildCascadeRow(s.saleSurprisesNetReal, _netReal, isPositive: true, isTotal: true),
         ],
       ),
     );
@@ -280,11 +285,9 @@ class SaleSurprisesWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil fiscal au sens de la LSFin. '
-      'Source : LIFD art. 12 (impôt gain immobilier), LPP art. 30c (EPL). '
-      'Taux gain indicatif pour $canton, $holdingYears ans de détention.',
+      s.saleSurprisesDisclaimer(canton, holdingYears.toString()),
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

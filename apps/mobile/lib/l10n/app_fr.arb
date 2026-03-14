@@ -8245,5 +8245,55 @@
   },
   "allocationAnnuelleHypRendementMarche": "Rendement march\u00e9",
   "allocationAnnuelleHypRendementLpp": "Rendement LPP",
-  "allocationAnnuelleHypRendement3a": "Rendement 3a"
+  "allocationAnnuelleHypRendement3a": "Rendement 3a",
+
+  "saleSurprisesTitle": "Les 3 surprises de la vente",
+  "saleSurprisesSubtitle": "Tu vends {salePrice}. Tu penses toucher {expected}. Tu re\u00e7ois {netReal}.",
+  "@saleSurprisesSubtitle": {
+    "placeholders": {
+      "salePrice": {"type": "String"},
+      "expected": {"type": "String"},
+      "netReal": {"type": "String"}
+    }
+  },
+  "saleSurprisesAct1": "Acte 1",
+  "saleSurprisesAct2": "Acte 2",
+  "saleSurprisesAct3": "Acte 3",
+  "saleSurprisesAct1Title": "Imp\u00f4t sur le gain en capital",
+  "saleSurprisesAct1Detail": "Plus-value de {gain} \u00d7 {rate}\u00a0% ({years} ans de d\u00e9tention \u00e0 {canton}).",
+  "@saleSurprisesAct1Detail": {
+    "placeholders": {
+      "gain": {"type": "String"},
+      "rate": {"type": "String"},
+      "years": {"type": "String"},
+      "canton": {"type": "String"}
+    }
+  },
+  "saleSurprisesAct2Title": "Remboursement EPL obligatoire",
+  "saleSurprisesAct2Detail": "Tu as retir\u00e9 {eplAmount} de ton LPP via l'EPL. La vente oblige le remboursement int\u00e9gral.",
+  "@saleSurprisesAct2Detail": {
+    "placeholders": {
+      "eplAmount": {"type": "String"}
+    }
+  },
+  "saleSurprisesAct3Title": "Remploi \u2014 2 ans pour racheter",
+  "saleSurprisesAct3Detail": "Si tu ne rach\u00e8tes pas dans les 2 ans, l'imp\u00f4t sur le gain n'est pas diff\u00e9r\u00e9. Tu dois {gainTax}.",
+  "@saleSurprisesAct3Detail": {
+    "placeholders": {
+      "gainTax": {"type": "String"}
+    }
+  },
+  "saleSurprisesSalePrice": "Prix de vente",
+  "saleSurprisesMortgage": "\u2212 Hypoth\u00e8que",
+  "saleSurprisesGainTax": "\u2212 Imp\u00f4t gain",
+  "saleSurprisesEplRepaid": "\u2212 EPL rembours\u00e9",
+  "saleSurprisesNotaryFees": "\u2212 Frais notaire",
+  "saleSurprisesNetReal": "= Net r\u00e9el",
+  "saleSurprisesDisclaimer": "Outil \u00e9ducatif \u00b7 ne constitue pas un conseil fiscal au sens de la LSFin. Source\u00a0: LIFD art. 12 (imp\u00f4t gain immobilier), LPP art. 30c (EPL). Taux gain indicatif pour {canton}, {years} ans de d\u00e9tention.",
+  "@saleSurprisesDisclaimer": {
+    "placeholders": {
+      "canton": {"type": "String"},
+      "years": {"type": "String"}
+    }
+  }
 }
