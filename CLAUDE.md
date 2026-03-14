@@ -432,6 +432,7 @@ Swiss-Brain (spec + test cases) → Python-Agent (backend) → Dart-Agent (UI) �
 | mint-swiss-compliance | `.claude/skills/mint-swiss-compliance/SKILL.md` | swiss-brain |
 | mint-test-suite | `.claude/skills/mint-test-suite/SKILL.md` | all agents |
 | mint-commit | `.claude/skills/mint-commit/SKILL.md` | team-lead |
+| mint-web-dev | `.claude/skills/mint-web-dev/SKILL.md` | dart-agent (web) |
 
 In case of conflict, priority order:
 1. `rules.md` — Non-negotiable technical + ethical rules
