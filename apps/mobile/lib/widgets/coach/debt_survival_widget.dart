@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -38,8 +39,9 @@ class DebtSurvivalWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Mode survie dette ratio KPIs actions urgentes Dettes Conseils',
+      label: s.debtSurvivalSemanticsLabel,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -54,19 +56,19 @@ class DebtSurvivalWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildKpis(),
+                  _buildKpis(s),
                   const SizedBox(height: 16),
-                  _buildActions(),
+                  _buildActions(s),
                   const SizedBox(height: 16),
-                  _buildHelpLine(),
+                  _buildHelpLine(s),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -76,7 +78,7 @@ class DebtSurvivalWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -97,7 +99,7 @@ class DebtSurvivalWidget extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Mode survie MINT',
+                  s.debtSurvivalTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -113,7 +115,7 @@ class DebtSurvivalWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    'ACTIVÉ',
+                    s.debtSurvivalActivated,
                     style: GoogleFonts.inter(
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
@@ -126,8 +128,8 @@ class DebtSurvivalWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             _isCritical
-                ? 'Ton ratio dette/revenu est critique. 3 actions pour stabiliser.'
-                : 'Surveille ces 3 indicateurs. Agis avant que la situation empire.',
+                ? s.debtSurvivalCriticalSubtitle
+                : s.debtSurvivalWarningSubtitle,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -139,7 +141,7 @@ class DebtSurvivalWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildKpis() {
+  Widget _buildKpis(S s) {
     final ratioPercent = (_debtRatio * 100).round();
     final ratioStatus = _debtRatio > 0.30
         ? MintColors.scoreCritique
@@ -162,25 +164,25 @@ class DebtSurvivalWidget extends StatelessWidget {
     return Row(
       children: [
         Expanded(child: _buildKpiCard(
-          label: 'Dette totale',
+          label: s.debtSurvivalTotalDebt,
           value: 'CHF ${_fmt(totalDebt)}',
-          sub: '$ratioPercent% du revenu annuel',
+          sub: s.debtSurvivalAnnualRevenuePercent(ratioPercent),
           color: ratioStatus,
           emoji: '💳',
         )),
         const SizedBox(width: 8),
         Expanded(child: _buildKpiCard(
-          label: 'Marge mensuelle',
+          label: s.debtSurvivalMonthlyMargin,
           value: 'CHF ${_fmt(monthlyMargin.abs())}',
-          sub: monthlyMargin < 0 ? 'déficit' : 'disponible',
+          sub: monthlyMargin < 0 ? s.debtSurvivalDeficit : s.debtSurvivalAvailable,
           color: marginStatus,
           emoji: '📈',
         )),
         const SizedBox(width: 8),
         Expanded(child: _buildKpiCard(
-          label: 'Dernier retard',
-          value: daysSinceLastLate == 0 ? 'Aucun' : '$daysSinceLastLate j',
-          sub: daysSinceLastLate == 0 ? 'à jour' : 'depuis',
+          label: s.debtSurvivalLastLate,
+          value: daysSinceLastLate == 0 ? s.debtSurvivalNone : s.debtSurvivalDays(daysSinceLastLate),
+          sub: daysSinceLastLate == 0 ? s.debtSurvivalUpToDate : s.debtSurvivalSince,
           color: lateStatus,
           emoji: '⏰',
         )),
@@ -233,24 +235,24 @@ class DebtSurvivalWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildActions() {
+  Widget _buildActions(S s) {
     final actions = [
       (
         emoji: '✂️',
-        title: 'Couper les loisirs',
-        detail: 'Streaming, sorties, abonnements — libère CHF 200-400/mois immédiatement.',
+        title: s.debtSurvivalActionCutTitle,
+        detail: s.debtSurvivalActionCutDetail,
         urgency: CrisisUrgency.high,
       ),
       (
         emoji: '⏸️',
-        title: 'Suspendre le versement 3a',
-        detail: 'Légal. Reprends dès que possible — chaque mois compte, mais pas plus que manger.',
+        title: s.debtSurvivalActionSuspendTitle,
+        detail: s.debtSurvivalActionSuspendDetail,
         urgency: CrisisUrgency.medium,
       ),
       (
         emoji: '📞',
-        title: 'Appeler Dettes Conseils',
-        detail: '0800 40 40 40 — gratuit, confidentiel, sans jugement. 1 appel change tout.',
+        title: s.debtSurvivalActionCallTitle,
+        detail: s.debtSurvivalActionCallDetail,
         urgency: CrisisUrgency.critical,
       ),
     ];
@@ -259,7 +261,7 @@ class DebtSurvivalWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Tes 3 actions maintenant',
+          s.debtSurvivalActionsTitle,
           style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w800,
@@ -323,7 +325,7 @@ class DebtSurvivalWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHelpLine() {
+  Widget _buildHelpLine(S s) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -340,7 +342,7 @@ class DebtSurvivalWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Dettes Conseils Suisse',
+                  s.debtSurvivalHelplineTitle,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -348,7 +350,7 @@ class DebtSurvivalWidget extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '0800 40 40 40 · Gratuit · Confidentiel · Sans jugement',
+                  s.debtSurvivalHelplineSubtitle,
                   style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
                 ),
               ],
@@ -359,11 +361,9 @@ class DebtSurvivalWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : LP art. 93 (minimum vital insaisissable). '
-      'Ratio critique : dette > 30% du revenu annuel.',
+      s.debtSurvivalDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,
