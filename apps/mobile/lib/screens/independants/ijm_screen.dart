@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/independants_service.dart';
 
@@ -99,7 +100,7 @@ class _IjmScreenState extends State<IjmScreen> {
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 56, bottom: 16, right: 16),
         title: Text(
-          'Assurance IJM',
+          S.of(context)!.ijmTitle,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -139,10 +140,7 @@ class _IjmScreenState extends State<IjmScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'L\'assurance IJM (indemnité journalière maladie) compense '
-              'ta perte de revenu en cas de maladie. En tant '
-              'qu\'indépendant\u00B7e, aucune protection n\'est prévue '
-              'par défaut : c\'est à toi de t\'assurer.',
+              S.of(context)!.ijmHeaderInfo,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -159,10 +157,10 @@ class _IjmScreenState extends State<IjmScreen> {
 
   Widget _buildRevenueSlider() {
     return _buildSliderCard(
-      title: 'Revenu mensuel',
+      title: S.of(context)!.ijmRevenuMensuel,
       valueLabel: IndependantsService.formatChf(_revenuMensuel),
-      minLabel: 'CHF 0',
-      maxLabel: "CHF 20'000",
+      minLabel: S.of(context)!.ijmSliderMinChf0,
+      maxLabel: S.of(context)!.ijmSliderMaxChf20k,
       value: _revenuMensuel,
       min: 0,
       max: 20000,
@@ -178,10 +176,10 @@ class _IjmScreenState extends State<IjmScreen> {
 
   Widget _buildAgeSlider() {
     return _buildSliderCard(
-      title: 'Ton âge',
-      valueLabel: '$_age ans',
-      minLabel: '18 ans',
-      maxLabel: '65 ans',
+      title: S.of(context)!.ijmTonAge,
+      valueLabel: S.of(context)!.ijmAgeValue(_age.toString()),
+      minLabel: S.of(context)!.ijmAgeMin,
+      maxLabel: S.of(context)!.ijmAgeMax,
       value: _age.toDouble(),
       min: 18,
       max: 65,
@@ -278,7 +276,7 @@ class _IjmScreenState extends State<IjmScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Délai de carence',
+            S.of(context)!.ijmDelaiCarence,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -287,7 +285,7 @@ class _IjmScreenState extends State<IjmScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Période pendant laquelle tu ne reçois aucune indemnité',
+            S.of(context)!.ijmDelaiCarenceDesc,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -329,7 +327,7 @@ class _IjmScreenState extends State<IjmScreen> {
           child: Column(
             children: [
               Text(
-                '$jours j',
+                S.of(context)!.ijmCarenceJoursShort(jours.toString()),
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -338,7 +336,7 @@ class _IjmScreenState extends State<IjmScreen> {
               ),
               const SizedBox(height: 2),
               Text(
-                'jours',
+                S.of(context)!.ijmJours,
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   color: isSelected
@@ -375,9 +373,7 @@ class _IjmScreenState extends State<IjmScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Sans assurance IJM, tu perds '
-            '${IndependantsService.formatChf(r.perteCarence)} '
-            'pendant le délai de carence de ${r.delaiCarence} jours',
+            S.of(context)!.ijmChiffreChocText(IndependantsService.formatChf(r.perteCarence), r.delaiCarence.toString()),
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.white.withValues(alpha: 0.9),
@@ -410,7 +406,7 @@ class _IjmScreenState extends State<IjmScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Primes élevées après 50 ans',
+                  S.of(context)!.ijmHighRiskTitle,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -419,10 +415,7 @@ class _IjmScreenState extends State<IjmScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Les primes IJM augmentent fortement avec l\'âge. '
-                  'Après 50 ans, le coût peut être 3 à 4 fois supérieur '
-                  'à celui d\'un\u00B7e assuré\u00B7e de 30 ans. '
-                  'Considère un délai de carence plus long pour réduire la prime.',
+                  S.of(context)!.ijmHighRiskBody,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -447,7 +440,7 @@ class _IjmScreenState extends State<IjmScreen> {
           children: [
             Expanded(
               child: _buildResultCard(
-                'Prime /mois',
+                S.of(context)!.ijmPrimeMois,
                 IndependantsService.formatChf(r.primeMensuelle),
                 Icons.payment_outlined,
               ),
@@ -455,7 +448,7 @@ class _IjmScreenState extends State<IjmScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildResultCard(
-                'Prime /an',
+                S.of(context)!.ijmPrimeAn,
                 IndependantsService.formatChf(r.primeAnnuelle),
                 Icons.calendar_month_outlined,
               ),
@@ -467,7 +460,7 @@ class _IjmScreenState extends State<IjmScreen> {
           children: [
             Expanded(
               child: _buildResultCard(
-                'Indemnité /jour',
+                S.of(context)!.ijmIndemniteJour,
                 IndependantsService.formatChf(r.indemniteJournaliere),
                 Icons.today_outlined,
               ),
@@ -475,7 +468,7 @@ class _IjmScreenState extends State<IjmScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildResultCard(
-                'Tranche d\'âge',
+                S.of(context)!.ijmTrancheAge,
                 r.ageBandLabel,
                 Icons.person_outline,
                 small: true,
@@ -544,7 +537,7 @@ class _IjmScreenState extends State<IjmScreen> {
               const Icon(Icons.timeline, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'CHRONOLOGIE DE COUVERTURE',
+                S.of(context)!.ijmChronologieCouverture,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -568,7 +561,7 @@ class _IjmScreenState extends State<IjmScreen> {
                     color: MintColors.error.withValues(alpha: 0.2),
                     alignment: Alignment.center,
                     child: Text(
-                      '${r.delaiCarence}j',
+                      S.of(context)!.ijmCarenceJoursShort(r.delaiCarence.toString()),
                       style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -584,7 +577,7 @@ class _IjmScreenState extends State<IjmScreen> {
                     color: MintColors.success.withValues(alpha: 0.2),
                     alignment: Alignment.center,
                     child: Text(
-                      'Couvert',
+                      S.of(context)!.ijmCouvert,
                       style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -601,9 +594,9 @@ class _IjmScreenState extends State<IjmScreen> {
           // Legend
           Row(
             children: [
-              _buildLegendDot(MintColors.error, 'Pas de couverture'),
+              _buildLegendDot(MintColors.error, S.of(context)!.ijmPasDeCouverture),
               const SizedBox(width: 16),
-              _buildLegendDot(MintColors.success, 'Couverture IJM (80%)'),
+              _buildLegendDot(MintColors.success, S.of(context)!.ijmCouvertureIjm80),
             ],
           ),
           const SizedBox(height: 16),
@@ -616,10 +609,7 @@ class _IjmScreenState extends State<IjmScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              'Pendant les ${r.delaiCarence} premiers jours de maladie, '
-              'tu n\'as aucun revenu. Ensuite, tu reçois '
-              '${IndependantsService.formatChf(r.indemniteJournaliere)}/jour '
-              '(80% de ton revenu mensuel).',
+              S.of(context)!.ijmTimelineSummary(r.delaiCarence.toString(), IndependantsService.formatChf(r.indemniteJournaliere)),
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -664,7 +654,7 @@ class _IjmScreenState extends State<IjmScreen> {
             const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'STRATÉGIES',
+              S.of(context)!.ijmStrategies,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -677,23 +667,18 @@ class _IjmScreenState extends State<IjmScreen> {
         const SizedBox(height: 12),
         _buildEduCard(
           Icons.savings_outlined,
-          'Constitution d\'un fonds de carence',
-          'Mets de côté l\'équivalent de 3 mois de revenus pour '
-          'couvrir le délai de carence. Cela te permet de choisir '
-          'un délai de 90 jours et de réduire ta prime.',
+          S.of(context)!.ijmEduFondsCarenceTitle,
+          S.of(context)!.ijmEduFondsCarenceBody,
         ),
         _buildEduCard(
           Icons.compare_arrows,
-          'Comparer les offres',
-          'Les primes varient fortement entre assureurs. Demande '
-          'plusieurs devis et compare les conditions (exclusions, '
-          'durée des prestations, montant couvert).',
+          S.of(context)!.ijmEduComparerTitle,
+          S.of(context)!.ijmEduComparerBody,
         ),
         _buildEduCard(
           Icons.shield_outlined,
-          'Couverture LAMal insuffisante',
-          'La LAMal ne couvre que les frais médicaux, pas la perte '
-          'de gain. L\'IJM est indispensable pour protéger ton revenu.',
+          S.of(context)!.ijmEduLamalTitle,
+          S.of(context)!.ijmEduLamalBody,
         ),
       ],
     );
@@ -767,10 +752,7 @@ class _IjmScreenState extends State<IjmScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Les primes présentées sont des estimations basées sur des '
-              'moyennes du marché. Les primes réelles dépendent de '
-              'l\'assureur, de ta profession et de ton état de santé. '
-              'Demande un devis personnalisé à un\u00B7e spécialiste.',
+              S.of(context)!.ijmDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.deepOrange,
