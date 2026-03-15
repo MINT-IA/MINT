@@ -72,9 +72,9 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Format: ${summary['format']}'),
+              Text(S.of(context)!.consentExportFormat(summary['format'] as String)),
               const SizedBox(height: 8),
-              Text('Categories: $categories'),
+              Text(S.of(context)!.consentExportCategories(categories)),
               const SizedBox(height: 8),
               Text(
                 summary['retentionPolicy'] as String,

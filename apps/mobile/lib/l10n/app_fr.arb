@@ -10173,5 +10173,45 @@
         "type": "String"
       }
     }
-  }
+  },
+  "consentExportFormat": "Format\u00a0: {format}",
+  "@consentExportFormat": {
+    "placeholders": {
+      "format": {
+        "type": "String"
+      }
+    }
+  },
+  "consentExportCategories": "Catégories\u00a0: {categories}",
+  "@consentExportCategories": {
+    "placeholders": {
+      "categories": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityScorecardSemanticsLabel": "Bulletin couverture invalidité notes A-F",
+  "disabilityScorecardTitle": "Ton bulletin de couverture invalidité",
+  "disabilityScorecardSubtitle": "Note A–F sur chaque pilier de ta protection",
+  "disabilityScorecardCoverageHeader": "Couverture",
+  "disabilityScorecardGradeHeader": "Note",
+  "disabilityScorecardDetailHeader": "Détail",
+  "disabilityScorecardOverallLabel": "Moyenne",
+  "disabilityScorecardLifeDrop": "Tu survivrais, mais ton niveau de vie baisserait de {percent}\u00a0%.",
+  "@disabilityScorecardLifeDrop": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityScorecardWeakestSubject": "Matière la plus faible\u00a0: {label}",
+  "@disabilityScorecardWeakestSubject": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityScorecardDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source\u00a0: LAMal, LAVS, LPP art.\u00a023-26."
 }
