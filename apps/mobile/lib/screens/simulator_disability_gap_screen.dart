@@ -204,7 +204,7 @@ class _SimulatorDisabilityGapScreenState
             min: 2000,
             max: 20000,
             divisions: 36,
-            format: (v) => '${_chf.format(v)} CHF',
+            format: (v) => S.of(context)!.simDisabilityChfAmount(_chf.format(v)),
             onChanged: (v) {
               _revenuMensuel = v;
               _calculate();
@@ -226,7 +226,7 @@ class _SimulatorDisabilityGapScreenState
               min: 0,
               max: 30,
               divisions: 30,
-              format: (v) => '${v.toInt()} ans',
+              format: (v) => S.of(context)!.simDisabilityYears('${v.toInt()}'),
               onChanged: (v) {
                 _anneesAnciennete = v.toInt();
                 _calculate();
@@ -434,7 +434,7 @@ class _SimulatorDisabilityGapScreenState
           const SizedBox(height: 12),
           _buildBar(
             label:
-                'Phase 1 — Employeur (${r.phase1DurationWeeks.toInt()} sem.)',
+                S.of(context)!.simDisabilityPhase1Bar('${r.phase1DurationWeeks.toInt()}'),
             value: r.phase1MonthlyBenefit,
             maxValue: r.revenuActuel,
             color: _phaseColors['phase1']!,
@@ -442,7 +442,7 @@ class _SimulatorDisabilityGapScreenState
           ),
           const SizedBox(height: 12),
           _buildBar(
-            label: 'Phase 2 — IJM (24 mois)',
+            label: S.of(context)!.simDisabilityPhase2Bar,
             value: r.phase2MonthlyBenefit,
             maxValue: r.revenuActuel,
             color: _phaseColors['phase2']!,
@@ -450,7 +450,7 @@ class _SimulatorDisabilityGapScreenState
           ),
           const SizedBox(height: 12),
           _buildBar(
-            label: 'Phase 3 — AI + LPP',
+            label: S.of(context)!.simDisabilityPhase3Bar,
             value: r.phase3MonthlyBenefit,
             maxValue: r.revenuActuel,
             color: _phaseColors['phase3']!,
@@ -509,7 +509,7 @@ class _SimulatorDisabilityGapScreenState
                       padding: const EdgeInsets.only(left: 8),
                       child: value > 0
                           ? Text(
-                              '${_chf.format(value)} CHF',
+                              S.of(context)!.simDisabilityChfAmount(_chf.format(value)),
                               style: GoogleFonts.inter(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
@@ -525,7 +525,7 @@ class _SimulatorDisabilityGapScreenState
             if (showGap && gap > 0) ...[
               const SizedBox(width: 8),
               Text(
-                'Gap: ${_chf.format(gap)}',
+                S.of(context)!.simDisabilityGapLabel(_chf.format(gap)),
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
@@ -594,7 +594,7 @@ class _SimulatorDisabilityGapScreenState
           ),
           const SizedBox(height: 6),
           Text(
-            '${_chf.format(maxGap)} CHF/mois',
+            S.of(context)!.simDisabilityMaxGapChfMois(_chf.format(maxGap)),
             style: GoogleFonts.montserrat(
               fontSize: 36,
               fontWeight: FontWeight.w800,
@@ -650,7 +650,7 @@ class _SimulatorDisabilityGapScreenState
           title: S.of(context)!.disabilityGapPhase1Title,
           duration: S.of(context)!.disabilityGapPhase1Duration('${r.phase1DurationWeeks.toInt()}'),
           coverage: r.phase1MonthlyBenefit > 0 ? S.of(context)!.disabilityGapPhase1Full : S.of(context)!.disabilityGapNone,
-          legalSource: 'CO art. 324a',
+          legalSource: S.of(context)!.simDisabilityLegalSourcePhase1,
           color: _phaseColors['phase1']!,
         ),
         const SizedBox(height: 12),
@@ -668,8 +668,8 @@ class _SimulatorDisabilityGapScreenState
           title: S.of(context)!.disabilityGapPhase3Title,
           duration: S.of(context)!.disabilityGapPhase3Duration,
           coverage:
-              'AI: ${_chf.format(r.aiRenteMensuelle)} CHF/mois\nLPP: ${_chf.format(r.lppDisabilityBenefit)} CHF/mois\nTotal: ${_chf.format(r.phase3MonthlyBenefit)} CHF/mois',
-          legalSource: 'LAI art. 28 + LPP art. 23',
+              S.of(context)!.simDisabilityPhase3Coverage(_chf.format(r.aiRenteMensuelle), _chf.format(r.lppDisabilityBenefit), _chf.format(r.phase3MonthlyBenefit)),
+          legalSource: S.of(context)!.simDisabilityLegalSourcePhase3,
           color: _phaseColors['phase3']!,
         ),
       ],
