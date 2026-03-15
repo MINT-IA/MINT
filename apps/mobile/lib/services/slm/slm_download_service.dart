@@ -229,7 +229,7 @@ class SlmDownloadService {
   /// User-facing prerequisite warning when download cannot start.
   String? get prerequisiteWarning {
     if (canAttemptDownload) return null;
-    return 'Ce build TestFlight ne contient pas l’authentification '
+    return "Ce build TestFlight ne contient pas l'authentification "
         'requise pour télécharger Gemma 3n. '
         'Demande un build avec HUGGINGFACE_TOKEN ou une URL CDN publique.';
   }

@@ -16,6 +16,7 @@ import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/lpp_certificate_parser.dart';
 import 'package:mint_mobile/services/document_parser/salary_certificate_parser.dart';
+import 'package:mint_mobile/services/document_parser/slm_extraction_service.dart';
 import 'package:mint_mobile/services/document_parser/tax_declaration_parser.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
@@ -534,7 +535,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
     setState(() => _isProcessing = true);
     try {
-      final result = _parseByDocumentType(text);
+      // Phase 1: Regex parsing (instant, deterministic)
+      var result = _parseByDocumentType(text);
       if (result.fields.isEmpty) {
         await _requestManualOcrText(
           title: S.of(context)!.docScanNoFieldsRecognized,
@@ -544,6 +546,15 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         );
         return;
       }
+
+      // Phase 2: SLM enhancement (on-device, ~20s)
+      // Only runs if SLM is available AND regex missed fields
+      if (!mounted) return;
+      result = await SlmExtractionService.enhance(
+        ocrText: text,
+        regexResult: result,
+        documentType: _selectedType,
+      );
 
       if (!mounted) return;
       context.push('/document-scan/extraction-review', extra: result);
