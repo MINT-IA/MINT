@@ -88,14 +88,14 @@ class ResponseCardWidget extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
 
-            // ── Chiffre-choc (mode normal uniquement) ─
-            if (!compact) ...[
+            // ── Chiffre-choc (mode normal uniquement, skip if value=0) ─
+            if (!compact && card.chiffreChoc.value != 0) ...[
               const SizedBox(height: 8),
               _buildChiffreChoc(),
             ],
 
             // ── Explanation ─────────────────────────────
-            if (!compact) ...[
+            if (!compact && card.chiffreChoc.explanation.isNotEmpty) ...[
               const SizedBox(height: 4),
               Text(
                 card.chiffreChoc.explanation,

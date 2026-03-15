@@ -76,6 +76,9 @@ class ResponseCardService {
   }
 
   /// Genere des cartes pour le chat Coach, basees sur le topic.
+  ///
+  /// S49 Phase 3: 27+ topics couverts — chaque simulateur accessible
+  /// via une Response Card dans le coach.
   static List<ResponseCard> generateForChat(
     CoachProfile profile,
     String userMessage,
@@ -83,6 +86,7 @@ class ResponseCardService {
     final lower = userMessage.toLowerCase();
     final cards = <ResponseCard>[];
 
+    // ── Prevoyance & Retraite ────────────────────────────
     if (lower.contains('3a') || lower.contains('pilier')) {
       final c = _tryPillar3a(profile);
       if (c != null) cards.add(c);
@@ -99,24 +103,381 @@ class ResponseCardService {
       final c = _tryAvsGap(profile);
       if (c != null) cards.add(c);
     }
-    if (lower.contains('impot') || lower.contains('fiscal')) {
+    if (lower.contains('libre passage')) {
+      cards.add(_buildSimpleCard(
+        id: 'libre_passage',
+        title: 'Libre passage',
+        subtitle: 'Que faire de ton avoir de libre passage',
+        route: '/libre-passage',
+        sources: ['LPP art. 2', 'LFLP art. 4'],
+      ));
+    }
+    if (lower.contains('capital') && lower.contains('rente') ||
+        lower.contains('rente ou capital') ||
+        lower.contains('rente vs capital')) {
+      cards.add(_buildSimpleCard(
+        id: 'rente_vs_capital',
+        title: 'Rente vs Capital',
+        subtitle: 'Quel choix te convient ?',
+        route: '/rente-vs-capital',
+        sources: ['LPP art. 37', 'LIFD art. 22/38'],
+      ));
+    }
+
+    // ── Fiscalite ────────────────────────────────────────
+    if (lower.contains('impot') || lower.contains('fiscal') ||
+        lower.contains('deduction')) {
       final c = _tryTaxOptimization(profile);
       if (c != null) cards.add(c);
     }
-    if (lower.contains('independant') || lower.contains('indep')) {
+    if (lower.contains('canton') && (lower.contains('compar') ||
+        lower.contains('demenag') || lower.contains('moins cher'))) {
+      cards.add(_buildSimpleCard(
+        id: 'fiscal_comparator',
+        title: 'Comparateur cantonal',
+        subtitle: 'Compare la charge fiscale entre cantons',
+        route: '/fiscal',
+        sources: ['LIFD art. 1', 'LHID'],
+      ));
+    }
+    if (lower.contains('retrait') && lower.contains('echelon') ||
+        lower.contains('retrait 3a') && lower.contains('plusieur')) {
+      cards.add(_buildSimpleCard(
+        id: 'staggered_withdrawal',
+        title: 'Retrait 3a echelonne',
+        subtitle: 'Etaler les retraits pour reduire l\'impot',
+        route: '/3a-deep/staggered-withdrawal',
+        sources: ['LIFD art. 38', 'OPP3 art. 3'],
+      ));
+    }
+    if (lower.contains('rendement') && lower.contains('3a') ||
+        lower.contains('rendement reel')) {
+      cards.add(_buildSimpleCard(
+        id: 'real_return_3a',
+        title: 'Rendement reel 3a',
+        subtitle: 'Rendement apres frais, inflation et fiscal',
+        route: '/3a-deep/real-return',
+        sources: ['OPP3 art. 7'],
+      ));
+    }
+    if (lower.contains('prestataire') && lower.contains('3a') ||
+        lower.contains('viac') || lower.contains('finpension') ||
+        lower.contains('frankly')) {
+      cards.add(_buildSimpleCard(
+        id: 'comparator_3a',
+        title: 'Comparateur 3a',
+        subtitle: 'Compare les prestataires 3a',
+        route: '/3a-deep/comparator',
+        sources: ['OPP3 art. 7'],
+      ));
+    }
+
+    // ── Immobilier ───────────────────────────────────────
+    if (lower.contains('hypothe') || lower.contains('immobili') ||
+        lower.contains('acheter') || lower.contains('maison')) {
+      final c = _tryMortgage(profile);
+      if (c != null) cards.add(c);
+    }
+    if (lower.contains('louer') && lower.contains('acheter') ||
+        lower.contains('location') && lower.contains('propriet')) {
+      cards.add(_buildSimpleCard(
+        id: 'rent_vs_buy',
+        title: 'Louer ou acheter',
+        subtitle: 'Compare les deux scenarios sur le long terme',
+        route: '/arbitrage/location-vs-propriete',
+        sources: ['CO art. 253ss', 'FINMA circ.'],
+      ));
+    }
+    if (lower.contains('amortiss') || lower.contains('amortir')) {
+      cards.add(_buildSimpleCard(
+        id: 'amortization',
+        title: 'Amortissement',
+        subtitle: 'Direct vs indirect — quel impact fiscal',
+        route: '/mortgage/amortization',
+        sources: ['LIFD art. 33', 'CO art. 793ss'],
+      ));
+    }
+    if (lower.contains('valeur locative')) {
+      cards.add(_buildSimpleCard(
+        id: 'imputed_rental',
+        title: 'Valeur locative',
+        subtitle: 'Comprendre l\'imposition du logement',
+        route: '/mortgage/imputed-rental',
+        sources: ['LIFD art. 21 al. 1 let. b'],
+      ));
+    }
+    if (lower.contains('saron') || lower.contains('taux fixe') &&
+        lower.contains('hypo')) {
+      cards.add(_buildSimpleCard(
+        id: 'saron_vs_fixed',
+        title: 'SARON vs taux fixe',
+        subtitle: 'Quel type d\'hypotheque choisir',
+        route: '/mortgage/saron-vs-fixed',
+        sources: ['FINMA circ.', 'ASB directives'],
+      ));
+    }
+    if (lower.contains('epl') || lower.contains('retrait anticip') ||
+        lower.contains('2e pilier') && lower.contains('achet')) {
+      cards.add(_buildSimpleCard(
+        id: 'epl',
+        title: 'Retrait EPL',
+        subtitle: 'Utiliser ton 2e pilier pour l\'immobilier',
+        route: '/epl',
+        sources: ['OPP2 art. 5', 'LPP art. 30c-30g'],
+      ));
+    }
+    if (lower.contains('vend') && (lower.contains('maison') ||
+        lower.contains('appartement') || lower.contains('immob'))) {
+      cards.add(_buildSimpleCard(
+        id: 'housing_sale',
+        title: 'Vente immobiliere',
+        subtitle: 'Impot sur le gain immobilier + remploi',
+        route: '/life-event/housing-sale',
+        sources: ['LHID art. 12'],
+      ));
+    }
+
+    // ── Famille ──────────────────────────────────────────
+    if (lower.contains('mari') && !lower.contains('marche')) {
+      cards.add(_buildSimpleCard(
+        id: 'mariage',
+        title: 'Impact du mariage',
+        subtitle: 'Impots, AVS, LPP, succession',
+        route: '/mariage',
+        sources: ['CC art. 159', 'LAVS art. 35'],
+      ));
+    }
+    if (lower.contains('divorc') || lower.contains('separat')) {
+      cards.add(_buildSimpleCard(
+        id: 'divorce',
+        title: 'Simulateur divorce',
+        subtitle: 'Partage LPP, pension, impots',
+        route: '/divorce',
+        sources: ['CC art. 122-124', 'LPP art. 22'],
+      ));
+    }
+    if (lower.contains('enfant') || lower.contains('naissance') ||
+        lower.contains('bebe')) {
+      cards.add(_buildSimpleCard(
+        id: 'naissance',
+        title: 'Impact d\'une naissance',
+        subtitle: 'Allocations, deductions, budget',
+        route: '/naissance',
+        sources: ['LAFam art. 3', 'LIFD art. 35'],
+      ));
+    }
+    if (lower.contains('concubin') || lower.contains('pas marie')) {
+      cards.add(_buildSimpleCard(
+        id: 'concubinage',
+        title: 'Protection concubinage',
+        subtitle: 'Droits, risques et solutions',
+        route: '/concubinage',
+        sources: ['CC art. 462', 'LPP art. 20a'],
+      ));
+    }
+    if (lower.contains('succession') || lower.contains('herit') ||
+        lower.contains('deces') && lower.contains('proche')) {
+      cards.add(_buildSimpleCard(
+        id: 'succession',
+        title: 'Succession',
+        subtitle: 'Simuler la transmission du patrimoine',
+        route: '/succession',
+        sources: ['CC art. 457-640', 'LIFD art. 24'],
+      ));
+    }
+    if (lower.contains('donat') || lower.contains('donner') &&
+        lower.contains('enfant')) {
+      cards.add(_buildSimpleCard(
+        id: 'donation',
+        title: 'Donation',
+        subtitle: 'Impact fiscal d\'une donation',
+        route: '/life-event/donation',
+        sources: ['LHID art. 14'],
+      ));
+    }
+
+    // ── Emploi & Statut ──────────────────────────────────
+    if (lower.contains('independant') || lower.contains('indep') ||
+        lower.contains('mon compte')) {
       final c = _tryIndependant(profile);
       if (c != null) cards.add(c);
     }
+    if (lower.contains('chomage') || lower.contains('emploi') &&
+        lower.contains('perdu') || lower.contains('licenci')) {
+      cards.add(_buildSimpleCard(
+        id: 'unemployment',
+        title: 'Perte d\'emploi',
+        subtitle: 'Indemnites, duree, demarches',
+        route: '/unemployment',
+        sources: ['LACI art. 8-27'],
+      ));
+    }
+    if (lower.contains('premier') && lower.contains('emploi') ||
+        lower.contains('premier job') || lower.contains('debut') &&
+        lower.contains('carri')) {
+      cards.add(_buildSimpleCard(
+        id: 'first_job',
+        title: 'Premier emploi',
+        subtitle: 'Tout comprendre des le depart',
+        route: '/first-job',
+        sources: ['LAVS art. 3', 'LPP art. 7'],
+      ));
+    }
+    if (lower.contains('expat') || lower.contains('etranger') ||
+        lower.contains('quitt') && lower.contains('suisse')) {
+      cards.add(_buildSimpleCard(
+        id: 'expatriation',
+        title: 'Expatriation',
+        subtitle: 'Impact sur AVS, LPP, 3a et impots',
+        route: '/expatriation',
+        sources: ['LAVS art. 1a', 'ALCP', 'CDI'],
+      ));
+    }
+    if (lower.contains('frontalier') || lower.contains('permis g') ||
+        lower.contains('travail') && lower.contains('france')) {
+      cards.add(_buildSimpleCard(
+        id: 'frontalier',
+        title: 'Frontalier',
+        subtitle: 'Impot source et particularites',
+        route: '/segments/frontalier',
+        sources: ['CDI CH-FR art. 17', 'LIFD art. 83-101'],
+      ));
+    }
+    if (lower.contains('compar') && lower.contains('offre') ||
+        lower.contains('compar') && lower.contains('emploi') ||
+        lower.contains('deux offres')) {
+      cards.add(_buildSimpleCard(
+        id: 'job_comparison',
+        title: 'Comparateur d\'offres',
+        subtitle: 'Compare deux offres d\'emploi (net + prevoyance)',
+        route: '/simulator/job-comparison',
+        sources: ['CO art. 319ss'],
+      ));
+    }
+    if (lower.contains('dividende') || lower.contains('salaire') &&
+        lower.contains('sarl')) {
+      cards.add(_buildSimpleCard(
+        id: 'dividende_vs_salaire',
+        title: 'Dividende vs Salaire',
+        subtitle: 'Optimiser la remuneration en SARL/SA',
+        route: '/independants/dividende-salaire',
+        sources: ['LIFD art. 20', 'LAVS art. 4'],
+      ));
+    }
+
+    // ── Assurance & Sante ────────────────────────────────
+    if (lower.contains('lamal') || lower.contains('franchise') ||
+        lower.contains('caisse maladie')) {
+      cards.add(_buildSimpleCard(
+        id: 'lamal_franchise',
+        title: 'Franchise LAMal',
+        subtitle: 'Quelle franchise choisir ?',
+        route: '/assurances/lamal',
+        sources: ['LAMal art. 64', 'OAMal art. 103'],
+      ));
+    }
+    if (lower.contains('assur') && lower.contains('couvert') ||
+        lower.contains('bien assur') || lower.contains('lacune') &&
+        lower.contains('assur')) {
+      cards.add(_buildSimpleCard(
+        id: 'coverage_check',
+        title: 'Check de couverture',
+        subtitle: 'Verifier tes couvertures',
+        route: '/assurances/coverage',
+        sources: ['LAMal', 'LCA'],
+      ));
+    }
+    if (lower.contains('invalid') || lower.contains('incapacit') ||
+        lower.contains('accident')) {
+      cards.add(_buildSimpleCard(
+        id: 'disability',
+        title: 'Invalidite — lacune de revenu',
+        subtitle: 'Gap entre revenu actuel et rentes AI/LPP',
+        route: '/invalidite',
+        sources: ['LAI art. 28-28a', 'LPP art. 23-26'],
+      ));
+    }
+    if (lower.contains('gender') || lower.contains('ecart') &&
+        lower.contains('femme')) {
+      cards.add(_buildSimpleCard(
+        id: 'gender_gap',
+        title: 'Ecart femmes/hommes',
+        subtitle: 'Impact du temps partiel sur la retraite',
+        route: '/segments/gender-gap',
+        sources: ['LAVS art. 29', 'LPP art. 7-8'],
+      ));
+    }
+
+    // ── Budget & Dette ───────────────────────────────────
     if (lower.contains('patrimoine') || lower.contains('epargne')) {
       final c = _tryPatrimoine(profile);
       if (c != null) cards.add(c);
     }
-    if (lower.contains('hypothe') || lower.contains('immobili')) {
-      final c = _tryMortgage(profile);
-      if (c != null) cards.add(c);
+    if (lower.contains('budget') || lower.contains('reste a vivre') ||
+        lower.contains('depense')) {
+      cards.add(_buildSimpleCard(
+        id: 'budget',
+        title: 'Budget',
+        subtitle: 'Ta marge mensuelle',
+        route: '/budget',
+        sources: [],
+      ));
+    }
+    if (lower.contains('dette') || lower.contains('credit') &&
+        !lower.contains('credit conso')) {
+      cards.add(_buildSimpleCard(
+        id: 'debt_ratio',
+        title: 'Ratio d\'endettement',
+        subtitle: 'Evaluer ta situation de dette',
+        route: '/debt/ratio',
+        sources: ['CO art. 305ss'],
+      ));
     }
 
-    return cards.take(2).toList();
+    // ── Simulateurs divers ───────────────────────────────
+    if (lower.contains('interet compose') || lower.contains('interets composes') ||
+        lower.contains('combien rapport')) {
+      cards.add(_buildSimpleCard(
+        id: 'compound_interest',
+        title: 'Interets composes',
+        subtitle: 'Simuler la croissance de ton epargne',
+        route: '/simulator/compound',
+        sources: [],
+      ));
+    }
+    if (lower.contains('leasing')) {
+      cards.add(_buildSimpleCard(
+        id: 'leasing',
+        title: 'Simulateur leasing',
+        subtitle: 'Cout reel d\'un leasing auto',
+        route: '/simulator/leasing',
+        sources: [],
+      ));
+    }
+    if (lower.contains('credit conso') || lower.contains('pret personnel')) {
+      cards.add(_buildSimpleCard(
+        id: 'consumer_credit',
+        title: 'Credit consommation',
+        subtitle: 'Cout total d\'un credit conso',
+        route: '/simulator/credit',
+        sources: ['LCC art. 1'],
+      ));
+    }
+    if (lower.contains('allocation') && lower.contains('annuel') ||
+        lower.contains('10k') && lower.contains('mettre')) {
+      cards.add(_buildSimpleCard(
+        id: 'allocation_annuelle',
+        title: 'Allocation annuelle',
+        subtitle: 'Ou placer ton epargne cette annee',
+        route: '/arbitrage/allocation-annuelle',
+        sources: ['LSFin art. 3'],
+      ));
+    }
+
+    // Deduplicate by id and limit to 2 cards
+    final seen = <String>{};
+    final unique = cards.where((c) => seen.add(c.id)).toList();
+    return unique.take(2).toList();
   }
 
   /// Suggested prompts personnalises selon le profil.
@@ -487,6 +848,32 @@ class ResponseCardService {
           'Coussin de securite recommande: ${coussinMin.round()} CHF (3 mois de charges)',
       ],
       impactPoints: 12,
+    );
+  }
+
+  /// Helper: build a simple Response Card for topics without profile-driven
+  /// calculations. Used for the 27 inline coach simulators (Phase 3).
+  static ResponseCard _buildSimpleCard({
+    required String id,
+    required String title,
+    required String subtitle,
+    required String route,
+    List<String> sources = const [],
+  }) {
+    return ResponseCard(
+      id: id,
+      type: ResponseCardType.pillar3a, // generic — type is secondary for simple cards
+      title: title,
+      subtitle: subtitle,
+      chiffreChoc: const ChiffreChoc(
+        value: 0,
+        unit: '',
+        explanation: '',
+      ),
+      cta: CardCta(label: 'Explorer →', route: route),
+      disclaimer: _disclaimer,
+      sources: sources,
+      impactPoints: 10,
     );
   }
 

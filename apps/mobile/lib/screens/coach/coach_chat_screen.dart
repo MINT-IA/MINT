@@ -22,6 +22,7 @@ import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
+import 'package:mint_mobile/widgets/coach/life_event_sheet.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN — SLM-first, streaming, prod-ready
@@ -201,6 +202,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   // ════════════════════════════════════════════════════════════
   //  MESSAGE SENDING — SLM streaming or standard
   // ════════════════════════════════════════════════════════════
+
+  Future<void> _showLifeEventSheet() async {
+    final prompt = await LifeEventSheet.show(context);
+    if (prompt != null && prompt.isNotEmpty && mounted) {
+      _sendMessage(prompt);
+    }
+  }
 
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
@@ -1150,6 +1158,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Row(
             children: [
+              // Life event trigger button
+              IconButton(
+                icon: const Icon(Icons.flash_on_outlined,
+                    color: MintColors.coachAccent, size: 22),
+                tooltip: 'Evenement de vie',
+                onPressed: _isStreaming ? null : _showLifeEventSheet,
+              ),
               Expanded(
                 child: TextField(
                   controller: _controller,
