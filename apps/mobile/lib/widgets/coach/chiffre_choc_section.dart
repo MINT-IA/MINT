@@ -24,7 +24,7 @@ class ChiffreChocSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     final revenuBrutAnnuel = profile.revenuBrutAnnuel;
     final cards = <Widget>[];
 
@@ -54,13 +54,12 @@ class ChiffreChocSection extends StatelessWidget {
       if (economieAnnuelle > 500) {
         cards.add(ChiffreChocCard(
           value: economieAnnuelle,
-          suffix: '/an',
-          message: '\u00c9conomie d\'imp\u00f4ts potentielle chaque ann\u00e9e en '
-              'maximisant ton 3a. '
-              'Sur $anneesRestantes ans, cela repr\u00e9sente ~CHF\u00A0${_formatChf(economieCumulee)}.',
+          suffix: l10n.chiffreChocSectionSuffixPerYear,
+          message: l10n.chiffreChocSectionTaxSavings3a(
+              anneesRestantes, _formatChf(economieCumulee)),
           narrativeMessage: narratives['fiscalite'],
           source: 'OPP3 art. 7 \u00b7 LIFD',
-          ctaLabel: 'Simuler mon 3a',
+          ctaLabel: l10n.chiffreChocSectionCta3a,
           ctaRoute: '/simulator/3a',
           icon: Icons.savings,
           color: MintColors.indigo,
@@ -77,11 +76,11 @@ class ChiffreChocSection extends StatelessWidget {
 
       cards.add(ChiffreChocCard(
         value: economieRachat,
-        message: 'D\u00e9duction fiscale potentielle en rachetant '
-            'ta lacune LPP de CHF ${_formatChf(lacuneLpp)}.',
+        message: l10n.chiffreChocSectionLppBuybackMessage(
+            _formatChf(lacuneLpp)),
         narrativeMessage: narratives['prevoyance'],
         source: 'LPP art. 79b',
-        ctaLabel: 'Explorer le rachat',
+        ctaLabel: l10n.chiffreChocSectionCtaLppBuyback,
         ctaRoute: '/lpp-deep/rachat',
         icon: Icons.account_balance,
         color: MintColors.coachAccent,
@@ -98,12 +97,12 @@ class ChiffreChocSection extends StatelessWidget {
 
       cards.add(ChiffreChocCard(
         value: perteTotaleRetraite,
-        message: 'Rente AVS perdue sur 20 ans de retraite avec '
-            '$lacunesAVS ann\u00e9e${lacunesAVS > 1 ? 's' : ''} '
-            'de cotisation manquante${lacunesAVS > 1 ? 's' : ''}.',
+        message: lacunesAVS > 1
+            ? l10n.chiffreChocSectionAvsGapMessagePlural(lacunesAVS)
+            : l10n.chiffreChocSectionAvsGapMessageSingular(lacunesAVS),
         narrativeMessage: narratives['avs'],
         source: 'LAVS art. 29',
-        ctaLabel: 'V\u00e9rifier mes lacunes',
+        ctaLabel: l10n.chiffreChocSectionCtaAvsGap,
         ctaRoute: '/retirement',
         icon: Icons.shield_outlined,
         color: MintColors.scoreAttention,
@@ -116,7 +115,7 @@ class ChiffreChocSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          l10n?.coachShockTitle ?? 'Tes chiffres-chocs',
+          l10n.coachShockTitle,
           style: GoogleFonts.montserrat(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -125,8 +124,7 @@ class ChiffreChocSection extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          l10n?.coachShockSubtitle ??
-              'Des montants personnalis\u00e9s pour \u00e9clairer tes d\u00e9cisions',
+          l10n.coachShockSubtitle,
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textSecondary,
@@ -135,9 +133,7 @@ class ChiffreChocSection extends StatelessWidget {
         const SizedBox(height: 14),
         ...cards.expand((card) => [card, const SizedBox(height: 12)]),
         Text(
-          'Simulation \u00e0 titre \u00e9ducatif uniquement. '
-          'Ne constitue pas un conseil en placement ou pr\u00e9voyance (LSFin). '
-          'Hypoth\u00e8ses modifiables \u2014 r\u00e9sultats non garantis.',
+          l10n.chiffreChocSectionDisclaimer,
           style: GoogleFonts.inter(
             fontSize: 10,
             color: MintColors.textMuted,
