@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 
 /// Tests unitaires pour MortgageService (Sprint S17).
@@ -12,6 +13,7 @@ import 'package:mint_mobile/services/mortgage_service.dart';
 ///
 /// Base legale : directive ASB, FINMA, LIFD, LPP art. 30c, OPP3.
 void main() {
+  final s = SFr();
   // ═══════════════════════════════════════════════════════════════════════════
   //  A. AffordabilityCalculator
   // ═══════════════════════════════════════════════════════════════════════════
@@ -25,6 +27,7 @@ void main() {
         avoirLpp: 80000,
         prixAchat: 800000,
         canton: 'ZH',
+        s: s,
       );
 
       // Fonds propres = 120000 + 40000 + min(80000, 800000*0.10) = 240000
@@ -44,6 +47,7 @@ void main() {
         avoirLpp: 100000,
         prixAchat: 700000,
         canton: 'VD',
+        s: s,
       );
 
       // charges = hypotheque * 6% + prix * 1%
@@ -64,6 +68,7 @@ void main() {
         avoirLpp: 0,
         prixAchat: 500000,
         canton: 'GE',
+        s: s,
       );
 
       expect(r.ratioCharges, 1.0);
@@ -79,6 +84,7 @@ void main() {
         avoirLpp: 20000,
         prixAchat: 800000,
         canton: 'BE',
+        s: s,
       );
 
       // FP total = 30000 + 10000 + min(20000, 80000) = 60000
@@ -96,6 +102,7 @@ void main() {
         avoirLpp: 500000,
         prixAchat: 600000,
         canton: 'ZH',
+        s: s,
       );
 
       // LPP utilise = min(500000, 600000 * 0.10) = 60000
@@ -111,6 +118,7 @@ void main() {
         avoirLpp: 30000,
         prixAchat: 0,
         canton: 'LU',
+        s: s,
       );
 
       expect(r.fondsPropresRequis, 0.0);
@@ -127,6 +135,7 @@ void main() {
         avoirLpp: 0,
         prixAchat: 500000,
         canton: 'ZH',
+        s: s,
       );
 
       // FP = 100000 + 0 + 0 = 100000
@@ -144,6 +153,7 @@ void main() {
         avoirLpp: 0,
         prixAchat: 400000,
         canton: 'ZH',
+        s: s,
       );
 
       expect(r.disclaimer, contains('ASB'));
@@ -158,6 +168,7 @@ void main() {
         avoirLpp: 200000,
         prixAchat: 500000,
         canton: 'ZH',
+        s: s,
       );
 
       expect(r.capaciteOk, isTrue);
@@ -175,6 +186,7 @@ void main() {
       final r = SaronVsFixedCalculator.compare(
         montantHypothecaire: 500000,
         dureeAns: 10,
+        s: s,
       );
 
       // Fixe : 500000 * 0.025 * 10 = 125000
@@ -190,16 +202,18 @@ void main() {
       final r = SaronVsFixedCalculator.compare(
         montantHypothecaire: 400000,
         dureeAns: 10,
+        s: s,
       );
 
       expect(r.economieSaronStable, greaterThan(0));
-      expect(r.chiffreChocTexte, contains('economise'));
+      expect(r.chiffreChocTexte, contains('économise'));
     });
 
     test('SARON hausse — taux augmente de 0.25% par an', () {
       final r = SaronVsFixedCalculator.compare(
         montantHypothecaire: 500000,
         dureeAns: 5,
+        s: s,
       );
 
       // An 1 : 500000 * 0.0205 = 10250
@@ -214,12 +228,14 @@ void main() {
       final r3 = SaronVsFixedCalculator.compare(
         montantHypothecaire: 500000,
         dureeAns: 3,
+        s: s,
       );
       expect(r3.fixe.annualData.length, 5);
 
       final r20 = SaronVsFixedCalculator.compare(
         montantHypothecaire: 500000,
         dureeAns: 20,
+        s: s,
       );
       expect(r20.fixe.annualData.length, 15);
     });
@@ -228,6 +244,7 @@ void main() {
       final r = SaronVsFixedCalculator.compare(
         montantHypothecaire: 50000,
         dureeAns: 10,
+        s: s,
       );
       // Clampe a 100000
       expect(r.fixe.coutTotal, closeTo(100000 * 0.025 * 10, 1));
@@ -237,6 +254,7 @@ void main() {
       final r = SaronVsFixedCalculator.compare(
         montantHypothecaire: 500000,
         dureeAns: 10,
+        s: s,
       );
 
       for (int i = 1; i < r.fixe.annualData.length; i++) {
@@ -249,6 +267,7 @@ void main() {
       final r = SaronVsFixedCalculator.compare(
         montantHypothecaire: 500000,
         dureeAns: 10,
+        s: s,
       );
 
       // "garantit" (conjugue) est acceptable dans "ne garantit pas",
@@ -257,7 +276,7 @@ void main() {
       expect(r.disclaimer, isNot(contains('sans risque')));
       expect(r.disclaimer, isNot(contains('conseil hypothecaire personnalise')));
       // Le disclaimer doit contenir la mention educative
-      expect(r.disclaimer, contains('educatif'));
+      expect(r.disclaimer, contains('éducatif'));
     });
   });
 
@@ -274,6 +293,7 @@ void main() {
         canton: 'ZH',
         bienAncien: false,
         tauxMarginal: 0.30,
+        s: s,
       );
 
       expect(r.valeurLocative, closeTo(35000, 1));
@@ -287,6 +307,7 @@ void main() {
         canton: 'ZH',
         bienAncien: false,
         tauxMarginal: 0.30,
+        s: s,
       );
 
       final rAncien = ImputedRentalCalculator.calculate(
@@ -296,6 +317,7 @@ void main() {
         canton: 'ZH',
         bienAncien: true,
         tauxMarginal: 0.30,
+        s: s,
       );
 
       // Forfait entretien ancien (20%) > recent (10%)
@@ -311,6 +333,7 @@ void main() {
         canton: 'ZH',
         bienAncien: false,
         tauxMarginal: 0.30,
+        s: s,
       );
 
       // Forfait = 35000 * 0.10 = 3500 vs frais effectifs 50000
@@ -325,6 +348,7 @@ void main() {
         canton: 'GE',
         bienAncien: false,
         tauxMarginal: 0.35,
+        s: s,
       );
 
       // VL = 1500000 * 0.045 = 67500
@@ -341,6 +365,7 @@ void main() {
         canton: 'XX',
         bienAncien: false,
         tauxMarginal: 0.30,
+        s: s,
       );
 
       expect(r.valeurLocative, closeTo(35000, 1));
@@ -358,6 +383,7 @@ void main() {
         tauxInteret: 0.02,
         dureeAns: 15,
         tauxMarginal: 0.30,
+        s: s,
       );
 
       // Indirect beneficie de la double deduction (interets + 3a)
@@ -371,6 +397,7 @@ void main() {
         tauxInteret: 0.02,
         dureeAns: 10,
         tauxMarginal: 0.30,
+        s: s,
       );
 
       // La dette diminue dans le plan direct
@@ -386,6 +413,7 @@ void main() {
         tauxInteret: 0.02,
         dureeAns: 10,
         tauxMarginal: 0.30,
+        s: s,
       );
 
       for (final point in r.indirectPlan) {
@@ -399,6 +427,7 @@ void main() {
         tauxInteret: 0.02,
         dureeAns: 15,
         tauxMarginal: 0.30,
+        s: s,
       );
 
       // Capital 3a final > 0 et croissant
@@ -415,6 +444,7 @@ void main() {
         tauxInteret: 0.02,
         dureeAns: 0,
         tauxMarginal: 0.30,
+        s: s,
       );
       expect(r0.directPlan.length, 1);
 
@@ -423,6 +453,7 @@ void main() {
         tauxInteret: 0.02,
         dureeAns: 50,
         tauxMarginal: 0.30,
+        s: s,
       );
       expect(r50.directPlan.length, 30);
     });
@@ -440,13 +471,14 @@ void main() {
         avoirLpp: 100000,
         prixCible: 1000000,
         canton: 'ZH',
+        s: s,
       );
 
       // FP requis = 200000, cash = 300000 => cash couvre tout
       expect(r.objectifAtteint, isTrue);
       expect(r.totalImpots, closeTo(0, 1));
       expect(r.sources.length, 1); // Seulement cash
-      expect(r.sources[0].label, 'Epargne cash');
+      expect(r.sources[0].label, 'Épargne cash');
     });
 
     test('allocation dans l ordre cash > 3a > LPP', () {
@@ -456,6 +488,7 @@ void main() {
         avoirLpp: 200000,
         prixCible: 1000000,
         canton: 'ZH',
+        s: s,
       );
 
       // FP requis = 200000
@@ -463,7 +496,7 @@ void main() {
       // Gross = 200000 but net < 200000 after progressive tax on 150k withdrawals
       expect(r.objectifAtteint, isFalse);
       expect(r.sources.length, 3);
-      expect(r.sources[0].label, 'Epargne cash');
+      expect(r.sources[0].label, 'Épargne cash');
       expect(r.sources[0].montant, closeTo(50000, 1));
       expect(r.sources[1].label, 'Retrait 3a');
       expect(r.sources[1].montant, closeTo(80000, 1));
@@ -478,6 +511,7 @@ void main() {
         avoirLpp: 500000,
         prixCible: 1000000,
         canton: 'ZH',
+        s: s,
       );
 
       // LPP max = 10% de 1M = 100000
@@ -493,6 +527,7 @@ void main() {
         avoirLpp: 200000,
         prixCible: 1000000,
         canton: 'ZH',
+        s: s,
       );
 
       // Impot > 0 car retrait 3a et LPP
@@ -506,11 +541,12 @@ void main() {
         avoirLpp: 200000,
         prixCible: 800000,
         canton: 'VD',
+        s: s,
       );
 
-      // Devrait avoir une alerte sur la progressivite
+      // Devrait avoir une alerte sur la progressivité
       final hasProgressivityAlert = r.alertes.any(
-          (a) => a.contains('progressivite') || a.contains('etaler'));
+          (a) => a.contains('progressivité') || a.contains('étaler'));
       expect(hasProgressivityAlert, isTrue);
     });
 
@@ -521,6 +557,7 @@ void main() {
         avoirLpp: 20000,
         prixCible: 1000000,
         canton: 'ZH',
+        s: s,
       );
 
       expect(r.objectifAtteint, isFalse);
@@ -535,6 +572,7 @@ void main() {
         avoirLpp: 0,
         prixCible: 1000000,
         canton: 'ZH',
+        s: s,
       );
 
       // 100000 / 1000000 * 100 = 10%
@@ -548,6 +586,7 @@ void main() {
         avoirLpp: 100000,
         prixCible: 500000,
         canton: 'ZH',
+        s: s,
       );
 
       expect(r.disclaimer, contains('LPP art. 30c'));

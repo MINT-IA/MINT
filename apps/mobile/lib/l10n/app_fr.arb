@@ -12051,5 +12051,99 @@
   "familyServiceCantonVS": "Valais",
   "familyServiceCantonNE": "Neuchâtel",
   "familyServiceCantonGE": "Genève",
-  "familyServiceCantonJU": "Jura"
+  "familyServiceCantonJU": "Jura",
+
+  "segmentsGenderGapRecRachatDescFull": "Un rachat volontaire permet de combler partiellement la lacune de prévoyance tout en bénéficiant d''une déduction fiscale. Vérifie le montant de rachat possible auprès de ta caisse de pension.",
+  "segmentsGenderGapRec3aDescFull": "Verse le plafond annuel de CHF\u00a07''258 (salariés) pour compenser partiellement la lacune LPP. La déduction fiscale est immédiate et le capital reste disponible sous certaines conditions.",
+  "segmentsGenderGapRecCoordDescFull": "Plusieurs caisses de pension proratisent la déduction de coordination en fonction du taux d''activité, ce qui améliore significativement le salaire coordonné. Discutes-en avec ton employeur ou ta caisse de pension.",
+  "segmentsGenderGapRecTauxDescFull": "Même une augmentation de 10 à 20 points de pourcentage du taux d''activité peut réduire significativement la lacune de prévoyance, surtout si la déduction de coordination n''est pas proratisée.",
+
+  "segmentsFrontalierFiscalFrGeTitle": "Imposition à la source en Suisse (GE)",
+  "segmentsFrontalierFiscalFrGeDesc": "Les frontaliers travaillant à Genève sont imposés à la source en Suisse (accord CH-FR de 1983 spécifique GE). Une retenue de 4.5\u00a0% est cependant reversée à la France.",
+  "segmentsFrontalierFiscalFrOtherTitle": "Imposition en France (résidence)",
+  "segmentsFrontalierFiscalFrOtherDesc": "Les frontaliers résidant en France et travaillant hors du canton de Genève sont imposés en France sur leurs revenus suisses. L''employeur ne prélève pas d''impôt à la source.",
+  "segmentsFrontalierFiscalDeTitle": "Imposition en Allemagne (résidence)",
+  "segmentsFrontalierFiscalDeDesc": "Les frontaliers résidant en Allemagne sont en principe imposés en Allemagne. La Suisse retient un impôt à la source de max. 4.5\u00a0%, imputable en Allemagne.",
+  "segmentsFrontalierFiscalItTitle": "Nouvel accord fiscal CH-IT (2024)",
+  "segmentsFrontalierFiscalItDesc": "Le nouvel accord frontalier CH-IT prévoit une imposition concurrente\u00a0: la Suisse prélève un impôt à la source (max. 80\u00a0% du taux normal), et l''Italie peut imposer la différence. Vérifie ta situation exacte.",
+  "segmentsFrontalierFiscalAtTitle": "Imposition en Suisse (source)",
+  "segmentsFrontalierFiscalAtDesc": "Les frontaliers résidant en Autriche sont en principe imposés à la source en Suisse. L''Autriche peut également imposer ces revenus avec crédit d''impôt.",
+  "segmentsFrontalierFiscalLiTitle": "Accord spécial CH-LI",
+  "segmentsFrontalierFiscalLiDesc": "Les frontaliers du Liechtenstein bénéficient d''un accord spécial. L''imposition se fait généralement dans le pays d''emploi (Suisse). Le Liechtenstein pratique des taux bas.",
+
+  "segmentsFrontalier3aGeTitle": "3e pilier\u00a0: possible si quasi-résident GE",
+  "segmentsFrontalier3aGeDesc": "Les frontaliers travaillant à Genève peuvent déduire le 3e pilier s''ils obtiennent le statut de quasi-résident (>= 90\u00a0% des revenus du ménage provenant de Suisse). Condition\u00a0: passage à la déclaration ordinaire.",
+  "segmentsFrontalier3aNoDeductionTitle": "3e pilier\u00a0: pas de déduction possible",
+  "segmentsFrontalier3aNoDeductionDesc": "En tant que frontalier imposé dans ton pays de résidence, tu ne peux pas déduire les versements 3a de tes impôts suisses. Le 3e pilier reste possible mais sans avantage fiscal en Suisse.",
+
+  "segmentsFrontalierLppAffiliationTitle": "LPP\u00a0: affiliation obligatoire",
+  "segmentsFrontalierLppAffiliationDesc": "Les frontaliers sont obligatoirement affiliés à la LPP de leur employeur suisse, comme tout employé. Les mêmes règles de cotisation et de prestation s''appliquent.",
+  "segmentsFrontalierLppLibrePassageTitle": "Libre passage au départ",
+  "segmentsFrontalierLppLibrePassageDesc": "En quittant la Suisse, ton avoir LPP est transféré sur un compte de libre passage. Si tu résides dans l''UE/AELE, le transfert de la part obligatoire en cash n''est pas possible (reste sur libre passage en CH). La part surobligatoire peut être versée.",
+
+  "segmentsFrontalierAvsCotisationTitle": "AVS\u00a0: cotisation en Suisse",
+  "segmentsFrontalierAvsCotisationDesc": "Les frontaliers cotisent à l''AVS suisse (1er pilier). Les périodes de cotisation en Suisse sont totalisées avec les périodes dans ton pays de résidence ({pays}) pour le calcul de ton droit à la rente.",
+  "@segmentsFrontalierAvsCotisationDesc": {
+    "placeholders": {
+      "pays": { "type": "String" }
+    }
+  },
+  "segmentsFrontalierAvsProRataTitle": "Rente AVS\u00a0: calcul pro rata",
+  "segmentsFrontalierAvsProRataDesc": "Ta rente AVS suisse sera calculée proportionnellement aux années de cotisation en Suisse. Tu recevras également une rente de ton pays de résidence pour les périodes cotisées là-bas.",
+
+  "segmentsFrontalierQuasiResidentDescFull": "Le statut de quasi-résident est accessible si au moins 90\u00a0% des revenus de ton ménage proviennent de Suisse. Ce statut te permet de passer à la déclaration ordinaire et de bénéficier des mêmes déductions que les résidents (3e pilier, frais effectifs, rachats LPP, etc.).",
+
+  "segmentsFrontalierChecklistFiscal": "Vérifier ton régime fiscal exact avec un fiduciaire",
+  "segmentsFrontalierChecklistSalaire": "Demander ton certificat de salaire annuel",
+  "segmentsFrontalierChecklistAvs": "Vérifier les cotisations AVS (extrait de compte AVS)",
+  "segmentsFrontalierChecklistLpp": "Demander le certificat LPP de ta caisse de pension",
+  "segmentsFrontalierChecklistInvalidite": "Vérifier les prestations en cas d''invalidité et de décès",
+  "segmentsFrontalierChecklistQuasiResident": "Évaluer l''intérêt du statut de quasi-résident (si >= 90\u00a0% revenus CH)",
+  "segmentsFrontalierChecklistJustificatifs": "Conserver les justificatifs pour la déclaration dans ton pays",
+  "segmentsFrontalierChecklistMaladie": "Vérifier ta couverture maladie (LAMal ou pays de résidence)",
+  "segmentsFrontalierChecklistLibrePassage": "Planifier le libre passage en cas de départ de Suisse",
+
+  "segmentsIndependantCoverageLppLabel": "LPP (2e pilier)",
+  "segmentsIndependantCoverageLppDesc": "Prévoyance professionnelle obligatoire pour les salariés",
+  "segmentsIndependantCoverageLppCovered": "Tu es affilié volontairement. Vérifie tes prestations.",
+  "segmentsIndependantCoverageLppNotCovered": "Envisage une affiliation volontaire à une caisse de pension (fondation collective ou caisse de ta branche).",
+  "segmentsIndependantCoverageIjmLabel": "IJM (Indemnité journalière maladie)",
+  "segmentsIndependantCoverageIjmDesc": "Couverture du revenu en cas de maladie",
+  "segmentsIndependantCoverageIjmCovered": "Ta couverture IJM est en place. Vérifie le délai de carence et le montant assuré.",
+  "segmentsIndependantCoverageIjmNotCovered": "URGENT\u00a0: sans IJM, tu n''as aucun revenu en cas de maladie. Souscris une assurance IJM individuelle (indemnité journalière en cas de maladie).",
+  "segmentsIndependantCoverageLaaLabel": "LAA (Assurance accident)",
+  "segmentsIndependantCoverageLaaDesc": "Couverture en cas d''accident professionnel ou privé",
+  "segmentsIndependantCoverageLaaCovered": "Ta couverture accident est en place.",
+  "segmentsIndependantCoverageLaaNotCovered": "Souscris une assurance accident individuelle. Sans LAA, les frais médicaux et la perte de gain en cas d''accident ne sont pas couverts.",
+  "segmentsIndependantCoverage3aLabel": "3e pilier (3a)",
+  "segmentsIndependantCoverage3aDesc": "Prévoyance individuelle avec avantage fiscal",
+  "segmentsIndependantCoverage3aCovered": "Vérifie que tu verses le plafond ({plafond}).",
+  "@segmentsIndependantCoverage3aCovered": {
+    "placeholders": {
+      "plafond": { "type": "String" }
+    }
+  },
+  "segmentsIndependantCoverage3aNotCovered": "Ouvre un 3e pilier et verse le maximum ({plafond}). Sans LPP, le 3a est ton principal outil de prévoyance.",
+  "@segmentsIndependantCoverage3aNotCovered": {
+    "placeholders": {
+      "plafond": { "type": "String" }
+    }
+  },
+
+  "segmentsIndependantAlertIjmFull": "CRITIQUE\u00a0: Tu n''as pas d''assurance IJM (indemnité journalière maladie). En cas de maladie, tu n''auras aucun revenu de remplacement. C''est le risque le plus important pour un indépendant.",
+  "segmentsIndependantAlertLaaFull": "IMPORTANT\u00a0: Sans assurance accident individuelle (LAA), les frais médicaux en cas d''accident et la perte de gain ne sont pas couverts de manière adéquate.",
+  "segmentsIndependantAlertLppFull": "Ta prévoyance repose uniquement sur l''AVS (1er pilier) et le 3e pilier. La rente AVS seule ne couvre généralement que 40 à 50\u00a0% du dernier revenu.",
+  "segmentsIndependantAlert3aFull": "Tu ne profites pas du 3e pilier. En tant qu''indépendant sans LPP, tu peux déduire jusqu''à CHF\u00a036''288 par an (20\u00a0% du revenu net).",
+
+  "segmentsIndependantRecIjm": "Souscrire une assurance IJM individuelle\u00a0: comparer les offres (délai de carence 30, 60 ou 90 jours, couverture 80\u00a0% du revenu).",
+  "segmentsIndependantRecLaa": "Souscrire une assurance accident individuelle (LAA)\u00a0: vérifier que la couverture inclut l''accident professionnel et non-professionnel.",
+  "segmentsIndependantRecLpp": "Explorer l''affiliation volontaire à une caisse de pension\u00a0: fondation collective, caisse de branche, ou fondation individuelle. Comparer les conditions.",
+  "segmentsIndependantRec3a": "Ouvrir un 3e pilier et verser le maximum annuel de {plafond}. L''économie fiscale est significative.",
+  "@segmentsIndependantRec3a": {
+    "placeholders": {
+      "plafond": { "type": "String" }
+    }
+  },
+  "segmentsIndependantRecAvs": "Vérifier ton extrait AVS (compte individuel) pour confirmer que toutes les années de cotisation sont enregistrées.",
+  "segmentsIndependantRecBudget": "Établir un budget prévisionnel pour anticiper les cotisations sociales (AVS, IJM, LAA, 3a)."
 }

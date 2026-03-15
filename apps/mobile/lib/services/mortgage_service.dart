@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 
@@ -67,6 +68,7 @@ class AffordabilityCalculator {
     required double avoirLpp,
     required double prixAchat,
     required String canton,
+    required S s,
   }) {
     // Clamp inputs
     final revenu = revenuBrutAnnuel.clamp(0.0, 1000000.0);
@@ -114,15 +116,15 @@ class AffordabilityCalculator {
 
     if (capaciteOk && fondsPropresOk) {
       chiffreChocTexte =
-          'Tu peux acheter jusqu\'a environ CHF ${formatChf(prixMaxAccessible)}';
+          s.mortgageServiceAffordabilityChocOk(formatChf(prixMaxAccessible));
       chiffreChocPositif = true;
     } else if (!fondsPropresOk) {
       chiffreChocTexte =
-          'Il te manque environ CHF ${formatChf(manqueFondsPropres)} de fonds propres';
+          s.mortgageServiceAffordabilityChocMissingEquity(formatChf(manqueFondsPropres));
       chiffreChocPositif = false;
     } else {
       chiffreChocTexte =
-          'Tes charges depasseraient ${(ratioCharges * 100).toStringAsFixed(1)}% de ton revenu';
+          s.mortgageServiceAffordabilityChocExceeded((ratioCharges * 100).toStringAsFixed(1));
       chiffreChocPositif = false;
     }
 
@@ -138,13 +140,7 @@ class AffordabilityCalculator {
       manqueFondsPropres: manqueFondsPropres,
       chiffreChocTexte: chiffreChocTexte,
       chiffreChocPositif: chiffreChocPositif,
-      disclaimer:
-          'Simulation pédagogique à titre indicatif. La capacité d\'achat '
-          'réelle dépend de la politique de crédit de chaque établissement. '
-          'Le taux théorique de 5\u00a0% est utilisé pour le calcul de tenue '
-          '(pratique ASB), pas le taux réel du marché. '
-          'Base légale\u00a0: directive ASB sur le crédit hypothécaire. '
-          'Consulte un·e spécialiste avant toute décision.',
+      disclaimer: s.mortgageServiceAffordabilityDisclaimer,
     );
   }
 }
@@ -220,6 +216,7 @@ class SaronVsFixedCalculator {
   static SaronVsFixedResult compare({
     required double montantHypothecaire,
     required int dureeAns,
+    required S s,
   }) {
     final montant = montantHypothecaire.clamp(100000.0, 5000000.0);
     final duree = dureeAns.clamp(5, 15);
@@ -270,33 +267,28 @@ class SaronVsFixedCalculator {
 
     return SaronVsFixedResult(
       fixe: MortgageOption(
-        label: 'Fixe $duree ans',
+        label: s.mortgageServiceFixedLabel(duree),
         tauxInitial: tauxFixe,
         coutTotal: fixeCumule,
         annualData: fixeData,
       ),
       saronStable: MortgageOption(
-        label: 'SARON stable',
+        label: s.mortgageServiceSaronStableLabel,
         tauxInitial: _tauxSaronBase,
         coutTotal: saronStableCumule,
         annualData: saronStableData,
       ),
       saronHausse: MortgageOption(
-        label: 'SARON hausse',
+        label: s.mortgageServiceSaronHausseLabel,
         tauxInitial: _tauxSaronBase,
         coutTotal: saronHausseCumule,
         annualData: saronHausseData,
       ),
       economieSaronStable: economieSaronStable,
       chiffreChocTexte: economieSaronStable > 0
-          ? 'Le SARON stable t\'economise environ CHF ${formatChf(economieSaronStable)} sur $duree ans vs taux fixe'
-          : 'Le fixe revient environ CHF ${formatChf(-economieSaronStable)} moins cher sur $duree ans',
-      disclaimer:
-          'Simulation a titre educatif. Le SARON peut varier a la hausse '
-          'comme a la baisse. L\'historique ne garantit pas l\'avenir. '
-          'Les taux indicatifs 2026 sont des moyennes de marche et varient '
-          'selon les etablissements et le profil emprunteur. '
-          'Ne constitue pas un conseil hypothecaire.',
+          ? s.mortgageServiceSaronChocSaving(formatChf(economieSaronStable), duree)
+          : s.mortgageServiceSaronChocFixed(formatChf(-economieSaronStable), duree),
+      disclaimer: s.mortgageServiceSaronDisclaimer,
     );
   }
 }
@@ -385,6 +377,7 @@ class ImputedRentalCalculator {
     required String canton,
     required bool bienAncien,
     required double tauxMarginal,
+    required S s,
   }) {
     final valeur = valeurVenale.clamp(0.0, 10000000.0);
     final interets = interetsAnnuels.clamp(0.0, 200000.0);
@@ -421,11 +414,11 @@ class ImputedRentalCalculator {
 
     if (impactNet > 0) {
       chiffreChocTexte =
-          'La valeur locative te coute environ CHF ${formatChf(impotSupplementaire)}/an d\'impot supplementaire';
+          s.mortgageServiceImputedChocCost(formatChf(impotSupplementaire));
       chiffreChocPositif = false;
     } else {
       chiffreChocTexte =
-          'Tes deductions compensent : economie nette estimee de CHF ${formatChf(-impotSupplementaire)}/an';
+          s.mortgageServiceImputedChocSaving(formatChf(-impotSupplementaire));
       chiffreChocPositif = true;
     }
 
@@ -439,13 +432,7 @@ class ImputedRentalCalculator {
       impotSupplementaire: impotSupplementaire,
       chiffreChocTexte: chiffreChocTexte,
       chiffreChocPositif: chiffreChocPositif,
-      disclaimer:
-          'Simulation pédagogique à titre indicatif. La valeur locative '
-          'réelle est fixée par l\'autorité fiscale cantonale et peut '
-          'différer significativement de cette estimation. Les déductions '
-          'dépendent de la situation personnelle. '
-          'Base légale\u00a0: LIFD art. 21 al. 1 let. b, art. 32 (déductions). '
-          'Consulte un·e spécialiste en fiscalité.',
+      disclaimer: s.mortgageServiceImputedDisclaimer,
     );
   }
 }
@@ -515,6 +502,7 @@ class AmortizationCalculator {
     required int dureeAns,
     required double tauxMarginal,
     double rendement3a = 0.02,
+    required S s,
   }) {
     final montant = montantHypothecaire.clamp(100000.0, 5000000.0);
     final taux = tauxInteret.clamp(0.005, 0.08);
@@ -588,16 +576,10 @@ class AmortizationCalculator {
       directPlan: directPlan,
       indirectPlan: indirectPlan,
       chiffreChocTexte: economie > 0
-          ? 'L\'amortissement indirect t\'economise environ CHF ${formatChf(economie)} sur $duree ans'
-          : 'L\'amortissement direct est environ CHF ${formatChf(-economie)} moins cher sur $duree ans',
+          ? s.mortgageServiceAmortChocIndirect(formatChf(economie), duree)
+          : s.mortgageServiceAmortChocDirect(formatChf(-economie), duree),
       chiffreChocPositif: economie > 0,
-      disclaimer:
-          'Simulation pédagogique à titre indicatif. L\'avantage de '
-          'l\'amortissement indirect dépend du taux marginal effectif, '
-          'du rendement 3a et des conditions hypothécaires. '
-          'Le nantissement du 3a doit être accepté par le prêteur. '
-          'Base légale\u00a0: OPP3, pratique hypothécaire suisse. '
-          'Consulte un·e spécialiste avant toute décision.',
+      disclaimer: s.mortgageServiceAmortDisclaimer,
     );
   }
 }
@@ -671,6 +653,7 @@ class EplCombinedCalculator {
     required double avoirLpp,
     required double prixCible,
     required String canton,
+    required S s,
   }) {
     final cash = epargneCash.clamp(0.0, 5000000.0);
     final a3a = avoir3a.clamp(0.0, 1000000.0);
@@ -711,7 +694,7 @@ class EplCombinedCalculator {
 
     if (cashUtilise > 0) {
       sources.add(FundingSource(
-        label: 'Epargne cash',
+        label: s.mortgageServiceEplCashLabel,
         montant: cashUtilise,
         pourcentageDuPrix: prix > 0 ? (cashUtilise / prix) * 100 : 0,
         impotEstime: 0,
@@ -721,55 +704,44 @@ class EplCombinedCalculator {
 
     if (a3aUtilise > 0) {
       sources.add(FundingSource(
-        label: 'Retrait 3a',
+        label: s.mortgageServiceEpl3aLabel,
         montant: a3aUtilise,
         pourcentageDuPrix: prix > 0 ? (a3aUtilise / prix) * 100 : 0,
         impotEstime: impot3a,
         montantNet: a3aUtilise - impot3a,
-        alerte: 'Impot estime sur le retrait 3a : CHF ${formatChf(impot3a)}',
+        alerte: s.mortgageServiceEpl3aAlerte(formatChf(impot3a)),
       ));
     }
 
     if (lppUtilise > 0) {
       sources.add(FundingSource(
-        label: 'Retrait LPP (EPL)',
+        label: s.mortgageServiceEplLppLabel,
         montant: lppUtilise,
         pourcentageDuPrix: prix > 0 ? (lppUtilise / prix) * 100 : 0,
         impotEstime: impotLpp,
         montantNet: lppUtilise - impotLpp,
-        alerte:
-            'Le retrait LPP reduit tes prestations de risque (invalidite, deces). '
-            'Impot estime : CHF ${formatChf(impotLpp)}.',
+        alerte: s.mortgageServiceEplLppAlerte(formatChf(impotLpp)),
       ));
     }
 
     // Alertes
     final alertes = <String>[];
     if (lppUtilise > 0) {
-      alertes.add(
-        'Le retrait EPL (LPP) reduit proportionnellement tes prestations '
-        'd\'invalidite et de deces. Verifie aupres de ta caisse de pension '
-        'les possibilites d\'assurance complementaire.',
-      );
+      alertes.add(s.mortgageServiceEplAlerteRisk);
     }
     if (a3aUtilise > 0 && lppUtilise > 0) {
-      alertes.add(
-        'Le retrait combine 3a + LPP dans la meme annee fiscale augmente '
-        'la progressivite de l\'impot. Envisagez d\'etaler sur 2 annees.',
-      );
+      alertes.add(s.mortgageServiceEplAlerteCombined);
     }
     if (!objectifAtteint) {
       alertes.add(
-        'Tes fonds propres couvrent ${pourcentageCouvert.toStringAsFixed(1)}% du prix. '
-        'Il manque environ CHF ${formatChf(restant)} pour atteindre les 20% requis.',
+        s.mortgageServiceEplAlerteMissing(
+          pourcentageCouvert.toStringAsFixed(1),
+          formatChf(restant),
+        ),
       );
     }
     if (lppUtilise >= lppMax && lpp > lppMax) {
-      alertes.add(
-        'Utilisation LPP limitee a 10% du prix d\'achat '
-        '(CHF ${formatChf(lppMax)}). Ton avoir LPP restant n\'est pas '
-        'utilisable comme fonds propres.',
-      );
+      alertes.add(s.mortgageServiceEplAlerteLppCap(formatChf(lppMax)));
     }
 
     return EplCombinedResult(
@@ -781,16 +753,10 @@ class EplCombinedCalculator {
       montantNetTotal: montantNetTotal,
       objectifAtteint: objectifAtteint,
       chiffreChocTexte:
-          'Tes fonds propres couvrent ${pourcentageCouvert.toStringAsFixed(1)}% du prix',
+          s.mortgageServiceEplChoc(pourcentageCouvert.toStringAsFixed(1)),
       chiffreChocPositif: objectifAtteint,
       alertes: alertes,
-      disclaimer:
-          'Simulation pédagogique à titre indicatif. Les montants réels '
-          'dépendent de la caisse de pension, de la fiscalité cantonale '
-          'et communale, et de la situation personnelle. '
-          'Le retrait LPP est soumis à l\'accord du conjoint (si marié). '
-          'Base légale\u00a0: LPP art. 30c (EPL), OPP3, LIFD art. 38. '
-          'Consulte un·e spécialiste avant toute décision.',
+      disclaimer: s.mortgageServiceEplDisclaimer,
     );
   }
 

@@ -24,16 +24,17 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
   int _dureeAns = 15;
   double _tauxMarginal = 0.30;
 
-  AmortizationResult get _result => AmortizationCalculator.compare(
+  AmortizationResult _computeResult(S s) => AmortizationCalculator.compare(
         montantHypothecaire: _montantHypothecaire,
         tauxInteret: _tauxInteret,
         dureeAns: _dureeAns,
         tauxMarginal: _tauxMarginal,
+        s: s,
       );
 
   @override
   Widget build(BuildContext context) {
-    final result = _result;
+    final result = _computeResult(S.of(context)!);
 
     return Scaffold(
       backgroundColor: MintColors.surface,

@@ -40,18 +40,19 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
     'TI', 'UR', 'VD', 'VS', 'ZG', 'ZH',
   ];
 
-  AffordabilityResult get _result => AffordabilityCalculator.calculate(
+  AffordabilityResult _computeResult(S s) => AffordabilityCalculator.calculate(
         revenuBrutAnnuel: _revenuBrut,
         epargneDispo: _epargneDispo,
         avoir3a: _avoir3a,
         avoirLpp: _avoirLpp,
         prixAchat: _prixAchat,
         canton: _canton,
+        s: s,
       );
 
   @override
   Widget build(BuildContext context) {
-    final result = _result;
+    final result = _computeResult(S.of(context)!);
 
     return Scaffold(
       backgroundColor: MintColors.surface,

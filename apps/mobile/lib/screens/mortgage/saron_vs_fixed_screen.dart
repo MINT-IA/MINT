@@ -25,14 +25,15 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
 
   static const _dureesDisponibles = [5, 7, 10, 15];
 
-  SaronVsFixedResult get _result => SaronVsFixedCalculator.compare(
+  SaronVsFixedResult _computeResult(S s) => SaronVsFixedCalculator.compare(
         montantHypothecaire: _montantHypothecaire,
         dureeAns: _dureeAns,
+        s: s,
       );
 
   @override
   Widget build(BuildContext context) {
-    final result = _result;
+    final result = _computeResult(S.of(context)!);
 
     return Scaffold(
       backgroundColor: MintColors.surface,

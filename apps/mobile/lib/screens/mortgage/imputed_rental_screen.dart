@@ -24,18 +24,19 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
   bool _bienAncien = true;
   double _tauxMarginal = 0.30;
 
-  ImputedRentalResult get _result => ImputedRentalCalculator.calculate(
+  ImputedRentalResult _computeResult(S s) => ImputedRentalCalculator.calculate(
         valeurVenale: _valeurVenale,
         interetsAnnuels: _interetsAnnuels,
         fraisEntretien: _fraisEntretien,
         canton: _canton,
         bienAncien: _bienAncien,
         tauxMarginal: _tauxMarginal,
+        s: s,
       );
 
   @override
   Widget build(BuildContext context) {
-    final result = _result;
+    final result = _computeResult(S.of(context)!);
 
     return Scaffold(
       backgroundColor: MintColors.surface,

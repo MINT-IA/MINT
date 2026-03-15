@@ -26,17 +26,18 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
   double _prixCible = 900000;
   String _canton = 'VD';
 
-  EplCombinedResult get _result => EplCombinedCalculator.calculate(
+  EplCombinedResult _computeResult(S s) => EplCombinedCalculator.calculate(
         epargneCash: _epargneCash,
         avoir3a: _avoir3a,
         avoirLpp: _avoirLpp,
         prixCible: _prixCible,
         canton: _canton,
+        s: s,
       );
 
   @override
   Widget build(BuildContext context) {
-    final result = _result;
+    final result = _computeResult(S.of(context)!);
 
     return Scaffold(
       backgroundColor: MintColors.surface,
