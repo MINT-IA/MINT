@@ -43,6 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
+    final s = S.of(context)!;
 
     return Scaffold(
       backgroundColor: MintColors.background,
@@ -80,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 32),
                 // Title
                 Text(
-                  S.of(context)?.authLoginTitle ?? 'Connexion',
+                  s.authLoginTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 32,
                     fontWeight: FontWeight.w700,
@@ -91,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Accède à ton Financial OS personnel',
+                  s.loginSubtitle,
                   style: GoogleFonts.inter(
                     fontSize: 16,
                     color: MintColors.textSecondary,
@@ -105,17 +106,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   keyboardType: TextInputType.emailAddress,
                   autofillHints: const [AutofillHints.email],
                   decoration: InputDecoration(
-                    labelText: S.of(context)?.authEmail ?? 'Adresse e-mail',
+                    labelText: s.authEmail,
                     prefixIcon: const Icon(Icons.email_outlined),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return S.of(context)?.authEmailInvalid ??
-                          'Adresse e-mail invalide';
+                      return s.authEmailInvalid;
                     }
                     if (!value.contains('@')) {
-                      return S.of(context)?.authEmailInvalid ??
-                          'Adresse e-mail invalide';
+                      return s.authEmailInvalid;
                     }
                     return null;
                   },
@@ -127,7 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   obscureText: _obscurePassword,
                   autofillHints: const [AutofillHints.password],
                   decoration: InputDecoration(
-                    labelText: S.of(context)?.authPassword ?? 'Mot de passe',
+                    labelText: s.authPassword,
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -144,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Mot de passe requis';
+                      return s.loginPasswordRequired;
                     }
                     return null;
                   },
@@ -193,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         )
                       : Text(
-                          S.of(context)?.authLogin ?? 'Se connecter',
+                          s.authLogin,
                           style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -208,7 +207,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           context.go('/onboarding/quick');
                         },
                   child: Text(
-                    'Continuer en mode local',
+                    s.loginLocalMode,
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -222,7 +221,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ? null
                         : () => context.go('/auth/forgot-password'),
                     child: Text(
-                      'Mot de passe oublié ?',
+                      s.loginForgotPassword,
                       style: GoogleFonts.inter(
                         color: MintColors.textSecondary,
                         fontSize: 13,
@@ -238,7 +237,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ? null
                         : () => context.go('/auth/verify-email'),
                     child: Text(
-                      'Vérifier mon e-mail',
+                      s.loginVerifyEmail,
                       style: GoogleFonts.inter(
                         color: MintColors.textSecondary,
                         fontSize: 13,
@@ -253,7 +252,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      S.of(context)?.authNoAccount ?? 'Pas encore de compte ?',
+                      s.authNoAccount,
                       style: GoogleFonts.inter(
                         color: MintColors.textSecondary,
                         fontSize: 14,
@@ -265,7 +264,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         context.go('/auth/register');
                       },
                       child: Text(
-                        S.of(context)?.authRegister ?? 'Créer un compte',
+                        s.authRegister,
                         style: GoogleFonts.inter(
                           color: MintColors.primary,
                           fontSize: 14,
@@ -282,7 +281,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     context.go('/');
                   },
                   child: Text(
-                    'Retour',
+                    s.loginBack,
                     style: GoogleFonts.inter(
                       color: MintColors.textMuted,
                       fontSize: 14,

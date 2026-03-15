@@ -9485,5 +9485,11 @@
         "type": "String"
       }
     }
-  }
+  },
+  "loginSubtitle": "Accède à ton Financial OS personnel",
+  "loginPasswordRequired": "Mot de passe requis",
+  "loginLocalMode": "Continuer en mode local",
+  "loginForgotPassword": "Mot de passe oublié ?",
+  "loginVerifyEmail": "Vérifier mon e-mail",
+  "loginBack": "Retour"
 }
