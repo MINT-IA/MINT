@@ -287,8 +287,8 @@ void main() {
       final result = CoachReasonerService.analyse(profile(
         age: 55,
         rachatMax: 0,
-        librePassage: const [
-          LibrePassageCompte(institution: 'Test', solde: 200000),
+        librePassage: [
+          const LibrePassageCompte(institution: 'Test', solde: 200000),
         ],
       ));
       expect(
@@ -301,9 +301,9 @@ void main() {
       final result = CoachReasonerService.analyse(profile(
         age: 55,
         rachatMax: 0,
-        librePassage: const [
-          LibrePassageCompte(institution: 'A', solde: 100000),
-          LibrePassageCompte(institution: 'B', solde: 100000),
+        librePassage: [
+          const LibrePassageCompte(institution: 'A', solde: 100000),
+          const LibrePassageCompte(institution: 'B', solde: 100000),
         ],
       ));
       expect(
