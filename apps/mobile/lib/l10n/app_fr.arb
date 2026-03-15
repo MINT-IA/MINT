@@ -10341,5 +10341,137 @@
       }
     }
   },
-  "simDisabilityLegalSourcePhase3": "LAI art. 28 + LPP art. 23"
+  "simDisabilityLegalSourcePhase3": "LAI art. 28 + LPP art. 23",
+  "quickStartTitle": "Ton plan retraite\nen 30 secondes",
+  "quickStartSubtitle": "4 infos suffisent. Tu pourras affiner plus tard.",
+  "quickStartFirstNameLabel": "Ton prénom",
+  "quickStartFirstNameHint": "Facultatif",
+  "quickStartAgeLabel": "Ton âge",
+  "quickStartAgeValue": "{age} ans",
+  "@quickStartAgeValue": {
+    "placeholders": {
+      "age": {
+        "type": "String"
+      }
+    }
+  },
+  "quickStartSalaryLabel": "Salaire brut annuel",
+  "quickStartSalaryValue": "{salary} CHF",
+  "@quickStartSalaryValue": {
+    "placeholders": {
+      "salary": {
+        "type": "String"
+      }
+    }
+  },
+  "quickStartCantonLabel": "Canton",
+  "quickStartDisclaimer": "Estimation indicative (1er + 2e pilier). Ne constitue pas un conseil financier (LSFin).",
+  "quickStartCta": "Voir mon tableau de bord",
+  "quickStartVerdictGood": "Bonne posture",
+  "quickStartVerdictWarning": "À surveiller",
+  "quickStartVerdictBad": "Écart significatif",
+  "quickStartPreviewTitle": "Aperçu retraite",
+  "quickStartToday": "Aujourd'hui",
+  "quickStartAtRetirement": "À la retraite",
+  "quickStartDropPurchasingPower": "-{dropPct}\u00a0% de pouvoir d'achat ({gap}/mois)",
+  "@quickStartDropPurchasingPower": {
+    "placeholders": {
+      "dropPct": {
+        "type": "String"
+      },
+      "gap": {
+        "type": "String"
+      }
+    }
+  },
+  "quickStartPerMonth": "/mois",
+  "quickStartAmountChf": "{amount} CHF",
+  "@quickStartAmountChf": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+
+  "docImpactTitle": "Ton profil est plus précis",
+  "docImpactSubtitle": "Les valeurs de ton {docType} ont été intégrées dans tes projections.",
+  "@docImpactSubtitle": {
+    "placeholders": {
+      "docType": {
+        "type": "String"
+      }
+    }
+  },
+  "docImpactConfidencePercent": "%\u00a0confiance",
+  "docImpactDeltaPoints": "+{points} points de confiance",
+  "@docImpactDeltaPoints": {
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "docImpactChiffreChocTitle": "Chiffre choc recalculé",
+  "docImpactLppRealAmount": "d''avoir LPP réel (dont {obligAmount} obligatoire)",
+  "@docImpactLppRealAmount": {
+    "placeholders": {
+      "obligAmount": {
+        "type": "String"
+      }
+    }
+  },
+  "docImpactRenteObligatoire": "Rente obligatoire à 6.8\u00a0%\u00a0: CHF {amount}/an",
+  "@docImpactRenteObligatoire": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "docImpactSurobligWithRate": "Part surobligatoire (CHF {surobligAmount}) à {rate}\u00a0% = CHF {renteAmount}/an",
+  "@docImpactSurobligWithRate": {
+    "placeholders": {
+      "surobligAmount": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      },
+      "renteAmount": {
+        "type": "String"
+      }
+    }
+  },
+  "docImpactSurobligFreeRate": "Part surobligatoire (CHF {surobligAmount}) = taux de conversion libre de la caisse",
+  "@docImpactSurobligFreeRate": {
+    "placeholders": {
+      "surobligAmount": {
+        "type": "String"
+      }
+    }
+  },
+  "docImpactAvsYears": "{years} ans de cotisation",
+  "@docImpactAvsYears": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "docImpactAvsCompletion": "sur {maxYears} nécessaires pour une rente AVS complète ({pct}\u00a0%)",
+  "@docImpactAvsCompletion": {
+    "placeholders": {
+      "maxYears": {
+        "type": "int"
+      },
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
+  "docImpactFallbackProjections": "Tes projections sont maintenant basées sur des valeurs réelles.",
+  "docImpactFieldsUpdated": "Champs mis à jour",
+  "docImpactBackToDashboard": "Retour au dashboard",
+  "docImpactDisclaimer": "Outil éducatif — ne constitue pas un conseil en prévoyance. Vérifie toujours avec ton certificat original (LSFin)."
 }

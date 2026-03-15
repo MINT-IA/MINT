@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
@@ -120,7 +121,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                   children: [
                     // Header
                     Text(
-                      'Ton plan retraite\nen 30 secondes',
+                      S.of(context)!.quickStartTitle,
                       style: GoogleFonts.montserrat(
                         fontSize: 26,
                         fontWeight: FontWeight.w800,
@@ -130,7 +131,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      '4 infos suffisent. Tu pourras affiner plus tard.',
+                      S.of(context)!.quickStartSubtitle,
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         color: MintColors.textSecondary,
@@ -140,7 +141,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
 
                     // ── Prenom ──
                     Text(
-                      'Ton prenom',
+                      S.of(context)!.quickStartFirstNameLabel,
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -152,7 +153,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                       controller: _nameController,
                       textCapitalization: TextCapitalization.words,
                       decoration: InputDecoration(
-                        hintText: 'Facultatif',
+                        hintText: S.of(context)!.quickStartFirstNameHint,
                         hintStyle: GoogleFonts.inter(
                           fontSize: 14,
                           color: MintColors.textMuted,
@@ -175,7 +176,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                     const SizedBox(height: 22),
 
                     // ── Age slider ──
-                    _buildSliderLabel('Ton age', '${_age.round()} ans'),
+                    _buildSliderLabel(S.of(context)!.quickStartAgeLabel, S.of(context)!.quickStartAgeValue('${_age.round()}')),
                     SliderTheme(
                       data: _sliderTheme(),
                       child: Slider(
@@ -190,7 +191,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
 
                     // ── Salary slider ──
                     _buildSliderLabel(
-                        'Salaire brut annuel', '${formatChf(_salary)} CHF'),
+                        S.of(context)!.quickStartSalaryLabel, S.of(context)!.quickStartSalaryValue(formatChf(_salary))),
                     SliderTheme(
                       data: _sliderTheme(),
                       child: Slider(
@@ -204,7 +205,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                     const SizedBox(height: 16),
 
                     // ── Canton dropdown ──
-                    _buildSliderLabel('Canton', ''),
+                    _buildSliderLabel(S.of(context)!.quickStartCantonLabel, ''),
                     const SizedBox(height: 4),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -239,8 +240,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
 
                     const SizedBox(height: 12),
                     Text(
-                      'Estimation indicative (1er + 2e pilier). '
-                      'Ne constitue pas un conseil financier (LSFin).',
+                      S.of(context)!.quickStartDisclaimer,
                       style: GoogleFonts.inter(
                         fontSize: 10,
                         color: MintColors.textMuted,
@@ -277,7 +277,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                           ),
                         )
                       : Text(
-                          'Voir mon tableau de bord',
+                          S.of(context)!.quickStartCta,
                           style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -296,17 +296,18 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
 
   Widget _buildPreviewCard(
       double total, double current, double ratio, double gap, int dropPct) {
+    final s = S.of(context)!;
     final Color accentColor;
     final String verdict;
     if (ratio >= 0.7) {
       accentColor = MintColors.success;
-      verdict = 'Bonne posture';
+      verdict = s.quickStartVerdictGood;
     } else if (ratio >= 0.5) {
       accentColor = MintColors.warning;
-      verdict = 'A surveiller';
+      verdict = s.quickStartVerdictWarning;
     } else {
       accentColor = MintColors.scoreAttention;
-      verdict = 'Ecart significatif';
+      verdict = s.quickStartVerdictBad;
     }
 
     return Container(
@@ -324,7 +325,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
               Icon(Icons.show_chart, size: 18, color: accentColor),
               const SizedBox(width: 8),
               Text(
-                'Apercu retraite',
+                s.quickStartPreviewTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -357,7 +358,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
             children: [
               Expanded(
                 child: _buildAmountColumn(
-                  "Aujourd'hui",
+                  s.quickStartToday,
                   current,
                   MintColors.textPrimary,
                 ),
@@ -369,7 +370,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
               ),
               Expanded(
                 child: _buildAmountColumn(
-                  'A la retraite',
+                  s.quickStartAtRetirement,
                   total,
                   accentColor,
                 ),
@@ -396,8 +397,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
             duration: const Duration(milliseconds: 400),
             curve: Curves.easeOutCubic,
             builder: (_, value, __) => Text(
-              '-${value.round()}% de pouvoir d\'achat '
-              '(${formatChfWithPrefix(gap)}/mois)',
+              s.quickStartDropPurchasingPower('${value.round()}', '${formatChfWithPrefix(gap)}'),
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -411,6 +411,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
   }
 
   Widget _buildAmountColumn(String label, double amount, Color color) {
+    final s = S.of(context)!;
     return Column(
       children: [
         Text(
@@ -426,7 +427,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
           duration: const Duration(milliseconds: 400),
           curve: Curves.easeOutCubic,
           builder: (_, value, __) => Text(
-            '${formatChf(value)} CHF',
+            s.quickStartAmountChf(formatChf(value)),
             style: GoogleFonts.montserrat(
               fontSize: 20,
               fontWeight: FontWeight.w700,
@@ -435,7 +436,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
           ),
         ),
         Text(
-          '/mois',
+          s.quickStartPerMonth,
           style: GoogleFonts.inter(
             fontSize: 11,
             color: MintColors.textMuted,
