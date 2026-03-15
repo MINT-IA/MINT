@@ -473,7 +473,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: Text(
-          'Tes prochaines actions',
+          S.of(context)!.retirementDashboardNextActions,
           style: GoogleFonts.montserrat(
             fontSize: 15,
             fontWeight: FontWeight.w700,
@@ -505,13 +505,14 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
 
   String _buildDefaultOneLiner(CoachProfile profile, ProjectionResult proj) {
     final rate = proj.tauxRemplacementBase;
+    final s = S.of(context)!;
     if (rate >= 70) {
-      return 'Tu es en bonne voie pour maintenir ton niveau de vie.';
+      return s.retirementDashboardOneLinerGood;
     }
     if (rate >= 50) {
-      return 'Des leviers existent pour améliorer ta projection.';
+      return s.retirementDashboardOneLinerModerate;
     }
-    return 'Chaque action compte — explore les pistes disponibles.';
+    return s.retirementDashboardOneLinerLow;
   }
 
   double? _computeDelta() {
@@ -564,7 +565,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Améliore ta précision',
+              S.of(context)!.retirementDashboardEnrichTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -573,7 +574,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Confiance actuelle : ${_confidenceScore.round()}%',
+              S.of(context)!.retirementDashboardConfidenceCurrent(_confidenceScore.round().toString()),
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -625,7 +626,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                                   ),
                                 ),
                                 Text(
-                                  '+${p.impact} pts de précision',
+                                  S.of(context)!.retirementDashboardPrecisionPts(p.impact.toString()),
                                   style: GoogleFonts.inter(
                                     fontSize: 11,
                                     color: MintColors.success,
@@ -685,7 +686,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
               size: 48, color: MintColors.primary),
           const SizedBox(height: 16),
           Text(
-            'Ta retraite en un coup d\'œil',
+            S.of(context)!.retirementDashboardHeroTitle,
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               fontSize: 20,
@@ -716,7 +717,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ),
               ),
               child: Text(
-                'Commencer — 2 min',
+                S.of(context)!.retirementDashboardStartCta,
                 style: GoogleFonts.inter(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -726,7 +727,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           ),
           const SizedBox(height: 10),
           Text(
-            'Aucune donnée stockée sans ton accord.',
+            S.of(context)!.retirementDashboardPrivacyNote,
             style: GoogleFonts.inter(
               fontSize: 11,
               color: MintColors.textMuted,
@@ -765,7 +766,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Comment fonctionne la retraite en Suisse ?',
+                    S.of(context)!.retirementDashboardEduTitle,
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -773,7 +774,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                     ),
                   ),
                   Text(
-                    'AVS, LPP, 3a — les bases en 5 minutes',
+                    S.of(context)!.retirementDashboardEduSubtitle,
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       color: MintColors.textSecondary,
@@ -951,7 +952,7 @@ class _ActionCard extends StatelessWidget {
                   if (card.deadlineDays != null) ...[
                     const SizedBox(height: 4),
                     Text(
-                      'J-${card.deadlineDays}',
+                      S.of(context)!.retirementDashboardDeadlineDays(card.deadlineDays.toString()),
                       style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -1022,7 +1023,7 @@ class _DataEnrichmentCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Précision +${prompt.impact}%',
+                    S.of(context)!.retirementDashboardPrecisionPercent(prompt.impact.toString()),
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
