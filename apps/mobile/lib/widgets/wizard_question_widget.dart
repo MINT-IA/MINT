@@ -129,11 +129,12 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
             EducationalInsertService.getInsertWidget(
                   questionId: widget.question.id,
                   answers: widget.answers,
+                  s: S.of(context)!,
                   onAnswer: widget.onAnswer, // Pass the callback!
                   onLearnMore: () {
                     // TODO: Ouvrir modal "En savoir plus"
                     final title = EducationalInsertService.getLearnMoreTitle(
-                        widget.question.id);
+                        widget.question.id, S.of(context)!);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(S.of(context)!.wizardLearnMoreSnackbar(title ?? ''))),
                     );

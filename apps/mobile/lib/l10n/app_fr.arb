@@ -11689,5 +11689,367 @@
   },
   "pdfServiceConversationHighlights": "Points clés de la conversation",
   "pdfServiceLegalSourcesTitle": "Sources juridiques",
-  "pdfServiceFullDisclaimer": "Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin. Les estimations sont basées sur des hypothèses simplifiées et des données déclaratives. Consulte un·e spécialiste certifié·e pour toute décision financière importante."
+  "pdfServiceFullDisclaimer": "Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin. Les estimations sont basées sur des hypothèses simplifiées et des données déclaratives. Consulte un·e spécialiste certifié·e pour toute décision financière importante.",
+
+  "expatServiceDisclaimer": "Estimations simplifiées à but éducatif — ne constitue pas un conseil fiscal ou juridique. Les montants dépendent de nombreux facteurs (déductions, commune, fortune, convention internationale, etc.). Consulte un·e spécialiste fiscal·e pour une analyse personnalisée.",
+
+  "expatServiceTessinNote": "Depuis le nouvel accord CH-IT (2024), les frontaliers travaillant au Tessin sont imposés en Italie. La Suisse ne prélève pas d''impôt à la source.",
+
+  "expatServiceQuasiResidentEligible": "Tu es éligible au statut de quasi-résident. Cela te permet de faire une taxation ordinaire avec déductions (3a, frais effectifs, etc.). L''économie potentielle est estimée à {savings}/an.",
+  "@expatServiceQuasiResidentEligible": {
+    "placeholders": {
+      "savings": {
+        "type": "String"
+      }
+    }
+  },
+
+  "expatServiceQuasiResidentNotEligible": "Tu n''es pas éligible au statut de quasi-résident. Il te faudrait que {threshold}\u00a0% de tes revenus mondiaux proviennent de Suisse.",
+  "@expatServiceQuasiResidentNotEligible": {
+    "placeholders": {
+      "threshold": {
+        "type": "String"
+      }
+    }
+  },
+
+  "expatServiceRiskLowRecommendation": "Pas de risque fiscal. Tu es largement sous le seuil de 90 jours. Tu peux continuer à travailler depuis ton domicile à l''étranger sans impact sur ton imposition à la source en Suisse.",
+
+  "expatServiceRiskMediumRecommendation": "Zone d''attention\u00a0! Tu t''approches du seuil de 90 jours. Il te reste {daysRemaining} jours de marge. Documente bien tes jours de présence au bureau en Suisse.",
+  "@expatServiceRiskMediumRecommendation": {
+    "placeholders": {
+      "daysRemaining": {
+        "type": "String"
+      }
+    }
+  },
+
+  "expatServiceRiskHighRecommendation": "Risque fiscal — l''imposition peut basculer vers ton pays de résidence. Avec {riskDays} jours de home office, tu dépasses le seuil de 90 jours. Ton employeur pourrait devoir cotiser dans ton pays de résidence. Consulte un·e spécialiste en fiscalité internationale.",
+  "@expatServiceRiskHighRecommendation": {
+    "placeholders": {
+      "riskDays": {
+        "type": "String"
+      }
+    }
+  },
+
+  "expatServiceForfaitAbolished": "Le forfait fiscal a été aboli dans le canton de {cantonName}. Il n''est plus possible d''en bénéficier.",
+  "@expatServiceForfaitAbolished": {
+    "placeholders": {
+      "cantonName": {
+        "type": "String"
+      }
+    }
+  },
+
+  "expatServiceAvsComplete": "Tu as tes {fullYears} années complètes de cotisation. Ta rente AVS ne devrait pas être réduite.",
+  "@expatServiceAvsComplete": {
+    "placeholders": {
+      "fullYears": {
+        "type": "String"
+      }
+    }
+  },
+
+  "expatServiceAvsModerateGap": "Ta rente pourrait être réduite d''environ {reductionPercent}\u00a0%. Si tu vis à l''étranger, tu peux cotiser volontairement à l''AVS (entre {volMin} et {volMax}/an) pour combler les lacunes.",
+  "@expatServiceAvsModerateGap": {
+    "placeholders": {
+      "reductionPercent": {
+        "type": "String"
+      },
+      "volMin": {
+        "type": "String"
+      },
+      "volMax": {
+        "type": "String"
+      }
+    }
+  },
+
+  "expatServiceAvsSevereGap": "Attention, ta rente serait significativement réduite (-{reductionPercent}\u00a0%). La cotisation volontaire à l''AVS depuis l''étranger est fortement recommandée pour limiter la perte. Délai d''inscription\u00a0: 1 an après le départ de Suisse.",
+  "@expatServiceAvsSevereGap": {
+    "placeholders": {
+      "reductionPercent": {
+        "type": "String"
+      }
+    }
+  },
+
+  "expatServiceChecklistPillar3aTitle": "Retirer pilier 3a",
+  "expatServiceChecklistPillar3aSubtitle": "Délai\u00a0: possible dès le départ. Impôt de sortie réduit.",
+  "expatServiceChecklistPillar3aTiming": "Avant le départ ou juste après",
+
+  "expatServiceChecklistLppTitle": "Transférer LPP en libre passage",
+  "expatServiceChecklistLppSubtitle": "Si destination hors UE/AELE\u00a0: retrait en capital possible. Sinon\u00a0: compte de libre passage obligatoire.",
+  "expatServiceChecklistLppTiming": "À organiser avant le départ",
+
+  "expatServiceChecklistCommuneTitle": "Annoncer départ à la commune",
+  "expatServiceChecklistCommuneSubtitle": "Formulaire de départ + désinscription registre des habitants.",
+  "expatServiceChecklistCommuneTiming": "2-4 semaines avant le départ",
+
+  "expatServiceChecklistLamalTitle": "Résilier LAMal",
+  "expatServiceChecklistLamalSubtitle": "Résiliation effective à la date de départ. Prévoir une assurance dans le pays de destination.",
+  "expatServiceChecklistLamalTiming": "Dès la confirmation de départ",
+
+  "expatServiceChecklistCdiTitle": "Vérifier CDI avec pays de destination",
+  "expatServiceChecklistCdiSubtitle": "Convention de double imposition\u00a0: éviter de payer 2x les impôts. La Suisse a signé des CDI avec plus de 100 pays.",
+  "expatServiceChecklistCdiTiming": "Avant le départ",
+
+  "expatServiceChecklistCautionTitle": "Récupérer caution de loyer",
+  "expatServiceChecklistCautionSubtitle": "Demander la libération auprès de la banque. Délai\u00a0: jusqu''à 1 an si le bailleur ne répond pas.",
+  "expatServiceChecklistCautionTiming": "Après la remise des clés",
+
+  "expatServiceChecklistImpotsTitle": "Déclarer impôts prorata temporis",
+  "expatServiceChecklistImpotsSubtitle": "Tu seras imposé sur les revenus du 1er janvier jusqu''à la date de départ. Délai de dépôt\u00a0: 30 jours après le départ.",
+  "expatServiceChecklistImpotsTiming": "30 jours après le départ",
+
+  "expatServiceExitTaxNote": "La Suisse ne prélève pas de taxe de sortie (exit tax). Tes gains en capital ne sont pas imposés au départ — contrairement à certains pays (USA, France, etc.).",
+
+  "educInsertDisclaimer": "Contenu pédagogique à caractère informatif — outil éducatif qui ne constitue pas un conseil financier, fiscal ou juridique. Les informations sont fournies à titre indicatif. Consulte un·e spécialiste pour une analyse adaptée à ta situation.",
+
+  "educInsertCivilStatusTitle": "Ton état civil, ses impacts financiers",
+  "educInsertCivilStatusSubtitle": "Impôts, succession, prévoyance",
+  "educInsertCivilStatusChiffreChoc": "Un couple marié peut économiser jusqu''à 6''000 CHF/an d''impôts par rapport à deux concubins dans certains cantons — mais dans d''autres c''est l''inverse (pénalité du mariage).",
+  "educInsertCivilStatusGoal1": "Le mariage implique un régime matrimonial (participation aux acquêts par défaut, CC art.\u00a0181).",
+  "educInsertCivilStatusGoal2": "Le concubinage n''offre aucune protection légale automatique (pas de part réservataire, pas de droit aux acquêts).",
+  "educInsertCivilStatusGoal3": "Le divorce entraîne un partage du 2e pilier imposé par la loi (LPP art.\u00a022).",
+  "educInsertCivilStatusGoal4": "Le mariage entraîne une imposition commune (LIFD art.\u00a09 al.\u00a01) — avantage ou pénalité selon les revenus.",
+  "educInsertCivilStatusGoal5": "Le PACS (partenariat enregistré) donne les mêmes droits fiscaux et successoraux que le mariage (LPart art.\u00a01).",
+  "educInsertCivilStatusDisclaimer": "Information à caractère éducatif. Chaque situation familiale est unique. Consulte un·e spécialiste en droit de la famille pour un conseil personnalisé.",
+  "educInsertCivilStatusAction": "Simuler l''impact financier de mon état civil",
+
+  "educInsertEmploymentTitle": "Ton statut professionnel, tes droits",
+  "educInsertEmploymentSubtitle": "Prévoyance, 3a, couvertures sociales",
+  "educInsertEmploymentChiffreChoc": "En tant qu''indépendant, personne ne cotise pour ta retraite à part toi. L''avantage\u00a0: tu peux mettre jusqu''à 36''288 CHF/an de côté en 3a (5× plus qu''un salarié) et payer moins d''impôts. Le risque\u00a0: pas de filet en cas d''invalidité.",
+  "educInsertEmploymentGoal1": "Les 3 régimes\u00a0: salarié (employé), indépendant, sans activité lucrative.",
+  "educInsertEmploymentGoal2": "Le salarié bénéficie automatiquement de l''AVS (LAVS art.\u00a03), du LPP (LPP art.\u00a02) et de l''assurance accident (LAA art.\u00a01a).",
+  "educInsertEmploymentGoal3": "L''indépendant doit tout organiser lui-même\u00a0: AVS, LPP volontaire, IJM, assurance accident.",
+  "educInsertEmploymentGoal4": "Le chômage donne droit à l''AC (LACI art.\u00a08) et maintient la couverture LPP pendant 2 ans max.",
+  "educInsertEmploymentGoal5": "Le sans-activité lucrative cotise quand même à l''AVS (LAVS art.\u00a010).",
+  "educInsertEmploymentDisclaimer": "Information à caractère éducatif. Le régime de prévoyance dépend de ta situation spécifique. Consulte ta caisse de compensation ou un·e spécialiste.",
+  "educInsertEmploymentAction": "Explorer les outils adaptés à mon statut",
+
+  "educInsertHousingTitle": "Locataire ou propriétaire\u00a0?",
+  "educInsertHousingSubtitle": "Fiscalité, EPL et capacité d''emprunt",
+  "educInsertHousingChiffreChoc": "En Suisse, 2 personnes sur 3 sont locataires — c''est unique en Europe. Devenir propriétaire demande au moins 20\u00a0% d''apport (pour un bien à 800''000 CHF, c''est 160''000 CHF de ta poche). Mais après 15 ans, un propriétaire paie souvent 15-25\u00a0% de moins qu''un locataire.",
+  "educInsertHousingGoal1": "La propriété en Suisse implique un apport minimum de 20\u00a0% (max 10\u00a0% du 2e pilier, FINMA circ.\u00a02017/7).",
+  "educInsertHousingGoal2": "Le propriétaire paie l''impôt sur la valeur locative (LIFD art.\u00a021 al.\u00a01 let.\u00a0b) mais peut déduire les intérêts hypothécaires et les frais d''entretien.",
+  "educInsertHousingGoal3": "Le mécanisme de l''EPL\u00a0: retrait LPP + 3a pour financer l''apport (LPP art.\u00a030c).",
+  "educInsertHousingGoal4": "Le calcul de la capacité d''emprunt (Tragbarkeit)\u00a0: charges max 1/3 du revenu brut, au taux théorique de 5\u00a0%.",
+  "educInsertHousingGoal5": "Le locataire n''a aucune déduction fiscale liée au logement mais conserve sa flexibilité et sa liquidité.",
+  "educInsertHousingDisclaimer": "Information à caractère éducatif. L''achat immobilier dépend de nombreux facteurs personnels. Consulte un·e spécialiste en financement immobilier.",
+  "educInsertHousingAction": "Simuler ma capacité d''emprunt",
+
+  "educInsertCantonTitle": "Ton canton, ton impôt",
+  "educInsertCantonSubtitle": "Le 1er levier fiscal en Suisse",
+  "educInsertCantonChiffreChoc": "À revenu égal (100''000 CHF), tu paies ~8''000 CHF d''impôts à Zoug contre ~30''000 CHF à Genève. 22''000 CHF de différence — c''est un salaire de plus chaque année, juste en changeant de canton.",
+  "educInsertCantonGoal1": "La Suisse a 3 niveaux d''imposition\u00a0: fédéral (fixe), cantonal et communal (variables).",
+  "educInsertCantonGoal2": "Le taux effectif d''imposition varie énormément d''un canton à l''autre (et même d''une commune à l''autre).",
+  "educInsertCantonGoal3": "Les déductions (3a, LPP, frais médicaux, enfants) varient aussi par canton.",
+  "educInsertCantonGoal4": "La fortune est imposée annuellement au niveau cantonal (pas au niveau fédéral).",
+  "educInsertCantonGoal5": "Les 26 cantons ont leurs propres barèmes, allocations familiales et primes LAMal.",
+  "educInsertCantonDisclaimer": "Information à caractère éducatif. Les taux d''imposition dépendent de la commune, du revenu et de la situation familiale. Consulte l''administration fiscale de ton canton pour un calcul précis.",
+  "educInsertCantonAction": "Comparer la fiscalité des 26 cantons",
+
+  "educInsertLppBuybackTitle": "Rachat LPP\u00a0: ton levier fiscal",
+  "educInsertLppBuybackSubtitle": "Rendement immédiat de 25 à 40\u00a0%",
+  "educInsertLppBuybackChiffreChoc": "Tu verses 20''000 CHF dans ta caisse de pension, le fisc t''en rend 5''000 à 8''000 l''année même. C''est comme un placement qui rapporte 25-40\u00a0% immédiatement — et l''argent reste à toi pour la retraite.",
+  "educInsertLppBuybackGoal1": "Le rachat LPP est déductible à 100\u00a0% du revenu imposable (LPP art.\u00a079b).",
+  "educInsertLppBuybackGoal2": "Le montant maximum de rachat figure sur le certificat de prévoyance (demande à ta caisse de pension).",
+  "educInsertLppBuybackGoal3": "La stratégie d''échelonnement\u00a0: répartir les rachats sur 3-5 ans pour maximiser l''économie grâce à la progressivité.",
+  "educInsertLppBuybackGoal4": "Le blocage EPL\u00a0: après un rachat, tu ne peux pas retirer de l''EPL pendant 3 ans (LPP art.\u00a079b al.\u00a03).",
+  "educInsertLppBuybackGoal5": "Le rachat augmente aussi ta rente future (ou ton capital de retrait).",
+  "educInsertLppBuybackDisclaimer": "Information à caractère éducatif. Le potentiel de rachat dépend de ta situation individuelle. Consulte ton certificat de prévoyance ou un·e spécialiste LPP.",
+  "educInsertLppBuybackAction": "Simuler l''économie fiscale de mon rachat",
+
+  "educInsert3aCountTitle": "Nombre de comptes 3a\u00a0: la stratégie",
+  "educInsert3aCountSubtitle": "Échelonner pour payer moins d''impôts",
+  "educInsert3aCountChiffreChoc": "Imagine\u00a0: tu retires 200''000 CHF d''un coup → impôt élevé. Tu retires 40''000 CHF sur 5 ans → chaque tranche est taxée à un taux plus bas. Économie\u00a0: 8''000 à 25''000 CHF. C''est pour ça qu''on ouvre plusieurs comptes 3a.",
+  "educInsert3aCountGoal1": "Le retrait du 3a est imposé comme un revenu (taux progressif, LIFD art.\u00a038).",
+  "educInsert3aCountGoal2": "Les retraits de la même année sont additionnés pour le calcul du taux (impôt progressif).",
+  "educInsert3aCountGoal3": "La stratégie d''échelonnement\u00a0: ouvrir 4-5 comptes dès le départ et les retirer sur 4-5 années différentes (à partir de 59/60 ans).",
+  "educInsert3aCountGoal4": "Les retraits 3a et LPP en capital de la même année se cumulent pour l''imposition.",
+  "educInsert3aCountGoal5": "L''âge de retrait anticipé est 59 ans (femmes) / 60 ans (hommes) sans condition (OPP3 art.\u00a03 al.\u00a01).",
+  "educInsert3aCountDisclaimer": "Information à caractère éducatif. L''économie d''impôt dépend du canton et du montant total. Consulte un·e spécialiste fiscal·e pour optimiser ta stratégie.",
+  "educInsert3aCountAction": "Simuler l''économie avec l''échelonnement 3a",
+
+  "educInsertInvestmentsTitle": "Placements\u00a0: le régime fiscal suisse",
+  "educInsertInvestmentsSubtitle": "Gains en capital, dividendes, fortune",
+  "educInsertInvestmentsChiffreChoc": "Bonne nouvelle\u00a0: en Suisse, si tu achètes une action à 100 CHF et la revends à 150 CHF, les 50 CHF de gain ne sont pas imposés. C''est presque unique au monde. Par contre, les dividendes et intérêts sont taxés comme un salaire.",
+  "educInsertInvestmentsGoal1": "Les gains en capital privés ne sont PAS imposés en Suisse (LIFD art.\u00a016 al.\u00a03) — un avantage unique.",
+  "educInsertInvestmentsGoal2": "Les dividendes et intérêts sont imposables comme revenu ordinaire (LIFD art.\u00a020).",
+  "educInsertInvestmentsGoal3": "La fortune (patrimoine net) est imposée chaque année (impôt cantonal sur la fortune).",
+  "educInsertInvestmentsGoal4": "Risque vs rendement\u00a0: historiquement, les valeurs mobilières suisses (SPI) ont rendu ~7\u00a0%/an sur 20 ans, mais avec des baisses temporaires possibles.",
+  "educInsertInvestmentsGoal5": "MINT ne donne pas de conseil en investissement (LSFin art.\u00a03) — seuls des intermédiaires autorisés FINMA peuvent le faire.",
+  "educInsertInvestmentsDisclaimer": "MINT est un outil éducatif et ne constitue pas un conseil en investissement au sens de la LSFin. Les rendements passés ne présagent pas des rendements futurs. Consulte un·e spécialiste autorisé·e FINMA.",
+  "educInsertInvestmentsAction": "Découvrir les bases de la diversification",
+
+  "educInsertRealEstateTitle": "Projet immobilier\u00a0: par où commencer",
+  "educInsertRealEstateSubtitle": "Apport, capacité d''emprunt, sources",
+  "educInsertRealEstateChiffreChoc": "Pour un bien à 800''000 CHF, il te faut 160''000 CHF d''apport personnel — dont maximum 80''000 CHF de ton 2e pilier. Tes charges mensuelles théoriques seront d''environ 4''670 CHF, soit un revenu brut minimum de 14''000 CHF/mois.",
+  "educInsertRealEstateGoal1": "La règle des 20\u00a0% d''apport\u00a0: minimum 10\u00a0% en cash ou 3a, max 10\u00a0% du 2e pilier (FINMA circ.\u00a02017/7).",
+  "educInsertRealEstateGoal2": "Calculer la capacité d''emprunt\u00a0: charges (5\u00a0% intérêt théorique + 1\u00a0% amortissement + 1\u00a0% frais) max 1/3 du revenu brut.",
+  "educInsertRealEstateGoal3": "Les 3 sources d''apport\u00a0: épargne, 3a (retrait intégral possible), LPP (EPL, max 50\u00a0% ou 50''000 CHF après 50 ans, LPP art.\u00a030c).",
+  "educInsertRealEstateGoal4": "La différence entre hypothèque 1er rang (max 65\u00a0% de la valeur) et 2e rang (à amortir en 15 ans).",
+  "educInsertRealEstateGoal5": "L''achat déclenche des frais uniques\u00a0: notaire (~1-3\u00a0%), droits de mutation (selon canton), frais bancaires.",
+  "educInsertRealEstateDisclaimer": "Information à caractère éducatif. Les conditions d''emprunt dépendent de ta situation et de l''établissement financier. Consulte un·e spécialiste en financement immobilier.",
+  "educInsertRealEstateAction": "Simuler ma capacité d''emprunt",
+
+  "educInsertLearnMoreStressCheck": "Ton stress financier, en clair",
+  "educInsertLearnMorePensionFund": "Comprendre le 2e pilier (LPP)",
+  "educInsertLearnMore3a": "Le 3e pilier en détail",
+  "educInsertLearnMoreMortgage": "Types d''hypothèques en Suisse",
+  "educInsertLearnMoreConsumerCredit": "Le crédit à la consommation",
+  "educInsertLearnMoreLeasing": "Leasing vs achat",
+  "educInsertLearnMoreEmergencyFund": "Pourquoi un fonds d''urgence\u00a0?",
+  "educInsertLearnMoreCivilStatus": "État civil et finances en Suisse",
+  "educInsertLearnMoreEmployment": "Statut professionnel et prévoyance",
+  "educInsertLearnMoreHousing": "Locataire ou propriétaire\u00a0?",
+  "educInsertLearnMoreCanton": "Fiscalité cantonale en Suisse",
+  "educInsertLearnMoreLppBuyback": "Le rachat LPP, comment ça marche\u00a0?",
+  "educInsertLearnMore3aCount": "Stratégie multi-comptes 3a",
+  "educInsertLearnMoreInvestments": "Placements et fiscalité suisse",
+  "educInsertLearnMoreRealEstate": "Financer un achat immobilier",
+
+  "mortgageServiceAffordabilityChocOk": "Tu peux acheter jusqu'à environ CHF {amount}",
+  "@mortgageServiceAffordabilityChocOk": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "mortgageServiceAffordabilityChocMissingEquity": "Il te manque environ CHF {amount} de fonds propres",
+  "@mortgageServiceAffordabilityChocMissingEquity": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "mortgageServiceAffordabilityChocExceeded": "Tes charges dépasseraient {ratio}\u00a0% de ton revenu",
+  "@mortgageServiceAffordabilityChocExceeded": {
+    "placeholders": {
+      "ratio": { "type": "String" }
+    }
+  },
+  "mortgageServiceAffordabilityDisclaimer": "Simulation pédagogique à titre indicatif. La capacité d''achat réelle dépend de la politique de crédit de chaque établissement. Le taux théorique de 5\u00a0% est utilisé pour le calcul de tenue (pratique ASB), pas le taux réel du marché. Base légale\u00a0: directive ASB sur le crédit hypothécaire. Consulte un·e spécialiste avant toute décision.",
+
+  "mortgageServiceFixedLabel": "Fixe {years} ans",
+  "@mortgageServiceFixedLabel": {
+    "placeholders": {
+      "years": { "type": "int" }
+    }
+  },
+  "mortgageServiceSaronStableLabel": "SARON stable",
+  "mortgageServiceSaronHausseLabel": "SARON hausse",
+  "mortgageServiceSaronChocSaving": "Le SARON stable t''économise environ CHF {amount} sur {years} ans vs taux fixe",
+  "@mortgageServiceSaronChocSaving": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "years": { "type": "int" }
+    }
+  },
+  "mortgageServiceSaronChocFixed": "Le fixe revient environ CHF {amount} moins cher sur {years} ans",
+  "@mortgageServiceSaronChocFixed": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "years": { "type": "int" }
+    }
+  },
+  "mortgageServiceSaronDisclaimer": "Simulation à titre éducatif. Le SARON peut varier à la hausse comme à la baisse. L''historique ne garantit pas l''avenir. Les taux indicatifs 2026 sont des moyennes de marché et varient selon les établissements et le profil emprunteur. Ne constitue pas un conseil hypothécaire.",
+
+  "mortgageServiceImputedChocCost": "La valeur locative te coûte environ CHF {amount}/an d''impôt supplémentaire",
+  "@mortgageServiceImputedChocCost": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "mortgageServiceImputedChocSaving": "Tes déductions compensent\u00a0: économie nette estimée de CHF {amount}/an",
+  "@mortgageServiceImputedChocSaving": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "mortgageServiceImputedDisclaimer": "Simulation pédagogique à titre indicatif. La valeur locative réelle est fixée par l''autorité fiscale cantonale et peut différer significativement de cette estimation. Les déductions dépendent de la situation personnelle. Base légale\u00a0: LIFD art. 21 al. 1 let. b, art. 32 (déductions). Consulte un·e spécialiste en fiscalité.",
+
+  "mortgageServiceAmortChocIndirect": "L''amortissement indirect t''économise environ CHF {amount} sur {years} ans",
+  "@mortgageServiceAmortChocIndirect": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "years": { "type": "int" }
+    }
+  },
+  "mortgageServiceAmortChocDirect": "L''amortissement direct est environ CHF {amount} moins cher sur {years} ans",
+  "@mortgageServiceAmortChocDirect": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "years": { "type": "int" }
+    }
+  },
+  "mortgageServiceAmortDisclaimer": "Simulation pédagogique à titre indicatif. L''avantage de l''amortissement indirect dépend du taux marginal effectif, du rendement 3a et des conditions hypothécaires. Le nantissement du 3a doit être accepté par le prêteur. Base légale\u00a0: OPP3, pratique hypothécaire suisse. Consulte un·e spécialiste avant toute décision.",
+
+  "mortgageServiceEplCashLabel": "Épargne cash",
+  "mortgageServiceEpl3aLabel": "Retrait 3a",
+  "mortgageServiceEplLppLabel": "Retrait LPP (EPL)",
+  "mortgageServiceEpl3aAlerte": "Impôt estimé sur le retrait 3a\u00a0: CHF {amount}",
+  "@mortgageServiceEpl3aAlerte": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "mortgageServiceEplLppAlerte": "Le retrait LPP réduit tes prestations de risque (invalidité, décès). Impôt estimé\u00a0: CHF {amount}.",
+  "@mortgageServiceEplLppAlerte": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "mortgageServiceEplAlerteRisk": "Le retrait EPL (LPP) réduit proportionnellement tes prestations d''invalidité et de décès. Vérifie auprès de ta caisse de pension les possibilités d''assurance complémentaire.",
+  "mortgageServiceEplAlerteCombined": "Le retrait combiné 3a + LPP dans la même année fiscale augmente la progressivité de l''impôt. Envisage d''étaler sur 2 années.",
+  "mortgageServiceEplAlerteMissing": "Tes fonds propres couvrent {percentage}\u00a0% du prix. Il manque environ CHF {amount} pour atteindre les 20\u00a0% requis.",
+  "@mortgageServiceEplAlerteMissing": {
+    "placeholders": {
+      "percentage": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "mortgageServiceEplAlerteLppCap": "Utilisation LPP limitée à 10\u00a0% du prix d''achat (CHF {amount}). Ton avoir LPP restant n''est pas utilisable comme fonds propres.",
+  "@mortgageServiceEplAlerteLppCap": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "mortgageServiceEplChoc": "Tes fonds propres couvrent {percentage}\u00a0% du prix",
+  "@mortgageServiceEplChoc": {
+    "placeholders": {
+      "percentage": { "type": "String" }
+    }
+  },
+  "mortgageServiceEplDisclaimer": "Simulation pédagogique à titre indicatif. Les montants réels dépendent de la caisse de pension, de la fiscalité cantonale et communale, et de la situation personnelle. Le retrait LPP est soumis à l''accord du conjoint (si marié). Base légale\u00a0: LPP art. 30c (EPL), OPP3, LIFD art. 38. Consulte un·e spécialiste avant toute décision.",
+
+  "familyServiceMaternite": "Maternité",
+  "familyServicePaternite": "Paternité",
+
+  "familyServiceCantonZH": "Zurich",
+  "familyServiceCantonBE": "Berne",
+  "familyServiceCantonLU": "Lucerne",
+  "familyServiceCantonUR": "Uri",
+  "familyServiceCantonSZ": "Schwyz",
+  "familyServiceCantonOW": "Obwald",
+  "familyServiceCantonNW": "Nidwald",
+  "familyServiceCantonGL": "Glaris",
+  "familyServiceCantonZG": "Zoug",
+  "familyServiceCantonFR": "Fribourg",
+  "familyServiceCantonSO": "Soleure",
+  "familyServiceCantonBS": "Bâle-Ville",
+  "familyServiceCantonBL": "Bâle-Campagne",
+  "familyServiceCantonSH": "Schaffhouse",
+  "familyServiceCantonAR": "Appenzell RE",
+  "familyServiceCantonAI": "Appenzell RI",
+  "familyServiceCantonSG": "Saint-Gall",
+  "familyServiceCantonGR": "Grisons",
+  "familyServiceCantonAG": "Argovie",
+  "familyServiceCantonTG": "Thurgovie",
+  "familyServiceCantonTI": "Tessin",
+  "familyServiceCantonVD": "Vaud",
+  "familyServiceCantonVS": "Valais",
+  "familyServiceCantonNE": "Neuchâtel",
+  "familyServiceCantonGE": "Genève",
+  "familyServiceCantonJU": "Jura"
 }
