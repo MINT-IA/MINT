@@ -33,10 +33,15 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
 
   GenderGapResult? _result;
 
+  bool _initialized = false;
+
   @override
-  void initState() {
-    super.initState();
-    _compute();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _compute();
+    }
   }
 
   void _compute() {
@@ -50,7 +55,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       canton: _canton,
     );
     setState(() {
-      _result = GenderGapService.analyse(input: input);
+      _result = GenderGapService.analyse(input: input, s: S.of(context)!);
     });
   }
 
@@ -680,7 +685,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  GenderGapService.statistiqueOfs,
+                  _result!.statistiqueOfs,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.purpleDark,

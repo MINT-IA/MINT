@@ -1,7 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/services/segments_service.dart';
 
 void main() {
+  // Create a French S instance for use in all tests
+  final S s = SFr();
+
   // ═══════════════════════════════════════════════════════════════════
   //  1. GenderGapService tests
   // ═══════════════════════════════════════════════════════════════════
@@ -17,6 +22,7 @@ void main() {
           anneesCotisation: 10,
           canton: 'VD',
         ),
+        s: s,
       );
       expect(result.lacuneAnnuelle, closeTo(0.0, 0.01));
       expect(result.lacuneTotale, closeTo(0.0, 0.1));
@@ -32,6 +38,7 @@ void main() {
           anneesCotisation: 15,
           canton: 'GE',
         ),
+        s: s,
       );
       expect(result.lacuneAnnuelle, greaterThan(0));
       expect(result.lacuneTotale, greaterThan(0));
@@ -47,6 +54,7 @@ void main() {
           anneesCotisation: 15,
           canton: 'ZH',
         ),
+        s: s,
       );
       expect(result.lacuneTotale, closeTo(result.lacuneAnnuelle * 20, 0.01));
     });
@@ -62,6 +70,7 @@ void main() {
           anneesCotisation: 5,
           canton: 'BE',
         ),
+        s: s,
       );
       expect(result.deductionCoordination, 26460);
     });
@@ -76,6 +85,7 @@ void main() {
           anneesCotisation: 20,
           canton: 'VD',
         ),
+        s: s,
       );
       expect(result.anneesRestantes, 20); // 65 - 45
     });
@@ -90,6 +100,7 @@ void main() {
           anneesCotisation: 40,
           canton: 'ZH',
         ),
+        s: s,
       );
       expect(result.anneesRestantes, 0);
     });
@@ -104,6 +115,7 @@ void main() {
           anneesCotisation: 0,
           canton: 'GE',
         ),
+        s: s,
       );
       // salaire100 = 0 (division by zero guard), so both rentes are based only on avoirLpp
       expect(result.renteAtCurrentTaux, greaterThanOrEqualTo(0));
@@ -119,6 +131,7 @@ void main() {
           anneesCotisation: 15,
           canton: 'VD',
         ),
+        s: s,
       );
       expect(
         result.recommendations.any((r) => r.title.contains('Rachat LPP')),
@@ -136,6 +149,7 @@ void main() {
           anneesCotisation: 5,
           canton: 'ZH',
         ),
+        s: s,
       );
       expect(
         result.recommendations.any((r) => r.title.contains('3e pilier')),
@@ -154,6 +168,7 @@ void main() {
           anneesCotisation: 10,
           canton: 'VD',
         ),
+        s: s,
       );
       expect(
         result.recommendations.any((r) => r.title.contains('proratisation')),
@@ -171,6 +186,7 @@ void main() {
           anneesCotisation: 15,
           canton: 'VD',
         ),
+        s: s,
       );
       expect(
         result.recommendations.any(
@@ -190,6 +206,7 @@ void main() {
           anneesCotisation: 15,
           canton: 'VD',
         ),
+        s: s,
       );
       expect(result.statistiqueOfs, contains('OFS'));
       expect(result.statistiqueOfs, contains('37%'));
@@ -206,6 +223,7 @@ void main() {
           anneesCotisation: 15,
           canton: 'ZH',
         ),
+        s: s,
       );
       expect(result.salaireCoordonne100, 64260);
     });
@@ -226,6 +244,7 @@ void main() {
           anneesCotisation: 10,
           canton: 'VD',
         ),
+        s: s,
       );
       for (final rec in result.recommendations) {
         expect(rec.source, isNotEmpty);
@@ -246,6 +265,7 @@ void main() {
           revenuBrut: 80000,
           etatCivil: EtatCivilFrontalier.celibataire,
         ),
+        s: s,
       );
       expect(result.paysLabel, 'France');
       expect(
@@ -263,6 +283,7 @@ void main() {
           revenuBrut: 80000,
           etatCivil: EtatCivilFrontalier.marie,
         ),
+        s: s,
       );
       expect(
         result.rules.any((r) =>
@@ -279,6 +300,7 @@ void main() {
           revenuBrut: 80000,
           etatCivil: EtatCivilFrontalier.celibataire,
         ),
+        s: s,
       );
       expect(result.quasiResident, isNotNull);
       expect(result.quasiResident!.cantonConcerne, 'GE');
@@ -292,6 +314,7 @@ void main() {
           revenuBrut: 90000,
           etatCivil: EtatCivilFrontalier.celibataire,
         ),
+        s: s,
       );
       expect(result.quasiResident, isNull);
     });
@@ -304,6 +327,7 @@ void main() {
           revenuBrut: 80000,
           etatCivil: EtatCivilFrontalier.celibataire,
         ),
+        s: s,
       );
       expect(
         result.rules.any((r) =>
@@ -320,6 +344,7 @@ void main() {
           revenuBrut: 100000,
           etatCivil: EtatCivilFrontalier.celibataire,
         ),
+        s: s,
       );
       final rule3a = result.rules.firstWhere((r) => r.category == '3a');
       expect(rule3a.isAlert, isTrue);
@@ -335,6 +360,7 @@ void main() {
             revenuBrut: 80000,
             etatCivil: EtatCivilFrontalier.celibataire,
           ),
+          s: s,
         );
         expect(result.rules.any((r) => r.category == 'lpp'), isTrue);
         expect(result.rules.any((r) => r.category == 'avs'), isTrue);
@@ -349,6 +375,7 @@ void main() {
           revenuBrut: 70000,
           etatCivil: EtatCivilFrontalier.celibataire,
         ),
+        s: s,
       );
       final fiscalRule = result.rules
           .firstWhere((r) => r.category == 'fiscal');
@@ -364,6 +391,7 @@ void main() {
           revenuBrut: 80000,
           etatCivil: EtatCivilFrontalier.celibataire,
         ),
+        s: s,
       );
       expect(result.checklist.length, greaterThanOrEqualTo(8));
     });
@@ -376,6 +404,7 @@ void main() {
           revenuBrut: 80000,
           etatCivil: EtatCivilFrontalier.celibataire,
         ),
+        s: s,
       );
       expect(
         result.checklist.any((c) => c.contains('quasi-résident')),
@@ -384,9 +413,9 @@ void main() {
     });
 
     test('getPaysLabel returns correct labels', () {
-      expect(FrontalierService.getPaysLabel(PaysResidence.fr), 'France');
-      expect(FrontalierService.getPaysLabel(PaysResidence.de), 'Allemagne');
-      expect(FrontalierService.getPaysLabel(PaysResidence.it), 'Italie');
+      expect(FrontalierService.getPaysLabel(PaysResidence.fr, s: s), 'France');
+      expect(FrontalierService.getPaysLabel(PaysResidence.de, s: s), 'Allemagne');
+      expect(FrontalierService.getPaysLabel(PaysResidence.it, s: s), 'Italie');
     });
 
     test('getFlagCode returns correct codes', () {
@@ -402,6 +431,7 @@ void main() {
           revenuBrut: 90000,
           etatCivil: EtatCivilFrontalier.celibataire,
         ),
+        s: s,
       );
       final lppRules = result.rules.where((r) => r.category == 'lpp');
       expect(
@@ -418,6 +448,7 @@ void main() {
           revenuBrut: 80000,
           etatCivil: EtatCivilFrontalier.celibataire,
         ),
+        s: s,
       );
       for (final rule in result.rules) {
         expect(rule.source, isNotEmpty);
@@ -437,6 +468,7 @@ void main() {
           age: 40,
           canton: 'VD',
         ),
+        s: s,
       );
       // 20% of 100k = 20000, below max
       expect(result.plafond3a, 20000);
@@ -449,6 +481,7 @@ void main() {
           age: 40,
           canton: 'VD',
         ),
+        s: s,
       );
       // 20% of 200k = 40000, capped at 36288
       expect(result.plafond3a, 36288);
@@ -462,6 +495,7 @@ void main() {
           hasLpp: true,
           canton: 'VD',
         ),
+        s: s,
       );
       expect(result.plafond3a, 7258);
     });
@@ -473,6 +507,7 @@ void main() {
           age: 40,
           canton: 'ZH',
         ),
+        s: s,
       );
       // 100000 * 0.106 = 10600
       expect(result.cotisationAvsAnnuelle, closeTo(10600, 0.01));
@@ -485,6 +520,7 @@ void main() {
           age: 40,
           canton: 'VD',
         ),
+        s: s,
       );
       expect(result.cotisationAvsAnnuelle, 0);
     });
@@ -496,6 +532,7 @@ void main() {
           age: 40,
           canton: 'VD',
         ),
+        s: s,
       );
       // 30000 is between 28600 (5.2%) and 32400 (5.6%), so should use 5.2%
       expect(result.cotisationAvsAnnuelle, closeTo(30000 * 0.052, 0.01));
@@ -508,6 +545,7 @@ void main() {
           age: 40,
           canton: 'VD',
         ),
+        s: s,
       );
       expect(result.cotisationAvsAnnuelle, 0);
     });
@@ -520,6 +558,7 @@ void main() {
           hasIjm: false,
           canton: 'VD',
         ),
+        s: s,
       );
       final ijmGap = result.coverageGaps.firstWhere(
         (g) => g.label.contains('IJM'),
@@ -536,6 +575,7 @@ void main() {
           hasLpp: true,
           canton: 'VD',
         ),
+        s: s,
       );
       final lppGap = result.coverageGaps.firstWhere(
         (g) => g.label.contains('LPP'),
@@ -552,6 +592,7 @@ void main() {
           hasIjm: false,
           canton: 'VD',
         ),
+        s: s,
       );
       expect(result.alerts.any((a) => a.contains('CRITIQUE')), isTrue);
     });
@@ -567,6 +608,7 @@ void main() {
           has3a: true,
           canton: 'VD',
         ),
+        s: s,
       );
       expect(result.alerts, isEmpty);
     });
@@ -579,6 +621,7 @@ void main() {
           hasIjm: false,
           canton: 'VD',
         ),
+        s: s,
       );
       // 60000 * 0.02 / 12 = 100
       expect(result.protectionCost.ijmMensuel, closeTo(100, 0.01));
@@ -592,6 +635,7 @@ void main() {
           hasIjm: true,
           canton: 'VD',
         ),
+        s: s,
       );
       expect(result.protectionCost.ijmMensuel, 0);
     });
@@ -607,6 +651,7 @@ void main() {
           has3a: true,
           canton: 'VD',
         ),
+        s: s,
       );
       expect(result.recommendations.any((r) => r.contains('AVS')), isTrue);
       expect(result.recommendations.any((r) => r.contains('budget')), isTrue);
@@ -619,6 +664,7 @@ void main() {
           age: 35,
           canton: 'VD',
         ),
+        s: s,
       );
       for (final gap in result.coverageGaps) {
         expect(gap.source, isNotEmpty);

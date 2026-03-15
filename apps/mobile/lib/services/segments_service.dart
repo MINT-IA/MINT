@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -110,14 +111,22 @@ class GenderGapService {
   /// 25-34: 7%, 35-44: 10%, 45-54: 15%, 55-65: 18% (LPP art. 16)
 
   /// OFS statistic on gender pension gap.
+  /// Use [statistiqueOfsLocalized] with S parameter for i18n.
+  @Deprecated('Use statistiqueOfsLocalized(s) instead')
   static const String statistiqueOfs =
       'En Suisse, les femmes touchent en moyenne 37% de rente '
       'de moins que les hommes (OFS 2024)';
 
+  /// Localized OFS statistic.
+  static String statistiqueOfsLocalized(S s) =>
+      s.segmentsGenderGapOfsStat;
+
   // ── Public API ─────────────────────────────────────────────
 
   /// Analyse the pension gap between current activity rate and 100%.
-  static GenderGapResult analyse({required GenderGapInput input}) {
+  ///
+  /// [s] is required for i18n of user-facing recommendation strings.
+  static GenderGapResult analyse({required GenderGapInput input, required S s}) {
     final anneesRestantes = (avsAgeReferenceHomme - input.age).clamp(0, 40);
 
     // Salary at 100% (extrapolated from current taux)
@@ -169,6 +178,7 @@ class GenderGapService {
       input: input,
       lacuneAnnuelle: lacuneAnnuelle,
       salaireCoordonneActuel: salaireCoordonneActuel,
+      s: s,
     );
 
     return GenderGapResult(
@@ -181,7 +191,7 @@ class GenderGapService {
       deductionCoordination: lppDeductionCoordination,
       anneesRestantes: anneesRestantes,
       recommendations: recommendations,
-      statistiqueOfs: statistiqueOfs,
+      statistiqueOfs: statistiqueOfsLocalized(s),
     );
   }
 
@@ -195,44 +205,33 @@ class GenderGapService {
     required GenderGapInput input,
     required double lacuneAnnuelle,
     required double salaireCoordonneActuel,
+    required S s,
   }) {
     final recs = <GenderGapRecommendation>[];
 
     // 1. Rachat LPP
     if (lacuneAnnuelle > 0) {
-      recs.add(const GenderGapRecommendation(
-        title: 'Rachat LPP volontaire',
-        description:
-            'Un rachat volontaire permet de combler partiellement la '
-            'lacune de prévoyance tout en bénéficiant d\'une déduction '
-            'fiscale. Vérifiez le montant de rachat possible auprès '
-            'de ta caisse de pension.',
+      recs.add(GenderGapRecommendation(
+        title: s.segmentsGenderGapRecRachat,
+        description: s.segmentsGenderGapRecRachatDescFull,
         source: 'LPP art. 79b',
         icon: 'account_balance',
       ));
     }
 
     // 2. 3a maximise
-    recs.add(const GenderGapRecommendation(
-      title: '3e pilier maximisé',
-      description:
-          'Versez le plafond annuel de CHF\u00A07\'056 (salariés) pour '
-          'compenser partiellement la lacune LPP. La déduction fiscale '
-          'est immédiate et le capital reste disponible sous certaines '
-          'conditions.',
+    recs.add(GenderGapRecommendation(
+      title: s.segmentsGenderGapRec3a,
+      description: s.segmentsGenderGapRec3aDescFull,
       source: 'OPP3 art. 7',
       icon: 'savings',
     ));
 
     // 3. Proratisation coordination
     if (input.tauxActivite < 100 && salaireCoordonneActuel < lppSalaireCoordMax * 0.5) {
-      recs.add(const GenderGapRecommendation(
-        title: 'Vérifier la proratisation de la coordination',
-        description:
-            'Plusieurs caisses de pension proratisent la déduction '
-            'de coordination en fonction du taux d\'activité, ce qui '
-            'améliore significativement le salaire coordonné. Discutez-en '
-            'avec ton employeur ou ta caisse de pension.',
+      recs.add(GenderGapRecommendation(
+        title: s.segmentsGenderGapRecCoord,
+        description: s.segmentsGenderGapRecCoordDescFull,
         source: 'LPP art. 8 / Règlement de caisse',
         icon: 'balance',
       ));
@@ -240,13 +239,9 @@ class GenderGapService {
 
     // 4. Augmenter taux d'activite
     if (input.tauxActivite < 80) {
-      recs.add(const GenderGapRecommendation(
-        title: 'Explorer une augmentation du taux d\'activité',
-        description:
-            'Même une augmentation de 10 à 20 points de pourcentage '
-            'du taux d\'activité peut réduire significativement la '
-            'lacune de prévoyance, surtout si la déduction de '
-            'coordination n\'est pas proratisée.',
+      recs.add(GenderGapRecommendation(
+        title: s.segmentsGenderGapRecTaux,
+        description: s.segmentsGenderGapRecTauxDescFull,
         source: 'Analyse prévoyance MINT',
         icon: 'trending_up',
       ));
@@ -353,6 +348,16 @@ class FrontalierResult {
 class FrontalierService {
   // ── Constants ──────────────────────────────────────────────
 
+  /// Get localized country labels.
+  static Map<PaysResidence, String> _paysLabelsLocalized(S s) => {
+    PaysResidence.fr: s.segmentsFrontalierPaysFR,
+    PaysResidence.de: s.segmentsFrontalierPaysDE,
+    PaysResidence.it: s.segmentsFrontalierPaysIT,
+    PaysResidence.at: s.segmentsFrontalierPaysAT,
+    PaysResidence.li: s.segmentsFrontalierPaysLI,
+  };
+
+  @Deprecated('Use _paysLabelsLocalized(s) instead')
   static const Map<PaysResidence, String> _paysLabels = {
     PaysResidence.fr: 'France',
     PaysResidence.de: 'Allemagne',
@@ -372,24 +377,27 @@ class FrontalierService {
   // ── Public API ─────────────────────────────────────────────
 
   /// Analyse the situation of a cross-border worker.
-  static FrontalierResult analyse({required FrontalierInput input}) {
+  ///
+  /// [s] is required for i18n of user-facing strings.
+  static FrontalierResult analyse({required FrontalierInput input, required S s}) {
     final rules = <FrontalierRule>[];
+    final paysLabels = _paysLabelsLocalized(s);
 
     // Add country-specific rules
-    _addFiscalRules(input, rules);
-    _add3aRules(input, rules);
-    _addLppRules(input, rules);
-    _addAvsRules(input, rules);
+    _addFiscalRules(input, rules, s);
+    _add3aRules(input, rules, s);
+    _addLppRules(input, rules, s);
+    _addAvsRules(input, rules, s, paysLabels);
 
     // Check quasi-resident eligibility (GE only)
-    final quasiResident = _checkQuasiResident(input);
+    final quasiResident = _checkQuasiResident(input, s);
 
     // Build checklist
-    final checklist = _buildChecklist(input);
+    final checklist = _buildChecklist(input, s);
 
     return FrontalierResult(
       pays: input.paysResidence,
-      paysLabel: _paysLabels[input.paysResidence] ?? '',
+      paysLabel: paysLabels[input.paysResidence] ?? '',
       flagEmoji: _flagEmojis[input.paysResidence] ?? '',
       rules: rules,
       quasiResident: quasiResident,
@@ -398,7 +406,11 @@ class FrontalierService {
   }
 
   /// Get the label for a country.
-  static String getPaysLabel(PaysResidence pays) {
+  static String getPaysLabel(PaysResidence pays, {S? s}) {
+    if (s != null) {
+      return _paysLabelsLocalized(s)[pays] ?? '';
+    }
+    // ignore: deprecated_member_use_from_same_package
     return _paysLabels[pays] ?? '';
   }
 
@@ -412,75 +424,56 @@ class FrontalierService {
   static void _addFiscalRules(
     FrontalierInput input,
     List<FrontalierRule> rules,
+    S s,
   ) {
     switch (input.paysResidence) {
       case PaysResidence.fr:
         if (input.cantonTravail == 'GE') {
-          rules.add(const FrontalierRule(
+          rules.add(FrontalierRule(
             category: 'fiscal',
-            title: 'Imposition à la source en Suisse (GE)',
-            description:
-                'Les frontaliers travaillant à Genève sont imposés à la '
-                'source en Suisse (accord CH-FR de 1983 spécifique GE). '
-                'Une retenue de 4.5% est cependant reversée à la France.',
+            title: s.segmentsFrontalierFiscalFrGeTitle,
+            description: s.segmentsFrontalierFiscalFrGeDesc,
             source: 'Accord CH-FR du 11.04.1983 / CDI CH-FR',
           ));
         } else {
-          rules.add(const FrontalierRule(
+          rules.add(FrontalierRule(
             category: 'fiscal',
-            title: 'Imposition en France (résidence)',
-            description:
-                'Les frontaliers résidant en France et travaillant hors '
-                'du canton de Genève sont imposés en France sur leurs '
-                'revenus suisses. L\'employeur ne prélève pas d\'impôt '
-                'à la source.',
+            title: s.segmentsFrontalierFiscalFrOtherTitle,
+            description: s.segmentsFrontalierFiscalFrOtherDesc,
             source: 'CDI CH-FR art. 17 / Accord frontalier 1983',
           ));
         }
 
       case PaysResidence.de:
-        rules.add(const FrontalierRule(
+        rules.add(FrontalierRule(
           category: 'fiscal',
-          title: 'Imposition en Allemagne (résidence)',
-          description:
-              'Les frontaliers résidant en Allemagne sont en principe '
-              'imposés en Allemagne. La Suisse retient un impôt à la '
-              'source de max. 4.5%, imputable en Allemagne.',
+          title: s.segmentsFrontalierFiscalDeTitle,
+          description: s.segmentsFrontalierFiscalDeDesc,
           source: 'CDI CH-DE art. 15a',
         ));
 
       case PaysResidence.it:
-        rules.add(const FrontalierRule(
+        rules.add(FrontalierRule(
           category: 'fiscal',
-          title: 'Nouvel accord fiscal CH-IT (2024)',
-          description:
-              'Le nouvel accord frontalier CH-IT prévoit une imposition '
-              'concurrente : la Suisse prélève un impôt à la source '
-              '(max. 80% du taux normal), et l\'Italie peut imposer '
-              'la différence. Vérifie ta situation exacte.',
+          title: s.segmentsFrontalierFiscalItTitle,
+          description: s.segmentsFrontalierFiscalItDesc,
           source: 'Accord frontalier CH-IT 2020 / entré en vigueur 2024',
           isAlert: true,
         ));
 
       case PaysResidence.at:
-        rules.add(const FrontalierRule(
+        rules.add(FrontalierRule(
           category: 'fiscal',
-          title: 'Imposition en Suisse (source)',
-          description:
-              'Les frontaliers résidant en Autriche sont en principe '
-              'imposés à la source en Suisse. L\'Autriche peut '
-              'également imposer ces revenus avec crédit d\'impôt.',
+          title: s.segmentsFrontalierFiscalAtTitle,
+          description: s.segmentsFrontalierFiscalAtDesc,
           source: 'CDI CH-AT art. 15',
         ));
 
       case PaysResidence.li:
-        rules.add(const FrontalierRule(
+        rules.add(FrontalierRule(
           category: 'fiscal',
-          title: 'Accord spécial CH-LI',
-          description:
-              'Les frontaliers du Liechtenstein bénéficient d\'un accord '
-              'spécial. L\'imposition se fait généralement dans le pays '
-              'd\'emploi (Suisse). Le Liechtenstein pratique des taux bas.',
+          title: s.segmentsFrontalierFiscalLiTitle,
+          description: s.segmentsFrontalierFiscalLiDesc,
           source: 'Accord CH-LI / EEE',
         ));
     }
@@ -489,30 +482,23 @@ class FrontalierService {
   static void _add3aRules(
     FrontalierInput input,
     List<FrontalierRule> rules,
+    S s,
   ) {
     // By default, non-resident workers cannot deduct 3a
     final isGE = input.cantonTravail == 'GE';
 
     if (isGE) {
-      rules.add(const FrontalierRule(
+      rules.add(FrontalierRule(
         category: '3a',
-        title: '3e pilier : possible si quasi-résident GE',
-        description:
-            'Les frontaliers travaillant à Genève peuvent déduire '
-            'le 3e pilier s\'ils obtiennent le statut de quasi-résident '
-            '(>= 90% des revenus du ménage provenant de Suisse). '
-            'Condition : passage à la déclaration ordinaire.',
+        title: s.segmentsFrontalier3aGeTitle,
+        description: s.segmentsFrontalier3aGeDesc,
         source: 'LIPP GE art. 6 al. 1 / LIFD art. 83 al. 3',
       ));
     } else {
-      rules.add(const FrontalierRule(
+      rules.add(FrontalierRule(
         category: '3a',
-        title: '3e pilier : pas de déduction possible',
-        description:
-            'En tant que frontalier imposé dans ton pays de '
-            'résidence, tu ne peux pas déduire les versements '
-            '3a de tes impôts suisses. Le 3e pilier reste possible '
-            'mais sans avantage fiscal en Suisse.',
+        title: s.segmentsFrontalier3aNoDeductionTitle,
+        description: s.segmentsFrontalier3aNoDeductionDesc,
         source: 'OPP3 art. 7 / LIFD art. 33a',
         isAlert: true,
       ));
@@ -522,26 +508,19 @@ class FrontalierService {
   static void _addLppRules(
     FrontalierInput input,
     List<FrontalierRule> rules,
+    S s,
   ) {
-    rules.add(const FrontalierRule(
+    rules.add(FrontalierRule(
       category: 'lpp',
-      title: 'LPP : affiliation obligatoire',
-      description:
-          'Les frontaliers sont obligatoirement affiliés à la LPP '
-          'de leur employeur suisse, comme tout employé. Les mêmes '
-          'règles de cotisation et de prestation s\'appliquent.',
+      title: s.segmentsFrontalierLppAffiliationTitle,
+      description: s.segmentsFrontalierLppAffiliationDesc,
       source: 'LPP art. 2',
     ));
 
-    rules.add(const FrontalierRule(
+    rules.add(FrontalierRule(
       category: 'lpp',
-      title: 'Libre passage au départ',
-      description:
-          'En quittant la Suisse, ton avoir LPP est transféré '
-          'sur un compte de libre passage. Si tu résides dans '
-          'l\'UE/AELE, le transfert de la part obligatoire en cash '
-          'n\'est pas possible (reste sur libre passage en CH). '
-          'La part surobligatoire peut être versée.',
+      title: s.segmentsFrontalierLppLibrePassageTitle,
+      description: s.segmentsFrontalierLppLibrePassageDesc,
       source: 'LFLP art. 25f / Accord CH-UE',
       isAlert: true,
     ));
@@ -550,68 +529,55 @@ class FrontalierService {
   static void _addAvsRules(
     FrontalierInput input,
     List<FrontalierRule> rules,
+    S s,
+    Map<PaysResidence, String> paysLabels,
   ) {
     rules.add(FrontalierRule(
       category: 'avs',
-      title: 'AVS : cotisation en Suisse',
-      description:
-          'Les frontaliers cotisent à l\'AVS suisse (1er pilier). '
-          'Les périodes de cotisation en Suisse sont totalisées '
-          'avec les périodes dans ton pays de résidence '
-          '(${_paysLabels[input.paysResidence]}) pour le calcul '
-          'de ton droit a la rente.',
+      title: s.segmentsFrontalierAvsCotisationTitle,
+      description: s.segmentsFrontalierAvsCotisationDesc(
+          paysLabels[input.paysResidence] ?? ''),
       source: 'LAVS / Accord CH-UE sur la coordination',
     ));
 
-    rules.add(const FrontalierRule(
+    rules.add(FrontalierRule(
       category: 'avs',
-      title: 'Rente AVS : calcul pro rata',
-      description:
-          'Ta rente AVS suisse sera calculée proportionnellement '
-          'aux années de cotisation en Suisse. Tu recevras '
-          'également une rente de ton pays de résidence pour '
-          'les périodes cotisées là-bas.',
+      title: s.segmentsFrontalierAvsProRataTitle,
+      description: s.segmentsFrontalierAvsProRataDesc,
       source: 'Règlement CE 883/2004',
     ));
   }
 
   /// Check quasi-resident eligibility (GE only, >= 90% income from CH).
-  static QuasiResidentResult? _checkQuasiResident(FrontalierInput input) {
+  static QuasiResidentResult? _checkQuasiResident(FrontalierInput input, S s) {
     if (input.cantonTravail != 'GE') return null;
 
-    return const QuasiResidentResult(
+    return QuasiResidentResult(
       isEligible: true, // depends on actual income proportion
       cantonConcerne: 'GE',
-      description:
-          'Le statut de quasi-résident est accessible si au moins 90% '
-          'des revenus de ton ménage proviennent de Suisse. Ce statut '
-          'te permet de passer à la déclaration ordinaire et de '
-          'bénéficier des mêmes déductions que les résidents '
-          '(3e pilier, frais effectifs, rachats LPP, etc.).',
+      description: s.segmentsFrontalierQuasiResidentDescFull,
       source: 'LIPP GE art. 6 / ATF 136 II 241',
     );
   }
 
   /// Build a checklist for frontaliers.
-  static List<String> _buildChecklist(FrontalierInput input) {
+  static List<String> _buildChecklist(FrontalierInput input, S s) {
     final checklist = <String>[
-      'Vérifier ton régime fiscal exact avec un fiduciaire',
-      'Demander ton certificat de salaire annuel',
-      'Vérifier les cotisations AVS (extrait de compte AVS)',
-      'Demander le certificat LPP de ta caisse de pension',
-      'Vérifier les prestations en cas d\'invalidité et de décès',
+      s.segmentsFrontalierChecklistFiscal,
+      s.segmentsFrontalierChecklistSalaire,
+      s.segmentsFrontalierChecklistAvs,
+      s.segmentsFrontalierChecklistLpp,
+      s.segmentsFrontalierChecklistInvalidite,
     ];
 
     if (input.cantonTravail == 'GE') {
-      checklist.add(
-        'Évaluer l\'intérêt du statut de quasi-résident (si >= 90% revenus CH)',
-      );
+      checklist.add(s.segmentsFrontalierChecklistQuasiResident);
     }
 
     checklist.addAll([
-      'Conserver les justificatifs pour la déclaration dans ton pays',
-      'Vérifier ta couverture maladie (LAMal ou pays de résidence)',
-      'Planifier le libre passage en cas de départ de Suisse',
+      s.segmentsFrontalierChecklistJustificatifs,
+      s.segmentsFrontalierChecklistMaladie,
+      s.segmentsFrontalierChecklistLibrePassage,
     ]);
 
     return checklist;
@@ -729,9 +695,11 @@ class IndependantService {
   // ── Public API ─────────────────────────────────────────────
 
   /// Analyse the coverage situation of a self-employed person.
-  static IndependantResult analyse({required IndependantInput input}) {
+  ///
+  /// [s] is required for i18n of user-facing strings.
+  static IndependantResult analyse({required IndependantInput input, required S s}) {
     // Coverage gaps
-    final coverageGaps = _analyseCoverageGaps(input);
+    final coverageGaps = _analyseCoverageGaps(input, s);
 
     // AVS contribution
     final cotisationAvs = _computeAvsContribution(input.revenuNet);
@@ -752,10 +720,10 @@ class IndependantService {
     );
 
     // Alerts
-    final alerts = _buildAlerts(input);
+    final alerts = _buildAlerts(input, s);
 
     // Recommendations
-    final recommendations = _buildRecommendations(input, plafond3a);
+    final recommendations = _buildRecommendations(input, plafond3a, s);
 
     return IndependantResult(
       coverageGaps: coverageGaps,
@@ -784,55 +752,48 @@ class IndependantService {
   // ── Private helpers ────────────────────────────────────────
 
   /// Analyse coverage gaps.
-  static List<CoverageGapItem> _analyseCoverageGaps(IndependantInput input) {
+  static List<CoverageGapItem> _analyseCoverageGaps(IndependantInput input, S s) {
+    final plafond3aFormatted = formatChf(
+        input.hasLpp ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp);
     return [
       CoverageGapItem(
-        label: 'LPP (2e pilier)',
-        description: 'Prévoyance professionnelle obligatoire pour les salariés',
+        label: s.segmentsIndependantCoverageLppLabel,
+        description: s.segmentsIndependantCoverageLppDesc,
         isCovered: input.hasLpp,
         urgency: input.hasLpp ? 'basse' : 'haute',
         recommendation: input.hasLpp
-            ? 'Tu es affilié volontairement. Vérifie tes prestations.'
-            : 'Envisagez une affiliation volontaire à une caisse de pension '
-                '(fondation collective ou caisse de ta branche).',
+            ? s.segmentsIndependantCoverageLppCovered
+            : s.segmentsIndependantCoverageLppNotCovered,
         source: 'LPP art. 4 / art. 44',
       ),
       CoverageGapItem(
-        label: 'IJM (Indemnité journalière maladie)',
-        description: 'Couverture du revenu en cas de maladie',
+        label: s.segmentsIndependantCoverageIjmLabel,
+        description: s.segmentsIndependantCoverageIjmDesc,
         isCovered: input.hasIjm,
         urgency: input.hasIjm ? 'basse' : 'critique',
         recommendation: input.hasIjm
-            ? 'Ta couverture IJM est en place. Vérifie le délai de carence '
-                'et le montant assuré.'
-            : 'URGENT : sans IJM, tu n\'as aucun revenu en cas de maladie. '
-                'Souscrivez une assurance IJM individuelle (indemnité journalière '
-                'en cas de maladie).',
+            ? s.segmentsIndependantCoverageIjmCovered
+            : s.segmentsIndependantCoverageIjmNotCovered,
         source: 'LAMal / Pratique indépendants',
       ),
       CoverageGapItem(
-        label: 'LAA (Assurance accident)',
-        description: 'Couverture en cas d\'accident professionnel ou privé',
+        label: s.segmentsIndependantCoverageLaaLabel,
+        description: s.segmentsIndependantCoverageLaaDesc,
         isCovered: input.hasLaa,
         urgency: input.hasLaa ? 'basse' : 'haute',
         recommendation: input.hasLaa
-            ? 'Ta couverture accident est en place.'
-            : 'Souscrivez une assurance accident individuelle. '
-                'Sans LAA, les frais médicaux et la perte de gain '
-                'en cas d\'accident ne sont pas couverts.',
+            ? s.segmentsIndependantCoverageLaaCovered
+            : s.segmentsIndependantCoverageLaaNotCovered,
         source: 'LAA art. 4',
       ),
       CoverageGapItem(
-        label: '3e pilier (3a)',
-        description: 'Prévoyance individuelle avec avantage fiscal',
+        label: s.segmentsIndependantCoverage3aLabel,
+        description: s.segmentsIndependantCoverage3aDesc,
         isCovered: input.has3a,
         urgency: input.has3a ? 'basse' : 'haute',
         recommendation: input.has3a
-            ? 'Vérifie que tu verses le plafond '
-                '(${formatChf(input.hasLpp ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp)}).'
-            : 'Ouvrez un 3e pilier et versez le maximum '
-                '(${formatChf(input.hasLpp ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp)}). '
-                'Sans LPP, le 3a est ton principal outil de prévoyance.',
+            ? s.segmentsIndependantCoverage3aCovered(plafond3aFormatted)
+            : s.segmentsIndependantCoverage3aNotCovered(plafond3aFormatted),
         source: 'OPP3 art. 7',
       ),
     ];
@@ -885,40 +846,23 @@ class IndependantService {
   }
 
   /// Build alerts for critical gaps.
-  static List<String> _buildAlerts(IndependantInput input) {
+  static List<String> _buildAlerts(IndependantInput input, S s) {
     final alerts = <String>[];
 
     if (!input.hasIjm) {
-      alerts.add(
-        'CRITIQUE : Tu n\'as pas d\'assurance IJM (indemnité '
-        'journalière maladie). En cas de maladie, tu n\'auras '
-        'aucun revenu de remplacement. C\'est le risque le plus '
-        'important pour un indépendant.',
-      );
+      alerts.add(s.segmentsIndependantAlertIjmFull);
     }
 
     if (!input.hasLaa) {
-      alerts.add(
-        'IMPORTANT : Sans assurance accident individuelle (LAA), '
-        'les frais médicaux en cas d\'accident et la perte de '
-        'gain ne sont pas couverts de manière adéquate.',
-      );
+      alerts.add(s.segmentsIndependantAlertLaaFull);
     }
 
     if (!input.hasLpp) {
-      alerts.add(
-        'Ta prévoyance repose uniquement sur l\'AVS (1er pilier) '
-        'et le 3e pilier. La rente AVS seule ne couvre généralement '
-        'que 40 à 50% du dernier revenu.',
-      );
+      alerts.add(s.segmentsIndependantAlertLppFull);
     }
 
     if (!input.has3a) {
-      alerts.add(
-        'Tu ne profites pas du 3e pilier. En tant qu\'indépendant '
-        'sans LPP, tu peux déduire jusqu\'à '
-        'CHF\u00A035\'280 par an (20% du revenu net).',
-      );
+      alerts.add(s.segmentsIndependantAlert3aFull);
     }
 
     return alerts;
@@ -928,52 +872,30 @@ class IndependantService {
   static List<String> _buildRecommendations(
     IndependantInput input,
     double plafond3a,
+    S s,
   ) {
     final recs = <String>[];
 
     if (!input.hasIjm) {
-      recs.add(
-        'Souscrire une assurance IJM individuelle : '
-        'comparer les offres (délai de carence 30, 60 ou 90 jours, '
-        'couverture 80% du revenu).',
-      );
+      recs.add(s.segmentsIndependantRecIjm);
     }
 
     if (!input.hasLaa) {
-      recs.add(
-        'Souscrire une assurance accident individuelle (LAA) : '
-        'vérifier que la couverture inclut l\'accident professionnel '
-        'et non-professionnel.',
-      );
+      recs.add(s.segmentsIndependantRecLaa);
     }
 
     if (!input.hasLpp) {
-      recs.add(
-        'Explorer l\'affiliation volontaire à une caisse de pension : '
-        'fondation collective, caisse de branche, ou fondation '
-        'individuelle. Comparer les conditions.',
-      );
+      recs.add(s.segmentsIndependantRecLpp);
     }
 
     if (!input.has3a) {
-      recs.add(
-        'Ouvrir un 3e pilier et verser le maximum annuel de '
-        '${formatChf(plafond3a)}. L\'économie fiscale est '
-        'significative.',
-      );
+      recs.add(s.segmentsIndependantRec3a(formatChf(plafond3a)));
     }
 
     // Always recommend
-    recs.add(
-      'Vérifier ton extrait AVS (compte individuel) pour '
-      'confirmer que toutes les années de cotisation sont '
-      'enregistrées.',
-    );
+    recs.add(s.segmentsIndependantRecAvs);
 
-    recs.add(
-      'Établir un budget prévisionnel pour anticiper les '
-      'cotisations sociales (AVS, IJM, LAA, 3a).',
-    );
+    recs.add(s.segmentsIndependantRecBudget);
 
     return recs;
   }

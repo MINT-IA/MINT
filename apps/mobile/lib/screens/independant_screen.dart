@@ -41,10 +41,15 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
   IndependantResult? _result;
 
+  bool _initialized = false;
+
   @override
-  void initState() {
-    super.initState();
-    _compute();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _compute();
+    }
   }
 
   void _compute() {
@@ -58,7 +63,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
       canton: _canton,
     );
     setState(() {
-      _result = IndependantService.analyse(input: input);
+      _result = IndependantService.analyse(input: input, s: S.of(context)!);
     });
   }
 
