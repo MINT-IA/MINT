@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -48,17 +49,17 @@ class Countdown3aWidget extends StatelessWidget {
     return MintColors.scoreExcellent;
   }
 
-  String get _urgencyLabel {
-    if (daysRemaining <= 30) return 'Urgent';
-    if (daysRemaining <= 90) return 'Bient\u00f4t';
-    return 'Confortable';
+  String _urgencyLabel(S s) {
+    if (daysRemaining <= 30) return s.countdown3aUrgent;
+    if (daysRemaining <= 90) return s.countdown3aSoon;
+    return s.countdown3aComfortable;
   }
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Compte \u00e0 rebours 3a. '
-          '${formatChfWithPrefix(_remaining)} restant en $daysRemaining jours.',
+      label: s.countdown3aSemanticsLabel(formatChfWithPrefix(_remaining), daysRemaining.toString()),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(20),
@@ -75,7 +76,7 @@ class Countdown3aWidget extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Compte \u00e0 rebours 3a',
+                    s.countdown3aTitle,
                     style: GoogleFonts.montserrat(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -91,7 +92,7 @@ class Countdown3aWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    '$daysRemaining j \u2014 $_urgencyLabel',
+                    s.countdown3aBadge(daysRemaining.toString(), _urgencyLabel(s)),
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -114,10 +115,10 @@ class Countdown3aWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildStat(
-                    'Vers\u00e9', formatChfWithPrefix(amountContributed)),
-                _buildStat('Reste', formatChfWithPrefix(_remaining)),
+                    s.countdown3aVerse, formatChfWithPrefix(amountContributed)),
+                _buildStat(s.countdown3aReste, formatChfWithPrefix(_remaining)),
                 _buildStat(
-                    'Plafond $year', formatChfWithPrefix(annualCeiling)),
+                    s.countdown3aPlafond(year.toString()), formatChfWithPrefix(annualCeiling)),
               ],
             ),
 
@@ -135,12 +136,8 @@ class Countdown3aWidget extends StatelessWidget {
               ),
               child: Text(
                 _remaining > 0
-                    ? 'Si tu compl\u00e8tes\u00a0: ${formatChfWithPrefix(taxSavingsIfFull)} '
-                        'd\u2019imp\u00f4ts en moins.\n'
-                        'Si tu ne fais rien\u00a0: ${formatChfWithPrefix(taxSavingsIfFull)} '
-                        'laiss\u00e9s sur la table. Chaque ann\u00e9e.'
-                    : 'Bravo\u00a0! Tu as rempli ton 3a $year. '
-                        '\u00c9conomie fiscale\u00a0: ${formatChfWithPrefix(taxSavingsIfFull)}.',
+                    ? s.countdown3aChiffreChocNotFull(formatChfWithPrefix(taxSavingsIfFull))
+                    : s.countdown3aChiffreChocFull(year.toString(), formatChfWithPrefix(taxSavingsIfFull)),
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -155,8 +152,7 @@ class Countdown3aWidget extends StatelessWidget {
 
             const SizedBox(height: 12),
             Text(
-              'Plafond 3a $year\u00a0: salari\u00e9\u00b7e affili\u00e9\u00b7e LPP (OPP3 art. 7). '
-              'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin).',
+              s.countdown3aDisclaimer(year.toString()),
               style: GoogleFonts.inter(
                 fontSize: 10,
                 color: MintColors.textMuted,
