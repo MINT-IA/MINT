@@ -356,10 +356,11 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
         onPressed: byok.isLoading || _apiKeyController.text.isEmpty
             ? null
             : () async {
+                final messenger = ScaffoldMessenger.of(context);
                 await byok.saveKey(
                     _selectedProvider, _apiKeyController.text.trim());
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                if (mounted) {
+                  messenger.showSnackBar(
                     SnackBar(
                       content: Text(s?.byokSaved ?? 'Cl\u00e9 sauvegard\u00e9e avec succ\u00e8s'),
                       backgroundColor: MintColors.success,

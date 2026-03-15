@@ -45,11 +45,11 @@ class SlmAutoPromptService {
     // Web: flutter_gemma is native-only, skip silently.
     if (kIsWeb) return;
 
+    // Read provider before any async gap.
+    final slm = context.read<SlmProvider>();
+
     // Already prompted this install → skip.
     if (await _wasPrompted()) return;
-
-    // Model already downloaded → mark and skip.
-    final slm = context.read<SlmProvider>();
     if (slm.isModelReady) {
       await _markPrompted();
       return;

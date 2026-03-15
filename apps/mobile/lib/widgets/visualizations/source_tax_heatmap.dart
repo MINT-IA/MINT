@@ -280,6 +280,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
                       height: 48,
                       margin: const EdgeInsets.symmetric(horizontal: 2),
                       transform: Matrix4.identity()
+                        // ignore: deprecated_member_use
                         ..scale(isSelected ? 1.1 : 1.0),
                       transformAlignment: Alignment.center,
                       decoration: BoxDecoration(
