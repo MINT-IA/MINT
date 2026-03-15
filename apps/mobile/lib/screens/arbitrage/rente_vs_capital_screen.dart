@@ -818,7 +818,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   const SizedBox(height: 6),
                   Switch(
                     value: _isMarried,
-                    activeColor: MintColors.primary,
+                    activeTrackColor: MintColors.primary,
                     onChanged: (v) { _isMarried = v; _recalculate(); },
                   ),
                 ],
@@ -1869,7 +1869,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             ),
             Switch(
               value: _hasEpl,
-              activeColor: MintColors.primary,
+              activeTrackColor: MintColors.primary,
               onChanged: (v) => setState(() { _hasEpl = v; _recalculate(); }),
             ),
           ],

@@ -332,7 +332,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
           Switch.adaptive(
             value: value,
             onChanged: onChanged,
-            activeColor: MintColors.primary,
+            activeTrackColor: MintColors.primary,
           ),
         ],
       ),
@@ -417,7 +417,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
           Switch.adaptive(
             value: value,
             onChanged: onChanged,
-            activeColor: MintColors.success,
+            activeTrackColor: MintColors.success,
           ),
         ],
       ),

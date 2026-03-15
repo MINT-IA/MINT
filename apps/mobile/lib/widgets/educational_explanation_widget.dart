@@ -103,8 +103,7 @@ class _EducationalExplanationWidgetState
 
                   // Sections détaillées
                   ...widget.sections
-                      .map((section) => _buildSection(section))
-                      .toList(),
+                      .map((section) => _buildSection(section)),
                 ],
               ),
             ),

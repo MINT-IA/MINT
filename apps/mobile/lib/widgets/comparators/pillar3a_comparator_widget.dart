@@ -426,7 +426,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                 ],
               ),
             );
-          }).toList(),
+          }),
           const Divider(),
           Padding(
             padding: const EdgeInsets.only(top: 8),

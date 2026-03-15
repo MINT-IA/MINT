@@ -557,7 +557,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
             const SizedBox(height: 6),
             Switch(
               value: _isMarried,
-              activeColor: MintColors.primary,
+              activeTrackColor: MintColors.primary,
               onChanged: (v) {
                 _isMarried = v;
                 _recalculate();

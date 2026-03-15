@@ -16,8 +16,6 @@ import 'package:mint_mobile/widgets/pulse/focus_selector.dart';
 import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
 import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
-import 'package:mint_mobile/services/confidence/enhanced_confidence_service.dart';
-
 // ────────────────────────────────────────────────────────
 //  PULSE SCREEN — V3 "Le Thermomètre"
 // ────────────────────────────────────────────────────────

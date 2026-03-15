@@ -296,7 +296,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               ),
               Switch(
                 value: _estCelibataire,
-                activeColor: MintColors.primary,
+                activeTrackColor: MintColors.primary,
                 onChanged: (v) => setState(() => _estCelibataire = v),
               ),
             ],

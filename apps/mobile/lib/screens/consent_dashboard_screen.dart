@@ -262,7 +262,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
                   Switch.adaptive(
                     value: isConsented,
                     onChanged: (v) => _toggleConsent(id, v),
-                    activeColor: MintColors.success,
+                    activeTrackColor: MintColors.success,
                   ),
               ],
             ),

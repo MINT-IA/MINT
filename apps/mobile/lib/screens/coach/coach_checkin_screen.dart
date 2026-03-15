@@ -921,7 +921,7 @@ Reponds uniquement avec le texte final.
                       Switch.adaptive(
                         value: isAutomatic,
                         onChanged: (v) => setSheetState(() => isAutomatic = v),
-                        activeColor: MintColors.coachAccent,
+                        activeTrackColor: MintColors.coachAccent,
                       ),
                     ],
                   ),
