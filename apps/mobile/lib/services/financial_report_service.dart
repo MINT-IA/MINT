@@ -638,7 +638,7 @@ class FinancialReportService {
     // Full scoring when CoachProfile is available
     if (coachProfile != null) {
       try {
-        final result = ConfidenceScorer.score(coachProfile);
+        final result = ConfidenceScorer.score(coachProfile, s: s);
         return (
           confidenceScore: result.score,
           enrichmentPrompts: result.prompts.map((p) => p.label).toList(),

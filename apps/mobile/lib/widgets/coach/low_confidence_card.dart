@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -16,7 +17,7 @@ class LowConfidenceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final confidence = ConfidenceScorer.score(profile);
+    final confidence = ConfidenceScorer.score(profile, s: S.of(context)!);
     final topPrompts = confidence.prompts.take(3).toList();
     return Container(
       width: double.infinity,

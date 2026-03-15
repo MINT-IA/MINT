@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
@@ -553,7 +554,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     // Get the CURRENT confidence score BEFORE injection
     int previousConfidence = 42; // fallback if no profile
     if (coachProvider.hasProfile) {
-      final currentConfidence = ConfidenceScorer.score(coachProvider.profile!);
+      final currentConfidence = ConfidenceScorer.score(coachProvider.profile!, s: S.of(context)!);
       previousConfidence = currentConfidence.score.round();
     }
 

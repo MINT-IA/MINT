@@ -123,7 +123,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
         previousScore: provider.previousScore,
       );
       _projection = ForecasterService.project(profile: _profile!);
-      _confidence = ConfidenceScorer.score(_profile!);
+      _confidence = ConfidenceScorer.score(_profile!, s: S.of(context)!);
       _confidenceScore = _confidence!.score;
 
       final tips = _buildCoachingTips(_profile!);

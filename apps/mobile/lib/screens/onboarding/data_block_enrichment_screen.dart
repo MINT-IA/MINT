@@ -65,7 +65,7 @@ class _DataBlockEnrichmentScreenState
     final isKnownBlock =
         DataBlockEnrichmentScreen._supportedBlockTypes.contains(canonicalBlockType);
     final blocs = profile != null
-        ? ConfidenceScorer.scoreAsBlocs(profile)
+        ? ConfidenceScorer.scoreAsBlocs(profile, s: S.of(context)!)
         : <String, BlockScore>{};
     final bloc = isKnownBlock ? blocs[canonicalBlockType] : null;
 
@@ -197,7 +197,7 @@ class _DataBlockEnrichmentScreenState
   }
 
   Widget _buildPrompts(CoachProfile profile, String type, BlockScore? bloc) {
-    final confidence = ConfidenceScorer.score(profile);
+    final confidence = ConfidenceScorer.score(profile, s: S.of(context)!);
     final relevant = confidence.prompts
         .where((p) => _categoryMatchesBlock(p.category, type))
         .toList();

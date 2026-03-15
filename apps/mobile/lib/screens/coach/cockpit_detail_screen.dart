@@ -121,9 +121,9 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
         projection: _projection!,
         profile: _profile!,
       );
-      _confidence = ConfidenceScorer.score(_profile!);
+      _confidence = ConfidenceScorer.score(_profile!, s: S.of(context)!);
       _confidenceScore = _confidence!.score;
-      _confidenceBlocs = ConfidenceScorer.scoreAsBlocs(_profile!);
+      _confidenceBlocs = ConfidenceScorer.scoreAsBlocs(_profile!, s: S.of(context)!);
 
       // Detailed retirement projection (budget gap, phases, etc.)
       _retirementProjection =
@@ -173,6 +173,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
     try {
       _monteCarloResult = MonteCarloProjectionService.simulate(
         profile: profile,
+        s: S.of(context)!,
         retirementAgeUser: profile.effectiveRetirementAge,
       );
     } catch (e) {

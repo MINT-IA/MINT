@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/bayesian_enricher.dart';
 
@@ -115,7 +116,11 @@ class ConfidenceScorer {
   static const double minConfidenceForProjection = 40.0;
 
   /// Score projection confidence based on profile completeness.
-  static ProjectionConfidence score(CoachProfile profile) {
+  ///
+  /// Pass [s] (from `S.of(context)!`) to get localized user-facing text.
+  /// When [s] is null, hardcoded French fallbacks are used (for service callers
+  /// without BuildContext that only need numeric scores).
+  static ProjectionConfidence score(CoachProfile profile, {S? s}) {
     double total = 0;
     final prompts = <EnrichmentPrompt>[];
     final assumptions = <String>[];
@@ -124,12 +129,12 @@ class ConfidenceScorer {
     if (profile.salaireBrutMensuel > 0) {
       total += _wSalaire;
     } else {
-      assumptions.add('Salaire non renseigné — estimation impossible');
-      prompts.add(const EnrichmentPrompt(
-        label: 'Ajoute ton salaire',
+      assumptions.add(s?.confidenceScorerAssumptionSalaireMissing ?? 'Salaire non renseigné\u00a0— estimation impossible');
+      prompts.add(EnrichmentPrompt(
+        label: s?.confidenceScorerPromptSalaireLabel ?? 'Ajoute ton salaire',
         impact: _wSalaire,
         category: 'income',
-        action: 'Renseigne ton salaire brut mensuel',
+        action: s?.confidenceScorerPromptSalaireAction ?? 'Renseigne ton salaire brut mensuel',
       ));
     }
 
@@ -137,7 +142,7 @@ class ConfidenceScorer {
     if (profile.age > 0 && profile.canton.isNotEmpty) {
       total += _wAgeCanton;
     } else {
-      assumptions.add('Age ou canton manquant');
+      assumptions.add(s?.confidenceScorerAssumptionAgeCantonMissing ?? 'Âge ou canton manquant');
     }
 
     // --- Archetype detectable (5 pts) ---
@@ -151,11 +156,11 @@ class ConfidenceScorer {
       total += _wObjectifRetraite;
     } else {
       total += 3;
-      prompts.add(const EnrichmentPrompt(
-        label: 'Fixe un objectif retraite',
+      prompts.add(EnrichmentPrompt(
+        label: s?.confidenceScorerPromptObjectifLabel ?? 'Fixe un objectif retraite',
         impact: 7,
         category: 'objectif_retraite',
-        action: 'A quel age souhaites-tu prendre ta retraite ? (58-70)',
+        action: s?.confidenceScorerPromptObjectifAction ?? 'À quel âge souhaites-tu prendre ta retraite\u00a0? (58-70)',
       ));
     }
 
@@ -173,19 +178,19 @@ class ConfidenceScorer {
     } else if (!isCoupled) {
       // Default celibataire — not confirmed, give partial credit
       total += 5;
-      prompts.add(const EnrichmentPrompt(
-        label: 'Indique ta situation familiale',
+      prompts.add(EnrichmentPrompt(
+        label: s?.confidenceScorerPromptFamilleLabel ?? 'Indique ta situation familiale',
         impact: 10,
         category: 'menage',
-        action: 'Célibataire, en couple, marié·e ? Impact sur AVS et impôts.',
+        action: s?.confidenceScorerPromptFamilleAction ?? 'Célibataire, en couple, marié·e\u00a0? Impact sur AVS et impôts.',
       ));
     } else if (profile.conjoint == null) {
       // Coupled but no partner data at all
-      prompts.add(const EnrichmentPrompt(
-        label: 'Ajoute les infos de ton\u00b7ta partenaire',
+      prompts.add(EnrichmentPrompt(
+        label: s?.confidenceScorerPromptPartenaireAddLabel ?? 'Ajoute les infos de ton·ta partenaire',
         impact: _wMenage,
         category: 'menage',
-        action: 'Revenu et age de ton\u00b7ta partenaire pour des projections couple',
+        action: s?.confidenceScorerPromptPartenaireAddActionCouple ?? 'Revenu et âge de ton·ta partenaire pour des projections couple',
       ));
     } else {
       final hasRevenu = profile.conjoint!.salaireBrutMensuel != null &&
@@ -195,18 +200,18 @@ class ConfidenceScorer {
         total += _wMenage;
       } else if (hasRevenu || hasAge) {
         total += 8;
-        prompts.add(const EnrichmentPrompt(
-          label: 'Complete le profil partenaire',
+        prompts.add(EnrichmentPrompt(
+          label: s?.confidenceScorerPromptPartenaireCompleteLabel ?? 'Complète le profil partenaire',
           impact: 7,
           category: 'menage',
-          action: 'Ajoute le revenu et l\'age de ton\u00b7ta partenaire',
+          action: s?.confidenceScorerPromptPartenaireCompleteAction ?? 'Ajoute le revenu et l\'âge de ton·ta partenaire',
         ));
       } else {
-        prompts.add(const EnrichmentPrompt(
-          label: 'Ajoute les infos de ton\u00b7ta partenaire',
+        prompts.add(EnrichmentPrompt(
+          label: s?.confidenceScorerPromptPartenaireAddLabel ?? 'Ajoute les infos de ton·ta partenaire',
           impact: _wMenage,
           category: 'menage',
-          action: 'Revenu et age pour des projections couple fiables',
+          action: s?.confidenceScorerPromptPartenaireAddActionFiable ?? 'Revenu et âge pour des projections couple fiables',
         ));
       }
     }
@@ -218,23 +223,23 @@ class ConfidenceScorer {
     if (lppDeclared != null && lppDeclared > 0) {
       // Declared LPP — partial credit (estimated from salary)
       total += 11;
-      prompts.add(const EnrichmentPrompt(
-        label: 'Confirme ton solde LPP',
+      prompts.add(EnrichmentPrompt(
+        label: s?.confidenceScorerPromptLppConfirmLabel ?? 'Confirme ton solde LPP',
         impact: 7,
         category: 'lpp',
-        action: 'Ajoute ton certificat de prévoyance (solde exact)',
+        action: s?.confidenceScorerPromptLppConfirmAction ?? 'Ajoute ton certificat de prévoyance (solde exact)',
       ));
-      assumptions.add('LPP estimé depuis le salaire — peut varier de +-30%');
+      assumptions.add(s?.confidenceScorerAssumptionLppEstimated ?? 'LPP estimé depuis le salaire\u00a0— peut varier de +-30\u00a0%');
     } else if (isIndepSansLpp) {
       // Independent without LPP: not applicable
       total += _wLpp;
     } else {
-      assumptions.add('Avoir LPP non renseigné — estimation depuis le salaire');
-      prompts.add(const EnrichmentPrompt(
-        label: 'Ajoute ton solde LPP',
+      assumptions.add(s?.confidenceScorerAssumptionLppMissing ?? 'Avoir LPP non renseigné\u00a0— estimation depuis le salaire');
+      prompts.add(EnrichmentPrompt(
+        label: s?.confidenceScorerPromptLppAddLabel ?? 'Ajoute ton solde LPP',
         impact: _wLpp,
         category: 'lpp',
-        action: 'Ajoute ton certificat de prévoyance (solde exact)',
+        action: s?.confidenceScorerPromptLppConfirmAction ?? 'Ajoute ton certificat de prévoyance (solde exact)',
       ));
     }
 
@@ -247,14 +252,14 @@ class ConfidenceScorer {
         total += _wTauxConversion;
       } else {
         total += 1;
-        prompts.add(const EnrichmentPrompt(
-          label: 'Taux de conversion réel',
+        prompts.add(EnrichmentPrompt(
+          label: s?.confidenceScorerPromptTauxConversionLabel ?? 'Taux de conversion réel',
           impact: 4,
           category: 'lpp',
-          action: 'Lis ton certificat de prévoyance (taux enveloppe)',
+          action: s?.confidenceScorerPromptTauxConversionAction ?? 'Lis ton certificat de prévoyance (taux enveloppe)',
         ));
         assumptions.add(
-            'Taux de conversion LPP: minimum légal 6.8% (réel souvent 5-6%)');
+            s?.confidenceScorerAssumptionTauxConversion ?? 'Taux de conversion LPP\u00a0: minimum légal 6.8\u00a0% (réel souvent 5-6\u00a0%)');
       }
     }
 
@@ -264,13 +269,13 @@ class ConfidenceScorer {
       total += _wAvs;
     } else {
       total += 3; // Basic AVS estimate from age
-      prompts.add(const EnrichmentPrompt(
-        label: 'Commande ton extrait AVS',
+      prompts.add(EnrichmentPrompt(
+        label: s?.confidenceScorerPromptAvsLabel ?? 'Commande ton extrait AVS',
         impact: 7,
         category: 'avs',
-        action: 'Gratuit sur inforegister.ch — années effectives',
+        action: s?.confidenceScorerPromptAvsAction ?? 'Gratuit sur inforegister.ch\u00a0— années effectives',
       ));
-      assumptions.add('Années AVS estimées depuis l\'âge — lacunes possibles');
+      assumptions.add(s?.confidenceScorerAssumptionAvsEstimated ?? 'Années AVS estimées depuis l\'âge\u00a0— lacunes possibles');
     }
 
     // --- Soldes 3a reels (8 pts) — OPP3 art. 7 ---
@@ -279,11 +284,11 @@ class ConfidenceScorer {
       total += _w3a;
     } else {
       total += 1;
-      prompts.add(const EnrichmentPrompt(
-        label: 'Ajoute tes soldes 3a',
+      prompts.add(EnrichmentPrompt(
+        label: s?.confidenceScorerPromptSoldes3aLabel ?? 'Ajoute tes soldes 3a',
         impact: 7,
         category: '3a',
-        action: 'Saisis tes soldes 3e pilier (chaque compte)',
+        action: s?.confidenceScorerPromptSoldes3aAction ?? 'Saisis tes soldes 3e pilier (chaque compte)',
       ));
     }
 
@@ -293,43 +298,43 @@ class ConfidenceScorer {
       total += _wPatrimoine;
     } else {
       total += 1;
-      prompts.add(const EnrichmentPrompt(
-        label: 'Renseigne ton patrimoine',
+      prompts.add(EnrichmentPrompt(
+        label: s?.confidenceScorerPromptPatrimoineLabel ?? 'Renseigne ton patrimoine',
         impact: 6,
         category: 'patrimoine',
-        action: 'Épargne, investissements, immobilier',
+        action: s?.confidenceScorerPromptPatrimoineAction ?? 'Épargne, investissements, immobilier',
       ));
     }
 
     // --- Fiscalite (enrichment prompts, no weight impact) ---
     if (profile.commune == null || profile.commune!.isEmpty) {
-      prompts.add(const EnrichmentPrompt(
-        label: 'Ajoute ta commune',
+      prompts.add(EnrichmentPrompt(
+        label: s?.confidenceScorerPromptCommuneLabel ?? 'Ajoute ta commune',
         impact: 4,
         category: 'fiscalite',
-        action: 'Le coefficient communal impacte ton taux d\'imposition de 60% à 130%',
+        action: s?.confidenceScorerPromptCommuneAction ?? 'Le coefficient communal impacte ton taux d\'imposition de 60\u00a0% à 130\u00a0%',
       ));
     }
     final ds = profile.dataSources;
     if (ds['tauxMarginal'] != ProfileDataSource.certificate) {
-      prompts.add(const EnrichmentPrompt(
-        label: 'Scanne ta déclaration fiscale',
+      prompts.add(EnrichmentPrompt(
+        label: s?.confidenceScorerPromptFiscalLabel ?? 'Scanne ta déclaration fiscale',
         impact: 8,
         category: 'fiscalite',
-        action: 'Taux marginal réel + revenu imposable + fortune (LIFD art. 38)',
+        action: s?.confidenceScorerPromptFiscalAction ?? 'Taux marginal réel + revenu imposable + fortune (LIFD art.\u00a038)',
       ));
     }
 
     // --- Foreign pension (2 pts, only for expats) ---
     final isExpat = profile.arrivalAge != null && profile.arrivalAge! > 21;
     if (isExpat) {
-      prompts.add(const EnrichmentPrompt(
-        label: 'Pension étrangère',
+      prompts.add(EnrichmentPrompt(
+        label: s?.confidenceScorerPromptForeignPensionLabel ?? 'Pension étrangère',
         impact: _wForeignPension,
         category: 'foreign_pension',
-        action: 'As-tu des droits a une retraite dans ton pays d\'origine?',
+        action: s?.confidenceScorerPromptForeignPensionAction ?? 'As-tu des droits à une retraite dans ton pays d\'origine\u00a0?',
       ));
-      assumptions.add('Pension étrangère non modélisée');
+      assumptions.add(s?.confidenceScorerAssumptionForeignPension ?? 'Pension étrangère non modélisée');
     } else {
       total += _wForeignPension;
     }
@@ -359,12 +364,12 @@ class ConfidenceScorer {
 
       // Retirement urgency enrichment prompt
       prompts.add(EnrichmentPrompt(
-        label: 'Plus que $yearsLeft ans avant ta retraite',
+        label: s?.confidenceScorerPromptUrgencyLabel(yearsLeft) ?? 'Plus que $yearsLeft ans avant ta retraite',
         impact: yearsLeft <= 5 ? 15 : 10,
         category: 'retirement_urgency',
         action: urgencyLabel == 'URGENT'
-            ? 'Chaque mois compte — confirme tes données de prévoyance'
-            : 'Affine tes projections pour une vision claire',
+            ? (s?.confidenceScorerPromptUrgencyActionUrgent ?? 'Chaque mois compte\u00a0— confirme tes données de prévoyance')
+            : (s?.confidenceScorerPromptUrgencyActionNormal ?? 'Affine tes projections pour une vision claire'),
       ));
     }
 
@@ -408,7 +413,7 @@ class ConfidenceScorer {
   /// Keys: 'revenu', 'age_canton', 'archetype', 'objectifRetraite',
   ///        'compositionMenage', 'lpp', 'taux_conversion', 'avs',
   ///        '3a', 'patrimoine', 'foreign_pension'.
-  static Map<String, BlockScore> scoreAsBlocs(CoachProfile profile) {
+  static Map<String, BlockScore> scoreAsBlocs(CoachProfile profile, {S? s}) {
     final blocs = <String, BlockScore>{};
 
     // --- Salaire ---
@@ -626,10 +631,10 @@ class ConfidenceScorer {
 
   /// Combined call: returns both bloc scores AND projection confidence
   /// in a single profile traversal (avoids double scoring).
-  static ({Map<String, BlockScore> blocs, ProjectionConfidence confidence}) scoreWithBlocs(CoachProfile profile) {
+  static ({Map<String, BlockScore> blocs, ProjectionConfidence confidence}) scoreWithBlocs(CoachProfile profile, {S? s}) {
     return (
-      blocs: scoreAsBlocs(profile),
-      confidence: score(profile),
+      blocs: scoreAsBlocs(profile, s: s),
+      confidence: score(profile, s: s),
     );
   }
 
@@ -721,11 +726,12 @@ class ConfidenceScorer {
     DateTime? now,
     Map<String, String>? labels,
     Map<String, String>? promptLabels,
+    S? s,
   }) {
-    final fieldLabels = labels ?? _defaultFieldLabels;
-    final prompts = promptLabels ?? _defaultPromptLabels;
+    final fieldLabels = labels ?? _fieldLabelsFromS(s);
+    final prompts = promptLabels ?? _promptLabelsFromS(s);
     now ??= DateTime.now();
-    final baseResult = score(profile);
+    final baseResult = score(profile, s: s);
     final completeness = baseResult.score;
 
     // ── Accuracy axis ─────────────────────────────────────────
@@ -813,14 +819,17 @@ class ConfidenceScorer {
             ? (now.difference(timestamp).inDays / 30.44).round()
             : 0;
         final label = fieldLabels[fieldPath] ?? fieldPath;
+        final staleAction = monthsOld > 0
+            ? (s != null
+                ? s.confidenceScorerFreshnessStale(monthsOld)
+                : (prompts['freshnessStale'] ?? 'Donnée datant de {months} mois')
+                    .replaceAll('{months}', '$monthsOld'))
+            : prompts['freshnessConfirm'] ?? 'Confirme que cette valeur est toujours actuelle';
         axisPrompts.add(EnrichmentPrompt(
           label: '${prompts['freshnessPrefix'] ?? 'Actualise\u00a0: '}$label',
           impact: (entry.value * (1.0 - decay)).round().clamp(1, 15),
           category: 'freshness',
-          action: monthsOld > 0
-              ? (prompts['freshnessStale'] ?? 'Donn\u00e9e datant de {months} mois')
-                  .replaceAll('{months}', '$monthsOld')
-              : prompts['freshnessConfirm'] ?? 'Confirme que cette valeur est toujours actuelle',
+          action: staleAction,
         ));
       }
     }
@@ -846,19 +855,19 @@ class ConfidenceScorer {
 
     // Understanding prompts: suggest education engagement
     if (understanding < 40) {
-      axisPrompts.add(const EnrichmentPrompt(
-        label: 'Explore les fiches \u00e9ducatives',
+      axisPrompts.add(EnrichmentPrompt(
+        label: s?.confidenceScorerUnderstandingExploreLabel ?? 'Explore les fiches éducatives',
         impact: 10,
         category: 'understanding',
-        action: 'Lis les fiches sur tes th\u00e8mes cl\u00e9s (LPP, AVS, fiscalit\u00e9)',
+        action: s?.confidenceScorerUnderstandingExploreAction ?? 'Lis les fiches sur tes thèmes clés (LPP, AVS, fiscalité)',
       ));
     }
     if (sessionCount < 3) {
-      axisPrompts.add(const EnrichmentPrompt(
-        label: 'Pose une question au coach',
+      axisPrompts.add(EnrichmentPrompt(
+        label: s?.confidenceScorerUnderstandingCoachLabel ?? 'Pose une question au coach',
         impact: 5,
         category: 'understanding',
-        action: 'Chaque interaction affine ta compr\u00e9hension financi\u00e8re',
+        action: s?.confidenceScorerUnderstandingCoachAction ?? 'Chaque interaction affine ta compréhension financière',
       ));
     }
 
@@ -875,6 +884,37 @@ class ConfidenceScorer {
       baseResult: baseResult,
       axisPrompts: axisPrompts,
     );
+  }
+
+  /// Build field labels map from [S] localizations, falling back to defaults.
+  static Map<String, String> _fieldLabelsFromS(S? s) {
+    if (s == null) return _defaultFieldLabels;
+    return {
+      'salaireBrutMensuel': s.confidenceScorerFieldSalaire,
+      'age': s.confidenceScorerFieldAge,
+      'canton': s.confidenceScorerFieldCanton,
+      'etatCivil': s.confidenceScorerFieldEtatCivil,
+      'prevoyance.avoirLppTotal': s.confidenceScorerFieldAvoirLpp,
+      'prevoyance.tauxConversion': s.confidenceScorerFieldTauxConversion,
+      'prevoyance.anneesContribuees': s.confidenceScorerFieldAnneesAvs,
+      'prevoyance.totalEpargne3a': s.confidenceScorerFieldEpargne3a,
+      'patrimoine.epargneLiquide': s.confidenceScorerFieldPatrimoine,
+    };
+  }
+
+  /// Build prompt label templates from [S] localizations, falling back to defaults.
+  ///
+  /// Note: 'freshnessStale' is handled directly in scoreEnhanced() via
+  /// `s.confidenceScorerFreshnessStale(months)` to avoid template hacks.
+  static Map<String, String> _promptLabelsFromS(S? s) {
+    if (s == null) return _defaultPromptLabels;
+    return {
+      'freshnessPrefix': s.confidenceScorerFreshnessPrefix,
+      'freshnessConfirm': s.confidenceScorerFreshnessConfirm,
+      'accuracyPrefix': s.confidenceScorerAccuracyPrefix,
+      'accuracyEstimated': s.confidenceScorerAccuracyEstimated,
+      'accuracyCertificate': s.confidenceScorerAccuracyCertificate,
+    };
   }
 
   /// Cube root via exp/log (dart:math pow returns num, not double).
