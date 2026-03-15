@@ -138,13 +138,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
 
     // Phase 1: personalized suggestions based on age/archetype
-    final personalizedPrompts = ResponseCardService.suggestedPrompts(p);
+    final personalizedPrompts = ResponseCardService.suggestedPrompts(p, s: S.of(context)!);
     final List<String> suggestions;
     if (personalizedPrompts.isNotEmpty) {
       suggestions = personalizedPrompts;
     } else {
       final tips = CoachingService.generateTips(
         profile: p.toCoachingProfile(),
+        s: S.of(context)!,
       );
       final topTipActions = tips.take(3).map((t) => t.title).toList();
       suggestions = topTipActions.isNotEmpty
@@ -155,6 +156,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     // Response cards contextuelles pour le greeting
     final greetingCards = ResponseCardService.generateForPulse(
       p,
+      s: S.of(context)!,
       limit: 2,
     );
 
@@ -321,7 +323,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
     // Phase 1: generate inline response cards from user message
     final cards = _profile != null
-        ? ResponseCardService.generateForChat(_profile!, userMessage)
+        ? ResponseCardService.generateForChat(_profile!, userMessage, s: S.of(context)!)
         : <ResponseCard>[];
 
     setState(() {
@@ -353,7 +355,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
       // Phase 1: generate inline response cards from user message context
       final cards = _profile != null
-          ? ResponseCardService.generateForChat(_profile!, text)
+          ? ResponseCardService.generateForChat(_profile!, text, s: S.of(context)!)
           : <ResponseCard>[];
 
       setState(() {

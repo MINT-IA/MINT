@@ -10474,5 +10474,547 @@
   "docImpactFieldsUpdated": "Champs mis à jour",
   "docImpactBackToDashboard": "Retour au dashboard",
   "docImpactDisclaimer": "Outil éducatif — ne constitue pas un conseil en prévoyance. Vérifie toujours avec ton certificat original (LSFin).",
-  "openBankingHubHeaderTitle": "Open Banking"
+  "openBankingHubHeaderTitle": "Open Banking",
+
+  "fallbackGreetingReturnName": "Bon retour, {name}.",
+  "@fallbackGreetingReturnName": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "fallbackGreetingReturn": "Bon retour.",
+  "fallbackGreetingRevisitName": "Content de te revoir, {name}.",
+  "@fallbackGreetingRevisitName": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "fallbackGreetingRevisit": "Content de te revoir.",
+  "fallbackGreeting3aDeadlineName": "{name}, pense à ton 3a avant la fin de l''année.",
+  "@fallbackGreeting3aDeadlineName": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "fallbackGreeting3aDeadline": "Pense à ton 3a avant la fin de l''année.",
+  "fallbackGreetingTaxSeasonName": "{name}, c''est la saison de la déclaration fiscale.",
+  "@fallbackGreetingTaxSeasonName": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "fallbackGreetingTaxSeason": "C''est la saison de la déclaration fiscale.",
+  "fallbackGreetingSalutName": "Salut {name}.",
+  "@fallbackGreetingSalutName": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "fallbackGreetingSalut": "Bonjour.",
+  "fallbackGreetingDeltaPositive": "{salut} +{delta} points depuis ta dernière visite.",
+  "@fallbackGreetingDeltaPositive": {
+    "placeholders": {
+      "salut": { "type": "String" },
+      "delta": { "type": "String" }
+    }
+  },
+  "fallbackGreetingDeltaNegative": "{salut} Ton score a bougé de {delta} points.",
+  "@fallbackGreetingDeltaNegative": {
+    "placeholders": {
+      "salut": { "type": "String" },
+      "delta": { "type": "String" }
+    }
+  },
+  "fallbackGreetingDefault": "{salut} Ton score de solidité\u00a0: {score}/100.",
+  "@fallbackGreetingDefault": {
+    "placeholders": {
+      "salut": { "type": "String" },
+      "score": { "type": "String" }
+    }
+  },
+
+  "fallbackScoreHigh": "Tu as une bonne visibilité sur ta situation.",
+  "fallbackScoreMedium": "Il y a encore des zones floues dans ta situation financière.",
+  "fallbackScoreLow": "On manque de données pour te donner des chiffres fiables.",
+  "fallbackScoreTrendPositive": " +{delta} pts depuis ta dernière visite.",
+  "@fallbackScoreTrendPositive": {
+    "placeholders": { "delta": { "type": "String" } }
+  },
+  "fallbackScoreTrendNegative": " {delta} pts depuis ta dernière visite.",
+  "@fallbackScoreTrendNegative": {
+    "placeholders": { "delta": { "type": "String" } }
+  },
+
+  "fallbackTipTaxSaving": "{name}, chaque année sans versement 3a, c''est ~{amount} CHF offerts au fisc. Un virement prend 2 minutes depuis ton app bancaire.",
+  "@fallbackTipTaxSaving": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "fallbackTipLiquidityAlert": "{name}, si un imprévu arrive demain (panne, frais médicaux, perte de revenu), ta réserve tient {months} mois. Objectif\u00a0: 3 mois minimum pour dormir tranquille.",
+  "@fallbackTipLiquidityAlert": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "months": { "type": "String" }
+    }
+  },
+  "fallbackTipRetirementGap": "{name}, à la retraite, tu vivras avec ~{ratio}\u00a0% de ton revenu actuel. Concrètement, chaque sortie resto ou vacances devra être repensée. Il y a des leviers pour améliorer ça.",
+  "@fallbackTipRetirementGap": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "ratio": { "type": "String" }
+    }
+  },
+  "fallbackTipEnrichmentGeneric": "{name}, plus MINT te connaît, plus les chiffres sont fiables. {enrichment}",
+  "@fallbackTipEnrichmentGeneric": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "enrichment": { "type": "String" }
+    }
+  },
+  "fallbackTipDefault": "{name}, tes projections reposent encore sur des estimations. Ajoute tes vrais chiffres pour voir ta situation réelle — pas une moyenne suisse.",
+  "@fallbackTipDefault": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "fallbackChiffreChocCertified": "Ce chiffre s''appuie sur tes vrais documents — c''est proche de ta réalité. Chaque donnée ajoutée affine encore la précision.",
+  "fallbackChiffreChocLowConfidence": "Attention\u00a0: ce chiffre est une estimation large. On travaille avec {confidence}\u00a0% de données réelles. {enrichment}",
+  "@fallbackChiffreChocLowConfidence": {
+    "placeholders": {
+      "confidence": { "type": "String" },
+      "enrichment": { "type": "String" }
+    }
+  },
+  "fallbackChiffreChocDefault": "Ce chiffre repose sur {confidence}\u00a0% de données réelles. {enrichment}",
+  "@fallbackChiffreChocDefault": {
+    "placeholders": {
+      "confidence": { "type": "String" },
+      "enrichment": { "type": "String" }
+    }
+  },
+  "fallbackChiffreChocAddData": "Ajoute tes vrais chiffres pour un résultat fiable.",
+  "fallbackChiffreChocMorePrecise": "Plus tu précises, plus c''est fiable.",
+
+  "fallbackEnrichmentLpp": "{name}, l''argent que ton employeur met de côté pour ta retraite (ton 2e pilier), c''est souvent le plus gros montant de ta vie — et la plupart des gens ne savent pas combien ils ont. Ton certificat de prévoyance (reçu en janvier) donne le chiffre exact. Un scan prend 30 secondes.",
+  "@fallbackEnrichmentLpp": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "fallbackEnrichmentAvsExpat": "{name}, ta rente AVS dépend du nombre d''années où tu as cotisé. Si tu n''as pas toujours travaillé en Suisse, il te manque probablement des années. Ton extrait de compte (gratuit) te dit exactement où tu en es. Commande-le sur le site de ta caisse de compensation.",
+  "@fallbackEnrichmentAvsExpat": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "fallbackEnrichmentAvsStandard": "{name}, ta rente AVS dépend du nombre d''années où tu as cotisé. Ton extrait de compte (gratuit) te dit exactement où tu en es. Commande-le sur le site de ta caisse de compensation.",
+  "@fallbackEnrichmentAvsStandard": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "fallbackEnrichment3a": "{name}, ton 3a c''est de l''argent que tu mets de côté pour toi — et qui réduit tes impôts chaque année. Note tes soldes exacts pour voir ce que ça change concrètement.",
+  "@fallbackEnrichment3a": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "fallbackEnrichmentPatrimoine": "{name}, en dehors de ta prévoyance, combien as-tu de côté\u00a0? Compte courant, investissements, immobilier — c''est ton filet de sécurité si la vie te réserve une surprise.",
+  "@fallbackEnrichmentPatrimoine": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "fallbackEnrichmentFiscalite": "{name}, ta commune change tout pour tes impôts. Entre deux communes du même canton, la différence peut dépasser 30\u00a0%. Regarde ton dernier avis de taxation — le taux effectif y figure.",
+  "@fallbackEnrichmentFiscalite": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "fallbackEnrichmentObjectifRetraite": "{name}, à quel âge voudrais-tu décrocher\u00a0? Partir à 62 au lieu de 65, c''est 3 ans de rente en moins — mais aussi 3 ans de liberté en plus. Tout est une question d''arbitrage.",
+  "@fallbackEnrichmentObjectifRetraite": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "fallbackEnrichmentCompositionMenage": "{name}, en couple, tout change\u00a0: les impôts, la rente AVS (plafonnée pour les mariés), la protection en cas de décès. Ajoute les infos de ton ou ta partenaire pour voir la vraie image.",
+  "@fallbackEnrichmentCompositionMenage": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "fallbackEnrichmentDefault": "{name}, chaque info que tu ajoutes remplace une estimation par un fait. Tes projections passent du flou au concret.",
+  "@fallbackEnrichmentDefault": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "fallbackFatcaNonUs": "{name}, certaines règles de prévoyance dépendent de ta nationalité et de ton parcours. Vérifie les conventions bilatérales qui pourraient s''appliquer à ta situation auprès d''un·e spécialiste.",
+  "@fallbackFatcaNonUs": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "fallbackFatcaUs": "{name}, en tant que contribuable US en Suisse, quelques points éducatifs à connaître. Le FATCA (Foreign Account Tax Compliance Act) impose une déclaration annuelle de tes comptes suisses à l''IRS. Tes investissements en fonds suisses pourraient être classés PFIC, avec un traitement fiscal US spécifique. La convention de double imposition CH-US prévoit des mécanismes pour éviter une double taxation sur tes versements 3a et prestations LPP. Il serait utile de consulter un·e spécialiste en fiscalité transfrontalière CH-US. Réf.\u00a0: Convention de double imposition CH-US, FATCA.",
+  "@fallbackFatcaUs": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "fallbackSuccessionCantonNote": "Dans le canton de {canton}, les droits de succession varient selon le lien de parenté. ",
+  "@fallbackSuccessionCantonNote": {
+    "placeholders": { "canton": { "type": "String" } }
+  },
+  "fallbackSuccessionPlanning": "{name}, le droit successoral suisse (CC art. 457 ss.) prévoit des réserves héréditaires pour le conjoint et les descendants. La quotité disponible dépend de ta situation familiale et de ton régime matrimonial (participation aux acquêts ou séparation de biens). {cantonNote}En prévoyance, ton 2e pilier (LPP art. 20a) désigne un ordre de bénéficiaires\u00a0: conjoint·e, puis enfants, puis parents. Le 3a suit un ordre similaire. Il serait utile d''envisager une vérification de tes clauses bénéficiaires. Réf.\u00a0: CC art. 457 ss., LPP art. 20a.",
+  "@fallbackSuccessionPlanning": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "cantonNote": { "type": "String" }
+    }
+  },
+
+  "fallbackLibrePassageGuide": "{name}, lors d''un changement d''emploi ou d''une période sans activité, ton avoir LPP est transféré sur un compte de libre passage (LFLP art. 4). Tu peux choisir entre une fondation de libre passage (capital préservé) ou un compte bancaire avec options de placement. Un retrait anticipé (EPL) pourrait être possible pour l''achat d''un logement, le passage à l''indépendance ou le départ définitif de Suisse (LPP art. 30c-30f). Attention\u00a0: après un EPL, un rachat LPP n''est possible qu''une fois le retrait remboursé (blocage 3 ans). Réf.\u00a0: LFLP art. 4, OLP art. 10, LPP art. 30c-30f.",
+  "@fallbackLibrePassageGuide": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "fallbackDisabilityAgeNote": "À {age} ans, une lacune de prévoyance en cas d''invalidité pourrait être significative. ",
+  "@fallbackDisabilityAgeNote": {
+    "placeholders": { "age": { "type": "int" } }
+  },
+  "fallbackDisabilityBridge": "{name}, l''assurance invalidité (AI) prévoit une rente après un délai de carence d''environ 1 an (LAI art. 28-28a). Le degré d''invalidité détermine le montant\u00a0: dès 40\u00a0% pour une rente partielle. Ta caisse LPP verse aussi une rente d''invalidité (LPP art. 23-26), coordonnée avec l''AI. {ageNote}Côté 3a, une invalidité pourrait donner droit à une libération des primes si ton contrat le prévoit. Il serait utile de vérifier ta couverture actuelle et d''identifier d''éventuelles lacunes. Réf.\u00a0: LAI art. 28-28a, LPP art. 23-26.",
+  "@fallbackDisabilityBridge": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "ageNote": { "type": "String" }
+    }
+  },
+
+  "fallbackEnrichmentActionLpp": "Prends ton certificat de prévoyance (tu l''as reçu en janvier) et scanne-le — ça prend 30 secondes.",
+  "fallbackEnrichmentActionAvs": "Commande ton extrait AVS sur le site de ta caisse de compensation — c''est gratuit et ça arrive en quelques jours.",
+  "fallbackEnrichmentActionSalary": "Ouvre ta dernière fiche de paie et note ton salaire brut — ça change tout pour les projections.",
+
+  "notifChannelName": "Coaching MINT",
+  "notifChannelDescription": "Rappels de check-in, deadlines 3a, et notifications de coaching",
+
+  "notifCheckinTitle": "Check-in mensuel",
+  "notifCheckinBody": "Confirme tes versements du mois en 2 min",
+  "notifCheckinAvailable": "Ton check-in mensuel est disponible.",
+
+  "notifDeadline3aTitle": "Deadline 3a",
+  "notifDeadline3aBody92days": "Il reste 92 jours pour verser sur ton 3a.",
+  "notifDeadline3aBody3months": "Il reste 3 mois pour verser sur ton 3a (CHF {remaining} de marge)",
+  "@notifDeadline3aBody3months": {
+    "placeholders": {
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "notifDeadline3aBody61days": "Il reste 61 jours. Économie estimée\u00a0: CHF {saving}.",
+  "@notifDeadline3aBody61days": {
+    "placeholders": {
+      "saving": {
+        "type": "String"
+      }
+    }
+  },
+  "notifDeadline3aBody46days": "Il reste 46 jours pour maximiser ton 3a (CHF {remaining} de marge)",
+  "@notifDeadline3aBody46days": {
+    "placeholders": {
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "notifDeadline3aBodyLastMonth": "Dernier mois pour ton 3a. CHF {saving} d''économie en jeu.",
+  "@notifDeadline3aBodyLastMonth": {
+    "placeholders": {
+      "saving": {
+        "type": "String"
+      }
+    }
+  },
+  "notifDeadline3aBody16days": "Il reste 16 jours pour verser sur ton 3a",
+  "notifDeadline3aBody11days": "11 jours. Dernier rappel 3a.",
+  "notifDeadline3aBodyFinal": "Derniers jours\u00a0! Verse sur ton 3a avant le 31 décembre",
+
+  "notifNewYearPlafondsTitle": "Nouveaux plafonds {year}",
+  "@notifNewYearPlafondsTitle": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "notifNewYearPlafondsBody": "Nouveaux plafonds {year}. Ton économie potentielle a changé.",
+  "@notifNewYearPlafondsBody": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+
+  "notifTaxTitle": "Déclaration fiscale",
+  "notifTaxBody44days": "Déclaration fiscale dans 44 jours. Pense à rassembler tes documents.",
+  "notifTaxBody44daysShort": "Déclaration fiscale dans 44 jours — pense à rassembler tes documents",
+  "notifTaxBody16days": "Déclaration fiscale dans 16 jours. Commence à la remplir.",
+  "notifTaxBody16daysShort": "Déclaration fiscale dans 16 jours — commence à la remplir",
+  "notifTaxBodyLastWeek": "Déclaration à rendre avant le 31 mars. Dernière semaine.",
+  "notifTaxBodyLastWeekShort": "Déclaration à rendre avant le 31 mars — dernière semaine\u00a0!",
+
+  "notifStreakTitle": "Protège ta série",
+  "notifStreakBody": "Tu es à {streak} mois consécutifs — ne casse pas ta série\u00a0!",
+  "@notifStreakBody": {
+    "placeholders": {
+      "streak": {
+        "type": "int"
+      }
+    }
+  },
+
+  "notifFriTitle": "Score de solidité",
+  "notifFriBodyDelta": "Depuis ton dernier check-in\u00a0: {delta} points.",
+  "@notifFriBodyDelta": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "notifFriBodyImproved": "Ta solidité a progressé de {delta} points.",
+  "@notifFriBodyImproved": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+
+  "notifProfileUpdatedTitle": "Profil mis à jour",
+  "notifProfileUpdatedBody": "Ton profil a été mis à jour. Nouvelles projections disponibles.",
+
+  "notifOffTrackTitle": "Tu t''éloignes de ton plan",
+  "notifOffTrackBody": "Adhérence à {adherence}\u00a0% sur {totalActions} actions. Indication linéaire (hors rendement/fiscalité)\u00a0: ~CHF {impact}.",
+  "@notifOffTrackBody": {
+    "placeholders": {
+      "adherence": {
+        "type": "String"
+      },
+      "totalActions": {
+        "type": "int"
+      },
+      "impact": {
+        "type": "String"
+      }
+    }
+  },
+
+  "notifMonthJanvier": "janvier",
+  "notifMonthFevrier": "février",
+  "notifMonthMars": "mars",
+  "notifMonthAvril": "avril",
+  "notifMonthMai": "mai",
+  "notifMonthJuin": "juin",
+  "notifMonthJuillet": "juillet",
+  "notifMonthAout": "août",
+  "notifMonthSeptembre": "septembre",
+  "notifMonthOctobre": "octobre",
+  "notifMonthNovembre": "novembre",
+  "notifMonthDecembre": "décembre",
+
+  "notifCheckinTimeRef": "1er {month}",
+  "@notifCheckinTimeRef": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+
+  "notifWelcomeBack": "Bienvenue\u00a0! Tes données sont à jour.",
+
+  "responseCardDisclaimer": "Outil éducatif — ne constitue pas un conseil financier (LSFin art.\u00a03).",
+
+  "responseCardPillar3aTitle": "Versement 3a {year}",
+  "@responseCardPillar3aTitle": {
+    "placeholders": {
+      "year": { "type": "int" }
+    }
+  },
+  "responseCardPillar3aSubtitle": "Économie fiscale estimée",
+  "responseCardPillar3aExplanationUrgent": "{taxSaving}\u00a0CHF d\u0027impôts en moins si tu verses avant le 31\u00a0décembre. Plus que {daysLeft}\u00a0jours.",
+  "@responseCardPillar3aExplanationUrgent": {
+    "placeholders": {
+      "taxSaving": { "type": "int" },
+      "daysLeft": { "type": "int" }
+    }
+  },
+  "responseCardPillar3aExplanation": "{taxSaving}\u00a0CHF rendus par le fisc si tu verses {plafond}\u00a0CHF dans ton 3a cette année.",
+  "@responseCardPillar3aExplanation": {
+    "placeholders": {
+      "taxSaving": { "type": "int" },
+      "plafond": { "type": "int" }
+    }
+  },
+  "responseCardPillar3aCta": "Simuler mon 3a",
+
+  "responseCardLppBuybackTitle": "Rachat LPP",
+  "responseCardLppBuybackSubtitle": "Potentiel de rachat disponible",
+  "responseCardLppBuybackExplanation": "Tu verses {rachatSimule}\u00a0CHF, le fisc t\u0027en rend {taxSaving}. C\u0027est un rendement immédiat de {marginalRate}\u00a0% — et l\u0027argent reste dans ta prévoyance.",
+  "@responseCardLppBuybackExplanation": {
+    "placeholders": {
+      "rachatSimule": { "type": "int" },
+      "taxSaving": { "type": "int" },
+      "marginalRate": { "type": "String" }
+    }
+  },
+  "responseCardLppBuybackCta": "Simuler un rachat",
+
+  "responseCardReplacementRateTitle": "Taux de remplacement",
+  "responseCardReplacementRateSubtitle": "Projection à {retirementAge}\u00a0ans",
+  "@responseCardReplacementRateSubtitle": {
+    "placeholders": {
+      "retirementAge": { "type": "int" }
+    }
+  },
+  "responseCardReplacementRateExplanation": "Aujourd\u0027hui tu vis avec {currentMonthly}\u00a0CHF/mois. À la retraite, il t\u0027en restera {totalMonthly}. La différence, c\u0027est {gap}\u00a0CHF/mois en moins — chaque mois, pour toujours.",
+  "@responseCardReplacementRateExplanation": {
+    "placeholders": {
+      "currentMonthly": { "type": "int" },
+      "totalMonthly": { "type": "int" },
+      "gap": { "type": "int" }
+    }
+  },
+  "responseCardReplacementRateCta": "Explorer mes scénarios",
+  "responseCardReplacementRateAlert": "Avec {rate}\u00a0%, ton train de vie baissera de presque moitié à la retraite. Il existe des leviers concrets pour réduire cet écart.",
+  "@responseCardReplacementRateAlert": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+
+  "responseCardAvsGapTitle": "Lacune AVS",
+  "responseCardAvsGapSubtitle": "{lacunes} années sans cotisation",
+  "@responseCardAvsGapSubtitle": {
+    "placeholders": {
+      "lacunes": { "type": "int" }
+    }
+  },
+  "responseCardAvsGapExplanation": "{lacunes} années manquantes = {monthlyLoss}\u00a0CHF/mois de rente en moins, à vie. Commande ton extrait AVS gratuit pour connaître ta situation exacte.",
+  "@responseCardAvsGapExplanation": {
+    "placeholders": {
+      "lacunes": { "type": "int" },
+      "monthlyLoss": { "type": "int" }
+    }
+  },
+  "responseCardAvsGapCta": "Voir mon extrait AVS",
+
+  "responseCardCoupleAlertTitle": "Écart de visibilité couple",
+  "responseCardCoupleAlertSubtitle": "{name} a {score}\u00a0%",
+  "@responseCardCoupleAlertSubtitle": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "score": { "type": "int" }
+    }
+  },
+  "responseCardCoupleAlertExplanation": "La projection de {name} est floue\u00a0: on ne connaît que {score}\u00a0% de sa situation. Sans ses données, ta propre projection couple est faussée.",
+  "@responseCardCoupleAlertExplanation": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "score": { "type": "int" }
+    }
+  },
+  "responseCardCoupleAlertCta": "Enrichir le profil couple",
+
+  "responseCardIndependantTitle": "Prévoyance indépendant",
+  "responseCardIndependantSubtitle": "Sans LPP, ton 3a est ta prévoyance principale",
+  "responseCardIndependantExplanation": "Sans LPP, personne ne cotise pour ta retraite à part toi. Tu peux verser jusqu\u0027à {max3a}\u00a0CHF/an en 3a — 5× plus qu\u0027un salarié. Capital actuel\u00a0: {current3a}\u00a0CHF.",
+  "@responseCardIndependantExplanation": {
+    "placeholders": {
+      "max3a": { "type": "int" },
+      "current3a": { "type": "int" }
+    }
+  },
+  "responseCardIndependantCta": "Explorer mes options",
+
+  "responseCardTaxOptimizationTitle": "Optimisation fiscale",
+  "responseCardTaxOptimizationSubtitle": "Déductions estimées disponibles",
+  "responseCardTaxOptimizationExplanation": "{totalSaving}\u00a0CHF que tu donnes au fisc au lieu de les garder. Un versement 3a et/ou un rachat LPP pourrait changer ça dès cette année.",
+  "@responseCardTaxOptimizationExplanation": {
+    "placeholders": {
+      "totalSaving": { "type": "int" }
+    }
+  },
+  "responseCardTaxOptimizationCta": "Découvrir mes déductions",
+
+  "responseCardPatrimoineTitle": "Patrimoine",
+  "responseCardPatrimoineSubtitleUnderCushion": "Coussin de sécurité insuffisant",
+  "responseCardPatrimoineSubtitleOk": "Vue d\u0027ensemble",
+  "responseCardPatrimoineExplanationUnderCushion": "Si tu perdais ton emploi demain, ton épargne tiendrait {months}\u00a0mois. Ensuite\u00a0? Objectif\u00a0: 3\u00a0mois de charges ({coussinMin}\u00a0CHF).",
+  "@responseCardPatrimoineExplanationUnderCushion": {
+    "placeholders": {
+      "months": { "type": "String" },
+      "coussinMin": { "type": "int" }
+    }
+  },
+  "responseCardPatrimoineExplanationOk": "Épargne {epargne}\u00a0CHF + investissements {investissements}\u00a0CHF",
+  "@responseCardPatrimoineExplanationOk": {
+    "placeholders": {
+      "epargne": { "type": "int" },
+      "investissements": { "type": "int" }
+    }
+  },
+  "responseCardPatrimoineCtaUnderCushion": "Analyser mon budget",
+  "responseCardPatrimoineCtaOk": "Voir mon patrimoine",
+  "responseCardPatrimoineAlert": "En cas d\u0027imprévu (perte d\u0027emploi, panne), tu n\u0027as pas de filet. Objectif\u00a0: mettre {monthlySaving}\u00a0CHF/mois de côté pendant 1\u00a0an.",
+  "@responseCardPatrimoineAlert": {
+    "placeholders": {
+      "monthlySaving": { "type": "int" }
+    }
+  },
+
+  "responseCardMortgageTitle": "Hypothèque",
+  "responseCardMortgageSubtitle": "Ratio LTV\u00a0: {ltv}\u00a0%",
+  "@responseCardMortgageSubtitle": {
+    "placeholders": {
+      "ltv": { "type": "String" }
+    }
+  },
+  "responseCardMortgageExplanationWithProperty": "Ta dette représente {ltv}\u00a0% de la valeur de ton bien. {ltvComment}",
+  "@responseCardMortgageExplanationWithProperty": {
+    "placeholders": {
+      "ltv": { "type": "String" },
+      "ltvComment": { "type": "String" }
+    }
+  },
+  "responseCardMortgageLtvAbove66": "Au-dessus de 66\u00a0%, tu dois amortir.",
+  "responseCardMortgageLtvOk": "Ton ratio est dans la norme.",
+  "responseCardMortgageExplanationNoProperty": "Solde hypothécaire. Renseigne la valeur de ton bien pour un ratio LTV.",
+  "responseCardMortgageCta": "Simuler la capacité",
+
+  "responseCardPromptRetirementWhen": "Quand partir à la retraite\u00a0?",
+  "responseCardPromptRenteOrCapital": "Rente ou capital\u00a0: que choisir\u00a0?",
+  "responseCardPromptLppBuybackAmount": "Combien racheter en LPP\u00a0?",
+  "responseCardPromptReduceTaxes": "Comment réduire mes impôts\u00a0?",
+  "responseCardPromptPillar3aAmount": "Combien verser en 3a cette année\u00a0?",
+  "responseCardPromptSimulateLppBuyback": "Simuler un rachat LPP",
+  "responseCardPromptWhy3aNow": "Pourquoi commencer le 3a maintenant\u00a0?",
+  "responseCardPromptHowSecondPillar": "Comment fonctionne le 2e\u00a0pilier\u00a0?",
+  "responseCardPromptIndependantOptions": "Quelles options de prévoyance pour indépendant\u00a0?",
+  "responseCardPromptCoupleCoordination": "Comment coordonner notre prévoyance de couple\u00a0?",
+  "responseCardPromptFatca3a": "Quelles contraintes FATCA sur mon 3a\u00a0?",
+
+  "coachNarrativeDisclaimer": "Outil éducatif — ne constitue pas un conseil financier. LSFin.",
+
+  "coachNarrativeTrendNotEnoughData": "Pas encore assez de données pour calculer une tendance.",
+  "coachNarrativeTrendProgressing": "En progression — continue comme ça\u00a0!",
+  "coachNarrativeTrendDeclining": "Attention — ton score baisse. Vérifie tes actions.",
+  "coachNarrativeTrendStable": "Stable — tes efforts maintiennent le cap.",
+
+  "coachNarrativeUrgentAlert3aDeadline": "Il te reste {joursRestants} jours pour verser CHF\u00a0{marge} en 3a et économiser ~CHF\u00a0{economie} d\u0027impôts (canton {canton}). \u2014 OPP3 art. 7",
+  "@coachNarrativeUrgentAlert3aDeadline": {
+    "placeholders": {
+      "joursRestants": { "type": "int" },
+      "marge": { "type": "String" },
+      "economie": { "type": "String" },
+      "canton": { "type": "String" }
+    }
+  },
+
+  "coachNarrativeUrgentAlertTaxDeclaration": "Déclaration fiscale à rendre avant le 31 mars ({joursRestants} jours restants). \u2014 LIFD / LHID",
+  "@coachNarrativeUrgentAlertTaxDeclaration": {
+    "placeholders": {
+      "joursRestants": { "type": "int" }
+    }
+  },
+
+  "coachNarrativeRetirementCountdown": "Plus que {moisRestants} mois avant ta retraite à {ageRetraite} ans.",
+  "@coachNarrativeRetirementCountdown": {
+    "placeholders": {
+      "moisRestants": { "type": "int" },
+      "ageRetraite": { "type": "int" }
+    }
+  },
+
+  "coachNarrativeScenarioLine": "{label}\u00a0: capital projeté {capitalFinal}. Revenu retraite estimé {revenuMensuel}/mois.",
+  "@coachNarrativeScenarioLine": {
+    "placeholders": {
+      "label": { "type": "String" },
+      "capitalFinal": { "type": "String" },
+      "revenuMensuel": { "type": "String" }
+    }
+  }
 }
