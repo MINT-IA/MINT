@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/models/coachprofile.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/services/financial_core/coach_reasoner.dart';
 
