@@ -1811,7 +1811,7 @@ class _ExpatScreenState extends State<ExpatScreen>
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              ExpatService.disclaimer,
+              S.of(context)!.expatScreenDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.deepOrange,
