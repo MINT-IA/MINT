@@ -33,14 +33,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Future<void> _requestReset() async {
-    final l10n = S.of(context);
+    final s = S.of(context)!;
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            l10n?.authEmailInvalidPrompt ?? 'Entre une adresse e-mail valide.',
-          ),
+          content: Text(s.authEmailInvalidPrompt),
         ),
       );
       return;
@@ -56,16 +54,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          l10n?.authForgotRequestAccepted ??
-              'Si un compte existe, un lien de réinitialisation a été envoyé.',
-        ),
+        content: Text(s.authForgotRequestAccepted),
       ),
     );
   }
 
   Future<void> _confirmReset() async {
-    final l10n = S.of(context);
+    final s = S.of(context)!;
     if (!_formKey.currentState!.validate()) return;
     final auth = context.read<AuthProvider>();
     final success = await auth.confirmPasswordReset(
@@ -75,10 +70,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     if (!mounted || !success) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          l10n?.authForgotResetSuccess ??
-              'Mot de passe mis à jour. Connecte-toi.',
-        ),
+        content: Text(s.authForgotResetSuccess),
       ),
     );
     context.go('/auth/login');
@@ -87,14 +79,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    final l10n = S.of(context);
+    final s = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
         backgroundColor: MintColors.background,
         elevation: 0,
         title: Text(
-          l10n?.authForgotTitle ?? 'Réinitialiser le mot de passe',
+          s.authForgotTitle,
           style: GoogleFonts.inter(
             fontWeight: FontWeight.w700,
             color: MintColors.textPrimary,
@@ -110,8 +102,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  l10n?.authForgotSteps ??
-                      '1) Demande un lien  2) Colle le token  3) Choisis un nouveau mot de passe',
+                  s.authForgotSteps,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     color: MintColors.textSecondary,
@@ -122,17 +113,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    labelText: l10n?.authEmail ?? 'Adresse e-mail',
+                    labelText: s.authEmail,
                     prefixIcon: const Icon(Icons.email_outlined),
                   ),
                 ),
                 const SizedBox(height: 12),
                 FilledButton.tonal(
                   onPressed: auth.isLoading ? null : _requestReset,
-                  child: Text(
-                    l10n?.authForgotSendLink ??
-                        'Envoyer le lien de réinitialisation',
-                  ),
+                  child: Text(s.authForgotSendLink),
                 ),
                 if (_debugToken != null) ...[
                   const SizedBox(height: 12),
@@ -143,7 +131,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      '${l10n?.authDebugTokenLabel ?? 'Token debug (tests)'}: $_debugToken',
+                      '${s.authDebugTokenLabel}: $_debugToken',
                       style: GoogleFonts.inter(
                         color: MintColors.info,
                         fontSize: 12,
@@ -155,12 +143,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 TextFormField(
                   controller: _tokenController,
                   decoration: InputDecoration(
-                    labelText:
-                        l10n?.authForgotResetTokenLabel ?? 'Token de réinitialisation',
+                    labelText: s.authForgotResetTokenLabel,
                     prefixIcon: const Icon(Icons.key_outlined),
                   ),
                   validator: (v) => (v == null || v.trim().isEmpty)
-                      ? (l10n?.authTokenRequired ?? 'Token requis')
+                      ? s.authTokenRequired
                       : null,
                 ),
                 const SizedBox(height: 12),
@@ -168,7 +155,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   controller: _passwordController,
                   obscureText: _obscurePassword,
                   decoration: InputDecoration(
-                    labelText: l10n?.authForgotNewPasswordLabel ?? 'Nouveau mot de passe',
+                    labelText: s.authForgotNewPasswordLabel,
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -183,7 +170,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                   validator: (v) {
                     if (v == null || v.length < 8) {
-                      return l10n?.authPasswordHint ?? 'Minimum 8 caractères';
+                      return s.authPasswordHint;
                     }
                     return null;
                   },
@@ -193,7 +180,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmPassword,
                   decoration: InputDecoration(
-                    labelText: l10n?.authConfirmPassword ?? 'Confirmer le mot de passe',
+                    labelText: s.authConfirmPassword,
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -208,8 +195,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                   validator: (v) => v == _passwordController.text
                       ? null
-                      : (l10n?.authPasswordMismatch ??
-                          'Les mots de passe ne correspondent pas'),
+                      : s.authPasswordMismatch,
                 ),
                 const SizedBox(height: 20),
                 if (auth.error != null)
@@ -222,10 +208,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                 FilledButton(
                   onPressed: auth.isLoading ? null : _confirmReset,
-                  child: Text(
-                    l10n?.authForgotSubmitNewPassword ??
-                        'Valider le nouveau mot de passe',
-                  ),
+                  child: Text(s.authForgotSubmitNewPassword),
                 ),
               ],
             ),
