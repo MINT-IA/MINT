@@ -210,6 +210,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     // Coaching tips sorted by impact — filter snoozed/dismissed
     final allTips = CoachingService.generateTips(
       profile: profile.toCoachingProfile(),
+      s: S.of(context)!,
     );
     final tips = allTips.where((t) => activity.isTipActive(t.id)).toList();
 

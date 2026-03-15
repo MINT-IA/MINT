@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 
 /// Unit tests for CoachingService — Sprint S11 (Coaching proactif)
@@ -16,7 +17,7 @@ void main() {
 
   group('CoachingService - Missing 3a', () {
     test('user without 3a and with income triggers missing_3a tip', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 30,
           canton: 'VD',
@@ -41,7 +42,7 @@ void main() {
     });
 
     test('user with 3a does not trigger missing_3a tip', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 30,
           canton: 'VD',
@@ -59,7 +60,7 @@ void main() {
     });
 
     test('user without income does not trigger missing_3a tip', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 30,
           canton: 'VD',
@@ -80,7 +81,7 @@ void main() {
 
   group('CoachingService - LPP Buyback', () {
     test('user with LPP lacune triggers lpp_buyback tip', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 45,
           canton: 'ZH',
@@ -105,7 +106,7 @@ void main() {
     });
 
     test('large lacune > 50k sets haute priority', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 45,
           canton: 'VD',
@@ -124,7 +125,7 @@ void main() {
     });
 
     test('small lacune <= 50k sets moyenne priority', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 45,
           canton: 'VD',
@@ -143,7 +144,7 @@ void main() {
     });
 
     test('no lacune does not trigger lpp_buyback', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 45,
           canton: 'VD',
@@ -168,7 +169,7 @@ void main() {
 
   group('CoachingService - Emergency Fund', () {
     test('savings < 1 month of charges triggers haute priority', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 30,
           canton: 'GE',
@@ -192,7 +193,7 @@ void main() {
     });
 
     test('savings between 1-3 months triggers moyenne priority', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 30,
           canton: 'GE',
@@ -212,7 +213,7 @@ void main() {
     });
 
     test('savings >= 3 months does not trigger emergency_fund', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 30,
           canton: 'GE',
@@ -240,7 +241,7 @@ void main() {
       // Monthly income: 60000/12 = 5000
       // Debt service: 500000 * (0.03 + 0.05) / 12 = ~3333
       // Ratio: 3333 / 5000 = 66.7% > 33%
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 40,
           canton: 'VD',
@@ -259,7 +260,7 @@ void main() {
     });
 
     test('no debt does not trigger debt_ratio tip', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 40,
           canton: 'VD',
@@ -283,7 +284,7 @@ void main() {
 
   group('CoachingService - Retirement Countdown', () {
     test('age 50-60 triggers retirement_countdown tip', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 55,
           canton: 'VD',
@@ -306,7 +307,7 @@ void main() {
     });
 
     test('age <= 5 years to retirement sets haute priority', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 62,
           canton: 'VD',
@@ -324,7 +325,7 @@ void main() {
     });
 
     test('age < 50 does not trigger retirement_countdown', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 40,
           canton: 'VD',
@@ -347,7 +348,7 @@ void main() {
 
   group('CoachingService - Independent Alert', () {
     test('independent worker triggers independant_alert tip', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 35,
           canton: 'VD',
@@ -369,7 +370,7 @@ void main() {
     });
 
     test('salaried worker does not trigger independant_alert', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 35,
           canton: 'VD',
@@ -392,7 +393,7 @@ void main() {
 
   group('CoachingService - Budget Missing', () {
     test('user without budget triggers budget_missing tip', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 30,
           canton: 'GE',
@@ -412,7 +413,7 @@ void main() {
     });
 
     test('user with budget does not trigger budget_missing tip', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 30,
           canton: 'GE',
@@ -436,7 +437,7 @@ void main() {
 
   group('CoachingService - Part-Time Gap', () {
     test('part-time < 60% triggers haute priority', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 35,
           canton: 'VD',
@@ -456,7 +457,7 @@ void main() {
     });
 
     test('part-time 60-99% triggers moyenne priority', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 35,
           canton: 'VD',
@@ -475,7 +476,7 @@ void main() {
     });
 
     test('100% activity does not trigger part_time_gap', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 35,
           canton: 'VD',
@@ -499,7 +500,7 @@ void main() {
 
   group('CoachingService - Age Milestones', () {
     test('age 25 triggers milestone tip', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 25,
           canton: 'VD',
@@ -517,7 +518,7 @@ void main() {
     });
 
     test('age 50 triggers milestone tip with moyenne priority', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 50,
           canton: 'VD',
@@ -536,7 +537,7 @@ void main() {
     });
 
     test('non-milestone age does not trigger age_milestone tip', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 32,
           canton: 'VD',
@@ -559,7 +560,7 @@ void main() {
 
   group('CoachingService - Budget Drift', () {
     test('exceptional expenses > 20% of income triggers budget_drift', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 30,
           canton: 'VD',
@@ -580,7 +581,7 @@ void main() {
     });
 
     test('exceptional expenses > 40% triggers haute priority', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 30,
           canton: 'VD',
@@ -600,7 +601,7 @@ void main() {
     });
 
     test('exceptional expenses <= 20% does not trigger budget_drift', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 30,
           canton: 'VD',
@@ -619,7 +620,7 @@ void main() {
     });
 
     test('no check-in data does not trigger budget_drift', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 30,
           canton: 'VD',
@@ -644,7 +645,7 @@ void main() {
 
   group('CoachingService - Sorting & General', () {
     test('tips are sorted by priority (haute first)', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 55,
           canton: 'VD',
@@ -669,7 +670,7 @@ void main() {
     });
 
     test('all tips have required fields populated', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 35,
           canton: 'VD',
@@ -697,7 +698,7 @@ void main() {
 
     test('demo profile generates multiple tips', () {
       final profile = CoachingService.buildDemoProfile();
-      final tips = CoachingService.generateTips(profile: profile);
+      final tips = CoachingService.generateTips(s: SFr(), profile: profile);
 
       // Demo profile: no 3a, lacune LPP 42k, savings ~2.2 months, no budget
       // Should generate at least: missing_3a, lpp_buyback, emergency_fund, budget_missing
@@ -712,7 +713,7 @@ void main() {
     });
 
     test('unknown canton uses default marginal rate of 33%', () {
-      final tips = CoachingService.generateTips(
+      final tips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 30,
           canton: 'XX',
@@ -755,7 +756,7 @@ void main() {
     );
 
     test('enrichTips returns tips unchanged when no BYOK', () async {
-      final tips = CoachingService.generateTips(profile: testProfile);
+      final tips = CoachingService.generateTips(s: SFr(), profile: testProfile);
       final result = await CoachingService.enrichTips(
         tips: tips,
         profile: testProfile,
@@ -770,7 +771,7 @@ void main() {
     });
 
     test('enrichTips returns tips unchanged when apiKey is empty', () async {
-      final tips = CoachingService.generateTips(profile: testProfile);
+      final tips = CoachingService.generateTips(s: SFr(), profile: testProfile);
       final result = await CoachingService.enrichTips(
         tips: tips,
         profile: testProfile,
@@ -860,7 +861,7 @@ void main() {
 
     setUp(() {
       // Generate tips from a profile that triggers multiple categories
-      allTips = CoachingService.generateTips(
+      allTips = CoachingService.generateTips(s: SFr(), 
         profile: const CoachingProfile(
           age: 50,
           canton: 'VD',

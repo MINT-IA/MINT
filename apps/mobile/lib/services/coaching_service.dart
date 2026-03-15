@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -180,47 +181,48 @@ class CoachingService {
   /// financial impact (highest first).
   static List<CoachingTip> generateTips({
     required CoachingProfile profile,
+    required S s,
   }) {
     final tips = <CoachingTip>[];
 
     // a) 3a deadline (Oct–Dec)
-    _check3aDeadline(profile, tips);
+    _check3aDeadline(profile, tips, s);
 
     // b) Missing 3a
-    _checkMissing3a(profile, tips);
+    _checkMissing3a(profile, tips, s);
 
     // c) LPP buyback opportunity
-    _checkLppBuyback(profile, tips);
+    _checkLppBuyback(profile, tips, s);
 
     // d) Tax declaration deadline (March 31)
-    _checkTaxDeadline(profile, tips);
+    _checkTaxDeadline(profile, tips, s);
 
     // e) Retirement countdown (age >= 50)
-    _checkRetirementCountdown(profile, tips);
+    _checkRetirementCountdown(profile, tips, s);
 
     // f) Emergency fund
-    _checkEmergencyFund(profile, tips);
+    _checkEmergencyFund(profile, tips, s);
 
     // g) Debt ratio
-    _checkDebtRatio(profile, tips);
+    _checkDebtRatio(profile, tips, s);
 
     // h) Age milestones
-    _checkAgeMilestones(profile, tips);
+    _checkAgeMilestones(profile, tips, s);
 
     // i) Part-time gap
-    _checkPartTimeGap(profile, tips);
+    _checkPartTimeGap(profile, tips, s);
 
     // j) Independent alert
-    _checkIndependentAlert(profile, tips);
+    _checkIndependentAlert(profile, tips, s);
 
     // k) Budget missing
-    _checkBudgetMissing(profile, tips);
+    _checkBudgetMissing(profile, tips, s);
 
     // l) 3a not maxed
-    _check3aNotMaxed(profile, tips);
+    _check3aNotMaxed(profile, tips, s);
 
     // m) Budget drift detection
-    _checkBudgetDrift(profile, tips);
+    _checkBudgetDrift(profile, tips, s);
 
     // Sort: haute first, then by impact descending
     tips.sort((a, b) {
@@ -369,6 +371,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   static void _check3aDeadline(
     CoachingProfile profile,
     List<CoachingTip> tips,
+    S s,
   ) {
     final now = DateTime.now();
     if (now.month < 10 || now.month > 12) return;
@@ -387,13 +390,13 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       id: 'deadline_3a',
       category: 'fiscalite',
       priority: CoachingPriority.haute,
-      title: 'Versement 3a avant le 31 décembre',
-      message:
-          'Il te reste ${_formatChf(restant)} de marge sur ton plafond 3a '
-          '(${_formatChf(plafond)}). Un versement avant le 31 décembre '
-          'pourrait réduire ta charge fiscale de ${_formatChf(impact)} '
-          'environ.',
-      action: 'Simuler mon 3a',
+      title: s.coachingTipDeadline3aTitle,
+      message: s.coachingTipDeadline3aMessage(
+        _formatChf(restant),
+        _formatChf(plafond),
+        _formatChf(impact),
+      ),
+      action: s.coachingTipDeadline3aAction,
       estimatedImpactChf: impact,
       source: 'LPP art. 7 / OPP3',
       icon: Icons.calendar_today,
@@ -404,6 +407,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   static void _checkMissing3a(
     CoachingProfile profile,
     List<CoachingTip> tips,
+    S s,
   ) {
     if (profile.has3a) return;
     // Don't assume the user has no 3a when we simply don't know yet.
@@ -421,13 +425,13 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       id: 'missing_3a',
       category: 'prevoyance',
       priority: CoachingPriority.haute,
-      title: 'Tu n\'as pas de 3e pilier',
-      message:
-          'Ouvrir un 3e pilier te permettrait de déduire jusqu\'à '
-          '${_formatChf(plafond)} de ton revenu imposable chaque année. '
-          'L\'économie fiscale estimée est de ${_formatChf(impact)} par an '
-          'dans le canton de ${profile.canton}.',
-      action: 'Découvrir le 3e pilier',
+      title: s.coachingTipMissing3aTitle,
+      message: s.coachingTipMissing3aMessage(
+        _formatChf(plafond),
+        _formatChf(impact),
+        profile.canton,
+      ),
+      action: s.coachingTipMissing3aAction,
       estimatedImpactChf: impact,
       source: 'LPP art. 82 / OPP3 art. 7',
       icon: Icons.savings_outlined,
@@ -438,6 +442,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   static void _checkLppBuyback(
     CoachingProfile profile,
     List<CoachingTip> tips,
+    S s,
   ) {
     if (!profile.hasLpp) return;
     if (profile.lacuneLpp <= 0) return;
@@ -456,13 +461,13 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       id: 'lpp_buyback',
       category: 'prevoyance',
       priority: priority,
-      title: 'Rachat LPP possible',
-      message:
-          'Tu as une lacune de prévoyance de ${_formatChf(profile.lacuneLpp)}. '
-          'Un rachat volontaire de ${_formatChf(rachatRecommande)} '
-          'pourrait te faire économiser environ ${_formatChf(impact)} '
-          'd\'impôts tout en améliorant ta retraite.',
-      action: 'Simuler un rachat LPP',
+      title: s.coachingTipLppBuybackTitle,
+      message: s.coachingTipLppBuybackMessage(
+        _formatChf(profile.lacuneLpp),
+        _formatChf(rachatRecommande),
+        _formatChf(impact),
+      ),
+      action: s.coachingTipLppBuybackAction,
       estimatedImpactChf: impact,
       source: 'LPP art. 79b',
       icon: Icons.account_balance,
@@ -473,6 +478,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   static void _checkTaxDeadline(
     CoachingProfile profile,
     List<CoachingTip> tips,
+    S s,
   ) {
     final now = DateTime.now();
     // Active from January to March
@@ -489,13 +495,9 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       priority: daysLeft <= 14
           ? CoachingPriority.haute
           : CoachingPriority.moyenne,
-      title: 'Déclaration d\'impôts à rendre',
-      message:
-          'Le délai pour ta déclaration fiscale dans le canton de '
-          '${profile.canton} est le 31 mars. Il reste $daysLeft jours. '
-          'Pense à rassembler tes attestations 3a, certificats LPP, '
-          'frais effectifs et dons déductibles.',
-      action: 'Voir ma checklist fiscale',
+      title: s.coachingTipTaxDeadlineTitle,
+      message: s.coachingTipTaxDeadlineMessage(profile.canton, daysLeft),
+      action: s.coachingTipTaxDeadlineAction,
       estimatedImpactChf: null,
       source: 'LIFD / LHID — délai cantonal',
       icon: Icons.description_outlined,
@@ -506,6 +508,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   static void _checkRetirementCountdown(
     CoachingProfile profile,
     List<CoachingTip> tips,
+    S s,
   ) {
     if (profile.age < 50) return;
 
@@ -519,13 +522,9 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       id: 'retirement_countdown',
       category: 'retraite',
       priority: priority,
-      title: 'Retraite dans $yearsLeft ans',
-      message:
-          'À $yearsLeft ans de la retraite, il est important de vérifier '
-          'ta stratégie de prévoyance. As-tu optimisé tes rachats '
-          'LPP ? Tes comptes 3a sont-ils diversifiés ? Rente ou capital : '
-          'as-tu fait ton choix ?',
-      action: 'Planifier ma retraite',
+      title: s.coachingTipRetirementCountdownTitle(yearsLeft),
+      message: s.coachingTipRetirementCountdownMessage(yearsLeft),
+      action: s.coachingTipRetirementCountdownAction,
       estimatedImpactChf: null,
       source: 'LAVS art. 21 / LPP',
       icon: Icons.beach_access_outlined,
@@ -536,6 +535,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   static void _checkEmergencyFund(
     CoachingProfile profile,
     List<CoachingTip> tips,
+    S s,
   ) {
     // Guard: only fire if the user explicitly answered the savings question.
     // Without that answer, epargneDispo = 0 by default — never assume "no savings".
@@ -553,13 +553,12 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       priority: monthsCovered < 1
           ? CoachingPriority.haute
           : CoachingPriority.moyenne,
-      title: 'Réserve d\'urgence insuffisante',
-      message:
-          'Ton épargne disponible couvre ${monthsCovered.toStringAsFixed(1)} '
-          'mois de charges fixes. Les experts recommandent au moins 3 mois. '
-          'Il te manque environ ${_formatChf(deficit)} pour atteindre '
-          'ce seuil de sécurité.',
-      action: 'Voir mon budget',
+      title: s.coachingTipEmergencyFundTitle,
+      message: s.coachingTipEmergencyFundMessage(
+        monthsCovered.toStringAsFixed(1),
+        _formatChf(deficit),
+      ),
+      action: s.coachingTipEmergencyFundAction,
       estimatedImpactChf: deficit,
       source: 'Recommandation Budget-conseil Suisse',
       icon: Icons.shield_outlined,
@@ -570,6 +569,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   static void _checkDebtRatio(
     CoachingProfile profile,
     List<CoachingTip> tips,
+    S s,
   ) {
     if (profile.revenuAnnuel <= 0) return;
     if (profile.detteTotale <= 0) return;
@@ -589,13 +589,9 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       priority: ratio > 0.50
           ? CoachingPriority.haute
           : CoachingPriority.moyenne,
-      title: 'Taux d\'endettement élevé ($ratioPct%)',
-      message:
-          'Ton taux d\'endettement estimé est de $ratioPct%, '
-          'au-dessus du seuil de 33% recommandé par les banques suisses. '
-          'Réduire tes dettes améliore ta capacité d\'emprunt et '
-          'ta tranquillité financière.',
-      action: 'Analyser mes dettes',
+      title: s.coachingTipDebtRatioTitle(ratioPct),
+      message: s.coachingTipDebtRatioMessage(ratioPct),
+      action: s.coachingTipDebtRatioAction,
       estimatedImpactChf: null,
       source: 'Directives FINMA / pratique bancaire',
       icon: Icons.warning_amber_rounded,
@@ -606,10 +602,11 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   static void _checkAgeMilestones(
     CoachingProfile profile,
     List<CoachingTip> tips,
+    S s,
   ) {
     if (!_ageMilestones.contains(profile.age)) return;
 
-    final milestone = _getMilestoneMessage(profile.age);
+    final milestone = _getMilestoneMessage(profile.age, s);
     if (milestone == null) return;
 
     tips.add(CoachingTip(
@@ -631,6 +628,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   static void _checkPartTimeGap(
     CoachingProfile profile,
     List<CoachingTip> tips,
+    S s,
   ) {
     if (profile.tauxActivite >= 100) return;
     if (profile.tauxActivite <= 0) return;
@@ -654,14 +652,9 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       priority: profile.tauxActivite < 60
           ? CoachingPriority.haute
           : CoachingPriority.moyenne,
-      title: 'Temps partiel : lacune de prévoyance',
-      message:
-          'À $tauxPct% d\'activité, ta prévoyance professionnelle est '
-          'réduite d\'environ $reductionPct%. La déduction de coordination '
-          'de CHF 26\'460 pénalise davantage les temps partiels. '
-          'Envisage un rachat LPP ou un versement 3a supplémentaire '
-          'pour compenser.',
-      action: 'Simuler ma prévoyance',
+      title: s.coachingTipPartTimeGapTitle,
+      message: s.coachingTipPartTimeGapMessage(tauxPct, reductionPct),
+      action: s.coachingTipPartTimeGapAction,
       estimatedImpactChf: gap > 0 ? gap : null,
       source: 'LPP art. 8 / OPP2 art. 5',
       icon: Icons.schedule,
@@ -672,6 +665,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   static void _checkIndependentAlert(
     CoachingProfile profile,
     List<CoachingTip> tips,
+    S s,
   ) {
     if (profile.employmentStatus != EmploymentStatus.independant) return;
 
@@ -683,14 +677,9 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       id: 'independant_alert',
       category: 'prevoyance',
       priority: CoachingPriority.haute,
-      title: 'Indépendant : pas de LPP obligatoire',
-      message:
-          'En tant qu\'indépendant, tu n\'es pas soumis à la LPP '
-          'obligatoire. Ta prévoyance repose sur l\'AVS et ton 3e '
-          'pilier (plafond ${_formatChf(plafond3a)}). Pense à une '
-          'affiliation volontaire à une caisse de pension ou à maximiser '
-          'ton 3a.',
-      action: 'Explorer mes options',
+      title: s.coachingTipIndependantAlertTitle,
+      message: s.coachingTipIndependantAlertMessage(_formatChf(plafond3a)),
+      action: s.coachingTipIndependantAlertAction,
       estimatedImpactChf: impact,
       source: 'LPP art. 4 / LAVS',
       icon: Icons.business_center_outlined,
@@ -701,6 +690,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   static void _checkBudgetMissing(
     CoachingProfile profile,
     List<CoachingTip> tips,
+    S s,
   ) {
     if (profile.hasBudget) return;
 
@@ -708,13 +698,9 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       id: 'budget_missing',
       category: 'budget',
       priority: CoachingPriority.moyenne,
-      title: 'Pas encore de budget',
-      message:
-          'Un budget structuré est la base de toute stratégie financière. '
-          'Il permet d\'identifier ta capacité d\'épargne réelle et '
-          'de fixer des objectifs concrets. MINT peut t\'aider à en '
-          'créer un en quelques minutes.',
-      action: 'Créer mon budget',
+      title: s.coachingTipBudgetMissingTitle,
+      message: s.coachingTipBudgetMissingMessage,
+      action: s.coachingTipBudgetMissingAction,
       estimatedImpactChf: null,
       source: 'Recommandation Budget-conseil Suisse',
       icon: Icons.pie_chart_outline,
@@ -725,6 +711,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   static void _check3aNotMaxed(
     CoachingProfile profile,
     List<CoachingTip> tips,
+    S s,
   ) {
     if (!profile.has3a) return; // covered by missing_3a check
     final now = DateTime.now();
@@ -744,13 +731,14 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       id: '3a_not_maxed',
       category: 'fiscalite',
       priority: CoachingPriority.basse,
-      title: 'Plafond 3a non atteint',
-      message:
-          'Ton versement 3a actuel est de ${_formatChf(profile.montant3a)} '
-          'sur un plafond de ${_formatChf(plafond)}. Verser le solde de '
-          '${_formatChf(restant)} pourrait représenter une économie fiscale '
-          'd\'environ ${_formatChf(impact)}.',
-      action: 'Simuler mon 3a',
+      title: s.coachingTip3aNotMaxedTitle,
+      message: s.coachingTip3aNotMaxedMessage(
+        _formatChf(profile.montant3a),
+        _formatChf(plafond),
+        _formatChf(restant),
+        _formatChf(impact),
+      ),
+      action: s.coachingTip3aNotMaxedAction,
       estimatedImpactChf: impact,
       source: 'OPP3 art. 7',
       icon: Icons.trending_up,
@@ -761,6 +749,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   static void _checkBudgetDrift(
     CoachingProfile profile,
     List<CoachingTip> tips,
+    S s,
   ) {
     final depExc = profile.lastCheckInDepensesExceptionnelles;
     if (depExc == null || depExc <= 0) return;
@@ -779,13 +768,9 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       priority: ratio > 0.40
           ? CoachingPriority.haute
           : CoachingPriority.moyenne,
-      title: 'D\u00e9penses exceptionnelles \u00e9lev\u00e9es',
-      message:
-          'Tes d\u00e9penses exceptionnelles du dernier mois repr\u00e9sentent '
-          '$ratioPct% de ton revenu mensuel (${_formatChf(depExc)}). '
-          'V\u00e9rifie que ton budget reste sur les rails et ajuste '
-          'si n\u00e9cessaire.',
-      action: 'V\u00e9rifier mon budget',
+      title: s.coachingTipBudgetDriftTitle,
+      message: s.coachingTipBudgetDriftMessage(ratioPct, _formatChf(depExc)),
+      action: s.coachingTipBudgetDriftAction,
       estimatedImpactChf: depExc,
       source: 'Recommandation Budget-conseil Suisse',
       icon: Icons.trending_down,
@@ -796,83 +781,55 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   //  Age milestone messages
   // ──────────────────────────────────────────────────────────
 
-  static _MilestoneInfo? _getMilestoneMessage(int age) {
+  static _MilestoneInfo? _getMilestoneMessage(int age, S s) {
     switch (age) {
       case 25:
-        return const _MilestoneInfo(
-          title: '25 ans : démarrer son 3e pilier',
-          message:
-              'À 25 ans, c\'est le moment idéal pour ouvrir un 3e pilier. '
-              'Grâce aux intérêts composés, chaque année compte. '
-              'Même un petit versement mensuel fait une grande différence '
-              'sur 40 ans.',
-          action: 'Simuler les intérêts composés',
+        return _MilestoneInfo(
+          title: s.coachingMilestone25Title,
+          message: s.coachingMilestone25Message,
+          action: s.coachingMilestone25Action,
           source: 'OPP3 / Recommandation pédagogique',
         );
       case 35:
-        return const _MilestoneInfo(
-          title: '35 ans : faire le point prévoyance',
-          message:
-              'À 35 ans, vérifie que ta prévoyance est sur la bonne '
-              'trajectoire. As-tu un 3a ? Ta LPP est-elle '
-              'suffisante ? C\'est aussi l\'âge où un rachat LPP '
-              'commence à devenir intéressant fiscalement.',
-          action: 'Faire mon bilan prévoyance',
+        return _MilestoneInfo(
+          title: s.coachingMilestone35Title,
+          message: s.coachingMilestone35Message,
+          action: s.coachingMilestone35Action,
           source: 'LPP / Recommandation pédagogique',
         );
       case 45:
-        return const _MilestoneInfo(
-          title: '45 ans : optimiser sa stratégie',
-          message:
-              'À 45 ans, il reste 20 ans avant la retraite. C\'est le '
-              'moment d\'optimiser : maximiser le 3a, envisager des '
-              'rachats LPP, et diversifier. Chaque franc investi '
-              'aujourd\'hui a encore du temps pour fructifier.',
-          action: 'Optimiser ma stratégie',
+        return _MilestoneInfo(
+          title: s.coachingMilestone45Title,
+          message: s.coachingMilestone45Message,
+          action: s.coachingMilestone45Action,
           source: 'LPP art. 79b / Recommandation pédagogique',
         );
       case 50:
-        return const _MilestoneInfo(
-          title: '50 ans : préparer sa retraite',
-          message:
-              'À 50 ans, la retraite se rapproche. Vérifie ton avoir '
-              'LPP, planifie tes derniers rachats, et commence à '
-              'réfléchir au choix rente vs capital. Anticipe aussi '
-              'l\'impact fiscal du retrait.',
-          action: 'Planifier ma retraite',
+        return _MilestoneInfo(
+          title: s.coachingMilestone50Title,
+          message: s.coachingMilestone50Message,
+          action: s.coachingMilestone50Action,
           source: 'LPP / LAVS art. 21',
         );
       case 55:
-        return const _MilestoneInfo(
-          title: '55 ans : dernière ligne droite',
-          message:
-              'À 55 ans, la planification fiscale du retrait devient '
-              'cruciale. Échelonner les retraits 3a sur plusieurs années '
-              'fiscales peut représenter une économie significative. '
-              'Prépare ta stratégie de décumulation.',
-          action: 'Planifier mes retraits',
+        return _MilestoneInfo(
+          title: s.coachingMilestone55Title,
+          message: s.coachingMilestone55Message,
+          action: s.coachingMilestone55Action,
           source: 'LPP / LIFD art. 38',
         );
       case 58:
-        return const _MilestoneInfo(
-          title: '58 ans : retraite anticipée possible',
-          message:
-              'Dès 58 ans, tu peux envisager un retrait anticipé de '
-              'ton 2e pilier dans certaines caisses. Attention : la '
-              'rente sera réduite (environ 6% par année d\'anticipation). '
-              'Évalue l\'impact sur ton budget.',
-          action: 'Simuler ma retraite anticipée',
+        return _MilestoneInfo(
+          title: s.coachingMilestone58Title,
+          message: s.coachingMilestone58Message,
+          action: s.coachingMilestone58Action,
           source: 'LPP art. 13 al. 2',
         );
       case 63:
-        return const _MilestoneInfo(
-          title: '63 ans : derniers ajustements',
-          message:
-              'À 2 ans de la retraite légale, finalise ta stratégie. '
-              'Dernier rachat LPP (attention au délai de 3 ans avant '
-              'retrait), choix rente/capital, et organisation du '
-              'budget post-retraite.',
-          action: 'Finaliser ma préparation',
+        return _MilestoneInfo(
+          title: s.coachingMilestone63Title,
+          message: s.coachingMilestone63Message,
+          action: s.coachingMilestone63Action,
           source: 'LPP art. 79b al. 3',
         );
       default:
@@ -959,7 +916,7 @@ class _MilestoneInfo {
   final String action;
   final String source;
 
-  const _MilestoneInfo({
+  _MilestoneInfo({
     required this.title,
     required this.message,
     required this.action,

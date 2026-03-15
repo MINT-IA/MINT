@@ -316,6 +316,7 @@ class _PulseScreenState extends State<PulseScreen> {
     try {
       final tips = CoachingService.generateTips(
         profile: profile.toCoachingProfile(),
+        s: S.of(context)!,
       );
       urgentCount = tips
           .where((t) => t.priority == CoachingPriority.haute)

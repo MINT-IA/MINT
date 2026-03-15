@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
@@ -145,14 +146,14 @@ void main() {
   group('CoachingService — tips generation', () {
     test('generates tips for standard profile', () {
       final coaching = baseProfile.toCoachingProfile();
-      final tips = CoachingService.generateTips(profile: coaching);
+      final tips = CoachingService.generateTips(s: SFr(), profile: coaching);
 
       expect(tips, isNotEmpty);
     });
 
     test('tips are sorted by priority (urgent first)', () {
       final coaching = baseProfile.toCoachingProfile();
-      final tips = CoachingService.generateTips(profile: coaching);
+      final tips = CoachingService.generateTips(s: SFr(), profile: coaching);
 
       if (tips.length >= 2) {
         // Verify ordering: higher priority tips come first
@@ -168,7 +169,7 @@ void main() {
 
     test('each tip has required fields', () {
       final coaching = baseProfile.toCoachingProfile();
-      final tips = CoachingService.generateTips(profile: coaching);
+      final tips = CoachingService.generateTips(s: SFr(), profile: coaching);
 
       for (final tip in tips) {
         expect(tip.id, isNotEmpty);
@@ -214,10 +215,10 @@ void main() {
         ],
       );
 
-      final weakTips = CoachingService.generateTips(
+      final weakTips = CoachingService.generateTips(s: SFr(), 
         profile: baseProfile.toCoachingProfile(),
       );
-      final strongTips = CoachingService.generateTips(
+      final strongTips = CoachingService.generateTips(s: SFr(), 
         profile: strongProfile.toCoachingProfile(),
       );
 
