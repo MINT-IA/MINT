@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -76,16 +77,16 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
     return '$n';
   }
 
-  String get _levelLabel {
+  String _levelLabel(S s) {
     switch (_level) {
       case 1:
-        return 'Novice';
+        return s.progressiveDashboardLevelNovice;
       case 2:
-        return 'Intermédiaire';
+        return s.progressiveDashboardLevelIntermediate;
       case 3:
-        return 'Expert';
+        return s.progressiveDashboardLevelExpert;
       default:
-        return 'Novice';
+        return s.progressiveDashboardLevelNovice;
     }
   }
 
@@ -107,8 +108,9 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Dashboard progressif retraite 3 niveaux confiance novice expert',
+      label: s.progressiveDashboardSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -118,22 +120,22 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
-            _buildLevelSelector(),
+            _buildHeader(s),
+            _buildLevelSelector(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildHero(),
+                  _buildHero(s),
                   const SizedBox(height: 16),
                   if (_visibleMetrics.isNotEmpty) ...[
-                    _buildMetricsGrid(),
+                    _buildMetricsGrid(s),
                     const SizedBox(height: 16),
                   ],
                   if (widget.nextActionLabel != null) _buildNextAction(),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -143,7 +145,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -152,14 +154,14 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
       ),
       child: Row(
         children: [
-          const Text('📊', style: TextStyle(fontSize: 22)),
+          const Text('\ud83d\udcca', style: TextStyle(fontSize: 22)),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Ton tableau de bord retraite',
+                  s.progressiveDashboardTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -167,7 +169,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
                   ),
                 ),
                 Text(
-                  'Confiance : ${widget.confidenceScore}% — Vue : $_levelLabel',
+                  s.progressiveDashboardConfidence(widget.confidenceScore, _levelLabel(s)),
                   style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
                 ),
               ],
@@ -178,8 +180,12 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
     );
   }
 
-  Widget _buildLevelSelector() {
-    final levels = ['Novice', 'Intermédiaire', 'Expert'];
+  Widget _buildLevelSelector(S s) {
+    final levels = [
+      s.progressiveDashboardLevelNovice,
+      s.progressiveDashboardLevelIntermediate,
+      s.progressiveDashboardLevelExpert,
+    ];
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: const BoxDecoration(
@@ -189,7 +195,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
       child: Row(
         children: [
           Text(
-            'Vue :',
+            s.progressiveDashboardViewLabel,
             style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
           ),
           const SizedBox(width: 10),
@@ -226,7 +232,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
     );
   }
 
-  Widget _buildHero() {
+  Widget _buildHero(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -238,12 +244,12 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ton salaire après 65',
+            s.progressiveDashboardHeroLabel,
             style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
           ),
           const SizedBox(height: 4),
           Text(
-            'CHF ${_fmt(widget.heroMonthlyRente)}/mois',
+            s.progressiveDashboardHeroValue(_fmt(widget.heroMonthlyRente)),
             style: GoogleFonts.montserrat(
               fontSize: 32,
               fontWeight: FontWeight.w900,
@@ -252,7 +258,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
           ),
           const SizedBox(height: 4),
           Text(
-            'AVS + LPP · Projection scénario de base',
+            s.progressiveDashboardHeroSource,
             style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
           ),
         ],
@@ -260,7 +266,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
     );
   }
 
-  Widget _buildMetricsGrid() {
+  Widget _buildMetricsGrid(S s) {
     final metrics = _visibleMetrics;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,7 +275,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '${metrics.length} indicateurs — Vue $_levelLabel',
+              s.progressiveDashboardIndicators(metrics.length, _levelLabel(s)),
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -283,7 +289,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Plus de détails',
+                      s.progressiveDashboardMoreDetails,
                       style: GoogleFonts.inter(fontSize: 11, color: MintColors.primary),
                     ),
                     const Icon(Icons.chevron_right, color: MintColors.primary, size: 16),
@@ -348,7 +354,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('🎯', style: TextStyle(fontSize: 18)),
+          const Text('\ud83c\udfaf', style: TextStyle(fontSize: 18)),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -381,10 +387,9 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Niveaux basés sur le score de confiance du profil. Projection indicative.',
+      s.progressiveDashboardDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

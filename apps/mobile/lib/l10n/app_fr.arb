@@ -9851,5 +9851,45 @@
       }
     }
   },
-  "expatRightsLossDisclaimer": "Outil éducatif · ne constitue pas un conseil juridique ou financier au sens de la LSFin. Source : LAVS art. 1a, LPP art. 5, OPP3 art. 1, LAMal art. 3."
+  "expatRightsLossDisclaimer": "Outil éducatif · ne constitue pas un conseil juridique ou financier au sens de la LSFin. Source : LAVS art. 1a, LPP art. 5, OPP3 art. 1, LAMal art. 3.",
+  "progressiveDashboardSemantics": "Dashboard progressif retraite 3 niveaux confiance novice expert",
+  "progressiveDashboardTitle": "Ton tableau de bord retraite",
+  "progressiveDashboardConfidence": "Confiance : {score} % — Vue : {level}",
+  "@progressiveDashboardConfidence": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      },
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "progressiveDashboardLevelNovice": "Novice",
+  "progressiveDashboardLevelIntermediate": "Intermédiaire",
+  "progressiveDashboardLevelExpert": "Expert",
+  "progressiveDashboardViewLabel": "Vue :",
+  "progressiveDashboardHeroLabel": "Ton salaire après 65",
+  "progressiveDashboardHeroValue": "CHF {amount}/mois",
+  "@progressiveDashboardHeroValue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "progressiveDashboardHeroSource": "AVS + LPP · Projection scénario de base",
+  "progressiveDashboardIndicators": "{count} indicateurs — Vue {level}",
+  "@progressiveDashboardIndicators": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "progressiveDashboardMoreDetails": "Plus de détails",
+  "progressiveDashboardDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Niveaux basés sur le score de confiance du profil. Projection indicative."
 }
