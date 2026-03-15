@@ -908,7 +908,9 @@ class _CoupleSwitch extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              isCouple ? 'Duo' : 'Solo',
+              isCouple
+                  ? S.of(context)!.coupleSwitchDuo
+                  : S.of(context)!.coupleSwitchSolo,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,

@@ -237,7 +237,7 @@ class ProfileScreen extends StatelessWidget {
       pinned: true,
       toolbarHeight: isCompact ? 44 : 52,
       backgroundColor: MintColors.background,
-      title: Text('Moi',
+      title: Text(S.of(context)!.tabMoi,
           style: GoogleFonts.montserrat(
               fontSize: isCompact ? 16 : 18,
               fontWeight: FontWeight.w700,
@@ -247,16 +247,17 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildIdentityCard(BuildContext context, dynamic profile) {
+    final l = S.of(context)!;
     final name = profile.firstName ?? 'Utilisateur';
     final age = profile.age;
     final canton = profile.canton as String;
     final status = profile.employmentStatus as String;
 
     final statusLabel = {
-      'salarie': 'Salarié',
-      'independant': 'Indépendant',
-      'chomage': 'En recherche',
-      'retraite': 'Retraité',
+      'salarie': l.identityStatusSalarie,
+      'independant': l.identityStatusIndependant,
+      'chomage': l.identityStatusChomage,
+      'retraite': l.identityStatusRetraite,
     }[status] ?? status;
 
     return Container(

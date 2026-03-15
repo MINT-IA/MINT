@@ -4399,5 +4399,12 @@
       "points": {"type": "String"}
     }
   },
-  "pulseEnrichirCta": "Scansiona →"
+  "pulseEnrichirCta": "Scansiona →",
+  "tabMoi": "Io",
+  "coupleSwitchSolo": "Solo",
+  "coupleSwitchDuo": "Duo",
+  "identityStatusSalarie": "Dipendente",
+  "identityStatusIndependant": "Indipendente",
+  "identityStatusChomage": "In cerca",
+  "identityStatusRetraite": "Pensionato"
 }
