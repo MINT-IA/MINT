@@ -11388,14 +11388,14 @@
       "amount": { "type": "String" }
     }
   },
-  "lifeEventDivorceAlertContributionEntretien": "Mariage de longue durée avec écart de revenus important. Une contribution d''entretien au conjoint est probable.",
+  "lifeEventDivorceAlertContributionEntretien": "Mariage de longue durée avec écart de revenus important. Une contribution d'entretien au conjoint est probable.",
   "lifeEventDivorceAlertEnfants": "Avec {count} enfant(s), la garde et les contributions d''entretien seront les points centraux de la convention.",
   "@lifeEventDivorceAlertEnfants": {
     "placeholders": {
       "count": { "type": "int" }
     }
   },
-  "lifeEventDivorceAlertSeparationBiens": "Régime de séparation de biens\u00a0: le partage du patrimoine est plus simple mais le 3a n''est pas automatiquement partagé.",
+  "lifeEventDivorceAlertSeparationBiens": "Régime de séparation de biens\u00a0: le partage du patrimoine est plus simple mais le 3a n'est pas automatiquement partagé.",
   "lifeEventDivorceChecklist1": "Demander les certificats LPP des deux conjoints",
   "lifeEventDivorceChecklist2": "Demander le relevé détaillé des avoirs 3a",
   "lifeEventDivorceChecklist3": "Lister tous les biens communs et propres",
@@ -11404,9 +11404,9 @@
   "lifeEventDivorceChecklist6": "Établir un budget post-divorce pour chaque conjoint",
   "lifeEventDivorceChecklist7": "Clarifier la garde des enfants et les contributions",
   "lifeEventDivorceChecklist8": "Préparer la convention de divorce (ou requête)",
-  "lifeEventDivorceChecklist9": "Vérifier l''impact sur le logement familial",
+  "lifeEventDivorceChecklist9": "Vérifier l'impact sur le logement familial",
   "lifeEventDivorceChecklist10": "Mettre à jour le testament et les directives anticipées",
-  "lifeEventSuccessionAlertConcubinage": "En concubinage, ton/ta partenaire n''a AUCUN droit successoral légal. Sans testament, il/elle ne reçoit rien. La fiscalité est aussi nettement plus lourde (taux «\u00a0tiers\u00a0»).",
+  "lifeEventSuccessionAlertConcubinage": "En concubinage, ton/ta partenaire n'a AUCUN droit successoral légal. Sans testament, il/elle ne reçoit rien. La fiscalité est aussi nettement plus lourde (taux «\u00a0tiers\u00a0»).",
   "lifeEventSuccessionAlertAvoirs3a": "Tes avoirs 3a ({amount}) suivent l''ordre de bénéficiaires OPP3, pas ton testament. Vérifie tes clauses bénéficiaires auprès de ta fondation 3a.",
   "@lifeEventSuccessionAlertAvoirs3a": {
     "placeholders": {
@@ -11429,12 +11429,265 @@
   "lifeEventSuccessionChecklist1": "Testament rédigé / mis à jour\u00a0?",
   "lifeEventSuccessionChecklist2": "Clause bénéficiaire 3a vérifiée\u00a0?",
   "lifeEventSuccessionChecklist3": "Concubin/conjoint annoncé à la caisse de pension\u00a0?",
-  "lifeEventSuccessionChecklist4": "Mandat pour cause d''inaptitude rédigé\u00a0?",
+  "lifeEventSuccessionChecklist4": "Mandat pour cause d'inaptitude rédigé\u00a0?",
   "lifeEventSuccessionChecklist5": "Directives anticipées rédigées\u00a0?",
   "lifeEventSuccessionChecklist6": "Inventaire des biens (immobilier, comptes, assurances) à jour\u00a0?",
-  "lifeEventSuccessionChecklist7": "Polices d''assurance-vie vérifiées\u00a0?",
+  "lifeEventSuccessionChecklist7": "Polices d'assurance-vie vérifiées\u00a0?",
   "lifeEventSuccessionChecklist8": "Discussion avec les héritiers sur les volontés\u00a0?",
   "lifeEventSuccession3aOrderMarie": "1. Conjoint survivant\n2. Descendants directs / personnes à charge\n3. Parents\n4. Fratrie\n5. Autres héritiers",
-  "lifeEventSuccession3aOrderConcubinage": "1. Partenaire de vie (si clause bénéficiaire déposée)\n2. Descendants directs / personnes à charge\n3. Parents\n4. Fratrie\n5. Autres héritiers\n\nIMPORTANT\u00a0: Sans clause bénéficiaire explicite, le/la concubin·e n''est PAS automatiquement bénéficiaire.",
-  "lifeEventSuccession3aOrderAutre": "1. Descendants directs / personnes à charge\n2. Parents\n3. Fratrie\n4. Autres héritiers"
+  "lifeEventSuccession3aOrderConcubinage": "1. Partenaire de vie (si clause bénéficiaire déposée)\n2. Descendants directs / personnes à charge\n3. Parents\n4. Fratrie\n5. Autres héritiers\n\nIMPORTANT\u00a0: Sans clause bénéficiaire explicite, le/la concubin·e n'est PAS automatiquement bénéficiaire.",
+  "lifeEventSuccession3aOrderAutre": "1. Descendants directs / personnes à charge\n2. Parents\n3. Fratrie\n4. Autres héritiers",
+
+  "pdfServiceHeaderTitle": "MINT — MENTORAT FINANCIER",
+  "pdfServiceSessionHeaderRight": "MENTORAT ÉDUCATIF — CONFIDENTIEL",
+  "pdfServiceFinancialHeaderRight": "RAPPORT FINANCIER — CONFIDENTIEL",
+  "pdfServiceDecisionHeaderRight": "RAPPORT DÉCISIONNEL — CONFIDENTIEL",
+  "pdfServiceGeneratedBy": "Généré par Mint le {date}",
+  "@pdfServiceGeneratedBy": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceGeneratedByMint": "Généré par MINT le {date}",
+  "@pdfServiceGeneratedByMint": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServicePageOf": "Page {current} sur {total}",
+  "@pdfServicePageOf": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServicePrecision": "PRECISION\u00a0: {percent}%",
+  "@pdfServicePrecision": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceCanton": "CANTON",
+  "pdfServiceFoyer": "FOYER",
+  "pdfServiceObjectif": "OBJECTIF",
+  "pdfServiceScoreIndicators": "Indicateurs de Score",
+  "pdfServiceActionPlanTop3": "Plan d''Action Mentor (Top 3)",
+  "pdfServiceWhyPrefix": "Pourquoi\u00a0: {reason}",
+  "@pdfServiceWhyPrefix": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceNextAction": "Action suivante\u00a0: {action}",
+  "@pdfServiceNextAction": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceStatementOfAdvice": "Statement of Advice (Conformité)",
+  "pdfServiceNatureOfService": "Nature du service\u00a0: {nature}",
+  "@pdfServiceNatureOfService": {
+    "placeholders": {
+      "nature": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceHypotheses": "Hypothèses\u00a0:",
+  "pdfServiceConflictsAndCommissions": "Conflits d''intérêts & Commissions\u00a0:",
+  "pdfServiceConflictLine": "{partner}\u00a0: {disclosure}",
+  "@pdfServiceConflictLine": {
+    "placeholders": {
+      "partner": {
+        "type": "String"
+      },
+      "disclosure": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceDetailAnalyses": "Détail des Analyses",
+  "pdfServiceSourcesLabel": "Sources\u00a0: {sources}",
+  "@pdfServiceSourcesLabel": {
+    "placeholders": {
+      "sources": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceDisclaimersLegaux": "Disclaimers Légaux",
+  "pdfServiceFooterDisclaimer": "Outil éducatif — MINT — ne constitue pas un conseil financier au sens de la LSFin",
+  "pdfServiceGeneratedOn": "Généré le {date}",
+  "@pdfServiceGeneratedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceMainTitle": "Ton Plan Mint — Rapport Financier",
+  "pdfServiceSubtitle": "Bilan personnalisé pour {name} — {canton}",
+  "@pdfServiceSubtitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceSubtitleFallback": "toi",
+  "pdfServiceHealthScore": "Score de santé financière\u00a0: {score}/100 — {level}",
+  "@pdfServiceHealthScore": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      },
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceKeyIndicators": "Indicateurs Clés",
+  "pdfServiceAvailablePerMonth": "Disponible / mois",
+  "pdfServiceAfterEstimatedTaxes": "Après impôts estimés",
+  "pdfServiceEstimatedTaxPerYear": "Impôts estimés / an",
+  "pdfServiceEffectiveRate": "Taux effectif\u00a0: {rate}%",
+  "@pdfServiceEffectiveRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceSavingsRate": "Taux d''épargne",
+  "pdfServiceOfNetMonthlyIncome": "Du revenu net mensuel",
+  "pdfServiceProtectionScore": "Score protection",
+  "pdfServiceTop3PriorityActions": "Top 3 — Actions Prioritaires",
+  "pdfServiceTaxSimulation": "Simulation Fiscale",
+  "pdfServiceTaxableIncome": "Revenu imposable",
+  "pdfServiceAppliedDeductions": "Déductions appliquées\u00a0:",
+  "pdfServiceDeductionLine": "- {key}\u00a0: CHF {amount}",
+  "@pdfServiceDeductionLine": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceTotalDeductions": "Total déductions\u00a0: CHF {amount}",
+  "@pdfServiceTotalDeductions": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceCantonalCommunalTax": "Impôt cantonal + communal",
+  "pdfServiceFederalDirectTax": "Impôt fédéral direct",
+  "pdfServiceTotalEstimated": "TOTAL estimé",
+  "pdfServiceEffectiveRateLabel": "Taux effectif",
+  "pdfServiceWithLppBuyback": "Avec rachat LPP\u00a0: CHF {taxAmount} (économie\u00a0: CHF {savings})",
+  "@pdfServiceWithLppBuyback": {
+    "placeholders": {
+      "taxAmount": {
+        "type": "String"
+      },
+      "savings": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceRetirementProjection": "Projection Retraite",
+  "pdfServiceHorizon": "Horizon\u00a0: {years} ans (retraite à {age} ans)",
+  "@pdfServiceHorizon": {
+    "placeholders": {
+      "years": {
+        "type": "String"
+      },
+      "age": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceEstimatedMonthlyPensions": "Rentes mensuelles estimées",
+  "pdfServiceAvsRent": "Rente AVS",
+  "pdfServiceLppRent": "Rente LPP",
+  "pdfServiceTotalMonthly": "Total mensuel",
+  "pdfServiceEstimatedCapitalAt65": "Capitaux estimés à 65 ans",
+  "pdfServiceLppCapital": "Capital LPP",
+  "pdfServicePillar3aCapital": "Capital 3a",
+  "pdfServiceOtherAssets": "Autres actifs",
+  "pdfServiceTotalEstimatedCapital": "Capital total estimé",
+  "pdfServiceAvsReductionWarning": "Attention\u00a0: facteur de réduction AVS {factor}% (lacunes de cotisation détectées)",
+  "@pdfServiceAvsReductionWarning": {
+    "placeholders": {
+      "factor": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceLppBuybackStrategy": "Stratégie Rachat LPP",
+  "pdfServiceTotalBuybackAvailable": "Montant rachetable total",
+  "pdfServiceTotalTaxSavingsEstimated": "Économie fiscale totale estimée",
+  "pdfServiceRecommendedAnnualPlan": "Plan annuel recommandé",
+  "pdfServiceYear": "Année",
+  "pdfServiceBuyback": "Rachat",
+  "pdfServiceTaxSaving": "Économie fiscale",
+  "pdfServiceLppBuybackReminder": "Rappel\u00a0: le rachat LPP est soumis à un blocage de 3 ans pour les retraits en capital (LPP art. 79b al. 3).",
+  "pdfServiceComplianceTitle": "Conformité — Statement of Advice",
+  "pdfServiceComplianceNature": "Nature du service\u00a0: Éducation financière (non-régulée)",
+  "pdfServiceComplianceHypotheses": "Hypothèses\u00a0:",
+  "pdfServiceComplianceHyp1": "Les données utilisées sont celles déclarées par l''utilisateur·trice.",
+  "pdfServiceComplianceHyp2": "Les taux fiscaux sont des estimations simplifiées par canton.",
+  "pdfServiceComplianceHyp3": "Les projections de rendement utilisent des hypothèses prudentes (3-5%).",
+  "pdfServiceComplianceHyp4": "Le taux de conversion LPP utilisé est de 6% (hypothèse prudente vs 6.8% légal).",
+  "pdfServiceComplianceConflicts": "Conflits d''intérêts\u00a0:",
+  "pdfServiceComplianceConflict1": "MINT ne perçoit aucune commission des fournisseurs de 3a mentionnés.",
+  "pdfServiceComplianceConflict2": "Les comparaisons de fournisseurs sont basées sur des données publiques de frais et rendements.",
+  "pdfServiceLegalSources": "Sources Juridiques",
+  "pdfServiceDecisionReportTitle": "Rapport décisionnel",
+  "pdfServiceDecisionReportSubtitle": "Coach MINT — Conversation éducative",
+  "pdfServiceProfile": "Profil",
+  "pdfServiceProfileLine": "{name} — Canton {canton}",
+  "@pdfServiceProfileLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceFitnessScore": "Score Fitness",
+  "pdfServiceFitnessScoreValue": "{score} / 100",
+  "@pdfServiceFitnessScoreValue": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceConversationHighlights": "Points clés de la conversation",
+  "pdfServiceLegalSourcesTitle": "Sources juridiques",
+  "pdfServiceFullDisclaimer": "Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin. Les estimations sont basées sur des hypothèses simplifiées et des données déclaratives. Consulte un·e spécialiste certifié·e pour toute décision financière importante."
 }

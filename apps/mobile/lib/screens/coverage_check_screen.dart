@@ -41,10 +41,20 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
 
   CoverageCheckResult? _result;
 
+  bool _initialized = false;
+
   @override
   void initState() {
     super.initState();
-    _compute();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _compute();
+    }
   }
 
   void _compute() {
@@ -63,6 +73,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         aAssuranceVoyage: _aAssuranceVoyage,
         aAssuranceDeces: _aAssuranceDeces,
         canton: _canton,
+        s: S.of(context)!,
       );
     });
   }

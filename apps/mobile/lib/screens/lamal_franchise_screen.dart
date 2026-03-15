@@ -31,11 +31,21 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
 
   LamalFranchiseResult? _result;
 
+  bool _initialized = false;
+
   @override
   void initState() {
     super.initState();
     ReportPersistenceService.markSimulatorExplored('lamal');
-    _compute();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _compute();
+    }
   }
 
   void _compute() {
@@ -44,6 +54,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
         _primeMensuelle,
         _depensesSante,
         isChild: _isChild,
+        s: S.of(context)!,
       );
     });
   }

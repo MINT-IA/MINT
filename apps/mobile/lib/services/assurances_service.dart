@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:mint_mobile/l10n/app_localizations.dart';
+
 // ────────────────────────────────────────────────────────────
 //  ASSURANCES SERVICE — Sprint S13 / Chantier 7
 // ────────────────────────────────────────────────────────────
@@ -11,6 +13,9 @@ import 'dart:math';
 // All logic is local (no backend call). No banned terms
 // ("garanti", "assuré" in guarantee sense, "certain") —
 // only "peut", "pourrait", "estimation".
+//
+// i18n: Methods returning user-facing text accept an `S s`
+// parameter (AppLocalizations). Callers pass `S.of(context)!`.
 // ────────────────────────────────────────────────────────────
 
 // ════════════════════════════════════════════════════════════
@@ -105,10 +110,13 @@ class LamalFranchiseService {
   // ── Public API ─────────────────────────────────────────────
 
   /// Analyse all franchise levels and return optimal choice.
+  ///
+  /// [s] — AppLocalizations instance for user-facing strings.
   static LamalFranchiseResult analyzeAllFranchises(
     double primeMensuelleBase,
     double depensesSanteAnnuelles, {
     bool isChild = false,
+    required S s,
   }) {
     final levels = isChild ? franchiseLevelsChildren : franchiseLevelsAdults;
     final cap = isChild ? quotePartCapChildren : quotePartCapAdults;
@@ -168,6 +176,7 @@ class LamalFranchiseService {
       optimalFranchise,
       depensesSanteAnnuelles,
       finalComparisons,
+      s,
     );
 
     return LamalFranchiseResult(
@@ -175,12 +184,8 @@ class LamalFranchiseService {
       franchiseOptimale: optimalFranchise,
       breakEvenPoints: breakEvenPoints,
       recommandations: recommandations,
-      alerteDelai: 'Rappel : modification de franchise possible avant le '
-          '30 novembre de chaque année pour l\'année suivante.',
-      disclaimer: 'Cette analyse est indicative. Les primes varient selon '
-          'l\'assureur, la région et le modèle d\'assurance. Consulte '
-          'ta caisse maladie pour des chiffres exacts. '
-          'Source : LAMal art. 62-64, OAMal.',
+      alerteDelai: s.assurancesLamalAlerteDelai,
+      disclaimer: s.assurancesLamalDisclaimer,
     );
   }
 
@@ -243,35 +248,19 @@ class LamalFranchiseService {
     int optimalFranchise,
     double depenses,
     List<FranchiseComparison> comparisons,
+    S s,
   ) {
     final recs = <String>[];
 
     if (depenses < 500) {
-      recs.add(
-        'Avec des frais de santé estimés faibles (< CHF\u00A0500/an), '
-        'une franchise élevée (CHF\u00A02\'500) pourrait être avantageuse. '
-        'Source : LAMal art. 62.',
-      );
+      recs.add(s.assurancesLamalRecLowExpenses);
     } else if (depenses > 3000) {
-      recs.add(
-        'Avec des frais de santé estimés élevés (> CHF\u00A03\'000/an), '
-        'une franchise basse (CHF\u00A0300) pourrait être plus économique. '
-        'Source : LAMal art. 62.',
-      );
+      recs.add(s.assurancesLamalRecHighExpenses);
     }
 
-    recs.add(
-      'Comparez les primes de différents assureurs sur '
-      'priminfo.admin.ch (comparateur officiel). '
-      'Les écarts de prime peuvent dépasser CHF\u00A0200/mois '
-      'pour des prestations équivalentes. Source : LAMal art. 7.',
-    );
+    recs.add(s.assurancesLamalRecCompareInsurers);
 
-    recs.add(
-      'Envisagez un modèle d\'assurance alternatif (médecin '
-      'de famille, HMO, télémédecine) pour réduire davantage '
-      'tes primes. Source : LAMal art. 41a.',
-    );
+    recs.add(s.assurancesLamalRecAlternativeModels);
 
     return recs;
   }
@@ -355,6 +344,8 @@ class CoverageCheckService {
   // ── Public API ─────────────────────────────────────────────
 
   /// Evaluate coverage based on profile and current insurance.
+  ///
+  /// [s] — AppLocalizations instance for user-facing strings.
   static CoverageCheckResult evaluateCoverage({
     required String statutProfessionnel, // "salarie", "independant", "sans_emploi"
     required bool aHypotheque,
@@ -369,6 +360,7 @@ class CoverageCheckService {
     required bool aAssuranceVoyage,
     required bool aAssuranceDeces,
     required String canton,
+    required S s,
   }) {
     final isIndependant = statutProfessionnel == 'independant';
     final isSalarie = statutProfessionnel == 'salarie';
@@ -378,12 +370,11 @@ class CoverageCheckService {
     // 1. RC privee — always recommended
     checklist.add(CoverageCheckItem(
       id: 'rc_privee',
-      title: 'RC privée',
-      description: 'Responsabilité civile privée — couvre les dommages '
-          'causés à des tiers dans la vie privée.',
+      title: s.assurancesRcPriveeTitle,
+      description: s.assurancesRcPriveeDescription,
       urgency: 'haute',
       status: aRcPrivee ? 'couvert' : 'non_couvert',
-      estimatedCostRange: '~80-150 CHF/an',
+      estimatedCostRange: s.assurancesRcPriveeCost,
       source: 'CO art. 41',
       iconType: IconType.shield,
     ));
@@ -391,13 +382,11 @@ class CoverageCheckService {
     // 2. Assurance menage
     checklist.add(CoverageCheckItem(
       id: 'menage',
-      title: 'Assurance ménage',
-      description: 'Couvre le mobilier et les effets personnels '
-          'contre le vol, l\'incendie et les dégâts des eaux. '
-          'Obligatoire dans les cantons VD, FR, NW, JU.',
+      title: s.assurancesMenageTitle,
+      description: s.assurancesMenageDescription,
       urgency: _menageUrgency(estLocataire, canton),
       status: aMenage ? 'couvert' : 'non_couvert',
-      estimatedCostRange: '~100-300 CHF/an',
+      estimatedCostRange: s.assurancesMenageCost,
       source: 'Droit cantonal / Pratique',
       iconType: IconType.home,
     ));
@@ -405,12 +394,11 @@ class CoverageCheckService {
     // 3. Protection juridique
     checklist.add(CoverageCheckItem(
       id: 'juridique',
-      title: 'Protection juridique',
-      description: 'Couvre les frais d\'avocat et de procédure '
-          'en cas de litige (travail, bail, consommation).',
+      title: s.assurancesJuridiqueTitle,
+      description: s.assurancesJuridiqueDescription,
       urgency: estLocataire ? 'moyenne' : 'basse',
       status: aProtectionJuridique ? 'couvert' : 'non_couvert',
-      estimatedCostRange: '~200-400 CHF/an',
+      estimatedCostRange: s.assurancesJuridiqueCost,
       source: 'Pratique assurance',
       iconType: IconType.gavel,
     ));
@@ -418,66 +406,64 @@ class CoverageCheckService {
     // 4. Assurance voyage
     checklist.add(CoverageCheckItem(
       id: 'voyage',
-      title: 'Assurance voyage',
-      description: 'Couvre l\'annulation, les frais médicaux à '
-          'l\'étranger et le rapatriement.',
+      title: s.assurancesVoyageTitle,
+      description: s.assurancesVoyageDescription,
       urgency: voyagesFrequents ? 'moyenne' : 'basse',
       status: aAssuranceVoyage ? 'couvert' : (voyagesFrequents ? 'non_couvert' : 'a_verifier'),
-      estimatedCostRange: '~50-150 CHF/an',
-      source: 'LAMal art. 34 (couverture limitée à l\'étranger)',
+      estimatedCostRange: s.assurancesVoyageCost,
+      source: 'LAMal art. 34',
       iconType: IconType.flight,
     ));
 
     // 5. Assurance deces
     checklist.add(CoverageCheckItem(
       id: 'deces',
-      title: 'Assurance décès',
-      description: 'Verse un capital aux proches en cas de décès. '
-          'Importante si hypothèque ou personnes à charge.',
+      title: s.assurancesDecesTitle,
+      description: s.assurancesDecesDescription,
       urgency: (aHypotheque || aFamille) ? 'haute' : 'basse',
       status: aAssuranceDeces ? 'couvert' : ((aHypotheque || aFamille) ? 'non_couvert' : 'a_verifier'),
-      estimatedCostRange: '~100-500 CHF/an',
+      estimatedCostRange: s.assurancesDecesCost,
       source: 'LCA / Pratique bancaire hypothécaire',
       iconType: IconType.favorite,
     ));
 
     // 6. IJM individuelle
+    final ijmDescription = '${s.assurancesIjmDescriptionBase} '
+        '${isIndependant ? s.assurancesIjmDescriptionIndependant : s.assurancesIjmDescriptionSalarie}';
     checklist.add(CoverageCheckItem(
       id: 'ijm',
-      title: 'IJM (indemnité journalière maladie)',
-      description: 'Couvre 80% du salaire en cas de maladie prolongée. '
-          '${isIndependant ? "En tant qu'indépendant, aucune couverture automatique." : "Vérifie si ton employeur propose une IJM collective."}',
+      title: s.assurancesIjmTitle,
+      description: ijmDescription,
       urgency: _ijmUrgency(isIndependant, isSalarie, aIjmCollective),
       status: _ijmStatus(isIndependant, isSalarie, aIjmCollective),
-      estimatedCostRange: '~500-2\'000 CHF/an',
+      estimatedCostRange: s.assurancesIjmCost,
       source: 'CO art. 324a / LAMal',
       iconType: IconType.localHospital,
     ));
 
     // 7. LAA privee
+    final laaDescription = '${s.assurancesLaaDescriptionBase} '
+        '${isIndependant ? s.assurancesLaaDescriptionIndependant : s.assurancesLaaDescriptionSalarie}';
     checklist.add(CoverageCheckItem(
       id: 'laa',
-      title: 'LAA (assurance accident)',
-      description: 'Couvre les frais médicaux et la perte de gain '
-          'en cas d\'accident. '
-          '${isIndependant ? "Non obligatoire pour les indépendants." : "Obligatoire via l'employeur pour les salariés."}',
+      title: s.assurancesLaaTitle,
+      description: laaDescription,
       urgency: _laaUrgency(isIndependant, isSalarie, aLaa),
       status: _laaStatus(isIndependant, isSalarie, aLaa),
-      estimatedCostRange: '~300-800 CHF/an',
+      estimatedCostRange: s.assurancesLaaCost,
       source: 'LAA art. 4',
       iconType: IconType.warning,
     ));
 
     // 8. RC professionnelle (independants only)
     if (isIndependant) {
-      checklist.add(const CoverageCheckItem(
+      checklist.add(CoverageCheckItem(
         id: 'rc_pro',
-        title: 'RC professionnelle',
-        description: 'Couvre les dommages causés à des tiers dans le '
-            'cadre de l\'activité professionnelle.',
+        title: s.assurancesRcProTitle,
+        description: s.assurancesRcProDescription,
         urgency: 'haute',
         status: 'a_verifier',
-        estimatedCostRange: 'Variable selon activité',
+        estimatedCostRange: s.assurancesRcProCost,
         source: 'CO art. 41',
         iconType: IconType.work,
       ));
@@ -495,17 +481,14 @@ class CoverageCheckService {
         .length;
 
     // Build recommendations
-    final recommandations = _buildRecommendations(checklist, isIndependant);
+    final recommandations = _buildRecommendations(checklist, isIndependant, s);
 
     return CoverageCheckResult(
       checklist: checklist,
       scoreCouverture: scoreCouverture,
       lacunesCritiques: lacunesCritiques,
       recommandations: recommandations,
-      disclaimer: 'Cette analyse est indicative et ne constitue pas '
-          'un conseil en assurance personnalisé. Les primes varient '
-          'selon l\'assureur et ton profil. Consulte un·e spécialiste '
-          'en assurances pour une évaluation complète.',
+      disclaimer: s.assurancesCoverageDisclaimer,
     );
   }
 
@@ -588,6 +571,7 @@ class CoverageCheckService {
   static List<String> _buildRecommendations(
     List<CoverageCheckItem> checklist,
     bool isIndependant,
+    S s,
   ) {
     final recs = <String>[];
 
@@ -596,11 +580,12 @@ class CoverageCheckService {
       (item) => item.urgency == 'critique' && item.status != 'couvert',
     );
     for (final item in critiques) {
-      recs.add(
-        'PRIORITÉ : ${item.title} — ${item.description} '
-        'Coût estimé : ${item.estimatedCostRange}. '
-        'Source : ${item.source}.',
-      );
+      recs.add(s.assurancesRecPriority(
+        item.title,
+        item.description,
+        item.estimatedCostRange,
+        item.source,
+      ));
     }
 
     // High urgency items
@@ -608,19 +593,16 @@ class CoverageCheckService {
       (item) => item.urgency == 'haute' && item.status != 'couvert',
     );
     for (final item in hautes) {
-      recs.add(
-        '${item.title} — ${item.description} '
-        'Coût estimé : ${item.estimatedCostRange}. '
-        'Source : ${item.source}.',
-      );
+      recs.add(s.assurancesRecHighUrgency(
+        item.title,
+        item.description,
+        item.estimatedCostRange,
+        item.source,
+      ));
     }
 
     // General recommendation
-    recs.add(
-      'Demandez plusieurs offres pour comparer les primes et '
-      'les conditions. Les écarts peuvent être significatifs '
-      'entre assureurs.',
-    );
+    recs.add(s.assurancesRecGeneralCompare);
 
     return recs;
   }

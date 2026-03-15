@@ -1,7 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/services/assurances_service.dart';
 
 void main() {
+  final S s = SFr();
   // ═══════════════════════════════════════════════════════════════════
   //  1. LamalFranchiseService tests
   // ═══════════════════════════════════════════════════════════════════
@@ -25,6 +28,7 @@ void main() {
       final result = LamalFranchiseService.analyzeAllFranchises(
         400, // prime mensuelle base
         2000, // depenses sante annuelles
+        s: s,
       );
       expect(result.comparaison.length, 6);
     });
@@ -34,19 +38,20 @@ void main() {
         100,
         500,
         isChild: true,
+        s: s,
       );
       expect(result.comparaison.length, 7);
     });
 
     test('exactly one franchise is marked as optimal', () {
-      final result = LamalFranchiseService.analyzeAllFranchises(400, 2000);
+      final result = LamalFranchiseService.analyzeAllFranchises(400, 2000, s: s);
       final optimalCount =
           result.comparaison.where((c) => c.isOptimal).length;
       expect(optimalCount, 1);
     });
 
     test('franchiseOptimale matches the optimal comparison entry', () {
-      final result = LamalFranchiseService.analyzeAllFranchises(400, 2000);
+      final result = LamalFranchiseService.analyzeAllFranchises(400, 2000, s: s);
       final optimalEntry =
           result.comparaison.firstWhere((c) => c.isOptimal);
       expect(result.franchiseOptimale, optimalEntry.franchiseLevel);
@@ -56,6 +61,7 @@ void main() {
       final result = LamalFranchiseService.analyzeAllFranchises(
         400, // 400/month = 4800/year base
         200, // very low health expenses
+        s: s,
       );
       // With very low expenses, higher franchise should be cheaper
       expect(result.franchiseOptimale, 2500);
@@ -65,6 +71,7 @@ void main() {
       final result = LamalFranchiseService.analyzeAllFranchises(
         400,
         10000, // very high health expenses
+        s: s,
       );
       // At very high expenses, franchise 300 or 500 is optimal
       // (depends on premium savings rate vs out-of-pocket difference)
@@ -72,14 +79,14 @@ void main() {
     });
 
     test('economieVs300 is 0 for franchise 300 itself', () {
-      final result = LamalFranchiseService.analyzeAllFranchises(400, 2000);
+      final result = LamalFranchiseService.analyzeAllFranchises(400, 2000, s: s);
       final f300 =
           result.comparaison.firstWhere((c) => c.franchiseLevel == 300);
       expect(f300.economieVs300, closeTo(0.0, 0.01));
     });
 
     test('coutTotal includes prime + franchise + quote-part', () {
-      final result = LamalFranchiseService.analyzeAllFranchises(400, 2000);
+      final result = LamalFranchiseService.analyzeAllFranchises(400, 2000, s: s);
       for (final c in result.comparaison) {
         expect(
           c.coutTotal,
@@ -95,6 +102,7 @@ void main() {
       final result = LamalFranchiseService.analyzeAllFranchises(
         400,
         50000, // enormous expenses
+        s: s,
       );
       for (final c in result.comparaison) {
         expect(c.quotePart, lessThanOrEqualTo(700.0));
@@ -106,6 +114,7 @@ void main() {
         100,
         50000,
         isChild: true,
+        s: s,
       );
       for (final c in result.comparaison) {
         expect(c.quotePart, lessThanOrEqualTo(350.0));
@@ -113,7 +122,7 @@ void main() {
     });
 
     test('breakEvenPoints has entries between consecutive levels', () {
-      final result = LamalFranchiseService.analyzeAllFranchises(400, 2000);
+      final result = LamalFranchiseService.analyzeAllFranchises(400, 2000, s: s);
       expect(result.breakEvenPoints, isNotEmpty);
       for (final bp in result.breakEvenPoints) {
         expect(bp.franchiseHaute, greaterThan(bp.franchiseBasse));
@@ -122,7 +131,7 @@ void main() {
     });
 
     test('recommandations mention low expenses hint for < 500', () {
-      final result = LamalFranchiseService.analyzeAllFranchises(400, 200);
+      final result = LamalFranchiseService.analyzeAllFranchises(400, 200, s: s);
       expect(
         result.recommandations.any((r) => r.contains('franchise élevée')),
         isTrue,
@@ -130,7 +139,7 @@ void main() {
     });
 
     test('recommandations mention high expenses hint for > 3000', () {
-      final result = LamalFranchiseService.analyzeAllFranchises(400, 5000);
+      final result = LamalFranchiseService.analyzeAllFranchises(400, 5000, s: s);
       expect(
         result.recommandations.any((r) => r.contains('franchise basse')),
         isTrue,
@@ -138,7 +147,7 @@ void main() {
     });
 
     test('recommandations always include priminfo.admin.ch reference', () {
-      final result = LamalFranchiseService.analyzeAllFranchises(400, 2000);
+      final result = LamalFranchiseService.analyzeAllFranchises(400, 2000, s: s);
       expect(
         result.recommandations.any((r) => r.contains('priminfo.admin.ch')),
         isTrue,
@@ -146,12 +155,12 @@ void main() {
     });
 
     test('alerteDelai mentions 30 novembre', () {
-      final result = LamalFranchiseService.analyzeAllFranchises(400, 2000);
+      final result = LamalFranchiseService.analyzeAllFranchises(400, 2000, s: s);
       expect(result.alerteDelai, contains('30 novembre'));
     });
 
     test('disclaimer mentions LAMal and indicative', () {
-      final result = LamalFranchiseService.analyzeAllFranchises(400, 2000);
+      final result = LamalFranchiseService.analyzeAllFranchises(400, 2000, s: s);
       expect(result.disclaimer, contains('indicative'));
       expect(result.disclaimer, contains('LAMal'));
     });
@@ -196,6 +205,7 @@ void main() {
         aAssuranceVoyage: aAssuranceVoyage,
         aAssuranceDeces: aAssuranceDeces,
         canton: canton,
+        s: s,
       );
     }
 
