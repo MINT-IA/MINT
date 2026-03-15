@@ -15,6 +15,7 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/coach/budget_sandwich_chart.dart';
 import 'package:mint_mobile/widgets/coach/budget_503020_widget.dart';
 import 'package:mint_mobile/widgets/coach/crash_test_budget_widget.dart';
+import 'package:mint_mobile/widgets/collapsible_section.dart';
 
 class BudgetScreen extends StatefulWidget {
   final BudgetInputs inputs;
@@ -242,6 +243,13 @@ class _BudgetScreenState extends State<BudgetScreen>
                       ),
                     ],
                   ),
+                ),
+                const SizedBox(height: 24),
+
+                // ── Related sections (hub) ──
+                _staggeredEntry(
+                  index: 4,
+                  child: _buildRelatedSections(),
                 ),
                 const SizedBox(height: 24),
 
@@ -611,6 +619,45 @@ class _BudgetScreenState extends State<BudgetScreen>
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildRelatedSections() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Explorer aussi',
+          style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
+        const SizedBox(height: 12),
+        CollapsibleSection(
+          title: 'Ratio d\'endettement',
+          subtitle: 'Évaluer ta situation de dette',
+          icon: Icons.warning_amber_rounded,
+          child: _buildSectionCta('Évaluer', '/debt/ratio'),
+        ),
+        CollapsibleSection(
+          title: 'Plan de remboursement',
+          subtitle: 'Stratégie pour sortir de la dette',
+          icon: Icons.trending_down,
+          child: _buildSectionCta('Planifier', '/debt/repayment'),
+        ),
+        CollapsibleSection(
+          title: 'Ressources d\'aide',
+          subtitle: 'Où trouver de l\'aide en Suisse',
+          icon: Icons.help_outline,
+          child: _buildSectionCta('Découvrir', '/debt/help'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionCta(String label, String route) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: () => context.push(route),
+        child: Text(label),
       ),
     );
   }

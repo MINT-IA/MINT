@@ -60,7 +60,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── Chiffre choc ─────────────────────────────
-                _ChiffreChocCard(
+                const _ChiffreChocCard(
                   chiffre: '+CHF 3\'500',
                   explication:
                       'C\'est l\'impôt supplémentaire payé quand on retire 2 comptes 3a la même année plutôt que de les étaler sur 2 ans fiscales différentes — selon LIFD art. 38.',
@@ -68,23 +68,23 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Principe ─────────────────────────────────
-                EduSectionTitle(text: 'Le principe de l\'échelonnement'),
+                const EduSectionTitle(text: 'Le principe de l\'échelonnement'),
                 const SizedBox(height: 12),
-                _InfoCard(
+                const _InfoCard(
                   icon: Icons.calendar_today_outlined,
                   title: '1 compte 3a par année fiscale',
                   body:
                       'Le retrait du 3a est imposé séparément du revenu ordinaire (LIFD art. 38), mais le taux augmente avec le montant retiré. En fractionnant sur plusieurs années, chaque retrait reste dans une tranche basse.',
                 ),
                 const SizedBox(height: 10),
-                _InfoCard(
+                const _InfoCard(
                   icon: Icons.account_tree_outlined,
                   title: 'Jusqu\'à 10 comptes 3a simultanés',
                   body:
                       'Depuis 2026, tu peux détenir plusieurs comptes 3a simultanément (révision OPP3 2026). En les ouvrant progressivement, tu peux échelonner les retraits sur 3 à 10 ans selon ton plan.',
                 ),
                 const SizedBox(height: 10),
-                _InfoCard(
+                const _InfoCard(
                   icon: Icons.map_outlined,
                   title: 'La fiscalité varie par canton',
                   body:
@@ -93,9 +93,9 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Tableau illustratif ───────────────────────
-                EduSectionTitle(text: 'Illustration : CHF 150\'000 en 3a'),
+                const EduSectionTitle(text: 'Illustration : CHF 150\'000 en 3a'),
                 const SizedBox(height: 12),
-                _WithdrawalTable(),
+                const _WithdrawalTable(),
                 const SizedBox(height: 8),
                 Text(
                   '* Estimations indicatives basées sur un taux cantonal moyen (ZH). Varie selon le canton et la situation fiscale individuelle.',
@@ -108,23 +108,23 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Plan d'action ────────────────────────────
-                EduSectionTitle(text: 'Comment planifier ton décaissement'),
+                const EduSectionTitle(text: 'Comment planifier ton décaissement'),
                 const SizedBox(height: 12),
-                _StepCard(
+                const _StepCard(
                   number: '1',
                   title: 'Inventaire de tes comptes 3a',
                   body:
                       'Liste chaque compte 3a avec son solde et son établissement. Note les années prévues de retraite pour chaque retrait.',
                 ),
                 const SizedBox(height: 10),
-                _StepCard(
+                const _StepCard(
                   number: '2',
                   title: 'Simule l\'impact fiscal par scénario',
                   body:
                       'Compare : tout retirer en 1 an vs. étaler sur 3, 5 ou 7 ans. L\'écart peut représenter plusieurs milliers de francs.',
                 ),
                 const SizedBox(height: 10),
-                _StepCard(
+                const _StepCard(
                   number: '3',
                   title: 'Coordinate avec ta retraite LPP',
                   body:
@@ -133,7 +133,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── CTA spécialiste ───────────────────────────
-                EduSpecialistCta(
+                const EduSpecialistCta(
                   icon: Icons.person_outline,
                   color: MintColors.withdrawalOptim,
                   title: 'Consulter un·e spécialiste',
@@ -142,7 +142,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Sources légales ───────────────────────────
-                EduLegalSources(
+                const EduLegalSources(
                   sources: '• LIFD art. 38 — Imposition séparée des prestations en capital\n'
                       '• OPP3 art. 3 — Conditions de retrait anticipé du pilier 3a\n'
                       '• OPP3 art. 7 — Plafonds de déduction\n'
@@ -151,7 +151,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // ── Disclaimer LSFin ──────────────────────────
-                EduDisclaimer(
+                const EduDisclaimer(
                   text:
                       'Information à caractère éducatif, ne constitue pas un conseil fiscal au sens de la LSFin. Les montants illustrés sont indicatifs. L\'impact exact dépend de ton canton de résidence, de tes autres revenus et de ta situation fiscale individuelle. Consulte un·e spécialiste avant toute décision de retrait.',
                 ),

@@ -4,7 +4,7 @@ import 'package:mint_mobile/services/coaching_service.dart';
 
 void main() {
   // ── Helper ──────────────────────────────────────────────────
-  CoachProfile _makeProfile({
+  CoachProfile makeProfile({
     String employmentStatus = 'salarie',
     CoachCivilStatus etatCivil = CoachCivilStatus.celibataire,
     int birthYear = 1990,
@@ -49,7 +49,7 @@ void main() {
 
   group('CoachProfile.toCoachingProfile()', () {
     test('maps salarie profile correctly', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         employmentStatus: 'salarie',
         etatCivil: CoachCivilStatus.celibataire,
         salaire: 7000,
@@ -76,7 +76,7 @@ void main() {
     });
 
     test('maps independant profile correctly', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         employmentStatus: 'independant',
         etatCivil: CoachCivilStatus.marie,
       );
@@ -88,8 +88,8 @@ void main() {
     });
 
     test('maps chomage / sans_emploi correctly', () {
-      final profile1 = _makeProfile(employmentStatus: 'chomage');
-      final profile2 = _makeProfile(employmentStatus: 'sans_emploi');
+      final profile1 = makeProfile(employmentStatus: 'chomage');
+      final profile2 = makeProfile(employmentStatus: 'sans_emploi');
 
       expect(
         profile1.toCoachingProfile().employmentStatus,
@@ -111,7 +111,7 @@ void main() {
       };
 
       for (final entry in cases.entries) {
-        final profile = _makeProfile(etatCivil: entry.key);
+        final profile = makeProfile(etatCivil: entry.key);
         expect(
           profile.toCoachingProfile().etatCivil,
           entry.value,
@@ -121,8 +121,8 @@ void main() {
     });
 
     test('hasBudget reflects planned contributions', () {
-      final withoutContribs = _makeProfile(contributions: const []);
-      final withContribs = _makeProfile(
+      final withoutContribs = makeProfile(contributions: const []);
+      final withContribs = makeProfile(
         contributions: const [
           PlannedMonthlyContribution(
             id: '3a_test',
@@ -139,7 +139,7 @@ void main() {
     });
 
     test('handles zero avoir LPP (hasLpp = false)', () {
-      final profile = _makeProfile(avoirLpp: 0);
+      final profile = makeProfile(avoirLpp: 0);
       final coaching = profile.toCoachingProfile();
 
       expect(coaching.hasLpp, false);
@@ -147,7 +147,7 @@ void main() {
     });
 
     test('handles zero 3a (has3a depends on nombre3a)', () {
-      final profile = _makeProfile(avoir3a: 0);
+      final profile = makeProfile(avoir3a: 0);
       final coaching = profile.toCoachingProfile();
 
       // has3a depends on prevoyance.nombre3a, not totalEpargne3a
@@ -155,14 +155,14 @@ void main() {
     });
 
     test('maps dettes correctly', () {
-      final profile = _makeProfile(autresDettes: 15000);
+      final profile = makeProfile(autresDettes: 15000);
       final coaching = profile.toCoachingProfile();
 
       expect(coaching.detteTotale, 15000);
     });
 
     test('chargesFixesMensuelles matches depenses.totalMensuel', () {
-      final profile = _makeProfile(loyer: 2000);
+      final profile = makeProfile(loyer: 2000);
       final coaching = profile.toCoachingProfile();
 
       expect(coaching.chargesFixesMensuelles, profile.depenses.totalMensuel);

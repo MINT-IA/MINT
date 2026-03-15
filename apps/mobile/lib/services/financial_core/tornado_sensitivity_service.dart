@@ -297,7 +297,7 @@ class TornadoSensitivityService {
       final base3aMensuel = profile.total3aMensuel;
       if (base3aMensuel > 0) {
         // Cap high scenario at OPP3 legal max (pilier3aPlafondAvecLpp).
-        final plafond3aMensuel = pilier3aPlafondAvecLpp / 12;
+        const plafond3aMensuel = pilier3aPlafondAvecLpp / 12;
         final cappedHigh = min(base3aMensuel * 2, plafond3aMensuel);
 
         // Skip if already at max (cappedHigh would equal base, zero swing).

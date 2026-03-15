@@ -111,7 +111,7 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
                 Text(
                   isExpired
                       ? 'Délai écoulé — l\'impôt est dû.'
-                      : 'Tu as ${_remploidDeadlineYears} ans pour racheter une résidence principale.',
+                      : 'Tu as $_remploidDeadlineYears ans pour racheter une résidence principale.',
                   style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4),
                 ),
               ],

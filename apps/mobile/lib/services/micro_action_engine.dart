@@ -340,7 +340,7 @@ class MicroActionEngine {
             'A ton age, un rachat echelonne pourrait optimiser ta fiscalite.',
         category: 'lpp',
         estimatedMinutes: 5,
-        deeplink: '/lpp-deep/rachat',
+        deeplink: '/rachat-lpp',
         priorityScore: 75,
         urgency: MicroActionUrgency.medium,
         icon: Icons.trending_up_outlined,

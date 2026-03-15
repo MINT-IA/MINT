@@ -576,9 +576,9 @@ class PdfService {
                         pw.Container(
                           padding: const pw.EdgeInsets.symmetric(
                               horizontal: 6, vertical: 2),
-                          decoration: pw.BoxDecoration(
+                          decoration: const pw.BoxDecoration(
                             color: PdfColors.green100,
-                            borderRadius: const pw.BorderRadius.all(
+                            borderRadius: pw.BorderRadius.all(
                                 pw.Radius.circular(4)),
                           ),
                           child: pw.Text(
@@ -839,7 +839,7 @@ class PdfService {
                               flex: 3,
                               child: pw.Text(
                                   'CHF ${year.estimatedTaxSavings.toStringAsFixed(0)}',
-                                  style: pw.TextStyle(
+                                  style: const pw.TextStyle(
                                       fontSize: 8,
                                       color: PdfColors.green800))),
                         ],

@@ -31,7 +31,7 @@ class DebtAlertBanner extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.warning_rounded, color: MintColors.error, size: 22),
+              const Icon(Icons.warning_rounded, color: MintColors.error, size: 22),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(

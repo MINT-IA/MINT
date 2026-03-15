@@ -16,7 +16,7 @@ import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 void main() {
   // ── Helpers ────────────────────────────────────────────────────────────────
 
-  ArbitrageResult _certResult({
+  ArbitrageResult certResult({
     double capitalOblig = 500000,
     double capitalSurob = 150000,
     double renteAnnuelle = 37000,
@@ -47,7 +47,7 @@ void main() {
     );
   }
 
-  ArbitrageResult _estimateResult({
+  ArbitrageResult estimateResult({
     int currentAge = 50,
     double salary = 100000,
     double capitalOblig = 210000,
@@ -78,7 +78,7 @@ void main() {
     late ArbitrageResult r;
 
     setUpAll(() {
-      r = _certResult();
+      r = certResult();
     });
 
     test('isProjected is false', () {
@@ -92,7 +92,7 @@ void main() {
 
     test('renteNetMensuelle < renteAnnuelle / 12 (tax applied)', () {
       // Net must be less than gross monthly (taxes reduce it)
-      final grossMonthly = 37000 / 12;
+      const grossMonthly = 37000 / 12;
       expect(r.renteNetMensuelle, lessThan(grossMonthly));
     });
 
@@ -102,7 +102,7 @@ void main() {
 
     test('capitalRetraitMensuel ≈ SWR × capitalTotal / 12 (year 1)', () {
       // SWR 4% on 650k → 26k/yr → ~2167/mo
-      final expected = 650000 * 0.04 / 12;
+      const expected = 650000 * 0.04 / 12;
       expect(r.capitalRetraitMensuel, closeTo(expected, expected * 0.15));
     });
 
@@ -132,7 +132,7 @@ void main() {
 
   group('married — renteSurvivant', () {
     test('renteSurvivant = 60% of annual effective rente', () {
-      final r = _certResult(renteAnnuelle: 36000, isMarried: true);
+      final r = certResult(renteAnnuelle: 36000, isMarried: true);
       // LPP art. 19: 60% survivor pension
       expect(r.renteSurvivant, closeTo(36000 * 0.6, 36000 * 0.6 * 0.05));
     });
@@ -143,7 +143,7 @@ void main() {
   group('capitalEpuiseAge', () {
     test('capital exhausted when SWR too high (8%) on small capital', () {
       // 8% SWR on 300k capital, 0% return → runs out before horizon ends
-      final r = _certResult(
+      final r = certResult(
         capitalOblig: 180000,
         capitalSurob: 120000,
         renteAnnuelle: 20000,
@@ -158,7 +158,7 @@ void main() {
 
     test('capital NOT exhausted at conservative 3% SWR on large capital', () {
       // 3% SWR on 1M with 4% return → never runs out over 30 years
-      final r = _certResult(
+      final r = certResult(
         capitalOblig: 600000,
         capitalSurob: 400000,
         renteAnnuelle: 50000,
@@ -176,7 +176,7 @@ void main() {
     late ArbitrageResult r;
 
     setUpAll(() {
-      r = _estimateResult();
+      r = estimateResult();
     });
 
     test('isProjected is true when currentAge < ageRetraite', () {
@@ -203,14 +203,14 @@ void main() {
 
   group('dynamic horizon', () {
     test('longer horizon (40 yrs) gives different capitalEpuiseAge', () {
-      final r30 = _certResult(
+      final r30 = certResult(
         capitalOblig: 180000,
         capitalSurob: 120000,
         swr: 0.07,
         rendement: 0.02,
         horizon: 30,
       );
-      final r40 = _certResult(
+      final r40 = certResult(
         capitalOblig: 180000,
         capitalSurob: 120000,
         swr: 0.07,
@@ -243,19 +243,19 @@ void main() {
 
   group('compliance', () {
     test('disclaimer is non-empty and mentions LSFin', () {
-      final r = _certResult();
+      final r = certResult();
       expect(r.disclaimer, isNotEmpty);
       expect(r.disclaimer.toLowerCase(), contains('educatif'));
     });
 
     test('sources list includes LIFD art. 38', () {
-      final r = _certResult();
+      final r = certResult();
       final combined = r.sources.join(' ');
       expect(combined, contains('LIFD'));
     });
 
     test('chiffreChoc is non-empty', () {
-      final r = _certResult();
+      final r = certResult();
       expect(r.chiffreChoc, isNotEmpty);
     });
   });

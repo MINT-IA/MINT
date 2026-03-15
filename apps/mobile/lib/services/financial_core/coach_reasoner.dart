@@ -512,7 +512,7 @@ class CoachReasonerService {
         const NextAction(
           type: NextActionType.learn,
           label: 'Comprendre le libre passage',
-          deepLink: '/lpp-deep/libre-passage',
+          deepLink: '/libre-passage',
         ),
       ],
     );

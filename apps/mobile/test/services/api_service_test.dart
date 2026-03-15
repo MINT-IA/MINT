@@ -99,7 +99,7 @@ void main() {
       // The pattern is: '{METHOD} {endpoint} failed: {body}'
       const endpoint = '/profiles';
       const body = '{"detail":"Not found"}';
-      final msg = 'GET $endpoint failed: $body';
+      const msg = 'GET $endpoint failed: $body';
       expect(msg, contains('GET'));
       expect(msg, contains(endpoint));
       expect(msg, contains(body));
@@ -108,7 +108,7 @@ void main() {
     test('POST error includes endpoint path and body', () {
       const endpoint = '/sessions';
       const body = '{"detail":"Validation error"}';
-      final msg = 'POST $endpoint failed: $body';
+      const msg = 'POST $endpoint failed: $body';
       expect(msg, contains('POST'));
       expect(msg, contains(endpoint));
       expect(msg, contains(body));
@@ -117,7 +117,7 @@ void main() {
     test('PUT error includes endpoint path and body', () {
       const endpoint = '/profiles/123';
       const body = '{"detail":"Conflict"}';
-      final msg = 'PUT $endpoint failed: $body';
+      const msg = 'PUT $endpoint failed: $body';
       expect(msg, contains('PUT'));
       expect(msg, contains(endpoint));
     });
@@ -125,7 +125,7 @@ void main() {
     test('DELETE error includes endpoint path and body', () {
       const endpoint = '/sessions/456';
       const body = '{"detail":"Forbidden"}';
-      final msg = 'DELETE $endpoint failed: $body';
+      const msg = 'DELETE $endpoint failed: $body';
       expect(msg, contains('DELETE'));
       expect(msg, contains(endpoint));
     });
@@ -146,7 +146,7 @@ void main() {
     test('auth header uses Bearer scheme', () {
       // Token is prefixed with "Bearer " in the Authorization header
       const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.test';
-      final authHeader = 'Bearer $token';
+      const authHeader = 'Bearer $token';
       expect(authHeader, startsWith('Bearer '));
       expect(authHeader, contains(token));
     });

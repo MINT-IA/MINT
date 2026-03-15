@@ -118,7 +118,7 @@ class ReportBuilder {
             const NextAction(
                 label: 'Comparer les offres',
                 type: NextActionType.partnerHandoff,
-                deepLink: '/simulator/3a')
+                deepLink: '/pilier-3a')
           ],
         ));
       } else {

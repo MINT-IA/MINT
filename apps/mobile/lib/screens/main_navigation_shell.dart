@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/screens/main_tabs/explore_tab.dart';
-import 'package:mint_mobile/screens/pulse/pulse_screen.dart' show PulseScreen, NavigationShellState;
-import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
+import 'package:mint_mobile/screens/pulse/pulse_screen.dart'
+    show PulseScreen, NavigationShellState;
+import 'package:mint_mobile/screens/main_tabs/mint_coach_tab.dart';
 import 'package:mint_mobile/screens/profile_screen.dart';
 import 'package:mint_mobile/widgets/mentor_fab.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
@@ -13,14 +14,13 @@ import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 
-/// Shell principal de navigation MINT Coach
+/// Shell principal de navigation MINT V1
 ///
-/// Architecture 4 tabs — S48 Phase 0 :
-/// - PULSE : Score visibilite + actions + comprendre (PulseScreen)
-/// - AGIR : Timeline d'actions et check-in (CoachAgirScreen)
-/// - APPRENDRE : Simulateurs, evenements de vie, education (ExploreTab)
-/// - PROFIL : Profil utilisateur (ProfileScreen)
-/// - MENTOR : Compagnon toujours accessible (FAB)
+/// Architecture 3 tabs — S49 :
+/// - PULSE : Ou j'en suis (score + priorite + pastilles + FRI)
+/// - MINT  : Que faire (coach chat + Response Cards + simulations)
+/// - MOI   : Qui je suis (fiche resumee editable + conjoint + parametres)
+/// - FAB Mentor : visible sur Pulse et Moi, masque sur Mint
 class MainNavigationShell extends StatefulWidget {
   const MainNavigationShell({super.key});
 
@@ -37,6 +37,18 @@ class _MainNavigationShellState extends State<MainNavigationShell>
 
   /// Timestamp when the app was last paused (backgrounded)
   DateTime? _lastPauseTime;
+
+  static const List<Widget> _tabs = [
+    PulseScreen(),
+    MintCoachTab(),
+    ProfileScreen(),
+  ];
+
+  static const List<String> _tabNames = [
+    'pulse',
+    'mint',
+    'moi',
+  ];
 
   @override
   void initState() {
@@ -82,9 +94,9 @@ class _MainNavigationShellState extends State<MainNavigationShell>
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Bienvenue ! Tes donnees sont a jour.'),
-                  duration: Duration(seconds: 3),
+                SnackBar(
+                  content: Text(S.of(context)!.shellWelcomeBack),
+                  duration: const Duration(seconds: 3),
                 ),
               );
             }
@@ -99,14 +111,13 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     super.didChangeDependencies();
     if (!_budgetLoaded) {
       _budgetLoaded = true;
-      // Restaurer le budget depuis SharedPreferences si disponible
       final budgetProvider = context.read<BudgetProvider>();
       if (budgetProvider.inputs == null) {
         budgetProvider.loadFromStorage();
       }
     }
 
-    // Auto-sync budget quand le profil change (wizard, annual refresh)
+    // Auto-sync budget when profile changes
     final coachProvider = context.watch<CoachProfileProvider>();
     if (coachProvider.profileUpdatedSinceBudget && coachProvider.hasProfile) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -119,38 +130,24 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     }
   }
 
-
-  static const List<Widget> _tabs = [
-    PulseScreen(),
-    CoachAgirScreen(),
-    ExploreTab(),
-    ProfileScreen(),
-  ];
-
-  final List<String> _tabNames = const [
-    'pulse',
-    'agir',
-    'apprendre',
-    'profil',
-  ];
-
   @override
   Widget build(BuildContext context) {
+    // Hide FAB on Mint tab (index 1) — already the coach
+    final showFab = _currentIndex != 1;
+
     return Scaffold(
       body: Stack(
         children: [
-          // Contenu du tab actif
           IndexedStack(
             index: _currentIndex,
             children: _tabs,
           ),
-
-          // FAB Mentor (toujours visible, contextuel par tab)
-          Positioned(
-            right: 20,
-            bottom: 90,
-            child: MentorFAB(currentTabIndex: _currentIndex),
-          ),
+          if (showFab)
+            Positioned(
+              right: 20,
+              bottom: 90,
+              child: MentorFAB(currentTabIndex: _currentIndex),
+            ),
         ],
       ),
       bottomNavigationBar: _buildBottomNav(),
@@ -188,23 +185,16 @@ class _MainNavigationShellState extends State<MainNavigationShell>
               ),
               _buildNavItem(
                 index: 1,
-                icon: Icons.flash_on_outlined,
-                activeIcon: Icons.flash_on,
-                label: 'Agir',
+                icon: Icons.chat_bubble_outline,
+                activeIcon: Icons.chat_bubble,
+                label: 'Mint',
                 isCompact: isCompact,
               ),
               _buildNavItem(
                 index: 2,
-                icon: Icons.explore_outlined,
-                activeIcon: Icons.explore,
-                label: 'Apprendre',
-                isCompact: isCompact,
-              ),
-              _buildNavItem(
-                index: 3,
                 icon: Icons.person_outline,
                 activeIcon: Icons.person,
-                label: 'Profil',
+                label: 'Moi',
                 isCompact: isCompact,
               ),
             ],
@@ -227,19 +217,22 @@ class _MainNavigationShellState extends State<MainNavigationShell>
       child: InkWell(
         onTap: () {
           if (_currentIndex != index) {
-            _analytics.trackTabSwitch(_tabNames[_currentIndex], _tabNames[index]);
+            _analytics.trackTabSwitch(
+                _tabNames[_currentIndex], _tabNames[index]);
 
-            // Feedback loop: snackbar au retour sur Dashboard si nouveaux simulateurs explores
+            // Feedback loop: snackbar on return to Pulse if new simulators explored
             if (index == 0) {
               final activity = context.read<UserActivityProvider>();
               final currentCount = activity.exploredSimulators.length;
-              if (currentCount > _lastKnownSimulatorCount && _lastKnownSimulatorCount > 0) {
+              if (currentCount > _lastKnownSimulatorCount &&
+                  _lastKnownSimulatorCount > 0) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Recommandations mises a jour'),
-                        duration: Duration(seconds: 2),
+                      SnackBar(
+                        content:
+                            Text(S.of(context)!.shellRecommendationsUpdated),
+                        duration: const Duration(seconds: 2),
                       ),
                     );
                   }
@@ -268,7 +261,8 @@ class _MainNavigationShellState extends State<MainNavigationShell>
                 style: TextStyle(
                   fontSize: isCompact ? 9 : 10,
                   fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                  color: isActive ? MintColors.primary : MintColors.textMuted,
+                  color:
+                      isActive ? MintColors.primary : MintColors.textMuted,
                   letterSpacing: 0.5,
                 ),
               ),

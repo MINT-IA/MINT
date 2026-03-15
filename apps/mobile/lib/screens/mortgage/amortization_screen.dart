@@ -87,7 +87,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
                 // Source legale
                 Text(
                   S.of(context)!.amortizationSource,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
                     color: MintColors.textMuted,
@@ -165,9 +165,9 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,7 +205,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3), width: 2),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
       ),
       child: Column(
         children: [
@@ -485,9 +485,9 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -538,12 +538,12 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 fontStyle: FontStyle.italic,
                 color: MintColors.deepOrange,

@@ -25,7 +25,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
   int _staggeringYears = 5;
   double _fundRate = 0.02;
   double _taxableIncome = 120000;
-  String _canton = 'ZH';
+  final String _canton = 'ZH';
 
   @override
   void initState() {
@@ -271,8 +271,8 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Taux LPP servi",
-                  style: const TextStyle(
+              const Text("Taux LPP servi",
+                  style: TextStyle(
                       color: MintColors.textMuted, fontSize: 12)),
               Text("${(_fundRate * 100).toStringAsFixed(1)}%",
                   style: const TextStyle(fontSize: 12)),
@@ -281,8 +281,8 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Effet levier fiscal",
-                  style: const TextStyle(
+              const Text("Effet levier fiscal",
+                  style: TextStyle(
                       color: MintColors.textMuted, fontSize: 12)),
               Text(
                   "+${((result.realAnnualReturn - _fundRate) * 100).toStringAsFixed(1)}%",

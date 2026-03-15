@@ -16,7 +16,7 @@ class StopRuleCallout extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.pause_circle_filled, color: MintColors.amberDark),
+          const Icon(Icons.pause_circle_filled, color: MintColors.amberDark),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

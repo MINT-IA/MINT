@@ -64,7 +64,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 32),
-        Icon(Icons.people, size: 64, color: MintColors.primary),
+        const Icon(Icons.people, size: 64, color: MintColors.primary),
         const SizedBox(height: 24),
         Text(
           'Entre le code recu de ton/ta partenaire',
@@ -165,11 +165,11 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: MintColors.successBg,
               shape: BoxShape.circle,
             ),
-            child: Icon(
+            child: const Icon(
               Icons.check_circle,
               size: 72,
               color: MintColors.categoryGreen,
@@ -195,7 +195,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
           ),
           const SizedBox(height: 32),
           FilledButton(
-            onPressed: () => context.go('/household'),
+            onPressed: () => context.go('/couple'),
             child: const Text('Voir mon menage'),
           ),
         ],

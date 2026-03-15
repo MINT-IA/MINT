@@ -183,7 +183,7 @@ class PulseHeroEngine {
         subtitle: 'Le choix qui change tout.',
         detail: 'Compare les deux options avec tes chiffres réels.',
         ctaLabel: 'Comparer',
-        ctaRoute: '/arbitrage/rente-vs-capital',
+        ctaRoute: '/rente-vs-capital',
         icon: Icons.compare_arrows_outlined,
         color: MintColors.success,
       );
@@ -197,7 +197,7 @@ class PulseHeroEngine {
       subtitle: 'conservé à la retraite.',
       detail: 'Médiane suisse : 60%. Où te situes-tu ?',
       ctaLabel: 'Voir ma projection',
-      ctaRoute: '/retirement',
+      ctaRoute: '/retraite',
       icon: Icons.beach_access_outlined,
       color: MintColors.success,
     );
@@ -233,7 +233,7 @@ class PulseHeroEngine {
       subtitle: 'Que se passe-t-il si tu ne peux plus travailler ?',
       detail: 'IJM, AI, LPP invalidité — vérifie ta couverture.',
       ctaLabel: 'Vérifier',
-      ctaRoute: '/disability/gap',
+      ctaRoute: '/invalidite',
       icon: Icons.shield_outlined,
       color: MintColors.warning,
     );
@@ -280,7 +280,7 @@ class PulseHeroEngine {
       subtitle: 'La différence peut dépasser CHF 200\'000.',
       detail: 'Taxé une fois (capital) vs chaque année (rente).',
       ctaLabel: 'Comparer',
-      ctaRoute: '/arbitrage/rente-vs-capital',
+      ctaRoute: '/rente-vs-capital',
       icon: Icons.compare_arrows_outlined,
       color: MintColors.primary,
     );
@@ -320,7 +320,7 @@ class PulseHeroEngine {
         subtitle: 'Calcule ta capacité d\'achat.',
         detail: 'Ton 3a et ton LPP = ta principale mise de fonds.',
         ctaLabel: 'Simuler',
-        ctaRoute: '/mortgage/affordability',
+        ctaRoute: '/hypotheque',
         icon: Icons.home_outlined,
         color: MintColors.primary,
       );
@@ -332,7 +332,7 @@ class PulseHeroEngine {
       subtitle: 'Le bien que tu pourrais viser.',
       detail: 'Ton 3a et ton LPP = ta principale mise de fonds.',
       ctaLabel: 'Simuler mon achat',
-      ctaRoute: '/mortgage/affordability',
+      ctaRoute: '/hypotheque',
       icon: Icons.home_outlined,
       color: MintColors.primary,
     );

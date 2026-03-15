@@ -319,7 +319,7 @@ class MinimumVitalWidget extends StatelessWidget {
                 value: fraction,
                 minHeight: 14,
                 backgroundColor: Colors.transparent,
-                valueColor: AlwaysStoppedAnimation<Color>(MintColors.scoreAttention),
+                valueColor: const AlwaysStoppedAnimation<Color>(MintColors.scoreAttention),
               ),
             ],
           ),

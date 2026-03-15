@@ -33,7 +33,7 @@ class LowConfidenceCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.info_outline,
+              const Icon(Icons.info_outline,
                   color: MintColors.scoreAttention, size: 22),
               const SizedBox(width: 10),
               Expanded(
@@ -97,7 +97,7 @@ class LowConfidenceCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed: () => context.push('/document-scan'),
+              onPressed: () => context.push('/scan'),
               icon: const Icon(Icons.edit_outlined, size: 18),
               label: Text(
                 'Compl\u00e9ter mon profil',

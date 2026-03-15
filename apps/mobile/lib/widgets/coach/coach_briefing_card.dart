@@ -101,7 +101,7 @@ class CoachBriefingCard extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.timer_outlined,
+                  const Icon(Icons.timer_outlined,
                       size: 14, color: MintColors.primary),
                   const SizedBox(width: 6),
                   Flexible(

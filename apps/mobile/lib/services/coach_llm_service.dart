@@ -606,16 +606,4 @@ class CoachLlmService {
 
 }
 
-/// Resultat interne du mock (avant guardrails)
-class _MockResult {
-  final String message;
-  final List<String>? suggestedActions;
-  final List<RagSource> sources;
-
-  const _MockResult({
-    required this.message,
-    this.suggestedActions,
-    this.sources = const [],
-  });
-}
 

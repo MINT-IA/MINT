@@ -161,11 +161,11 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                         fillColor: MintColors.surface,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: MintColors.border),
+                          borderSide: const BorderSide(color: MintColors.border),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: MintColors.border),
+                          borderSide: const BorderSide(color: MintColors.border),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 12),

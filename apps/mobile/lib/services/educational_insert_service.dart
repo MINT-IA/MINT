@@ -228,7 +228,7 @@ class EducationalInsertService {
             'OPP2 art. 30d-30g (Modalités EPL)',
           ],
           actionLabel: 'Simuler ma capacité d\'emprunt',
-          actionRoute: '/mortgage/affordability',
+          actionRoute: '/hypotheque',
           onLearnMore: onLearnMore,
         );
 
@@ -288,7 +288,7 @@ class EducationalInsertService {
             'OPP2 art. 60a (Calcul du potentiel de rachat)',
           ],
           actionLabel: 'Simuler l\'économie fiscale de mon rachat',
-          actionRoute: '/lpp-deep/rachat',
+          actionRoute: '/rachat-lpp',
           onLearnMore: onLearnMore,
         );
 
@@ -380,7 +380,7 @@ class EducationalInsertService {
             'LIFD art. 21 al. 1 let. b (Valeur locative)',
           ],
           actionLabel: 'Simuler ma capacité d\'emprunt',
-          actionRoute: '/mortgage/affordability',
+          actionRoute: '/hypotheque',
           onLearnMore: onLearnMore,
         );
 

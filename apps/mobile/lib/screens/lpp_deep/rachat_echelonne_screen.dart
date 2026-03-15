@@ -208,9 +208,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 const SizedBox(height: 24),
 
                 // Simulateur de départ anticipé à la retraite
-                EarlyRetirementSlider(
+                const EarlyRetirementSlider(
                   monthlyIncomeAt65: 4000,
-                  scenarios: const [
+                  scenarios: [
                     RetirementAgeScenario(age: 60, monthlyIncome: 3400, deltaPercent: -15, lifetimeDelta: -18000),
                     RetirementAgeScenario(age: 62, monthlyIncome: 3600, deltaPercent: -10, lifetimeDelta: -12000),
                     RetirementAgeScenario(age: 63, monthlyIncome: 3760, deltaPercent: -6, lifetimeDelta: -7200),
@@ -774,11 +774,11 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                   color: MintColors.accentPastel,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
-                    const Icon(Icons.lightbulb_outline, size: 20,
+                    Icon(Icons.lightbulb_outline, size: 20,
                         color: MintColors.primary),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'C\'est pour ça qu\'échelonner tes rachats est malin : '
@@ -1180,7 +1180,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                   children: [
                     Text(
                       'Economie : CHF ${formatChf(result.economieEchelonneTotal)}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: MintColors.greenDark,
@@ -1299,7 +1299,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                       ),
                       Text(
                         '-CHF ${formatChf(year.economieFiscale)}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                           color: MintColors.greenDark,
@@ -1308,10 +1308,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                     ],
                   ),
                   const SizedBox(height: 4),
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Rachat',
                         style: TextStyle(
                           fontSize: 11,
@@ -1377,11 +1377,11 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: MintColors.redBg),
       ),
-      child: Row(
+      child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.gavel, color: MintColors.redMedium, size: 22),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1394,7 +1394,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                     color: MintColors.redDark,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   'Apres chaque rachat, tout retrait EPL (encouragement a la '
                   'propriete du logement) est bloque pendant 3 ans. '
@@ -1428,12 +1428,12 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: MintColors.deepOrange,
                 height: 1.4,

@@ -232,7 +232,7 @@ class OcrSanitizer {
     }
 
     // Valid format — return true (has AVS) without storing the number
-    return ValidValue(
+    return const ValidValue(
       value: true,
       rawText: '756.XXXX.XXXX.XX', // Masked for privacy
     );

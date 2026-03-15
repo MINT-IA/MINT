@@ -82,7 +82,7 @@ class AffordabilityCalculator {
     // => prix <= (revenu x 1/3 + FP x 6%) / 7%
     // Aussi : prix <= FP / 20% (contrainte fonds propres)
     final fondsPropresTotal = epargne + a3a + (prix > 0 ? min(lpp, prix * hypothequePart2ePilierMax) : 0.0);
-    final tauxChargesSansAccessoires = hypothequeTauxTheorique + hypothequeTauxAmortissement;
+    const tauxChargesSansAccessoires = hypothequeTauxTheorique + hypothequeTauxAmortissement;
     final prixMaxRevenu = revenu > 0
         ? (revenu * hypothequeRatioChargesMax + fondsPropresTotal * tauxChargesSansAccessoires) / hypothequeTauxChargesTotal
         : 0.0;

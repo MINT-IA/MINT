@@ -23,6 +23,7 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/services/slm/slm_auto_prompt_service.dart';
 import 'package:mint_mobile/widgets/coach/retirement_hero_zone.dart';
 import 'package:mint_mobile/widgets/coach/smart_shortcuts.dart';
+import 'package:mint_mobile/widgets/collapsible_section.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -379,6 +380,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ),
                 const SizedBox(height: 24),
 
+                // ── Related sections (hub) ──
+                _buildRelatedSections(),
+                const SizedBox(height: 24),
+
                 // ── Position 4: Footer ──
                 _buildDisclaimer(),
                 const SizedBox(height: 32),
@@ -634,7 +639,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                               ],
                             ),
                           ),
-                          Icon(Icons.arrow_forward_ios,
+                          const Icon(Icons.arrow_forward_ios,
                               size: 14, color: MintColors.textMuted),
                         ],
                       ),
@@ -681,7 +686,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       ),
       child: Column(
         children: [
-          Icon(Icons.beach_access_outlined,
+          const Icon(Icons.beach_access_outlined,
               size: 48, color: MintColors.primary),
           const SizedBox(height: 16),
           Text(
@@ -756,7 +761,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 color: MintColors.info.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(Icons.school_outlined,
+              child: const Icon(Icons.school_outlined,
                   size: 20, color: MintColors.info),
             ),
             const SizedBox(width: 14),
@@ -782,10 +787,53 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios,
+            const Icon(Icons.arrow_forward_ios,
                 size: 14, color: MintColors.textMuted),
           ],
         ),
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  RELATED SECTIONS (HUB)
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildRelatedSections() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Explorer aussi',
+          style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
+        const SizedBox(height: 12),
+        CollapsibleSection(
+          title: 'Cockpit de détail',
+          subtitle: 'Décomposition par pilier',
+          icon: Icons.dashboard_outlined,
+          child: _buildSectionCta('Ouvrir', '/coach/cockpit'),
+        ),
+        CollapsibleSection(
+          title: 'Rente vs Capital',
+          subtitle: 'Explorer le point d\'équilibre',
+          icon: Icons.balance,
+          child: _buildSectionCta('Simuler', '/rente-vs-capital'),
+        ),
+        CollapsibleSection(
+          title: 'Rachat LPP',
+          subtitle: 'Simuler l\'impact fiscal',
+          icon: Icons.add_chart,
+          child: _buildSectionCta('Calculer', '/rachat-lpp'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionCta(String label, String route) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: () => context.push(route),
+        child: Text(label),
       ),
     );
   }
@@ -830,7 +878,7 @@ class _UrgentBanner extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(Icons.schedule, size: 18, color: MintColors.warning),
+            const Icon(Icons.schedule, size: 18, color: MintColors.warning),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
@@ -842,7 +890,7 @@ class _UrgentBanner extends StatelessWidget {
                 ),
               ),
             ),
-            Icon(Icons.arrow_forward_ios,
+            const Icon(Icons.arrow_forward_ios,
                 size: 12, color: MintColors.warning),
           ],
         ),
@@ -963,7 +1011,7 @@ class _ActionCard extends StatelessWidget {
               ),
             ),
             if (card.deeplink != null)
-              Icon(Icons.chevron_right, size: 18, color: MintColors.textMuted),
+              const Icon(Icons.chevron_right, size: 18, color: MintColors.textMuted),
           ],
         ),
       ),
@@ -1005,7 +1053,7 @@ class _DataEnrichmentCard extends StatelessWidget {
                 color: MintColors.primary.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(Icons.document_scanner_outlined,
+              child: const Icon(Icons.document_scanner_outlined,
                   size: 16, color: MintColors.primary),
             ),
             const SizedBox(width: 12),
@@ -1032,7 +1080,7 @@ class _DataEnrichmentCard extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios,
+            const Icon(Icons.arrow_forward_ios,
                 size: 14, color: MintColors.primary),
           ],
         ),

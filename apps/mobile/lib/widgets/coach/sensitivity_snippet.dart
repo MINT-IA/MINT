@@ -90,7 +90,7 @@ class SensitivitySnippet extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  Icon(
+                  const Icon(
                     Icons.chevron_right,
                     size: 16,
                     color: MintColors.primary,

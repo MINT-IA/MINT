@@ -36,8 +36,8 @@ void main() {
   group('StaggeredWithdrawalScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -178,8 +178,8 @@ void main() {
   group('RealReturnScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -326,8 +326,8 @@ void main() {
   group('ProviderComparatorScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,

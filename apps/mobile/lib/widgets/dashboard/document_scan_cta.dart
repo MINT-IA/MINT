@@ -56,7 +56,7 @@ class DocumentScanCta extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => context.push('/document-scan'),
+          onTap: () => context.push('/scan'),
           borderRadius: BorderRadius.circular(20),
           child: Padding(
             padding: const EdgeInsets.all(20),

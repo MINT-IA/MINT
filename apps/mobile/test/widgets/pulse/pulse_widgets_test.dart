@@ -207,7 +207,7 @@ void main() {
       id: 'lpp',
       title: 'Ajoute ton certificat LPP',
       subtitle: 'Scanne ou saisis les donnees de ta caisse',
-      route: '/lpp-deep/rachat',
+      route: '/rachat-lpp',
       icon: 'account_balance',
       category: 'lpp',
       impactPoints: 18,
@@ -215,7 +215,7 @@ void main() {
 
     testWidgets('renders title and subtitle', (tester) async {
       await tester.pumpWidget(
-        _l10nApp(PulseActionCard(action: action)),
+        _l10nApp(const PulseActionCard(action: action)),
       );
 
       expect(find.text('Ajoute ton certificat LPP'), findsOneWidget);
@@ -224,7 +224,7 @@ void main() {
 
     testWidgets('renders impact badge with points', (tester) async {
       await tester.pumpWidget(
-        _l10nApp(PulseActionCard(action: action)),
+        _l10nApp(const PulseActionCard(action: action)),
       );
 
       expect(find.text('+18 pts'), findsOneWidget);
@@ -232,7 +232,7 @@ void main() {
 
     testWidgets('renders category icon', (tester) async {
       await tester.pumpWidget(
-        _l10nApp(PulseActionCard(action: action)),
+        _l10nApp(const PulseActionCard(action: action)),
       );
 
       expect(find.byIcon(Icons.account_balance), findsOneWidget);
@@ -240,7 +240,7 @@ void main() {
 
     testWidgets('renders forward arrow', (tester) async {
       await tester.pumpWidget(
-        _l10nApp(PulseActionCard(action: action)),
+        _l10nApp(const PulseActionCard(action: action)),
       );
 
       expect(find.byIcon(Icons.arrow_forward_ios), findsOneWidget);
@@ -312,23 +312,23 @@ void main() {
           ),
           // Catch-all routes for each ComprendreSection item
           GoRoute(
-            path: '/arbitrage/rente-vs-capital',
+            path: '/rente-vs-capital',
             builder: (_, __) {
-              lastPushedRoute = '/arbitrage/rente-vs-capital';
+              lastPushedRoute = '/rente-vs-capital';
               return const SizedBox();
             },
           ),
           GoRoute(
-            path: '/lpp-deep/rachat',
+            path: '/rachat-lpp',
             builder: (_, __) {
-              lastPushedRoute = '/lpp-deep/rachat';
+              lastPushedRoute = '/rachat-lpp';
               return const SizedBox();
             },
           ),
           GoRoute(
-            path: '/simulator/3a',
+            path: '/pilier-3a',
             builder: (_, __) {
-              lastPushedRoute = '/simulator/3a';
+              lastPushedRoute = '/pilier-3a';
               return const SizedBox();
             },
           ),
@@ -340,9 +340,9 @@ void main() {
             },
           ),
           GoRoute(
-            path: '/mortgage/affordability',
+            path: '/hypotheque',
             builder: (_, __) {
-              lastPushedRoute = '/mortgage/affordability';
+              lastPushedRoute = '/hypotheque';
               return const SizedBox();
             },
           ),
@@ -362,10 +362,10 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      // Tap "Rente ou capital ?" → /arbitrage/rente-vs-capital
+      // Tap "Rente ou capital ?" → /rente-vs-capital
       await tester.tap(find.text('Rente ou capital\u00a0?'));
       await tester.pumpAndSettle();
-      expect(lastPushedRoute, '/arbitrage/rente-vs-capital');
+      expect(lastPushedRoute, '/rente-vs-capital');
 
       // Go back and tap next item
       router.go('/');
@@ -373,14 +373,14 @@ void main() {
 
       await tester.tap(find.text('Simuler un rachat LPP'));
       await tester.pumpAndSettle();
-      expect(lastPushedRoute, '/lpp-deep/rachat');
+      expect(lastPushedRoute, '/rachat-lpp');
 
       router.go('/');
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Explorer mon 3a'));
       await tester.pumpAndSettle();
-      expect(lastPushedRoute, '/simulator/3a');
+      expect(lastPushedRoute, '/pilier-3a');
 
       router.go('/');
       await tester.pumpAndSettle();
@@ -394,7 +394,7 @@ void main() {
 
       await tester.tap(find.text('Acheter un bien\u00a0?'));
       await tester.pumpAndSettle();
-      expect(lastPushedRoute, '/mortgage/affordability');
+      expect(lastPushedRoute, '/hypotheque');
     });
 
     testWidgets('subtitles are educational (no banned terms)', (tester) async {

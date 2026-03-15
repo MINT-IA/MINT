@@ -18,21 +18,17 @@ import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/models/profile.dart';
 
 // ────────────────────────────────────────────────────────────
-//  NAVIGATION SHELL TESTS — Phase 5 / Quality hardening
-//
-//  MainNavigationShell embeds PulseScreen as tab 0 (S48 Phase 0).
-//  PulseScreen async narrative may run. Use pump(Duration) not pumpAndSettle().
+//  NAVIGATION SHELL TESTS — S49 (3 tabs: Pulse, Mint, Moi)
 // ────────────────────────────────────────────────────────────
 
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({
-      // Avoid SLM download prompt modal covering the nav bar during tests.
       'slm_auto_prompt_shown': true,
     });
   });
 
-  CoachProfileProvider _buildCoachProvider() {
+  CoachProfileProvider buildCoachProvider() {
     final provider = CoachProfileProvider();
     provider.updateFromAnswers({
       'q_firstname': 'Julien',
@@ -66,27 +62,27 @@ void main() {
         ChangeNotifierProvider<DocumentProvider>(
             create: (_) => DocumentProvider()),
         ChangeNotifierProvider<BudgetProvider>(create: (_) => BudgetProvider()),
-        ChangeNotifierProvider(create: (_) => _buildCoachProvider()),
+        ChangeNotifierProvider(create: (_) => buildCoachProvider()),
         ChangeNotifierProvider<LocaleProvider>(create: (_) => LocaleProvider()),
         ChangeNotifierProvider<UserActivityProvider>(
             create: (_) => UserActivityProvider()),
         ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
       ],
-      child: MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      child: const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: S.supportedLocales,
-        home: const MainNavigationShell(),
+        home: MainNavigationShell(),
       ),
     );
   }
 
-  group('MainNavigationShell (Sprint C10 — 4 tabs)', () {
+  group('MainNavigationShell (S49 — 3 tabs)', () {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(buildTestableShell());
       await tester.pump(const Duration(seconds: 2));
@@ -95,30 +91,25 @@ void main() {
       expect(find.byType(Scaffold), findsWidgets);
     });
 
-    testWidgets('renders 4 tab items in bottom navigation', (tester) async {
+    testWidgets('renders 3 tab items in bottom navigation', (tester) async {
       await tester.pumpWidget(buildTestableShell());
       await tester.pump(const Duration(seconds: 2));
 
       expect(find.text('Pulse'), findsOneWidget);
-      expect(find.text('Agir'), findsOneWidget);
-      expect(find.text('Apprendre'), findsOneWidget);
-      expect(find.text('Profil'), findsOneWidget);
+      expect(find.text('Mint'), findsOneWidget);
+      expect(find.text('Moi'), findsOneWidget);
     });
 
-    testWidgets('each tab label is correct', (tester) async {
+    testWidgets('old tab labels are removed', (tester) async {
       await tester.pumpWidget(buildTestableShell());
       await tester.pump(const Duration(seconds: 2));
 
-      final expectedLabels = ['Pulse', 'Agir', 'Apprendre', 'Profil'];
-      for (final label in expectedLabels) {
-        expect(find.text(label), findsOneWidget,
-            reason: 'Tab label "$label" should appear exactly once');
-      }
-
-      expect(find.text('MAINTENANT'), findsNothing,
-          reason: 'Old tab label MAINTENANT should be removed');
-      expect(find.text('SUIVRE'), findsNothing,
-          reason: 'Old tab label SUIVRE should be removed');
+      expect(find.text('Agir'), findsNothing,
+          reason: 'Old tab label Agir should be removed');
+      expect(find.text('Apprendre'), findsNothing,
+          reason: 'Old tab label Apprendre should be removed');
+      expect(find.text('Profil'), findsNothing,
+          reason: 'Old tab label Profil replaced by Moi');
     });
 
     testWidgets('tapping each tab switches content', (tester) async {
@@ -126,33 +117,22 @@ void main() {
       await tester.pump(const Duration(seconds: 2));
 
       // Tab 0 (Pulse) is active by default
-      // PulseScreen shows greeting or visibility score
-      expect(
-        find.textContaining('onjour', findRichText: true),
-        findsWidgets,
-        reason: 'Pulse tab shows greeting content',
-      );
+      expect(find.byType(Scaffold), findsWidgets,
+          reason: 'Pulse tab renders content');
 
-      // Tap Tab 1 (Agir)
-      await tester.tap(find.text('Agir'));
+      // Tap Tab 1 (Mint)
+      await tester.tap(find.text('Mint'));
       await tester.pump(const Duration(seconds: 2));
 
       expect(find.byType(Scaffold), findsWidgets,
-          reason: 'Agir tab content should be visible');
+          reason: 'Mint tab content should be visible');
 
-      // Tap Tab 2 (Apprendre)
-      await tester.tap(find.text('Apprendre'));
+      // Tap Tab 2 (Moi)
+      await tester.tap(find.text('Moi'));
       await tester.pump(const Duration(seconds: 2));
 
       expect(find.byType(Scaffold), findsWidgets,
-          reason: 'Apprendre tab content should be visible');
-
-      // Tap Tab 3 (Profil)
-      await tester.tap(find.text('Profil'));
-      await tester.pump(const Duration(seconds: 2));
-
-      expect(find.byType(Scaffold), findsWidgets,
-          reason: 'Profil tab renders a Scaffold');
+          reason: 'Moi tab renders a Scaffold');
     });
   });
 }

@@ -86,11 +86,11 @@ class BudgetReportSection extends StatelessWidget {
                 color: MintColors.warning.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Row(
+              child: const Row(
                 children: [
                   Icon(Icons.warning_amber_rounded,
                       size: 16, color: MintColors.warning),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       "Attention: Aucune marge de manœuvre pour les dépenses variables.",

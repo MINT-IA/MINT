@@ -624,13 +624,13 @@ void main() {
         id: 'lpp',
         title: 'Ajoute ton certificat LPP',
         subtitle: 'Scanne ou saisis les donnees',
-        route: '/lpp-deep/rachat',
+        route: '/rachat-lpp',
         icon: 'account_balance',
         category: 'lpp',
         impactPoints: 18,
       );
       expect(action.id, 'lpp');
-      expect(action.route, '/lpp-deep/rachat');
+      expect(action.route, '/rachat-lpp');
       expect(action.impactPoints, 18);
     });
   });

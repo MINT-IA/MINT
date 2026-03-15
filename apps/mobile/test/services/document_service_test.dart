@@ -107,7 +107,7 @@ void main() {
     });
 
     test('fieldsFound returns count of non-null fields', () {
-      final fields = LppExtractedFields(
+      const fields = LppExtractedFields(
         avoirObligatoire: 100000.0,
         salaireAssure: 85000.0,
         tauxConversionObligatoire: 6.8,
@@ -151,7 +151,7 @@ void main() {
     });
 
     test('toJson only includes non-null fields', () {
-      final fields = LppExtractedFields(
+      const fields = LppExtractedFields(
         avoirObligatoire: 100000.0,
         salaireAssure: 85000.0,
       );

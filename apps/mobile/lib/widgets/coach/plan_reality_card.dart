@@ -131,7 +131,7 @@ class PlanRealityCard extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 6),
                     child: Row(
                       children: [
-                        Icon(Icons.radio_button_unchecked,
+                        const Icon(Icons.radio_button_unchecked,
                             size: 16, color: MintColors.textMuted),
                         const SizedBox(width: 8),
                         Expanded(
