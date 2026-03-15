@@ -337,10 +337,10 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("CHF\u00A030'000",
+              Text(S.of(context)!.fiscalSliderMin,
                   style: GoogleFonts.inter(
                       fontSize: 11, color: MintColors.textMuted)),
-              Text("CHF\u00A0500'000",
+              Text(S.of(context)!.fiscalSliderMax,
                   style: GoogleFonts.inter(
                       fontSize: 11, color: MintColors.textMuted)),
             ],
@@ -777,7 +777,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-              '${FiscalService.formatChf(chargeTotaleAvecExtras / 12)}/mois',
+              S.of(context)!.fiscalAmountPerMonth(FiscalService.formatChf(chargeTotaleAvecExtras / 12)),
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -873,7 +873,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 ),
                 TextSpan(text: ' ${S.of(context)!.fiscalRanks} '),
                 TextSpan(
-                  text: '${rank}e sur 26',
+                  text: S.of(context)!.fiscalRankOutOf26('$rank'),
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
                     color: rank <= 8
@@ -980,9 +980,15 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               const Icon(Icons.tune, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'Revenu : ${FiscalService.formatChf(_revenuBrut)} | '
-                '${_etatCivil == 'marie' ? 'Marié·e' : 'Célibataire'}'
-                '${_nombreEnfants > 0 ? ' + $_nombreEnfants enfant${_nombreEnfants > 1 ? 's' : ''}' : ''}',
+                S.of(context)!.fiscalRevenuSummary(
+                  FiscalService.formatChf(_revenuBrut),
+                  _etatCivil == 'marie' ? S.of(context)!.fiscalMarried : S.of(context)!.fiscalSingle,
+                  _nombreEnfants > 0
+                      ? (_nombreEnfants > 1
+                          ? S.of(context)!.fiscalChildrenCountPlural(_nombreEnfants)
+                          : S.of(context)!.fiscalChildrenCount(_nombreEnfants))
+                      : '',
+                ),
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textSecondary,

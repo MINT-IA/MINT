@@ -3501,6 +3501,54 @@
   "fiscalCommune": "Commune",
   "fiscalCapitalDefault": "Chef-lieu (par défaut)",
   "fiscalDisclaimer": "Estimations simplifiées à but éducatif — ne constitue pas un conseil fiscal. Les taux effectifs dépendent de nombreux facteurs (déductions, fortune, commune, etc.). Consulte un·e spécialiste fiscal·e pour un calcul personnalisé.",
+  "fiscalSliderMin": "CHF\u00a030'000",
+  "fiscalSliderMax": "CHF\u00a0500'000",
+  "fiscalRankOutOf26": "{rank}e sur 26",
+  "@fiscalRankOutOf26": {
+    "placeholders": {
+      "rank": {
+        "type": "String"
+      }
+    }
+  },
+  "fiscalAmountPerMonth": "{amount}/mois",
+  "@fiscalAmountPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "fiscalRevenuSummary": "Revenu\u00a0: {amount} | {civilStatus}{childrenSuffix}",
+  "@fiscalRevenuSummary": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "civilStatus": {
+        "type": "String"
+      },
+      "childrenSuffix": {
+        "type": "String"
+      }
+    }
+  },
+  "fiscalChildrenCount": " + {count} enfant",
+  "@fiscalChildrenCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "fiscalChildrenCountPlural": " + {count} enfants",
+  "@fiscalChildrenCountPlural": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "expatTitle": "Expatriation",
   "expatTabForfait": "Forfait",
   "expatTabDeparture": "Départ",
@@ -10030,5 +10078,17 @@
         "type": "String"
       }
     }
-  }
+  },
+  "expatScreenDisclaimer": "Estimations simplifiées à but éducatif — ne constitue pas un conseil fiscal ou juridique. Les montants dépendent de nombreux facteurs (déductions, commune, fortune, convention internationale, etc.). Consulte un·e spécialiste fiscal·e pour une analyse personnalisée.",
+  "rachatChartBlocLabel": "Bloc",
+  "rachatChartEchelonneLabel": "x{count} ans",
+  "@rachatChartEchelonneLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "docScanSourceBackendDocling": "Extraction backend Docling (LPP)",
+  "docScanSourceVisionByok": "Extraction Vision IA (BYOK)"
 }
