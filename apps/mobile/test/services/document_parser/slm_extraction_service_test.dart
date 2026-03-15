@@ -238,7 +238,7 @@ Rachat en vue de la retraite ordinaire à l'âge de 65 ans 539'413.70
 """;
 
     test('Layer 1: accepts field when source text found verbatim', () {
-      final candidate = ExtractedField(
+      const candidate = ExtractedField(
         fieldName: 'lpp_total',
         label: 'Avoir total',
         value: 70376.60,
@@ -253,7 +253,7 @@ Rachat en vue de la retraite ordinaire à l'âge de 65 ans 539'413.70
     });
 
     test('Layer 1: rejects field when source text not in OCR', () {
-      final candidate = ExtractedField(
+      const candidate = ExtractedField(
         fieldName: 'lpp_total',
         label: 'Avoir total',
         value: 70376.60,
@@ -267,7 +267,7 @@ Rachat en vue de la retraite ordinaire à l'âge de 65 ans 539'413.70
     });
 
     test('Layer 1: rejects field when source text AND number not in OCR', () {
-      final candidate = ExtractedField(
+      const candidate = ExtractedField(
         fieldName: 'lpp_total',
         label: 'Avoir total',
         value: 999999.99,
@@ -280,7 +280,7 @@ Rachat en vue de la retraite ordinaire à l'âge de 65 ans 539'413.70
     });
 
     test('Layer 2: rejects field when value mismatches source (10x error)', () {
-      final candidate = ExtractedField(
+      const candidate = ExtractedField(
         fieldName: 'lpp_total',
         label: 'Avoir total',
         value: 703766.0, // 10x the actual value
@@ -293,7 +293,7 @@ Rachat en vue de la retraite ordinaire à l'âge de 65 ans 539'413.70
     });
 
     test('Layer 2: accepts field when value matches source within 1%', () {
-      final candidate = ExtractedField(
+      const candidate = ExtractedField(
         fieldName: 'lpp_total',
         label: 'Avoir total',
         value: 70377.0, // ~0.001% off
@@ -306,7 +306,7 @@ Rachat en vue de la retraite ordinaire à l'âge de 65 ans 539'413.70
     });
 
     test('Layer 3: rejects value outside semantic bounds', () {
-      final candidate = ExtractedField(
+      const candidate = ExtractedField(
         fieldName: 'conversion_rate_oblig',
         label: 'Taux conversion',
         value: 68.0, // 68% instead of 6.8%
@@ -320,7 +320,7 @@ Rachat en vue de la retraite ordinaire à l'âge de 65 ans 539'413.70
     });
 
     test('Layer 3: accepts value within semantic bounds', () {
-      final candidate = ExtractedField(
+      const candidate = ExtractedField(
         fieldName: 'buyback_potential',
         label: 'Rachat',
         value: 539413.70,
@@ -334,7 +334,7 @@ Rachat en vue de la retraite ordinaire à l'âge de 65 ans 539'413.70
     });
 
     test('all SLM validated fields have needsReview = true', () {
-      final candidate = ExtractedField(
+      const candidate = ExtractedField(
         fieldName: 'lpp_total',
         label: 'Avoir total',
         value: 70376.60,
