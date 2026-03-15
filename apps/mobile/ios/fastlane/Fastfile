@@ -88,22 +88,23 @@ platform :ios do
       xcodeproj: "Runner.xcodeproj",
     )
 
-    # ── 5. Build the Flutter IPA ──
-    # Force manual signing via xcargs — bypasses pbxproj and Fastlane auto-detection
-    profile_name = ENV["sigh_ch.mint.app_appstore_profile-name"] || "match AppStore ch.mint.app 1773574035"
-    profile_uuid = ENV["sigh_ch.mint.app_appstore"] || "b32215a1-0683-4b7c-8234-76f3b04772e4"
-    UI.important("Building with profile: #{profile_name} (#{profile_uuid})")
+    # ── 5. Configure manual code signing (use Match profile) ──
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      team_id: "7F5UDGYS5H",
+      code_sign_identity: "iPhone Distribution",
+      profile_name: "match AppStore ch.mint.app",
+      path: "Runner.xcodeproj",
+    )
 
+    # ── 6. Build the Flutter IPA ──
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "Runner",
       export_method: "app-store",
-      skip_profile_detection: true,
-      xcargs: "CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=7F5UDGYS5H 'CODE_SIGN_IDENTITY=iPhone Distribution' PROVISIONING_PROFILE='#{profile_uuid}' 'PROVISIONING_PROFILE_SPECIFIER=#{profile_name}'",
       export_options: {
-        signingStyle: "manual",
         provisioningProfiles: {
-          "ch.mint.app" => profile_name,
+          "ch.mint.app" => "match AppStore ch.mint.app",
         },
       },
       output_directory: "../build/ios",
