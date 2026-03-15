@@ -9918,12 +9918,14 @@
   },
   "franchiseCostRule": "[PT] Règle : si tu vas chez le médecin plus de 2× par an,\nla franchise basse te coûte moins cher.",
   "franchiseCostDisclaimer": "[PT] Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAMal art. 64-64a. Changement de franchise : avant le 30.11.",
-"debtRepaymentSemantics": "[PT] Avalanche boule de neige remboursement dettes comparaison",
+  "debtRepaymentSemantics": "[PT] Avalanche boule de neige remboursement dettes comparaison",
   "debtRepaymentTitle": "[PT] Avalanche vs Boule de neige",
   "debtRepaymentSubtitle": "[PT] {amount} de dettes · quelle stratégie ?",
   "@debtRepaymentSubtitle": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "debtRepaymentAvalancheLabel": "[PT] ⛰️ Avalanche",
@@ -9938,16 +9940,537 @@
   "debtRepaymentAvalancheSaves": "[PT] L'avalanche économise {amount}",
   "@debtRepaymentAvalancheSaves": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "debtRepaymentSameCost": "[PT] Les deux stratégies ont le même coût",
   "debtRepaymentSnowballSlower": "[PT] La boule de neige prend {months} mois de plus, mais elle est plus motivante.",
   "@debtRepaymentSnowballSlower": {
     "placeholders": {
-      "months": {"type": "int"}
+      "months": {
+        "type": "int"
+      }
     }
   },
   "debtRepaymentChooseMotivation": "[PT] Choisis la stratégie qui te motive le plus à tenir.",
-  "debtRepaymentDisclaimer": "[PT] Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin."
+  "debtRepaymentDisclaimer": "[PT] Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin.",
+  "fiscalSliderMin": "[PT] CHF 30'000",
+  "fiscalSliderMax": "[PT] CHF 500'000",
+  "fiscalRankOutOf26": "[PT] {rank}e sur 26",
+  "@fiscalRankOutOf26": {
+    "placeholders": {
+      "rank": {
+        "type": "String"
+      }
+    }
+  },
+  "fiscalAmountPerMonth": "[PT] {amount}/mois",
+  "@fiscalAmountPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "fiscalRevenuSummary": "[PT] Revenu : {amount} | {civilStatus}{childrenSuffix}",
+  "@fiscalRevenuSummary": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "civilStatus": {
+        "type": "String"
+      },
+      "childrenSuffix": {
+        "type": "String"
+      }
+    }
+  },
+  "fiscalChildrenCount": "[PT]  + {count} enfant",
+  "@fiscalChildrenCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "fiscalChildrenCountPlural": "[PT]  + {count} enfants",
+  "@fiscalChildrenCountPlural": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "disabilityResetSemantics": "[PT] Reset silencieux invalidité LPP ancienneté",
+  "disabilityResetTitle": "[PT] Le reset silencieux",
+  "disabilityResetSubtitle": "[PT] L'invalidité ne détruit pas que ton revenu actuel — elle rétrécit ta retraite.",
+  "disabilityResetContextRate": "[PT] À {age} ans — taux de bonification LPP : {rate} % (LPP art. 16)",
+  "@disabilityResetContextRate": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityResetBeforeDisability": "[PT] Avant invalidité",
+  "disabilityResetAfterReconversion": "[PT] Après reconversion",
+  "disabilityResetBonifDetail": "[PT] Salaire {salary} → bonification LPP : CHF {bonif}/an",
+  "@disabilityResetBonifDetail": {
+    "placeholders": {
+      "salary": {
+        "type": "String"
+      },
+      "bonif": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityResetCapitalTitle": "[PT] Ton 2e pilier à 65 ans",
+  "disabilityResetWithout": "[PT] Sans invalidité",
+  "disabilityResetWith": "[PT] Avec invalidité",
+  "disabilityResetDelta": "[PT] △ Différence : -CHF {amount}",
+  "@disabilityResetDelta": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityResetRenteLostLabel": "[PT] Rente mensuelle perdue",
+  "disabilityResetEveryMonth": "[PT] Chaque mois.",
+  "disabilityResetForever": "[PT] Pour toujours.",
+  "disabilityResetNarrative": "[PT] C'est pas juste ton salaire qui baisse.\nC'est ta retraite qui rétrécit.",
+  "disabilityResetDisclaimer": "[PT] Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LPP art. 16, 23-26. Taux de conversion minimum : 6.8 % (LPP art. 14).",
+  "bankImportSummaryHeader": "[PT] RÉSUMÉ",
+  "bankImportTransactionsHeader": "[PT] TRANSACTIONS",
+  "bankImportMoreTransactions": "[PT] ... et {count} autres transactions",
+  "@bankImportMoreTransactions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bankImportErrorGeneric": "[PT] Une erreur est survenue lors de l'analyse du relevé.",
+  "wizardLearnMoreSnackbar": "[PT] En savoir plus : {title}",
+  "@wizardLearnMoreSnackbar": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "wizardDatePickerNotImplemented": "[PT] Sélecteur de date pas encore disponible",
+  "dataBlockEnrichmentScorePoints": "[PT] {score} / {maxScore} pts",
+  "@dataBlockEnrichmentScorePoints": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      },
+      "maxScore": {
+        "type": "String"
+      }
+    }
+  },
+  "expatScreenDisclaimer": "[PT] Estimations simplifiées à but éducatif — ne constitue pas un conseil fiscal ou juridique. Les montants dépendent de nombreux facteurs (déductions, commune, fortune, convention internationale, etc.). Consulte un·e spécialiste fiscal·e pour une analyse personnalisée.",
+  "rachatChartBlocLabel": "[PT] Bloc",
+  "rachatChartEchelonneLabel": "[PT] x{count} ans",
+  "@rachatChartEchelonneLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "docScanSourceBackendDocling": "[PT] Extraction backend Docling (LPP)",
+  "docScanSourceVisionByok": "[PT] Extraction Vision IA (BYOK)",
+  "chiffreChocConfidenceHint": "[PT] Estimation basée sur {infoCount} informations. Plus tu précises, plus c'est fiable.",
+  "@chiffreChocConfidenceHint": {
+    "placeholders": {
+      "infoCount": {
+        "type": "int"
+      }
+    }
+  },
+  "chiffreChocCtaAction": "[PT] Qu'est-ce que je peux faire ?",
+  "chiffreChocCtaEnrich": "[PT] Affiner mon profil",
+  "chiffreChocDisclaimer": "[PT] Outil éducatif — ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 34, LPP art. 14-16, OPP3 art. 7.",
+  "naissanceAllocHeroMonthly": "[PT] {amount}/mois",
+  "@naissanceAllocHeroMonthly": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "naissanceAllocHeroAnnual": "[PT] {amount}/an",
+  "@naissanceAllocHeroAnnual": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "naissanceAllocHeroDesc": "[PT] Allocations familiales à {canton} pour {count} enfant{plural}",
+  "@naissanceAllocHeroDesc": {
+    "placeholders": {
+      "canton": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "plural": {
+        "type": "String"
+      }
+    }
+  },
+  "naissanceAllocEnfantsLabel": "[PT] ({canton}, {count} enfant{plural})",
+  "@naissanceAllocEnfantsLabel": {
+    "placeholders": {
+      "canton": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "plural": {
+        "type": "String"
+      }
+    }
+  },
+  "avsGuideAppBarTitle": "[PT] EXTRAIT AVS",
+  "avsGuideHeaderTitle": "[PT] Comment obtenir ton extrait AVS",
+  "avsGuideHeaderSubtitle": "[PT] L'extrait de compte individuel (CI) contient tes années de cotisation, ton revenu moyen (RAMD) et tes éventuelles lacunes. C'est la clé pour une projection AVS fiable.",
+  "avsGuideConfidenceDetail": "[PT] Années de cotisation, RAMD, lacunes",
+  "avsGuideStepsTitle": "[PT] En 4 étapes",
+  "avsGuideStep1Title": "[PT] Va sur www.ahv-iv.ch",
+  "avsGuideStep1Subtitle": "[PT] C'est le site officiel de l'AVS/AI. Tu peux aussi demander ton extrait directement à ta caisse de compensation.",
+  "avsGuideStep2Title": "[PT] Connecte-toi avec ton eID ou crée un compte",
+  "avsGuideStep2Subtitle": "[PT] Tu auras besoin de ton numéro AVS (756.XXXX.XXXX.XX, sur ta carte d'assurance-maladie).",
+  "avsGuideStep3Title": "[PT] Demande ton extrait de compte individuel (CI)",
+  "avsGuideStep3Subtitle": "[PT] Cherche la section « Extrait de compte » ou « Kontoauszug ». C'est un document officiel qui récapitule toutes tes cotisations.",
+  "avsGuideStep4Title": "[PT] Tu le recevras par courrier ou PDF",
+  "avsGuideStep4Subtitle": "[PT] Selon ta caisse, l'extrait arrive en 5 à 10 jours ouvrables. Certaines caisses proposent un téléchargement PDF immédiat.",
+  "avsGuideOpenAhvButton": "[PT] Ouvrir ahv-iv.ch",
+  "avsGuideHaveExtractButton": "[PT] J'ai déjà mon extrait → Scanner",
+  "avsGuideDebugModeLabel": "[PT] MODE TEST",
+  "avsGuideDebugDescription": "[PT] Pas d'extrait AVS sous la main ? Teste le flux avec un exemple d'extrait.",
+  "avsGuideDebugUseExample": "[PT] Utiliser un exemple",
+  "avsGuideFreeNote": "[PT] L'extrait AVS est gratuit et disponible en 5 à 10 jours ouvrables. Tu peux aussi te rendre à ta caisse de compensation cantonale.",
+  "avsGuidePrivacyNote": "[PT] L'image de ton extrait n'est jamais stockée ni envoyée. L'extraction se fait sur ton appareil. Seules les valeurs que tu confirmes sont conservées dans ton profil.",
+  "avsGuideOpenUrlError": "[PT] Impossible d'ouvrir {url}. Copie l'adresse et ouvre-la dans ton navigateur.",
+  "@avsGuideOpenUrlError": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "consentExportFormat": "[PT] Format : {format}",
+  "@consentExportFormat": {
+    "placeholders": {
+      "format": {
+        "type": "String"
+      }
+    }
+  },
+  "consentExportCategories": "[PT] Catégories : {categories}",
+  "@consentExportCategories": {
+    "placeholders": {
+      "categories": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityScorecardSemanticsLabel": "[PT] Bulletin couverture invalidité notes A-F",
+  "disabilityScorecardTitle": "[PT] Ton bulletin de couverture invalidité",
+  "disabilityScorecardSubtitle": "[PT] Note A–F sur chaque pilier de ta protection",
+  "disabilityScorecardCoverageHeader": "[PT] Couverture",
+  "disabilityScorecardGradeHeader": "[PT] Note",
+  "disabilityScorecardDetailHeader": "[PT] Détail",
+  "disabilityScorecardOverallLabel": "[PT] Moyenne",
+  "disabilityScorecardLifeDrop": "[PT] Tu survivrais, mais ton niveau de vie baisserait de {percent} %.",
+  "@disabilityScorecardLifeDrop": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityScorecardWeakestSubject": "[PT] Matière la plus faible : {label}",
+  "@disabilityScorecardWeakestSubject": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityScorecardDisclaimer": "[PT] Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAMal, LAVS, LPP art. 23-26.",
+  "donationTypeEspeces": "[PT] Espèces / Liquidités",
+  "donationTypeImmobilier": "[PT] Immobilier",
+  "donationTypeTitres": "[PT] Titres / Valeurs mobilières",
+  "donationRegimeParticipation": "[PT] Participation aux acquêts",
+  "donationRegimeCommunaute": "[PT] Communauté de biens",
+  "donationRegimeSeparation": "[PT] Séparation de biens",
+  "donationAgeAns": "[PT] {age} ans",
+  "@donationAgeAns": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "donationReservePct": "[PT] Réserve {pct} %",
+  "@donationReservePct": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "donationDisponiblePct": "[PT] Disponible {pct} %",
+  "@donationDisponiblePct": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "chiffreChocSectionSuffixPerYear": "[PT] /an",
+  "chiffreChocSectionTaxSavings3a": "[PT] Économie d''impôts potentielle chaque année en maximisant ton 3a. Sur {years} ans, cela représente ~CHF {amount}.",
+  "@chiffreChocSectionTaxSavings3a": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "chiffreChocSectionCta3a": "[PT] Simuler mon 3a",
+  "chiffreChocSectionLppBuybackMessage": "[PT] Déduction fiscale potentielle en rachetant ta lacune LPP de CHF {amount}.",
+  "@chiffreChocSectionLppBuybackMessage": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "chiffreChocSectionCtaLppBuyback": "[PT] Explorer le rachat",
+  "chiffreChocSectionAvsGapMessageSingular": "[PT] Rente AVS perdue sur 20 ans de retraite avec {count} année de cotisation manquante.",
+  "@chiffreChocSectionAvsGapMessageSingular": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chiffreChocSectionAvsGapMessagePlural": "[PT] Rente AVS perdue sur 20 ans de retraite avec {count} années de cotisation manquantes.",
+  "@chiffreChocSectionAvsGapMessagePlural": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chiffreChocSectionCtaAvsGap": "[PT] Vérifier mes lacunes",
+  "chiffreChocSectionDisclaimer": "[PT] Simulation à titre éducatif uniquement. Ne constitue pas un conseil en placement ou prévoyance (LSFin). Hypothèses modifiables — résultats non garantis.",
+  "simDisabilityChfAmount": "[PT] {amount} CHF",
+  "@simDisabilityChfAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "simDisabilityYears": "[PT] {count} ans",
+  "@simDisabilityYears": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "simDisabilityPhase1Bar": "[PT] Phase 1 — Employeur ({weeks} sem.)",
+  "@simDisabilityPhase1Bar": {
+    "placeholders": {
+      "weeks": {
+        "type": "String"
+      }
+    }
+  },
+  "simDisabilityPhase2Bar": "[PT] Phase 2 — IJM (24 mois)",
+  "simDisabilityPhase3Bar": "[PT] Phase 3 — AI + LPP",
+  "simDisabilityGapLabel": "[PT] Gap : {amount}",
+  "@simDisabilityGapLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "simDisabilityMaxGapChfMois": "[PT] {amount} CHF/mois",
+  "@simDisabilityMaxGapChfMois": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "simDisabilityLegalSourcePhase1": "[PT] CO art. 324a",
+  "simDisabilityPhase3Coverage": "[PT] AI : {ai} CHF/mois\nLPP : {lpp} CHF/mois\nTotal : {total} CHF/mois",
+  "@simDisabilityPhase3Coverage": {
+    "placeholders": {
+      "ai": {
+        "type": "String"
+      },
+      "lpp": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "simDisabilityLegalSourcePhase3": "[PT] LAI art. 28 + LPP art. 23",
+  "quickStartTitle": "[PT] Ton plan retraite\nen 30 secondes",
+  "quickStartSubtitle": "[PT] 4 infos suffisent. Tu pourras affiner plus tard.",
+  "quickStartFirstNameLabel": "[PT] Ton prénom",
+  "quickStartFirstNameHint": "[PT] Facultatif",
+  "quickStartAgeLabel": "[PT] Ton âge",
+  "quickStartAgeValue": "[PT] {age} ans",
+  "@quickStartAgeValue": {
+    "placeholders": {
+      "age": {
+        "type": "String"
+      }
+    }
+  },
+  "quickStartSalaryLabel": "[PT] Salaire brut annuel",
+  "quickStartSalaryValue": "[PT] {salary} CHF",
+  "@quickStartSalaryValue": {
+    "placeholders": {
+      "salary": {
+        "type": "String"
+      }
+    }
+  },
+  "quickStartCantonLabel": "[PT] Canton",
+  "quickStartDisclaimer": "[PT] Estimation indicative (1er + 2e pilier). Ne constitue pas un conseil financier (LSFin).",
+  "quickStartCta": "[PT] Voir mon tableau de bord",
+  "quickStartVerdictGood": "[PT] Bonne posture",
+  "quickStartVerdictWarning": "[PT] À surveiller",
+  "quickStartVerdictBad": "[PT] Écart significatif",
+  "quickStartPreviewTitle": "[PT] Aperçu retraite",
+  "quickStartToday": "[PT] Aujourd'hui",
+  "quickStartAtRetirement": "[PT] À la retraite",
+  "quickStartDropPurchasingPower": "[PT] -{dropPct} % de pouvoir d'achat ({gap}/mois)",
+  "@quickStartDropPurchasingPower": {
+    "placeholders": {
+      "dropPct": {
+        "type": "String"
+      },
+      "gap": {
+        "type": "String"
+      }
+    }
+  },
+  "quickStartPerMonth": "[PT] /mois",
+  "quickStartAmountChf": "[PT] {amount} CHF",
+  "@quickStartAmountChf": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "docImpactTitle": "[PT] Ton profil est plus précis",
+  "docImpactSubtitle": "[PT] Les valeurs de ton {docType} ont été intégrées dans tes projections.",
+  "@docImpactSubtitle": {
+    "placeholders": {
+      "docType": {
+        "type": "String"
+      }
+    }
+  },
+  "docImpactConfidencePercent": "[PT] % confiance",
+  "docImpactDeltaPoints": "[PT] +{points} points de confiance",
+  "@docImpactDeltaPoints": {
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "docImpactChiffreChocTitle": "[PT] Chiffre choc recalculé",
+  "docImpactLppRealAmount": "[PT] d''avoir LPP réel (dont {obligAmount} obligatoire)",
+  "@docImpactLppRealAmount": {
+    "placeholders": {
+      "obligAmount": {
+        "type": "String"
+      }
+    }
+  },
+  "docImpactRenteObligatoire": "[PT] Rente obligatoire à 6.8 % : CHF {amount}/an",
+  "@docImpactRenteObligatoire": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "docImpactSurobligWithRate": "[PT] Part surobligatoire (CHF {surobligAmount}) à {rate} % = CHF {renteAmount}/an",
+  "@docImpactSurobligWithRate": {
+    "placeholders": {
+      "surobligAmount": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      },
+      "renteAmount": {
+        "type": "String"
+      }
+    }
+  },
+  "docImpactSurobligFreeRate": "[PT] Part surobligatoire (CHF {surobligAmount}) = taux de conversion libre de la caisse",
+  "@docImpactSurobligFreeRate": {
+    "placeholders": {
+      "surobligAmount": {
+        "type": "String"
+      }
+    }
+  },
+  "docImpactAvsYears": "[PT] {years} ans de cotisation",
+  "@docImpactAvsYears": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "docImpactAvsCompletion": "[PT] sur {maxYears} nécessaires pour une rente AVS complète ({pct} %)",
+  "@docImpactAvsCompletion": {
+    "placeholders": {
+      "maxYears": {
+        "type": "int"
+      },
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
+  "docImpactFallbackProjections": "[PT] Tes projections sont maintenant basées sur des valeurs réelles.",
+  "docImpactFieldsUpdated": "[PT] Champs mis à jour",
+  "docImpactBackToDashboard": "[PT] Retour au dashboard",
+  "docImpactDisclaimer": "[PT] Outil éducatif — ne constitue pas un conseil en prévoyance. Vérifie toujours avec ton certificat original (LSFin).",
+  "openBankingHubHeaderTitle": "[PT] Open Banking"
 }

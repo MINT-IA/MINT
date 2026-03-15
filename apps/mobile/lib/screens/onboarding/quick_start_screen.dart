@@ -397,7 +397,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
             duration: const Duration(milliseconds: 400),
             curve: Curves.easeOutCubic,
             builder: (_, value, __) => Text(
-              s.quickStartDropPurchasingPower('${value.round()}', '${formatChfWithPrefix(gap)}'),
+              s.quickStartDropPurchasingPower('${value.round()}', formatChfWithPrefix(gap)),
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
