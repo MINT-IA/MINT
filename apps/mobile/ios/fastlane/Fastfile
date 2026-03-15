@@ -117,7 +117,7 @@ platform :ios do
       skip_waiting_for_build_processing: true,
       distribute_external: true,
       groups: ["Beta Testeurs"],  # <-- ton groupe TestFlight
-      changelog: "Nouvelle version automatique depuis CI/CD",
+      changelog: ENV["TESTFLIGHT_CHANGELOG"] || `git log -1 --pretty=format:"%s"`.strip,
     )
   end
 
