@@ -9189,5 +9189,88 @@
   "simulatorLeasingAltTransportBody": "Le confort du train en Suisse est souvent plus rentable et serein.",
   "simulatorLeasingAltSharing": "Mobility / Partage",
   "simulatorLeasingAltSharingBody": "Ne paie que quand tu roules. Pas d'assurance, pas d'entretien, pas de leasing.",
-  "simulatorLeasingDisclaimer": "Le leasing reste une option pour certains professionnels. Cette analyse vise \u00e0 sensibiliser le particulier sur le co\u00fbt \u00e0 long terme."
+  "simulatorLeasingDisclaimer": "Le leasing reste une option pour certains professionnels. Cette analyse vise \u00e0 sensibiliser le particulier sur le co\u00fbt \u00e0 long terme.",
+  "simulatorCompoundExportTooltip": "Exporter mon bilan",
+  "simulatorCompoundTitle": "Int\u00e9r\u00eats Compos\u00e9s",
+  "simulatorCompoundCoachTitle": "L'avis du Mentor",
+  "simulatorCompoundCoachBodyPart1": "Comprendre l'",
+  "simulatorCompoundCoachBodyPart2": ", c'est comprendre comment ton argent travaille pour toi pendant que tu dors.",
+  "simulatorCompoundConfiguration": "Configuration",
+  "simulatorCompoundInitialCapital": "Capital de d\u00e9part",
+  "simulatorCompoundMonthlySavings": "\u00c9pargne mensuelle",
+  "simulatorCompoundAnnualRate": "Taux (Rendement annuel)",
+  "simulatorCompoundTimeHorizon": "Horizon de temps",
+  "simulatorCompoundYears": "{count} ans",
+  "@simulatorCompoundYears": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "simulatorCompoundFinalValue": "Valeur Finale Potentielle",
+  "simulatorCompoundGainsPercent": "{percent}% de ce montant provient uniquement de tes gains de placement.",
+  "@simulatorCompoundGainsPercent": {
+    "placeholders": {
+      "percent": {"type": "String"}
+    }
+  },
+  "simulatorCompoundLessonsHeader": "Le\u00e7ons M\u00e9dit\u00e9es",
+  "simulatorCompoundLessonTimeTitle": "Le temps est roi",
+  "simulatorCompoundLessonTimeBody": "Attendre 5 ans avant de commencer peut te faire perdre la moiti\u00e9 de ton capital final.",
+  "simulatorCompoundLessonLeverageTitle": "L'effet de levier",
+  "simulatorCompoundLessonLeverageBody": "Une fois lanc\u00e9, ton capital g\u00e9n\u00e8re ses propres int\u00e9r\u00eats, qui en g\u00e9n\u00e8rent d'autres \u00e0 leur tour.",
+  "simulatorCompoundLessonDisciplineTitle": "Discipline",
+  "simulatorCompoundLessonDisciplineBody": "La r\u00e9gularit\u00e9 des versements mensuels est souvent plus efficace que la recherche du moment id\u00e9al pour investir.",
+  "simulatorCompoundDisclaimer": "Calcul th\u00e9orique bas\u00e9 sur un rendement constant. Les performances pass\u00e9es ne garantissent pas les r\u00e9sultats futurs.",
+
+  "remploiCountdownSemantics": "Compte à rebours remploi vente immobilière 2 ans LIFD",
+  "remploiCountdownTitle": "Chrono du remploi",
+  "remploiCountdownExpiredSubtitle": "Délai écoulé — l'impôt est dû.",
+  "remploiCountdownSubtitle": "Tu as {years} ans pour racheter une résidence principale.",
+  "@remploiCountdownSubtitle": {
+    "placeholders": {
+      "years": {"type": "String"}
+    }
+  },
+  "remploiCountdownDaysRemaining": "jours restants",
+  "remploiCountdownTaxDue": "Impôt dû : {amount}",
+  "@remploiCountdownTaxDue": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "remploiCountdownMonthsApprox": "mois environ",
+  "remploiCountdownTaxToAvoid": "impôt à éviter",
+  "remploiCountdownSaleDate": "Vente : {date}",
+  "@remploiCountdownSaleDate": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "remploiCountdownDeadlineDate": "Délai : {date}",
+  "@remploiCountdownDeadlineDate": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "remploiCountdownDaysElapsed": "{elapsed} jours écoulés sur {total}",
+  "@remploiCountdownDaysElapsed": {
+    "placeholders": {
+      "elapsed": {"type": "String"},
+      "total": {"type": "String"}
+    }
+  },
+  "remploiCountdownExpiredExplanation": "Le délai de remploi est dépassé. L'impôt sur le gain de {amount} est dû. Contacte l'administration fiscale cantonale.",
+  "@remploiCountdownExpiredExplanation": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "remploiCountdownActiveExplanation": "Si tu achètes une nouvelle résidence principale avant le {deadline}, l'impôt de {amount} est différé. LIFD art. 12 al. 3.",
+  "@remploiCountdownActiveExplanation": {
+    "placeholders": {
+      "deadline": {"type": "String"},
+      "amount": {"type": "String"}
+    }
+  },
+  "remploiCountdownDisclaimer": "Outil éducatif · ne constitue pas un conseil fiscal au sens de la LSFin. Source : LIFD art. 12 al. 3 (remploi résidence principale). Délai de 2 ans — vérifier les règles cantonales spécifiques."
 }

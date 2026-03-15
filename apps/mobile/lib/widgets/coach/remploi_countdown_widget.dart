@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -48,10 +49,11 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final isExpired = _daysRemaining == 0;
 
     return Semantics(
-      label: 'Compte à rebours remploi vente immobilière 2 ans LIFD',
+      label: s.remploiCountdownSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -61,19 +63,19 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(isExpired),
+            _buildHeader(isExpired, s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildTimer(isExpired),
+                  _buildTimer(isExpired, s),
                   const SizedBox(height: 16),
-                  _buildProgressBar(),
+                  _buildProgressBar(s),
                   const SizedBox(height: 16),
-                  _buildExplanation(isExpired),
+                  _buildExplanation(isExpired, s),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -83,7 +85,7 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
     );
   }
 
-  Widget _buildHeader(bool isExpired) {
+  Widget _buildHeader(bool isExpired, S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -101,7 +103,7 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Chrono du remploi',
+                  s.remploiCountdownTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -110,8 +112,8 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
                 ),
                 Text(
                   isExpired
-                      ? 'Délai écoulé — l\'impôt est dû.'
-                      : 'Tu as $_remploidDeadlineYears ans pour racheter une résidence principale.',
+                      ? s.remploiCountdownExpiredSubtitle
+                      : s.remploiCountdownSubtitle(_remploidDeadlineYears.toString()),
                   style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4),
                 ),
               ],
@@ -122,7 +124,7 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
     );
   }
 
-  Widget _buildTimer(bool isExpired) {
+  Widget _buildTimer(bool isExpired, S s) {
     if (isExpired) {
       return Container(
         width: double.infinity,
@@ -143,12 +145,12 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
               ),
             ),
             Text(
-              'jours restants',
+              s.remploiCountdownDaysRemaining,
               style: GoogleFonts.inter(fontSize: 14, color: MintColors.textSecondary),
             ),
             const SizedBox(height: 8),
             Text(
-              'Impôt dû : ${formatChfWithPrefix(widget.deferredTax)}',
+              s.remploiCountdownTaxDue(formatChfWithPrefix(widget.deferredTax)),
               style: GoogleFonts.montserrat(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
@@ -162,13 +164,13 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
 
     return Row(
       children: [
-        Expanded(child: _buildTimerCard('$_daysRemaining', 'jours restants', _urgencyColor)),
+        Expanded(child: _buildTimerCard('$_daysRemaining', s.remploiCountdownDaysRemaining, _urgencyColor)),
         const SizedBox(width: 12),
-        Expanded(child: _buildTimerCard('$_monthsRemaining', 'mois environ', MintColors.primary)),
+        Expanded(child: _buildTimerCard('$_monthsRemaining', s.remploiCountdownMonthsApprox, MintColors.primary)),
         const SizedBox(width: 12),
         Expanded(child: _buildTimerCard(
           formatChfWithPrefix(widget.deferredTax),
-          'impôt à éviter',
+          s.remploiCountdownTaxToAvoid,
           MintColors.scoreAttention,
         )),
       ],
@@ -204,7 +206,7 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
     );
   }
 
-  Widget _buildProgressBar() {
+  Widget _buildProgressBar(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -212,11 +214,11 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Vente : ${_formatDate(widget.saleDate)}',
+              s.remploiCountdownSaleDate(_formatDate(widget.saleDate)),
               style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
             ),
             Text(
-              'Délai : ${_formatDate(_deadline)}',
+              s.remploiCountdownDeadlineDate(_formatDate(_deadline)),
               style: GoogleFonts.inter(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
@@ -237,14 +239,14 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
         ),
         const SizedBox(height: 4),
         Text(
-          '$_daysElapsed jours écoulés sur $_totalDays',
+          s.remploiCountdownDaysElapsed(_daysElapsed.toString(), _totalDays.toString()),
           style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
         ),
       ],
     );
   }
 
-  Widget _buildExplanation(bool isExpired) {
+  Widget _buildExplanation(bool isExpired, S s) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -262,11 +264,8 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
           Expanded(
             child: Text(
               isExpired
-                  ? 'Le délai de remploi est dépassé. L\'impôt sur le gain de '
-                    '${formatChfWithPrefix(widget.deferredTax)} est dû. Contacte l\'administration fiscale cantonale.'
-                  : 'Si tu achètes une nouvelle résidence principale avant le ${_formatDate(_deadline)}, '
-                    'l\'impôt de ${formatChfWithPrefix(widget.deferredTax)} est différé. '
-                    'LIFD art. 12 al. 3.',
+                  ? s.remploiCountdownExpiredExplanation(formatChfWithPrefix(widget.deferredTax))
+                  : s.remploiCountdownActiveExplanation(_formatDate(_deadline), formatChfWithPrefix(widget.deferredTax)),
               style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary, height: 1.4),
             ),
           ),
@@ -279,11 +278,9 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
     return '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil fiscal au sens de la LSFin. '
-      'Source : LIFD art. 12 al. 3 (remploi résidence principale). '
-      'Délai de 2 ans — vérifier les règles cantonales spécifiques.',
+      s.remploiCountdownDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,
