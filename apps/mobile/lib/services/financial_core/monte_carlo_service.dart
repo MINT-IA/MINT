@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/housing_cost_calculator.dart';
@@ -34,20 +35,6 @@ class MonteCarloProjectionService {
   static const int _projectionYears = 30;
   static const double _3aDrawdownYears = 20.0;
 
-  static const String _disclaimer =
-      'Simulation Monte Carlo \u00e0 titre p\u00e9dagogique. '
-      'Les rendements pass\u00e9s ne pr\u00e9sagent pas des rendements futurs. '
-      'Base\u00a0: 500 simulations, tirages annuels ind\u00e9pendants '
-      '(LPP, march\u00e9, inflation, croissance salariale). '
-      'Ne constitue pas un conseil en placement ou pr\u00e9voyance (LSFin).';
-
-  static const List<String> _sources = [
-    'LPP art. 14, 16 (taux de conversion)',
-    'LAVS art. 34-40 (rentes AVS)',
-    'LIFD art. 38 (imposition capital)',
-    'OPP3 art. 3 (retrait 3e pilier)',
-  ];
-
   // ════════════════════════════════════════════════════════════
   //  PUBLIC API
   // ════════════════════════════════════════════════════════════
@@ -55,6 +42,7 @@ class MonteCarloProjectionService {
   /// Lance une simulation Monte Carlo de retraite.
   ///
   /// [profile] : profil financier complet de l'utilisateur.
+  /// [s] : localized strings (pass `S.of(context)!` from the caller).
   /// [retirementAgeUser] : age de depart a la retraite (defaut 65).
   /// [lppCapitalPct] : fraction du LPP retiree en capital (0.0 = 100% rente).
   /// [depensesMensuelles] : depenses mensuelles estimees a la retraite.
@@ -62,6 +50,7 @@ class MonteCarloProjectionService {
   /// [seed] : graine pour le generateur aleatoire (tests reproductibles).
   static MonteCarloResult simulate({
     required CoachProfile profile,
+    required S s,
     int retirementAgeUser = 65,
     double lppCapitalPct = 0.0,
     double? depensesMensuelles,
@@ -434,22 +423,13 @@ class MonteCarloProjectionService {
     // ── Alertes contextuelles ────────────────────────────
     final alertes = <String>[];
     if (ruinProbability > 0.30) {
-      alertes.add(
-        'Probabilit\u00e9 de d\u00e9ficit \u00e9lev\u00e9e (>30\u00a0%). '
-        'Envisage d\'augmenter ton \u00e9pargne ou de repousser ta retraite.',
-      );
+      alertes.add(s.monteCarloAlerteRuinHigh);
     }
     if (retirementAgeUser < 63) {
-      alertes.add(
-        'Retraite anticip\u00e9e avant 63 ans\u00a0: aucune rente AVS durant '
-        '${63 - retirementAgeUser} an(s). Pr\u00e9vois une \u00e9pargne-relais.',
-      );
+      alertes.add(s.monteCarloAlerteEarlyRetirement(63 - retirementAgeUser));
     }
     if (ruinProbability > 0.15 && ruinProbability <= 0.30) {
-      alertes.add(
-        'Risque d\'\u00e9puisement mod\u00e9r\u00e9 (${(ruinProbability * 100).round()}\u00a0%). '
-        'Un rachat LPP ou un versement 3a suppl\u00e9mentaire pourrait aider.',
-      );
+      alertes.add(s.monteCarloAlerteRuinModerate((ruinProbability * 100).round()));
     }
 
     return MonteCarloResult(
@@ -459,9 +439,14 @@ class MonteCarloProjectionService {
       p90At65: _percentile(valuesAtRetirement, 0.90),
       ruinProbability: ruinProbability,
       numSimulations: numSimulations,
-      disclaimer: _disclaimer,
+      disclaimer: s.monteCarloServiceDisclaimer,
       retirementAge: retirementAgeUser,
-      sources: _sources,
+      sources: [
+        s.monteCarloSourceLpp,
+        s.monteCarloSourceLavs,
+        s.monteCarloSourceLifd,
+        s.monteCarloSourceOpp3,
+      ],
       alertes: alertes,
     );
   }

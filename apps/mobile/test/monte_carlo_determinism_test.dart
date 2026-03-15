@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_service.dart';
 
@@ -17,6 +19,8 @@ GoalA _testGoalA() => GoalA(
     );
 
 void main() {
+  final S s = SFr();
+
   group('Monte Carlo — seed determinism', () {
     late CoachProfile profile;
 
@@ -58,11 +62,13 @@ void main() {
     test('same seed → identical medianAt65 and ruinProbability', () {
       final r1 = MonteCarloProjectionService.simulate(
         profile: profile,
+        s: s,
         seed: 42,
         numSimulations: 100,
       );
       final r2 = MonteCarloProjectionService.simulate(
         profile: profile,
+        s: s,
         seed: 42,
         numSimulations: 100,
       );
@@ -76,11 +82,13 @@ void main() {
     test('different seeds → different results', () {
       final r1 = MonteCarloProjectionService.simulate(
         profile: profile,
+        s: s,
         seed: 42,
         numSimulations: 100,
       );
       final r2 = MonteCarloProjectionService.simulate(
         profile: profile,
+        s: s,
         seed: 99,
         numSimulations: 100,
       );
@@ -92,6 +100,7 @@ void main() {
     test('annual returns produce meaningful P10-P90 spread', () {
       final result = MonteCarloProjectionService.simulate(
         profile: profile,
+        s: s,
         seed: 42,
         numSimulations: 200,
       );
@@ -107,6 +116,7 @@ void main() {
     test('disclaimer mentions annual draws', () {
       final result = MonteCarloProjectionService.simulate(
         profile: profile,
+        s: s,
         seed: 42,
         numSimulations: 50,
       );
@@ -116,6 +126,7 @@ void main() {
     test('sources include legal references', () {
       final result = MonteCarloProjectionService.simulate(
         profile: profile,
+        s: s,
         seed: 42,
         numSimulations: 50,
       );
@@ -181,6 +192,7 @@ void main() {
       // With FATCA restriction
       final r1 = MonteCarloProjectionService.simulate(
         profile: fatcaProfile,
+        s: s,
         seed: 42,
         numSimulations: 100,
       );
@@ -238,6 +250,7 @@ void main() {
 
       final r2 = MonteCarloProjectionService.simulate(
         profile: nonFatcaProfile,
+        s: s,
         seed: 42,
         numSimulations: 100,
       );
@@ -281,6 +294,7 @@ void main() {
 
       final result = MonteCarloProjectionService.simulate(
         profile: profile,
+        s: s,
         retirementAgeUser: 60,
         seed: 42,
         numSimulations: 50,

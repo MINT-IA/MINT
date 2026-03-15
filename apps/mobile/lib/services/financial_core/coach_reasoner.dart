@@ -1,6 +1,7 @@
 import 'dart:math' show pow, max;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
@@ -38,9 +39,11 @@ class CoachReasonerService {
   /// Analyse the profile and return ranked opportunities
   /// with the profile's confidence score.
   ///
+  /// [s] provides localized strings (pass `S.of(context)!` from the caller).
+  ///
   /// Returns an empty list if the profile lacks minimum data
   /// (birthYear, salaire, canton).
-  static ReasonerResult analyse(CoachProfile profile) {
+  static ReasonerResult analyse(CoachProfile profile, {required S s}) {
     final confidence = ConfidenceScorer.score(profile);
     final results = <Recommendation>[];
 
@@ -59,23 +62,23 @@ class CoachReasonerService {
     }
 
     // --- 1. Rachat LPP ---
-    final rachat = _evaluateRachatLpp(profile, age, yearsToRetirement);
+    final rachat = _evaluateRachatLpp(profile, age, yearsToRetirement, s);
     if (rachat != null) results.add(rachat);
 
     // --- 2. 3a non-maxé ---
-    final troisA = _evaluate3aNonMaxe(profile, age, yearsToRetirement);
+    final troisA = _evaluate3aNonMaxe(profile, age, yearsToRetirement, s);
     if (troisA != null) results.add(troisA);
 
     // --- 3. Amortissement indirect ---
-    final amorti = _evaluateAmortissementIndirect(profile, yearsToRetirement);
+    final amorti = _evaluateAmortissementIndirect(profile, yearsToRetirement, s);
     if (amorti != null) results.add(amorti);
 
     // --- 4. Échelonnement retraits 3a ---
-    final echelon = _evaluateEchelonnement3a(profile, age);
+    final echelon = _evaluateEchelonnement3a(profile, age, s);
     if (echelon != null) results.add(echelon);
 
     // --- 5. Split libre passage ---
-    final split = _evaluateSplitLibrePassage(profile, age);
+    final split = _evaluateSplitLibrePassage(profile, age, s);
     if (split != null) results.add(split);
 
     // Sort by descending annualized impact (CHF).
@@ -101,6 +104,7 @@ class CoachReasonerService {
     CoachProfile profile,
     int age,
     int yearsToRetirement,
+    S s,
   ) {
     final prev = profile.prevoyance;
     final lacune = prev.lacuneRachatRestante;
@@ -126,58 +130,58 @@ class CoachReasonerService {
     final annualReturn = taxSaving + investmentGain / yearsToRetirement;
 
     final assumptions = <String>[
-      'Taux marginal estimé : ${(marginalRate * 100).toStringAsFixed(0)}%',
-      'Rendement caisse : ${(r * 100).toStringAsFixed(1)}%',
-      'Lacune restante : ${lacune.toStringAsFixed(0)} CHF',
-      'Outil éducatif, ne constitue pas un conseil financier (LSFin)',
+      s.coachReasonerRachatLppAssumptionMarginalRate((marginalRate * 100).toStringAsFixed(0)),
+      s.coachReasonerRachatLppAssumptionRendement((r * 100).toStringAsFixed(1)),
+      s.coachReasonerRachatLppAssumptionLacune(lacune.toStringAsFixed(0)),
+      s.coachReasonerDisclaimer,
     ];
 
     final risks = <String>[
-      'LPP art. 79b al. 3 : tout retrait EPL est bloqué pendant 3 ans après un rachat.',
+      s.coachReasonerRachatLppRiskBlocage,
     ];
 
     if (yearsToRetirement <= 3) {
       risks.add(
-        'À $yearsToRetirement ans de la retraite, le rendement composé est limité.',
+        s.coachReasonerRachatLppRiskRendementLimite(yearsToRetirement),
       );
     }
 
     return Recommendation(
       id: 'rachat_lpp',
       kind: 'rachat_lpp',
-      title: 'Rachat LPP : économie fiscale de ${taxSaving.toStringAsFixed(0)} CHF/an',
-      summary:
-          'Avec une lacune de ${lacune.toStringAsFixed(0)} CHF, un rachat annuel '
-          'de ${annualBuyback.toStringAsFixed(0)} CHF réduit ton impôt de '
-          '${taxSaving.toStringAsFixed(0)} CHF/an et génère un capital supplémentaire '
-          'à la retraite.',
+      title: s.coachReasonerRachatLppTitle(taxSaving.toStringAsFixed(0)),
+      summary: s.coachReasonerRachatLppSummary(
+        lacune.toStringAsFixed(0),
+        annualBuyback.toStringAsFixed(0),
+        taxSaving.toStringAsFixed(0),
+      ),
       why: [
-        'Déduction fiscale immédiate (LIFD art. 33 al. 1 lit. d)',
-        'Le capital racheté est rémunéré au taux de la caisse (${(r * 100).toStringAsFixed(1)}%)',
-        'Augmente ta rente ou ton capital LPP à la retraite',
+        s.coachReasonerRachatLppWhy1,
+        s.coachReasonerRachatLppWhy2((r * 100).toStringAsFixed(1)),
+        s.coachReasonerRachatLppWhy3,
       ],
       assumptions: assumptions,
       impact: Impact(amountCHF: annualReturn, period: Period.yearly),
       risks: risks,
       alternatives: [
-        'Verser dans le 3a si le plafond n\'est pas atteint (rendement potentiellement supérieur)',
-        'Amortissement indirect du prêt hypothécaire',
+        s.coachReasonerRachatLppAlt1,
+        s.coachReasonerRachatLppAlt2,
       ],
-      evidenceLinks: const [
+      evidenceLinks: [
         EvidenceLink(
-          label: 'LPP art. 79b — Rachat',
+          label: s.coachReasonerRachatLppEvidenceLabel,
           url: 'https://www.fedlex.admin.ch/eli/cc/1983/797_797_797/fr#art_79_b',
         ),
       ],
       nextActions: [
-        const NextAction(
+        NextAction(
           type: NextActionType.simulate,
-          label: 'Simuler un rachat échelonné',
+          label: s.coachReasonerRachatLppActionSimulate,
           deepLink: '/lpp-deep/rachat-echelonne',
         ),
-        const NextAction(
+        NextAction(
           type: NextActionType.learn,
-          label: 'Comprendre le rachat LPP',
+          label: s.coachReasonerRachatLppActionLearn,
           deepLink: '/education/rachat-lpp',
         ),
       ],
@@ -192,6 +196,7 @@ class CoachReasonerService {
     CoachProfile profile,
     int age,
     int yearsToRetirement,
+    S s,
   ) {
     final prev = profile.prevoyance;
     if (!prev.canContribute3a) return null; // FATCA block
@@ -227,39 +232,43 @@ class CoachReasonerService {
     return Recommendation(
       id: '3a_non_maxe',
       kind: '3a_gap',
-      title: '3a : ${gap.toStringAsFixed(0)} CHF/an de potentiel non utilisé',
-      summary:
-          'Tu peux encore verser ${gap.toStringAsFixed(0)} CHF/an dans ton 3a, '
-          'soit une économie fiscale de ${annualTaxSaving.toStringAsFixed(0)} CHF/an.',
+      title: s.coachReasoner3aTitle(gap.toStringAsFixed(0)),
+      summary: s.coachReasoner3aSummary(
+        gap.toStringAsFixed(0),
+        annualTaxSaving.toStringAsFixed(0),
+      ),
       why: [
-        'Déduction fiscale intégrale (LIFD art. 33 al. 1 lit. e)',
-        'Capital bloqué jusqu\'à 5 ans avant la retraite (OPP3 art. 3)',
-        'Rendement estimé ${(r3a * 100).toStringAsFixed(1)}% > compte épargne',
+        s.coachReasoner3aWhy1,
+        s.coachReasoner3aWhy2,
+        s.coachReasoner3aWhy3((r3a * 100).toStringAsFixed(1)),
       ],
       assumptions: [
-        'Plafond 3a ${maxAnnual.toStringAsFixed(0)} CHF (${isIndepNoLpp ? "indépendant sans LPP" : "salarié affilié LPP"})',
-        'Taux marginal estimé : ${(marginalRate * 100).toStringAsFixed(0)}%',
-        'Contribution actuelle estimée : ${currentContrib.toStringAsFixed(0)} CHF/an (heuristique basée sur le solde total — précise via tes relevés)',
-        'Outil éducatif, ne constitue pas un conseil financier (LSFin)',
+        s.coachReasoner3aAssumptionPlafond(
+          maxAnnual.toStringAsFixed(0),
+          isIndepNoLpp ? s.coachReasoner3aStatusIndepSansLpp : s.coachReasoner3aStatusSalarieAvecLpp,
+        ),
+        s.coachReasoner3aAssumptionMarginalRate((marginalRate * 100).toStringAsFixed(0)),
+        s.coachReasoner3aAssumptionContribActuelle(currentContrib.toStringAsFixed(0)),
+        s.coachReasonerDisclaimer,
       ],
       impact: Impact(amountCHF: annualReturn, period: Period.yearly),
-      risks: const [
-        'Capital bloqué jusqu\'à 60 ans (AHV21)',
-        'Rendement variable selon le type de placement (fonds ou compte)',
+      risks: [
+        s.coachReasoner3aRisk1,
+        s.coachReasoner3aRisk2,
       ],
-      alternatives: const [
-        'Rachat LPP si la lacune est importante (rendement fixé par le règlement de la caisse)',
+      alternatives: [
+        s.coachReasoner3aAlt1,
       ],
-      evidenceLinks: const [
+      evidenceLinks: [
         EvidenceLink(
-          label: 'OPP3 art. 3 — 3e pilier',
+          label: s.coachReasoner3aEvidenceLabel,
           url: 'https://www.fedlex.admin.ch/eli/cc/1986/25_25_25/fr#art_3',
         ),
       ],
       nextActions: [
-        const NextAction(
+        NextAction(
           type: NextActionType.simulate,
-          label: 'Comparer les fournisseurs 3a',
+          label: s.coachReasoner3aActionCompare,
           deepLink: '/3a-deep/provider-comparator',
         ),
       ],
@@ -273,6 +282,7 @@ class CoachReasonerService {
   static Recommendation? _evaluateAmortissementIndirect(
     CoachProfile profile,
     int yearsToRetirement,
+    S s,
   ) {
     final dettes = profile.dettes;
     final hypotheque = dettes.hypotheque ?? 0;
@@ -310,43 +320,39 @@ class CoachReasonerService {
     return Recommendation(
       id: 'amortissement_indirect',
       kind: 'mortgage_indirect',
-      title:
-          'Amortissement indirect : économie de ${annualAdvantage.toStringAsFixed(0)} CHF/an',
-      summary:
-          'En passant à l\'amortissement indirect via le 3a, tu conserves '
-          'la déduction des intérêts hypothécaires ET bénéficies de la '
-          'déduction 3a.',
+      title: s.coachReasonerAmortiTitle(annualAdvantage.toStringAsFixed(0)),
+      summary: s.coachReasonerAmortiSummary,
       why: [
-        'Double déduction : intérêts hypothécaires + versement 3a (LIFD art. 33)',
-        'Le capital 3a est nanti au lieu d\'être versé à la banque',
-        'Effet de levier fiscal sur toute la durée du prêt',
+        s.coachReasonerAmortiWhy1,
+        s.coachReasonerAmortiWhy2,
+        s.coachReasonerAmortiWhy3,
       ],
       assumptions: [
-        'Hypothèque restante : ${hypotheque.toStringAsFixed(0)} CHF',
-        'Amortissement annuel estimé : ${amountToRedirect.toStringAsFixed(0)} CHF',
-        'Taux hypothécaire : ${(hypoRate * 100).toStringAsFixed(2)}%',
-        'Outil éducatif, ne constitue pas un conseil financier (LSFin)',
+        s.coachReasonerAmortiAssumptionHypotheque(hypotheque.toStringAsFixed(0)),
+        s.coachReasonerAmortiAssumptionAmortissement(amountToRedirect.toStringAsFixed(0)),
+        s.coachReasonerAmortiAssumptionTauxHypo((hypoRate * 100).toStringAsFixed(2)),
+        s.coachReasonerDisclaimer,
       ],
       impact: Impact(amountCHF: annualAdvantage, period: Period.yearly),
-      risks: const [
-        'La dette reste au même niveau jusqu\'au nantissement',
-        'Risque de placement sur le capital 3a (si fonds)',
-        'Certaines banques n\'acceptent pas le nantissement 3a',
+      risks: [
+        s.coachReasonerAmortiRisk1,
+        s.coachReasonerAmortiRisk2,
+        s.coachReasonerAmortiRisk3,
       ],
-      alternatives: const [
-        'Amortissement direct si priorité = réduire la dette rapidement',
-        'Rachat LPP si la lacune est plus avantageuse fiscalement',
+      alternatives: [
+        s.coachReasonerAmortiAlt1,
+        s.coachReasonerAmortiAlt2,
       ],
-      evidenceLinks: const [
+      evidenceLinks: [
         EvidenceLink(
-          label: 'LIFD art. 33 — Déductions',
+          label: s.coachReasonerAmortiEvidenceLabel,
           url: 'https://www.fedlex.admin.ch/eli/cc/1991/1184_1184_1184/fr#art_33',
         ),
       ],
       nextActions: [
-        const NextAction(
+        NextAction(
           type: NextActionType.simulate,
-          label: 'Simuler l\'amortissement indirect',
+          label: s.coachReasonerAmortiActionSimulate,
           deepLink: '/mortgage/simulator',
         ),
       ],
@@ -360,6 +366,7 @@ class CoachReasonerService {
   static Recommendation? _evaluateEchelonnement3a(
     CoachProfile profile,
     int age,
+    S s,
   ) {
     final prev = profile.prevoyance;
     if (prev.nombre3a < 2) return null; // need >= 2 accounts to stagger
@@ -398,41 +405,41 @@ class CoachReasonerService {
     return Recommendation(
       id: 'echelonnement_3a',
       kind: '3a_staggering',
-      title:
-          'Échelonner les retraits 3a : économie de ${taxSaving.toStringAsFixed(0)} CHF',
-      summary:
-          'En retirant tes $nAccounts comptes 3a sur plusieurs années fiscales, '
-          'tu économises ${taxSaving.toStringAsFixed(0)} CHF d\'impôt sur le retrait.',
+      title: s.coachReasonerEchelonnementTitle(taxSaving.toStringAsFixed(0)),
+      summary: s.coachReasonerEchelonnementSummary(
+        nAccounts,
+        taxSaving.toStringAsFixed(0),
+      ),
       why: [
-        'Progressivité de l\'impôt sur le retrait (LIFD art. 38)',
-        'Chaque retrait est imposé séparément dans l\'année fiscale',
-        '$nAccounts comptes = $nAccounts tranches possibles',
+        s.coachReasonerEchelonnementWhy1,
+        s.coachReasonerEchelonnementWhy2,
+        s.coachReasonerEchelonnementWhy3(nAccounts),
       ],
       assumptions: [
-        'Capital total 3a : ${totalCapital.toStringAsFixed(0)} CHF',
-        'Canton : ${profile.canton}',
-        if (isMarried) 'Splitting conjugal appliqué',
-        'Hypothèse : retraits effectués dans des années fiscales différentes',
-        'Outil éducatif, ne constitue pas un conseil financier (LSFin)',
+        s.coachReasonerEchelonnementAssumptionCapital(totalCapital.toStringAsFixed(0)),
+        s.coachReasonerEchelonnementAssumptionCanton(profile.canton),
+        if (isMarried) s.coachReasonerEchelonnementAssumptionSplitting,
+        s.coachReasonerEchelonnementAssumptionRetraits,
+        s.coachReasonerDisclaimer,
       ],
       impact: Impact(amountCHF: taxSaving, period: Period.oneoff),
-      risks: const [
-        'Certains cantons cumulent les retraits 2e+3e pilier dans la même année',
-        'Nécessite de planifier les retraits dès 60 ans (AHV21)',
+      risks: [
+        s.coachReasonerEchelonnementRisk1,
+        s.coachReasonerEchelonnementRisk2,
       ],
-      alternatives: const [
-        'Ouvrir des comptes 3a supplémentaires si > 5 ans avant la retraite',
+      alternatives: [
+        s.coachReasonerEchelonnementAlt1,
       ],
-      evidenceLinks: const [
+      evidenceLinks: [
         EvidenceLink(
-          label: 'LIFD art. 38 — Imposition du capital',
+          label: s.coachReasonerEchelonnementEvidenceLabel,
           url: 'https://www.fedlex.admin.ch/eli/cc/1991/1184_1184_1184/fr#art_38',
         ),
       ],
       nextActions: [
-        const NextAction(
+        NextAction(
           type: NextActionType.simulate,
-          label: 'Simuler l\'échelonnement',
+          label: s.coachReasonerEchelonnementActionSimulate,
           deepLink: '/3a-deep/staggered-withdrawal',
         ),
       ],
@@ -446,6 +453,7 @@ class CoachReasonerService {
   static Recommendation? _evaluateSplitLibrePassage(
     CoachProfile profile,
     int age,
+    S s,
   ) {
     final prev = profile.prevoyance;
     final totalLP = prev.totalLibrePassage;
@@ -479,39 +487,36 @@ class CoachReasonerService {
     return Recommendation(
       id: 'split_libre_passage',
       kind: 'libre_passage_split',
-      title:
-          'Splitter le libre passage : économie de ${taxSaving.toStringAsFixed(0)} CHF',
-      summary:
-          'Ton avoir de libre passage de ${totalLP.toStringAsFixed(0)} CHF peut '
-          'être réparti sur 2 comptes pour réduire l\'impôt au retrait.',
+      title: s.coachReasonerSplitLpTitle(taxSaving.toStringAsFixed(0)),
+      summary: s.coachReasonerSplitLpSummary(totalLP.toStringAsFixed(0)),
       why: [
-        'Même logique que l\'échelonnement 3a (LIFD art. 38)',
-        'Retrait échelonné = tranches plus petites = taux effectif plus bas',
+        s.coachReasonerSplitLpWhy1,
+        s.coachReasonerSplitLpWhy2,
       ],
       assumptions: [
-        'Avoir libre passage : ${totalLP.toStringAsFixed(0)} CHF',
-        'Split en 2 comptes de ${half.toStringAsFixed(0)} CHF',
-        'Hypothèse : retraits effectués dans des années fiscales différentes',
-        'Outil éducatif, ne constitue pas un conseil financier (LSFin)',
+        s.coachReasonerSplitLpAssumptionAvoir(totalLP.toStringAsFixed(0)),
+        s.coachReasonerSplitLpAssumptionSplit(half.toStringAsFixed(0)),
+        s.coachReasonerSplitLpAssumptionRetraits,
+        s.coachReasonerDisclaimer,
       ],
       impact: Impact(amountCHF: taxSaving, period: Period.oneoff),
-      risks: const [
-        'Frais de transfert selon la fondation',
-        'Certaines fondations n\'acceptent pas les transferts partiels',
+      risks: [
+        s.coachReasonerSplitLpRisk1,
+        s.coachReasonerSplitLpRisk2,
       ],
-      alternatives: const [
-        'Attendre un changement d\'emploi pour effectuer le split naturellement',
+      alternatives: [
+        s.coachReasonerSplitLpAlt1,
       ],
-      evidenceLinks: const [
+      evidenceLinks: [
         EvidenceLink(
-          label: 'LFLP art. 10 — Libre passage',
+          label: s.coachReasonerSplitLpEvidenceLabel,
           url: 'https://www.fedlex.admin.ch/eli/cc/1994/2386_2386_2386/fr#art_10',
         ),
       ],
       nextActions: [
-        const NextAction(
+        NextAction(
           type: NextActionType.learn,
-          label: 'Comprendre le libre passage',
+          label: s.coachReasonerSplitLpActionLearn,
           deepLink: '/lpp-deep/libre-passage',
         ),
       ],

@@ -1,10 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/services/financial_core/coach_reasoner.dart';
 
 void main() {
   // ── Helper ──────────────────────────────────────────────────
+
+  final S s = SFr();
 
   CoachProfile profile({
     int age = 50,
@@ -58,20 +62,20 @@ void main() {
   group('CoachReasonerService.analyse — basics', () {
     test('empty profile (no salary) → empty recommendations', () {
       final result = CoachReasonerService.analyse(
-          profile(salaire: 0));
+          profile(salaire: 0), s: s);
       expect(result.recommendations, isEmpty);
       expect(result.confidence.score, isNotNull);
     });
 
     test('already retired (age >= 65) → empty recommendations', () {
       final result = CoachReasonerService.analyse(
-          profile(age: 66));
+          profile(age: 66), s: s);
       expect(result.recommendations, isEmpty);
     });
 
     test('result includes confidence score', () {
       final result = CoachReasonerService.analyse(
-          profile(rachatMax: 50000));
+          profile(rachatMax: 50000), s: s);
       expect(result.confidence.score, greaterThanOrEqualTo(0));
       expect(result.confidence.score, lessThanOrEqualTo(100));
       expect(result.confidence.level, isNotEmpty);
@@ -83,7 +87,7 @@ void main() {
   group('Lever 1 — Rachat LPP', () {
     test('lacune > 0 → rachat recommendation', () {
       final result = CoachReasonerService.analyse(
-          profile(rachatMax: 80000));
+          profile(rachatMax: 80000), s: s);
       final rachat = result.recommendations
           .where((r) => r.id == 'rachat_lpp');
       expect(rachat, isNotEmpty);
@@ -93,7 +97,7 @@ void main() {
 
     test('no lacune → no rachat recommendation', () {
       final result = CoachReasonerService.analyse(
-          profile(rachatMax: 0));
+          profile(rachatMax: 0), s: s);
       expect(
         result.recommendations.any((r) => r.id == 'rachat_lpp'),
         isFalse,
@@ -102,7 +106,7 @@ void main() {
 
     test('rachat includes LSFin disclaimer', () {
       final result = CoachReasonerService.analyse(
-          profile(rachatMax: 50000));
+          profile(rachatMax: 50000), s: s);
       final rachat = result.recommendations
           .firstWhere((r) => r.id == 'rachat_lpp');
       expect(
@@ -113,7 +117,7 @@ void main() {
 
     test('EPL risk mentioned (LPP art. 79b al. 3)', () {
       final result = CoachReasonerService.analyse(
-          profile(rachatMax: 50000));
+          profile(rachatMax: 50000), s: s);
       final rachat = result.recommendations
           .firstWhere((r) => r.id == 'rachat_lpp');
       expect(
@@ -124,7 +128,7 @@ void main() {
 
     test('near retirement (3y) adds limited return warning', () {
       final result = CoachReasonerService.analyse(
-          profile(age: 63, rachatMax: 50000));
+          profile(age: 63, rachatMax: 50000), s: s);
       final rachat = result.recommendations
           .firstWhere((r) => r.id == 'rachat_lpp');
       expect(
@@ -135,9 +139,9 @@ void main() {
 
     test('higher fund rate → higher impact', () {
       final low = CoachReasonerService.analyse(
-          profile(rachatMax: 80000, rendementCaisse: 0.01));
+          profile(rachatMax: 80000, rendementCaisse: 0.01), s: s);
       final high = CoachReasonerService.analyse(
-          profile(rachatMax: 80000, rendementCaisse: 0.05));
+          profile(rachatMax: 80000, rendementCaisse: 0.05), s: s);
       final impactLow = low.recommendations
           .firstWhere((r) => r.id == 'rachat_lpp').impact.amountCHF;
       final impactHigh = high.recommendations
@@ -151,7 +155,7 @@ void main() {
   group('Lever 2 — 3a non-maxé', () {
     test('no 3a accounts + can contribute → 3a gap recommendation', () {
       final result = CoachReasonerService.analyse(
-          profile(nombre3a: 0, totalEpargne3a: 0, rachatMax: 0));
+          profile(nombre3a: 0, totalEpargne3a: 0, rachatMax: 0), s: s);
       expect(
         result.recommendations.any((r) => r.id == '3a_non_maxe'),
         isTrue,
@@ -160,7 +164,7 @@ void main() {
 
     test('FATCA block → no 3a recommendation', () {
       final result = CoachReasonerService.analyse(
-          profile(canContribute3a: false, rachatMax: 0));
+          profile(canContribute3a: false, rachatMax: 0), s: s);
       expect(
         result.recommendations.any((r) => r.id == '3a_non_maxe'),
         isFalse,
@@ -169,7 +173,7 @@ void main() {
 
     test('3a recommendation includes heuristic disclaimer', () {
       final result = CoachReasonerService.analyse(
-          profile(nombre3a: 1, totalEpargne3a: 10000, rachatMax: 0));
+          profile(nombre3a: 1, totalEpargne3a: 10000, rachatMax: 0), s: s);
       final reco = result.recommendations
           .firstWhere((r) => r.id == '3a_non_maxe');
       expect(
@@ -184,7 +188,7 @@ void main() {
   group('Lever 3 — Amortissement indirect', () {
     test('no mortgage → no amortissement recommendation', () {
       final result = CoachReasonerService.analyse(
-          profile(hypotheque: 0, rachatMax: 0));
+          profile(hypotheque: 0, rachatMax: 0), s: s);
       expect(
         result.recommendations.any((r) => r.id == 'amortissement_indirect'),
         isFalse,
@@ -193,7 +197,7 @@ void main() {
 
     test('mortgage present → amortissement recommendation', () {
       final result = CoachReasonerService.analyse(
-          profile(hypotheque: 500000, rachatMax: 0));
+          profile(hypotheque: 500000, rachatMax: 0), s: s);
       expect(
         result.recommendations.any((r) => r.id == 'amortissement_indirect'),
         isTrue,
@@ -202,18 +206,18 @@ void main() {
 
     test('uses profile mortgage rate when available', () {
       final result = CoachReasonerService.analyse(
-          profile(hypotheque: 500000, mortgageRate: 0.02, rachatMax: 0));
+          profile(hypotheque: 500000, mortgageRate: 0.02, rachatMax: 0), s: s);
       final reco = result.recommendations
           .firstWhere((r) => r.id == 'amortissement_indirect');
       expect(
-        reco.assumptions.any((a) => a.contains('2.00%')),
+        reco.assumptions.any((a) => a.contains('2.00')),
         isTrue,
       );
     });
 
     test('FATCA block → no amortissement indirect', () {
       final result = CoachReasonerService.analyse(
-          profile(hypotheque: 500000, canContribute3a: false, rachatMax: 0));
+          profile(hypotheque: 500000, canContribute3a: false, rachatMax: 0), s: s);
       expect(
         result.recommendations.any((r) => r.id == 'amortissement_indirect'),
         isFalse,
@@ -226,7 +230,7 @@ void main() {
   group('Lever 4 — Échelonnement 3a', () {
     test('< 2 accounts → no staggering recommendation', () {
       final result = CoachReasonerService.analyse(
-          profile(age: 58, nombre3a: 1, totalEpargne3a: 50000, rachatMax: 0));
+          profile(age: 58, nombre3a: 1, totalEpargne3a: 50000, rachatMax: 0), s: s);
       expect(
         result.recommendations.any((r) => r.id == 'echelonnement_3a'),
         isFalse,
@@ -235,7 +239,7 @@ void main() {
 
     test('>= 2 accounts near retirement → staggering recommendation', () {
       final result = CoachReasonerService.analyse(
-          profile(age: 60, nombre3a: 4, totalEpargne3a: 400000, rachatMax: 0));
+          profile(age: 60, nombre3a: 4, totalEpargne3a: 400000, rachatMax: 0), s: s);
       expect(
         result.recommendations.any((r) => r.id == 'echelonnement_3a'),
         isTrue,
@@ -244,7 +248,7 @@ void main() {
 
     test('too far from retirement (> 10y) → no staggering', () {
       final result = CoachReasonerService.analyse(
-          profile(age: 40, nombre3a: 4, totalEpargne3a: 400000, rachatMax: 0));
+          profile(age: 40, nombre3a: 4, totalEpargne3a: 400000, rachatMax: 0), s: s);
       expect(
         result.recommendations.any((r) => r.id == 'echelonnement_3a'),
         isFalse,
@@ -253,7 +257,7 @@ void main() {
 
     test('staggering includes separate fiscal years assumption', () {
       final result = CoachReasonerService.analyse(
-          profile(age: 60, nombre3a: 4, totalEpargne3a: 400000, rachatMax: 0));
+          profile(age: 60, nombre3a: 4, totalEpargne3a: 400000, rachatMax: 0), s: s);
       final reco = result.recommendations
           .firstWhere((r) => r.id == 'echelonnement_3a');
       expect(
@@ -264,7 +268,7 @@ void main() {
 
     test('staggering impact is one-off', () {
       final result = CoachReasonerService.analyse(
-          profile(age: 60, nombre3a: 4, totalEpargne3a: 400000, rachatMax: 0));
+          profile(age: 60, nombre3a: 4, totalEpargne3a: 400000, rachatMax: 0), s: s);
       final reco = result.recommendations
           .firstWhere((r) => r.id == 'echelonnement_3a');
       expect(reco.impact.period, Period.oneoff);
@@ -276,7 +280,7 @@ void main() {
   group('Lever 5 — Split libre passage', () {
     test('no libre passage → no split recommendation', () {
       final result = CoachReasonerService.analyse(
-          profile(rachatMax: 0));
+          profile(rachatMax: 0), s: s);
       expect(
         result.recommendations.any((r) => r.id == 'split_libre_passage'),
         isFalse,
@@ -290,7 +294,7 @@ void main() {
         librePassage: [
           const LibrePassageCompte(institution: 'Test', solde: 200000),
         ],
-      ));
+      ), s: s);
       expect(
         result.recommendations.any((r) => r.id == 'split_libre_passage'),
         isTrue,
@@ -305,7 +309,7 @@ void main() {
           const LibrePassageCompte(institution: 'A', solde: 100000),
           const LibrePassageCompte(institution: 'B', solde: 100000),
         ],
-      ));
+      ), s: s);
       expect(
         result.recommendations.any((r) => r.id == 'split_libre_passage'),
         isFalse,
@@ -322,7 +326,7 @@ void main() {
         rachatMax: 80000,
         nombre3a: 3,
         totalEpargne3a: 150000,
-      ));
+      ), s: s);
       if (result.recommendations.length >= 2) {
         // Verify non-increasing annualized order
         for (int i = 0; i < result.recommendations.length - 1; i++) {
@@ -343,7 +347,7 @@ void main() {
         nombre3a: 2,
         totalEpargne3a: 50000,
         hypotheque: 500000,
-      ));
+      ), s: s);
       for (final reco in result.recommendations) {
         final allText = [
           reco.title,
@@ -364,7 +368,7 @@ void main() {
         nombre3a: 2,
         totalEpargne3a: 50000,
         hypotheque: 500000,
-      ));
+      ), s: s);
       for (final reco in result.recommendations) {
         expect(
           reco.assumptions.any((a) => a.contains('LSFin')),
@@ -380,7 +384,7 @@ void main() {
         nombre3a: 2,
         totalEpargne3a: 50000,
         hypotheque: 500000,
-      ));
+      ), s: s);
       for (final reco in result.recommendations) {
         expect(reco.nextActions, isNotEmpty,
             reason: '${reco.id} has no nextActions');
