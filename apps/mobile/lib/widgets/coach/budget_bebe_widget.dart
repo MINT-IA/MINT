@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -57,8 +58,9 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Budget 50 30 20 bébé impact mensuel',
+      label: s.budgetBebeSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -68,19 +70,19 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildChildrenSlider(),
+                  _buildChildrenSlider(s),
                   const SizedBox(height: 20),
-                  _buildBudgetComparison(),
+                  _buildBudgetComparison(s),
                   const SizedBox(height: 16),
-                  if (_children > 0) _buildImpactAlert(),
+                  if (_children > 0) _buildImpactAlert(s),
                   if (_children > 0) const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -90,7 +92,7 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -99,14 +101,14 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
       ),
       child: Row(
         children: [
-          const Text('🍼', style: TextStyle(fontSize: 22)),
+          const Text('\ud83c\udf7c', style: TextStyle(fontSize: 22)),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Budget 50/30/20 avec bébé',
+                  s.budgetBebeTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -115,7 +117,7 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Besoins / Envies / Épargne — avant et après',
+                  s.budgetBebeSubtitle,
                   style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
                 ),
               ],
@@ -126,7 +128,7 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
     );
   }
 
-  Widget _buildChildrenSlider() {
+  Widget _buildChildrenSlider(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -134,7 +136,7 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Nombre d\'enfants',
+              s.budgetBebeChildrenCount,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -148,7 +150,7 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                _children == 0 ? 'Sans enfant' : '$_children enfant${_children > 1 ? 's' : ''}',
+                _children == 0 ? s.budgetBebeNoChild : s.budgetBebeChildrenLabel(_children),
                 style: GoogleFonts.montserrat(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -170,12 +172,12 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
     );
   }
 
-  Widget _buildBudgetComparison() {
+  Widget _buildBudgetComparison(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Répartition mensuelle',
+          s.budgetBebeMonthlyBreakdown,
           style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -184,36 +186,36 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
         ),
         const SizedBox(height: 12),
         _buildBudgetRow(
-          label: '🏠 Besoins (50%)',
+          label: s.budgetBebeNeeds,
           before: _needs,
           after: _needs,
           color: MintColors.info,
-          note: 'Loyer, nourriture, santé',
+          note: s.budgetBebeNeedsNote,
         ),
         const SizedBox(height: 8),
         _buildBudgetRow(
-          label: '🎭 Envies (30%)',
+          label: s.budgetBebeWants,
           before: _wants,
           after: _wantsAfter,
           color: MintColors.scoreAttention,
-          note: 'Loisirs, restaurants, voyages',
+          note: s.budgetBebeWantsNote,
         ),
         const SizedBox(height: 8),
         _buildBudgetRow(
-          label: '💰 Épargne (20%)',
+          label: s.budgetBebeSavings,
           before: _savings,
           after: _savingsAfter,
           color: MintColors.scoreExcellent,
-          note: '3a, LPP rachat, fonds urgence',
+          note: s.budgetBebeSavingsNote,
         ),
         if (_children > 0) ...[
           const SizedBox(height: 8),
           _buildBudgetRow(
-            label: '👶 Enfant${_children > 1 ? 's' : ''}',
+            label: s.budgetBebeChildrenRowLabel,
             before: 0,
             after: _childrenCost,
             color: MintColors.info,
-            note: 'CHF ${_fmt(widget.costPerChild)}/enfant/mois',
+            note: s.budgetBebeChildCostNote(_fmt(widget.costPerChild)),
             isNew: true,
           ),
         ],
@@ -317,7 +319,7 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
     );
   }
 
-  Widget _buildImpactAlert() {
+  Widget _buildImpactAlert(S s) {
     final savingsLost = _savings - _savingsAfter;
     final isSerious = _savingsAfter < _savings * 0.3;
 
@@ -335,7 +337,7 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(isSerious ? '⚠️' : '💡', style: const TextStyle(fontSize: 18)),
+          Text(isSerious ? '\u26a0\ufe0f' : '\ud83d\udca1', style: const TextStyle(fontSize: 18)),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -343,8 +345,8 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
               children: [
                 Text(
                   isSerious
-                      ? 'Ton épargne est fortement impactée'
-                      : 'Pense à ajuster ton épargne',
+                      ? s.budgetBebeAlertSerious
+                      : s.budgetBebeAlertMild,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -354,9 +356,8 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
                 const SizedBox(height: 4),
                 Text(
                   savingsLost > 0
-                      ? 'Tes enfants coûtent CHF ${_fmt(_childrenCost)}/mois, '
-                        'ce qui réduit ton épargne de CHF ${_fmt(savingsLost)}/mois.'
-                      : 'Tes enfants sont financés par tes envies — ton épargne reste intacte.',
+                      ? s.budgetBebeAlertSavingsReduced(_fmt(_childrenCost), _fmt(savingsLost))
+                      : s.budgetBebeAlertSavingsIntact,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -371,10 +372,9 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : OFS statistiques des ménages suisses, règle budgétaire 50/30/20.',
+      s.budgetBebeDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

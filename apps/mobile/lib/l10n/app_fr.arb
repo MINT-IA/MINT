@@ -9522,13 +9522,6 @@
   "budgetBebeSavings": "💰 Épargne (20 %)",
   "budgetBebeSavingsNote": "3a, LPP rachat, fonds urgence",
   "budgetBebeChildrenRowLabel": "👶 Enfant(s)",
-  "@budgetBebeChildrenRowLabel": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "budgetBebeChildCostNote": "CHF {amount}/enfant/mois",
   "@budgetBebeChildCostNote": {
     "placeholders": {
