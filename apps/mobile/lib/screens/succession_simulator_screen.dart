@@ -154,7 +154,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: MintColors.teal.withOpacity(0.1),
+              color: MintColors.teal.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(Icons.volunteer_activism,
@@ -194,17 +194,17 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: MintColors.teal.withOpacity(0.06),
+        color: MintColors.teal.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: MintColors.teal.withOpacity(0.15),
+          color: MintColors.teal.withValues(alpha: 0.15),
         ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.lightbulb_outline,
-              size: 20, color: MintColors.teal.withOpacity(0.8)),
+              size: 20, color: MintColors.teal.withValues(alpha: 0.8)),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -307,7 +307,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: selected
-                      ? MintColors.teal.withOpacity(0.1)
+                      ? MintColors.teal.withValues(alpha: 0.1)
                       : MintColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
@@ -481,7 +481,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: selected
-                      ? MintColors.teal.withOpacity(0.1)
+                      ? MintColors.teal.withValues(alpha: 0.1)
                       : MintColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
@@ -541,10 +541,10 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: MintColors.teal.withOpacity(0.06),
+        color: MintColors.teal.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: MintColors.teal.withOpacity(0.15),
+          color: MintColors.teal.withValues(alpha: 0.15),
         ),
       ),
       child: Column(
@@ -582,9 +582,9 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: MintColors.info.withOpacity(0.06),
+        color: MintColors.info.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.info.withOpacity(0.15)),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -703,9 +703,9 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: MintColors.warning.withOpacity(0.06),
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.warning.withOpacity(0.15)),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -769,9 +769,9 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: MintColors.success.withOpacity(0.06),
+        color: MintColors.success.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.success.withOpacity(0.15)),
+        border: Border.all(color: MintColors.success.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -836,7 +836,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
       decoration: BoxDecoration(
         color: MintColors.successionBg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.purple.withOpacity(0.3)),
+        border: Border.all(color: MintColors.purple.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -921,9 +921,9 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: MintColors.info.withOpacity(0.06),
+        color: MintColors.info.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.info.withOpacity(0.15)),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -994,10 +994,10 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: MintColors.warning.withOpacity(0.06),
+                  color: MintColors.warning.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: MintColors.warning.withOpacity(0.15),
+                    color: MintColors.warning.withValues(alpha: 0.15),
                   ),
                 ),
                 child: Row(
@@ -1050,12 +1050,12 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
                 ),
                 decoration: BoxDecoration(
                   color: _checklistState[index]
-                      ? MintColors.success.withOpacity(0.06)
+                      ? MintColors.success.withValues(alpha: 0.06)
                       : MintColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: _checklistState[index]
-                        ? MintColors.success.withOpacity(0.3)
+                        ? MintColors.success.withValues(alpha: 0.3)
                         : MintColors.border,
                   ),
                 ),
@@ -1173,7 +1173,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
       decoration: BoxDecoration(
         color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.warning.withOpacity(0.4)),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.4)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -1195,7 +1195,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               trackHeight: 6,
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
               valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
-              showValueIndicator: ShowValueIndicator.always,
+              showValueIndicator: ShowValueIndicator.onDrag,
             ),
             child: Slider(
               value: _lifeExpectancy,
@@ -1364,11 +1364,11 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           title: 'Inflation',
           leftTitle: 'Aujourd\'hui',
           leftSubtitle: '',
-          leftValue: '${formatChf(r.renteNetMensuelle)}',
+          leftValue: formatChf(r.renteNetMensuelle),
           leftDetail: '/mois',
           rightTitle: 'Dans 20 ans',
           rightSubtitle: 'pouvoir d\'achat',
-          rightValue: '${formatChf(r.renteReelleAn20 / 12)}',
+          rightValue: formatChf(r.renteReelleAn20 / 12),
           rightDetail: '/mois',
           bottomText: 'Ta rente LPP n\'est pas indexée. '
               'Elle achète ${((1 - 1 / math.pow(1 + inflation, 20)) * 100).round()} % '

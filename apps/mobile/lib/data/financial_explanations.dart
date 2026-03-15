@@ -27,11 +27,11 @@ class FinancialExplanations {
         content:
             'Si tu rachètes tout d\'un coup, ton revenu chute trop bas et tu perds l\'avantage du taux marginal élevé.',
         keyPoints: [
-          const KeyPoint(
+          KeyPoint(
             'Rachat en 1x : Ton revenu tombe trop bas, taux marginal effectif plus faible',
             isPositive: false,
           ),
-          const KeyPoint(
+          KeyPoint(
             'Rachat échelonné : Tu restes dans ta tranche adaptee, taux marginal constant',
           ),
           KeyPoint(
@@ -44,11 +44,11 @@ class FinancialExplanations {
         content:
             'Si tu veux retirer ton 2e pilier en CAPITAL à la retraite (et pas en rente), tu dois finir tous tes rachats AU MINIMUM 3 ans avant le retrait.',
         keyPoints: [
-          const KeyPoint(
+          KeyPoint(
             'Rachat aujourd\'hui → Capital bloqué pendant 3 ans minimum',
             isPositive: false,
           ),
-          const KeyPoint(
+          KeyPoint(
             'Si tu veux retirer à 65 ans en capital → dernier rachat au plus tard à 62 ans',
           ),
         ],
@@ -58,13 +58,13 @@ class FinancialExplanations {
         content:
             'Pour maximiser l\'économie fiscale, il faut racheter dans les dernières années pré-retraite (quand ton salaire est au plus haut).',
         keyPoints: [
-          const KeyPoint(
+          KeyPoint(
             'Timing idéal : 3-5 ans avant la retraite',
           ),
-          const KeyPoint(
+          KeyPoint(
             'Salaire au maximum = taux marginal au maximum = économie maximum',
           ),
-          const KeyPoint(
+          KeyPoint(
             'Respecter la règle des 3 ans si retrait capital prévu',
           ),
         ],
@@ -121,10 +121,10 @@ class FinancialExplanations {
         content:
             'Le plafond du 3a est lié à l\'AVS et est généralement indexé tous les 2 ans. Cela signifie que ta capacité d\'épargne fiscale augmente avec le temps !',
         keyPoints: [
-          const KeyPoint(
+          KeyPoint(
             'Bonus Indexation : Ton économie fiscale grandit tous les 2 ans',
           ),
-          const KeyPoint(
+          KeyPoint(
             'Protection Inflation : Investir en actions (via VIAC) protège ton pouvoir d\'achat',
           ),
         ],
@@ -134,11 +134,11 @@ class FinancialExplanations {
         content:
             'Aucun autre placement (sauf immobilier avec EPL) ne te donne un rendement aussi élevé avec si peu de risque.',
         keyPoints: [
-          const KeyPoint(
+          KeyPoint(
             'Compte épargne : 0.5-1% de rendement',
             isPositive: false,
           ),
-          const KeyPoint(
+          KeyPoint(
             'Obligations : 2-3% de rendement',
             isPositive: false,
           ),
@@ -220,10 +220,10 @@ class FinancialExplanations {
         content:
             'Le système AVS suisse est basé sur 44 années de cotisation (de 21 à 65 ans). Chaque année manquante réduit ta rente de façon proportionnelle et définitive.',
         keyPoints: [
-          const KeyPoint(
+          KeyPoint(
             'Rente complète = 44 années de cotisation non-interrompues',
           ),
-          const KeyPoint(
+          KeyPoint(
             '1 année manquante = -1/44e de rente (~2.3% en moins)',
             isPositive: false,
           ),
@@ -239,11 +239,11 @@ class FinancialExplanations {
         content:
             'Partir à l\'étranger sans cotiser au moins le minimum AVS (env. CHF 514/an) crée une lacune irrécupérable après 5 ans.',
         keyPoints: [
-          const KeyPoint(
+          KeyPoint(
             'Chaque année à l\'étranger sans cotisation = -2.3% de rente AVS à vie',
             isPositive: false,
           ),
-          const KeyPoint(
+          KeyPoint(
             'Solution : Cotiser à l\'AVS facultative ou compenser par un 3e pilier plus fort',
           ),
         ],
@@ -273,13 +273,13 @@ class FinancialExplanations {
       content:
           'Il est possible de racheter les 5 dernières années manquantes si tu étais domicilié en Suisse.',
       keyPoints: [
-        const KeyPoint(
+        KeyPoint(
           'Commande un extrait de compte individuel (CI) gratuit',
         ),
-        const KeyPoint(
+        KeyPoint(
           'Vérifie les années avec ta caisse de compensation',
         ),
-        const KeyPoint(
+        KeyPoint(
           'Rachète les lacunes récentes (< 5 ans) si possible',
         ),
       ],
@@ -304,10 +304,10 @@ class FinancialExplanations {
         content:
             'Les seuils d\'éligibilité varient énormément d\'un canton à l\'autre. En général, si ton revenu net est inférieur à un certain seuil (ex: CHF 60\'000 pour un célibataire à VD), tu as droit à une réduction.',
         keyPoints: [
-          const KeyPoint(
+          KeyPoint(
             'Réduction immédiate du coût de la vie',
           ),
-          const KeyPoint(
+          KeyPoint(
             'Demande souvent non-automatique (il faut la faire !)',
             isPositive: false,
           ),

@@ -154,7 +154,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -683,7 +683,7 @@ class _GaugePainter extends CustomPainter {
 
     // Green zone (0-15%)
     final greenPaint = Paint()
-      ..color = MintColors.success.withOpacity(0.3)
+      ..color = MintColors.success.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 16
       ..strokeCap = StrokeCap.round;
@@ -698,7 +698,7 @@ class _GaugePainter extends CustomPainter {
 
     // Orange zone (15-30%)
     final orangePaint = Paint()
-      ..color = MintColors.warning.withOpacity(0.3)
+      ..color = MintColors.warning.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 16;
 
@@ -712,7 +712,7 @@ class _GaugePainter extends CustomPainter {
 
     // Red zone (30%+)
     final redPaint = Paint()
-      ..color = MintColors.error.withOpacity(0.3)
+      ..color = MintColors.error.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 16;
 

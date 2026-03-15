@@ -182,7 +182,7 @@ class _DonationScreenState extends State<DonationScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: MintColors.indigo.withOpacity(0.1),
+              color: MintColors.indigo.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(Icons.card_giftcard,
@@ -222,17 +222,17 @@ class _DonationScreenState extends State<DonationScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: MintColors.indigo.withOpacity(0.06),
+        color: MintColors.indigo.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: MintColors.indigo.withOpacity(0.15),
+          color: MintColors.indigo.withValues(alpha: 0.15),
         ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.lightbulb_outline,
-              size: 20, color: MintColors.indigo.withOpacity(0.8)),
+              size: 20, color: MintColors.indigo.withValues(alpha: 0.8)),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -367,7 +367,7 @@ class _DonationScreenState extends State<DonationScreen> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: selected
-                      ? MintColors.indigo.withOpacity(0.1)
+                      ? MintColors.indigo.withValues(alpha: 0.1)
                       : MintColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
@@ -420,7 +420,7 @@ class _DonationScreenState extends State<DonationScreen> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: selected
-                      ? MintColors.indigo.withOpacity(0.1)
+                      ? MintColors.indigo.withValues(alpha: 0.1)
                       : MintColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
@@ -475,7 +475,7 @@ class _DonationScreenState extends State<DonationScreen> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: selected
-                      ? MintColors.indigo.withOpacity(0.1)
+                      ? MintColors.indigo.withValues(alpha: 0.1)
                       : MintColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
@@ -537,11 +537,11 @@ class _DonationScreenState extends State<DonationScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: (hasTax ? MintColors.indigo : MintColors.success)
-            .withOpacity(0.06),
+            .withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: (hasTax ? MintColors.indigo : MintColors.success)
-              .withOpacity(0.15),
+              .withValues(alpha: 0.15),
         ),
       ),
       child: Column(
@@ -598,9 +598,9 @@ class _DonationScreenState extends State<DonationScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: MintColors.warning.withOpacity(0.06),
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.warning.withOpacity(0.15)),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -723,13 +723,13 @@ class _DonationScreenState extends State<DonationScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: (r.donationDepasseQuotite ? MintColors.error : MintColors.success)
-            .withOpacity(0.06),
+            .withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: (r.donationDepasseQuotite
                   ? MintColors.error
                   : MintColors.success)
-              .withOpacity(0.15),
+              .withValues(alpha: 0.15),
         ),
       ),
       child: Column(
@@ -782,7 +782,7 @@ class _DonationScreenState extends State<DonationScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: MintColors.error.withOpacity(0.08),
+                color: MintColors.error.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -815,9 +815,9 @@ class _DonationScreenState extends State<DonationScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: MintColors.info.withOpacity(0.06),
+        color: MintColors.info.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.info.withOpacity(0.15)),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -898,10 +898,10 @@ class _DonationScreenState extends State<DonationScreen> {
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: MintColors.warning.withOpacity(0.06),
+                  color: MintColors.warning.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: MintColors.warning.withOpacity(0.15),
+                    color: MintColors.warning.withValues(alpha: 0.15),
                   ),
                 ),
                 child: Row(
@@ -954,12 +954,12 @@ class _DonationScreenState extends State<DonationScreen> {
                 ),
                 decoration: BoxDecoration(
                   color: _checklistState[index]
-                      ? MintColors.success.withOpacity(0.06)
+                      ? MintColors.success.withValues(alpha: 0.06)
                       : MintColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: _checklistState[index]
-                        ? MintColors.success.withOpacity(0.3)
+                        ? MintColors.success.withValues(alpha: 0.3)
                         : MintColors.border,
                   ),
                 ),

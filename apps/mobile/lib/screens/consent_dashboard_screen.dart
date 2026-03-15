@@ -171,9 +171,9 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: MintColors.success.withOpacity(0.05),
+        color: MintColors.success.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.success.withOpacity(0.2)),
+        border: Border.all(color: MintColors.success.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -246,7 +246,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: MintColors.primary.withOpacity(0.1),
+                      color: MintColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -322,9 +322,9 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: MintColors.info.withOpacity(0.05),
+        color: MintColors.info.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.info.withOpacity(0.2)),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
       ),
       child: const Text(
         PrivacyService.disclaimer,

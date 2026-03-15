@@ -142,7 +142,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(
-                  color: MintColors.primary.withOpacity(0.1),
+                  color: MintColors.primary.withValues(alpha: 0.1),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),

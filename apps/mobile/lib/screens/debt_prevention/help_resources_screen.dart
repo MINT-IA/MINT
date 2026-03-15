@@ -177,7 +177,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3), width: 2),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,7 +187,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: color, size: 24),
@@ -245,7 +245,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                   label: const Text('Site web'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: color,
-                    side: BorderSide(color: color.withOpacity(0.5)),
+                    side: BorderSide(color: color.withValues(alpha: 0.5)),
                   ),
                 ),
               ),
@@ -344,7 +344,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: MintColors.primary.withOpacity(0.1),
+                        color: MintColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.location_city,

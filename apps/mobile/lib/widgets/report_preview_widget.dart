@@ -49,7 +49,7 @@ class ReportPreviewWidget extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: state.precisionColor.withOpacity(0.1),
+                    color: state.precisionColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: state.precisionColor),
                   ),
@@ -182,7 +182,7 @@ class ReportPreviewWidget extends StatelessWidget {
                       color: MintColors.accentPastel,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                          color: MintColors.primary.withOpacity(0.3)),
+                          color: MintColors.primary.withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       children: [

@@ -58,12 +58,12 @@ class ActionCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: MintColors.black.withOpacity(0.04),
+              color: MintColors.black.withValues(alpha: 0.04),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
           ],
-          border: Border.all(color: MintColors.border.withOpacity(0.6)),
+          border: Border.all(color: MintColors.border.withValues(alpha: 0.6)),
         ),
         child: Material(
           color: Colors.transparent,
@@ -106,12 +106,12 @@ class ActionCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            color.withOpacity(0.15),
-            color.withOpacity(0.05),
+            color.withValues(alpha: 0.15),
+            color.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.1)),
+        border: Border.all(color: color.withValues(alpha: 0.1)),
       ),
       child: Icon(icon, color: color, size: 24),
     );

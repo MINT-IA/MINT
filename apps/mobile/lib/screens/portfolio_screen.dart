@@ -63,9 +63,9 @@ class PortfolioScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: MintColors.error.withOpacity(0.05),
+        color: MintColors.error.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.error.withOpacity(0.3)),
+        border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
       ),
       child: const Row(
         children: [

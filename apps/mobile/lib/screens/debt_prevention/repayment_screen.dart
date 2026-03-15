@@ -144,10 +144,10 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [color.withOpacity(0.1), color.withOpacity(0.2)],
+          colors: [color.withValues(alpha: 0.1), color.withValues(alpha: 0.2)],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.5), width: 2),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 2),
       ),
       child: Column(
         children: [

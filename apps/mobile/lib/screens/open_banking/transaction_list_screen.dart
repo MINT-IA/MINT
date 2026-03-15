@@ -273,13 +273,13 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? MintColors.primary.withOpacity(0.1)
+                    ? MintColors.primary.withValues(alpha: 0.1)
                     : MintColors.surface,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: isSelected
                       ? MintColors.primary
-                      : MintColors.border.withOpacity(0.5),
+                      : MintColors.border.withValues(alpha: 0.5),
                 ),
               ),
               child: Text(
@@ -326,7 +326,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
         color: MintColors.white,
         borderRadius: BorderRadius.circular(14),
         border:
-            Border.all(color: MintColors.border.withOpacity(0.5), width: 0.8),
+            Border.all(color: MintColors.border.withValues(alpha: 0.5), width: 0.8),
       ),
       child: Row(
         children: [
@@ -397,10 +397,10 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
       width: 38,
       height: 38,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Icon(iconData, color: color.withOpacity(0.8), size: 18),
+      child: Icon(iconData, color: color.withValues(alpha: 0.8), size: 18),
     );
   }
 
@@ -430,7 +430,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
       child: Column(
         children: [
           Icon(Icons.receipt_long_outlined,
-              size: 48, color: MintColors.textMuted.withOpacity(0.4)),
+              size: 48, color: MintColors.textMuted.withValues(alpha: 0.4)),
           const SizedBox(height: 16),
           Text(
             'Aucune transaction',
@@ -455,14 +455,14 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: MintColors.primary.withOpacity(0.06),
+            color: MintColors.primary.withValues(alpha: 0.06),
             blurRadius: 20,
             offset: const Offset(0, 6),
             spreadRadius: -4,
           ),
         ],
         border:
-            Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -75,12 +75,12 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: MintColors.black.withOpacity(0.03),
+            color: MintColors.black.withValues(alpha: 0.03),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: MintColors.border.withOpacity(0.5)),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         children: [
@@ -89,7 +89,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [MintColors.primary.withOpacity(0.05), MintColors.white],
+                colors: [MintColors.primary.withValues(alpha: 0.05), MintColors.white],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
@@ -105,7 +105,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: MintColors.primary.withOpacity(0.1),
+                        color: MintColors.primary.withValues(alpha: 0.1),
                         blurRadius: 8,
                       ),
                     ],
@@ -139,7 +139,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                 if (widget.onLearnMore != null)
                   IconButton(
                     icon: Icon(Icons.info_outline,
-                        color: MintColors.primary.withOpacity(0.5)),
+                        color: MintColors.primary.withValues(alpha: 0.5)),
                     onPressed: widget.onLearnMore,
                   ),
               ],
@@ -176,7 +176,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                             thumbColor: MintColors.white,
                             thumbShape: const RoundSliderThumbShape(
                                 enabledThumbRadius: 12, elevation: 4),
-                            overlayColor: MintColors.primary.withOpacity(0.1),
+                            overlayColor: MintColors.primary.withValues(alpha: 0.1),
                             trackHeight: 6,
                           ),
                           child: Slider(
@@ -224,7 +224,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                     border: Border.all(color: MintColors.border),
                     boxShadow: [
                       BoxShadow(
-                        color: MintColors.primary.withOpacity(0.05),
+                        color: MintColors.primary.withValues(alpha: 0.05),
                         blurRadius: 24,
                         offset: const Offset(0, 8),
                       ),

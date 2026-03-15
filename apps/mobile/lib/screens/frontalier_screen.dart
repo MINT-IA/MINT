@@ -1587,7 +1587,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       decoration: BoxDecoration(
         color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.warning.withOpacity(0.4)),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.4)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
