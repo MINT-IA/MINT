@@ -35,7 +35,7 @@ class PrixDuSilenceWidget extends StatelessWidget {
     final marriedTax = patrimoine * marriedTaxRate / 100;
     final concubinTax = patrimoine * concubinTaxRate / 100;
     final silence = concubinTax - marriedTax;
-    final testamentCost = 500.0;
+    const testamentCost = 500.0;
 
     return Semantics(
       label: 'Prix du silence succession concubin marié comparaison',

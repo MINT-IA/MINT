@@ -356,7 +356,7 @@ class CoupleActionPlan extends StatelessWidget {
     // ── 4. Rente vs Capital couple coordination ──
     if ((userYearsToRetirement <= 7 || conjYearsToRetirement <= 7) &&
         FeatureFlags.enableDecisionScaffold) {
-      actions.add(_CoupleAction(
+      actions.add(const _CoupleAction(
         owner: ActionOwner.household,
         ownerLabel: 'M\u00c9NAGE',
         ownerColor: MintColors.primary,
@@ -372,7 +372,7 @@ class CoupleActionPlan extends StatelessWidget {
 
     // ── 5. AVS couple cap awareness ──
     if (profile.etatCivil == CoachCivilStatus.marie) {
-      actions.add(_CoupleAction(
+      actions.add(const _CoupleAction(
         owner: ActionOwner.household,
         ownerLabel: 'M\u00c9NAGE',
         ownerColor: MintColors.primary,

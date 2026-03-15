@@ -74,7 +74,7 @@ class DocumentDetailScreen extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: MintColors.surface,
                 shape: BoxShape.circle,
               ),

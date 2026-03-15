@@ -33,7 +33,7 @@ class LowConfidenceCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.info_outline,
+              const Icon(Icons.info_outline,
                   color: MintColors.scoreAttention, size: 22),
               const SizedBox(width: 10),
               Expanded(

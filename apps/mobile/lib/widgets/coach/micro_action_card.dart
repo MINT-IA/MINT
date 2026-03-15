@@ -93,7 +93,7 @@ class MicroActionCard extends StatelessWidget {
 
                 // Chevron
                 const SizedBox(width: 8),
-                Icon(
+                const Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: 14,
                   color: MintColors.textMuted,
@@ -110,7 +110,7 @@ class MicroActionCard extends StatelessWidget {
     return Row(
       children: [
         // Time estimate
-        Icon(Icons.schedule, size: 12, color: MintColors.textMuted),
+        const Icon(Icons.schedule, size: 12, color: MintColors.textMuted),
         const SizedBox(width: 3),
         Text(
           '${action.estimatedMinutes} min',
@@ -123,7 +123,7 @@ class MicroActionCard extends StatelessWidget {
         // Impact CHF
         if (action.estimatedImpactChf != null) ...[
           const SizedBox(width: 12),
-          Icon(Icons.savings_outlined, size: 12, color: MintColors.success),
+          const Icon(Icons.savings_outlined, size: 12, color: MintColors.success),
           const SizedBox(width: 3),
           Text(
             '~CHF ${action.estimatedImpactChf!.round()}/an',

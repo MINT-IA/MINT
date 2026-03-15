@@ -170,7 +170,7 @@ class CoachOrchestrator {
   }) async {
     // 1. SLM tier for chat
     if (_slmEligible()) {
-      final systemPrompt = PromptRegistry.baseSystemPrompt;
+      const systemPrompt = PromptRegistry.baseSystemPrompt;
       final conversationCtx = _buildConversationContext(history, userMessage);
       final slmOut = await _trySlm(
         systemPrompt: systemPrompt,
@@ -514,7 +514,7 @@ class CoachOrchestrator {
   // TODO(i18n): migrate hardcoded FR strings to S.of(context) — needs
   // context parameter or a static localisation accessor (Phase 1.3).
   static CoachResponse _chatFallback() {
-    return CoachResponse(
+    return const CoachResponse(
       message: 'Le coach IA n\'est pas disponible pour le moment.\n\n'
           'En attendant, tu peux :\n'
           '• Explorer tes simulateurs (3a, LPP, retraite)\n'
@@ -556,7 +556,7 @@ class CoachOrchestrator {
       );
     }
 
-    final systemPrompt = PromptRegistry.baseSystemPrompt;
+    const systemPrompt = PromptRegistry.baseSystemPrompt;
     final conversationCtx = _buildConversationContext(history, userMessage);
     final truncated = _truncateToContextWindow(conversationCtx);
 
@@ -578,7 +578,7 @@ class CoachOrchestrator {
     if (!ok) return;
 
     final engine = SlmEngine.instance;
-    final systemPrompt = PromptRegistry.baseSystemPrompt;
+    const systemPrompt = PromptRegistry.baseSystemPrompt;
     final conversationCtx = _buildConversationContext(history, userMessage);
     final truncated = _truncateToContextWindow(conversationCtx);
 

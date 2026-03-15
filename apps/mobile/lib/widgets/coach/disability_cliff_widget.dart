@@ -266,8 +266,8 @@ class DisabilityCliffWidget extends StatelessWidget {
   }
 
   Widget _buildArrow() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
       child: Center(
         child: Icon(Icons.keyboard_arrow_down, color: MintColors.textSecondary, size: 24),
       ),

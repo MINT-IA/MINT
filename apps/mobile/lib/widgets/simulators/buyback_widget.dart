@@ -133,7 +133,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline,
+                  const Icon(Icons.info_outline,
                       color: MintColors.info, size: 16),
                   const SizedBox(width: 8),
                   Expanded(
@@ -146,7 +146,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                       ),
                     ),
                   ),
-                  Icon(Icons.chevron_right,
+                  const Icon(Icons.chevron_right,
                       color: MintColors.info, size: 16),
                 ],
               ),

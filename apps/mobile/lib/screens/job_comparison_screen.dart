@@ -906,7 +906,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.timeline, color: MintColors.info, size: 18),
+              const Icon(Icons.timeline, color: MintColors.info, size: 18),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.jobCompareRetirementImpact,
@@ -976,7 +976,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.warning_amber_rounded,
+                    const Icon(Icons.warning_amber_rounded,
                         size: 16, color: MintColors.warning),
                     const SizedBox(width: 10),
                     Expanded(
@@ -1145,7 +1145,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 18, color: MintColors.warning),
+          const Icon(Icons.info_outline, size: 18, color: MintColors.warning),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

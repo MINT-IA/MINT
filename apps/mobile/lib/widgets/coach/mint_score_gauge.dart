@@ -483,7 +483,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Row(
                   children: [
-                    Icon(Icons.check_circle,
+                    const Icon(Icons.check_circle,
                         size: 14, color: MintColors.scoreExcellent),
                     const SizedBox(width: 6),
                     Expanded(
@@ -538,7 +538,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Row(
                   children: [
-                    Icon(Icons.assignment_outlined,
+                    const Icon(Icons.assignment_outlined,
                         size: 14, color: MintColors.primary),
                     const SizedBox(width: 6),
                     Expanded(
@@ -651,7 +651,7 @@ class _ScoreGaugePainter extends CustomPainter {
             scoreColor,
           ],
           stops: const [0.0, 0.5, 1.0],
-          transform: GradientRotation(startAngle),
+          transform: const GradientRotation(startAngle),
         ).createShader(arcRect);
 
       canvas.drawArc(arcRect, startAngle, valueSweep, false, fillPaint);

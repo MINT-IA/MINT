@@ -336,7 +336,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
           height: 10,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               colors: [
                 MintColors.success,
                 MintColors.warning,

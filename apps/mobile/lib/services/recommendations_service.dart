@@ -92,7 +92,7 @@ class RecommendationsService {
   /// Recommandation : Fonds d'urgence
   static Recommendation _buildEmergencyFundRecommendation(Profile profile) {
     final currentSavings = profile.totalSavings ?? 0;
-    final target = 3000.0;
+    const target = 3000.0;
     final remaining = target - currentSavings;
 
     return Recommendation(
@@ -123,8 +123,8 @@ class RecommendationsService {
   /// Recommandation : Pilier 3a
   static Recommendation _build3aRecommendation(Profile profile) {
     // Estimation économie fiscale (taux marginal ~25%)
-    final limit = pilier3aPlafondAvecLpp; // Limite 2025 avec LPP
-    final taxSavings = limit * 0.25;
+    const limit = pilier3aPlafondAvecLpp; // Limite 2025 avec LPP
+    const taxSavings = limit * 0.25;
 
     return Recommendation(
       id: 'pillar3a',
@@ -141,7 +141,7 @@ class RecommendationsService {
         'Taux marginal 25%',
         'Versement maximal CHF ${limit.toStringAsFixed(0)}',
       ],
-      impact: Impact(amountCHF: taxSavings, period: Period.yearly),
+      impact: const Impact(amountCHF: taxSavings, period: Period.yearly),
       risks: ['Capital bloqué jusqu\'à la retraite'],
       alternatives: ['3a bancaire', '3a assurance', '3a titres'],
       evidenceLinks: [],
@@ -156,7 +156,7 @@ class RecommendationsService {
 
   /// Recommandation : Rachat LPP
   static Recommendation _buildLppBuybackRecommendation(Profile profile) {
-    final estimatedSavings = 850.0; // Estimation conservative
+    const estimatedSavings = 850.0; // Estimation conservative
 
     return Recommendation(
       id: 'lpp_buyback',
@@ -173,7 +173,7 @@ class RecommendationsService {
         'Lacune de prévoyance existante',
         'Taux marginal 25%',
       ],
-      impact: Impact(amountCHF: estimatedSavings, period: Period.yearly),
+      impact: const Impact(amountCHF: estimatedSavings, period: Period.yearly),
       risks: [
         'Capital bloqué dans la LPP',
         'Nécessite liquidités disponibles',
@@ -192,8 +192,8 @@ class RecommendationsService {
   /// Recommandation : Intérêts composés
   static Recommendation _buildCompoundInterestRecommendation(Profile profile) {
     final monthlySavings = profile.savingsMonthly ?? 500;
-    final years = 20;
-    final rate = 0.05; // 5% annuel
+    const years = 20;
+    const rate = 0.05; // 5% annuel
 
     // Calcul intérêts composés
     final futureValue =

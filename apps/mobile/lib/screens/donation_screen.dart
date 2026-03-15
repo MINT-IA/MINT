@@ -185,7 +185,7 @@ class _DonationScreenState extends State<DonationScreen> {
               color: MintColors.indigo.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(Icons.card_giftcard,
+            child: const Icon(Icons.card_giftcard,
                 color: MintColors.indigo, size: 24),
           ),
           const SizedBox(width: 16),
@@ -607,7 +607,7 @@ class _DonationScreenState extends State<DonationScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.shield_outlined,
+              const Icon(Icons.shield_outlined,
                   color: MintColors.warning, size: 18),
               const SizedBox(width: 8),
               Text(
@@ -787,7 +787,7 @@ class _DonationScreenState extends State<DonationScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.error_outline,
+                  const Icon(Icons.error_outline,
                       size: 16, color: MintColors.error),
                   const SizedBox(width: 8),
                   Expanded(
@@ -824,7 +824,7 @@ class _DonationScreenState extends State<DonationScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.history_edu, color: MintColors.info, size: 18),
+              const Icon(Icons.history_edu, color: MintColors.info, size: 18),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.donationImpactTitle,
@@ -855,7 +855,7 @@ class _DonationScreenState extends State<DonationScreen> {
             ),
             child: Row(
               children: [
-                Icon(Icons.info_outline,
+                const Icon(Icons.info_outline,
                     size: 16, color: MintColors.info),
                 const SizedBox(width: 8),
                 Expanded(
@@ -907,7 +907,7 @@ class _DonationScreenState extends State<DonationScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.warning_amber_rounded,
+                    const Icon(Icons.warning_amber_rounded,
                         size: 16, color: MintColors.warning),
                     const SizedBox(width: 10),
                     Expanded(
@@ -1082,7 +1082,7 @@ class _DonationScreenState extends State<DonationScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 18, color: MintColors.warning),
+          const Icon(Icons.info_outline, size: 18, color: MintColors.warning),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

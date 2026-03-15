@@ -212,7 +212,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
               color: MintColors.warningText.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(Icons.house_outlined,
+            child: const Icon(Icons.house_outlined,
                 color: MintColors.warningText, size: 24),
           ),
           const SizedBox(width: 16),
@@ -527,7 +527,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.receipt_long,
+              const Icon(Icons.receipt_long,
                   color: MintColors.warningText, size: 18),
               const SizedBox(width: 8),
               Text(
@@ -582,7 +582,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.replay, color: MintColors.success, size: 18),
+              const Icon(Icons.replay, color: MintColors.success, size: 18),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.housingSaleReportTitle,
@@ -641,7 +641,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.replay_circle_filled,
+              const Icon(Icons.replay_circle_filled,
                   color: MintColors.warning, size: 18),
               const SizedBox(width: 8),
               Text(
@@ -773,7 +773,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.warning_amber_rounded,
+                    const Icon(Icons.warning_amber_rounded,
                         size: 16, color: MintColors.warning),
                     const SizedBox(width: 10),
                     Expanded(
@@ -948,7 +948,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 18, color: MintColors.warning),
+          const Icon(Icons.info_outline, size: 18, color: MintColors.warning),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

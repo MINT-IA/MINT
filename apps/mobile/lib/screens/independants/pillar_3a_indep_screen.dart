@@ -461,8 +461,8 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
 
   Widget _buildComparisonBars() {
     final r = _result!;
-    final petit = pilier3aPlafondAvecLpp;
-    final grand = pilier3aPlafondSansLpp;
+    const petit = pilier3aPlafondAvecLpp;
+    const grand = pilier3aPlafondSansLpp;
     final plafondIndep = r.plafond;
     final multiplier = (plafondIndep / petit).round();
 
@@ -776,7 +776,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

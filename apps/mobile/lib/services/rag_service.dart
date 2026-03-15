@@ -186,12 +186,12 @@ class RagService {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
       return RagResponse.fromJson(json);
     } else if (response.statusCode == 401) {
-      throw RagApiException(
+      throw const RagApiException(
         code: 'invalid_key',
         message: 'La cl\u00e9 API est invalide ou expir\u00e9e.',
       );
     } else if (response.statusCode == 429) {
-      throw RagApiException(
+      throw const RagApiException(
         code: 'rate_limit',
         message: 'Limite de requ\u00eates atteinte. R\u00e9essaie dans quelques instants.',
       );
@@ -254,7 +254,7 @@ class RagService {
         message: errorBody ?? 'Requete vision invalide.',
       );
     } else if (response.statusCode == 413) {
-      throw RagApiException(
+      throw const RagApiException(
         code: 'image_too_large',
         message: 'L\'image depasse la taille limite de 20 MB.',
       );
@@ -279,7 +279,7 @@ class RagService {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
       return RagStatus.fromJson(json);
     } else {
-      throw RagApiException(
+      throw const RagApiException(
         code: 'status_error',
         message: 'Impossible de v\u00e9rifier le statut du syst\u00e8me RAG.',
       );

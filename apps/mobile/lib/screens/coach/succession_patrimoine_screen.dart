@@ -63,7 +63,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── Chiffre choc ─────────────────────────────
-                _AlertCard(
+                const _AlertCard(
                   icon: Icons.warning_amber_outlined,
                   title: 'Sans testament, ton concubin·e hérite de RIEN',
                   body:
@@ -73,18 +73,18 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── P8-A : Testament invisible ───────────────
-                TestamentInvisibleWidget(
+                const TestamentInvisibleWidget(
                   patrimoine: 500000,
                   initialStatus: FamilyStatus.concubin,
                 ),
                 const SizedBox(height: 20),
 
                 // ── P8-E : Avancement d'hoirie ────────────────
-                AvancementHoirieWidget(
+                const AvancementHoirieWidget(
                   totalPatrimoine: 500000,
                   donationAmount: 50000,
                   donationRecipientIndex: 0,
-                  children: const [
+                  children: [
                     HoirieChild(name: 'Enfant 1', emoji: '👦'),
                     HoirieChild(name: 'Enfant 2', emoji: '👧'),
                   ],
@@ -92,10 +92,10 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Concepts clés ────────────────────────────
-                EduSectionTitle(text: 'Les notions clés'),
+                const EduSectionTitle(text: 'Les notions clés'),
                 const SizedBox(height: 12),
 
-                _ConceptCard(
+                const _ConceptCard(
                   icon: Icons.shield_outlined,
                   title: 'Réserves héréditaires',
                   subtitle: 'CC art. 470–471',
@@ -105,7 +105,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
 
-                _ConceptCard(
+                const _ConceptCard(
                   icon: Icons.pie_chart_outline,
                   title: 'Quotité disponible',
                   subtitle: 'CC art. 470 al. 2',
@@ -115,7 +115,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
 
-                _ConceptCard(
+                const _ConceptCard(
                   icon: Icons.description_outlined,
                   title: 'Testament',
                   subtitle: 'CC art. 498–504',
@@ -125,7 +125,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
 
-                _ConceptCard(
+                const _ConceptCard(
                   icon: Icons.card_giftcard_outlined,
                   title: 'Donation du vivant',
                   subtitle: 'CO art. 239 ss',
@@ -135,7 +135,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
 
-                _ConceptCard(
+                const _ConceptCard(
                   icon: Icons.how_to_reg_outlined,
                   title: 'Bénéficiaires LPP et 3a',
                   subtitle: 'LPP art. 20 · OPP3 art. 2',
@@ -146,9 +146,9 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── P14-A : Guide de première urgence ────────────
-                EduSectionTitle(text: 'En cas de décès d\'un proche'),
+                const EduSectionTitle(text: 'En cas de décès d\'un proche'),
                 const SizedBox(height: 12),
-                DeathUrgencyGuideWidget(
+                const DeathUrgencyGuideWidget(
                   phases: [
                     UrgencyPhase(
                       timeframe: 'J+1 à J+7',
@@ -192,9 +192,9 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Checklist pratique ────────────────────────
-                EduSectionTitle(text: 'Checklist protection patrimoine'),
+                const EduSectionTitle(text: 'Checklist protection patrimoine'),
                 const SizedBox(height: 12),
-                _ChecklistCard(
+                const _ChecklistCard(
                   items: [
                     'Vérifier la désignation des bénéficiaires sur chaque compte 3a',
                     'Vérifier la désignation de bénéficiaire LPP auprès de ta caisse',
@@ -206,7 +206,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── CTA spécialiste ───────────────────────────
-                EduSpecialistCta(
+                const EduSpecialistCta(
                   icon: Icons.gavel_outlined,
                   color: MintColors.successionDark,
                   title: 'Consulter un·e notaire ou spécialiste',
@@ -215,7 +215,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Sources légales ───────────────────────────
-                EduLegalSources(
+                const EduLegalSources(
                   sources: '• CC art. 457–640 — Droit des successions\n'
                       '• CC art. 470–471 — Réserves héréditaires\n'
                       '• CC art. 498–504 — Formes du testament\n'
@@ -225,7 +225,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // ── Disclaimer LSFin ──────────────────────────
-                EduDisclaimer(
+                const EduDisclaimer(
                   text:
                       'Information à caractère éducatif, ne constitue pas un conseil juridique ou patrimonial au sens de la LSFin ou du CC. Les règles successorales varient selon la situation familiale, le régime matrimonial et le canton. Consulte un·e notaire ou un·e spécialiste en droit successoral pour ta situation personnelle.',
                 ),

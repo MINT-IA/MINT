@@ -151,11 +151,11 @@ class _EducationalExplanationWidgetState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  const Row(
                     children: [
                       Icon(Icons.calculate,
                           color: MintColors.warning, size: 16),
-                      const SizedBox(width: 6),
+                      SizedBox(width: 6),
                       Text(
                         'Exemple concret',
                         style: TextStyle(
@@ -169,7 +169,7 @@ class _EducationalExplanationWidgetState
                   const SizedBox(height: 8),
                   Text(
                     section.example!,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
                       height: 1.4,
                       color: MintColors.deepOrange,

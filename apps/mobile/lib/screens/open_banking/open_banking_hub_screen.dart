@@ -134,7 +134,7 @@ class OpenBankingHubScreen extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.lock_outline, color: MintColors.amberDark, size: 22),
+          const Icon(Icons.lock_outline, color: MintColors.amberDark, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -202,7 +202,7 @@ class OpenBankingHubScreen extends StatelessWidget {
             color: MintColors.accentPastel,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Icon(
+          child: const Icon(
             Icons.account_balance,
             color: MintColors.tealLight,
             size: 28,
@@ -412,7 +412,7 @@ class OpenBankingHubScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(Icons.lock_outline,
+              const Icon(Icons.lock_outline,
                   color: MintColors.warningText, size: 16),
             ],
           ),
@@ -746,7 +746,7 @@ class OpenBankingHubScreen extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

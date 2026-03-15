@@ -104,7 +104,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
           children: [
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: MintColors.accentPastel,
                 shape: BoxShape.circle,
               ),
@@ -452,9 +452,9 @@ class _AskMintScreenState extends State<AskMintScreen> {
         alignment: Alignment.centerRight,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: MintColors.primary,
-            borderRadius: const BorderRadius.only(
+            borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20),
               topRight: Radius.circular(20),
               bottomLeft: Radius.circular(20),
@@ -1040,7 +1040,7 @@ class _TypingDotsState extends State<_TypingDots>
                 child: Container(
                   width: 8,
                   height: 8,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: MintColors.textMuted,
                     shape: BoxShape.circle,
                   ),

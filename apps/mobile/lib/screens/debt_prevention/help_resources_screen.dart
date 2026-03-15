@@ -125,7 +125,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.support_agent,
+              const Icon(Icons.support_agent,
                   color: MintColors.primary, size: 24),
               const SizedBox(width: 12),
               Text(
@@ -404,11 +404,11 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: MintColors.neutralBg),
       ),
-      child: Row(
+      child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.lock_outline, color: MintColors.blueDark, size: 20),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -421,7 +421,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                     color: MintColors.blueMaterial900,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   'MINT ne transmet aucune donnée personnelle aux services '
                   'référencés ci-dessus. Les liens externes ouvrent votre '
@@ -449,11 +449,11 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: MintColors.orangeRetroWarm),
       ),
-      child: Row(
+      child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.info_outline, color: MintColors.warning, size: 20),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Text(
               'MINT fournit ces liens à titre informatif et pédagogique. '

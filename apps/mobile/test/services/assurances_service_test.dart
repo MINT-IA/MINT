@@ -167,7 +167,7 @@ void main() {
   // ═══════════════════════════════════════════════════════════════════
 
   group('CoverageCheckService', () {
-    CoverageCheckResult _baseEvaluation({
+    CoverageCheckResult baseEvaluation({
       String statutProfessionnel = 'salarie',
       bool aHypotheque = false,
       bool aFamille = false,
@@ -200,12 +200,12 @@ void main() {
     }
 
     test('salarie checklist has 7 items (no RC pro)', () {
-      final result = _baseEvaluation(statutProfessionnel: 'salarie');
+      final result = baseEvaluation(statutProfessionnel: 'salarie');
       expect(result.checklist.length, 7);
     });
 
     test('independant checklist has 8 items (includes RC pro)', () {
-      final result = _baseEvaluation(statutProfessionnel: 'independant');
+      final result = baseEvaluation(statutProfessionnel: 'independant');
       expect(result.checklist.length, 8);
       expect(
         result.checklist.any((item) => item.id == 'rc_pro'),
@@ -214,7 +214,7 @@ void main() {
     });
 
     test('score is 0 when nothing is covered and no a_verifier', () {
-      final result = _baseEvaluation(
+      final result = baseEvaluation(
         statutProfessionnel: 'independant',
       );
       // All uncovered -> score should be low (but not necessarily 0
@@ -223,7 +223,7 @@ void main() {
     });
 
     test('score is 100 when everything is covered', () {
-      final result = _baseEvaluation(
+      final result = baseEvaluation(
         statutProfessionnel: 'salarie',
         aRcPrivee: true,
         aMenage: true,
@@ -237,7 +237,7 @@ void main() {
     });
 
     test('independant without IJM has critique lacune', () {
-      final result = _baseEvaluation(
+      final result = baseEvaluation(
         statutProfessionnel: 'independant',
         aIjmCollective: false,
       );
@@ -245,7 +245,7 @@ void main() {
     });
 
     test('independant without LAA has critique lacune', () {
-      final result = _baseEvaluation(
+      final result = baseEvaluation(
         statutProfessionnel: 'independant',
         aLaa: false,
       );
@@ -254,7 +254,7 @@ void main() {
     });
 
     test('salarie IJM with collective is basse urgency', () {
-      final result = _baseEvaluation(
+      final result = baseEvaluation(
         statutProfessionnel: 'salarie',
         aIjmCollective: true,
       );
@@ -264,7 +264,7 @@ void main() {
     });
 
     test('salarie IJM without collective is moyenne urgency', () {
-      final result = _baseEvaluation(
+      final result = baseEvaluation(
         statutProfessionnel: 'salarie',
         aIjmCollective: false,
       );
@@ -274,14 +274,14 @@ void main() {
     });
 
     test('menage obligatoire in VD has haute urgency', () {
-      final result = _baseEvaluation(canton: 'VD');
+      final result = baseEvaluation(canton: 'VD');
       final menageItem =
           result.checklist.firstWhere((i) => i.id == 'menage');
       expect(menageItem.urgency, 'haute');
     });
 
     test('menage in ZH for renter has moyenne urgency', () {
-      final result = _baseEvaluation(
+      final result = baseEvaluation(
         canton: 'ZH',
         estLocataire: true,
       );
@@ -291,7 +291,7 @@ void main() {
     });
 
     test('menage in ZH for owner has basse urgency', () {
-      final result = _baseEvaluation(
+      final result = baseEvaluation(
         canton: 'ZH',
         estLocataire: false,
       );
@@ -301,14 +301,14 @@ void main() {
     });
 
     test('deces urgency is haute when hypotheque or famille', () {
-      final result = _baseEvaluation(aHypotheque: true);
+      final result = baseEvaluation(aHypotheque: true);
       final decesItem =
           result.checklist.firstWhere((i) => i.id == 'deces');
       expect(decesItem.urgency, 'haute');
     });
 
     test('deces urgency is basse without hypotheque or famille', () {
-      final result = _baseEvaluation(
+      final result = baseEvaluation(
         aHypotheque: false,
         aFamille: false,
       );
@@ -318,14 +318,14 @@ void main() {
     });
 
     test('voyage urgency is moyenne when voyagesFrequents', () {
-      final result = _baseEvaluation(voyagesFrequents: true);
+      final result = baseEvaluation(voyagesFrequents: true);
       final voyageItem =
           result.checklist.firstWhere((i) => i.id == 'voyage');
       expect(voyageItem.urgency, 'moyenne');
     });
 
     test('checklist sorted by urgency (critique first)', () {
-      final result = _baseEvaluation(statutProfessionnel: 'independant');
+      final result = baseEvaluation(statutProfessionnel: 'independant');
       for (int i = 0; i < result.checklist.length - 1; i++) {
         final currentOrder = _urgencyOrder(result.checklist[i].urgency);
         final nextOrder = _urgencyOrder(result.checklist[i + 1].urgency);
@@ -334,7 +334,7 @@ void main() {
     });
 
     test('recommendations include PRIORITE for critique gaps', () {
-      final result = _baseEvaluation(
+      final result = baseEvaluation(
         statutProfessionnel: 'independant',
         aIjmCollective: false,
       );
@@ -345,7 +345,7 @@ void main() {
     });
 
     test('recommendations always include general comparison advice', () {
-      final result = _baseEvaluation();
+      final result = baseEvaluation();
       expect(
         result.recommandations
             .any((r) => r.contains('comparer les primes')),
@@ -354,7 +354,7 @@ void main() {
     });
 
     test('disclaimer is present and mentions sp\u00e9cialiste', () {
-      final result = _baseEvaluation();
+      final result = baseEvaluation();
       expect(result.disclaimer, isNotEmpty);
       expect(result.disclaimer, contains('indicative'));
       expect(result.disclaimer, contains('ne constitue pas'));
@@ -362,14 +362,14 @@ void main() {
     });
 
     test('all checklist items have sources', () {
-      final result = _baseEvaluation(statutProfessionnel: 'independant');
+      final result = baseEvaluation(statutProfessionnel: 'independant');
       for (final item in result.checklist) {
         expect(item.source, isNotEmpty);
       }
     });
 
     test('all checklist items have cost estimates', () {
-      final result = _baseEvaluation(statutProfessionnel: 'independant');
+      final result = baseEvaluation(statutProfessionnel: 'independant');
       for (final item in result.checklist) {
         expect(item.estimatedCostRange, isNotEmpty);
       }
@@ -377,7 +377,7 @@ void main() {
 
     test('menage obligatoire cantons include FR NW JU', () {
       for (final canton in ['FR', 'NW', 'JU']) {
-        final result = _baseEvaluation(canton: canton);
+        final result = baseEvaluation(canton: canton);
         final menageItem =
             result.checklist.firstWhere((i) => i.id == 'menage');
         expect(menageItem.urgency, 'haute',
@@ -386,7 +386,7 @@ void main() {
     });
 
     test('salarie LAA is basse urgency (obligatoire via employeur)', () {
-      final result = _baseEvaluation(
+      final result = baseEvaluation(
         statutProfessionnel: 'salarie',
         aLaa: false,
       );

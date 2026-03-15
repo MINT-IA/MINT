@@ -25,7 +25,7 @@ class ComprendreHubScreen extends StatelessWidget {
         centerTitle: true,
         backgroundColor: MintColors.background,
         elevation: 0,
-        leading: BackButton(color: MintColors.textPrimary),
+        leading: const BackButton(color: MintColors.textPrimary),
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(20),
@@ -36,7 +36,7 @@ class ComprendreHubScreen extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 24.0),
               child: Text(
                 S.of(context)?.eduHubSubtitle ?? "Pas de panique. Choisis un sujet, on t'explique l'essentiel et on te donne une action simple.",
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   color: MintColors.textMuted,
                   height: 1.5,
@@ -121,7 +121,7 @@ class _ThemeCard extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             S.of(context)?.eduHubReadQuiz ?? "Lire + quiz \u2022 ${theme.estimatedMinutes} min",
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
                               color: MintColors.textMuted,
                             ),

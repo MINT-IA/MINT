@@ -192,7 +192,7 @@ class _PulseScreenState extends State<PulseScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.document_scanner_outlined,
+              const Icon(Icons.document_scanner_outlined,
                   size: 20, color: MintColors.info),
               const SizedBox(width: 10),
               Expanded(
@@ -388,7 +388,7 @@ class _PulseScreenState extends State<PulseScreen> {
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios_rounded,
+            const Icon(Icons.arrow_forward_ios_rounded,
                 size: 14, color: MintColors.textMuted),
           ],
         ),
@@ -443,7 +443,7 @@ class _PulseScreenState extends State<PulseScreen> {
             Container(
               width: 24,
               height: 24,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: MintColors.error,
                 shape: BoxShape.circle,
               ),
@@ -471,7 +471,7 @@ class _PulseScreenState extends State<PulseScreen> {
                 ),
               ),
             ),
-            Icon(Icons.arrow_forward_rounded,
+            const Icon(Icons.arrow_forward_rounded,
                 size: 18, color: MintColors.error),
           ],
         ),

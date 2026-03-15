@@ -303,8 +303,8 @@ class ResponseCardService {
     final lacunes = (profile.arrivalAge! - 20).clamp(0, 44);
     if (lacunes <= 0) return null;
 
-    final fullRenteMonthly = avsRenteMaxAnnuelle / 12;
-    final reductionPerYear = fullRenteMonthly / 44;
+    const fullRenteMonthly = avsRenteMaxAnnuelle / 12;
+    const reductionPerYear = fullRenteMonthly / 44;
     final monthlyLoss = reductionPerYear * lacunes;
 
     return ResponseCard(
@@ -372,7 +372,7 @@ class ResponseCardService {
     final hasLpp = (profile.prevoyance.avoirLppTotal ?? 0) > 0;
     if (hasLpp) return null; // Covered by LPP card
 
-    final max3a = pilier3aPlafondSansLpp;
+    const max3a = pilier3aPlafondSansLpp;
     final current3a = profile.prevoyance.totalEpargne3a;
 
     return ResponseCard(

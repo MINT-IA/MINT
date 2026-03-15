@@ -217,7 +217,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.trending_up,
+                      const Icon(Icons.trending_up,
                           color: MintColors.success, size: 32),
                       const SizedBox(width: 16),
                       Expanded(
@@ -226,7 +226,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                           children: [
                             Text(
                               S.of(context)!.pillar3aViacGainLabel,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: MintColors.success,
@@ -243,7 +243,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                             ),
                             Text(
                               S.of(context)!.pillar3aMoreAtRetirement,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 12, color: MintColors.success),
                             ),
                           ],
@@ -283,14 +283,14 @@ class Pillar3aComparatorWidget extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.info_outline,
+                const Icon(Icons.info_outline,
                     size: 16, color: MintColors.warning),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     S.of(context)!.pillar3aDisclaimer,
                     style:
-                        TextStyle(fontSize: 11, color: MintColors.warning),
+                        const TextStyle(fontSize: 11, color: MintColors.warning),
                   ),
                 ),
               ],
@@ -415,7 +415,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                     flex: 3,
                     child: Text(
                       currencyFormat.format(viacCapital),
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
                         color: MintColors.success,
@@ -432,7 +432,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
             padding: const EdgeInsets.only(top: 8),
             child: Text(
               '💡 ${S.of(context)!.pillar3aCompoundTip}',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: MintColors.info,
                 fontStyle: FontStyle.italic,
@@ -523,7 +523,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                   ),
                   child: Text(
                     S.of(context)!.pillar3aRecommended,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: MintColors.white,
                       fontSize: 9,
                       fontWeight: FontWeight.bold,

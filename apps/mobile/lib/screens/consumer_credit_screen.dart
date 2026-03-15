@@ -81,8 +81,8 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
             _buildGuidanceSection(),
             const SizedBox(height: 32),
             // ── P10-B : Avalanche vs Boule de neige ──────────────
-            DebtRepaymentWidget(
-              debts: const [
+            const DebtRepaymentWidget(
+              debts: [
                 DebtEntry(
                   label: 'Carte de crédit',
                   emoji: '💳',

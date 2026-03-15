@@ -719,7 +719,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                   ),
                   child: Text(
                     '+CHF ${action.potentialGainChf!.toStringAsFixed(0)}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: MintColors.greenDark,
@@ -788,7 +788,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             colors: [MintColors.successBg, MintColors.accentPastel],
           ),
           borderRadius: BorderRadius.circular(16),
@@ -807,7 +807,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               '\u00c9conomie fiscale totale : CHF ${strategy.totalTaxSavings.toStringAsFixed(0)}',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 color: MintColors.greenDark,
                 fontWeight: FontWeight.bold,
@@ -847,7 +847,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                         ),
                         child: Text(
                           '\u00c9conomie: CHF ${buyback.estimatedTaxSavings.toStringAsFixed(0)}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
                             color: MintColors.greenDark,

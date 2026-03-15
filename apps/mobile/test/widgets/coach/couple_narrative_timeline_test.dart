@@ -104,9 +104,9 @@ void main() {
     });
 
     testWidgets('handles empty acts', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -115,7 +115,7 @@ void main() {
         supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: CoupleNarrativeTimeline(
-            acts: const [],
+            acts: [],
             partner1Name: 'A',
             partner2Name: 'B',
           ),

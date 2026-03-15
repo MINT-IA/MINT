@@ -171,8 +171,8 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
   }
 
   Widget _buildScoreCards() {
-    final winnerColor = MintColors.scoreExcellent;
-    final loserColor = MintColors.textSecondary;
+    const winnerColor = MintColors.scoreExcellent;
+    const loserColor = MintColors.textSecondary;
 
     return Row(
       children: [

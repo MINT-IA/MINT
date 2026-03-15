@@ -150,7 +150,7 @@ class MortgageComparisonInsertWidget extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: TextStyle(fontSize: 13, color: MintColors.amberDark),
+              style: const TextStyle(fontSize: 13, color: MintColors.amberDark),
             ),
           ),
         ],

@@ -78,9 +78,9 @@ void main() {
     });
 
     testWidgets('handles empty scenarios', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -89,7 +89,7 @@ void main() {
         supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: EarlyRetirementSlider(
-            scenarios: const [],
+            scenarios: [],
             monthlyIncomeAt65: 5234,
           ),
         ),

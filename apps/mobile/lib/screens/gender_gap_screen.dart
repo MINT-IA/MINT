@@ -141,7 +141,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             color: MintColors.successionBg,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Icon(
+          child: const Icon(
             Icons.balance,
             color: MintColors.categoryPurple,
             size: 28,
@@ -337,7 +337,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             ),
             child: Row(
               children: [
-                Icon(Icons.science_outlined, color: MintColors.categoryBlue, size: 16),
+                const Icon(Icons.science_outlined, color: MintColors.categoryBlue, size: 16),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -552,7 +552,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.school_outlined, color: MintColors.purple, size: 20),
+              const Icon(Icons.school_outlined, color: MintColors.purple, size: 20),
               const SizedBox(width: 8),
               Text(
                 'Comprendre la deduction de coordination',
@@ -670,7 +670,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.bar_chart, color: MintColors.categoryPurple, size: 24),
+          const Icon(Icons.bar_chart, color: MintColors.categoryPurple, size: 24),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -785,7 +785,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

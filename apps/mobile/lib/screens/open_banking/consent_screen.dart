@@ -162,7 +162,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.lock_outline, color: MintColors.amberDark, size: 22),
+          const Icon(Icons.lock_outline, color: MintColors.amberDark, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -427,7 +427,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.shield_outlined,
+              const Icon(Icons.shield_outlined,
                   color: MintColors.tealLight, size: 20),
               const SizedBox(width: 10),
               Text(
@@ -1039,7 +1039,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -1064,16 +1064,16 @@ class _ConsentScreenState extends State<ConsentScreen> {
   _StatusConfig _getStatusConfig(String statusKey) {
     switch (statusKey) {
       case 'active':
-        return _StatusConfig(label: 'Actif', color: MintColors.success);
+        return const _StatusConfig(label: 'Actif', color: MintColors.success);
       case 'expiring_soon':
-        return _StatusConfig(
+        return const _StatusConfig(
             label: 'Expire bientot', color: MintColors.warning);
       case 'expired':
-        return _StatusConfig(label: 'Expire', color: MintColors.error);
+        return const _StatusConfig(label: 'Expire', color: MintColors.error);
       case 'revoked':
-        return _StatusConfig(label: 'Revoque', color: MintColors.error);
+        return const _StatusConfig(label: 'Revoque', color: MintColors.error);
       default:
-        return _StatusConfig(label: 'Inconnu', color: MintColors.textMuted);
+        return const _StatusConfig(label: 'Inconnu', color: MintColors.textMuted);
     }
   }
 

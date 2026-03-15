@@ -64,9 +64,9 @@ void main() {
   });
 
   testWidgets('returns SizedBox for empty scenarios', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      locale: const Locale('fr'),
-      localizationsDelegates: const [
+    await tester.pumpWidget(const MaterialApp(
+      locale: Locale('fr'),
+      localizationsDelegates: [
         S.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -74,7 +74,7 @@ void main() {
       ],
       supportedLocales: S.supportedLocales,
       home: Scaffold(
-        body: CareerTimeLapseWidget(scenarios: const [], monthly3aContribution: 605),
+        body: CareerTimeLapseWidget(scenarios: [], monthly3aContribution: 605),
       ),
     ));
     expect(find.byType(Slider), findsNothing);

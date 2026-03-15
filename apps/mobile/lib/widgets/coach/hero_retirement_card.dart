@@ -245,8 +245,8 @@ class HeroRetirementCard extends StatelessWidget {
                   isHighlighted: false,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12),
                 child: Icon(
                   Icons.arrow_forward_rounded,
                   color: MintColors.textMuted,
@@ -402,7 +402,7 @@ class HeroRetirementCard extends StatelessWidget {
   Widget _buildRangeChip() {
     return Row(
       children: [
-        Icon(Icons.unfold_more, size: 14, color: MintColors.textMuted),
+        const Icon(Icons.unfold_more, size: 14, color: MintColors.textMuted),
         const SizedBox(width: 4),
         Text(
           'Fourchette\u00a0: ${formatChfWithPrefix(rangeMin!)} \u2013 ${formatChfWithPrefix(rangeMax!)} / mois',
@@ -483,7 +483,7 @@ class HeroRetirementCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.info_outline,
+              const Icon(Icons.info_outline,
                   size: 16, color: MintColors.scoreAttention),
               const SizedBox(width: 8),
               Expanded(

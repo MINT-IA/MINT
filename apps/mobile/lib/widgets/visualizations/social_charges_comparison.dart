@@ -291,7 +291,7 @@ class _SocialChargesComparisonState extends State<SocialChargesComparison>
       animation: _staggerAnimation,
       builder: (context, _) {
         final totalCount = widget.charges.length;
-        final rowHeight = 44.0;
+        const rowHeight = 44.0;
         final chartHeight = totalCount * rowHeight;
 
         return SizedBox(

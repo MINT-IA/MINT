@@ -105,7 +105,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                 // Source legale
                 Text(
                   S.of(context)!.affordabilitySource,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
                     color: MintColors.textMuted,
@@ -349,7 +349,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
             children: [
               Text(
                 S.of(context)!.affordabilityCanton,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: MintColors.textPrimary,
@@ -562,7 +562,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
           const SizedBox(height: 12),
           Text(
             S.of(context)!.affordabilityCalculationNote,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 11,
               color: MintColors.textMuted,
               height: 1.4,
@@ -613,12 +613,12 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 fontStyle: FontStyle.italic,
                 color: MintColors.deepOrange,

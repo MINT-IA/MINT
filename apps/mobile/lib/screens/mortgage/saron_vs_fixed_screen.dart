@@ -79,7 +79,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
                 const SizedBox(height: 12),
 
                 // Source legale
-                Text(
+                const Text(
                   'Source : taux indicatifs marche suisse 2026. Ne constitue pas un conseil hypothecaire.',
                   style: TextStyle(
                     fontSize: 11,
@@ -371,11 +371,11 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
               color: MintColors.appleSurface,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Row(
+            child: const Row(
               children: [
-                const Icon(Icons.lightbulb_outline,
+                Icon(Icons.lightbulb_outline,
                     color: MintColors.textMuted, size: 18),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Le SARON hausse simule +0.25%/an les 3 premieres annees. '
@@ -457,12 +457,12 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 fontStyle: FontStyle.italic,
                 color: MintColors.deepOrange,

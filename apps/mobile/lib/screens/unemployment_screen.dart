@@ -1191,7 +1191,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.scoreAttention, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.scoreAttention, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

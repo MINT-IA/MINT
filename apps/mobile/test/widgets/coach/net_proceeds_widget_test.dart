@@ -14,8 +14,8 @@ void main() {
   // surprise = 118000 → "118'000"
 
   Widget buildWidget() => const MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,

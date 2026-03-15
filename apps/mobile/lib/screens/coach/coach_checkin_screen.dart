@@ -656,7 +656,7 @@ Reponds uniquement avec le texte final.
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add_circle_outline,
+            const Icon(Icons.add_circle_outline,
                 color: MintColors.coachAccent, size: 20),
             const SizedBox(width: 8),
             Text(
@@ -845,11 +845,11 @@ Reponds uniquement avec le texte final.
                       fillColor: MintColors.surface,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: MintColors.lightBorder),
+                        borderSide: const BorderSide(color: MintColors.lightBorder),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: MintColors.lightBorder),
+                        borderSide: const BorderSide(color: MintColors.lightBorder),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -890,11 +890,11 @@ Reponds uniquement avec le texte final.
                       fillColor: MintColors.surface,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: MintColors.lightBorder),
+                        borderSide: const BorderSide(color: MintColors.lightBorder),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: MintColors.lightBorder),
+                        borderSide: const BorderSide(color: MintColors.lightBorder),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -1047,11 +1047,11 @@ Reponds uniquement avec le texte final.
               fillColor: MintColors.background,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: MintColors.border),
+                borderSide: const BorderSide(color: MintColors.border),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: MintColors.lightBorder),
+                borderSide: const BorderSide(color: MintColors.lightBorder),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -1090,11 +1090,11 @@ Reponds uniquement avec le texte final.
         fillColor: MintColors.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: MintColors.lightBorder),
+          borderSide: const BorderSide(color: MintColors.lightBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: MintColors.lightBorder),
+          borderSide: const BorderSide(color: MintColors.lightBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -1589,7 +1589,7 @@ Reponds uniquement avec le texte final.
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
+          const Icon(
             Icons.info_outline,
             color: MintColors.textMuted,
             size: 16,
@@ -1734,7 +1734,7 @@ class _ContributionRow extends StatelessWidget {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: MintColors.lightBorder),
+                      borderSide: const BorderSide(color: MintColors.lightBorder),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -1774,7 +1774,7 @@ class _ContributionRow extends StatelessWidget {
                   color: MintColors.error.withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.close, size: 14, color: MintColors.error),
+                child: const Icon(Icons.close, size: 14, color: MintColors.error),
               ),
             ),
           ),

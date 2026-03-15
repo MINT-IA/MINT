@@ -166,7 +166,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
             color: MintColors.accentPastel,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Icon(
+          child: const Icon(
             Icons.health_and_safety,
             color: MintColors.tealLight,
             size: 28,
@@ -649,7 +649,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.swap_vert, color: MintColors.teal, size: 18),
+              const Icon(Icons.swap_vert, color: MintColors.teal, size: 18),
               const SizedBox(width: 8),
               Text(
                 'Seuils de rentabilite',
@@ -671,7 +671,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                   width: 6,
                   height: 6,
                   margin: const EdgeInsets.only(top: 6),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: MintColors.teal,
                     shape: BoxShape.circle,
                   ),
@@ -758,7 +758,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.event, color: MintColors.tealLight, size: 20),
+          const Icon(Icons.event, color: MintColors.tealLight, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -790,7 +790,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

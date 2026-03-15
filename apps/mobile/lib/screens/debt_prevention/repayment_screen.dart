@@ -271,7 +271,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 ),
               ),
               IconButton(
-                icon: Icon(Icons.delete_outline,
+                icon: const Icon(Icons.delete_outline,
                     color: MintColors.redMaterial, size: 20),
                 onPressed: () => setState(() => _dettes.removeAt(index)),
                 padding: EdgeInsets.zero,
@@ -340,13 +340,13 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         ),
         Expanded(
           child: SliderTheme(
-            data: SliderThemeData(
+            data: const SliderThemeData(
               trackHeight: 2,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+              thumbShape: RoundSliderThumbShape(enabledThumbRadius: 6),
               activeTrackColor: MintColors.primary,
               inactiveTrackColor: MintColors.border,
               thumbColor: MintColors.primary,
-              overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+              overlayShape: RoundSliderOverlayShape(overlayRadius: 14),
             ),
             child: Slider(
               value: value.clamp(min, max),
@@ -528,7 +528,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 const Divider(height: 16),
                 Text(
                   'Difference : CHF ${formatChf(result.economieInterets)}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: MintColors.success,
@@ -598,7 +598,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           const SizedBox(height: 4),
           Text(
             'CHF ${formatChf(interets)} interets',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 11,
               color: MintColors.redDeep,
             ),
@@ -675,8 +675,8 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           const SizedBox(height: 16),
 
           // Header
-          Row(
-            children: const [
+          const Row(
+            children: [
               SizedBox(
                 width: 50,
                 child: Text('Mois',
@@ -755,12 +755,12 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
-      child: Column(
+      child: const Column(
         children: [
           Icon(Icons.account_balance_wallet_outlined,
               color: MintColors.textMuted, size: 48),
-          const SizedBox(height: 16),
-          const Text(
+          SizedBox(height: 16),
+          Text(
             'Ajoutez vos dettes et definissez votre budget mensuel '
             'de remboursement pour voir le plan.',
             style: TextStyle(
@@ -785,12 +785,12 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: MintColors.deepOrange,
                 height: 1.4,

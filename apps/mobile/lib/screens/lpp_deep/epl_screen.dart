@@ -249,10 +249,10 @@ class _EplScreenState extends State<EplScreen> {
           // Rachats recents
           Row(
             children: [
-              Expanded(
+              const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
                       'Rachats LPP récents',
                       style: TextStyle(
@@ -382,7 +382,7 @@ class _EplScreenState extends State<EplScreen> {
           if (result.montantSouhaiteApplicable == 0 &&
               result.alerts.isNotEmpty) ...[
             const SizedBox(height: 8),
-            Text(
+            const Text(
               'Le retrait n\'est pas possible dans la configuration actuelle.',
               style: TextStyle(
                 fontSize: 12,
@@ -427,7 +427,7 @@ class _EplScreenState extends State<EplScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [MintColors.urgentBg, MintColors.warningBg],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -458,7 +458,7 @@ class _EplScreenState extends State<EplScreen> {
             amount: '-CHF ${formatChf(result.reductionCapitalDeces)}',
           ),
           const SizedBox(height: 12),
-          Text(
+          const Text(
             'Le retrait EPL réduit proportionnellement tes prestations '
             'de risque. Vérifie auprès de ta caisse de pension les '
             'montants exacts et les possibilités d\'assurance complémentaire.',
@@ -490,7 +490,7 @@ class _EplScreenState extends State<EplScreen> {
         ),
         Text(
           amount,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.bold,
             color: MintColors.redMedium,
@@ -519,7 +519,7 @@ class _EplScreenState extends State<EplScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [MintColors.warningBg, MintColors.disclaimerBg],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -556,7 +556,7 @@ class _EplScreenState extends State<EplScreen> {
             color: MintColors.redMedium,
           ),
           const SizedBox(height: 12),
-          Text(
+          const Text(
             'Estimation éducative basée sur un salaire de CHF 100\'000, '
             'rendement caisse 2%, taux de conversion 6.8%. '
             'Le montant réel dépend de ta situation.',
@@ -609,7 +609,7 @@ class _EplScreenState extends State<EplScreen> {
             color: MintColors.success,
           ),
           const SizedBox(height: 8),
-          Text(
+          const Text(
             'Le retrait en capital est imposé à un taux réduit '
             '(environ 1/5 du barème ordinaire). Le taux exact dépend '
             'du canton, de la commune et de la situation personnelle.',
@@ -650,13 +650,13 @@ class _EplScreenState extends State<EplScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.warning_amber_rounded,
+                const Icon(Icons.warning_amber_rounded,
                     color: MintColors.warningText, size: 20),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     alert,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
                       color: MintColors.amberDark,
                       height: 1.4,
@@ -681,12 +681,12 @@ class _EplScreenState extends State<EplScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: MintColors.deepOrange,
                 height: 1.4,

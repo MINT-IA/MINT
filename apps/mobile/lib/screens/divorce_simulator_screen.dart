@@ -182,7 +182,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
               color: MintColors.purple.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(Icons.family_restroom,
+            child: const Icon(Icons.family_restroom,
                 color: MintColors.purple, size: 24),
           ),
           const SizedBox(width: 16),
@@ -504,7 +504,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.swap_horiz, color: MintColors.info, size: 18),
+              const Icon(Icons.swap_horiz, color: MintColors.info, size: 18),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.divorcePartageLpp,
@@ -535,7 +535,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.arrow_forward,
+                  const Icon(Icons.arrow_forward,
                       size: 16, color: MintColors.info),
                   const SizedBox(width: 8),
                   Expanded(
@@ -658,7 +658,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.pie_chart_outline,
+              const Icon(Icons.pie_chart_outline,
                   color: MintColors.purple, size: 18),
               const SizedBox(width: 8),
               Text(
@@ -759,7 +759,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.child_care, color: MintColors.warning, size: 18),
+              const Icon(Icons.child_care, color: MintColors.warning, size: 18),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.divorcePensionAlimentaire,
@@ -833,7 +833,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.warning_amber_rounded,
+                    const Icon(Icons.warning_amber_rounded,
                         size: 16, color: MintColors.warning),
                     const SizedBox(width: 10),
                     Expanded(
@@ -1003,7 +1003,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 18, color: MintColors.warning),
+          const Icon(Icons.info_outline, size: 18, color: MintColors.warning),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

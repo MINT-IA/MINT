@@ -251,7 +251,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
                     ),
                     child: Text(
                       S.of(context)!.consentRequired,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                         color: MintColors.primary,
@@ -343,7 +343,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
       children: [
         Text(
           S.of(context)!.consentLegalSources,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
             color: MintColors.textSecondary,

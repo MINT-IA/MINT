@@ -102,7 +102,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [MintColors.successBg, MintColors.successBg],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -128,7 +128,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
+          const Text(
             'entre le provider le plus et le moins performant',
             style: TextStyle(
               fontSize: 12,
@@ -495,7 +495,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
               ),
               child: Text(
                 '-CHF ${formatChf(maxCapital - result.capitalFinal)} vs premier',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
                   color: MintColors.redMedium,
@@ -520,7 +520,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               colors: [MintColors.urgentBg, MintColors.redBg],
             ),
             borderRadius: BorderRadius.circular(16),
@@ -531,7 +531,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             children: [
               Row(
                 children: [
-                  Icon(Icons.warning_amber_rounded,
+                  const Icon(Icons.warning_amber_rounded,
                       color: MintColors.redMedium, size: 24),
                   const SizedBox(width: 12),
                   Expanded(
@@ -549,14 +549,14 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
               const SizedBox(height: 12),
               Text(
                 w.warningMessage!,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 13,
                   color: MintColors.redMedium,
                   height: 1.5,
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
+              const Text(
                 'Les assurances 3a combinent epargne et couverture risque, '
                 'mais les frais eleves (souvent > 1.5%) et la rigidite du '
                 'contrat les rendent defavorables pour les jeunes epargnants.',
@@ -585,12 +585,12 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: MintColors.deepOrange,
                 height: 1.4,

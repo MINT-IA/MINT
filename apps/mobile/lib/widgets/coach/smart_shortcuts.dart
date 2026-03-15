@@ -55,7 +55,7 @@ class SmartShortcuts extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.dashboard_outlined,
+                const Icon(Icons.dashboard_outlined,
                     size: 18, color: MintColors.primary),
                 const SizedBox(width: 8),
                 Expanded(
@@ -68,7 +68,7 @@ class SmartShortcuts extends StatelessWidget {
                     ),
                   ),
                 ),
-                Icon(Icons.arrow_forward_ios,
+                const Icon(Icons.arrow_forward_ios,
                     size: 14, color: MintColors.primary),
               ],
             ),
@@ -127,7 +127,7 @@ class SmartShortcuts extends StatelessWidget {
 
     // Priority 1: Age-driven arbitrages
     if (age > 50) {
-      shortcuts.add(_Shortcut(
+      shortcuts.add(const _Shortcut(
         label: 'Rente vs Capital',
         icon: Icons.compare_arrows_outlined,
         route: '/rente-vs-capital',
@@ -137,7 +137,7 @@ class SmartShortcuts extends StatelessWidget {
 
     // Priority 2: LPP rachat
     if (hasRachat) {
-      shortcuts.add(_Shortcut(
+      shortcuts.add(const _Shortcut(
         label: 'Rachat LPP',
         icon: Icons.trending_up,
         route: '/rachat-lpp',
@@ -147,7 +147,7 @@ class SmartShortcuts extends StatelessWidget {
 
     // Priority 3: 3a simulator
     if (hasLowThreeA) {
-      shortcuts.add(_Shortcut(
+      shortcuts.add(const _Shortcut(
         label: 'Simulateur 3a',
         icon: Icons.savings_outlined,
         route: '/pilier-3a',
@@ -157,7 +157,7 @@ class SmartShortcuts extends StatelessWidget {
 
     // Priority 4: Mortgage capacity
     if (isNotHomeowner && age < 55) {
-      shortcuts.add(_Shortcut(
+      shortcuts.add(const _Shortcut(
         label: 'Capacité immobilière',
         icon: Icons.home_outlined,
         route: '/hypotheque',
@@ -167,7 +167,7 @@ class SmartShortcuts extends StatelessWidget {
 
     // Priority 5: Expat tools
     if (isExpat) {
-      shortcuts.add(_Shortcut(
+      shortcuts.add(const _Shortcut(
         label: 'Analyse expat',
         icon: Icons.flight_land_outlined,
         route: '/expatriation',
@@ -177,7 +177,7 @@ class SmartShortcuts extends StatelessWidget {
 
     // Priority 6: Self-employed tools
     if (isIndependant) {
-      shortcuts.add(_Shortcut(
+      shortcuts.add(const _Shortcut(
         label: 'Outils indépendant',
         icon: Icons.business_center_outlined,
         route: '/independants/avs',
@@ -187,7 +187,7 @@ class SmartShortcuts extends StatelessWidget {
 
     // Priority 7: Retirement calendar (age > 55)
     if (age > 55) {
-      shortcuts.add(_Shortcut(
+      shortcuts.add(const _Shortcut(
         label: 'Calendrier retraits',
         icon: Icons.event_outlined,
         route: '/decaissement',
@@ -196,7 +196,7 @@ class SmartShortcuts extends StatelessWidget {
     }
 
     // Always available: Budget
-    shortcuts.add(_Shortcut(
+    shortcuts.add(const _Shortcut(
       label: 'Budget',
       icon: Icons.pie_chart_outline,
       route: '/budget',
@@ -204,7 +204,7 @@ class SmartShortcuts extends StatelessWidget {
     ));
 
     // Always available: Education hub
-    shortcuts.add(_Shortcut(
+    shortcuts.add(const _Shortcut(
       label: 'Comprendre',
       icon: Icons.school_outlined,
       route: '/education/hub',
@@ -215,7 +215,7 @@ class SmartShortcuts extends StatelessWidget {
     if (confidenceScore < 70) {
       shortcuts.insert(
         shortcuts.length > 2 ? 2 : shortcuts.length,
-        _Shortcut(
+        const _Shortcut(
           label: 'Scanner un document',
           icon: Icons.document_scanner_outlined,
           route: '/scan',

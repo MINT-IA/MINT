@@ -82,7 +82,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
                 const SizedBox(height: 12),
 
                 // Source legale
-                Text(
+                const Text(
                   'Source : LIFD art. 21 al. 1 let. b, art. 32. '
                   'Taux cantonaux estimés à titre pédagogique.',
                   style: TextStyle(
@@ -279,7 +279,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
                   ),
                 ),
                 alignment: Alignment.center,
-                child: Text(
+                child: const Text(
                   'Valeur locative',
                   style: TextStyle(fontSize: 10, color: MintColors.error),
                   overflow: TextOverflow.ellipsis,
@@ -297,7 +297,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
                   ),
                 ),
                 alignment: Alignment.center,
-                child: Text(
+                child: const Text(
                   'Déductions',
                   style: TextStyle(fontSize: 10, color: MintColors.success),
                   overflow: TextOverflow.ellipsis,
@@ -558,12 +558,12 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 fontStyle: FontStyle.italic,
                 color: MintColors.deepOrange,

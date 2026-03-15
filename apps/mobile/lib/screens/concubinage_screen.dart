@@ -299,28 +299,28 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             isPenalite ? Advantage.concubinage : Advantage.marriage,
         icon: Icons.account_balance_outlined,
       ),
-      ComparisonCriteria(
+      const ComparisonCriteria(
         label: 'Heritage',
         marriageLabel: 'Exonere (CC art. 462)',
         concubinageLabel: 'Impot cantonal',
         advantage: Advantage.marriage,
         icon: Icons.family_restroom,
       ),
-      ComparisonCriteria(
+      const ComparisonCriteria(
         label: 'Protection deces',
         marriageLabel: 'AVS + LPP survivant',
         concubinageLabel: 'Aucune rente automatique',
         advantage: Advantage.marriage,
         icon: Icons.shield_outlined,
       ),
-      ComparisonCriteria(
+      const ComparisonCriteria(
         label: 'Flexibilite',
         marriageLabel: 'Procedure judiciaire',
         concubinageLabel: 'Separation simplifiee',
         advantage: Advantage.concubinage,
         icon: Icons.swap_horiz,
       ),
-      ComparisonCriteria(
+      const ComparisonCriteria(
         label: 'Pension alim.',
         marriageLabel: 'Protegee par le juge',
         concubinageLabel: 'Accord prealable',
@@ -1034,7 +1034,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

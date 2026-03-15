@@ -143,7 +143,7 @@ class RetirementProjectionCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.lightbulb_outline, size: 14, color: MintColors.info),
+          const Icon(Icons.lightbulb_outline, size: 14, color: MintColors.info),
           const SizedBox(width: 8),
           Expanded(
             child: Text(

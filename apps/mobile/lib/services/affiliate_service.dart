@@ -95,19 +95,19 @@ class AffiliateService {
 
   /// Informations sur les commissions par provider
   static Map<String, CommissionInfo> get providerCommissions => {
-        'viac': CommissionInfo(
+        'viac': const CommissionInfo(
           provider: 'VIAC',
           amount: 120.0,
           type: CommissionType.oneTime,
           description: 'Commission unique à l\'ouverture du compte',
         ),
-        'finpension': CommissionInfo(
+        'finpension': const CommissionInfo(
           provider: 'Finpension',
           amount: 100.0,
           type: CommissionType.oneTime,
           description: 'Commission unique à l\'ouverture du compte',
         ),
-        'frankly': CommissionInfo(
+        'frankly': const CommissionInfo(
           provider: 'frankly',
           amount: 80.0,
           type: CommissionType.oneTime,

@@ -27,11 +27,11 @@ class FinancialExplanations {
         content:
             'Si tu rachètes tout d\'un coup, ton revenu chute trop bas et tu perds l\'avantage du taux marginal élevé.',
         keyPoints: [
-          KeyPoint(
+          const KeyPoint(
             'Rachat en 1x : Ton revenu tombe trop bas, taux marginal effectif plus faible',
             isPositive: false,
           ),
-          KeyPoint(
+          const KeyPoint(
             'Rachat échelonné : Tu restes dans ta tranche adaptee, taux marginal constant',
           ),
           KeyPoint(
@@ -134,11 +134,11 @@ class FinancialExplanations {
         content:
             'Aucun autre placement (sauf immobilier avec EPL) ne te donne un rendement aussi élevé avec si peu de risque.',
         keyPoints: [
-          KeyPoint(
+          const KeyPoint(
             'Compte épargne : 0.5-1% de rendement',
             isPositive: false,
           ),
-          KeyPoint(
+          const KeyPoint(
             'Obligations : 2-3% de rendement',
             isPositive: false,
           ),
@@ -220,10 +220,10 @@ class FinancialExplanations {
         content:
             'Le système AVS suisse est basé sur 44 années de cotisation (de 21 à 65 ans). Chaque année manquante réduit ta rente de façon proportionnelle et définitive.',
         keyPoints: [
-          KeyPoint(
+          const KeyPoint(
             'Rente complète = 44 années de cotisation non-interrompues',
           ),
-          KeyPoint(
+          const KeyPoint(
             '1 année manquante = -1/44e de rente (~2.3% en moins)',
             isPositive: false,
           ),
@@ -304,10 +304,10 @@ class FinancialExplanations {
         content:
             'Les seuils d\'éligibilité varient énormément d\'un canton à l\'autre. En général, si ton revenu net est inférieur à un certain seuil (ex: CHF 60\'000 pour un célibataire à VD), tu as droit à une réduction.',
         keyPoints: [
-          KeyPoint(
+          const KeyPoint(
             'Réduction immédiate du coût de la vie',
           ),
-          KeyPoint(
+          const KeyPoint(
             'Demande souvent non-automatique (il faut la faire !)',
             isPositive: false,
           ),

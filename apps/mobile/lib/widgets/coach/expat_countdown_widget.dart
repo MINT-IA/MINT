@@ -136,7 +136,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
               value: progress,
               minHeight: 8,
               backgroundColor: MintColors.primary.withValues(alpha: 0.2),
-              valueColor: AlwaysStoppedAnimation<Color>(MintColors.primary),
+              valueColor: const AlwaysStoppedAnimation<Color>(MintColors.primary),
             ),
           ),
           const SizedBox(height: 6),

@@ -205,7 +205,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
             color: MintColors.disclaimerBg,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Icon(
+          child: const Icon(
             Icons.business_center,
             color: MintColors.warningText,
             size: 28,
@@ -317,7 +317,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
           // Header
           Row(
             children: [
-              Text('\ud83d\udd04', style: const TextStyle(fontSize: 20)),
+              const Text('\ud83d\udd04', style: TextStyle(fontSize: 20)),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -418,7 +418,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               ),
             ),
           ),
-          Expanded(
+          const Expanded(
             child: Icon(Icons.check_circle, color: MintColors.success, size: 18),
           ),
           Expanded(
@@ -915,7 +915,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.people_outline, color: MintColors.tealLight, size: 20),
+              const Icon(Icons.people_outline, color: MintColors.tealLight, size: 20),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.independantAvsTitle,
@@ -1149,7 +1149,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
         FiscalSuperpowerWidget(
           taxRate: 0.25,
           superpowers: [
-            FiscalSuperpower(
+            const FiscalSuperpower(
               label: 'Pilier 3a grand versement',
               emoji: '🏦',
               annualDeduction: 20000,
@@ -1165,7 +1165,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               legalRef: 'LIFD art. 27 al. 2',
               note: 'Loyer bureau, matériel, formation — déductibles au réel',
             ),
-            FiscalSuperpower(
+            const FiscalSuperpower(
               label: 'Primes assurance maladie (LPP vol.)',
               emoji: '🛡️',
               annualDeduction: 3600,
@@ -1211,14 +1211,14 @@ class _IndependantScreenState extends State<IndependantScreen> {
         const SizedBox(height: 20),
 
         // 90-day plan
-        NinetyDayPlanWidget(
+        const NinetyDayPlanWidget(
           phases: [
             PlanPhase(
               title: 'Administratif urgent',
               emoji: '📋',
               deadline: 'J+30',
               urgencyColor: MintColors.scoreCritique,
-              actions: const [
+              actions: [
                 PlanAction(
                   label: 'Inscription caisse AVS indépendants',
                   consequence: 'Amendes rétroactives si délai dépassé',
@@ -1236,7 +1236,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               emoji: '🏦',
               deadline: 'J+60',
               urgencyColor: MintColors.scoreAttention,
-              actions: const [
+              actions: [
                 PlanAction(
                   label: 'Ouvrir compte 3a (déduction jusqu\'à CHF 36\'288)',
                   legalRef: 'OPP3',
@@ -1252,7 +1252,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               emoji: '💡',
               deadline: 'J+90',
               urgencyColor: MintColors.primary,
-              actions: const [
+              actions: [
                 PlanAction(label: 'Frais professionnels déductibles — tenir registre'),
                 PlanAction(label: 'Acomptes impôts cantonaux — éviter les intérêts'),
               ],
@@ -1276,7 +1276,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

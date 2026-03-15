@@ -954,7 +954,7 @@ class RetirementProjectionService {
       }
 
       final yearsThis = _lifeExpectancy - age;
-      final yearsRef = _lifeExpectancy - 65;
+      const yearsRef = _lifeExpectancy - 65;
       final cumulative =
           (total * 12 * yearsThis) - (refTotal * 12 * yearsRef);
 

@@ -167,9 +167,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
+          const Text(
             'Ratio dette / revenus',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               color: MintColors.textMuted,
             ),
@@ -285,8 +285,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           // Situation personnelle
           Row(
             children: [
-              Expanded(
-                child: const Text(
+              const Expanded(
+                child: Text(
                   'Celibataire',
                   style: TextStyle(
                     fontSize: 13,
@@ -408,11 +408,11 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                 color: MintColors.redBg,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Row(
+              child: const Row(
                 children: [
                   Icon(Icons.warning_amber_rounded,
                       color: MintColors.redMedium, size: 20),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Votre marge residuelle est inferieure au minimum vital. '
@@ -511,7 +511,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [MintColors.urgentBg, MintColors.warningBg],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -522,7 +522,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.support_agent, color: MintColors.redMedium, size: 24),
+              const Icon(Icons.support_agent, color: MintColors.redMedium, size: 24),
               const SizedBox(width: 12),
               Text(
                 'AIDE PROFESSIONNELLE',
@@ -598,7 +598,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                     const SizedBox(height: 4),
                     Text(
                       telephone,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         color: MintColors.info,
                         fontWeight: FontWeight.w600,
@@ -627,12 +627,12 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: MintColors.deepOrange,
                 height: 1.4,

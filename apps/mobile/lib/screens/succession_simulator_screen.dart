@@ -157,7 +157,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
               color: MintColors.teal.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(Icons.volunteer_activism,
+            child: const Icon(Icons.volunteer_activism,
                 color: MintColors.teal, size: 24),
           ),
           const SizedBox(width: 16),
@@ -552,7 +552,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.pie_chart_outline,
+              const Icon(Icons.pie_chart_outline,
                   color: MintColors.teal, size: 18),
               const SizedBox(width: 8),
               Text(
@@ -591,7 +591,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.description_outlined,
+              const Icon(Icons.description_outlined,
                   color: MintColors.info, size: 18),
               const SizedBox(width: 8),
               Text(
@@ -712,7 +712,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.shield_outlined,
+              const Icon(Icons.shield_outlined,
                   color: MintColors.warning, size: 18),
               const SizedBox(width: 8),
               Text(
@@ -778,7 +778,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.edit_note, color: MintColors.success, size: 18),
+              const Icon(Icons.edit_note, color: MintColors.success, size: 18),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.successionQuotiteTitle,
@@ -843,7 +843,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.receipt_long, color: MintColors.purple, size: 18),
+              const Icon(Icons.receipt_long, color: MintColors.purple, size: 18),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.successionFiscaliteCanton(_canton),
@@ -930,7 +930,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.info_outline, color: MintColors.info, size: 18),
+              const Icon(Icons.info_outline, color: MintColors.info, size: 18),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.successionBeneficiaries3aTitle,
@@ -1003,7 +1003,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.warning_amber_rounded,
+                    const Icon(Icons.warning_amber_rounded,
                         size: 16, color: MintColors.warning),
                     const SizedBox(width: 10),
                     Expanded(
@@ -1178,7 +1178,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 18, color: MintColors.warning),
+          const Icon(Icons.info_outline, size: 18, color: MintColors.warning),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

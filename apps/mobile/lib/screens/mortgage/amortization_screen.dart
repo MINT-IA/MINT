@@ -87,7 +87,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
                 // Source legale
                 Text(
                   S.of(context)!.amortizationSource,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
                     color: MintColors.textMuted,
@@ -538,12 +538,12 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 fontStyle: FontStyle.italic,
                 color: MintColors.deepOrange,

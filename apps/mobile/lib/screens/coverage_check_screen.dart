@@ -177,7 +177,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             color: MintColors.indigoBg,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Icon(
+          child: const Icon(
             Icons.verified_user,
             color: MintColors.indigoDeep,
             size: 28,
@@ -773,7 +773,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

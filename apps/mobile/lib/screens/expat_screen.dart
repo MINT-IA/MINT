@@ -674,10 +674,10 @@ class _ExpatScreenState extends State<ExpatScreen>
         ),
         const SizedBox(height: 20),
         // ── P13-A : 5 choses que tu perds en partant ───────────
-        ExpatRightsLossWidget(
+        const ExpatRightsLossWidget(
           destination: 'l\'étranger',
           isEuDestination: false,
-          rights: const [
+          rights: [
             ExpatRight(
               label: 'AVS — cotisation obligatoire',
               emoji: '🛡️',
@@ -1822,7 +1822,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

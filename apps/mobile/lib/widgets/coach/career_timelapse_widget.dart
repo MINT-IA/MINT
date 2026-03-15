@@ -119,7 +119,7 @@ class _CareerTimeLapseWidgetState extends State<CareerTimeLapseWidget> {
 
             // ── Slider ──
             SliderTheme(
-              data: SliderThemeData(
+              data: const SliderThemeData(
                 activeTrackColor: MintColors.primary,
                 inactiveTrackColor: MintColors.surface,
                 thumbColor: MintColors.primary,

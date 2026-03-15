@@ -215,7 +215,7 @@ void main() {
 
     testWidgets('renders title and subtitle', (tester) async {
       await tester.pumpWidget(
-        _l10nApp(PulseActionCard(action: action)),
+        _l10nApp(const PulseActionCard(action: action)),
       );
 
       expect(find.text('Ajoute ton certificat LPP'), findsOneWidget);
@@ -224,7 +224,7 @@ void main() {
 
     testWidgets('renders impact badge with points', (tester) async {
       await tester.pumpWidget(
-        _l10nApp(PulseActionCard(action: action)),
+        _l10nApp(const PulseActionCard(action: action)),
       );
 
       expect(find.text('+18 pts'), findsOneWidget);
@@ -232,7 +232,7 @@ void main() {
 
     testWidgets('renders category icon', (tester) async {
       await tester.pumpWidget(
-        _l10nApp(PulseActionCard(action: action)),
+        _l10nApp(const PulseActionCard(action: action)),
       );
 
       expect(find.byIcon(Icons.account_balance), findsOneWidget);
@@ -240,7 +240,7 @@ void main() {
 
     testWidgets('renders forward arrow', (tester) async {
       await tester.pumpWidget(
-        _l10nApp(PulseActionCard(action: action)),
+        _l10nApp(const PulseActionCard(action: action)),
       );
 
       expect(find.byIcon(Icons.arrow_forward_ios), findsOneWidget);

@@ -201,8 +201,8 @@ void main() {
       // The Nov 15 deadline is already past. Service uses:
       // year = (now.month > d.month || (now.month == d.month && now.day > d.day))
       //        ? now.year + 1 : now.year
-      final dMonth = 11;
-      final dDay = 15;
+      const dMonth = 11;
+      const dDay = 15;
       final year = now.month > dMonth ||
               (now.month == dMonth && now.day > dDay)
           ? now.year + 1
@@ -292,8 +292,8 @@ void main() {
       final now = tz.TZDateTime(tz.local, 2026, 1, 10, 8, 0);
 
       // First tax deadline: Feb 15
-      final dMonth = 2;
-      final dDay = 15;
+      const dMonth = 2;
+      const dDay = 15;
       final year = now.month > dMonth ||
               (now.month == dMonth && now.day > dDay)
           ? now.year + 1
@@ -311,8 +311,8 @@ void main() {
       final now = tz.TZDateTime(tz.local, 2026, 4, 1, 8, 0);
 
       // All tax deadlines (Feb 15, Mar 15, Mar 25) are in the past
-      final dMonth = 3;
-      final dDay = 25;
+      const dMonth = 3;
+      const dDay = 25;
       final year = now.month > dMonth ||
               (now.month == dMonth && now.day > dDay)
           ? now.year + 1

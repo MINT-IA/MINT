@@ -28,7 +28,7 @@ void main() {
     });
   });
 
-  CoachProfileProvider _buildCoachProvider() {
+  CoachProfileProvider buildCoachProvider() {
     final provider = CoachProfileProvider();
     provider.updateFromAnswers({
       'q_firstname': 'Julien',
@@ -62,22 +62,22 @@ void main() {
         ChangeNotifierProvider<DocumentProvider>(
             create: (_) => DocumentProvider()),
         ChangeNotifierProvider<BudgetProvider>(create: (_) => BudgetProvider()),
-        ChangeNotifierProvider(create: (_) => _buildCoachProvider()),
+        ChangeNotifierProvider(create: (_) => buildCoachProvider()),
         ChangeNotifierProvider<LocaleProvider>(create: (_) => LocaleProvider()),
         ChangeNotifierProvider<UserActivityProvider>(
             create: (_) => UserActivityProvider()),
         ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
       ],
-      child: MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      child: const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: S.supportedLocales,
-        home: const MainNavigationShell(),
+        home: MainNavigationShell(),
       ),
     );
   }

@@ -318,10 +318,10 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
       ),
       child: Row(
         children: [
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
                   'Nouvel employeur',
                   style: TextStyle(
@@ -544,7 +544,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.lightbulb_outline,
+                  const Icon(Icons.lightbulb_outline,
                       size: 18, color: MintColors.warningText),
                   const SizedBox(width: 10),
                   Expanded(
@@ -581,10 +581,10 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: MintColors.neutralBg),
         ),
-        child: Row(
+        child: const Row(
           children: [
             Icon(Icons.search, color: MintColors.blueDark, size: 24),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -597,7 +597,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                       color: MintColors.blueMaterial900,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(
                     'Recherchez des avoirs de libre passage oublies',
                     style: TextStyle(
@@ -622,11 +622,11 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
         color: MintColors.appleSurface,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Row(
+      child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.lock_outline, size: 18, color: MintColors.textMuted),
-          const SizedBox(width: 10),
+          Icon(Icons.lock_outline, size: 18, color: MintColors.textMuted),
+          SizedBox(width: 10),
           Expanded(
             child: Text(
               'Tes données restent sur ton appareil. Aucune information '
@@ -654,12 +654,12 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: MintColors.deepOrange,
                 height: 1.4,

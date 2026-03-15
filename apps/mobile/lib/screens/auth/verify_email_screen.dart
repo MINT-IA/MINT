@@ -120,7 +120,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: l10n?.authEmail ?? 'Adresse e-mail',
-                  prefixIcon: Icon(Icons.email_outlined),
+                  prefixIcon: const Icon(Icons.email_outlined),
                 ),
               ),
               const SizedBox(height: 12),
@@ -153,7 +153,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 decoration: InputDecoration(
                   labelText:
                       l10n?.authVerifyTokenLabel ?? 'Token de vérification',
-                  prefixIcon: Icon(Icons.key_outlined),
+                  prefixIcon: const Icon(Icons.key_outlined),
                 ),
               ),
               const SizedBox(height: 16),
