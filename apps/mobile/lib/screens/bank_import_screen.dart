@@ -377,7 +377,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'RESUME',
+            s?.bankImportSummaryHeader ?? 'RÉSUMÉ',
             style: GoogleFonts.montserrat(
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -637,7 +637,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'TRANSACTIONS',
+            s?.bankImportTransactionsHeader ?? 'TRANSACTIONS',
             style: GoogleFonts.montserrat(
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -669,7 +669,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
           if (result.transactions.length > maxItems)
             Center(
               child: Text(
-                '... et ${result.transactions.length - maxItems} autres transactions',
+                s?.bankImportMoreTransactions(result.transactions.length - maxItems) ?? '... et ${result.transactions.length - maxItems} autres transactions',
                 style: const TextStyle(
                   fontSize: 13,
                   color: MintColors.textMuted,
@@ -954,7 +954,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
       } catch (e) {
         if (!mounted) return;
         setState(() {
-          _error = 'Une erreur est survenue lors de l\'analyse du releve.';
+          _error = S.of(context)?.bankImportErrorGeneric ?? 'Une erreur est survenue lors de l\'analyse du relevé.';
           _isUploading = false;
         });
       }
