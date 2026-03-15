@@ -30,7 +30,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DocumentProvider>().loadDocuments();
+      context.read<DocumentProvider>().loadDocuments(s: S.of(context));
     });
   }
 
@@ -1382,7 +1382,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       // once Agent 1 adds the type parameter, this will pass it through.
       await context
           .read<DocumentProvider>()
-          .uploadDocument(result.files.single.path!);
+          .uploadDocument(result.files.single.path!, s: S.of(context));
     }
   }
 
@@ -1390,7 +1390,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       S s, String docId, DocumentProvider docProvider) async {
     final confirm = await _confirmDeleteDialog(s, docId, docProvider);
     if (confirm == true) {
-      await docProvider.deleteDocument(docId);
+      await docProvider.deleteDocument(docId, s: S.of(context));
     }
   }
 

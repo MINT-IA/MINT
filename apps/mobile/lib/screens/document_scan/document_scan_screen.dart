@@ -1023,6 +1023,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       final upload = await DocumentService().uploadDocument(
         File(path),
         type: VaultDocumentType.lppCertificate,
+        s: S.of(context),
       );
       if (!mounted) return const _PdfParseResult(success: false);
       final extraction = _mapLppUploadToExtraction(upload);

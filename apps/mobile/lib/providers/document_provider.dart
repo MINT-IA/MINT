@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/document_service.dart';
 
 /// Manages document upload state and document list.
@@ -51,6 +52,7 @@ class DocumentProvider extends ChangeNotifier {
   Future<void> uploadDocument(
     String filePath, {
     VaultDocumentType type = VaultDocumentType.lppCertificate,
+    S? s,
   }) async {
     _isUploading = true;
     _error = null;
@@ -59,7 +61,7 @@ class DocumentProvider extends ChangeNotifier {
 
     try {
       final file = File(filePath);
-      final result = await _service.uploadDocument(file, type: type);
+      final result = await _service.uploadDocument(file, type: type, s: s);
       _lastUploadResult = result;
       // Refresh documents list after upload
       await _loadDocumentsSilently();
@@ -69,7 +71,8 @@ class DocumentProvider extends ChangeNotifier {
         debugPrint('DocumentProvider: Upload error: ${e.message}');
       }
     } catch (e) {
-      _error = 'Une erreur est survenue lors de l\'upload.';
+      _error = s?.documentServiceUploadError ??
+          'Une erreur est survenue lors de l\'envoi du document.';
       if (kDebugMode) {
         debugPrint('DocumentProvider: Unexpected upload error: $e');
       }
@@ -84,7 +87,7 @@ class DocumentProvider extends ChangeNotifier {
   // ──────────────────────────────────────────────────────────
 
   /// Load the list of uploaded documents from the backend.
-  Future<void> loadDocuments() async {
+  Future<void> loadDocuments({S? s}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -97,7 +100,8 @@ class DocumentProvider extends ChangeNotifier {
         debugPrint('DocumentProvider: Load error: ${e.message}');
       }
     } catch (e) {
-      _error = 'Impossible de charger les documents.';
+      _error = s?.documentServiceLoadError ??
+          'Impossible de charger les documents.';
       if (kDebugMode) {
         debugPrint('DocumentProvider: Unexpected load error: $e');
       }
@@ -123,7 +127,7 @@ class DocumentProvider extends ChangeNotifier {
   // ──────────────────────────────────────────────────────────
 
   /// Delete a document by ID and refresh the list.
-  Future<bool> deleteDocument(String id) async {
+  Future<bool> deleteDocument(String id, {S? s}) async {
     _error = null;
     notifyListeners();
 
@@ -147,7 +151,8 @@ class DocumentProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     } catch (e) {
-      _error = 'Impossible de supprimer le document.';
+      _error = s?.documentServiceDeleteError ??
+          'Impossible de supprimer le document.';
       if (kDebugMode) {
         debugPrint('DocumentProvider: Unexpected delete error: $e');
       }

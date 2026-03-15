@@ -937,7 +937,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
       try {
         final file = File(result.files.single.path!);
         final statementResult =
-            await _documentService.uploadBankStatement(file);
+            await _documentService.uploadBankStatement(file, s: S.of(context));
         if (!mounted) return;
         setState(() {
           _statementResult = statementResult;

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 
@@ -917,6 +918,7 @@ class DocumentService {
   Future<DocumentUploadResult> uploadDocument(
     File file, {
     VaultDocumentType type = VaultDocumentType.lppCertificate,
+    S? s,
   }) async {
     // Client-side file size validation
     final fileSize = await file.length();
@@ -924,7 +926,8 @@ class DocumentService {
       final sizeMb = (fileSize / (1024 * 1024)).toStringAsFixed(1);
       throw DocumentServiceException(
         code: 'file_too_large',
-        message: 'Le fichier ($sizeMb Mo) depasse la limite de 20 Mo.',
+        message: s?.documentServiceFileTooLarge(sizeMb, '20') ??
+            'Le fichier ($sizeMb\u00a0Mo) d\u00e9passe la limite de 20\u00a0Mo.',
       );
     }
 
@@ -957,14 +960,15 @@ class DocumentService {
   /// Upload a bank statement (CSV or PDF) for transaction analysis.
   ///
   /// Returns a [BankStatementResult] with extracted transactions and summaries.
-  Future<BankStatementResult> uploadBankStatement(File file) async {
+  Future<BankStatementResult> uploadBankStatement(File file, {S? s}) async {
     // Client-side file size validation
     final fileSize = await file.length();
     if (fileSize > maxStatementSizeBytes) {
       final sizeMb = (fileSize / (1024 * 1024)).toStringAsFixed(1);
       throw DocumentServiceException(
         code: 'file_too_large',
-        message: 'Le fichier ($sizeMb Mo) depasse la limite de 10 Mo.',
+        message: s?.documentServiceFileTooLarge(sizeMb, '10') ??
+            'Le fichier ($sizeMb\u00a0Mo) d\u00e9passe la limite de 10\u00a0Mo.',
       );
     }
 

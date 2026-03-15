@@ -552,7 +552,7 @@ class DocumentDetailScreen extends StatelessWidget {
     );
 
     if (confirm == true && context.mounted) {
-      final success = await docProvider.deleteDocument(documentId);
+      final success = await docProvider.deleteDocument(documentId, s: s);
       if (success && context.mounted) {
         context.pop();
       }
