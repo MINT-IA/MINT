@@ -9059,5 +9059,105 @@
     }
   },
   "horizonLineChiffreChocBody": "Il n'y a pas de transition douce. Le jour J+1, tes droits sont épuisés. Prépare ton plan B avant d'atteindre la ligne.",
-  "horizonLineDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LACI art. 27-30."
+  "horizonLineDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LACI art. 27-30.",
+  "unemploymentCounterSemantics": "Compteur jours chômage capital temps",
+  "unemploymentCounterTitle": "Ton capital temps",
+  "unemploymentCounterAgeSubtitle": "{ageLabel} → {maxDays} indemnités journalières",
+  "@unemploymentCounterAgeSubtitle": {
+    "placeholders": {
+      "ageLabel": {"type": "String"},
+      "maxDays": {"type": "int"}
+    }
+  },
+  "unemploymentCounterChipMonthly": "CHF {amount}/mois",
+  "@unemploymentCounterChipMonthly": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "unemploymentCounterChipMonths": "≈ {months} mois",
+  "@unemploymentCounterChipMonths": {
+    "placeholders": {
+      "months": {"type": "String"}
+    }
+  },
+  "unemploymentCounterDaysUsed": "Jours utilisés : {count}",
+  "@unemploymentCounterDaysUsed": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "unemploymentCounterDaysRemaining": "Restants : {count}",
+  "@unemploymentCounterDaysRemaining": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "unemploymentCounterDayZero": "Jour 0",
+  "unemploymentCounterDayEnd": "Jour {maxDays} → 0 CHF",
+  "@unemploymentCounterDayEnd": {
+    "placeholders": {
+      "maxDays": {"type": "int"}
+    }
+  },
+  "unemploymentCounterDaysRemainingLabel": "Jours restants",
+  "unemploymentCounterApproxLabel": "Soit environ",
+  "unemploymentCounterMonthsValue": "{months} mois",
+  "@unemploymentCounterMonthsValue": {
+    "placeholders": {
+      "months": {"type": "String"}
+    }
+  },
+  "unemploymentCounterAgeRange": "Tranche d'âge",
+  "unemploymentCounterMaxBenefits": "Indemnités max",
+  "unemploymentCounterDaysCount": "{days} jours",
+  "@unemploymentCounterDaysCount": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "unemploymentCounterChiffreChocTitle": "Après le dernier jour : 0 CHF",
+  "unemploymentCounterChiffreChocBody": "Pas de prolongation. Tu passes à l'aide sociale — sans délai de grâce.",
+  "unemploymentCounterDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LACI art. 27-30.",
+
+  "survivorPensionSemantics": "Rente survivant mariage concubin décès LAVS LPP comparaison",
+  "survivorPensionTitle": "Rentes de survivant",
+  "survivorPensionSubtitle": "Si ton·ta partenaire décède — combien touches-tu ?",
+  "survivorPensionMarried": "Marié·e",
+  "survivorPensionMarriedDetail": "80 % AVS + 60 % LPP",
+  "survivorPensionConcubin": "Concubin·e",
+  "survivorPensionConcubinDetail": "0 CHF si pas de désignation",
+  "survivorPensionAmountPerMonth": "{amount}/mois",
+  "@survivorPensionAmountPerMonth": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "survivorPensionChiffreChoc": "Le mariage vaut {amount}/mois de rente survivant",
+  "@survivorPensionChiffreChoc": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "survivorPensionChiffreChocBody": "Concubin·e sans désignation LPP ni testament = 0 CHF automatique. LAVS art. 23 : seul·e le·la conjoint·e légal·e a droit à la rente de veuf/veuve.",
+  "survivorPensionAvsWidow": "AVS rente veuf/veuve (80 %)",
+  "survivorPensionLppPartner": "LPP rente partenaire (60 %)",
+  "survivorPensionLppLumpSum": "LPP capital unique (3× rente)",
+  "survivorPensionLppLumpSumRef": "LPP art. 19 al. 2 — conditions non remplies",
+  "survivorPensionLppOrphan": "LPP rente orphelin ({count} enfant{count, plural, =1{} other{s}}, 20 %/enf.)",
+  "@survivorPensionLppOrphan": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "survivorPensionAvsConcubin": "AVS concubin·e",
+  "survivorPensionNotApplicable": "Non applicable",
+  "survivorPensionLppNoDesignation": "LPP sans désignation",
+  "survivorPensionRequiresDesignation": "Exige désignation explicite",
+  "survivorPensionDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAVS art. 23-24 (rente veuf/veuve), LPP art. 19 (rente partenaire). Taux AVS survivant : {rate} %.",
+  "@survivorPensionDisclaimer": {
+    "placeholders": {
+      "rate": {"type": "String"}
+    }
+  }
 }

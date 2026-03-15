@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -58,8 +59,9 @@ class SurvivorPensionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Rente survivant mariage concubin décès LAVS LPP comparaison',
+      label: s.survivorPensionSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -69,19 +71,19 @@ class SurvivorPensionWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildComparison(),
+                  _buildComparison(s),
                   const SizedBox(height: 16),
-                  _buildChiffreChoc(),
+                  _buildChiffreChoc(s),
                   const SizedBox(height: 16),
-                  _buildDetailRows(),
+                  _buildDetailRows(s),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -91,7 +93,7 @@ class SurvivorPensionWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -107,7 +109,7 @@ class SurvivorPensionWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Rentes de survivant',
+                  s.survivorPensionTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -116,7 +118,7 @@ class SurvivorPensionWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Si ton·ta partenaire décède — combien touches-tu ?',
+                  s.survivorPensionSubtitle,
                   style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
                 ),
               ],
@@ -127,23 +129,25 @@ class SurvivorPensionWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildComparison() {
+  Widget _buildComparison(S s) {
     return Row(
       children: [
         Expanded(child: _buildScenarioCard(
           emoji: '💍',
-          label: 'Marié·e',
+          label: s.survivorPensionMarried,
           total: _totalMarried,
           color: MintColors.scoreExcellent,
-          detail: '80% AVS + 60% LPP',
+          detail: s.survivorPensionMarriedDetail,
+          amountPerMonth: s.survivorPensionAmountPerMonth(formatChfWithPrefix(_totalMarried)),
         )),
         const SizedBox(width: 12),
         Expanded(child: _buildScenarioCard(
           emoji: '🏠',
-          label: 'Concubin·e',
+          label: s.survivorPensionConcubin,
           total: _totalConcubin,
           color: MintColors.scoreCritique,
-          detail: '0 CHF si pas de désignation',
+          detail: s.survivorPensionConcubinDetail,
+          amountPerMonth: s.survivorPensionAmountPerMonth(formatChfWithPrefix(_totalConcubin)),
         )),
       ],
     );
@@ -155,6 +159,7 @@ class SurvivorPensionWidget extends StatelessWidget {
     required double total,
     required Color color,
     required String detail,
+    required String amountPerMonth,
   }) {
     return Container(
       padding: const EdgeInsets.all(14),
@@ -178,7 +183,7 @@ class SurvivorPensionWidget extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '${formatChfWithPrefix(total)}/mois',
+            amountPerMonth,
             style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -195,7 +200,7 @@ class SurvivorPensionWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildChiffreChoc() {
+  Widget _buildChiffreChoc(S s) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -213,7 +218,7 @@ class SurvivorPensionWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Le mariage vaut ${formatChfWithPrefix(_marriageBonus)}/mois de rente survivant',
+                  s.survivorPensionChiffreChoc(formatChfWithPrefix(_marriageBonus)),
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -222,8 +227,7 @@ class SurvivorPensionWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Concubin·e sans désignation LPP ni testament = 0 CHF automatique. '
-                  'LAVS art. 23 : seul·e le·la conjoint·e légal·e a droit à la rente de veuf/veuve.',
+                  s.survivorPensionChiffreChocBody,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -238,7 +242,7 @@ class SurvivorPensionWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRows() {
+  Widget _buildDetailRows(S s) {
     final survivor = _survivorResult;
     return Container(
       decoration: BoxDecoration(
@@ -248,22 +252,22 @@ class SurvivorPensionWidget extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildDetailRow('AVS rente veuf/veuve (80%)', _avsMarried, 'LAVS art. 23', true),
+          _buildDetailRow(s.survivorPensionAvsWidow, _avsMarried, 'LAVS art. 23', true),
           const Divider(height: 1),
-          _buildDetailRow('LPP rente partenaire (60%)', _lppMarried, 'LPP art. 19', true),
+          _buildDetailRow(s.survivorPensionLppPartner, _lppMarried, 'LPP art. 19', true),
           if (!survivor.conjointGetsRente && survivor.conjointLumpSum > 0) ...[
             const Divider(height: 1),
             _buildDetailRow(
-              'LPP capital unique (3× rente)',
+              s.survivorPensionLppLumpSum,
               survivor.conjointLumpSum,
-              'LPP art. 19 al. 2 — conditions non remplies',
+              s.survivorPensionLppLumpSumRef,
               true,
             ),
           ],
           if (numberOfChildren > 0) ...[
             const Divider(height: 1),
             _buildDetailRow(
-              'LPP rente orphelin ($numberOfChildren enfant${numberOfChildren > 1 ? 's' : ''}, 20%/enf.)',
+              s.survivorPensionLppOrphan(numberOfChildren),
               survivor.orphanMonthlyTotal,
               'LPP art. 20',
               true,
@@ -271,16 +275,16 @@ class SurvivorPensionWidget extends StatelessWidget {
           ],
           const Divider(height: 1),
           _buildDetailRow(
-            'AVS concubin·e',
+            s.survivorPensionAvsConcubin,
             0,
-            'Non applicable',
+            s.survivorPensionNotApplicable,
             false,
           ),
           const Divider(height: 1),
           _buildDetailRow(
-            'LPP sans désignation',
+            s.survivorPensionLppNoDesignation,
             0,
-            'Exige désignation explicite',
+            s.survivorPensionRequiresDesignation,
             false,
           ),
         ],
@@ -314,7 +318,7 @@ class SurvivorPensionWidget extends StatelessWidget {
             ),
           ),
           Text(
-            amount > 0 ? formatChfWithPrefix(amount) : '0 CHF',
+            amount > 0 ? formatChfWithPrefix(amount) : '0\u00a0CHF',
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -326,11 +330,9 @@ class SurvivorPensionWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : LAVS art. 23-24 (rente veuf/veuve), LPP art. 19 (rente partenaire). '
-      'Taux AVS survivant : ${(avsSurvivorFactor * 100).toInt()}%.',
+      s.survivorPensionDisclaimer((avsSurvivorFactor * 100).toInt().toString()),
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,
