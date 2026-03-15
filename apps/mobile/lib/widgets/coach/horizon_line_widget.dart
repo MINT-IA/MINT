@@ -119,7 +119,7 @@ class HorizonLineWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Ta trajectoire financière',
+          s.horizonLineTrajectory,
           style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -143,11 +143,11 @@ class HorizonLineWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Zone sécurisée',
+                  s.horizonLineSecureZone,
                   style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: zoneColor),
                 ),
                 Text(
-                  'CHF ${_fmt(monthlyBenefit)}/mois',
+                  s.horizonLineChfPerMonth(_fmt(monthlyBenefit)),
                   style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
                 ),
               ],
@@ -156,11 +156,11 @@ class HorizonLineWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  'LE MUR',
+                  s.horizonLineWall,
                   style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w800, color: wallColor),
                 ),
                 Text(
-                  'Jour $totalDays → 0 CHF',
+                  s.horizonLineWallDay(totalDays.toString()),
                   style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
                 ),
               ],
@@ -176,7 +176,7 @@ class HorizonLineWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              'Il te reste $daysLeft jours — soit ${monthsLeft.toStringAsFixed(1)} mois de revenus',
+              s.horizonLineDaysLeft(daysLeft.toString(), monthsLeft.toStringAsFixed(1)),
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -189,7 +189,7 @@ class HorizonLineWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildAfterLine() {
+  Widget _buildAfterLine(S s) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -201,7 +201,7 @@ class HorizonLineWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Après la ligne d\'horizon :',
+            s.horizonLineAfterTitle,
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -209,9 +209,9 @@ class HorizonLineWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          _buildAfterItem('Aide sociale cantonale', 'Montant variable selon canton'),
-          _buildAfterItem('Prestations complémentaires', 'Si tu as plus de 65 ans'),
-          _buildAfterItem('Ton épargne personnelle', 'Dernier recours'),
+          _buildAfterItem(s.horizonLineAfterSocialAid, s.horizonLineAfterSocialAidSub),
+          _buildAfterItem(s.horizonLineAfterComplementary, s.horizonLineAfterComplementarySub),
+          _buildAfterItem(s.horizonLineAfterSavings, s.horizonLineAfterSavingsSub),
         ],
       ),
     );
@@ -252,7 +252,7 @@ class HorizonLineWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildChiffreChoc() {
+  Widget _buildChiffreChoc(S s) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -275,7 +275,7 @@ class HorizonLineWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Passage instantané de CHF ${_fmt(monthlyBenefit)} → 0 CHF',
+                  s.horizonLineChiffreChocTitle(_fmt(monthlyBenefit)),
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -284,8 +284,7 @@ class HorizonLineWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Il n\'y a pas de transition douce. Le jour J+1, tes droits sont épuisés. '
-                  'Prépare ton plan B avant d\'atteindre la ligne.',
+                  s.horizonLineChiffreChocBody,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -300,10 +299,9 @@ class HorizonLineWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : LACI art. 27-30.',
+      s.horizonLineDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

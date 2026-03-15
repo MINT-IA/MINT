@@ -9015,6 +9015,49 @@
   "portfolioAccountReserved": "Réservé (Fonds d'urgence)",
   "portfolioSafeModeLockTitle": "Priorité au désendettement",
   "portfolioSafeModeLockMessage": "Les conseils d'allocation sont désactivés en mode protection. Ta priorité est de réduire tes dettes avant de rééquilibrer ton patrimoine.",
-  "portfolioCoachAdvice": "Ton allocation est saine. Pense à rééquilibrer ton 3a prochainement."
-
+  "portfolioCoachAdvice": "Ton allocation est saine. Pense à rééquilibrer ton 3a prochainement.",
+  "horizonLineHeaderTitle": "Ta ligne d'horizon",
+  "horizonLineHeaderSubtitle": "CHF {amount}/mois jusqu'au dernier jour — puis 0 CHF.",
+  "@horizonLineHeaderSubtitle": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "horizonLineTrajectory": "Ta trajectoire financière",
+  "horizonLineSecureZone": "Zone sécurisée",
+  "horizonLineChfPerMonth": "CHF {amount}/mois",
+  "@horizonLineChfPerMonth": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "horizonLineWall": "LE MUR",
+  "horizonLineWallDay": "Jour {days} → 0 CHF",
+  "@horizonLineWallDay": {
+    "placeholders": {
+      "days": {"type": "String"}
+    }
+  },
+  "horizonLineDaysLeft": "Il te reste {days} jours — soit {months} mois de revenus",
+  "@horizonLineDaysLeft": {
+    "placeholders": {
+      "days": {"type": "String"},
+      "months": {"type": "String"}
+    }
+  },
+  "horizonLineAfterTitle": "Après la ligne d'horizon :",
+  "horizonLineAfterSocialAid": "Aide sociale cantonale",
+  "horizonLineAfterSocialAidSub": "Montant variable selon canton",
+  "horizonLineAfterComplementary": "Prestations complémentaires",
+  "horizonLineAfterComplementarySub": "Si tu as plus de 65 ans",
+  "horizonLineAfterSavings": "Ton épargne personnelle",
+  "horizonLineAfterSavingsSub": "Dernier recours",
+  "horizonLineChiffreChocTitle": "Passage instantané de CHF {amount} → 0 CHF",
+  "@horizonLineChiffreChocTitle": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "horizonLineChiffreChocBody": "Il n'y a pas de transition douce. Le jour J+1, tes droits sont épuisés. Prépare ton plan B avant d'atteindre la ligne.",
+  "horizonLineDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LACI art. 27-30."
 }
