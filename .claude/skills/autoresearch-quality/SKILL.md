@@ -1,172 +1,194 @@
 ---
 name: autoresearch-quality
-description: "Karpathy-style edit->verify loop for Flutter code quality. Runs flutter analyze, prioritizes issues, fixes in batches of 5, verifies periodically. Use with /autoresearch-quality or /autoresearch-quality 50."
+description: "Autonomous bug hunter. Runs flutter test, reads failures, fixes the CODE (not the test), re-runs to verify. Falls back to flutter analyze when tests are green. Use with /autoresearch-quality or /autoresearch-quality 20."
 compatibility: Requires Flutter SDK
 allowed-tools: Bash(flutter:*) Bash(dart:*) Bash(git:*) Read Edit Write Glob Grep
 metadata:
   author: mint-team
-  version: "2.0"
+  version: "3.0"
 ---
 
-# Autoresearch Quality v2 — Karpathy-Style Edit-Verify Loop
+# Autoresearch Quality v3 — Autonomous Bug Hunter
 
 ## Philosophy
 
-Inspired by Andrej Karpathy's "autoresearch" principle: an autonomous agent that iteratively improves a codebase by measuring, fixing, and verifying — with no human in the loop until the budget is exhausted.
+> "The test suite is the spec. A failing test is a bug. Fix the code, not the test."
 
-**Core idea**: Pick a metric. Fix things that move the metric. Verify after each batch. Stop when budget is spent or metric hits zero.
+Karpathy-style loop: run tests → read the failure → understand root cause → fix the **source code** → re-run → repeat.
 
-## Metrics
+**Primary metric**: `flutter test` failure count.
+**Secondary metric**: `flutter analyze` issue count (only when tests are green).
 
-### Primary Metric
-`flutter analyze` issue count (errors + warnings + infos).
+## Critical Rules
 
-**Goal**: Reduce to 0 (or as low as possible within budget).
-
-### Guard Metrics (must not regress)
-| Guard | Command | Threshold |
-|-------|---------|-----------|
-| Tests | `flutter test` | 0 failures (run every 15 fixes) |
-| Hardcoded strings | `grep -rn "Text('" lib/screens/ lib/widgets/ --include="*.dart"` | Must not increase |
-| Banned terms | `grep -rn "garanti\|sans risque\|optimal\|meilleur\|parfait\|conseiller" lib/screens/ lib/widgets/ --include="*.dart"` | Must stay 0 |
+1. **Fix the CODE, never the test** — a failing test means the code is wrong, not the test
+2. **Exception**: if a test expectation is genuinely outdated (e.g., accented text after i18n migration), fix the test
+3. **Read before fix** — always read the failing test AND the source code before editing
+4. **One bug at a time** — fix one failure, verify, then next
+5. **Never break green tests** — if your fix causes a previously-passing test to fail, revert immediately
 
 ## Loop Structure
 
-### Phase 0 — INVENTORY
+### Phase 0 — BASELINE
 
 ```bash
 cd /Users/julienbattaglia/Desktop/MINT/apps/mobile
-flutter analyze 2>&1 | tee /tmp/mint_analyze_baseline.txt
+flutter test 2>&1 | tail -5
 ```
 
-Parse the output. Count total issues. Classify by type.
+Extract: `+N ~M -F` → N passed, M skipped, F failed.
 
-### Phase 1 — BASELINE
+If F = 0 (all tests pass), fall back to **Phase 0b — Analyze Mode**:
+```bash
+flutter analyze 2>&1 | tail -3
+```
 
-Record the starting state:
-
+Record baseline:
 ```
 BASELINE: YYYY-MM-DD HH:MM
-  analyze_issues: N
-  test_failures: M (run flutter test)
-  budget_total: B (from user arg, default 30)
-  budget_spent: 0
+  test_pass: N
+  test_fail: F
+  test_skip: M
+  analyze_issues: I
+  budget: B (from arg, default 20)
 ```
 
-### Phase 2 — FIX BATCH (5 issues per batch)
+### Phase 1 — TRIAGE
 
-Pick the top 5 issues by priority (see Priority Table below). Fix them.
-
-**Rules for fixing**:
-- Read the file BEFORE editing (mandatory)
-- Fix the root cause, not the symptom
-- If a fix requires importing a new package, check it exists first
-- If a fix changes behavior (not just types/lint), flag it
-- One fix = one `Edit` call. Never batch multiple fixes in one Edit.
-
-### Phase 3 — VERIFY
-
-After each batch of 5 fixes:
+If tests are failing, get the failure list:
 
 ```bash
-cd /Users/julienbattaglia/Desktop/MINT/apps/mobile
-flutter analyze 2>&1 | tail -5
+flutter test 2>&1 | grep "\[E\]" | head -20
 ```
 
-Record new issue count. If it went UP, revert the last batch and investigate.
+Group failures by root cause (often multiple tests fail from the same bug). Prioritize:
 
-Every 3 batches (15 fixes), also run:
+| Priority | Type | Example |
+|----------|------|---------|
+| P0 | Compilation error | Missing import, wrong type, missing parameter |
+| P1 | Runtime crash | Null pointer, index out of bounds, state error |
+| P2 | Logic bug | Wrong calculation result, wrong condition |
+| P3 | UI mismatch | Widget not found, wrong text, missing widget |
+| P4 | Async issue | Future not awaited, timing problem |
+
+### Phase 2 — DIAGNOSE
+
+For the highest-priority failure:
+
+1. **Read the test file** — understand what the test expects
+2. **Read the error message** — understand what actually happened
+3. **Read the source code** — find the bug
+4. **Identify root cause** — is it a missing parameter? Wrong logic? Stale import?
+
+Common patterns:
+- `missing_required_argument` → service method signature changed, caller not updated
+- `type 'Null' is not a subtype of type 'X'` → null safety issue in source
+- `Expected: X, Actual: Y` → calculation bug or stale expected value
+- `No widget found` → widget not rendered due to state/logic issue
+- `RangeError` → array/list bounds issue in source
+
+### Phase 3 — FIX
+
+Apply the minimal fix to the **source code** (not the test):
+
+- If a method signature changed → update the caller
+- If a calculation is wrong → fix the formula
+- If a null check is missing → add the guard
+- If an import is missing → add it
+- If a widget isn't rendering → fix the condition
+
+**Exception — fix the test when**:
+- Test text expectations changed due to i18n migration (accents added)
+- Test was checking implementation details that legitimately changed
+- Test has a genuine bug (wrong expected value based on spec)
+
+### Phase 4 — VERIFY
+
+After each fix, re-run the specific failing test:
 
 ```bash
-cd /Users/julienbattaglia/Desktop/MINT/apps/mobile
-flutter test 2>&1 | tail -10
+flutter test test/path/to/specific_test.dart 2>&1 | tail -5
 ```
 
-If tests break, fix the test regression BEFORE continuing.
+- If it passes → commit and move to next failure
+- If it still fails → re-diagnose, try different fix
+- If OTHER tests broke → revert immediately, re-think approach
 
-### Phase 4 — LOG
-
-After each batch, append to the session log (TSV format, see below).
-
-### Phase 5 — REPEAT
-
-Go back to Phase 2 until:
-- Budget exhausted (budget_spent >= budget_total)
-- Metric hits 0 (no more issues)
-- 3 consecutive batches with 0 improvement (plateau)
-
-## Priority Table
-
-| Priority | Category | Example | Fix complexity |
-|----------|----------|---------|----------------|
-| P0 | Errors | Compilation errors, missing imports | Usually simple |
-| P1 | Warnings — unused imports | `Unused import` | Trivial (delete line) |
-| P2 | Warnings — unused variables | `The value of the local variable 'x' isn't used` | Simple (delete or use) |
-| P3 | Warnings — deprecated API | `'oldMethod' is deprecated` | Medium (find replacement) |
-| P4 | Infos — style | `Prefer const constructors` | Simple but numerous |
-| P5 | Infos — documentation | `Missing documentation` | Skip unless budget allows |
-
-**Always fix P0 first. Then P1. Then P2. Etc.**
-
-Within the same priority, fix by file — all issues in one file before moving to the next. This minimizes file reads.
-
-## Strict Rules
-
-1. **NEVER skip the verify step.** Every batch of 5 must be verified.
-2. **NEVER fix more than 5 issues between verify steps.** This keeps the feedback loop tight.
-3. **NEVER modify test files to make analyze pass** (unless the test itself has a genuine lint issue).
-4. **NEVER add `// ignore:` comments** to suppress warnings. Fix the root cause.
-5. **NEVER change business logic** to fix a lint warning. If a fix would change behavior, skip it and log it.
-6. **ALWAYS read the file before editing.** The Edit tool requires it.
-7. **ALWAYS use absolute paths** (`/Users/julienbattaglia/Desktop/MINT/apps/mobile/...`).
-8. **ALWAYS preserve existing functionality.** This is a quality pass, not a refactor.
-9. **If tests break, fix the regression IMMEDIATELY** before continuing the loop.
-10. **If budget is specified** (e.g., `/autoresearch-quality 50`), that number is the max fixes. Default = 30.
-
-## TSV Session Log Format
-
-After each batch, mentally track (or print) progress in this format:
-
+Every 5 fixes, run the full suite:
+```bash
+flutter test 2>&1 | tail -5
 ```
-batch	timestamp	issues_before	issues_after	delta	fixes_applied	files_touched	tests_status
-1	HH:MM	42	37	-5	5	3	not_run
-2	HH:MM	37	32	-5	5	4	not_run
-3	HH:MM	32	27	-5	5	2	PASS (114/114)
+
+### Phase 5 — COMMIT
+
+After each successful fix (or batch of related fixes):
+
+```bash
+git add <specific files>
+git commit -m "fix: <description of the bug fixed>
+
+Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ```
+
+### Phase 6 — REPEAT or STOP
+
+Continue until:
+- **Budget exhausted** (fixes_applied >= budget)
+- **All tests pass** (F = 0)
+- **Stuck** — same failure after 3 fix attempts → skip and move to next
+- **Analyze mode complete** — all issues fixed or only info-level remain
+
+## Analyze Mode (when all tests pass)
+
+When `flutter test` is green, switch to lint fixes:
+
+1. Run `flutter analyze`
+2. Fix errors first, then warnings, then infos
+3. Verify with `flutter test` after every 5 lint fixes (guard against regressions)
+4. Use `dart fix --apply` for bulk mechanical fixes (prefer_const, etc.)
+5. Stop when only `avoid_print` in tests + `constant_identifier_names` remain
+
+## Anti-patterns (never do)
+
+- **NEVER** change a test assertion to match buggy code
+- **NEVER** delete a failing test to make the suite green
+- **NEVER** add `// ignore:` to suppress real warnings
+- **NEVER** skip the verify step between fixes
+- **NEVER** fix more than one unrelated bug before verifying
+- **NEVER** modify `financial_core/` calculators without running the full test suite
+- **NEVER** change business constants (LPP rates, AVS thresholds, etc.)
 
 ## Final Output
 
-When the loop ends, produce this summary:
-
 ```
-## Autoresearch Quality — Session Report
+AUTORESEARCH QUALITY — SESSION REPORT
+=======================================
+Date: YYYY-MM-DD
+Branch: feature/S{XX}-...
+Budget: X/Y fixes used
+Duration: ~Nm
 
-**Date**: YYYY-MM-DD
-**Branch**: feature/S{XX}-...
-**Budget**: X fixes used / Y total
+RESULTS:
+  Tests:   before=+N ~M -F → after=+P ~Q -R
+  Analyze: before=I issues → after=J issues
 
-### Results
-| Metric | Before | After | Delta |
-|--------|--------|-------|-------|
-| analyze issues | N | M | -K |
-| test failures | 0 | 0 | 0 |
+BUGS FIXED:
+  1. [fix] missing S parameter in donation_service_test.dart
+     Root cause: i18n migration added required param, test not updated
+  2. [fix] null pointer in mortgage_service.calculate()
+     Root cause: missing null check on optional canton field
+  ...
 
-### Batches
-batch	issues_before	issues_after	delta	files_touched
-1	...
-2	...
+STUCK (skipped after 3 attempts):
+  - test/xyz_test.dart: "timeout" — needs async investigation
 
-### Skipped Issues (would change behavior)
-- file.dart:42 — reason
-
-### Remaining Issues (budget exhausted)
-- N issues remaining (list top 5 by priority)
+REMAINING:
+  - N test failures still open
+  - M analyze issues (info-level only)
 ```
 
 ## Invocation
 
-- `/autoresearch-quality` — run with default budget of 30 fixes
-- `/autoresearch-quality 50` — run with budget of 50 fixes
-- `/autoresearch-quality 100` — run with budget of 100 fixes
-
-The number is the maximum number of individual fixes to apply. Each batch = 5 fixes. So budget 30 = max 6 batches.
+- `/autoresearch-quality` — default budget 20 fixes
+- `/autoresearch-quality 10` — quick pass, 10 fixes max
+- `/autoresearch-quality 50` — deep pass, 50 fixes max
