@@ -613,7 +613,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: MintColors.primary,
+          activeTrackColor: MintColors.primary,
         ),
       ],
     );

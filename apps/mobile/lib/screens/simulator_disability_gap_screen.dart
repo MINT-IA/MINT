@@ -383,7 +383,7 @@ class _SimulatorDisabilityGapScreenState
             _hasIjm = v;
             _calculate();
           },
-          activeColor: MintColors.primary,
+          activeTrackColor: MintColors.primary,
         ),
       ],
     );

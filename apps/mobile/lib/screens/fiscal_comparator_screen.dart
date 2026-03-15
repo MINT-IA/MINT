@@ -584,7 +584,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               ),
               Switch(
                 value: _isChurchMember,
-                activeColor: MintColors.primary,
+                activeTrackColor: MintColors.primary,
                 onChanged: (v) {
                   _isChurchMember = v;
                   _recalculate();

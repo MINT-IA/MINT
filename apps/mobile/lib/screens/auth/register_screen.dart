@@ -56,6 +56,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         await ReportPersistenceService.saveAnswers(answers);
       }
 
+      if (!mounted) return;
       if (authProvider.requiresEmailVerification) {
         context.go('/auth/verify-email');
       } else {
@@ -198,7 +199,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 16),
                 // Birth year dropdown (LPD minimisation: only year needed for AVS/LPP)
                 DropdownButtonFormField<int>(
-                  value: _birthYear,
+                  initialValue: _birthYear,
                   decoration: const InputDecoration(
                     labelText: 'Annee de naissance',
                     prefixIcon: Icon(Icons.cake_outlined),

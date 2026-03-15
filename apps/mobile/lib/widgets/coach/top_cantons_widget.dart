@@ -139,7 +139,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
         const SizedBox(width: 8),
         Switch(
           value: _hasChildren,
-          activeColor: MintColors.primary,
+          activeTrackColor: MintColors.primary,
           onChanged: (v) {
             setState(() => _hasChildren = v);
             widget.onChildrenChanged?.call(v);

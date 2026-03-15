@@ -342,7 +342,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
           ),
           Switch(
             value: _hasNewEmployer,
-            activeColor: MintColors.primary,
+            activeTrackColor: MintColors.primary,
             onChanged: (v) => setState(() => _hasNewEmployer = v),
           ),
         ],

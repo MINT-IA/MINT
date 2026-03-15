@@ -386,7 +386,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: MintColors.primary,
+          activeTrackColor: MintColors.primary,
         ),
       ],
     );

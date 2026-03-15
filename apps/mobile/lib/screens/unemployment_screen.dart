@@ -409,7 +409,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
         Switch.adaptive(
           value: value,
           onChanged: onChanged,
-          activeColor: MintColors.primary,
+          activeTrackColor: MintColors.primary,
         ),
       ],
     );

@@ -1198,7 +1198,7 @@ class _DonationScreenState extends State<DonationScreen> {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: MintColors.primary,
+          activeTrackColor: MintColors.primary,
         ),
       ],
     );

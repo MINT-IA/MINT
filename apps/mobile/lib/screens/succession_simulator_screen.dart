@@ -1216,7 +1216,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: MintColors.primary,
+          activeTrackColor: MintColors.primary,
         ),
       ],
     );

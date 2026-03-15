@@ -31,7 +31,6 @@ import 'package:mint_mobile/screens/disability/disability_insurance_screen.dart'
 import 'package:mint_mobile/screens/disability/disability_self_employed_screen.dart';
 import 'package:mint_mobile/screens/job_comparison_screen.dart';
 import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
-import 'package:mint_mobile/screens/succession_simulator_screen.dart';
 import 'package:mint_mobile/screens/byok_settings_screen.dart';
 import 'package:mint_mobile/screens/slm_settings_screen.dart';
 import 'package:mint_mobile/screens/ask_mint_screen.dart';
@@ -44,7 +43,6 @@ import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/analytics_observer.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
-// coaching_screen.dart import removed — route superseded by coach/*
 import 'package:mint_mobile/screens/gender_gap_screen.dart';
 import 'package:mint_mobile/screens/frontalier_screen.dart';
 import 'package:mint_mobile/screens/independant_screen.dart';
@@ -56,33 +54,24 @@ import 'package:mint_mobile/screens/open_banking/consent_screen.dart';
 import 'package:mint_mobile/screens/lpp_deep/rachat_echelonne_screen.dart';
 import 'package:mint_mobile/screens/lpp_deep/libre_passage_screen.dart';
 import 'package:mint_mobile/screens/lpp_deep/epl_screen.dart';
-// Independants complet (Sprint S18)
 import 'package:mint_mobile/screens/independants/avs_cotisations_screen.dart';
 import 'package:mint_mobile/screens/independants/ijm_screen.dart';
 import 'package:mint_mobile/screens/independants/pillar_3a_indep_screen.dart';
 import 'package:mint_mobile/screens/independants/dividende_vs_salaire_screen.dart';
 import 'package:mint_mobile/screens/independants/lpp_volontaire_screen.dart';
-// Chomage + Premier emploi (Sprint S19)
 import 'package:mint_mobile/screens/unemployment_screen.dart';
 import 'package:mint_mobile/screens/first_job_screen.dart';
-// Fiscalite cantonale (Sprint S20)
 import 'package:mint_mobile/screens/fiscal_comparator_screen.dart';
-// Famille & Concubinage (Sprint S22)
 import 'package:mint_mobile/screens/mariage_screen.dart';
 import 'package:mint_mobile/screens/naissance_screen.dart';
 import 'package:mint_mobile/screens/concubinage_screen.dart';
-// Expatriation + Frontaliers (Sprint S23)
 import 'package:mint_mobile/screens/expat_screen.dart';
-// Report V2
 import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
-// Score Reveal (Post-Wizard)
 import 'package:mint_mobile/screens/advisor/score_reveal_screen.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
-// Housing Sale + Donation (Sprint S24)
 import 'package:mint_mobile/screens/housing_sale_screen.dart';
 import 'package:mint_mobile/screens/donation_screen.dart';
-// Mortgage screens (Sprint S16)
 import 'package:mint_mobile/screens/mortgage/affordability_screen.dart';
 import 'package:mint_mobile/screens/mortgage/amortization_screen.dart';
 import 'package:mint_mobile/screens/mortgage/epl_combined_screen.dart';
@@ -90,21 +79,16 @@ import 'package:mint_mobile/screens/mortgage/imputed_rental_screen.dart';
 import 'package:mint_mobile/screens/mortgage/saron_vs_fixed_screen.dart';
 import 'package:mint_mobile/screens/admin_observability_screen.dart';
 import 'package:mint_mobile/screens/admin_analytics_screen.dart';
-// Pillar 3a Deep (Sprint S17)
 import 'package:mint_mobile/screens/pillar_3a_deep/provider_comparator_screen.dart';
 import 'package:mint_mobile/screens/pillar_3a_deep/real_return_screen.dart';
 import 'package:mint_mobile/screens/pillar_3a_deep/staggered_withdrawal_screen.dart';
-// Debt Prevention (Sprint S13)
 import 'package:mint_mobile/screens/debt_prevention/debt_ratio_screen.dart';
 import 'package:mint_mobile/screens/debt_prevention/help_resources_screen.dart';
 import 'package:mint_mobile/screens/debt_prevention/repayment_screen.dart';
-// Timeline
 import 'package:mint_mobile/screens/timeline_screen.dart';
-// Coach screens (Sprint C5-C10, S44)
 import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
 import 'package:mint_mobile/screens/coach/optimisation_decaissement_screen.dart';
 import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
-// coach_agir_screen.dart import removed — merged into Mint tab (S49)
 import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/annual_refresh_screen.dart';
@@ -112,27 +96,20 @@ import 'package:mint_mobile/screens/coach/cockpit_detail_screen.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
-
 import 'package:mint_mobile/providers/user_activity_provider.dart';
-// Quick Start (Sprint S45 — Dashboard-First)
 import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
-// Arbitrage Phase 1 (Sprint S32)
 import 'package:mint_mobile/screens/arbitrage/arbitrage_bilan_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/allocation_annuelle_screen.dart';
-// Arbitrage Phase 2 (Sprint S33)
 import 'package:mint_mobile/screens/arbitrage/location_vs_propriete_screen.dart';
-import 'package:mint_mobile/screens/arbitrage/rachat_vs_marche_screen.dart';
-import 'package:mint_mobile/screens/arbitrage/calendrier_retraits_screen.dart';
 import 'package:mint_mobile/screens/confidence/confidence_dashboard_screen.dart';
 import 'package:mint_mobile/services/confidence/enhanced_confidence_service.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
 import 'package:mint_mobile/screens/document_scan/avs_guide_screen.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
-// Household / Couple+ (P6)
 import 'package:mint_mobile/providers/household_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/household/household_screen.dart';
@@ -140,10 +117,19 @@ import 'package:mint_mobile/screens/household/accept_invitation_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
-String? _guardDecisionScaffold() {
-  if (FeatureFlags.enableDecisionScaffold) return null;
-  return '/tools';
-}
+// ════════════════════════════════════════════════════════════
+//  ROUTER — S49 Phase 2: Simplified navigation
+// ════════════════════════════════════════════════════════════
+//
+//  Target: ~50 canonical routes + legacy redirects
+//  Feature flags removed for production-ready screens.
+//  OpenBanking + Admin flags preserved (post-V1 / dev-only).
+//
+//  Route naming convention:
+//    /retraite, /rente-vs-capital, /rachat-lpp, /epl, /pilier-3a,
+//    /hypotheque, /decaissement, /scan, /couple, /rapport,
+//    /invalidite, /divorce, /succession
+// ════════════════════════════════════════════════════════════
 
 final _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
@@ -151,11 +137,11 @@ final _router = GoRouter(
   initialLocation: '/',
   errorBuilder: (context, state) => _MintErrorScreen(error: state.error),
   routes: [
+    // ── Landing + Auth ────────────────────────────────────────
     GoRoute(
       path: '/',
       builder: (context, state) => const LandingScreen(),
     ),
-    // Auth Routes
     GoRoute(
       path: '/auth/login',
       builder: (context, state) => const LoginScreen(),
@@ -172,27 +158,69 @@ final _router = GoRouter(
       path: '/auth/verify-email',
       builder: (context, state) => const VerifyEmailScreen(),
     ),
-    // Main Dashboard (Shell with internal tabs)
+
+    // ── Main Shell (3 tabs: Pulse, Mint, Moi) ────────────────
     GoRoute(
       path: '/home',
       builder: (context, state) => const MainNavigationShell(),
     ),
-    // Coach routes (Sprint C10)
+
+    // ── RETRAITE & PREVOYANCE ────────────────────────────────
     GoRoute(
-      path: '/coach/dashboard',
+      path: '/retraite',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RetirementDashboardScreen(),
     ),
-    // Legacy: Agir tab merged into Mint (tab 1) in S49
+    // Legacy redirects
+    GoRoute(path: '/coach/dashboard', redirect: (_, __) => '/retraite'),
+    GoRoute(path: '/retirement', redirect: (_, __) => '/retraite'),
+    GoRoute(path: '/retirement/projection', redirect: (_, __) => '/retraite'),
+
     GoRoute(
-      path: '/coach/agir',
+      path: '/rente-vs-capital',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => '/home',
+      builder: (context, state) => const RenteVsCapitalScreen(),
+    ),
+    GoRoute(path: '/arbitrage/rente-vs-capital', redirect: (_, __) => '/rente-vs-capital'),
+    GoRoute(path: '/simulator/rente-capital', redirect: (_, __) => '/rente-vs-capital'),
+
+    GoRoute(
+      path: '/rachat-lpp',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const RachatEchelonneScreen(),
+    ),
+    GoRoute(path: '/lpp-deep/rachat', redirect: (_, __) => '/rachat-lpp'),
+    GoRoute(path: '/arbitrage/rachat-vs-marche', redirect: (_, __) => '/rachat-lpp'),
+
+    GoRoute(
+      path: '/epl',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const EplScreen(),
+    ),
+    GoRoute(path: '/lpp-deep/epl', redirect: (_, __) => '/epl'),
+
+    GoRoute(
+      path: '/decaissement',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const OptimisationDecaissementScreen(),
+    ),
+    GoRoute(path: '/coach/decaissement', redirect: (_, __) => '/decaissement'),
+    GoRoute(path: '/arbitrage/calendrier-retraits', redirect: (_, __) => '/decaissement'),
+
+    GoRoute(
+      path: '/coach/cockpit',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CockpitDetailScreen(),
     ),
     GoRoute(
       path: '/coach/checkin',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const CoachCheckinScreen(),
+    ),
+    GoRoute(
+      path: '/coach/refresh',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AnnualRefreshScreen(),
     ),
     GoRoute(
       path: '/coach/chat',
@@ -203,60 +231,292 @@ final _router = GoRouter(
       },
     ),
     GoRoute(
-      path: '/coach/refresh',
+      path: '/succession',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableCoachPhase2 ? null : '/',
-      builder: (context, state) => const AnnualRefreshScreen(),
-    ),
-    GoRoute(
-      path: '/coach/cockpit',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const CockpitDetailScreen(),
-    ),
-    // Phase 2 — AgeBand 65+ (Sprint S44)
-    GoRoute(
-      path: '/coach/decaissement',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableCoachPhase2 ? null : '/',
-      builder: (context, state) => const OptimisationDecaissementScreen(),
-    ),
-    GoRoute(
-      path: '/coach/succession',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableCoachPhase2 ? null : '/',
       builder: (context, state) => const SuccessionPatrimoineScreen(),
     ),
-    // Feature Routes (Full Screen)
+    GoRoute(path: '/coach/succession', redirect: (_, __) => '/succession'),
+    GoRoute(path: '/life-event/succession', redirect: (_, __) => '/succession'),
+
     GoRoute(
-      path: '/advisor',
-      redirect: (context, state) => '/onboarding/quick',
-      builder: (context, state) => const SizedBox.shrink(),
+      path: '/libre-passage',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const LibrePassageScreen(),
+    ),
+    GoRoute(path: '/lpp-deep/libre-passage', redirect: (_, __) => '/libre-passage'),
+
+    // ── FISCALITE ────────────────────────────────────────────
+    GoRoute(
+      path: '/pilier-3a',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const Simulator3aScreen(),
+    ),
+    GoRoute(path: '/simulator/3a', redirect: (_, __) => '/pilier-3a'),
+
+    GoRoute(
+      path: '/3a-deep/comparator',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ProviderComparatorScreen(),
     ),
     GoRoute(
-      path: '/advisor/plan-30-days',
-      redirect: (context, state) => '/home',
-      builder: (context, state) => const SizedBox.shrink(),
+      path: '/3a-deep/real-return',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const RealReturnScreen(),
     ),
     GoRoute(
-      path: '/advisor/wizard',
-      redirect: (context, state) {
-        final section = state.uri.queryParameters['section'];
-        if (section == null || section.isEmpty) return '/onboarding/quick';
-        return '/onboarding/quick?section=$section';
+      path: '/3a-deep/staggered-withdrawal',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const StaggeredWithdrawalScreen(),
+    ),
+    GoRoute(
+      path: '/fiscal',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const FiscalComparatorScreen(),
+    ),
+
+    // ── IMMOBILIER ───────────────────────────────────────────
+    GoRoute(
+      path: '/hypotheque',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AffordabilityScreen(),
+    ),
+    GoRoute(path: '/mortgage/affordability', redirect: (_, __) => '/hypotheque'),
+
+    GoRoute(
+      path: '/mortgage/amortization',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AmortizationScreen(),
+    ),
+    GoRoute(
+      path: '/mortgage/epl-combined',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const EplCombinedScreen(),
+    ),
+    GoRoute(
+      path: '/mortgage/imputed-rental',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ImputedRentalScreen(),
+    ),
+    GoRoute(
+      path: '/mortgage/saron-vs-fixed',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const SaronVsFixedScreen(),
+    ),
+
+    // ── BUDGET & DETTE ───────────────────────────────────────
+    GoRoute(
+      path: '/budget',
+      builder: (context, state) => const BudgetContainerScreen(),
+    ),
+    GoRoute(
+      path: '/check/debt',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DebtRiskCheckScreen(),
+    ),
+    GoRoute(
+      path: '/debt/ratio',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DebtRatioScreen(),
+    ),
+    GoRoute(
+      path: '/debt/help',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const HelpResourcesScreen(),
+    ),
+    GoRoute(
+      path: '/debt/repayment',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const RepaymentScreen(),
+    ),
+
+    // ── FAMILLE ──────────────────────────────────────────────
+    GoRoute(
+      path: '/divorce',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DivorceSimulatorScreen(),
+    ),
+    GoRoute(path: '/life-event/divorce', redirect: (_, __) => '/divorce'),
+
+    GoRoute(
+      path: '/mariage',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const MariageScreen(),
+    ),
+    GoRoute(
+      path: '/naissance',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const NaissanceScreen(),
+    ),
+    GoRoute(
+      path: '/concubinage',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ConcubinageScreen(),
+    ),
+
+    // ── EMPLOI & STATUT ──────────────────────────────────────
+    GoRoute(
+      path: '/unemployment',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const UnemploymentScreen(),
+    ),
+    GoRoute(
+      path: '/first-job',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const FirstJobScreen(),
+    ),
+    GoRoute(
+      path: '/expatriation',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ExpatScreen(),
+    ),
+    GoRoute(
+      path: '/simulator/job-comparison',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const JobComparisonScreen(),
+    ),
+
+    // ── INDEPENDANTS ─────────────────────────────────────────
+    GoRoute(
+      path: '/segments/independant',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const IndependantScreen(),
+    ),
+    GoRoute(
+      path: '/independants/avs',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AvsCotisationsScreen(),
+    ),
+    GoRoute(
+      path: '/independants/ijm',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const IjmScreen(),
+    ),
+    GoRoute(
+      path: '/independants/3a',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const Pillar3aIndepScreen(),
+    ),
+    GoRoute(
+      path: '/independants/dividende-salaire',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DividendeVsSalaireScreen(),
+    ),
+    GoRoute(
+      path: '/independants/lpp-volontaire',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const LppVolontaireScreen(),
+    ),
+
+    // ── ASSURANCE & SANTE ────────────────────────────────────
+    GoRoute(
+      path: '/invalidite',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DisabilityGapScreen(),
+    ),
+    GoRoute(path: '/disability/gap', redirect: (_, __) => '/invalidite'),
+    GoRoute(path: '/simulator/disability-gap', redirect: (_, __) => '/invalidite'),
+
+    GoRoute(
+      path: '/disability/insurance',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DisabilityInsuranceScreen(),
+    ),
+    GoRoute(
+      path: '/disability/self-employed',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DisabilitySelfEmployedScreen(),
+    ),
+    GoRoute(
+      path: '/assurances/lamal',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const LamalFranchiseScreen(),
+    ),
+    GoRoute(
+      path: '/assurances/coverage',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CoverageCheckScreen(),
+    ),
+
+    // ── DOCUMENTS & SCAN ─────────────────────────────────────
+    GoRoute(
+      path: '/scan',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final extra = state.extra;
+        final initialType = extra is DocumentType ? extra : null;
+        return DocumentScanScreen(initialType: initialType);
       },
     ),
+    GoRoute(path: '/document-scan', redirect: (_, __) => '/scan'),
+
+    GoRoute(
+      path: '/scan/avs-guide',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AvsGuideScreen(),
+    ),
+    GoRoute(path: '/document-scan/avs-guide', redirect: (_, __) => '/scan/avs-guide'),
+
+    GoRoute(
+      path: '/documents',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DocumentsScreen(),
+    ),
+    GoRoute(
+      path: '/documents/:id',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return DocumentDetailScreen(documentId: id);
+      },
+    ),
+
+    // ── COUPLE ────────────────────────────────────────────────
+    GoRoute(
+      path: '/couple',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const HouseholdScreen(),
+    ),
+    GoRoute(path: '/household', redirect: (_, __) => '/couple'),
+
+    GoRoute(
+      path: '/couple/accept',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final code = state.uri.queryParameters['code'];
+        return AcceptInvitationScreen(initialCode: code);
+      },
+    ),
+    GoRoute(path: '/household/accept', redirect: (context, state) {
+      final code = state.uri.queryParameters['code'];
+      return code != null ? '/couple/accept?code=$code' : '/couple/accept';
+    }),
+
+    // ── RAPPORT & PROFIL ─────────────────────────────────────
+    GoRoute(
+      path: '/rapport',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>? ?? {};
+        return FinancialReportScreenV2(wizardAnswers: extra);
+      },
+    ),
+    GoRoute(path: '/report', redirect: (_, __) => '/rapport'),
+    GoRoute(path: '/report/v2', redirect: (_, __) => '/rapport'),
+
     GoRoute(
       path: '/profile',
       builder: (context, state) => const ProfileScreen(),
       routes: [
         GoRoute(
           path: 'admin-observability',
-          redirect: (context, state) => FeatureFlags.enableAdminScreens ? null : '/',
+          redirect: (context, state) =>
+              FeatureFlags.enableAdminScreens ? null : '/',
           builder: (context, state) => const AdminObservabilityScreen(),
         ),
         GoRoute(
           path: 'admin-analytics',
-          redirect: (context, state) => FeatureFlags.enableAdminScreens ? null : '/',
+          redirect: (context, state) =>
+              FeatureFlags.enableAdminScreens ? null : '/',
           builder: (context, state) => const AdminAnalyticsScreen(),
         ),
         GoRoute(
@@ -277,185 +537,8 @@ final _router = GoRouter(
         ),
       ],
     ),
-    GoRoute(
-      path: '/ask-mint',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const AskMintScreen(),
-    ),
-    // Documents
-    GoRoute(
-      path: '/documents',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const DocumentsScreen(),
-    ),
-    GoRoute(
-      path: '/documents/:id',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final id = state.pathParameters['id']!;
-        return DocumentDetailScreen(documentId: id);
-      },
-    ),
-    GoRoute(
-      path: '/document-scan',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final extra = state.extra;
-        final initialType = extra is DocumentType ? extra : null;
-        return DocumentScanScreen(initialType: initialType);
-      },
-    ),
-    GoRoute(
-      path: '/document-scan/avs-guide',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const AvsGuideScreen(),
-    ),
-    // Bank Import
-    GoRoute(
-      path: '/bank-import',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const BankImportScreen(),
-    ),
-    // Household / Couple+ (P6)
-    GoRoute(
-      path: '/household',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const HouseholdScreen(),
-    ),
-    GoRoute(
-      path: '/household/accept',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final code = state.uri.queryParameters['code'];
-        return AcceptInvitationScreen(initialCode: code);
-      },
-    ),
-    GoRoute(
-      path: '/budget',
-      builder: (context, state) => const BudgetContainerScreen(),
-    ),
-    // Simulateurs...
-    GoRoute(
-      path: '/simulator/compound',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableAdvancedSimulators ? null : '/',
-      builder: (context, state) => const SimulatorCompoundScreen(),
-    ),
-    GoRoute(
-      path: '/simulator/leasing',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableAdvancedSimulators ? null : '/',
-      builder: (context, state) => const SimulatorLeasingScreen(),
-    ),
-    GoRoute(
-      path: '/simulator/3a',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const Simulator3aScreen(),
-    ),
-    GoRoute(
-      path: '/simulator/credit',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableAdvancedSimulators ? null : '/',
-      builder: (context, state) => const ConsumerCreditSimulatorScreen(),
-    ),
-    GoRoute(
-      path: '/simulator/rente-capital',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => '/arbitrage/rente-vs-capital',
-      builder: (context, state) => const SizedBox.shrink(),
-    ),
-    GoRoute(
-      path: '/simulator/disability-gap',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => '/disability/gap',
-    ),
-    // ── Disability screens (P4) ─────────────────────────────
-    GoRoute(
-      path: '/disability/gap',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
-      builder: (context, state) => const DisabilityGapScreen(),
-    ),
-    GoRoute(
-      path: '/disability/insurance',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
-      builder: (context, state) => const DisabilityInsuranceScreen(),
-    ),
-    GoRoute(
-      path: '/disability/self-employed',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
-      builder: (context, state) => const DisabilitySelfEmployedScreen(),
-    ),
-    GoRoute(
-      path: '/simulator/job-comparison',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const JobComparisonScreen(),
-    ),
-    // Life Events
-    GoRoute(
-      path: '/life-event/divorce',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
-      builder: (context, state) => const DivorceSimulatorScreen(),
-    ),
-    GoRoute(
-      path: '/life-event/succession',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
-      builder: (context, state) => const SuccessionSimulatorScreen(),
-    ),
-    GoRoute(
-      path: '/check/debt',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const DebtRiskCheckScreen(),
-    ),
-    GoRoute(
-      path: '/portfolio',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const PortfolioScreen(),
-    ),
-    GoRoute(
-      path: '/report',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => '/report/v2',
-    ),
-    GoRoute(
-      path: '/report/v2',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>? ?? {};
-        return FinancialReportScreenV2(wizardAnswers: extra);
-      },
-    ),
-    // Score Reveal (Post-Wizard animation)
-    GoRoute(
-      path: '/score-reveal',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        if (extra != null &&
-            extra['score'] is FinancialFitnessScore &&
-            extra['profile'] is CoachProfile) {
-          return ScoreRevealScreen(
-            score: extra['score'] as FinancialFitnessScore,
-            profile: extra['profile'] as CoachProfile,
-            wizardAnswers:
-                extra['wizardAnswers'] as Map<String, dynamic>? ?? {},
-          );
-        }
-        // Fallback: navigate home if data is missing
-        return const MainNavigationShell();
-      },
-    ),
-    GoRoute(
-      path: '/tools',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const ToolsLibraryScreen(),
-    ),
-    // /coaching route removed (legacy)
-    // Segments sociologiques
+
+    // ── SEGMENTS ─────────────────────────────────────────────
     GoRoute(
       path: '/segments/gender-gap',
       parentNavigatorKey: _rootNavigatorKey,
@@ -464,162 +547,20 @@ final _router = GoRouter(
     GoRoute(
       path: '/segments/frontalier',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const FrontalierScreen(),
     ),
     GoRoute(
-      path: '/segments/independant',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableIndependantTools ? null : '/',
-      builder: (context, state) => const IndependantScreen(),
-    ),
-    // Assurances
-    GoRoute(
-      path: '/assurances/lamal',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const LamalFranchiseScreen(),
-    ),
-    GoRoute(
-      path: '/assurances/coverage',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const CoverageCheckScreen(),
-    ),
-    // Open Banking (Sprint S14 — FINMA gate)
-    GoRoute(
-      path: '/open-banking',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableOpenBanking ? null : '/',
-      builder: (context, state) => const OpenBankingHubScreen(),
-    ),
-    GoRoute(
-      path: '/open-banking/transactions',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableOpenBanking ? null : '/',
-      builder: (context, state) => const TransactionListScreen(),
-    ),
-    GoRoute(
-      path: '/open-banking/consents',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableOpenBanking ? null : '/',
-      builder: (context, state) => const ConsentScreen(),
-    ),
-    // LPP Deep (Sprint S15 — Chantier 4)
-    GoRoute(
-      path: '/lpp-deep/rachat',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const RachatEchelonneScreen(),
-    ),
-    GoRoute(
-      path: '/lpp-deep/libre-passage',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const LibrePassageScreen(),
-    ),
-    GoRoute(
-      path: '/lpp-deep/epl',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const EplScreen(),
-    ),
-    // Independants complet (Sprint S18)
-    GoRoute(
-      path: '/independants/avs',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableIndependantTools ? null : '/',
-      builder: (context, state) => const AvsCotisationsScreen(),
-    ),
-    GoRoute(
-      path: '/independants/ijm',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableIndependantTools ? null : '/',
-      builder: (context, state) => const IjmScreen(),
-    ),
-    GoRoute(
-      path: '/independants/3a',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableIndependantTools ? null : '/',
-      builder: (context, state) => const Pillar3aIndepScreen(),
-    ),
-    GoRoute(
-      path: '/independants/dividende-salaire',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableIndependantTools ? null : '/',
-      builder: (context, state) => const DividendeVsSalaireScreen(),
-    ),
-    GoRoute(
-      path: '/independants/lpp-volontaire',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableIndependantTools ? null : '/',
-      builder: (context, state) => const LppVolontaireScreen(),
-    ),
-    // Chomage + Premier emploi (Sprint S19)
-    GoRoute(
-      path: '/unemployment',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const UnemploymentScreen(),
-    ),
-    GoRoute(
-      path: '/first-job',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const FirstJobScreen(),
-    ),
-    // Fiscalite cantonale (Sprint S20)
-    GoRoute(
-      path: '/fiscal',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const FiscalComparatorScreen(),
-    ),
-    // Retraite complete (Sprint S21)
-    GoRoute(
-      path: '/retirement',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => '/coach/dashboard',
-      builder: (context, state) => const SizedBox.shrink(),
-    ),
-    GoRoute(
-      path: '/retirement/projection',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => '/coach/cockpit',
-      builder: (context, state) => const SizedBox.shrink(),
-    ),
-    // Famille & Concubinage (Sprint S22)
-    GoRoute(
-      path: '/mariage',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
-      builder: (context, state) => const MariageScreen(),
-    ),
-    GoRoute(
-      path: '/naissance',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
-      builder: (context, state) => const NaissanceScreen(),
-    ),
-    GoRoute(
-      path: '/concubinage',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
-      builder: (context, state) => const ConcubinageScreen(),
-    ),
-    // Expatriation (Sprint S23)
-    GoRoute(
-      path: '/expatriation',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
-      builder: (context, state) => const ExpatScreen(),
-    ),
-    // Housing Sale + Donation (Sprint S24)
-    GoRoute(
       path: '/life-event/housing-sale',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const HousingSaleScreen(),
     ),
     GoRoute(
       path: '/life-event/donation',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const DonationScreen(),
     ),
-    // Education Hub
+
+    // ── EDUCATION ────────────────────────────────────────────
     GoRoute(
       path: '/education/hub',
       parentNavigatorKey: _rootNavigatorKey,
@@ -633,108 +574,61 @@ final _router = GoRouter(
         return ThemeDetailScreen(themeId: id);
       },
     ),
-    // Mortgage (Sprint S16)
+
+    // ── SIMULATEURS (accessibles directement) ────────────────
     GoRoute(
-      path: '/mortgage/affordability',
+      path: '/simulator/compound',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableMortgageTools ? null : '/',
-      builder: (context, state) => const AffordabilityScreen(),
+      builder: (context, state) => const SimulatorCompoundScreen(),
     ),
     GoRoute(
-      path: '/mortgage/amortization',
+      path: '/simulator/leasing',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableMortgageTools ? null : '/',
-      builder: (context, state) => const AmortizationScreen(),
+      builder: (context, state) => const SimulatorLeasingScreen(),
     ),
     GoRoute(
-      path: '/mortgage/epl-combined',
+      path: '/simulator/credit',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableMortgageTools ? null : '/',
-      builder: (context, state) => const EplCombinedScreen(),
+      builder: (context, state) => const ConsumerCreditSimulatorScreen(),
+    ),
+
+    // ── ARBITRAGE (restants) ─────────────────────────────────
+    GoRoute(
+      path: '/arbitrage/bilan',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ArbitrageBilanScreen(),
     ),
     GoRoute(
-      path: '/mortgage/imputed-rental',
+      path: '/arbitrage/allocation-annuelle',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableMortgageTools ? null : '/',
-      builder: (context, state) => const ImputedRentalScreen(),
+      builder: (context, state) => const AllocationAnnuelleScreen(),
     ),
     GoRoute(
-      path: '/mortgage/saron-vs-fixed',
+      path: '/arbitrage/location-vs-propriete',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableMortgageTools ? null : '/',
-      builder: (context, state) => const SaronVsFixedScreen(),
+      builder: (context, state) => const LocationVsProprieteScreen(),
     ),
-    // Pillar 3a Deep (Sprint S17)
+
+    // ── OUTILS & DIVERS ─────────────────────────────────────
     GoRoute(
-      path: '/3a-deep/comparator',
+      path: '/ask-mint',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableAdvancedSimulators ? null : '/',
-      builder: (context, state) => const ProviderComparatorScreen(),
-    ),
-    GoRoute(
-      path: '/3a-deep/real-return',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableAdvancedSimulators ? null : '/',
-      builder: (context, state) => const RealReturnScreen(),
+      builder: (context, state) => const AskMintScreen(),
     ),
     GoRoute(
-      path: '/3a-deep/staggered-withdrawal',
+      path: '/tools',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableAdvancedSimulators ? null : '/',
-      builder: (context, state) => const StaggeredWithdrawalScreen(),
-    ),
-    // Debt Prevention (Sprint S13)
-    GoRoute(
-      path: '/debt/ratio',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const DebtRatioScreen(),
+      builder: (context, state) => const ToolsLibraryScreen(),
     ),
     GoRoute(
-      path: '/debt/help',
+      path: '/portfolio',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const HelpResourcesScreen(),
+      builder: (context, state) => const PortfolioScreen(),
     ),
     GoRoute(
-      path: '/debt/repayment',
+      path: '/timeline',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const RepaymentScreen(),
-    ),
-    // === Onboarding ===
-    // Quick Start is the sole onboarding entry point.
-    // Legacy routes (/onboarding/smart, /onboarding/minimal) redirect here.
-    GoRoute(
-      path: '/onboarding/quick',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const QuickStartScreen(),
-    ),
-    GoRoute(
-      path: '/onboarding/smart',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => '/onboarding/quick',
-    ),
-    GoRoute(
-      path: '/onboarding/minimal',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => '/onboarding/quick',
-    ),
-    GoRoute(
-      path: '/onboarding/chiffre-choc',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const ChiffreChocScreen(),
-    ),
-    GoRoute(
-      path: '/onboarding/enrichment',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => '/profile/bilan',
-    ),
-    // Data Block Enrichment (P8 Phase 3)
-    GoRoute(
-      path: '/data-block/:type',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final type = state.pathParameters['type'] ?? 'revenu';
-        return DataBlockEnrichmentScreen(blockType: type);
-      },
+      builder: (context, state) => const TimelineScreen(),
     ),
     GoRoute(
       path: '/confidence',
@@ -750,53 +644,91 @@ final _router = GoRouter(
         return ConfidenceDashboardScreen(result: result);
       },
     ),
-    // Timeline
     GoRoute(
-      path: '/timeline',
+      path: '/score-reveal',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const TimelineScreen(),
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        if (extra != null &&
+            extra['score'] is FinancialFitnessScore &&
+            extra['profile'] is CoachProfile) {
+          return ScoreRevealScreen(
+            score: extra['score'] as FinancialFitnessScore,
+            profile: extra['profile'] as CoachProfile,
+            wizardAnswers:
+                extra['wizardAnswers'] as Map<String, dynamic>? ?? {},
+          );
+        }
+        return const MainNavigationShell();
+      },
     ),
-    // Arbitrage Bilan (Sprint S45)
+
+    // ── ONBOARDING ───────────────────────────────────────────
     GoRoute(
-      path: '/arbitrage/bilan',
+      path: '/onboarding/quick',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => _guardDecisionScaffold(),
-      builder: (context, state) => const ArbitrageBilanScreen(),
-    ),
-    // Arbitrage Phase 1 (Sprint S32)
-    GoRoute(
-      path: '/arbitrage/rente-vs-capital',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => _guardDecisionScaffold(),
-      builder: (context, state) => const RenteVsCapitalScreen(),
-    ),
-    GoRoute(
-      path: '/arbitrage/allocation-annuelle',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => _guardDecisionScaffold(),
-      builder: (context, state) => const AllocationAnnuelleScreen(),
-    ),
-    // Arbitrage Phase 2 (Sprint S33)
-    GoRoute(
-      path: '/arbitrage/location-vs-propriete',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => _guardDecisionScaffold(),
-      builder: (context, state) => const LocationVsProprieteScreen(),
+      builder: (context, state) => const QuickStartScreen(),
     ),
     GoRoute(
-      path: '/arbitrage/rachat-vs-marche',
+      path: '/onboarding/chiffre-choc',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => _guardDecisionScaffold(),
-      builder: (context, state) => const RachatVsMarcheScreen(),
+      builder: (context, state) => const ChiffreChocScreen(),
     ),
     GoRoute(
-      path: '/arbitrage/calendrier-retraits',
+      path: '/data-block/:type',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => _guardDecisionScaffold(),
-      builder: (context, state) => const CalendrierRetraitsScreen(),
+      builder: (context, state) {
+        final type = state.pathParameters['type'] ?? 'revenu';
+        return DataBlockEnrichmentScreen(blockType: type);
+      },
     ),
+
+    // ── OPEN BANKING (post-V1, FINMA gate) ───────────────────
+    GoRoute(
+      path: '/open-banking',
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) =>
+          FeatureFlags.enableOpenBanking ? null : '/',
+      builder: (context, state) => const OpenBankingHubScreen(),
+    ),
+    GoRoute(
+      path: '/open-banking/transactions',
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) =>
+          FeatureFlags.enableOpenBanking ? null : '/',
+      builder: (context, state) => const TransactionListScreen(),
+    ),
+    GoRoute(
+      path: '/open-banking/consents',
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) =>
+          FeatureFlags.enableOpenBanking ? null : '/',
+      builder: (context, state) => const ConsentScreen(),
+    ),
+    GoRoute(
+      path: '/bank-import',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const BankImportScreen(),
+    ),
+
+    // ── LEGACY REDIRECTS (backwards compat) ──────────────────
+    GoRoute(path: '/advisor', redirect: (_, __) => '/onboarding/quick'),
+    GoRoute(path: '/advisor/plan-30-days', redirect: (_, __) => '/home'),
+    GoRoute(path: '/advisor/wizard', redirect: (context, state) {
+      final section = state.uri.queryParameters['section'];
+      if (section == null || section.isEmpty) return '/onboarding/quick';
+      return '/onboarding/quick?section=$section';
+    }),
+    GoRoute(path: '/coach/agir', redirect: (_, __) => '/home'),
+    GoRoute(path: '/onboarding/smart', redirect: (_, __) => '/onboarding/quick'),
+    GoRoute(path: '/onboarding/minimal', redirect: (_, __) => '/onboarding/quick'),
+    GoRoute(path: '/onboarding/enrichment', redirect: (_, __) => '/profile/bilan'),
   ],
 );
+
+// ════════════════════════════════════════════════════════════
+//  APP
+// ════════════════════════════════════════════════════════════
 
 class MintApp extends StatefulWidget {
   const MintApp({super.key});
@@ -810,9 +742,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    // Initialize analytics service
     AnalyticsService().init();
-    // Initialize local notifications for coaching reminders
     NotificationService().init();
   }
 
@@ -826,9 +756,6 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.detached) {
-      // Release SLM model (~2 GB RAM) when app goes to background.
-      // The model will be re-initialized on next use.
-      // Use singleton directly here (no BuildContext in lifecycle callback).
       if (SlmEngine.instance.isAvailable) {
         SlmEngine.instance.dispose();
       }
@@ -891,7 +818,6 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
 }
 
 ThemeData _buildPremiumTheme() {
-  // Inter for UI, Outfit for Headlines (Premium Modern combination)
   final textTheme = GoogleFonts.interTextTheme(ThemeData.light().textTheme);
 
   return ThemeData(
@@ -909,21 +835,21 @@ ThemeData _buildPremiumTheme() {
       outline: MintColors.border,
     ),
     textTheme: textTheme.copyWith(
-      displayLarge: GoogleFonts.outfit(
+      displayLarge: GoogleFonts.montserrat(
         textStyle: textTheme.displayLarge?.copyWith(
           fontWeight: FontWeight.w700,
           letterSpacing: -1.5,
           color: MintColors.textPrimary,
         ),
       ),
-      headlineLarge: GoogleFonts.outfit(
+      headlineLarge: GoogleFonts.montserrat(
         textStyle: textTheme.headlineLarge?.copyWith(
           fontWeight: FontWeight.w700,
           letterSpacing: -1.0,
           color: MintColors.textPrimary,
         ),
       ),
-      headlineMedium: GoogleFonts.outfit(
+      headlineMedium: GoogleFonts.montserrat(
         textStyle: textTheme.headlineMedium?.copyWith(
           fontWeight: FontWeight.w600,
           letterSpacing: -0.5,
@@ -949,10 +875,10 @@ ThemeData _buildPremiumTheme() {
       backgroundColor: Colors.white,
       elevation: 0,
       scrolledUnderElevation: 0,
-      centerTitle: false, // Apple style left-aligned
+      centerTitle: false,
       titleTextStyle: TextStyle(
         fontWeight: FontWeight.w700,
-        fontFamily: 'Outfit',
+        fontFamily: 'Montserrat',
         color: MintColors.textPrimary,
         fontSize: 20,
         letterSpacing: -0.5,
@@ -1012,7 +938,8 @@ ThemeData _buildPremiumTheme() {
         borderRadius: BorderRadius.circular(16),
         borderSide: const BorderSide(color: MintColors.primary, width: 1.5),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      contentPadding:
+          const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
     ),
     dividerTheme: const DividerThemeData(
       color: MintColors.lightBorder,
@@ -1044,7 +971,7 @@ class _MintErrorScreen extends StatelessWidget {
                   size: 64, color: Colors.grey),
               const SizedBox(height: 24),
               const Text(
-                'Cette page n\'existe pas ou a ete deplacee.',
+                'Cette page n\'existe pas ou a été déplacée.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16, color: Colors.black87),
               ),
@@ -1052,7 +979,7 @@ class _MintErrorScreen extends StatelessWidget {
               FilledButton.icon(
                 onPressed: () => context.go('/home'),
                 icon: const Icon(Icons.home_outlined),
-                label: const Text('Retour a l\'accueil'),
+                label: const Text('Retour à l\'accueil'),
               ),
             ],
           ),

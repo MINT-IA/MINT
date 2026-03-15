@@ -449,7 +449,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
               ),
               Switch(
                 value: _bienAncien,
-                activeColor: MintColors.primary,
+                activeTrackColor: MintColors.primary,
                 onChanged: (v) => setState(() => _bienAncien = v),
               ),
             ],

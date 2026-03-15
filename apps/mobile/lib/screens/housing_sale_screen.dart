@@ -1064,7 +1064,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: MintColors.primary,
+          activeTrackColor: MintColors.primary,
         ),
       ],
     );

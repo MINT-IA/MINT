@@ -50,10 +50,10 @@ class FullscreenChartWrapper extends StatelessWidget {
         fullscreenDialog: true,
         builder: (_) => _FullscreenChartPage(
           title: title,
-          child: child,
           disclaimer: disclaimer,
           legend: legend,
           allowLandscape: allowLandscape,
+          child: child,
         ),
       ),
     );
