@@ -125,7 +125,7 @@ void main() {
     testWidgets('shows disclaimer with LSFin', (tester) async {
       await openPaywall(tester);
       expect(find.textContaining('LSFin'), findsOneWidget);
-      expect(find.textContaining('educatif'), findsWidgets);
+      expect(find.textContaining('éducatif'), findsWidgets);
     });
 
     testWidgets('shows trial badge', (tester) async {

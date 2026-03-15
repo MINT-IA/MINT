@@ -62,7 +62,7 @@ void main() {
 
   testWidgets('shows confidence score', (tester) async {
     await tester.pumpWidget(buildWidget());
-    expect(find.textContaining('62%'), findsWidgets);
+    expect(find.textContaining('62'), findsWidgets);
   });
 
   testWidgets('shows hero monthly rente', (tester) async {

@@ -148,7 +148,7 @@ void main() {
 
       expect(result['dureeSemaines'], 14);
       expect(result['dureeJours'], 98);
-      expect(result['type'], 'Maternite');
+      expect(result['type'], 'maternity');
     });
 
     test('paternity leave is 2 weeks / 14 days indemnised', () {
@@ -159,7 +159,7 @@ void main() {
 
       expect(result['dureeSemaines'], 2);
       expect(result['joursIndemnises'], 14);
-      expect(result['type'], 'Paternite');
+      expect(result['type'], 'paternity');
     });
 
     test('APG is 80% of daily salary', () {

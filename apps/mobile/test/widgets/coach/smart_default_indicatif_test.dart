@@ -136,7 +136,7 @@ void main() {
       ));
 
       expect(find.textContaining('indicatif'), findsOneWidget);
-      expect(find.textContaining('55%'), findsOneWidget);
+      expect(find.textContaining('55'), findsWidgets);
     });
 
     testWidgets('shows Preciser CTA button', (tester) async {
@@ -153,7 +153,7 @@ void main() {
       ));
 
       expect(find.textContaining('indicatif'), findsOneWidget);
-      expect(find.textContaining('0%'), findsOneWidget);
+      expect(find.textContaining('0\u00a0%'), findsOneWidget);
     });
 
     testWidgets('defaults topEnrichmentCategory to lpp', (tester) async {

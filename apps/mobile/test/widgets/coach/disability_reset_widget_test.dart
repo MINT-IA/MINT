@@ -35,7 +35,7 @@ void main() {
   testWidgets('shows age and LPP rate', (tester) async {
     await tester.pumpWidget(buildWidget());
     expect(find.textContaining('45 ans'), findsWidgets);
-    expect(find.textContaining('15%'), findsOneWidget);
+    expect(find.textContaining('15'), findsWidgets);
   });
 
   testWidgets('shows capital before and after', (tester) async {

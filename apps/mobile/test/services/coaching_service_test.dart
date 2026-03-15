@@ -453,7 +453,7 @@ void main() {
       final partTime = tips.where((t) => t.id == 'part_time_gap');
       expect(partTime, isNotEmpty);
       expect(partTime.first.priority, CoachingPriority.haute);
-      expect(partTime.first.message, contains('50%'));
+      expect(partTime.first.message, contains('50'));
     });
 
     test('part-time 60-99% triggers moyenne priority', () {

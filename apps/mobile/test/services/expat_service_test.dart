@@ -108,7 +108,7 @@ void main() {
       );
 
       expect(r['disclaimer'] as String, isNotEmpty);
-      expect(r['disclaimer'] as String, contains('educatif'));
+      expect(r['disclaimer'] as String, contains('éducatif'));
     });
   });
 

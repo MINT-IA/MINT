@@ -218,7 +218,7 @@ void main() {
     testWidgets('renders with minimal profile', (tester) async {
       final profile = buildMinimalProfile();
       await tester.pumpWidget(
-        buildSimpleApp(child: LowConfidenceCard(profile: profile)),
+        buildLocalizedApp(child: LowConfidenceCard(profile: profile)),
       );
       await tester.pump(const Duration(seconds: 1));
 
@@ -229,7 +229,7 @@ void main() {
         (tester) async {
       final profile = buildMinimalProfile();
       await tester.pumpWidget(
-        buildSimpleApp(child: LowConfidenceCard(profile: profile)),
+        buildLocalizedApp(child: LowConfidenceCard(profile: profile)),
       );
       await tester.pump(const Duration(seconds: 1));
 
@@ -242,7 +242,7 @@ void main() {
     testWidgets('shows info icon and header text', (tester) async {
       final profile = buildMinimalProfile();
       await tester.pumpWidget(
-        buildSimpleApp(child: LowConfidenceCard(profile: profile)),
+        buildLocalizedApp(child: LowConfidenceCard(profile: profile)),
       );
       await tester.pump(const Duration(seconds: 1));
 

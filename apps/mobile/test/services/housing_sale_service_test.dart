@@ -437,7 +437,7 @@ void main() {
         canton: 'ZH',
       );
 
-      expect(result.disclaimer, contains('outil educatif'));
+      expect(result.disclaimer, contains('outil éducatif'));
       expect(result.disclaimer, contains('LSFin'));
     });
 
@@ -478,7 +478,7 @@ void main() {
         epl3aUtilise: 20000,
         residencePrincipale: true,
       );
-      expect(resultNegatif.chiffreChoc, contains('negatif'));
+      expect(resultNegatif.chiffreChoc, contains('négatif'));
     });
   });
 }

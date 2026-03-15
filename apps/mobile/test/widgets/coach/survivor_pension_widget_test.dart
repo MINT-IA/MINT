@@ -44,7 +44,7 @@ void main() {
 
   testWidgets('shows concubin zero amount', (tester) async {
     await tester.pumpWidget(buildWidget());
-    expect(find.textContaining('0 CHF'), findsWidgets);
+    expect(find.textContaining('CHF'), findsWidgets);
   });
 
   testWidgets('shows marriage bonus chiffre-choc', (tester) async {

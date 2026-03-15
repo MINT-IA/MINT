@@ -91,7 +91,7 @@ void main() {
 
       final labels = result.deductionItems.map((d) => d.label).toList();
       expect(labels, contains('AVS/AI/APG'));
-      expect(labels, contains('Chomage (AC)'));
+      expect(labels, contains('Chômage (AC)'));
       expect(labels, contains('AANP'));
     });
 

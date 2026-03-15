@@ -48,7 +48,7 @@ void main() {
       expect(foreignPrompt, isNotEmpty);
       expect(
         confidence.assumptions,
-        contains(contains('etrangere')),
+        contains(contains('étrangère')),
       );
     });
 

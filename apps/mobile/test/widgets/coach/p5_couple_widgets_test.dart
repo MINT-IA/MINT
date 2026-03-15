@@ -222,7 +222,7 @@ void main() {
         ),
       ));
 
-      expect(find.textContaining('Plan d\u2019action couple'), findsOneWidget);
+      expect(find.textContaining("Plan d'action couple"), findsOneWidget);
     });
 
     testWidgets('shows owner chips per action', (tester) async {
@@ -264,7 +264,7 @@ void main() {
       ));
 
       // Should render nothing for single
-      expect(find.textContaining('Plan d\u2019action'), findsNothing);
+      expect(find.textContaining("Plan d'action"), findsNothing);
     });
 
     testWidgets('shows FATCA warning for US conjoint', (tester) async {
@@ -717,7 +717,7 @@ void main() {
         ),
       ));
 
-      expect(find.textContaining('Plan d\u2019action'), findsNothing);
+      expect(find.textContaining("Plan d'action"), findsNothing);
     });
   });
 

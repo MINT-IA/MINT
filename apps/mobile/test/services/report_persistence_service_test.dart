@@ -405,7 +405,7 @@ void main() {
       await ReportPersistenceService.saveLettersHistory(letters);
       final loaded = await ReportPersistenceService.loadLettersHistory();
 
-      expect(loaded[0]['disclaimer'], contains('educatif'));
+      expect(loaded[0]['disclaimer'], contains('éducatif'));
       expect(loaded[0]['sources'], isA<List>());
     });
   });

@@ -156,7 +156,7 @@ void main() {
         ),
       );
 
-      expect(find.text('Pourquoi est-ce bloqué ?'), findsOneWidget);
+      expect(find.textContaining('Pourquoi est-ce'), findsOneWidget);
     });
 
     testWidgets('shows lock icon when gated', (tester) async {

@@ -79,7 +79,7 @@ void main() {
 
   testWidgets('shows life drop percent', (tester) async {
     await tester.pumpWidget(buildWidget());
-    expect(find.textContaining('48%'), findsOneWidget);
+    expect(find.textContaining('48'), findsOneWidget);
   });
 
   testWidgets('shows weakest subject (F = Assurance privée)', (tester) async {

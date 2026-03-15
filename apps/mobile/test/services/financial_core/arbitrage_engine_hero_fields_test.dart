@@ -195,7 +195,7 @@ void main() {
     });
 
     test('disclaimer mentions outil educatif', () {
-      expect(certResult.disclaimer, contains('educatif'));
+      expect(certResult.disclaimer, contains('éducatif'));
     });
 
     test('sources include LPP art. 14', () {

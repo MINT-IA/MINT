@@ -245,7 +245,7 @@ void main() {
     test('disclaimer is non-empty and mentions LSFin', () {
       final r = certResult();
       expect(r.disclaimer, isNotEmpty);
-      expect(r.disclaimer.toLowerCase(), contains('educatif'));
+      expect(r.disclaimer.toLowerCase(), contains('éducatif'));
     });
 
     test('sources list includes LIFD art. 38', () {

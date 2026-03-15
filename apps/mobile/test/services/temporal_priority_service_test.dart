@@ -297,7 +297,7 @@ void main() {
       );
 
       expect(
-        items.any((i) => i.body.contains('Adherence a 55%')),
+        items.any((i) => i.body.contains('Adhérence à 55')),
         isTrue,
       );
     });
