@@ -10090,5 +10090,16 @@
     }
   },
   "docScanSourceBackendDocling": "Extraction backend Docling (LPP)",
-  "docScanSourceVisionByok": "Extraction Vision IA (BYOK)"
+  "docScanSourceVisionByok": "Extraction Vision IA (BYOK)",
+  "chiffreChocConfidenceHint": "Estimation basée sur {infoCount} informations. Plus tu précises, plus c'est fiable.",
+  "@chiffreChocConfidenceHint": {
+    "placeholders": {
+      "infoCount": {
+        "type": "int"
+      }
+    }
+  },
+  "chiffreChocCtaAction": "Qu'est-ce que je peux faire\u00a0?",
+  "chiffreChocCtaEnrich": "Affiner mon profil",
+  "chiffreChocDisclaimer": "Outil éducatif — ne constitue pas un conseil financier (LSFin). Sources\u00a0: LAVS art. 34, LPP art. 14-16, OPP3 art. 7."
 }

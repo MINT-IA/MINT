@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/chiffre_choc_selector.dart';
@@ -295,8 +296,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Estimation basée sur $infoCount informations. '
-                          'Plus tu précises, plus c\'est fiable.',
+                          S.of(context)!.chiffreChocConfidenceHint(infoCount),
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             color: MintColors.textMuted,
@@ -342,7 +342,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                     ),
                   ),
                   child: Text(
-                    'Qu\'est-ce que je peux faire ?',
+                    S.of(context)!.chiffreChocCtaAction,
                     style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -377,7 +377,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Affiner mon profil',
+                        S.of(context)!.chiffreChocCtaEnrich,
                         style: GoogleFonts.inter(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -391,8 +391,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
 
               // Disclaimer
               Text(
-                'Outil educatif — ne constitue pas un conseil financier (LSFin). '
-                'Sources : LAVS art. 34, LPP art. 14-16, OPP3 art. 7.',
+                S.of(context)!.chiffreChocDisclaimer,
                 style: GoogleFonts.inter(
                   fontSize: 10,
                   color: MintColors.textMuted,
