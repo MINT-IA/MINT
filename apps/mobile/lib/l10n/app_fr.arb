@@ -10473,5 +10473,6 @@
   "docImpactFallbackProjections": "Tes projections sont maintenant basées sur des valeurs réelles.",
   "docImpactFieldsUpdated": "Champs mis à jour",
   "docImpactBackToDashboard": "Retour au dashboard",
-  "docImpactDisclaimer": "Outil éducatif — ne constitue pas un conseil en prévoyance. Vérifie toujours avec ton certificat original (LSFin)."
+  "docImpactDisclaimer": "Outil éducatif — ne constitue pas un conseil en prévoyance. Vérifie toujours avec ton certificat original (LSFin).",
+  "openBankingHubHeaderTitle": "Open Banking"
 }

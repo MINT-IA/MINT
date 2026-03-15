@@ -215,7 +215,7 @@ class OpenBankingHubScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Open Banking',
+                l.openBankingHubHeaderTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
