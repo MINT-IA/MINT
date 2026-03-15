@@ -532,6 +532,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       fitnessScore: fitnessScore,
       conversationHighlights: limited,
       legalSources: sources.toList(),
+      s: S.of(context)!,
     );
   }
 

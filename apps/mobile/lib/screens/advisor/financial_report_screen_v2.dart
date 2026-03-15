@@ -57,7 +57,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
       backgroundColor: MintColors.surface,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          PdfService.generateFinancialReportPdf(report);
+          PdfService.generateFinancialReportPdf(report, s: l10n);
         },
         backgroundColor: MintColors.primary,
         child: const Icon(Icons.picture_as_pdf, color: MintColors.white),
@@ -75,7 +75,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.share, color: MintColors.white),
                 onPressed: () {
-                  PdfService.generateFinancialReportPdf(report);
+                  PdfService.generateFinancialReportPdf(report, s: l10n);
                 },
               ),
             ],

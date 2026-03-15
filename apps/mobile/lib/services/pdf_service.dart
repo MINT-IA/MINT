@@ -4,9 +4,10 @@ import 'package:printing/printing.dart';
 import 'package:mint_mobile/models/session.dart';
 import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/models/circle_score.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 class PdfService {
-  static Future<void> generateSessionReportPdf(SessionReport report) async {
+  static Future<void> generateSessionReportPdf(SessionReport report, {required S s}) async {
     final pdf = pw.Document();
 
     pdf.addPage(
@@ -16,13 +17,13 @@ class PdfService {
         header: (pw.Context context) => pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
-            pw.Text('MINT — MENTORAT FINANCIER',
+            pw.Text(s.pdfServiceHeaderTitle,
                 style: pw.TextStyle(
                     fontSize: 8,
                     color: PdfColors.grey700,
                     fontWeight: pw.FontWeight.bold)),
             pw.Text(
-              'MENTORAT ÉDUCATIF — CONFIDENTIEL',
+              s.pdfServiceSessionHeaderRight,
               style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700),
             ),
           ],
@@ -34,10 +35,10 @@ class PdfService {
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
               pw.Text(
-                  'Généré par Mint le ${report.generatedAt.toLocal().toString().split('.')[0]}',
+                  s.pdfServiceGeneratedBy(report.generatedAt.toLocal().toString().split('.')[0]),
                   style: const pw.TextStyle(
                       fontSize: 7, color: PdfColors.grey500)),
-              pw.Text('Page ${context.pageNumber} sur ${context.pagesCount}',
+              pw.Text(s.pdfServicePageOf('${context.pageNumber}', '${context.pagesCount}'),
                   style: const pw.TextStyle(
                       fontSize: 7, color: PdfColors.grey500)),
             ],
@@ -72,7 +73,7 @@ class PdfService {
                       const pw.BorderRadius.all(pw.Radius.circular(4)),
                 ),
                 child: pw.Text(
-                    'PRECISION: ${(report.precisionScore * 100).toInt()}%',
+                    s.pdfServicePrecision('${(report.precisionScore * 100).toInt()}'),
                     style: pw.TextStyle(
                         fontSize: 8,
                         fontWeight: pw.FontWeight.bold,
@@ -94,7 +95,7 @@ class PdfService {
                 pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text('CANTON',
+                    pw.Text(s.pdfServiceCanton,
                         style: pw.TextStyle(
                             fontSize: 7,
                             fontWeight: pw.FontWeight.bold,
@@ -107,7 +108,7 @@ class PdfService {
                 pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text('FOYER',
+                    pw.Text(s.pdfServiceFoyer,
                         style: pw.TextStyle(
                             fontSize: 7,
                             fontWeight: pw.FontWeight.bold,
@@ -120,7 +121,7 @@ class PdfService {
                 pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text('OBJECTIF',
+                    pw.Text(s.pdfServiceObjectif,
                         style: pw.TextStyle(
                             fontSize: 7,
                             fontWeight: pw.FontWeight.bold,
@@ -139,7 +140,7 @@ class PdfService {
           children.add(pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text('Indicateurs de Score'.toUpperCase(),
+              pw.Text(s.pdfServiceScoreIndicators.toUpperCase(),
                   style: pw.TextStyle(
                       fontSize: 12,
                       fontWeight: pw.FontWeight.bold,
@@ -188,7 +189,7 @@ class PdfService {
           children.add(pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text('Plan d\'Action Mentor (Top 3)'.toUpperCase(),
+              pw.Text(s.pdfServiceActionPlanTop3.toUpperCase(),
                   style: pw.TextStyle(
                       fontSize: 12,
                       fontWeight: pw.FontWeight.bold,
@@ -218,10 +219,10 @@ class PdfService {
                           fontWeight: pw.FontWeight.bold,
                           color: PdfColors.blue900)),
                   pw.SizedBox(height: 4),
-                  pw.Text('Pourquoi : ${a.why}',
+                  pw.Text(s.pdfServiceWhyPrefix(a.why),
                       style: const pw.TextStyle(fontSize: 9)),
                   pw.SizedBox(height: 4),
-                  pw.Text('Action suivante : ${a.nextAction.label}',
+                  pw.Text(s.pdfServiceNextAction(a.nextAction.label),
                       style: pw.TextStyle(
                           fontSize: 9, fontWeight: pw.FontWeight.bold)),
                 ],
@@ -234,7 +235,7 @@ class PdfService {
           children.add(pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text('Statement of Advice (Conformité)'.toUpperCase(),
+              pw.Text(s.pdfServiceStatementOfAdvice.toUpperCase(),
                   style: pw.TextStyle(
                       fontSize: 12,
                       fontWeight: pw.FontWeight.bold,
@@ -256,7 +257,7 @@ class PdfService {
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     pw.Text(
-                        'Nature du service : ${report.mintRoadmap.natureOfService}',
+                        s.pdfServiceNatureOfService(report.mintRoadmap.natureOfService),
                         style: pw.TextStyle(
                             fontSize: 9, fontWeight: pw.FontWeight.bold)),
                     pw.Text(report.mintRoadmap.mentorshipLevel,
@@ -267,17 +268,17 @@ class PdfService {
                   ],
                 ),
                 pw.SizedBox(height: 8),
-                pw.Text('Hypothèses :',
+                pw.Text(s.pdfServiceHypotheses,
                     style: pw.TextStyle(
                         fontSize: 8, fontWeight: pw.FontWeight.bold)),
                 for (var a in report.mintRoadmap.assumptions)
-                  pw.Text('• $a', style: const pw.TextStyle(fontSize: 8)),
+                  pw.Text('\u2022 $a', style: const pw.TextStyle(fontSize: 8)),
                 pw.SizedBox(height: 8),
-                pw.Text('Conflits d\'intérêts & Commissions :',
+                pw.Text(s.pdfServiceConflictsAndCommissions,
                     style: pw.TextStyle(
                         fontSize: 8, fontWeight: pw.FontWeight.bold)),
                 for (var c in report.mintRoadmap.conflicts)
-                  pw.Text('• ${c.partner} : ${c.disclosure}',
+                  pw.Text('\u2022 ${s.pdfServiceConflictLine(c.partner, c.disclosure)}',
                       style: pw.TextStyle(
                           fontSize: 8, fontStyle: pw.FontStyle.italic)),
               ],
@@ -289,7 +290,7 @@ class PdfService {
           children.add(pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text('Détail des Analyses'.toUpperCase(),
+              pw.Text(s.pdfServiceDetailAnalyses.toUpperCase(),
                   style: pw.TextStyle(
                       fontSize: 12,
                       fontWeight: pw.FontWeight.bold,
@@ -315,7 +316,7 @@ class PdfService {
                   if (r.evidenceLinks.isNotEmpty) pw.SizedBox(height: 4),
                   if (r.evidenceLinks.isNotEmpty)
                     pw.Text(
-                        'Sources : ${r.evidenceLinks.map((l) => l.label).join(', ')}',
+                        s.pdfServiceSourcesLabel(r.evidenceLinks.map((l) => l.label).join(', ')),
                         style: pw.TextStyle(
                             fontSize: 7,
                             color: PdfColors.grey700,
@@ -330,7 +331,7 @@ class PdfService {
           children.add(pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text('Disclaimers Légaux'.toUpperCase(),
+              pw.Text(s.pdfServiceDisclaimersLegaux.toUpperCase(),
                   style: pw.TextStyle(
                       fontSize: 12,
                       fontWeight: pw.FontWeight.bold,
@@ -348,7 +349,7 @@ class PdfService {
               child: pw.Row(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Text('• ',
+                  pw.Text('\u2022 ',
                       style: pw.TextStyle(
                           color: PdfColors.grey700,
                           fontWeight: pw.FontWeight.bold)),
@@ -372,7 +373,7 @@ class PdfService {
         onLayout: (PdfPageFormat format) async => pdf.save());
   }
 
-  static Future<void> generateFinancialReportPdf(FinancialReport report) async {
+  static Future<void> generateFinancialReportPdf(FinancialReport report, {required S s}) async {
     final pdf = pw.Document();
     final generatedDate = report.generatedAt.toLocal().toString().split('.')[0];
 
@@ -384,13 +385,13 @@ class PdfService {
         header: (pw.Context context) => pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
-            pw.Text('MINT — MENTORAT FINANCIER',
+            pw.Text(s.pdfServiceHeaderTitle,
                 style: pw.TextStyle(
                     fontSize: 8,
                     color: PdfColors.grey700,
                     fontWeight: pw.FontWeight.bold)),
             pw.Text(
-              'RAPPORT FINANCIER — CONFIDENTIEL',
+              s.pdfServiceFinancialHeaderRight,
               style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700),
             ),
           ],
@@ -404,18 +405,18 @@ class PdfService {
             children: [
               pw.Expanded(
                 child: pw.Text(
-                  'Outil éducatif — MINT — ne constitue pas un conseil financier au sens de la LSFin',
+                  s.pdfServiceFooterDisclaimer,
                   style: const pw.TextStyle(
                       fontSize: 6, color: PdfColors.grey500),
                 ),
               ),
               pw.SizedBox(width: 10),
-              pw.Text('Généré le $generatedDate',
+              pw.Text(s.pdfServiceGeneratedOn(generatedDate),
                   style: const pw.TextStyle(
                       fontSize: 6, color: PdfColors.grey500)),
               pw.SizedBox(width: 10),
               pw.Text(
-                  'Page ${context.pageNumber} sur ${context.pagesCount}',
+                  s.pdfServicePageOf('${context.pageNumber}', '${context.pagesCount}'),
                   style: const pw.TextStyle(
                       fontSize: 6, color: PdfColors.grey500)),
             ],
@@ -430,7 +431,7 @@ class PdfService {
           // ═══════════════════════════════════════════════════════
           children.add(pw.SizedBox(height: 10));
           children.add(pw.Text(
-            'Ton Plan Mint — Rapport Financier',
+            s.pdfServiceMainTitle,
             style: pw.TextStyle(
                 fontSize: 22,
                 fontWeight: pw.FontWeight.bold,
@@ -438,7 +439,9 @@ class PdfService {
           ));
           children.add(pw.SizedBox(height: 4));
           children.add(pw.Text(
-            'Bilan personnalisé pour ${report.profile.firstName ?? 'toi'} — ${report.profile.canton.toUpperCase()}',
+            s.pdfServiceSubtitle(
+                report.profile.firstName ?? s.pdfServiceSubtitleFallback,
+                report.profile.canton.toUpperCase()),
             style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700),
           ));
           children.add(pw.SizedBox(height: 4));
@@ -450,7 +453,9 @@ class PdfService {
               borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
             ),
             child: pw.Text(
-              'Score de santé financière : ${report.healthScore.overallScore.toInt()}/100 — ${report.healthScore.overallLevel.label}',
+              s.pdfServiceHealthScore(
+                  '${report.healthScore.overallScore.toInt()}',
+                  report.healthScore.overallLevel.label),
               style: pw.TextStyle(
                   fontSize: 9,
                   fontWeight: pw.FontWeight.bold,
@@ -462,7 +467,7 @@ class PdfService {
           // 2. SCOREBOARD (4 KPI)
           // ═══════════════════════════════════════════════════════
           children.add(pw.SizedBox(height: 25));
-          children.add(_pdfSectionTitle('Indicateurs Clés'));
+          children.add(_pdfSectionTitle(s.pdfServiceKeyIndicators));
           children.add(pw.SizedBox(height: 10));
 
           final monthlyAvailable = report.profile.monthlyNetIncome -
@@ -476,25 +481,25 @@ class PdfService {
 
           final kpis = <Map<String, String>>[
             {
-              'label': 'Disponible / mois',
+              'label': s.pdfServiceAvailablePerMonth,
               'value':
                   'CHF ${monthlyAvailable.toStringAsFixed(0)}',
-              'note': 'Après impôts estimés',
+              'note': s.pdfServiceAfterEstimatedTaxes,
             },
             {
-              'label': 'Impôts estimés / an',
+              'label': s.pdfServiceEstimatedTaxPerYear,
               'value':
                   'CHF ${report.taxSimulation.totalTax.toStringAsFixed(0)}',
               'note':
-                  'Taux effectif : ${(report.taxSimulation.effectiveRate * 100).toStringAsFixed(1)}%',
+                  s.pdfServiceEffectiveRate((report.taxSimulation.effectiveRate * 100).toStringAsFixed(1)),
             },
             {
-              'label': 'Taux d\'épargne',
+              'label': s.pdfServiceSavingsRate,
               'value': '${savingsRate.toStringAsFixed(1)}%',
-              'note': 'Du revenu net mensuel',
+              'note': s.pdfServiceOfNetMonthlyIncome,
             },
             {
-              'label': 'Score protection',
+              'label': s.pdfServiceProtectionScore,
               'value':
                   '${report.healthScore.circle1Protection.percentage.toInt()}%',
               'note': report.healthScore.circle1Protection.level.label,
@@ -538,7 +543,7 @@ class PdfService {
           // 3. TOP 3 ACTIONS PRIORITAIRES
           // ═══════════════════════════════════════════════════════
           children.add(pw.SizedBox(height: 30));
-          children.add(_pdfSectionTitle('Top 3 — Actions Prioritaires'));
+          children.add(_pdfSectionTitle(s.pdfServiceTop3PriorityActions));
           children.add(pw.SizedBox(height: 10));
 
           for (int i = 0; i < report.priorityActions.length; i++) {
@@ -592,7 +597,7 @@ class PdfService {
                     ],
                   ),
                   pw.SizedBox(height: 4),
-                  pw.Text('Pourquoi : ${action.description}',
+                  pw.Text(s.pdfServiceWhyPrefix(action.description),
                       style: const pw.TextStyle(fontSize: 9)),
                   if (action.steps.isNotEmpty) ...[
                     pw.SizedBox(height: 4),
@@ -613,7 +618,7 @@ class PdfService {
           // 4. SIMULATION FISCALE
           // ═══════════════════════════════════════════════════════
           children.add(pw.SizedBox(height: 25));
-          children.add(_pdfSectionTitle('Simulation Fiscale'));
+          children.add(_pdfSectionTitle(s.pdfServiceTaxSimulation));
           children.add(pw.SizedBox(height: 10));
 
           final tax = report.taxSimulation;
@@ -628,22 +633,22 @@ class PdfService {
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                _pdfKeyValue('Revenu imposable',
+                _pdfKeyValue(s.pdfServiceTaxableIncome,
                     'CHF ${tax.taxableIncome.toStringAsFixed(0)}'),
                 if (tax.deductions.isNotEmpty) ...[
                   pw.SizedBox(height: 6),
-                  pw.Text('Déductions appliquées :',
+                  pw.Text(s.pdfServiceAppliedDeductions,
                       style: pw.TextStyle(
                           fontSize: 8, fontWeight: pw.FontWeight.bold)),
                   for (final entry in tax.deductions.entries)
                     pw.Padding(
                       padding: const pw.EdgeInsets.only(left: 10),
                       child: pw.Text(
-                          '- ${entry.key} : CHF ${entry.value.toStringAsFixed(0)}',
+                          s.pdfServiceDeductionLine(entry.key, entry.value.toStringAsFixed(0)),
                           style: const pw.TextStyle(fontSize: 8)),
                     ),
                   pw.Text(
-                      'Total déductions : CHF ${tax.totalDeductions.toStringAsFixed(0)}',
+                      s.pdfServiceTotalDeductions(tax.totalDeductions.toStringAsFixed(0)),
                       style: pw.TextStyle(
                           fontSize: 8,
                           fontWeight: pw.FontWeight.bold,
@@ -652,16 +657,16 @@ class PdfService {
                 pw.SizedBox(height: 6),
                 pw.Divider(thickness: 0.5, color: PdfColors.grey300),
                 pw.SizedBox(height: 6),
-                _pdfKeyValue('Impôt cantonal + communal',
+                _pdfKeyValue(s.pdfServiceCantonalCommunalTax,
                     'CHF ${tax.cantonalTax.toStringAsFixed(0)}'),
-                _pdfKeyValue('Impôt fédéral direct',
+                _pdfKeyValue(s.pdfServiceFederalDirectTax,
                     'CHF ${tax.federalTax.toStringAsFixed(0)}'),
                 pw.SizedBox(height: 4),
                 _pdfKeyValue(
-                    'TOTAL estimé',
+                    s.pdfServiceTotalEstimated,
                     'CHF ${tax.totalTax.toStringAsFixed(0)}',
                     bold: true),
-                _pdfKeyValue('Taux effectif',
+                _pdfKeyValue(s.pdfServiceEffectiveRateLabel,
                     '${(tax.effectiveRate * 100).toStringAsFixed(1)}%'),
                 if (tax.taxSavingsFromBuyback != null &&
                     tax.taxSavingsFromBuyback! > 0) ...[
@@ -669,7 +674,9 @@ class PdfService {
                   pw.Divider(thickness: 0.5, color: PdfColors.green200),
                   pw.SizedBox(height: 4),
                   pw.Text(
-                    'Avec rachat LPP : CHF ${tax.taxWithLppBuyback!.toStringAsFixed(0)} (économie : CHF ${tax.taxSavingsFromBuyback!.toStringAsFixed(0)})',
+                    s.pdfServiceWithLppBuyback(
+                        tax.taxWithLppBuyback!.toStringAsFixed(0),
+                        tax.taxSavingsFromBuyback!.toStringAsFixed(0)),
                     style: pw.TextStyle(
                         fontSize: 9,
                         fontWeight: pw.FontWeight.bold,
@@ -686,7 +693,7 @@ class PdfService {
           if (report.retirementProjection != null) {
             final ret = report.retirementProjection!;
             children.add(pw.SizedBox(height: 25));
-            children.add(_pdfSectionTitle('Projection Retraite'));
+            children.add(_pdfSectionTitle(s.pdfServiceRetirementProjection));
             children.add(pw.SizedBox(height: 10));
 
             children.add(pw.Container(
@@ -701,49 +708,49 @@ class PdfService {
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
                   pw.Text(
-                    'Horizon : ${ret.yearsUntilRetirement} ans (retraite à ${ret.retirementAge} ans)',
+                    s.pdfServiceHorizon('${ret.yearsUntilRetirement}', '${ret.retirementAge}'),
                     style: pw.TextStyle(
                         fontSize: 9, fontWeight: pw.FontWeight.bold),
                   ),
                   pw.SizedBox(height: 8),
-                  pw.Text('Rentes mensuelles estimées',
+                  pw.Text(s.pdfServiceEstimatedMonthlyPensions,
                       style: pw.TextStyle(
                           fontSize: 8,
                           fontWeight: pw.FontWeight.bold,
                           color: PdfColors.grey600)),
-                  _pdfKeyValue('Rente AVS',
+                  _pdfKeyValue(s.pdfServiceAvsRent,
                       'CHF ${ret.monthlyAvsRent.toStringAsFixed(0)}/mois'),
-                  _pdfKeyValue('Rente LPP',
+                  _pdfKeyValue(s.pdfServiceLppRent,
                       'CHF ${ret.monthlyLppRent.toStringAsFixed(0)}/mois'),
                   pw.Divider(thickness: 0.5, color: PdfColors.grey300),
                   _pdfKeyValue(
-                    'Total mensuel',
+                    s.pdfServiceTotalMonthly,
                     'CHF ${ret.totalMonthlyIncome.toStringAsFixed(0)}/mois',
                     bold: true,
                   ),
                   pw.SizedBox(height: 8),
-                  pw.Text('Capitaux estimés à 65 ans',
+                  pw.Text(s.pdfServiceEstimatedCapitalAt65,
                       style: pw.TextStyle(
                           fontSize: 8,
                           fontWeight: pw.FontWeight.bold,
                           color: PdfColors.grey600)),
-                  _pdfKeyValue('Capital LPP',
+                  _pdfKeyValue(s.pdfServiceLppCapital,
                       'CHF ${ret.lppCapital.toStringAsFixed(0)}'),
-                  _pdfKeyValue('Capital 3a',
+                  _pdfKeyValue(s.pdfServicePillar3aCapital,
                       'CHF ${ret.pillar3aCapital.toStringAsFixed(0)}'),
                   if (ret.otherAssets != null && ret.otherAssets! > 0)
-                    _pdfKeyValue('Autres actifs',
+                    _pdfKeyValue(s.pdfServiceOtherAssets,
                         'CHF ${ret.otherAssets!.toStringAsFixed(0)}'),
                   pw.Divider(thickness: 0.5, color: PdfColors.grey300),
                   _pdfKeyValue(
-                    'Capital total estimé',
+                    s.pdfServiceTotalEstimatedCapital,
                     'CHF ${ret.totalCapital.toStringAsFixed(0)}',
                     bold: true,
                   ),
                   if (ret.avsReductionFactor < 1.0) ...[
                     pw.SizedBox(height: 6),
                     pw.Text(
-                      'Attention : facteur de réduction AVS ${(ret.avsReductionFactor * 100).toStringAsFixed(1)}% (lacunes de cotisation détectées)',
+                      s.pdfServiceAvsReductionWarning((ret.avsReductionFactor * 100).toStringAsFixed(1)),
                       style: pw.TextStyle(
                           fontSize: 8,
                           color: PdfColors.orange800,
@@ -761,7 +768,7 @@ class PdfService {
           if (report.lppBuybackStrategy != null) {
             final lpp = report.lppBuybackStrategy!;
             children.add(pw.SizedBox(height: 25));
-            children.add(_pdfSectionTitle('Stratégie Rachat LPP'));
+            children.add(_pdfSectionTitle(s.pdfServiceLppBuybackStrategy));
             children.add(pw.SizedBox(height: 10));
 
             children.add(pw.Container(
@@ -775,13 +782,13 @@ class PdfService {
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  _pdfKeyValue('Montant rachetable total',
+                  _pdfKeyValue(s.pdfServiceTotalBuybackAvailable,
                       'CHF ${lpp.totalBuybackAvailable.toStringAsFixed(0)}'),
-                  _pdfKeyValue('Économie fiscale totale estimée',
+                  _pdfKeyValue(s.pdfServiceTotalTaxSavingsEstimated,
                       'CHF ${lpp.totalTaxSavings.toStringAsFixed(0)}',
                       bold: true),
                   pw.SizedBox(height: 8),
-                  pw.Text('Plan annuel recommandé',
+                  pw.Text(s.pdfServiceRecommendedAnnualPlan,
                       style: pw.TextStyle(
                           fontSize: 8,
                           fontWeight: pw.FontWeight.bold,
@@ -796,19 +803,19 @@ class PdfService {
                       children: [
                         pw.Expanded(
                             flex: 2,
-                            child: pw.Text('Année',
+                            child: pw.Text(s.pdfServiceYear,
                                 style: pw.TextStyle(
                                     fontSize: 8,
                                     fontWeight: pw.FontWeight.bold))),
                         pw.Expanded(
                             flex: 3,
-                            child: pw.Text('Rachat',
+                            child: pw.Text(s.pdfServiceBuyback,
                                 style: pw.TextStyle(
                                     fontSize: 8,
                                     fontWeight: pw.FontWeight.bold))),
                         pw.Expanded(
                             flex: 3,
-                            child: pw.Text('Économie fiscale',
+                            child: pw.Text(s.pdfServiceTaxSaving,
                                 style: pw.TextStyle(
                                     fontSize: 8,
                                     fontWeight: pw.FontWeight.bold))),
@@ -847,7 +854,7 @@ class PdfService {
                     ),
                   pw.SizedBox(height: 6),
                   pw.Text(
-                    'Rappel : le rachat LPP est soumis à un blocage de 3 ans pour les retraits en capital (LPP art. 79b al. 3).',
+                    s.pdfServiceLppBuybackReminder,
                     style: pw.TextStyle(
                         fontSize: 7,
                         color: PdfColors.orange800,
@@ -862,7 +869,7 @@ class PdfService {
           // 7. CONFORMITÉ (Statement of Advice)
           // ═══════════════════════════════════════════════════════
           children.add(pw.SizedBox(height: 25));
-          children.add(_pdfSectionTitle('Conformité — Statement of Advice'));
+          children.add(_pdfSectionTitle(s.pdfServiceComplianceTitle));
           children.add(pw.SizedBox(height: 10));
 
           children.add(pw.Container(
@@ -871,34 +878,34 @@ class PdfService {
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Text('Nature du service : Éducation financière (non-régulée)',
+                pw.Text(s.pdfServiceComplianceNature,
                     style: pw.TextStyle(
                         fontSize: 9, fontWeight: pw.FontWeight.bold)),
                 pw.SizedBox(height: 6),
-                pw.Text('Hypothèses :',
+                pw.Text(s.pdfServiceComplianceHypotheses,
                     style: pw.TextStyle(
                         fontSize: 8, fontWeight: pw.FontWeight.bold)),
                 pw.Text(
-                    '• Les données utilisées sont celles déclarées par l\'utilisateur·trice.',
+                    '\u2022 ${s.pdfServiceComplianceHyp1}',
                     style: const pw.TextStyle(fontSize: 8)),
                 pw.Text(
-                    '• Les taux fiscaux sont des estimations simplifiées par canton.',
+                    '\u2022 ${s.pdfServiceComplianceHyp2}',
                     style: const pw.TextStyle(fontSize: 8)),
                 pw.Text(
-                    '• Les projections de rendement utilisent des hypothèses prudentes (3-5%).',
+                    '\u2022 ${s.pdfServiceComplianceHyp3}',
                     style: const pw.TextStyle(fontSize: 8)),
                 pw.Text(
-                    '• Le taux de conversion LPP utilisé est de 6% (hypothèse prudente vs 6.8% légal).',
+                    '\u2022 ${s.pdfServiceComplianceHyp4}',
                     style: const pw.TextStyle(fontSize: 8)),
                 pw.SizedBox(height: 6),
-                pw.Text('Conflits d\'intérêts :',
+                pw.Text(s.pdfServiceComplianceConflicts,
                     style: pw.TextStyle(
                         fontSize: 8, fontWeight: pw.FontWeight.bold)),
                 pw.Text(
-                    '• MINT ne perçoit aucune commission des fournisseurs de 3a mentionnés.',
+                    '\u2022 ${s.pdfServiceComplianceConflict1}',
                     style: const pw.TextStyle(fontSize: 8)),
                 pw.Text(
-                    '• Les comparaisons de fournisseurs sont basées sur des données publiques de frais et rendements.',
+                    '\u2022 ${s.pdfServiceComplianceConflict2}',
                     style: const pw.TextStyle(fontSize: 8)),
               ],
             ),
@@ -909,7 +916,7 @@ class PdfService {
           // ═══════════════════════════════════════════════════════
           if (report.disclaimers.isNotEmpty) {
             children.add(pw.SizedBox(height: 25));
-            children.add(_pdfSectionTitle('Disclaimers Légaux'));
+            children.add(_pdfSectionTitle(s.pdfServiceDisclaimersLegaux));
             children.add(pw.SizedBox(height: 8));
 
             for (final d in report.disclaimers) {
@@ -918,7 +925,7 @@ class PdfService {
                 child: pw.Row(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text('• ',
+                    pw.Text('\u2022 ',
                         style: pw.TextStyle(
                             color: PdfColors.grey700,
                             fontWeight: pw.FontWeight.bold)),
@@ -939,21 +946,21 @@ class PdfService {
           // ═══════════════════════════════════════════════════════
           if (report.sources.isNotEmpty) {
             children.add(pw.SizedBox(height: 20));
-            children.add(_pdfSectionTitle('Sources Juridiques'));
+            children.add(_pdfSectionTitle(s.pdfServiceLegalSources));
             children.add(pw.SizedBox(height: 8));
 
-            for (final s in report.sources) {
+            for (final src in report.sources) {
               children.add(pw.Padding(
                 padding: const pw.EdgeInsets.only(bottom: 3),
                 child: pw.Row(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text('• ',
+                    pw.Text('\u2022 ',
                         style: pw.TextStyle(
                             color: PdfColors.grey600,
                             fontWeight: pw.FontWeight.bold)),
                     pw.Expanded(
-                        child: pw.Text(s,
+                        child: pw.Text(src,
                             style: pw.TextStyle(
                                 fontSize: 8,
                                 color: PdfColors.grey600,
@@ -1024,6 +1031,7 @@ class PdfService {
     required int fitnessScore,
     required List<Map<String, String>> conversationHighlights,
     required List<String> legalSources,
+    required S s,
   }) async {
     final pdf = pw.Document();
 
@@ -1034,13 +1042,13 @@ class PdfService {
         header: (pw.Context context) => pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
-            pw.Text('MINT — MENTORAT FINANCIER',
+            pw.Text(s.pdfServiceHeaderTitle,
                 style: pw.TextStyle(
                     fontSize: 8,
                     color: PdfColors.grey700,
                     fontWeight: pw.FontWeight.bold)),
             pw.Text(
-              'RAPPORT DÉCISIONNEL — CONFIDENTIEL',
+              s.pdfServiceDecisionHeaderRight,
               style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700),
             ),
           ],
@@ -1052,10 +1060,10 @@ class PdfService {
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
               pw.Text(
-                  'Généré par MINT le ${DateTime.now().toLocal().toString().split('.')[0]}',
+                  s.pdfServiceGeneratedByMint(DateTime.now().toLocal().toString().split('.')[0]),
                   style: const pw.TextStyle(
                       fontSize: 7, color: PdfColors.grey500)),
-              pw.Text('Page ${context.pageNumber} sur ${context.pagesCount}',
+              pw.Text(s.pdfServicePageOf('${context.pageNumber}', '${context.pagesCount}'),
                   style: const pw.TextStyle(
                       fontSize: 7, color: PdfColors.grey500)),
             ],
@@ -1068,7 +1076,7 @@ class PdfService {
 
           // Title
           children.add(pw.Text(
-            'Rapport décisionnel',
+            s.pdfServiceDecisionReportTitle,
             style: pw.TextStyle(
                 fontSize: 24,
                 fontWeight: pw.FontWeight.bold,
@@ -1076,7 +1084,7 @@ class PdfService {
           ));
           children.add(pw.SizedBox(height: 8));
           children.add(pw.Text(
-            'Coach MINT — Conversation éducative',
+            s.pdfServiceDecisionReportSubtitle,
             style: const pw.TextStyle(fontSize: 12, color: PdfColors.grey600),
           ));
           children.add(pw.SizedBox(height: 20));
@@ -1094,26 +1102,26 @@ class PdfService {
                 pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text('Profil',
+                    pw.Text(s.pdfServiceProfile,
                         style: pw.TextStyle(
                             fontSize: 10,
                             fontWeight: pw.FontWeight.bold,
                             color: PdfColors.blue900)),
                     pw.SizedBox(height: 4),
-                    pw.Text('$firstName — Canton $canton',
+                    pw.Text(s.pdfServiceProfileLine(firstName, canton),
                         style: const pw.TextStyle(fontSize: 10)),
                   ],
                 ),
                 pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.end,
                   children: [
-                    pw.Text('Score Fitness',
+                    pw.Text(s.pdfServiceFitnessScore,
                         style: pw.TextStyle(
                             fontSize: 10,
                             fontWeight: pw.FontWeight.bold,
                             color: PdfColors.blue900)),
                     pw.SizedBox(height: 4),
-                    pw.Text('$fitnessScore / 100',
+                    pw.Text(s.pdfServiceFitnessScoreValue('$fitnessScore'),
                         style: pw.TextStyle(
                             fontSize: 14,
                             fontWeight: pw.FontWeight.bold,
@@ -1130,7 +1138,7 @@ class PdfService {
           // Conversation highlights
           if (conversationHighlights.isNotEmpty) {
             children.add(pw.Text(
-              'Points clés de la conversation',
+              s.pdfServiceConversationHighlights,
               style: pw.TextStyle(
                   fontSize: 14,
                   fontWeight: pw.FontWeight.bold,
@@ -1178,7 +1186,7 @@ class PdfService {
           // Legal sources
           if (legalSources.isNotEmpty) {
             children.add(pw.Text(
-              'Sources juridiques',
+              s.pdfServiceLegalSourcesTitle,
               style: pw.TextStyle(
                   fontSize: 14,
                   fontWeight: pw.FontWeight.bold,
@@ -1191,7 +1199,7 @@ class PdfService {
                 child: pw.Row(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text('• ', style: const pw.TextStyle(fontSize: 9)),
+                    pw.Text('\u2022 ', style: const pw.TextStyle(fontSize: 9)),
                     pw.Expanded(
                       child: pw.Text(source,
                           style: const pw.TextStyle(
@@ -1215,9 +1223,7 @@ class PdfService {
               border: pw.Border.all(color: PdfColors.amber200, width: 0.5),
             ),
             child: pw.Text(
-              'Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin. '
-              'Les estimations sont basées sur des hypothèses simplifiées et des données déclaratives. '
-              'Consulte un·e spécialiste certifié·e pour toute décision financière importante.',
+              s.pdfServiceFullDisclaimer,
               style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700),
             ),
           ));
