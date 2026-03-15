@@ -48,7 +48,14 @@ class CoachChatScreen extends StatefulWidget {
   /// Used for contextual routing (e.g., "Parle au coach" from data blocks).
   final String? initialPrompt;
 
-  const CoachChatScreen({super.key, this.initialPrompt});
+  /// When true, hides the back button (used when embedded as a tab).
+  final bool isEmbeddedInTab;
+
+  const CoachChatScreen({
+    super.key,
+    this.initialPrompt,
+    this.isEmbeddedInTab = false,
+  });
 
   @override
   State<CoachChatScreen> createState() => _CoachChatScreenState();
@@ -626,11 +633,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, color: MintColors.white),
-                onPressed: () => Navigator.of(context).maybePop(),
-              ),
-              const SizedBox(width: 8),
+              if (!widget.isEmbeddedInTab) ...[
+                IconButton(
+                  icon: const Icon(Icons.arrow_back, color: MintColors.white),
+                  onPressed: () => Navigator.of(context).maybePop(),
+                ),
+                const SizedBox(width: 8),
+              ] else
+                const SizedBox(width: 4),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

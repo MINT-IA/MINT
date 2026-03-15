@@ -4389,5 +4389,15 @@
   "drawerCeQueTuDois": "What you owe",
   "drawerCeQueTuDoisSubtitle": "Total debt",
   "drawerCeQueTuAuras": "What you'll have",
-  "drawerCeQueTuAurasSubtitle": "Projected retirement income"
+  "drawerCeQueTuAurasSubtitle": "Projected retirement income",
+  "shellWelcomeBack": "Welcome back! Your data is up to date.",
+  "shellRecommendationsUpdated": "Recommendations updated",
+  "pulseEnrichirTitle": "Scan your LPP certificate",
+  "pulseEnrichirSubtitle": "Confidence → +{points} points",
+  "@pulseEnrichirSubtitle": {
+    "placeholders": {
+      "points": {"type": "String"}
+    }
+  },
+  "pulseEnrichirCta": "Scan →"
 }

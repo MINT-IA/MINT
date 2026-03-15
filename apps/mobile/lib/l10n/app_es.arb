@@ -4389,5 +4389,15 @@
   "drawerCeQueTuDois": "Lo que debes",
   "drawerCeQueTuDoisSubtitle": "Deuda total",
   "drawerCeQueTuAuras": "Lo que tendrás",
-  "drawerCeQueTuAurasSubtitle": "Ingreso de jubilación proyectado"
+  "drawerCeQueTuAurasSubtitle": "Ingreso de jubilación proyectado",
+  "shellWelcomeBack": "¡Bienvenido de nuevo! Tus datos están al día.",
+  "shellRecommendationsUpdated": "Recomendaciones actualizadas",
+  "pulseEnrichirTitle": "Escanea tu certificado LPP",
+  "pulseEnrichirSubtitle": "Confianza → +{points} puntos",
+  "@pulseEnrichirSubtitle": {
+    "placeholders": {
+      "points": {"type": "String"}
+    }
+  },
+  "pulseEnrichirCta": "Escanear →"
 }

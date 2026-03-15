@@ -104,7 +104,7 @@ import 'package:mint_mobile/screens/timeline_screen.dart';
 import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
 import 'package:mint_mobile/screens/coach/optimisation_decaissement_screen.dart';
 import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
-import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
+// coach_agir_screen.dart import removed — merged into Mint tab (S49)
 import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/annual_refresh_screen.dart';
@@ -183,11 +183,11 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RetirementDashboardScreen(),
     ),
+    // Legacy: Agir tab merged into Mint (tab 1) in S49
     GoRoute(
       path: '/coach/agir',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableCoachPhase2 ? null : '/',
-      builder: (context, state) => const CoachAgirScreen(),
+      redirect: (context, state) => '/home',
     ),
     GoRoute(
       path: '/coach/checkin',
@@ -234,7 +234,7 @@ final _router = GoRouter(
     ),
     GoRoute(
       path: '/advisor/plan-30-days',
-      redirect: (context, state) => '/coach/agir',
+      redirect: (context, state) => '/home',
       builder: (context, state) => const SizedBox.shrink(),
     ),
     GoRoute(

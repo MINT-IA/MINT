@@ -60,6 +60,10 @@ class ProfileScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Identity summary card (Moi tab hero)
+                  if (coachProfile != null)
+                    _buildIdentityCard(context, coachProfile),
+                  if (coachProfile != null) const SizedBox(height: 16),
                   _buildPrecisionCard(context, precision),
                   const SizedBox(height: 12),
                   _buildBilanLink(context, coachProfile != null),
@@ -228,17 +232,95 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildAppBar(BuildContext context) {
-    final s = S.of(context);
     final isCompact = MediaQuery.of(context).size.height <= 760;
     return SliverAppBar(
       pinned: true,
       toolbarHeight: isCompact ? 44 : 52,
       backgroundColor: MintColors.background,
-      title: Text(s?.profileTitle ?? 'MON PROFIL MENTOR',
+      title: Text('Moi',
           style: GoogleFonts.montserrat(
-              fontSize: isCompact ? 13 : 14,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.2)),
+              fontSize: isCompact ? 16 : 18,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.3,
+              color: MintColors.textPrimary)),
+    );
+  }
+
+  Widget _buildIdentityCard(BuildContext context, dynamic profile) {
+    final name = profile.firstName ?? 'Utilisateur';
+    final age = profile.age;
+    final canton = profile.canton as String;
+    final status = profile.employmentStatus as String;
+
+    final statusLabel = {
+      'salarie': 'Salarié',
+      'independant': 'Indépendant',
+      'chomage': 'En recherche',
+      'retraite': 'Retraité',
+    }[status] ?? status;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 22,
+                backgroundColor: MintColors.primary.withValues(alpha: 0.12),
+                child: Text(
+                  name.isNotEmpty ? name[0].toUpperCase() : '?',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      age != null ? '$name, $age ans' : name,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      canton.isNotEmpty
+                          ? '$canton · $statusLabel'
+                          : statusLabel,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.edit_outlined,
+                    size: 18, color: MintColors.textMuted),
+                onPressed: () =>
+                    context.push('/onboarding/quick?section=identity'),
+                tooltip: 'Modifier',
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 

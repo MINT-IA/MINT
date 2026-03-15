@@ -76,14 +76,11 @@ class _CoachQuickSheet extends StatelessWidget {
     );
 
     switch (currentTabIndex) {
-      case 0: // Dashboard — chat first, then scan to enrich, then simulate
+      case 0: // Pulse — chat first, then scan to enrich, then simulate
         return [chat, scan, simuler];
-      case 1: // Agir — simulate first (action-oriented), then chat, then report
-        return [simuler, chat, rapport];
-      case 2: // Apprendre — chat first (ask questions), then simulate, then scan
-        return [chat, simuler, scan];
-      case 3: // Profil — enrich first, then scan, then chat
-        return [enrichir, scan, chat];
+      // case 1: Mint tab — FAB is hidden, no actions needed
+      case 2: // Moi — enrich first, then scan, then report
+        return [enrichir, scan, rapport];
       default:
         return [chat, scan, simuler];
     }

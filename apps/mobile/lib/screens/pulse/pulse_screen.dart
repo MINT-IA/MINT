@@ -14,6 +14,9 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/pulse/focus_selector.dart';
 import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
+import 'package:mint_mobile/services/response_card_service.dart';
+import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
+import 'package:mint_mobile/services/confidence/enhanced_confidence_service.dart';
 
 // ────────────────────────────────────────────────────────
 //  PULSE SCREEN — V3 "Le Thermomètre"
@@ -46,6 +49,7 @@ class _PulseScreenState extends State<PulseScreen> {
   ProjectionResult? _cachedProjection;
   FinancialFitnessScore? _cachedFri;
   CoachProfile? _lastProfile;
+  bool _showCoupleView = false;
 
   @override
   void didChangeDependencies() {
@@ -119,6 +123,9 @@ class _PulseScreenState extends State<PulseScreen> {
                   ),
                 const SizedBox(height: 20),
 
+                // Priority #1 contextual card
+                _buildPriorityCard(profile),
+
                 // 3 pastilles
                 _buildPastilles(profile),
                 const SizedBox(height: 20),
@@ -127,8 +134,12 @@ class _PulseScreenState extends State<PulseScreen> {
                 _buildReadinessScore(profile),
                 const SizedBox(height: 16),
 
-                // Action signal → Agir
+                // Action signal → Coach
                 _buildActionSignal(profile),
+                const SizedBox(height: 16),
+
+                // Enrichir — scan CTA + confidence nudge
+                _buildEnrichirSection(profile, coachProvider),
                 const SizedBox(height: 20),
 
                 // Disclaimer (1 line)
@@ -139,6 +150,93 @@ class _PulseScreenState extends State<PulseScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  // ────────────────────────────────────────────────────────
+  //  PRIORITY #1 — Contextual action card
+  // ────────────────────────────────────────────────────────
+
+  Widget _buildPriorityCard(CoachProfile profile) {
+    final cards = ResponseCardService.generateForPulse(profile, limit: 1);
+    if (cards.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: ResponseCardWidget(card: cards.first),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────
+  //  ENRICHIR — Confidence nudge + scan CTA
+  // ────────────────────────────────────────────────────────
+
+  Widget _buildEnrichirSection(
+      CoachProfile profile, CoachProfileProvider coachProvider) {
+    final confidence =
+        (coachProvider.profileCompleteness * 100).round().clamp(0, 100);
+
+    // Don't show if confidence is already high
+    if (confidence >= 85) return const SizedBox.shrink();
+
+    final l = S.of(context)!;
+    final gainEstimate = (85 - confidence).clamp(5, 30);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.info.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.document_scanner_outlined,
+                  size: 20, color: MintColors.info),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  l.pulseEnrichirTitle,
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l.pulseEnrichirSubtitle('$gainEstimate'),
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: MintColors.textSecondary,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => context.push('/document-scan'),
+              icon: const Icon(Icons.camera_alt_outlined, size: 16),
+              label: Text(l.pulseEnrichirCta),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: MintColors.info,
+                side: BorderSide(color: MintColors.info.withValues(alpha: 0.4)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -454,11 +552,20 @@ class _PulseScreenState extends State<PulseScreen> {
       floating: false,
       pinned: true,
       backgroundColor: MintColors.primary,
+      actions: [
+        // Couple switcher (Solo / Duo) — only visible for couples
+        if (profile.isCouple)
+          _CoupleSwitch(
+            isCouple: _showCoupleView,
+            onToggle: () => setState(() => _showCoupleView = !_showCoupleView),
+          ),
+        const SizedBox(width: 8),
+      ],
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 20, bottom: 14),
         title: Text(
           greeting,
-          style: GoogleFonts.outfit(
+          style: GoogleFonts.montserrat(
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: MintColors.white,
@@ -769,6 +876,51 @@ class _PastilleCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────
+//  COUPLE SWITCH — Solo / Duo toggle in AppBar
+// ────────────────────────────────────────────────────────
+
+class _CoupleSwitch extends StatelessWidget {
+  final bool isCouple;
+  final VoidCallback onToggle;
+
+  const _CoupleSwitch({required this.isCouple, required this.onToggle});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onToggle,
+      child: Container(
+        margin: const EdgeInsets.only(right: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: MintColors.white.withValues(alpha: 0.18),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              isCouple ? 'Duo' : 'Solo',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: MintColors.white,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              isCouple ? Icons.people : Icons.person,
+              size: 16,
+              color: MintColors.white,
+            ),
           ],
         ),
       ),

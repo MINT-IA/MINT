@@ -4389,5 +4389,15 @@
   "drawerCeQueTuDois": "Was du schuldest",
   "drawerCeQueTuDoisSubtitle": "Gesamtschulden",
   "drawerCeQueTuAuras": "Was du haben wirst",
-  "drawerCeQueTuAurasSubtitle": "Projiziertes Renteneinkommen"
+  "drawerCeQueTuAurasSubtitle": "Projiziertes Renteneinkommen",
+  "shellWelcomeBack": "Willkommen zurück! Deine Daten sind aktuell.",
+  "shellRecommendationsUpdated": "Empfehlungen aktualisiert",
+  "pulseEnrichirTitle": "Scanne dein BVG-Zertifikat",
+  "pulseEnrichirSubtitle": "Vertrauen → +{points} Punkte",
+  "@pulseEnrichirSubtitle": {
+    "placeholders": {
+      "points": {"type": "String"}
+    }
+  },
+  "pulseEnrichirCta": "Scannen →"
 }
