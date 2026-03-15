@@ -215,9 +215,11 @@ class PrecisionPromptList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final prompts = PrecisionService.getPrecisionPrompts(
       context: promptContext,
       profile: profile,
+      s: s,
     );
     if (prompts.isEmpty) return const SizedBox.shrink();
 

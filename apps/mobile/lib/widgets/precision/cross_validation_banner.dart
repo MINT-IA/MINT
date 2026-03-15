@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/precision/precision_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -182,7 +183,8 @@ class CrossValidationBannerList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final alerts = PrecisionService.crossValidate(profile);
+    final s = S.of(context)!;
+    final alerts = PrecisionService.crossValidate(profile, s);
     if (alerts.isEmpty) return const SizedBox.shrink();
 
     return Column(

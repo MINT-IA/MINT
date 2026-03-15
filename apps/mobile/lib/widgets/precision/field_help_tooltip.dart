@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/precision/precision_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -39,7 +40,8 @@ class FieldHelpTooltip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final help = PrecisionService.getFieldHelp(fieldName);
+    final s = S.of(context)!;
+    final help = PrecisionService.getFieldHelp(fieldName, s);
     if (help == null) return const SizedBox.shrink();
 
     return InkWell(

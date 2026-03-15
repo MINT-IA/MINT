@@ -10,6 +10,7 @@
 library;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 /// Contextual help for a financial field — tells the user exactly
@@ -86,126 +87,103 @@ class PrecisionService {
   // 1. Contextual field help
   // ------------------------------------------------------------------
 
-  static final Map<String, FieldHelp> _fieldHelpMap = {
-    'lpp_total': const FieldHelp(
-      fieldName: 'lpp_total',
-      whereToFind:
-          'Sur ton certificat de prévoyance, ligne "Avoir de vieillesse" ou "Total des avoirs".',
-      documentName: 'Certificat de prévoyance LPP',
-      germanName: 'Altersguthaben (Vorsorgeausweis)',
-      fallbackEstimation:
-          'On peut estimer depuis ton salaire et ton âge, mais la précision sera de +/-30 %.',
-    ),
-    'lpp_obligatoire': const FieldHelp(
-      fieldName: 'lpp_obligatoire',
-      whereToFind:
-          'Sur ton certificat de prévoyance, ligne "Part obligatoire" ou "Obligatorisches Altersguthaben".',
-      documentName: 'Certificat de prévoyance LPP',
-      germanName: 'Obligatorisches Altersguthaben (Vorsorgeausweis)',
-      fallbackEstimation:
-          'Estimation possible depuis le salaire coordonné et les bonifications légales.',
-    ),
-    'lpp_surobligatoire': const FieldHelp(
-      fieldName: 'lpp_surobligatoire',
-      whereToFind:
-          'Sur ton certificat de prévoyance, ligne "Part surobligatoire" (= total - obligatoire).',
-      documentName: 'Certificat de prévoyance LPP',
-      germanName: 'Überobligatorisches Altersguthaben (Vorsorgeausweis)',
-      fallbackEstimation:
-          'Calculable comme la différence entre LPP total et LPP obligatoire.',
-    ),
-    'salaire_brut': const FieldHelp(
-      fieldName: 'salaire_brut',
-      whereToFind:
-          'Sur ta fiche de salaire (bulletin de paie), ligne "Salaire brut" tout en haut.',
-      documentName: 'Fiche de salaire mensuelle',
-      germanName: 'Bruttolohn (Lohnabrechnung)',
-      fallbackEstimation: null,
-    ),
-    'salaire_net': const FieldHelp(
-      fieldName: 'salaire_net',
-      whereToFind:
-          'Sur ta fiche de salaire, ligne "Salaire net" ou "Montant versé".',
-      documentName: 'Fiche de salaire mensuelle',
-      germanName: 'Nettolohn (Lohnabrechnung)',
-      fallbackEstimation:
-          'Environ 75-82 % du brut selon le canton et ta situation.',
-    ),
-    'taux_marginal': const FieldHelp(
-      fieldName: 'taux_marginal',
-      whereToFind:
-          'Sur ton avis de taxation, compare l\'impot total avec le revenu imposable. '
-          'Ou utilise le simulateur cantonal.',
-      documentName: 'Avis de taxation (Déclaration fiscale)',
-      germanName: 'Grenzsteuersatz (Steuerveranlagung)',
-      fallbackEstimation:
-          'Estimation possible depuis le revenu et le canton, mais peut varier de +/-5 points.',
-    ),
-    'avs_contribution_years': const FieldHelp(
-      fieldName: 'avs_contribution_years',
-      whereToFind:
-          'Sur ton extrait de compte individuel AVS (CI), section "Années de cotisation".',
-      documentName: 'Extrait de compte individuel AVS',
-      germanName: 'Beitragsjahre (Individueller Kontoauszug AHV)',
-      fallbackEstimation:
-          'On estime depuis ton âge et ton arrivée en Suisse, mais des lacunes sont possibles.',
-    ),
-    'pillar_3a_balance': const FieldHelp(
-      fieldName: 'pillar_3a_balance',
-      whereToFind:
-          'Sur ton attestation 3a ou dans ton e-banking, section "Prévoyance 3a".',
-      documentName: 'Attestation 3e pilier a',
-      germanName: 'Säule-3a-Guthaben (Vorsorgebescheinigung)',
-      fallbackEstimation:
-          'On peut estimer si tu cotises depuis un certain nombre d\'annees.',
-    ),
-    'mortgage_remaining': const FieldHelp(
-      fieldName: 'mortgage_remaining',
-      whereToFind:
-          'Sur ton attestation hypothécaire ou dans ton e-banking, "Capital restant dû".',
-      documentName: 'Attestation hypothécaire',
-      germanName: 'Restschuld (Hypothekarbestätigung)',
-      fallbackEstimation: null,
-    ),
-    'monthly_expenses': const FieldHelp(
-      fieldName: 'monthly_expenses',
-      whereToFind:
-          'Additionne tes dépenses fixes (loyer, assurances, abonnements) '
-          'et variables (courses, loisirs). Ton e-banking peut t\'aider.',
-      documentName: 'Relevé de compte bancaire',
-      germanName: 'Monatliche Ausgaben (Kontoauszug)',
-      fallbackEstimation:
-          'Estimation possible selon ton profil, mais la précision sera limitée.',
-    ),
-    'replacement_ratio': const FieldHelp(
-      fieldName: 'replacement_ratio',
-      whereToFind:
-          'C\'est le pourcentage de ton dernier salaire que tu veux maintenir à la retraite. '
-          'En général entre 60 % et 80 %.',
-      documentName: 'Aucun document — c\'est un objectif personnel',
-      germanName: 'Ersatzquote',
-      fallbackEstimation: 'Par défaut on utilise 70 % (norme suisse courante).',
-    ),
-    'tax_saving_3a': const FieldHelp(
-      fieldName: 'tax_saving_3a',
-      whereToFind:
-          'Calculé depuis ton taux marginal et ta cotisation 3a annuelle. '
-          'Visible aussi sur ton avis de taxation.',
-      documentName: 'Avis de taxation',
-      germanName: 'Steuerersparnis Säule 3a (Steuerveranlagung)',
-      fallbackEstimation:
-          'Estimation = cotisation 3a x taux marginal estimé.',
-    ),
-  };
-
   /// Returns contextual help for a given financial field.
-  static FieldHelp? getFieldHelp(String fieldName) {
-    return _fieldHelpMap[fieldName];
+  static FieldHelp? getFieldHelp(String fieldName, S s) {
+    return _buildFieldHelpMap(s)[fieldName];
   }
 
   /// Returns all known field-help entries.
-  static List<FieldHelp> get allFieldHelps =>
-      _fieldHelpMap.values.toList(growable: false);
+  static List<FieldHelp> allFieldHelps(S s) =>
+      _buildFieldHelpMap(s).values.toList(growable: false);
+
+  static Map<String, FieldHelp> _buildFieldHelpMap(S s) {
+    return {
+      'lpp_total': FieldHelp(
+        fieldName: 'lpp_total',
+        whereToFind: s.precisionFieldHelpLppTotalWhere,
+        documentName: s.precisionFieldHelpLppTotalDoc,
+        germanName: s.precisionFieldHelpLppTotalDe,
+        fallbackEstimation: s.precisionFieldHelpLppTotalFallback,
+      ),
+      'lpp_obligatoire': FieldHelp(
+        fieldName: 'lpp_obligatoire',
+        whereToFind: s.precisionFieldHelpLppObligWhere,
+        documentName: s.precisionFieldHelpLppObligDoc,
+        germanName: s.precisionFieldHelpLppObligDe,
+        fallbackEstimation: s.precisionFieldHelpLppObligFallback,
+      ),
+      'lpp_surobligatoire': FieldHelp(
+        fieldName: 'lpp_surobligatoire',
+        whereToFind: s.precisionFieldHelpLppSurobligWhere,
+        documentName: s.precisionFieldHelpLppSurobligDoc,
+        germanName: s.precisionFieldHelpLppSurobligDe,
+        fallbackEstimation: s.precisionFieldHelpLppSurobligFallback,
+      ),
+      'salaire_brut': FieldHelp(
+        fieldName: 'salaire_brut',
+        whereToFind: s.precisionFieldHelpSalaireBrutWhere,
+        documentName: s.precisionFieldHelpSalaireBrutDoc,
+        germanName: s.precisionFieldHelpSalaireBrutDe,
+        fallbackEstimation: null,
+      ),
+      'salaire_net': FieldHelp(
+        fieldName: 'salaire_net',
+        whereToFind: s.precisionFieldHelpSalaireNetWhere,
+        documentName: s.precisionFieldHelpSalaireNetDoc,
+        germanName: s.precisionFieldHelpSalaireNetDe,
+        fallbackEstimation: s.precisionFieldHelpSalaireNetFallback,
+      ),
+      'taux_marginal': FieldHelp(
+        fieldName: 'taux_marginal',
+        whereToFind: s.precisionFieldHelpTauxMarginalWhere,
+        documentName: s.precisionFieldHelpTauxMarginalDoc,
+        germanName: s.precisionFieldHelpTauxMarginalDe,
+        fallbackEstimation: s.precisionFieldHelpTauxMarginalFallback,
+      ),
+      'avs_contribution_years': FieldHelp(
+        fieldName: 'avs_contribution_years',
+        whereToFind: s.precisionFieldHelpAvsYearsWhere,
+        documentName: s.precisionFieldHelpAvsYearsDoc,
+        germanName: s.precisionFieldHelpAvsYearsDe,
+        fallbackEstimation: s.precisionFieldHelpAvsYearsFallback,
+      ),
+      'pillar_3a_balance': FieldHelp(
+        fieldName: 'pillar_3a_balance',
+        whereToFind: s.precisionFieldHelp3aBalanceWhere,
+        documentName: s.precisionFieldHelp3aBalanceDoc,
+        germanName: s.precisionFieldHelp3aBalanceDe,
+        fallbackEstimation: s.precisionFieldHelp3aBalanceFallback,
+      ),
+      'mortgage_remaining': FieldHelp(
+        fieldName: 'mortgage_remaining',
+        whereToFind: s.precisionFieldHelpMortgageWhere,
+        documentName: s.precisionFieldHelpMortgageDoc,
+        germanName: s.precisionFieldHelpMortgageDe,
+        fallbackEstimation: null,
+      ),
+      'monthly_expenses': FieldHelp(
+        fieldName: 'monthly_expenses',
+        whereToFind: s.precisionFieldHelpExpensesWhere,
+        documentName: s.precisionFieldHelpExpensesDoc,
+        germanName: s.precisionFieldHelpExpensesDe,
+        fallbackEstimation: s.precisionFieldHelpExpensesFallback,
+      ),
+      'replacement_ratio': FieldHelp(
+        fieldName: 'replacement_ratio',
+        whereToFind: s.precisionFieldHelpReplacementRatioWhere,
+        documentName: s.precisionFieldHelpReplacementRatioDoc,
+        germanName: s.precisionFieldHelpReplacementRatioDe,
+        fallbackEstimation: s.precisionFieldHelpReplacementRatioFallback,
+      ),
+      'tax_saving_3a': FieldHelp(
+        fieldName: 'tax_saving_3a',
+        whereToFind: s.precisionFieldHelpTaxSaving3aWhere,
+        documentName: s.precisionFieldHelpTaxSaving3aDoc,
+        germanName: s.precisionFieldHelpTaxSaving3aDe,
+        fallbackEstimation: s.precisionFieldHelpTaxSaving3aFallback,
+      ),
+    };
+  }
 
   // ------------------------------------------------------------------
   // 2. Cross-validation
@@ -218,6 +196,7 @@ class PrecisionService {
   /// `age`, `avs_contribution_years`, `pillar_3a_balance`, etc.
   static List<CrossValidationAlert> crossValidate(
     Map<String, dynamic> profile,
+    S s,
   ) {
     final alerts = <CrossValidationAlert>[];
 
@@ -247,19 +226,16 @@ class PrecisionService {
         alerts.add(CrossValidationAlert(
           fieldName: 'lpp_total',
           severity: 'warning',
-          message:
-              'Ton avoir LPP (CHF ${_fmt(lppTotal)}) semble bas pour ton age et ton salaire.',
-          suggestion:
-              'As-tu récemment changé d\'emploi, retiré un EPL ou travaillé à temps partiel?',
+          message: s.precisionCrossValLppLow(_fmt(lppTotal)),
+          suggestion: s.precisionCrossValLppLowSuggestion,
         ));
       }
       if (lppTotal > expectedMax) {
-        alerts.add(const CrossValidationAlert(
+        alerts.add(CrossValidationAlert(
           fieldName: 'lpp_total',
           severity: 'warning',
-          message: 'Ton avoir LPP semble très élevé.',
-          suggestion:
-              'Est-ce que ça inclut bien le surobligatoire? Vérifie sur ton certificat de prévoyance.',
+          message: s.precisionCrossValLppHigh,
+          suggestion: s.precisionCrossValLppHighSuggestion,
         ));
       }
     }
@@ -271,11 +247,8 @@ class PrecisionService {
         alerts.add(CrossValidationAlert(
           fieldName: 'lpp_obligatoire',
           severity: 'error',
-          message:
-              'La somme obligatoire + surobligatoire (CHF ${_fmt(sum)}) '
-              'ne correspond pas au total LPP (CHF ${_fmt(lppTotal)}).',
-          suggestion:
-              'Vérifie les montants sur ton certificat de prévoyance.',
+          message: s.precisionCrossValLppSumMismatch(_fmt(sum), _fmt(lppTotal)),
+          suggestion: s.precisionCrossValLppSumMismatchSuggestion,
         ));
       }
     }
@@ -284,24 +257,19 @@ class PrecisionService {
     if (salaireBrut > 0 && salaireNet > 0) {
       final ratio = salaireNet / salaireBrut;
       if (ratio > 0.92) {
-        alerts.add(const CrossValidationAlert(
+        alerts.add(CrossValidationAlert(
           fieldName: 'salaire_net',
           severity: 'warning',
-          message:
-              'Ton net est très proche du brut — les déductions semblent faibles.',
-          suggestion:
-              'Vérifie que tu as bien entré le salaire brut (avant déductions AVS, LPP, etc.).',
+          message: s.precisionCrossValNetHighRatio,
+          suggestion: s.precisionCrossValNetHighRatioSuggestion,
         ));
       }
       if (ratio < 0.55) {
-        alerts.add(const CrossValidationAlert(
+        alerts.add(CrossValidationAlert(
           fieldName: 'salaire_net',
           severity: 'warning',
-          message:
-              'L\'écart entre ton brut et ton net est inhabituellement grand.',
-          suggestion:
-              'Vérifie que le brut inclut bien le 13e salaire si applicable, '
-              'et que le net n\'inclut pas de remboursements de frais.',
+          message: s.precisionCrossValNetLowRatio,
+          suggestion: s.precisionCrossValNetLowRatioSuggestion,
         ));
       }
     }
@@ -313,10 +281,13 @@ class PrecisionService {
         alerts.add(CrossValidationAlert(
           fieldName: 'avs_contribution_years',
           severity: 'error',
-          message:
-              '$avsYears années de cotisation AVS ne sont pas possibles à ${age.round()} ans.',
-          suggestion:
-              'Le nombre d\'années ne peut pas dépasser ${maxYears.round()} (cotisation dès 20 ans).',
+          message: s.precisionCrossValAvsYearsExceed(
+            avsYears.toString(),
+            age.round().toString(),
+          ),
+          suggestion: s.precisionCrossValAvsYearsExceedSuggestion(
+            maxYears.round().toString(),
+          ),
         ));
       }
     }
@@ -328,20 +299,19 @@ class PrecisionService {
       // Reasonable upper bound: max contribution each year + ~3% annual return
       final theoreticalMax = maxAnnual * maxYears3a * 1.4;
       if (pillar3a > theoreticalMax) {
-        alerts.add(const CrossValidationAlert(
+        alerts.add(CrossValidationAlert(
           fieldName: 'pillar_3a_balance',
           severity: 'warning',
-          message: 'Ton solde 3a semble très élevé par rapport à ton âge.',
-          suggestion:
-              'Vérifie qu\'il s\'agit bien du solde 3a et non du total patrimoine.',
+          message: s.precisionCrossVal3aHigh,
+          suggestion: s.precisionCrossVal3aHighSuggestion,
         ));
       }
       if (age < 18 && pillar3a > 0) {
-        alerts.add(const CrossValidationAlert(
+        alerts.add(CrossValidationAlert(
           fieldName: 'pillar_3a_balance',
           severity: 'error',
-          message: 'Tu ne peux ouvrir un 3a qu\'à partir de 18 ans.',
-          suggestion: 'Vérifie ton âge ou ton solde 3a.',
+          message: s.precisionCrossVal3aUnder18,
+          suggestion: s.precisionCrossVal3aUnder18Suggestion,
         ));
       }
     }
@@ -349,13 +319,11 @@ class PrecisionService {
     // Check 6: Monthly expenses vs net salary
     if (monthlyExpenses > 0 && salaireNet > 0) {
       if (monthlyExpenses > salaireNet * 1.3) {
-        alerts.add(const CrossValidationAlert(
+        alerts.add(CrossValidationAlert(
           fieldName: 'monthly_expenses',
           severity: 'warning',
-          message:
-              'Tes dépenses mensuelles dépassent largement ton salaire net.',
-          suggestion:
-              'Vérifie que tu n\'as pas inclus des dépenses annuelles (impôts, assurances) en mensuel.',
+          message: s.precisionCrossValExpensesHigh,
+          suggestion: s.precisionCrossValExpensesHighSuggestion,
         ));
       }
     }
@@ -363,24 +331,19 @@ class PrecisionService {
     // Check 7: Marginal tax rate bounds
     if (tauxMarginal > 0) {
       if (tauxMarginal > 0.50) {
-        alerts.add(const CrossValidationAlert(
+        alerts.add(CrossValidationAlert(
           fieldName: 'taux_marginal',
           severity: 'warning',
-          message:
-              'Un taux marginal supérieur à 50 % est très rare en Suisse.',
-          suggestion:
-              'Vérifie ton avis de taxation — le taux marginal est l\'impôt supplémentaire '
-              'sur le prochain franc gagné, pas le taux moyen.',
+          message: s.precisionCrossValTauxHigh,
+          suggestion: s.precisionCrossValTauxHighSuggestion,
         ));
       }
       if (tauxMarginal < 0.05 && salaireBrut > 3000) {
-        alerts.add(const CrossValidationAlert(
+        alerts.add(CrossValidationAlert(
           fieldName: 'taux_marginal',
           severity: 'warning',
-          message:
-              'Un taux marginal inferieur a 5 % semble bas pour ton salaire.',
-          suggestion:
-              'Vérifie que tu n\'as pas entré le taux moyen au lieu du taux marginal.',
+          message: s.precisionCrossValTauxLow,
+          suggestion: s.precisionCrossValTauxLowSuggestion,
         ));
       }
     }
@@ -401,6 +364,7 @@ class PrecisionService {
     required int age,
     required double salary,
     required String canton,
+    required S s,
   }) {
     final defaults = <SmartDefault>[];
     final annualSalary = salary * 12;
@@ -417,18 +381,17 @@ class PrecisionService {
     lppEstimate *= 1.0 + (yearsContrib * 0.015);
 
     if (archetype == 'independent_no_lpp') {
-      defaults.add(const SmartDefault(
+      defaults.add(SmartDefault(
         fieldName: 'lpp_total',
         value: 0,
-        source: 'Indépendant sans LPP — pas de 2e pilier obligatoire',
+        source: s.precisionDefaultLppNoLpp,
         confidence: 0.90,
       ));
     } else {
       defaults.add(SmartDefault(
         fieldName: 'lpp_total',
         value: _round(lppEstimate),
-        source:
-            'Estimation pour un profil $archetype de $age ans (bonifications légales)',
+        source: s.precisionDefaultLppEstimate(archetype, age.toString()),
         confidence: archetype == 'swiss_native' ? 0.40 : 0.25,
       ));
     }
@@ -446,8 +409,7 @@ class PrecisionService {
       defaults.add(SmartDefault(
         fieldName: 'lpp_obligatoire',
         value: _round(obligEstimate),
-        source:
-            'Estimation part obligatoire (salaire coordonné min LPP art. 8)',
+        source: s.precisionDefaultLppOblig,
         confidence: 0.30,
       ));
     }
@@ -457,8 +419,10 @@ class PrecisionService {
     defaults.add(SmartDefault(
       fieldName: 'salaire_net',
       value: _round(salary * netRatio),
-      source:
-          'Estimation net ~${(netRatio * 100).round()} % du brut (canton de $canton)',
+      source: s.precisionDefaultSalaireNet(
+        (netRatio * 100).round().toString(),
+        canton,
+      ),
       confidence: 0.35,
     ));
 
@@ -477,7 +441,7 @@ class PrecisionService {
     defaults.add(SmartDefault(
       fieldName: 'avs_contribution_years',
       value: avsYears,
-      source: 'Estimation pour archétype $archetype (sans lacunes)',
+      source: s.precisionDefaultAvsYears(archetype),
       confidence: archetype == 'swiss_native' ? 0.55 : 0.30,
     ));
 
@@ -489,8 +453,7 @@ class PrecisionService {
     defaults.add(SmartDefault(
       fieldName: 'pillar_3a_balance',
       value: _round(estimated3a),
-      source:
-          'Estimation (cotisation max CHF 7\'258/an, taux d\'utilisation 60 %)',
+      source: s.precisionDefault3aBalance,
       confidence: 0.20,
     ));
 
@@ -499,7 +462,7 @@ class PrecisionService {
     defaults.add(SmartDefault(
       fieldName: 'monthly_expenses',
       value: _round(estimatedExpenses),
-      source: 'Estimation ~65 % du salaire brut (loyer, assurances, quotidien)',
+      source: s.precisionDefaultExpenses,
       confidence: 0.25,
     ));
 
@@ -508,15 +471,15 @@ class PrecisionService {
     defaults.add(SmartDefault(
       fieldName: 'taux_marginal',
       value: (tauxEstimate * 100).roundToDouble(),
-      source: 'Estimation depuis le revenu brut et le canton de $canton',
+      source: s.precisionDefaultTauxMarginal(canton),
       confidence: 0.30,
     ));
 
     // --- Replacement ratio ---
-    defaults.add(const SmartDefault(
+    defaults.add(SmartDefault(
       fieldName: 'replacement_ratio',
       value: 70,
-      source: 'Norme suisse courante : 70 % du dernier salaire',
+      source: s.precisionDefaultReplacementRatio,
       confidence: 0.50,
     ));
 
@@ -525,8 +488,9 @@ class PrecisionService {
     defaults.add(SmartDefault(
       fieldName: 'tax_saving_3a',
       value: _round(taxSaving3a),
-      source:
-          'Cotisation max CHF 7\'258 x taux marginal estimé ${(tauxEstimate * 100).round()} %',
+      source: s.precisionDefaultTaxSaving3a(
+        (tauxEstimate * 100).round().toString(),
+      ),
       confidence: 0.25,
     ));
 
@@ -542,6 +506,7 @@ class PrecisionService {
   static List<PrecisionPrompt> getPrecisionPrompts({
     required String context,
     required Map<String, dynamic> profile,
+    required S s,
   }) {
     final prompts = <PrecisionPrompt>[];
 
@@ -555,23 +520,19 @@ class PrecisionService {
     // Rente vs Capital arbitrage context
     if (context == 'rente_vs_capital' || context == 'retirement') {
       if (!hasLppOblig) {
-        prompts.add(const PrecisionPrompt(
+        prompts.add(PrecisionPrompt(
           trigger: 'rente_vs_capital',
           fieldNeeded: 'lpp_obligatoire',
-          promptText:
-              'Pour comparer rente et capital précisément, '
-              'on a besoin de la part obligatoire de ta LPP.',
-          impactText: 'Résultat +/-20 % plus précis',
+          promptText: s.precisionPromptLppObligText,
+          impactText: s.precisionPromptLppObligImpact,
         ));
       }
       if (!hasLppTotal) {
-        prompts.add(const PrecisionPrompt(
+        prompts.add(PrecisionPrompt(
           trigger: 'rente_vs_capital',
           fieldNeeded: 'lpp_total',
-          promptText:
-              'Ton avoir LPP total est estimé. '
-              'Avec le chiffre exact, la projection sera fiable.',
-          impactText: 'Résultat +/-30 % plus précis',
+          promptText: s.precisionPromptLppTotalText,
+          impactText: s.precisionPromptLppTotalImpact,
         ));
       }
     }
@@ -579,13 +540,11 @@ class PrecisionService {
     // Tax optimization context
     if (context == 'tax_optimization' || context == 'rachat_lpp') {
       if (!hasTauxMarginal) {
-        prompts.add(const PrecisionPrompt(
+        prompts.add(PrecisionPrompt(
           trigger: 'tax_optimization',
           fieldNeeded: 'taux_marginal',
-          promptText:
-              'Ton taux marginal est estimé. '
-              'Ton avis de taxation contient le chiffre exact.',
-          impactText: 'Économie d\'impôt +/-5 points de précision',
+          promptText: s.precisionPromptTauxMarginalText,
+          impactText: s.precisionPromptTauxMarginalImpact,
         ));
       }
     }
@@ -593,23 +552,19 @@ class PrecisionService {
     // Retirement projection context
     if (context == 'retirement' || context == 'dashboard') {
       if (!hasAvsYears) {
-        prompts.add(const PrecisionPrompt(
+        prompts.add(PrecisionPrompt(
           trigger: 'retirement',
           fieldNeeded: 'avs_contribution_years',
-          promptText:
-              'Tes années AVS sont estimées. '
-              'Commande ton extrait de compte individuel (gratuit) pour un chiffre exact.',
-          impactText: 'Rente AVS +/-CHF 200/mois de précision',
+          promptText: s.precisionPromptAvsYearsText,
+          impactText: s.precisionPromptAvsYearsImpact,
         ));
       }
       if (!has3a) {
-        prompts.add(const PrecisionPrompt(
+        prompts.add(PrecisionPrompt(
           trigger: 'retirement',
           fieldNeeded: 'pillar_3a_balance',
-          promptText:
-              'Ton solde 3a n\'est pas renseigné. '
-              'Ajoute-le pour une projection de retraite complete.',
-          impactText: 'Projection retraite plus complète',
+          promptText: s.precisionPrompt3aText,
+          impactText: s.precisionPrompt3aImpact,
         ));
       }
     }
@@ -617,13 +572,11 @@ class PrecisionService {
     // 3a deep context
     if (context == '3a_deep' || context == '3a_optimization') {
       if (!hasTauxMarginal) {
-        prompts.add(const PrecisionPrompt(
+        prompts.add(PrecisionPrompt(
           trigger: '3a_optimization',
           fieldNeeded: 'taux_marginal',
-          promptText:
-              'Pour calculer ton économie fiscale 3a, '
-              'on a besoin de ton taux marginal reel.',
-          impactText: 'Calcul d\'économie +/-5 points de précision',
+          promptText: s.precisionPromptTauxMarginal3aText,
+          impactText: s.precisionPromptTauxMarginal3aImpact,
         ));
       }
     }
@@ -631,13 +584,11 @@ class PrecisionService {
     // Mortgage context
     if (context == 'mortgage') {
       if (!hasMortgage) {
-        prompts.add(const PrecisionPrompt(
+        prompts.add(PrecisionPrompt(
           trigger: 'mortgage',
           fieldNeeded: 'mortgage_remaining',
-          promptText:
-              'Pour l\'analyse hypothécaire, '
-              'on a besoin du capital restant dû exact.',
-          impactText: 'Analyse de capacité plus fiable',
+          promptText: s.precisionPromptMortgageText,
+          impactText: s.precisionPromptMortgageImpact,
         ));
       }
     }
@@ -646,13 +597,11 @@ class PrecisionService {
     if (context == 'budget') {
       final hasExpenses = _dbl(profile, 'monthly_expenses') > 0;
       if (!hasExpenses) {
-        prompts.add(const PrecisionPrompt(
+        prompts.add(PrecisionPrompt(
           trigger: 'budget',
           fieldNeeded: 'monthly_expenses',
-          promptText:
-              'Tes dépenses mensuelles ne sont pas renseignées. '
-              'Ajoute-les pour un budget réaliste.',
-          impactText: 'Budget +/-15 % plus précis',
+          promptText: s.precisionPromptExpensesText,
+          impactText: s.precisionPromptExpensesImpact,
         ));
       }
     }
