@@ -129,7 +129,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text('COMPARAISON DES STRATEGIES'), findsOneWidget);
+      expect(find.text('COMPARAISON DES STRAT\u00c9GIES'), findsOneWidget);
       expect(find.text('AVALANCHE'), findsOneWidget);
       expect(find.text('BOULE DE NEIGE'), findsOneWidget);
     });
@@ -361,7 +361,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text('PARAMETRES'), findsOneWidget);
+      expect(find.text('PARAM\u00c8TRES'), findsOneWidget);
       expect(find.text('Revenu mensuel net'), findsOneWidget);
       expect(find.text('Charges de dette mensuelles'), findsOneWidget);
       expect(find.text('Loyer'), findsOneWidget);
@@ -390,7 +390,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text('Celibataire'), findsOneWidget);
+      expect(find.text('C\u00e9libataire'), findsOneWidget);
       expect(find.byType(Switch), findsOneWidget);
     });
 

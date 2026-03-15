@@ -541,14 +541,14 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      expect(find.text('GENDER GAP PREVOYANCE'), findsOneWidget);
+      expect(find.text('GENDER GAP PR\u00c9VOYANCE'), findsOneWidget);
     });
 
     testWidgets('displays header with French text', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      expect(find.text('Lacune de prevoyance'), findsOneWidget);
+      expect(find.text('Lacune de pr\u00e9voyance'), findsOneWidget);
       // "temps partiel" appears in both header subtitle and intro
       expect(find.textContaining('temps partiel'), findsWidgets);
     });
@@ -564,7 +564,7 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      expect(find.textContaining('activite'), findsWidgets);
+      expect(find.textContaining('activit\u00e9'), findsWidgets);
       expect(find.byType(Slider), findsOneWidget);
     });
 
@@ -574,12 +574,12 @@ void main() {
 
       // Scroll down to the parameters section
       await tester.scrollUntilVisible(
-        find.text('Parametres'),
+        find.text('Param\u00e8tres'),
         200,
         scrollable: find.byType(Scrollable).first,
       );
 
-      expect(find.text('Parametres'), findsOneWidget);
+      expect(find.text('Param\u00e8tres'), findsOneWidget);
       expect(find.textContaining('Revenu annuel'), findsOneWidget);
     });
 
@@ -603,12 +603,12 @@ void main() {
       await tester.pump();
 
       await tester.scrollUntilVisible(
-        find.textContaining('Comprendre la deduction'),
+        find.textContaining('Comprendre la d\u00e9duction'),
         200,
         scrollable: find.byType(Scrollable).first,
       );
 
-      expect(find.textContaining('Comprendre la deduction'), findsOneWidget);
+      expect(find.textContaining('Comprendre la d\u00e9duction'), findsOneWidget);
     });
 
     testWidgets('displays OFS statistic after scrolling', (tester) async {
@@ -629,12 +629,12 @@ void main() {
       await tester.pump();
 
       await tester.scrollUntilVisible(
-        find.textContaining('estimations simplifiees'),
+        find.textContaining('estimations simplifi\u00e9es'),
         200,
         scrollable: find.byType(Scrollable).first,
       );
 
-      expect(find.textContaining('estimations simplifiees'), findsOneWidget);
+      expect(find.textContaining('estimations simplifi\u00e9es'), findsOneWidget);
     });
 
     testWidgets('displays legal sources footer after scrolling',
@@ -658,12 +658,12 @@ void main() {
       await tester.pump();
 
       await tester.scrollUntilVisible(
-        find.textContaining('Mode demo'),
+        find.textContaining('Mode d\u00e9mo'),
         200,
         scrollable: find.byType(Scrollable).first,
       );
 
-      expect(find.textContaining('Mode demo'), findsOneWidget);
+      expect(find.textContaining('Mode d\u00e9mo'), findsOneWidget);
     });
   });
 }

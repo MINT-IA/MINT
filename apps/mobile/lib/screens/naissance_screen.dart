@@ -55,11 +55,21 @@ class _NaissanceScreenState extends State<NaissanceScreen>
   final Set<int> _checkedItems = {};
   final Map<int, bool> _expandedItems = {};
 
+  bool _initialized = false;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
-    _recalculateAll();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _recalculateAll();
+    }
   }
 
   @override

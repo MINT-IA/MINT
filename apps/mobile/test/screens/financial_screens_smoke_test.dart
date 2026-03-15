@@ -264,7 +264,7 @@ void main() {
       await tester.pump();
 
       // Title in SliverAppBar
-      expect(find.text('RACHAT LPP ECHELONNE'), findsOneWidget);
+      expect(find.text('RACHAT LPP \u00c9CHELONN\u00c9'), findsOneWidget);
       // Intro text
       expect(
         find.textContaining('Pourquoi échelonner ses rachats'),

@@ -123,7 +123,7 @@ void main() {
       await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
       await tester.pump();
 
-      expect(find.text('Mot de passe oublié ?'), findsOneWidget);
+      expect(find.text('Mot de passe oublié\u00a0?'), findsOneWidget);
     });
 
     testWidgets('shows verify email link', (tester) async {

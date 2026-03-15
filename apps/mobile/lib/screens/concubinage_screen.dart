@@ -41,11 +41,21 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
   final Set<int> _checkedItems = {};
   final Map<int, bool> _expandedItems = {};
 
+  bool _initialized = false;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _recalculate();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _recalculate();
+    }
   }
 
   @override

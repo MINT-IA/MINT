@@ -32,18 +32,18 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Prévoyance LPP'), findsOneWidget);
+    expect(find.text('Pr\u00e9voyance LPP'), findsOneWidget);
     expect(find.text('Ajouter mon certificat LPP'), findsOneWidget);
   });
 
   testWidgets('maps accented prevoyance alias to LPP block metadata',
       (tester) async {
     await tester.pumpWidget(
-      _wrap(const DataBlockEnrichmentScreen(blockType: 'Prévoyance-LPP')),
+      _wrap(const DataBlockEnrichmentScreen(blockType: 'Pr\u00e9voyance-LPP')),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Prévoyance LPP'), findsOneWidget);
+    expect(find.text('Pr\u00e9voyance LPP'), findsOneWidget);
     expect(find.text('Ajouter mon certificat LPP'), findsOneWidget);
   });
 
@@ -53,8 +53,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Données'), findsWidgets);
-    expect(find.textContaining('n’est plus à jour'), findsOneWidget);
+    expect(find.text('Donn\u00e9es'), findsWidgets);
+    expect(find.textContaining("n'est plus \u00e0 jour"), findsOneWidget);
     expect(find.text('Ouvrir le diagnostic'), findsOneWidget);
   });
 }

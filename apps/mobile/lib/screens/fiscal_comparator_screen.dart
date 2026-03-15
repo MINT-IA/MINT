@@ -69,17 +69,27 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
   // ── Move checklist ─────────────────────────────────────
   final Set<int> _moveChecked = {};
 
+  bool _initialized = false;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _initFromProfile();
-    _recalculate();
     // Charge les donnees communales (si pas deja chargees)
     if (!CommuneData.isLoaded) {
       CommuneData.load().then((_) {
         if (mounted) setState(() {});
       });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _recalculate();
     }
   }
 

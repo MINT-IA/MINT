@@ -149,7 +149,7 @@ void main() {
       await tester.pump();
 
       expect(find.text('PLAN ANNUEL'), findsOneWidget);
-      expect(find.text('Age'), findsWidgets);
+      expect(find.text('\u00c2ge'), findsWidgets);
       expect(find.text('Retrait'), findsOneWidget);
     });
 
@@ -201,7 +201,7 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      expect(find.text('RENDEMENT REEL 3A'), findsOneWidget);
+      expect(find.text('RENDEMENT R\u00c9EL 3A'), findsOneWidget);
     });
 
     testWidgets('displays chiffre choc with rendement percentage',
@@ -209,7 +209,7 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      expect(find.text('Taux equivalent sur effort net'), findsOneWidget);
+      expect(find.text('Taux \u00e9quivalent sur effort net'), findsOneWidget);
       expect(find.textContaining('%'), findsWidgets);
       expect(find.textContaining('taux net 3a'), findsOneWidget);
     });
@@ -221,12 +221,12 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -200));
       await tester.pump();
 
-      expect(find.text('PARAMETRES'), findsOneWidget);
+      expect(find.text('PARAM\u00c8TRES'), findsOneWidget);
       expect(find.text('Versement annuel'), findsOneWidget);
       expect(find.text('Taux marginal'), findsOneWidget);
       expect(find.text('Rendement brut'), findsOneWidget);
       expect(find.text('Frais de gestion'), findsOneWidget);
-      expect(find.text('Duree de placement'), findsOneWidget);
+      expect(find.text('Dur\u00e9e de placement'), findsOneWidget);
     });
 
     testWidgets('has 5 Slider widgets', (tester) async {
@@ -246,10 +246,10 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -600));
       await tester.pump();
 
-      expect(find.text('RENDEMENTS COMPARES'), findsOneWidget);
+      expect(find.text('RENDEMENTS COMPAR\u00c9S'), findsOneWidget);
       expect(find.textContaining('Rendement nominal 3a'), findsOneWidget);
-      expect(find.textContaining('Rendement reel'), findsWidgets);
-      expect(find.textContaining('Rendement compte epargne'), findsOneWidget);
+      expect(find.textContaining('Rendement r\u00e9el'), findsWidgets);
+      expect(find.textContaining('Rendement compte \u00e9pargne'), findsOneWidget);
     });
 
     testWidgets('displays capital final comparison bars', (tester) async {
@@ -261,7 +261,7 @@ void main() {
 
       expect(find.textContaining('CAPITAL FINAL'), findsOneWidget);
       expect(find.textContaining('3a Fintech'), findsOneWidget);
-      expect(find.textContaining('Compte epargne'), findsOneWidget);
+      expect(find.textContaining('Compte \u00e9pargne'), findsOneWidget);
     });
 
     testWidgets('displays gain vs epargne classique', (tester) async {
@@ -273,7 +273,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -200));
       await tester.pump();
 
-      expect(find.textContaining('Gain vs epargne classique'), findsOneWidget);
+      expect(find.textContaining('Gain vs \u00e9pargne classique'), findsOneWidget);
     });
 
     testWidgets('has LinearProgressIndicator for comparison bars',
@@ -296,9 +296,9 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
       await tester.pump();
 
-      expect(find.text('DETAIL ECONOMIE FISCALE'), findsOneWidget);
+      expect(find.text('D\u00c9TAIL \u00c9CONOMIE FISCALE'), findsOneWidget);
       expect(find.text('Total versements'), findsOneWidget);
-      expect(find.textContaining('Economie fiscale cumulee'), findsOneWidget);
+      expect(find.textContaining('\u00c9conomie fiscale cumul\u00e9e'), findsOneWidget);
     });
 
     testWidgets('displays disclaimer after scrolling', (tester) async {
@@ -356,7 +356,7 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      expect(find.textContaining('Difference sur'), findsOneWidget);
+      expect(find.textContaining('Diff\u00e9rence sur'), findsOneWidget);
       expect(find.textContaining('CHF'), findsWidgets);
       expect(find.textContaining('plus et le moins performant'), findsOneWidget);
     });
@@ -368,10 +368,10 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -200));
       await tester.pump();
 
-      expect(find.text('PARAMETRES'), findsOneWidget);
-      expect(find.text('Age'), findsWidgets);
+      expect(find.text('PARAM\u00c8TRES'), findsOneWidget);
+      expect(find.text('\u00c2ge'), findsWidgets);
       expect(find.text('Versement annuel'), findsOneWidget);
-      expect(find.text('Duree'), findsOneWidget);
+      expect(find.text('Dur\u00e9e'), findsOneWidget);
     });
 
     testWidgets('has 3 Slider widgets (age, versement, duree)', (tester) async {
@@ -394,7 +394,7 @@ void main() {
 
       expect(find.text('Profil de risque'), findsOneWidget);
       expect(find.text('Prudent'), findsOneWidget);
-      expect(find.text('Equilibre'), findsOneWidget);
+      expect(find.text('\u00c9quilibr\u00e9'), findsOneWidget);
       expect(find.text('Dynamique'), findsOneWidget);
     });
 

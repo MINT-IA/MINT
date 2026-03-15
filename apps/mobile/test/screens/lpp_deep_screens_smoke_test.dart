@@ -31,7 +31,7 @@ void main() {
     testWidgets('displays French title in SliverAppBar', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      expect(find.text('RACHAT LPP ECHELONNE'), findsOneWidget);
+      expect(find.text('RACHAT LPP \u00c9CHELONN\u00c9'), findsOneWidget);
     });
 
     testWidgets('displays intro card with educational text', (tester) async {
@@ -81,8 +81,8 @@ void main() {
       await tester.pump();
       expect(find.text('SITUATION'), findsOneWidget);
       expect(find.text('Changement d\'emploi'), findsOneWidget);
-      expect(find.text('Depart de Suisse'), findsOneWidget);
-      expect(find.text('Cessation d\'activite'), findsOneWidget);
+      expect(find.text('D\u00e9part de Suisse'), findsOneWidget);
+      expect(find.text('Cessation d\'activit\u00e9'), findsOneWidget);
     });
 
     testWidgets('has ChoiceChip widgets for situation', (tester) async {

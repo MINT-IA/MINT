@@ -89,7 +89,7 @@ void main() {
       await tester.pump();
 
       expect(find.textContaining('Ratio charges'), findsOneWidget);
-      expect(find.text('Max 33%'), findsOneWidget);
+      expect(find.text('Max 33\u00a0%'), findsOneWidget);
     });
 
     testWidgets('displays fonds propres gauge', (tester) async {
@@ -100,7 +100,7 @@ void main() {
       await tester.pump();
 
       expect(find.textContaining('Fonds propres'), findsWidgets);
-      expect(find.text('Min 20%'), findsOneWidget);
+      expect(find.text('Min 20\u00a0%'), findsOneWidget);
     });
 
     testWidgets('displays parameters section with sliders', (tester) async {
@@ -223,7 +223,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -200));
       await tester.pump();
 
-      expect(find.textContaining('COUT CUMULE'), findsOneWidget);
+      expect(find.textContaining('CO\u00dbT CUMUL\u00c9'), findsOneWidget);
       expect(find.text('Fixe'), findsOneWidget);
       expect(find.text('SARON stable'), findsOneWidget);
       expect(find.text('SARON hausse'), findsOneWidget);
@@ -236,9 +236,9 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
       await tester.pump();
 
-      expect(find.text('PARAMETRES'), findsOneWidget);
-      expect(find.text('Montant hypothecaire'), findsOneWidget);
-      expect(find.text('Duree'), findsOneWidget);
+      expect(find.text('PARAM\u00c8TRES'), findsOneWidget);
+      expect(find.text('Montant hypoth\u00e9caire'), findsOneWidget);
+      expect(find.text('Dur\u00e9e'), findsOneWidget);
     });
 
     testWidgets('has slider and duration dropdown', (tester) async {
@@ -259,7 +259,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -700));
       await tester.pump();
 
-      expect(find.text('COMPARAISON DES COUTS'), findsOneWidget);
+      expect(find.text('COMPARAISON DES CO\u00dbTS'), findsOneWidget);
     });
 
     testWidgets('displays BNS policy note', (tester) async {
@@ -291,7 +291,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
       await tester.pump();
 
-      expect(find.textContaining('conseil hypothecaire'), findsWidgets);
+      expect(find.textContaining('conseil hypoth\u00e9caire'), findsWidgets);
     });
   });
 
@@ -580,7 +580,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -200));
       await tester.pump();
 
-      expect(find.text('REPARTITION DES FONDS PROPRES'), findsOneWidget);
+      expect(find.text('R\u00c9PARTITION DES FONDS PROPRES'), findsOneWidget);
     });
 
     testWidgets('displays funding source legend items', (tester) async {
@@ -601,7 +601,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -600));
       await tester.pump();
 
-      expect(find.text('PARAMETRES'), findsOneWidget);
+      expect(find.text('PARAM\u00c8TRES'), findsOneWidget);
       expect(find.text('Canton'), findsOneWidget);
     });
 
@@ -622,7 +622,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -900));
       await tester.pump();
 
-      expect(find.text('DETAIL DES SOURCES'), findsOneWidget);
+      expect(find.text('D\u00c9TAIL DES SOURCES'), findsOneWidget);
     });
 
     testWidgets('displays recommended order section', (tester) async {
@@ -634,7 +634,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
       await tester.pump();
 
-      expect(find.text('ORDRE RECOMMANDE'), findsOneWidget);
+      expect(find.text('ORDRE RECOMMAND\u00c9'), findsOneWidget);
     });
 
     testWidgets('displays LPP legal reference', (tester) async {
