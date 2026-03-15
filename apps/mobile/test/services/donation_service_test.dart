@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/services/donation_service.dart';
 
 /// Unit tests for DonationService — Sprint S24 (Donations)
@@ -14,6 +16,7 @@ import 'package:mint_mobile/services/donation_service.dart';
 ///
 /// Legal references: CC art. 457-471, CC art. 522 ss, CO art. 239 ss
 void main() {
+  final S _s = SFr();
   // ════════════════════════════════════════════════════════════
   //  IMPOT SUR LES DONATIONS PAR CANTON
   // ════════════════════════════════════════════════════════════
@@ -21,7 +24,7 @@ void main() {
   group('DonationService - Impot cantonal', () {
     test('donation au conjoint = exoneree dans tous les cantons', () {
       for (final canton in DonationService.tauxDonationCantonal.keys) {
-        final result = DonationService.calculate(
+        final result = DonationService.calculate(s: _s,
           montant: 100000,
           donateurAge: 50,
           lienParente: 'conjoint',
@@ -36,7 +39,7 @@ void main() {
 
     test('donation aux descendants = exoneree (ZH, BE, GE, LU, BS, SZ)', () {
       for (final canton in ['ZH', 'BE', 'GE', 'LU', 'BS', 'SZ']) {
-        final result = DonationService.calculate(
+        final result = DonationService.calculate(s: _s,
           montant: 100000,
           donateurAge: 50,
           lienParente: 'descendant',
@@ -50,7 +53,7 @@ void main() {
     });
 
     test('donation a un tiers en GE => taux 30%', () {
-      final result = DonationService.calculate(
+      final result = DonationService.calculate(s: _s,
         montant: 100000,
         donateurAge: 50,
         lienParente: 'tiers',
@@ -62,7 +65,7 @@ void main() {
     });
 
     test('donation a un concubin en VD => taux 25%', () {
-      final result = DonationService.calculate(
+      final result = DonationService.calculate(s: _s,
         montant: 200000,
         donateurAge: 45,
         lienParente: 'concubin',
@@ -75,7 +78,7 @@ void main() {
 
     test('Schwyz (SZ) => taux 0% pour tous les liens', () {
       for (final lien in DonationService.tauxDonationCantonal['SZ']!.keys) {
-        final result = DonationService.calculate(
+        final result = DonationService.calculate(s: _s,
           montant: 100000,
           donateurAge: 50,
           lienParente: lien,
@@ -89,14 +92,14 @@ void main() {
     });
 
     test('canton inconnu => fallback sur VD', () {
-      final resultUnknown = DonationService.calculate(
+      final resultUnknown = DonationService.calculate(s: _s,
         montant: 100000,
         donateurAge: 50,
         lienParente: 'tiers',
         canton: 'XX',
       );
 
-      final resultVD = DonationService.calculate(
+      final resultVD = DonationService.calculate(s: _s,
         montant: 100000,
         donateurAge: 50,
         lienParente: 'tiers',
@@ -114,7 +117,7 @@ void main() {
 
   group('DonationService - Reserve hereditaire', () {
     test('avec enfants: reserve with regime matrimonial factor', () {
-      final result = DonationService.calculate(
+      final result = DonationService.calculate(s: _s,
         montant: 50000,
         donateurAge: 50,
         lienParente: 'descendant',
@@ -133,7 +136,7 @@ void main() {
     });
 
     test('sans enfants: reserve with regime matrimonial factor', () {
-      final result = DonationService.calculate(
+      final result = DonationService.calculate(s: _s,
         montant: 50000,
         donateurAge: 50,
         lienParente: 'fratrie',
@@ -156,7 +159,7 @@ void main() {
     });
 
     test('donation depasse quotite disponible => alerte', () {
-      final result = DonationService.calculate(
+      final result = DonationService.calculate(s: _s,
         montant: 600000,
         donateurAge: 50,
         lienParente: 'tiers',
@@ -173,7 +176,7 @@ void main() {
     });
 
     test('donation ne depasse pas quotite => pas d\'alerte depassement', () {
-      final result = DonationService.calculate(
+      final result = DonationService.calculate(s: _s,
         montant: 100000,
         donateurAge: 50,
         lienParente: 'descendant',
@@ -193,7 +196,7 @@ void main() {
 
   group('DonationService - Impact succession', () {
     test('avancement hoirie => rapportee a la masse successorale', () {
-      final result = DonationService.calculate(
+      final result = DonationService.calculate(s: _s,
         montant: 100000,
         donateurAge: 50,
         lienParente: 'descendant',
@@ -206,7 +209,7 @@ void main() {
     });
 
     test('hors avancement, dans quotite => imputee sans rapport', () {
-      final result = DonationService.calculate(
+      final result = DonationService.calculate(s: _s,
         montant: 50000,
         donateurAge: 50,
         lienParente: 'tiers',
@@ -221,7 +224,7 @@ void main() {
     });
 
     test('hors avancement, depasse quotite => action en reduction possible', () {
-      final result = DonationService.calculate(
+      final result = DonationService.calculate(s: _s,
         montant: 600000,
         donateurAge: 50,
         lienParente: 'tiers',
@@ -242,7 +245,7 @@ void main() {
 
   group('DonationService - Alertes', () {
     test('concubin avec taux > 15% => alerte taux eleve', () {
-      final result = DonationService.calculate(
+      final result = DonationService.calculate(s: _s,
         montant: 100000,
         donateurAge: 50,
         lienParente: 'concubin',
@@ -254,7 +257,7 @@ void main() {
     });
 
     test('donation immobiliere => alerte notaire obligatoire', () {
-      final result = DonationService.calculate(
+      final result = DonationService.calculate(s: _s,
         montant: 0,
         donateurAge: 50,
         lienParente: 'descendant',
@@ -268,7 +271,7 @@ void main() {
     });
 
     test('donateur >= 70 ans => alerte contestation', () {
-      final result = DonationService.calculate(
+      final result = DonationService.calculate(s: _s,
         montant: 100000,
         donateurAge: 70,
         lienParente: 'descendant',
@@ -279,7 +282,7 @@ void main() {
     });
 
     test('donation > 50% fortune => alerte reserves personnelles', () {
-      final result = DonationService.calculate(
+      final result = DonationService.calculate(s: _s,
         montant: 600000,
         donateurAge: 50,
         lienParente: 'descendant',
@@ -298,7 +301,7 @@ void main() {
 
   group('DonationService - Checklist et compliance', () {
     test('checklist de base contient au moins 5 elements', () {
-      final result = DonationService.calculate(
+      final result = DonationService.calculate(s: _s,
         montant: 100000,
         donateurAge: 50,
         lienParente: 'descendant',
@@ -311,7 +314,7 @@ void main() {
     });
 
     test('donation immobiliere ajoute registre foncier a la checklist', () {
-      final result = DonationService.calculate(
+      final result = DonationService.calculate(s: _s,
         montant: 0,
         donateurAge: 50,
         lienParente: 'descendant',
@@ -324,7 +327,7 @@ void main() {
     });
 
     test('avancement hoirie ajoute documentation rapport successoral', () {
-      final result = DonationService.calculate(
+      final result = DonationService.calculate(s: _s,
         montant: 100000,
         donateurAge: 50,
         lienParente: 'descendant',
@@ -336,7 +339,7 @@ void main() {
     });
 
     test('concubin ajoute conseil testament', () {
-      final result = DonationService.calculate(
+      final result = DonationService.calculate(s: _s,
         montant: 100000,
         donateurAge: 50,
         lienParente: 'concubin',
@@ -347,7 +350,7 @@ void main() {
     });
 
     test('disclaimer mentionne outil educatif et LSFin', () {
-      final result = DonationService.calculate(
+      final result = DonationService.calculate(s: _s,
         montant: 100000,
         donateurAge: 50,
         lienParente: 'descendant',
@@ -359,7 +362,7 @@ void main() {
     });
 
     test('sources contiennent les references CC', () {
-      final result = DonationService.calculate(
+      final result = DonationService.calculate(s: _s,
         montant: 100000,
         donateurAge: 50,
         lienParente: 'descendant',
@@ -373,7 +376,7 @@ void main() {
 
     test('chiffre choc mentionne impot ou exoneration', () {
       // Cas exonere
-      final resultExonere = DonationService.calculate(
+      final resultExonere = DonationService.calculate(s: _s,
         montant: 100000,
         donateurAge: 50,
         lienParente: 'conjoint',
@@ -382,7 +385,7 @@ void main() {
       expect(resultExonere.chiffreChoc, contains('exoneree'));
 
       // Cas impose
-      final resultImpose = DonationService.calculate(
+      final resultImpose = DonationService.calculate(s: _s,
         montant: 100000,
         donateurAge: 50,
         lienParente: 'tiers',

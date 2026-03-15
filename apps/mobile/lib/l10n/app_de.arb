@@ -11376,5 +11376,532 @@
   "coachingMilestone58Action": "[DE] Simuler ma retraite anticipée",
   "coachingMilestone63Title": "[DE] 63 ans : derniers ajustements",
   "coachingMilestone63Message": "[DE] À 2 ans de la retraite légale, finalise ta stratégie. Dernier rachat LPP (attention au délai de 3 ans avant retrait), choix rente/capital, et organisation du budget post-retraite.",
-  "coachingMilestone63Action": "[DE] Finaliser ma préparation"
+  "coachingMilestone63Action": "[DE] Finaliser ma préparation",
+  "debtPreventionRecoVertSain": "[DE] Ton ratio d''endettement est sain. Continue à maintenir tes dettes sous contrôle.",
+  "debtPreventionRecoVertFonds": "[DE] Constitue un fonds d''urgence de 3 à 6 mois de charges fixes.",
+  "debtPreventionRecoOrangeModere": "[DE] Ton ratio d''endettement est modéré mais mérite attention. Évite de contracter de nouvelles dettes.",
+  "debtPreventionRecoOrangePriorise": "[DE] Priorise le remboursement des dettes au taux le plus élevé.",
+  "debtPreventionRecoOrangeBudget": "[DE] Établis un budget strict pour réduire progressivement tes charges de dette.",
+  "debtPreventionRecoRougeCritique": "[DE] Ton ratio d''endettement dépasse le seuil critique de 30 %. Une aide professionnelle est recommandée.",
+  "debtPreventionRecoRougeContacte": "[DE] Contacte un service de conseil en dettes gratuit (Dettes Conseils Suisse ou Caritas).",
+  "debtPreventionRecoRougeAucune": "[DE] Ne contracte aucune nouvelle dette et cherche à renégocier les conditions existantes.",
+  "debtPreventionAlerteMinVital": "[DE] ALERTE : Ta marge résiduelle est inférieure au minimum vital (LP art. 93 : CHF {montant}/mois). Contacte immédiatement un service d''aide aux dettes.",
+  "@debtPreventionAlerteMinVital": {
+    "placeholders": {
+      "montant": {
+        "type": "String",
+        "example": "1''200"
+      }
+    }
+  },
+  "debtPreventionChiffreChocTexte": "[DE] {ratio} % de tes revenus partent en remboursement de dettes. Il te reste {marge} CHF/mois pour vivre.",
+  "@debtPreventionChiffreChocTexte": {
+    "placeholders": {
+      "ratio": {
+        "type": "String",
+        "example": "25"
+      },
+      "marge": {
+        "type": "String",
+        "example": "3''500"
+      }
+    }
+  },
+  "debtPreventionDisclaimerRatio": "[DE] Ce diagnostic est pédagogique et ne constitue pas un avis juridique ou financier. Le minimum vital (LP art. 93) varie selon la situation personnelle et le canton. Pour une analyse personnalisée, consulte un service de conseil en dettes agréé.",
+  "debtPreventionChiffreChocCourt": "[DE] Dans {mois} mois, tu es libre. Et tu gardes {economie} CHF qui seraient partis en intérêts.",
+  "@debtPreventionChiffreChocCourt": {
+    "placeholders": {
+      "mois": {
+        "type": "String",
+        "example": "18"
+      },
+      "economie": {
+        "type": "String",
+        "example": "2''340"
+      }
+    }
+  },
+  "debtPreventionChiffreChocLong": "[DE] Encore {mois} mois de remboursement. Avec la bonne stratégie, tu économises {economie} CHF d''intérêts.",
+  "@debtPreventionChiffreChocLong": {
+    "placeholders": {
+      "mois": {
+        "type": "String",
+        "example": "36"
+      },
+      "economie": {
+        "type": "String",
+        "example": "5''120"
+      }
+    }
+  },
+  "debtPreventionDisclaimerRepayment": "[DE] Cette simulation est pédagogique et ne prend pas en compte les éventuelles pénalités de remboursement anticipé, les frais annexes ou les variations de taux. La méthode avalanche minimise les intérêts totaux, la méthode boule de neige maximise la motivation par des victoires rapides. Consulte un·e spécialiste en dettes pour un plan adapté à ta situation.",
+  "assurancesLamalAlerteDelai": "[DE] Rappel : modification de franchise possible avant le 30 novembre de chaque année pour l''année suivante.",
+  "assurancesLamalDisclaimer": "[DE] Cette analyse est indicative. Les primes varient selon l''assureur, la région et le modèle d''assurance. Consulte ta caisse maladie pour des chiffres exacts. Source : LAMal art. 62-64, OAMal.",
+  "assurancesLamalRecLowExpenses": "[DE] Avec des frais de santé estimés faibles (< CHF 500/an), une franchise élevée (CHF 2''500) pourrait être avantageuse. Source : LAMal art. 62.",
+  "assurancesLamalRecHighExpenses": "[DE] Avec des frais de santé estimés élevés (> CHF 3''000/an), une franchise basse (CHF 300) pourrait être plus économique. Source : LAMal art. 62.",
+  "assurancesLamalRecCompareInsurers": "[DE] Comparez les primes de différents assureurs sur priminfo.admin.ch (comparateur officiel). Les écarts de prime peuvent dépasser CHF 200/mois pour des prestations équivalentes. Source : LAMal art. 7.",
+  "assurancesLamalRecAlternativeModels": "[DE] Envisagez un modèle d''assurance alternatif (médecin de famille, HMO, télémédecine) pour réduire davantage tes primes. Source : LAMal art. 41a.",
+  "assurancesRcPriveeTitle": "[DE] RC privée",
+  "assurancesRcPriveeDescription": "[DE] Responsabilité civile privée — couvre les dommages causés à des tiers dans la vie privée.",
+  "assurancesRcPriveeCost": "[DE] ~80-150 CHF/an",
+  "assurancesMenageTitle": "[DE] Assurance ménage",
+  "assurancesMenageDescription": "[DE] Couvre le mobilier et les effets personnels contre le vol, l''incendie et les dégâts des eaux. Obligatoire dans les cantons VD, FR, NW, JU.",
+  "assurancesMenageCost": "[DE] ~100-300 CHF/an",
+  "assurancesJuridiqueTitle": "[DE] Protection juridique",
+  "assurancesJuridiqueDescription": "[DE] Couvre les frais d''avocat et de procédure en cas de litige (travail, bail, consommation).",
+  "assurancesJuridiqueCost": "[DE] ~200-400 CHF/an",
+  "assurancesVoyageTitle": "[DE] Assurance voyage",
+  "assurancesVoyageDescription": "[DE] Couvre l''annulation, les frais médicaux à l''étranger et le rapatriement.",
+  "assurancesVoyageCost": "[DE] ~50-150 CHF/an",
+  "assurancesDecesTitle": "[DE] Assurance décès",
+  "assurancesDecesDescription": "[DE] Verse un capital aux proches en cas de décès. Importante si hypothèque ou personnes à charge.",
+  "assurancesDecesCost": "[DE] ~100-500 CHF/an",
+  "assurancesIjmTitle": "[DE] IJM (indemnité journalière maladie)",
+  "assurancesIjmDescriptionBase": "[DE] Couvre 80 % du salaire en cas de maladie prolongée.",
+  "assurancesIjmDescriptionIndependant": "[DE] En tant qu''indépendant, aucune couverture automatique.",
+  "assurancesIjmDescriptionSalarie": "[DE] Vérifie si ton employeur propose une IJM collective.",
+  "assurancesIjmCost": "[DE] ~500-2''000 CHF/an",
+  "assurancesLaaTitle": "[DE] LAA (assurance accident)",
+  "assurancesLaaDescriptionBase": "[DE] Couvre les frais médicaux et la perte de gain en cas d''accident.",
+  "assurancesLaaDescriptionIndependant": "[DE] Non obligatoire pour les indépendants.",
+  "assurancesLaaDescriptionSalarie": "[DE] Obligatoire via l''employeur pour les salariés.",
+  "assurancesLaaCost": "[DE] ~300-800 CHF/an",
+  "assurancesRcProTitle": "[DE] RC professionnelle",
+  "assurancesRcProDescription": "[DE] Couvre les dommages causés à des tiers dans le cadre de l''activité professionnelle.",
+  "assurancesRcProCost": "[DE] Variable selon activité",
+  "assurancesCoverageDisclaimer": "[DE] Cette analyse est indicative et ne constitue pas un conseil en assurance personnalisé. Les primes varient selon l''assureur et ton profil. Consulte un·e spécialiste en assurances pour une évaluation complète.",
+  "assurancesRecPriority": "[DE] PRIORITÉ : {title} — {description} Coût estimé : {cost}. Source : {source}.",
+  "@assurancesRecPriority": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "description": {
+        "type": "String"
+      },
+      "cost": {
+        "type": "String"
+      },
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "assurancesRecHighUrgency": "[DE] {title} — {description} Coût estimé : {cost}. Source : {source}.",
+  "@assurancesRecHighUrgency": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "description": {
+        "type": "String"
+      },
+      "cost": {
+        "type": "String"
+      },
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "assurancesRecGeneralCompare": "[DE] Demandez plusieurs offres pour comparer les primes et les conditions. Les écarts peuvent être significatifs entre assureurs.",
+  "donationServiceLienConjoint": "[DE] Conjoint(e)",
+  "donationServiceLienDescendant": "[DE] Enfant / Descendant(e)",
+  "donationServiceLienParent": "[DE] Parent",
+  "donationServiceLienFratrie": "[DE] Frère / Sœur",
+  "donationServiceLienConcubin": "[DE] Concubin(e)",
+  "donationServiceLienTiers": "[DE] Tiers",
+  "donationServiceImpactAvancement": "[DE] Cette donation en avancement d''hoirie sera rapportée à la masse successorale. La part du donataire sera réduite d''autant lors de la succession.",
+  "donationServiceImpactDepassement": "[DE] Cette donation hors avancement d''hoirie dépasse la quotité disponible de CHF {montant}. Les héritiers réservataires pourraient la contester par action en réduction (CC art. 522).",
+  "@donationServiceImpactDepassement": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "donationServiceImpactQuotite": "[DE] Cette donation hors avancement d''hoirie est imputée sur la quotité disponible (CHF {montant}). Elle ne sera pas rapportée à la succession.",
+  "@donationServiceImpactQuotite": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "donationServiceAlertDepassement": "[DE] La donation dépasse la quotité disponible de CHF {montant}. Les héritiers réservataires pourraient exercer une action en réduction (CC art. 522 ss).",
+  "@donationServiceAlertDepassement": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "donationServiceAlertConcubin": "[DE] Attention : le taux d''imposition pour un·e concubin·e est élevé ({canton} : {taux} %). Un pacte successoral ou un testament pourrait être plus avantageux.",
+  "@donationServiceAlertConcubin": {
+    "placeholders": {
+      "canton": {
+        "type": "String"
+      },
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
+  "donationServiceAlertImmobilier": "[DE] Pour une donation immobilière, des droits de mutation supplémentaires peuvent s''appliquer selon le canton. Un passage devant notaire est obligatoire.",
+  "donationServiceAlertAgeDeces": "[DE] Attention : les donations effectuées peu avant le décès peuvent être contestées (CC art. 527). Plus la donation est proche du décès, plus le risque de contestation est élevé.",
+  "donationServiceAlertFortune": "[DE] Cette donation représente plus de 50 % de ta fortune totale. Assure-toi de conserver suffisamment de réserves pour tes propres besoins (retraite, santé, imprévus).",
+  "donationServiceChecklistNotaire": "[DE] Vérifier la quotité disponible avec un notaire",
+  "donationServiceChecklistActe": "[DE] Rédiger un acte de donation (notarié si immobilier)",
+  "donationServiceChecklistFiscal": "[DE] Déclarer la donation aux autorités fiscales cantonales",
+  "donationServiceChecklistHeritiers": "[DE] Informer les héritiers réservataires si nécessaire",
+  "donationServiceChecklistCopie": "[DE] Conserver une copie de l''acte dans tes documents",
+  "donationServiceChecklistRegistreFoncier": "[DE] Procéder à l''inscription au registre foncier",
+  "donationServiceChecklistRapportSuccessoral": "[DE] Documenter le montant pour le rapport successoral futur",
+  "donationServiceChecklistTestament": "[DE] Envisager un testament en complément de la donation",
+  "donationServiceChiffreChocImpot": "[DE] Impôt sur la donation : CHF {montant} ({taux} %)",
+  "@donationServiceChiffreChocImpot": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      },
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
+  "donationServiceChiffreChocExonere": "[DE] Bonne nouvelle : cette donation est exonérée d''impôt dans le canton {canton}",
+  "@donationServiceChiffreChocExonere": {
+    "placeholders": {
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+  "donationServiceDisclaimer": "[DE] Cet outil éducatif fournit des estimations indicatives et ne constitue pas un conseil juridique, fiscal ou notarial personnalisé au sens de la LSFin. Le droit des donations et successions comporte de nombreuses subtilités cantonales. Consulte un·e spécialiste (notaire) pour ta situation.",
+  "lifeEventDivorceAlertLppTransfer": "[DE] Le transfert LPP est significatif ({amount}). Vérifie les montants exacts auprès de ta caisse de pension.",
+  "@lifeEventDivorceAlertLppTransfer": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "lifeEventDivorceAlertDettesElevees": "[DE] Le niveau de dettes communes est élevé. Clarifie la répartition des dettes avant de signer la convention.",
+  "lifeEventDivorceAlertImpactFiscal": "[DE] L''impact fiscal du divorce est important : +{amount}/an. Anticipe ce surcoût dans ton budget.",
+  "@lifeEventDivorceAlertImpactFiscal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "lifeEventDivorceAlertContributionEntretien": "[DE] Mariage de longue durée avec écart de revenus important. Une contribution d'entretien au conjoint est probable.",
+  "lifeEventDivorceAlertEnfants": "[DE] Avec {count} enfant(s), la garde et les contributions d''entretien seront les points centraux de la convention.",
+  "@lifeEventDivorceAlertEnfants": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lifeEventDivorceAlertSeparationBiens": "[DE] Régime de séparation de biens : le partage du patrimoine est plus simple mais le 3a n'est pas automatiquement partagé.",
+  "lifeEventDivorceChecklist1": "[DE] Demander les certificats LPP des deux conjoints",
+  "lifeEventDivorceChecklist2": "[DE] Demander le relevé détaillé des avoirs 3a",
+  "lifeEventDivorceChecklist3": "[DE] Lister tous les biens communs et propres",
+  "lifeEventDivorceChecklist4": "[DE] Consulter un·e médiateur/trice agréé·e",
+  "lifeEventDivorceChecklist5": "[DE] Vérifier les clauses bénéficiaires 3a et assurances-vie",
+  "lifeEventDivorceChecklist6": "[DE] Établir un budget post-divorce pour chaque conjoint",
+  "lifeEventDivorceChecklist7": "[DE] Clarifier la garde des enfants et les contributions",
+  "lifeEventDivorceChecklist8": "[DE] Préparer la convention de divorce (ou requête)",
+  "lifeEventDivorceChecklist9": "[DE] Vérifier l'impact sur le logement familial",
+  "lifeEventDivorceChecklist10": "[DE] Mettre à jour le testament et les directives anticipées",
+  "lifeEventSuccessionAlertConcubinage": "[DE] En concubinage, ton/ta partenaire n'a AUCUN droit successoral légal. Sans testament, il/elle ne reçoit rien. La fiscalité est aussi nettement plus lourde (taux « tiers »).",
+  "lifeEventSuccessionAlertAvoirs3a": "[DE] Tes avoirs 3a ({amount}) suivent l''ordre de bénéficiaires OPP3, pas ton testament. Vérifie tes clauses bénéficiaires auprès de ta fondation 3a.",
+  "@lifeEventSuccessionAlertAvoirs3a": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "lifeEventSuccessionAlertCapitalDecesLpp": "[DE] Le capital-décès LPP ({amount}) n''entre pas dans la masse successorale. Il est versé selon le règlement de ta caisse de pension.",
+  "@lifeEventSuccessionAlertCapitalDecesLpp": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "lifeEventSuccessionAlertQuotiteDisponible": "[DE] Nouveau droit 2023 : la quotité disponible est désormais de {pct} % de ta succession. Tu as plus de liberté pour avantager certains héritiers.",
+  "@lifeEventSuccessionAlertQuotiteDisponible": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "lifeEventSuccessionAlertSansDescendant": "[DE] Sans descendant ni parent, la fratrie hérite. Sans fratrie non plus, la succession va au canton.",
+  "lifeEventSuccessionChecklist1": "[DE] Testament rédigé / mis à jour ?",
+  "lifeEventSuccessionChecklist2": "[DE] Clause bénéficiaire 3a vérifiée ?",
+  "lifeEventSuccessionChecklist3": "[DE] Concubin/conjoint annoncé à la caisse de pension ?",
+  "lifeEventSuccessionChecklist4": "[DE] Mandat pour cause d'inaptitude rédigé ?",
+  "lifeEventSuccessionChecklist5": "[DE] Directives anticipées rédigées ?",
+  "lifeEventSuccessionChecklist6": "[DE] Inventaire des biens (immobilier, comptes, assurances) à jour ?",
+  "lifeEventSuccessionChecklist7": "[DE] Polices d'assurance-vie vérifiées ?",
+  "lifeEventSuccessionChecklist8": "[DE] Discussion avec les héritiers sur les volontés ?",
+  "lifeEventSuccession3aOrderMarie": "[DE] 1. Conjoint survivant\n2. Descendants directs / personnes à charge\n3. Parents\n4. Fratrie\n5. Autres héritiers",
+  "lifeEventSuccession3aOrderConcubinage": "[DE] 1. Partenaire de vie (si clause bénéficiaire déposée)\n2. Descendants directs / personnes à charge\n3. Parents\n4. Fratrie\n5. Autres héritiers\n\nIMPORTANT : Sans clause bénéficiaire explicite, le/la concubin·e n'est PAS automatiquement bénéficiaire.",
+  "lifeEventSuccession3aOrderAutre": "[DE] 1. Descendants directs / personnes à charge\n2. Parents\n3. Fratrie\n4. Autres héritiers",
+  "pdfServiceHeaderTitle": "[DE] MINT — MENTORAT FINANCIER",
+  "pdfServiceSessionHeaderRight": "[DE] MENTORAT ÉDUCATIF — CONFIDENTIEL",
+  "pdfServiceFinancialHeaderRight": "[DE] RAPPORT FINANCIER — CONFIDENTIEL",
+  "pdfServiceDecisionHeaderRight": "[DE] RAPPORT DÉCISIONNEL — CONFIDENTIEL",
+  "pdfServiceGeneratedBy": "[DE] Généré par Mint le {date}",
+  "@pdfServiceGeneratedBy": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceGeneratedByMint": "[DE] Généré par MINT le {date}",
+  "@pdfServiceGeneratedByMint": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServicePageOf": "[DE] Page {current} sur {total}",
+  "@pdfServicePageOf": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServicePrecision": "[DE] PRECISION : {percent}%",
+  "@pdfServicePrecision": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceCanton": "[DE] CANTON",
+  "pdfServiceFoyer": "[DE] FOYER",
+  "pdfServiceObjectif": "[DE] OBJECTIF",
+  "pdfServiceScoreIndicators": "[DE] Indicateurs de Score",
+  "pdfServiceActionPlanTop3": "[DE] Plan d''Action Mentor (Top 3)",
+  "pdfServiceWhyPrefix": "[DE] Pourquoi : {reason}",
+  "@pdfServiceWhyPrefix": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceNextAction": "[DE] Action suivante : {action}",
+  "@pdfServiceNextAction": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceStatementOfAdvice": "[DE] Statement of Advice (Conformité)",
+  "pdfServiceNatureOfService": "[DE] Nature du service : {nature}",
+  "@pdfServiceNatureOfService": {
+    "placeholders": {
+      "nature": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceHypotheses": "[DE] Hypothèses :",
+  "pdfServiceConflictsAndCommissions": "[DE] Conflits d''intérêts & Commissions :",
+  "pdfServiceConflictLine": "[DE] {partner} : {disclosure}",
+  "@pdfServiceConflictLine": {
+    "placeholders": {
+      "partner": {
+        "type": "String"
+      },
+      "disclosure": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceDetailAnalyses": "[DE] Détail des Analyses",
+  "pdfServiceSourcesLabel": "[DE] Sources : {sources}",
+  "@pdfServiceSourcesLabel": {
+    "placeholders": {
+      "sources": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceDisclaimersLegaux": "[DE] Disclaimers Légaux",
+  "pdfServiceFooterDisclaimer": "[DE] Outil éducatif — MINT — ne constitue pas un conseil financier au sens de la LSFin",
+  "pdfServiceGeneratedOn": "[DE] Généré le {date}",
+  "@pdfServiceGeneratedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceMainTitle": "[DE] Ton Plan Mint — Rapport Financier",
+  "pdfServiceSubtitle": "[DE] Bilan personnalisé pour {name} — {canton}",
+  "@pdfServiceSubtitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceSubtitleFallback": "[DE] toi",
+  "pdfServiceHealthScore": "[DE] Score de santé financière : {score}/100 — {level}",
+  "@pdfServiceHealthScore": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      },
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceKeyIndicators": "[DE] Indicateurs Clés",
+  "pdfServiceAvailablePerMonth": "[DE] Disponible / mois",
+  "pdfServiceAfterEstimatedTaxes": "[DE] Après impôts estimés",
+  "pdfServiceEstimatedTaxPerYear": "[DE] Impôts estimés / an",
+  "pdfServiceEffectiveRate": "[DE] Taux effectif : {rate}%",
+  "@pdfServiceEffectiveRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceSavingsRate": "[DE] Taux d''épargne",
+  "pdfServiceOfNetMonthlyIncome": "[DE] Du revenu net mensuel",
+  "pdfServiceProtectionScore": "[DE] Score protection",
+  "pdfServiceTop3PriorityActions": "[DE] Top 3 — Actions Prioritaires",
+  "pdfServiceTaxSimulation": "[DE] Simulation Fiscale",
+  "pdfServiceTaxableIncome": "[DE] Revenu imposable",
+  "pdfServiceAppliedDeductions": "[DE] Déductions appliquées :",
+  "pdfServiceDeductionLine": "[DE] - {key} : CHF {amount}",
+  "@pdfServiceDeductionLine": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceTotalDeductions": "[DE] Total déductions : CHF {amount}",
+  "@pdfServiceTotalDeductions": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceCantonalCommunalTax": "[DE] Impôt cantonal + communal",
+  "pdfServiceFederalDirectTax": "[DE] Impôt fédéral direct",
+  "pdfServiceTotalEstimated": "[DE] TOTAL estimé",
+  "pdfServiceEffectiveRateLabel": "[DE] Taux effectif",
+  "pdfServiceWithLppBuyback": "[DE] Avec rachat LPP : CHF {taxAmount} (économie : CHF {savings})",
+  "@pdfServiceWithLppBuyback": {
+    "placeholders": {
+      "taxAmount": {
+        "type": "String"
+      },
+      "savings": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceRetirementProjection": "[DE] Projection Retraite",
+  "pdfServiceHorizon": "[DE] Horizon : {years} ans (retraite à {age} ans)",
+  "@pdfServiceHorizon": {
+    "placeholders": {
+      "years": {
+        "type": "String"
+      },
+      "age": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceEstimatedMonthlyPensions": "[DE] Rentes mensuelles estimées",
+  "pdfServiceAvsRent": "[DE] Rente AVS",
+  "pdfServiceLppRent": "[DE] Rente LPP",
+  "pdfServiceTotalMonthly": "[DE] Total mensuel",
+  "pdfServiceEstimatedCapitalAt65": "[DE] Capitaux estimés à 65 ans",
+  "pdfServiceLppCapital": "[DE] Capital LPP",
+  "pdfServicePillar3aCapital": "[DE] Capital 3a",
+  "pdfServiceOtherAssets": "[DE] Autres actifs",
+  "pdfServiceTotalEstimatedCapital": "[DE] Capital total estimé",
+  "pdfServiceAvsReductionWarning": "[DE] Attention : facteur de réduction AVS {factor}% (lacunes de cotisation détectées)",
+  "@pdfServiceAvsReductionWarning": {
+    "placeholders": {
+      "factor": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceLppBuybackStrategy": "[DE] Stratégie Rachat LPP",
+  "pdfServiceTotalBuybackAvailable": "[DE] Montant rachetable total",
+  "pdfServiceTotalTaxSavingsEstimated": "[DE] Économie fiscale totale estimée",
+  "pdfServiceRecommendedAnnualPlan": "[DE] Plan annuel recommandé",
+  "pdfServiceYear": "[DE] Année",
+  "pdfServiceBuyback": "[DE] Rachat",
+  "pdfServiceTaxSaving": "[DE] Économie fiscale",
+  "pdfServiceLppBuybackReminder": "[DE] Rappel : le rachat LPP est soumis à un blocage de 3 ans pour les retraits en capital (LPP art. 79b al. 3).",
+  "pdfServiceComplianceTitle": "[DE] Conformité — Statement of Advice",
+  "pdfServiceComplianceNature": "[DE] Nature du service : Éducation financière (non-régulée)",
+  "pdfServiceComplianceHypotheses": "[DE] Hypothèses :",
+  "pdfServiceComplianceHyp1": "[DE] Les données utilisées sont celles déclarées par l''utilisateur·trice.",
+  "pdfServiceComplianceHyp2": "[DE] Les taux fiscaux sont des estimations simplifiées par canton.",
+  "pdfServiceComplianceHyp3": "[DE] Les projections de rendement utilisent des hypothèses prudentes (3-5%).",
+  "pdfServiceComplianceHyp4": "[DE] Le taux de conversion LPP utilisé est de 6% (hypothèse prudente vs 6.8% légal).",
+  "pdfServiceComplianceConflicts": "[DE] Conflits d''intérêts :",
+  "pdfServiceComplianceConflict1": "[DE] MINT ne perçoit aucune commission des fournisseurs de 3a mentionnés.",
+  "pdfServiceComplianceConflict2": "[DE] Les comparaisons de fournisseurs sont basées sur des données publiques de frais et rendements.",
+  "pdfServiceLegalSources": "[DE] Sources Juridiques",
+  "pdfServiceDecisionReportTitle": "[DE] Rapport décisionnel",
+  "pdfServiceDecisionReportSubtitle": "[DE] Coach MINT — Conversation éducative",
+  "pdfServiceProfile": "[DE] Profil",
+  "pdfServiceProfileLine": "[DE] {name} — Canton {canton}",
+  "@pdfServiceProfileLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceFitnessScore": "[DE] Score Fitness",
+  "pdfServiceFitnessScoreValue": "[DE] {score} / 100",
+  "@pdfServiceFitnessScoreValue": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfServiceConversationHighlights": "[DE] Points clés de la conversation",
+  "pdfServiceLegalSourcesTitle": "[DE] Sources juridiques",
+  "pdfServiceFullDisclaimer": "[DE] Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin. Les estimations sont basées sur des hypothèses simplifiées et des données déclaratives. Consulte un·e spécialiste certifié·e pour toute décision financière importante."
 }
