@@ -354,8 +354,8 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
             : () async {
                 await byok.saveKey(
                     _selectedProvider, _apiKeyController.text.trim());
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(s.byokSaved),
                       backgroundColor: MintColors.success,
@@ -364,7 +364,6 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                           borderRadius: BorderRadius.circular(12)),
                     ),
                   );
-                }
               },
         child: Text(s.byokSaveButton),
       ),

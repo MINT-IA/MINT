@@ -371,6 +371,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       });
       _scrollToBottom();
     } on RagApiException catch (e) {
+      if (!mounted) return;
       final l = S.of(context)!;
       final String errorMsg;
       switch (e.code) {

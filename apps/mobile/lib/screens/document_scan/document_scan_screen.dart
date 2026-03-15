@@ -416,6 +416,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       if (image == null) return;
       await _processImageFile(image);
     } catch (e) {
+      if (!mounted) return;
       _showErrorSnack(S.of(context)!.docScanCameraError);
     }
   }
@@ -444,6 +445,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
       if (ext == 'txt') {
         final text = await _readTextFile(file);
+        if (!mounted) return;
         if (text.trim().isEmpty) {
           _showErrorSnack(S.of(context)!.docScanEmptyTextFile);
           return;
@@ -458,6 +460,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       }
 
       final localPath = await _resolveLocalPath(file, ext: ext);
+      if (!mounted) return;
       if (localPath == null || localPath.isEmpty) {
         await _showOcrRecoverySheet(
           title: S.of(context)!.docScanFileUnusable,
@@ -468,6 +471,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
       await _processImageFile(XFile(localPath));
     } catch (e) {
+      if (!mounted) return;
       _showErrorSnack(S.of(context)!.docScanImportError(e.toString()));
     }
   }
@@ -638,6 +642,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     required String ext,
   }) async {
     final localPath = await _resolveLocalPath(file, ext: ext);
+    if (!mounted) return;
     if (localPath == null || localPath.isEmpty) {
       await _showPdfImportFallback(
         title: S.of(context)!.docScanPdfDetected,
@@ -648,6 +653,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
     if (!kIsWeb && _selectedType == DocumentType.lppCertificate) {
       final parse = await _processPdfViaBackend(localPath);
+      if (!mounted) return;
       if (parse.success) return;
       if (parse.requiresAuthentication) {
         await _showPdfAuthRequiredSheet();
@@ -1007,6 +1013,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         File(path),
         type: VaultDocumentType.lppCertificate,
       );
+      if (!mounted) return const _PdfParseResult(success: false);
       final extraction = _mapLppUploadToExtraction(upload);
       if (extraction.fields.isEmpty) {
         return _PdfParseResult(
@@ -1018,6 +1025,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       context.push('/document-scan/extraction-review', extra: extraction);
       return const _PdfParseResult(success: true);
     } on DocumentServiceException catch (e) {
+      if (!mounted) return const _PdfParseResult(success: false);
       final lower = e.message.toLowerCase();
       final requiresAuthentication = lower.contains('authentication requise') ||
           lower.contains('unauthorized') ||
@@ -1029,6 +1037,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         errorMessage: S.of(context)!.docScanBackendPdfError(e.toString()),
       );
     } catch (e) {
+      if (!mounted) return const _PdfParseResult(success: false);
       debugPrint('[DocumentScan] Backend PDF parsing unavailable: $e');
       return _PdfParseResult(
         success: false,
