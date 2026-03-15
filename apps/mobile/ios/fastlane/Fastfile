@@ -93,7 +93,7 @@ platform :ios do
       use_automatic_signing: false,
       team_id: "7F5UDGYS5H",
       code_sign_identity: "iPhone Distribution",
-      profile_name: "match AppStore ch.mint.app",
+      profile_name: "match AppStore ch.mint.app 1773574035",
       path: "Runner.xcodeproj",
     )
 
@@ -104,7 +104,7 @@ platform :ios do
       export_method: "app-store",
       export_options: {
         provisioningProfiles: {
-          "ch.mint.app" => "match AppStore ch.mint.app",
+          "ch.mint.app" => "match AppStore ch.mint.app 1773574035",
         },
       },
       output_directory: "../build/ios",
