@@ -11016,5 +11016,159 @@
       "capitalFinal": { "type": "String" },
       "revenuMensuel": { "type": "String" }
     }
-  }
+  },
+
+  "coachingTipDeadline3aTitle": "Versement 3a avant le 31 décembre",
+  "coachingTipDeadline3aMessage": "Il te reste {restant} de marge sur ton plafond 3a ({plafond}). Un versement avant le 31 décembre pourrait réduire ta charge fiscale de {impact} environ.",
+  "@coachingTipDeadline3aMessage": {
+    "placeholders": {
+      "restant": { "type": "String" },
+      "plafond": { "type": "String" },
+      "impact": { "type": "String" }
+    }
+  },
+  "coachingTipDeadline3aAction": "Simuler mon 3a",
+
+  "coachingTipMissing3aTitle": "Tu n''as pas de 3e pilier",
+  "coachingTipMissing3aMessage": "Ouvrir un 3e pilier te permettrait de déduire jusqu''à {plafond} de ton revenu imposable chaque année. L''économie fiscale estimée est de {impact} par an dans le canton de {canton}.",
+  "@coachingTipMissing3aMessage": {
+    "placeholders": {
+      "plafond": { "type": "String" },
+      "impact": { "type": "String" },
+      "canton": { "type": "String" }
+    }
+  },
+  "coachingTipMissing3aAction": "Découvrir le 3e pilier",
+
+  "coachingTipLppBuybackTitle": "Rachat LPP possible",
+  "coachingTipLppBuybackMessage": "Tu as une lacune de prévoyance de {lacune}. Un rachat volontaire de {rachat} pourrait te faire économiser environ {impact} d''impôts tout en améliorant ta retraite.",
+  "@coachingTipLppBuybackMessage": {
+    "placeholders": {
+      "lacune": { "type": "String" },
+      "rachat": { "type": "String" },
+      "impact": { "type": "String" }
+    }
+  },
+  "coachingTipLppBuybackAction": "Simuler un rachat LPP",
+
+  "coachingTipTaxDeadlineTitle": "Déclaration d''impôts à rendre",
+  "coachingTipTaxDeadlineMessage": "Le délai pour ta déclaration fiscale dans le canton de {canton} est le 31 mars. Il reste {daysLeft} jours. Pense à rassembler tes attestations 3a, certificats LPP, frais effectifs et dons déductibles.",
+  "@coachingTipTaxDeadlineMessage": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "daysLeft": { "type": "int" }
+    }
+  },
+  "coachingTipTaxDeadlineAction": "Voir ma checklist fiscale",
+
+  "coachingTipRetirementCountdownTitle": "Retraite dans {yearsLeft} ans",
+  "@coachingTipRetirementCountdownTitle": {
+    "placeholders": {
+      "yearsLeft": { "type": "int" }
+    }
+  },
+  "coachingTipRetirementCountdownMessage": "À {yearsLeft} ans de la retraite, il est important de vérifier ta stratégie de prévoyance. As-tu optimisé tes rachats LPP\u00a0? Tes comptes 3a sont-ils diversifiés\u00a0? Rente ou capital\u00a0: as-tu fait ton choix\u00a0?",
+  "@coachingTipRetirementCountdownMessage": {
+    "placeholders": {
+      "yearsLeft": { "type": "int" }
+    }
+  },
+  "coachingTipRetirementCountdownAction": "Planifier ma retraite",
+
+  "coachingTipEmergencyFundTitle": "Réserve d''urgence insuffisante",
+  "coachingTipEmergencyFundMessage": "Ton épargne disponible couvre {monthsCovered} mois de charges fixes. Les experts recommandent au moins 3 mois. Il te manque environ {deficit} pour atteindre ce seuil de sécurité.",
+  "@coachingTipEmergencyFundMessage": {
+    "placeholders": {
+      "monthsCovered": { "type": "String" },
+      "deficit": { "type": "String" }
+    }
+  },
+  "coachingTipEmergencyFundAction": "Voir mon budget",
+
+  "coachingTipDebtRatioTitle": "Taux d''endettement élevé ({ratioPct}\u00a0%)",
+  "@coachingTipDebtRatioTitle": {
+    "placeholders": {
+      "ratioPct": { "type": "String" }
+    }
+  },
+  "coachingTipDebtRatioMessage": "Ton taux d''endettement estimé est de {ratioPct}\u00a0%, au-dessus du seuil de 33\u00a0% recommandé par les banques suisses. Réduire tes dettes améliore ta capacité d''emprunt et ta tranquillité financière.",
+  "@coachingTipDebtRatioMessage": {
+    "placeholders": {
+      "ratioPct": { "type": "String" }
+    }
+  },
+  "coachingTipDebtRatioAction": "Analyser mes dettes",
+
+  "coachingTipPartTimeGapTitle": "Temps partiel\u00a0: lacune de prévoyance",
+  "coachingTipPartTimeGapMessage": "À {tauxPct}\u00a0% d''activité, ta prévoyance professionnelle est réduite d''environ {reductionPct}\u00a0%. La déduction de coordination de CHF\u00a026''460 pénalise davantage les temps partiels. Envisage un rachat LPP ou un versement 3a supplémentaire pour compenser.",
+  "@coachingTipPartTimeGapMessage": {
+    "placeholders": {
+      "tauxPct": { "type": "String" },
+      "reductionPct": { "type": "String" }
+    }
+  },
+  "coachingTipPartTimeGapAction": "Simuler ma prévoyance",
+
+  "coachingTipIndependantAlertTitle": "Indépendant\u00a0: pas de LPP obligatoire",
+  "coachingTipIndependantAlertMessage": "En tant qu''indépendant, tu n''es pas soumis à la LPP obligatoire. Ta prévoyance repose sur l''AVS et ton 3e pilier (plafond {plafond3a}). Pense à une affiliation volontaire à une caisse de pension ou à maximiser ton 3a.",
+  "@coachingTipIndependantAlertMessage": {
+    "placeholders": {
+      "plafond3a": { "type": "String" }
+    }
+  },
+  "coachingTipIndependantAlertAction": "Explorer mes options",
+
+  "coachingTipBudgetMissingTitle": "Pas encore de budget",
+  "coachingTipBudgetMissingMessage": "Un budget structuré est la base de toute stratégie financière. Il permet d''identifier ta capacité d''épargne réelle et de fixer des objectifs concrets. MINT peut t''aider à en créer un en quelques minutes.",
+  "coachingTipBudgetMissingAction": "Créer mon budget",
+
+  "coachingTip3aNotMaxedTitle": "Plafond 3a non atteint",
+  "coachingTip3aNotMaxedMessage": "Ton versement 3a actuel est de {montant3a} sur un plafond de {plafond}. Verser le solde de {restant} pourrait représenter une économie fiscale d''environ {impact}.",
+  "@coachingTip3aNotMaxedMessage": {
+    "placeholders": {
+      "montant3a": { "type": "String" },
+      "plafond": { "type": "String" },
+      "restant": { "type": "String" },
+      "impact": { "type": "String" }
+    }
+  },
+  "coachingTip3aNotMaxedAction": "Simuler mon 3a",
+
+  "coachingTipBudgetDriftTitle": "Dépenses exceptionnelles élevées",
+  "coachingTipBudgetDriftMessage": "Tes dépenses exceptionnelles du dernier mois représentent {ratioPct}\u00a0% de ton revenu mensuel ({depExc}). Vérifie que ton budget reste sur les rails et ajuste si nécessaire.",
+  "@coachingTipBudgetDriftMessage": {
+    "placeholders": {
+      "ratioPct": { "type": "String" },
+      "depExc": { "type": "String" }
+    }
+  },
+  "coachingTipBudgetDriftAction": "Vérifier mon budget",
+
+  "coachingMilestone25Title": "25 ans\u00a0: démarrer son 3e pilier",
+  "coachingMilestone25Message": "À 25 ans, c''est le moment idéal pour ouvrir un 3e pilier. Grâce aux intérêts composés, chaque année compte. Même un petit versement mensuel fait une grande différence sur 40 ans.",
+  "coachingMilestone25Action": "Simuler les intérêts composés",
+
+  "coachingMilestone35Title": "35 ans\u00a0: faire le point prévoyance",
+  "coachingMilestone35Message": "À 35 ans, vérifie que ta prévoyance est sur la bonne trajectoire. As-tu un 3a\u00a0? Ta LPP est-elle suffisante\u00a0? C''est aussi l''âge où un rachat LPP commence à devenir intéressant fiscalement.",
+  "coachingMilestone35Action": "Faire mon bilan prévoyance",
+
+  "coachingMilestone45Title": "45 ans\u00a0: optimiser sa stratégie",
+  "coachingMilestone45Message": "À 45 ans, il reste 20 ans avant la retraite. C''est le moment d''optimiser\u00a0: maximiser le 3a, envisager des rachats LPP, et diversifier. Chaque franc investi aujourd''hui a encore du temps pour fructifier.",
+  "coachingMilestone45Action": "Optimiser ma stratégie",
+
+  "coachingMilestone50Title": "50 ans\u00a0: préparer sa retraite",
+  "coachingMilestone50Message": "À 50 ans, la retraite se rapproche. Vérifie ton avoir LPP, planifie tes derniers rachats, et commence à réfléchir au choix rente vs capital. Anticipe aussi l''impact fiscal du retrait.",
+  "coachingMilestone50Action": "Planifier ma retraite",
+
+  "coachingMilestone55Title": "55 ans\u00a0: dernière ligne droite",
+  "coachingMilestone55Message": "À 55 ans, la planification fiscale du retrait devient cruciale. Échelonner les retraits 3a sur plusieurs années fiscales peut représenter une économie significative. Prépare ta stratégie de décumulation.",
+  "coachingMilestone55Action": "Planifier mes retraits",
+
+  "coachingMilestone58Title": "58 ans\u00a0: retraite anticipée possible",
+  "coachingMilestone58Message": "Dès 58 ans, tu peux envisager un retrait anticipé de ton 2e pilier dans certaines caisses. Attention\u00a0: la rente sera réduite (environ 6\u00a0% par année d''anticipation). Évalue l''impact sur ton budget.",
+  "coachingMilestone58Action": "Simuler ma retraite anticipée",
+
+  "coachingMilestone63Title": "63 ans\u00a0: derniers ajustements",
+  "coachingMilestone63Message": "À 2 ans de la retraite légale, finalise ta stratégie. Dernier rachat LPP (attention au délai de 3 ans avant retrait), choix rente/capital, et organisation du budget post-retraite.",
+  "coachingMilestone63Action": "Finaliser ma préparation"
 }

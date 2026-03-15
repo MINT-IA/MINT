@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coach/coach_context_builder.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
@@ -180,9 +181,13 @@ class CoachNarrativeService {
   static const _cacheTtlHours = 24;
   static const _cacheModeSignatureKey = '${_cacheKeyPrefix}_mode_signature';
 
-  /// Disclaimer standard
+  /// Disclaimer standard (i18n-aware).
+  /// Use [localizedDisclaimer] with an [S] instance for i18n text.
   static const disclaimer =
       'Outil éducatif — ne constitue pas un conseil financier. LSFin.';
+
+  /// Localized disclaimer for user-facing display.
+  static String localizedDisclaimer(S s) => s.coachNarrativeDisclaimer;
 
   /// Termes bannis — delegue a ComplianceGuard (source unique).
   static List<String> get _bannedTerms => ComplianceGuard.bannedTerms;
@@ -344,6 +349,7 @@ class CoachNarrativeService {
     required CoachProfile profile,
     required List<Map<String, dynamic>>? scoreHistory,
     required List<CoachingTip> tips,
+    required S s,
     LlmConfig? byokConfig,
   }) async {
     final slmAvailableNow = await _resolveSlmAvailability();
@@ -365,6 +371,7 @@ class CoachNarrativeService {
         profile: profile,
         scoreHistory: scoreHistory,
         tips: tips,
+        s: s,
       );
     } else if (FeatureFlags.enableSlmNarratives && slmAvailableNow) {
       // Tier 1: SLM on-device (zero reseau, privacy totale)
@@ -373,6 +380,7 @@ class CoachNarrativeService {
           profile: profile,
           scoreHistory: scoreHistory,
           tips: tips,
+          s: s,
         );
       } catch (e) {
         debugPrint('CoachNarrative: $e');
@@ -380,6 +388,7 @@ class CoachNarrativeService {
           profile: profile,
           scoreHistory: scoreHistory,
           tips: tips,
+          s: s,
         );
       }
     } else {
@@ -388,6 +397,7 @@ class CoachNarrativeService {
         profile: profile,
         scoreHistory: scoreHistory,
         tips: tips,
+        s: s,
       );
 
       // Tier 3: BYOK cloud LLM (optionnel, opt-in explicite)
@@ -435,11 +445,13 @@ class CoachNarrativeService {
     required CoachProfile profile,
     required List<Map<String, dynamic>>? scoreHistory,
     required List<CoachingTip> tips,
+    required S s,
   }) {
     return _generateStatic(
       profile: profile,
       scoreHistory: scoreHistory,
       tips: tips,
+      s: s,
     );
   }
 
@@ -447,6 +459,7 @@ class CoachNarrativeService {
     required CoachProfile profile,
     required List<Map<String, dynamic>>? scoreHistory,
     required List<CoachingTip> tips,
+    required S s,
   }) {
     // Build CoachContext for personalized FallbackTemplates.
     // Clear fiscalSeason if coaching tips already cover tax_deadline —
@@ -458,20 +471,20 @@ class CoachNarrativeService {
         : rawCtx;
 
     // Greeting — context-aware (fiscal season, FRI delta, days since visit)
-    final greeting = FallbackTemplates.greeting(ctx);
+    final greeting = FallbackTemplates.greeting(ctx, s);
 
     // Score summary — includes trend direction
-    final scoreSummary = FallbackTemplates.scoreSummary(ctx);
+    final scoreSummary = FallbackTemplates.scoreSummary(ctx, s);
 
     // Trend message — reproduit la logique exacte de _buildScoreTrendText()
-    final trendMessage = _computeStaticTrendMessage(scoreHistory);
+    final trendMessage = _computeStaticTrendMessage(scoreHistory, s);
 
     // Top tip narrative — personalized via FallbackTemplates if no coaching tips
     final String? topTipNarrative;
     if (tips.isNotEmpty) {
       topTipNarrative = tips.first.message;
     } else {
-      topTipNarrative = FallbackTemplates.tipNarrative(ctx);
+      topTipNarrative = FallbackTemplates.tipNarrative(ctx, s);
     }
 
     // Scenario narrations — fallback statique (T7 sans BYOK)
@@ -480,6 +493,7 @@ class CoachNarrativeService {
       final projection = ForecasterService.project(profile: profile);
       scenarioNarrations = _buildStaticScenarioNarrations(
         projection: projection,
+        s: s,
       );
     } catch (e) {
       debugPrint('CoachNarrative: $e');
@@ -504,11 +518,12 @@ class CoachNarrativeService {
         // Estimate tax savings from the remaining 3a margin
         final tauxEstime = profile.canton.isNotEmpty ? 0.30 : 0.28;
         final economie = marge * tauxEstime;
-        urgentAlert = 'Il te reste $joursRestants jours pour verser '
-            'CHF ${marge.toStringAsFixed(0)} en 3a et économiser '
-            '~CHF ${economie.toStringAsFixed(0)} d\'impôts '
-            '(canton ${profile.canton.isNotEmpty ? profile.canton : "CH"}). '
-            '\u2014 OPP3 art. 7';
+        urgentAlert = s.coachNarrativeUrgentAlert3aDeadline(
+          joursRestants,
+          marge.toStringAsFixed(0),
+          economie.toStringAsFixed(0),
+          profile.canton.isNotEmpty ? profile.canton : 'CH',
+        );
       }
     }
 
@@ -520,28 +535,28 @@ class CoachNarrativeService {
       final deadline = DateTime(now.year, 3, 31);
       final joursRestants = deadline.difference(now).inDays;
       if (joursRestants >= 0) {
-        urgentAlert = 'Déclaration fiscale à rendre avant le 31 mars '
-            '($joursRestants jours restants). '
-            '\u2014 LIFD / LHID';
+        urgentAlert = s.coachNarrativeUrgentAlertTaxDeclaration(joursRestants);
       }
     }
 
     // ── chiffreChocNarration + retirementCountdown (static fallback) ──
     // Chiffre choc — confidence-aware via FallbackTemplates
-    final chiffreChocNarration = FallbackTemplates.chiffreChocReframe(ctx);
+    final chiffreChocNarration = FallbackTemplates.chiffreChocReframe(ctx, s);
     String? retirementCountdown;
     if (profile.age >= 45) {
       final yearsLeft = profile.anneesAvantRetraite;
       final retAge = profile.effectiveRetirementAge;
-      retirementCountdown = 'Plus que ${yearsLeft * 12} mois avant ta retraite '
-          'a $retAge ans.';
+      retirementCountdown = s.coachNarrativeRetirementCountdown(
+        yearsLeft * 12,
+        retAge,
+      );
     }
 
     // ── Monthly briefing N vs N-1 (Coach Vivant Track A) ──
     String? monthlyComparison;
     String? versementsTrend;
     try {
-      final briefing = MonthlyBriefingService.fromProfile(profile);
+      final briefing = MonthlyBriefingService.fromProfile(profile, s: s);
       if (briefing != null) {
         versementsTrend = briefing.trendLabel;
         if (briefing.insights.isNotEmpty) {
@@ -573,13 +588,17 @@ class CoachNarrativeService {
 
   static List<String> _buildStaticScenarioNarrations({
     required ProjectionResult projection,
+    required S s,
   }) {
-    String buildLine(ProjectionScenario s) {
-      final monthly = (s.revenuAnnuelRetraite / 12).isFinite
-          ? (s.revenuAnnuelRetraite / 12)
+    String buildLine(ProjectionScenario scenario) {
+      final monthly = (scenario.revenuAnnuelRetraite / 12).isFinite
+          ? (scenario.revenuAnnuelRetraite / 12)
           : 0.0;
-      return '${s.label}: capital projeté ${ForecasterService.formatChf(s.capitalFinal)}. '
-          'Revenu retraite estimé ${ForecasterService.formatChf(monthly)}/mois.';
+      return s.coachNarrativeScenarioLine(
+        scenario.label,
+        ForecasterService.formatChf(scenario.capitalFinal),
+        ForecasterService.formatChf(monthly),
+      );
     }
 
     return [
@@ -594,9 +613,10 @@ class CoachNarrativeService {
   /// Calcule la tendance sur les 3 derniers scores historiques.
   static String _computeStaticTrendMessage(
     List<Map<String, dynamic>>? scoreHistory,
+    S s,
   ) {
     if (scoreHistory == null || scoreHistory.length < 2) {
-      return 'Pas encore assez de donnees pour calculer une tendance.';
+      return s.coachNarrativeTrendNotEnoughData;
     }
 
     final history = scoreHistory;
@@ -607,11 +627,33 @@ class CoachNarrativeService {
     final trend = lastScore - firstScore;
 
     if (trend > 3) {
-      return 'En progression — continue comme ca';
+      return s.coachNarrativeTrendProgressing;
     } else if (trend < -3) {
-      return 'Attention — ton score baisse. Verifie tes actions.';
+      return s.coachNarrativeTrendDeclining;
     } else {
-      return 'Stable — tes efforts maintiennent le cap.';
+      return s.coachNarrativeTrendStable;
+    }
+  }
+
+  /// Raw trend label for LLM system prompts (not user-facing).
+  static String _computeRawTrendLabel(
+    List<Map<String, dynamic>>? scoreHistory,
+  ) {
+    if (scoreHistory == null || scoreHistory.length < 2) {
+      return 'Pas encore assez de donnees pour calculer une tendance.';
+    }
+    final history = scoreHistory;
+    final recent =
+        history.length >= 3 ? history.sublist(history.length - 3) : history;
+    final firstScore = (recent.first['score'] as num?)?.toDouble() ?? 0;
+    final lastScore = (recent.last['score'] as num?)?.toDouble() ?? 0;
+    final trend = lastScore - firstScore;
+    if (trend > 3) {
+      return 'En progression';
+    } else if (trend < -3) {
+      return 'En baisse';
+    } else {
+      return 'Stable';
     }
   }
 
@@ -631,6 +673,7 @@ class CoachNarrativeService {
     required CoachProfile profile,
     required List<Map<String, dynamic>>? scoreHistory,
     required List<CoachingTip> tips,
+    required S s,
   }) async {
     final slm = SlmEngine.instance;
     final systemPrompt = _buildSystemPrompt(
@@ -651,6 +694,7 @@ class CoachNarrativeService {
         profile: profile,
         scoreHistory: scoreHistory,
         tips: tips,
+        s: s,
       );
     }
 
@@ -662,6 +706,7 @@ class CoachNarrativeService {
         profile: profile,
         scoreHistory: scoreHistory,
         tips: tips,
+        s: s,
       );
     }
 
@@ -694,6 +739,7 @@ class CoachNarrativeService {
         profile: profile,
         scoreHistory: scoreHistory,
         tips: tips,
+        s: s,
       );
     }
   }
@@ -767,7 +813,7 @@ class CoachNarrativeService {
       debugPrint('CoachNarrative: $e');
     }
     final scoreValue = score?.global ?? 0;
-    final trendText = _computeStaticTrendMessage(scoreHistory);
+    final trendText = _computeRawTrendLabel(scoreHistory);
 
     // Prevoyance
     final montant3a = profile.prevoyance.totalEpargne3a;

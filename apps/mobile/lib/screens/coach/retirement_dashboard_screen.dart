@@ -181,6 +181,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
         profile: profile,
         scoreHistory: scoreHistory,
         tips: tips,
+        s: S.of(context)!,
         byokConfig: byokConfig,
       );
 
@@ -199,6 +200,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     try {
       return CoachingService.generateTips(
         profile: profile.toCoachingProfile(),
+        s: S.of(context)!,
       );
     } catch (e) {
       debugPrint('RetirementDashboard: tips error: $e');
@@ -248,6 +250,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     );
 
     final rawTemporalItems = TemporalPriorityService.prioritize(
+      s: S.of(context)!,
       canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
       taxSaving3a: taxSaving3a,
       friTotal: friScore,
