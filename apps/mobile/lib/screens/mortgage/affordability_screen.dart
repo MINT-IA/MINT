@@ -7,7 +7,9 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/widgets/coach/mortgage_journey_widget.dart';
+import 'package:mint_mobile/widgets/collapsible_section.dart';
 
 /// Ecran de capacite d'achat immobilier.
 ///
@@ -92,6 +94,10 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
 
                 // Detail resultats
                 _buildDetailSection(result),
+                const SizedBox(height: 24),
+
+                // ── Related sections (hub) ──
+                _buildRelatedSections(),
                 const SizedBox(height: 24),
 
                 // Disclaimer
@@ -598,6 +604,52 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildRelatedSections() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 24),
+        Text('Explorer aussi',
+          style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
+        const SizedBox(height: 12),
+        CollapsibleSection(
+          title: 'Amortissement direct vs indirect',
+          subtitle: 'Impact fiscal de chaque stratégie',
+          icon: Icons.compare_arrows,
+          child: _buildSectionCta('Simuler', '/mortgage/amortization'),
+        ),
+        CollapsibleSection(
+          title: 'SARON vs taux fixe',
+          subtitle: 'Comparer les types d\'hypothèque',
+          icon: Icons.swap_horiz,
+          child: _buildSectionCta('Comparer', '/mortgage/saron-vs-fixed'),
+        ),
+        CollapsibleSection(
+          title: 'Valeur locative',
+          subtitle: 'Comprendre l\'imposition du logement',
+          icon: Icons.home_work_outlined,
+          child: _buildSectionCta('Calculer', '/mortgage/imputed-rental'),
+        ),
+        CollapsibleSection(
+          title: 'EPL — Utiliser mon 2e pilier',
+          subtitle: 'Retrait anticipé pour l\'achat',
+          icon: Icons.account_balance_outlined,
+          child: _buildSectionCta('Simuler', '/mortgage/epl-combined'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionCta(String label, String route) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: () => context.push(route),
+        child: Text(label),
       ),
     );
   }

@@ -23,6 +23,7 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/services/slm/slm_auto_prompt_service.dart';
 import 'package:mint_mobile/widgets/coach/retirement_hero_zone.dart';
 import 'package:mint_mobile/widgets/coach/smart_shortcuts.dart';
+import 'package:mint_mobile/widgets/collapsible_section.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -377,6 +378,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   profile: profile,
                   confidenceScore: _confidenceScore,
                 ),
+                const SizedBox(height: 24),
+
+                // ── Related sections (hub) ──
+                _buildRelatedSections(),
                 const SizedBox(height: 24),
 
                 // ── Position 4: Footer ──
@@ -786,6 +791,49 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 size: 14, color: MintColors.textMuted),
           ],
         ),
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  RELATED SECTIONS (HUB)
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildRelatedSections() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Explorer aussi',
+          style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
+        const SizedBox(height: 12),
+        CollapsibleSection(
+          title: 'Cockpit de détail',
+          subtitle: 'Décomposition par pilier',
+          icon: Icons.dashboard_outlined,
+          child: _buildSectionCta('Ouvrir', '/coach/cockpit'),
+        ),
+        CollapsibleSection(
+          title: 'Rente vs Capital',
+          subtitle: 'Explorer le point d\'équilibre',
+          icon: Icons.balance,
+          child: _buildSectionCta('Simuler', '/rente-vs-capital'),
+        ),
+        CollapsibleSection(
+          title: 'Rachat LPP',
+          subtitle: 'Simuler l\'impact fiscal',
+          icon: Icons.add_chart,
+          child: _buildSectionCta('Calculer', '/rachat-lpp'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionCta(String label, String route) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: () => context.push(route),
+        child: Text(label),
       ),
     );
   }

@@ -8,7 +8,9 @@ import 'package:mint_mobile/widgets/coach/disability_cliff_widget.dart';
 import 'package:mint_mobile/widgets/coach/disability_countdown_widget.dart';
 import 'package:mint_mobile/widgets/coach/disability_reset_widget.dart';
 import 'package:mint_mobile/widgets/coach/disability_scorecard_widget.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
+import 'package:mint_mobile/widgets/collapsible_section.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P4 — ÉCRAN PRINCIPAL INVALIDITÉ
@@ -267,6 +269,9 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                   lifeDropPercent: _lifeDropPercent,
                 ),
                 const SizedBox(height: 20),
+                // ── Related sections (hub) ──
+                _buildRelatedSections(),
+                const SizedBox(height: 20),
                 const EduDisclaimer(
                   text:
                       'Outil éducatif — ne constitue pas un conseil en assurance au sens de la LSFin. '
@@ -414,6 +419,39 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildRelatedSections() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Explorer aussi',
+          style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
+        const SizedBox(height: 12),
+        CollapsibleSection(
+          title: 'Couverture assurance',
+          subtitle: 'IJM, AI, LPP — ton bulletin de notes',
+          icon: Icons.shield_outlined,
+          child: _buildSectionCta('Évaluer', '/disability/insurance'),
+        ),
+        CollapsibleSection(
+          title: 'Indépendant',
+          subtitle: 'Risques spécifiques sans LPP',
+          icon: Icons.rocket_launch,
+          child: _buildSectionCta('Analyser', '/disability/self-employed'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionCta(String label, String route) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: () => context.push(route),
+        child: Text(label),
       ),
     );
   }

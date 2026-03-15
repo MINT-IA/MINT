@@ -244,27 +244,35 @@ class _PulseScreenState extends State<PulseScreen> {
 
   Widget _buildPastilles(CoachProfile profile) {
     final l = S.of(context)!;
+    final conjoint = profile.conjoint;
+    final isCoupleView = _showCoupleView && conjoint != null;
 
     // Retirement
     double? retraiteEstimee;
     double? tauxRemplacement;
     if (_cachedProjection != null) {
       retraiteEstimee = _cachedProjection!.base.revenuAnnuelRetraite / 12;
-      final revenuActuel = _computeRevenuNet(profile);
+      final revenuActuel = _computeRevenuNet(profile) +
+          (isCoupleView ? _computeConjointRevenuNet(conjoint) : 0);
       if (revenuActuel > 0) {
         tauxRemplacement = (retraiteEstimee / revenuActuel * 100);
       }
     }
 
-    // Budget libre
+    // Budget libre (household if couple view)
+    final revenuNet = _computeRevenuNet(profile) +
+        (isCoupleView ? _computeConjointRevenuNet(conjoint) : 0);
     final depMensuelles = profile.totalDepensesMensuelles;
-    final revenuNet = _computeRevenuNet(profile);
     final budgetLibre = revenuNet - depMensuelles;
 
-    // Patrimoine total
-    final patrimoine = profile.patrimoine.totalPatrimoine +
+    // Patrimoine total (household if couple view)
+    double patrimoine = profile.patrimoine.totalPatrimoine +
         (profile.prevoyance.avoirLppTotal ?? 0) +
         profile.prevoyance.totalEpargne3a;
+    if (isCoupleView) {
+      patrimoine += (conjoint.prevoyance?.avoirLppTotal ?? 0) +
+          (conjoint.prevoyance?.totalEpargne3a ?? 0);
+    }
 
     return Row(
       children: [
@@ -489,6 +497,17 @@ class _PulseScreenState extends State<PulseScreen> {
       grossSalary: profile.salaireBrutMensuel * 12,
       canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
       age: DateTime.now().year - profile.birthYear,
+    ).monthlyNetPayslip;
+  }
+
+  double _computeConjointRevenuNet(ConjointProfile conjoint) {
+    final brut = conjoint.salaireBrutMensuel;
+    final age = conjoint.age;
+    if (brut == null || brut <= 0 || age == null) return 0.0;
+    return NetIncomeBreakdown.compute(
+      grossSalary: brut * 12,
+      canton: _lastProfile?.canton ?? 'ZH',
+      age: age,
     ).monthlyNetPayslip;
   }
 
