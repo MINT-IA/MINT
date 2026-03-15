@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -42,8 +43,9 @@ class ExpatRightsLossWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Expatriation droits perdus AVS LPP 3a LAMal avant après',
+      label: s.expatRightsLossSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -53,20 +55,20 @@ class ExpatRightsLossWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildEuBadge(),
+                  _buildEuBadge(s),
                   if (isEuDestination) const SizedBox(height: 12),
                   ...rights.map((r) => Padding(
                     padding: const EdgeInsets.only(bottom: 12),
-                    child: _buildRightCard(r),
+                    child: _buildRightCard(r, s),
                   )),
                   const SizedBox(height: 4),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -76,7 +78,7 @@ class ExpatRightsLossWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -92,7 +94,7 @@ class ExpatRightsLossWidget extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  '5 choses que tu perds en partant',
+                  s.expatRightsLossTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -104,7 +106,7 @@ class ExpatRightsLossWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Suisse → $destination · Avant de partir, vérifie chaque point.',
+            s.expatRightsLossSubtitle(destination),
             style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
           ),
         ],
@@ -112,7 +114,7 @@ class ExpatRightsLossWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildEuBadge() {
+  Widget _buildEuBadge(S s) {
     if (!isEuDestination) return const SizedBox.shrink();
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -127,7 +129,7 @@ class ExpatRightsLossWidget extends StatelessWidget {
           const SizedBox(width: 6),
           Flexible(
             child: Text(
-              'Destination UE — totalisation des périodes d\'assurance possible',
+              s.expatRightsLossEuBadge,
               style: GoogleFonts.inter(fontSize: 11, color: MintColors.info),
             ),
           ),
@@ -136,7 +138,7 @@ class ExpatRightsLossWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildRightCard(ExpatRight r) {
+  Widget _buildRightCard(ExpatRight r, S s) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -184,7 +186,7 @@ class ExpatRightsLossWidget extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                'IRRÉVERSIBLE',
+                                s.expatRightsLossIrreversible,
                                 style: GoogleFonts.inter(
                                   fontSize: 9,
                                   fontWeight: FontWeight.w800,
@@ -211,11 +213,11 @@ class ExpatRightsLossWidget extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: _buildBeforeAfter('En Suisse', r.before, MintColors.scoreExcellent),
+                      child: _buildBeforeAfter(s.expatRightsLossInSwitzerland, r.before, MintColors.scoreExcellent),
                     ),
                     const Icon(Icons.arrow_forward, size: 16, color: MintColors.textSecondary),
                     Expanded(
-                      child: _buildBeforeAfter('À $destination', r.after, MintColors.scoreCritique),
+                      child: _buildBeforeAfter(s.expatRightsLossAtDestination(destination), r.after, MintColors.scoreCritique),
                     ),
                   ],
                 ),
@@ -263,10 +265,9 @@ class ExpatRightsLossWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil juridique ou financier au sens de la LSFin. '
-      'Source : LAVS art. 1a, LPP art. 5, OPP3 art. 1, LAMal art. 3.',
+      s.expatRightsLossDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

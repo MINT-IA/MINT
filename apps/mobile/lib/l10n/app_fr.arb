@@ -9561,5 +9561,295 @@
   "expatCountdownDone": "✓ Fait",
   "expatCountdownLate": "En retard",
   "expatCountdownCriticalNote": "Chaque jour de retard peut te coûter un formulaire de plus ou des droits irréversibles. Le libre passage LPP doit être transféré avant ton départ.",
-  "expatCountdownDisclaimer": "Outil éducatif · ne constitue pas un conseil juridique au sens de la LSFin. Source : LAVS art. 2, LPP art. 5 (libre passage), OPP3 art. 1."
+  "expatCountdownDisclaimer": "Outil éducatif · ne constitue pas un conseil juridique au sens de la LSFin. Source : LAVS art. 2, LPP art. 5 (libre passage), OPP3 art. 1.",
+  "creditCostTitle": "Le vrai coût de ton crédit",
+  "creditCostSubtitle": "Comprendre combien tu paies réellement",
+  "creditCostDisclaimer": "Calcul par annuités constantes (amortissement). Le coût réel peut varier selon les conditions de ton contrat.",
+  "creditCostHypothesisTaeg": "Taux effectif global annuel (TAEG)",
+  "creditCostHypothesisAmortissement": "Amortissement par annuités constantes (méthode bancaire standard)",
+  "creditCostHypothesisFrais": "Pas de frais de dossier inclus",
+  "creditCostLabelMontant": "Montant emprunté",
+  "creditCostLabelTaux": "Taux d'intérêt (TAEG)",
+  "creditCostLabelDuree": "Durée du crédit",
+  "creditCostMonths": "{count} mois",
+  "@creditCostMonths": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "creditCostTotalInterets": "Coût total des intérêts",
+  "creditCostPercentBorrowed": "soit {percent} % du montant emprunté",
+  "@creditCostPercentBorrowed": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "creditCostTotalRepayment": "Tu rembourses au total",
+  "creditCostMensualite": "Mensualité",
+  "creditCostPerMonth": "{amount} / mois",
+  "@creditCostPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "creditCostConseilTitle": "Conseil Mint",
+  "creditCostConseilBody": "Rembourser ce crédit en priorité est souvent la décision financière la plus efficace. L'économie d'intérêts est acquise, contrairement aux rendements d'investissement.",
+  "lppPivotTitle": "Le pivot LPP : comprendre ton plafond 3a",
+  "lppPivotSubtitle": "Ton affiliation au 2e pilier détermine combien tu peux verser au 3a",
+  "lppPivotDisclaimer": "Information pédagogique. Ta situation peut varier selon ton employeur et ta caisse de pension.",
+  "lppPivotHypothesisPlafonds": "Plafonds 2026 : CHF 7'258 (avec LPP) ou 20 % du revenu (sans LPP, max 36'288)",
+  "lppPivotHypothesisSource": "Source : VIAC, UBS, ch.ch",
+  "lppPivotWithLppTitle": "Avec LPP (salarié)",
+  "lppPivotWithLppSubtitle": "Affilié à une caisse de pension",
+  "lppPivotWithLppLimit": "CHF 7'258 / an",
+  "lppPivotWithLppDescription": "Tu travailles comme salarié avec un 2e pilier.",
+  "lppPivotWithoutLppTitle": "Sans LPP",
+  "lppPivotWithoutLppSubtitle": "Indépendant ou temps partiel sans caisse",
+  "lppPivotWithoutLppLimit": "20 % du revenu net",
+  "lppPivotWithoutLppLimitSub": "(max CHF 36'288)",
+  "lppPivotWithoutLppDescription": "Tu peux verser jusqu'à 5x plus au 3a !",
+  "lppPivotFooter": "Le 3a reste l'un des outils les plus efficaces de défiscalisation en Suisse, quel que soit ton statut.",
+  "retirementChecklistTitle": "Prochaines étapes",
+  "retirementChecklistSubtitle": "Actions personnalisées pour ta situation",
+  "retirementChecklistAvsTitle": "Commander ton extrait de compte individuel (CI)",
+  "retirementChecklistAvsSubtitle": "Gratuit sur inforegister.ch. Permet de vérifier tes années AVS.",
+  "retirementChecklistAvsTimeline": "Dès que possible",
+  "retirementChecklist3aTitle": "Verser ton 3a avant le 31 décembre",
+  "retirementChecklist3aSubtitle": "CHF {remaining} restant avant le plafond {year}.",
+  "@retirementChecklist3aSubtitle": {
+    "placeholders": {
+      "remaining": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "retirementChecklist3aTimeline": "Avant le 31.12.{year}",
+  "@retirementChecklist3aTimeline": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "retirementChecklistRachatTitle": "Évaluer un rachat LPP",
+  "retirementChecklistRachatSubtitle": "Économie d'impôt estimée : ~CHF {economie}. Lacune restante : CHF {lacune}.",
+  "@retirementChecklistRachatSubtitle": {
+    "placeholders": {
+      "economie": {
+        "type": "String"
+      },
+      "lacune": {
+        "type": "String"
+      }
+    }
+  },
+  "retirementChecklistRachatTimeline": "Avant {year} (LPP art. 79b)",
+  "@retirementChecklistRachatTimeline": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "retirementChecklistRenteVsCapitalTitle": "Planifier rente vs capital",
+  "retirementChecklistRenteVsCapitalSubtitle": "Décision irréversible — prends le temps de simuler les scénarios.",
+  "retirementChecklistRenteVsCapitalTimeline": "Avant {year}",
+  "@retirementChecklistRenteVsCapitalTimeline": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "retirementChecklistPartnerDefault": "ton/ta partenaire",
+  "retirementChecklistCoupleTitle": "Coordonner les dates de retrait",
+  "retirementChecklistCoupleSubtitle": "Échelonner les retraits avec {name} pour réduire la charge fiscale.",
+  "@retirementChecklistCoupleSubtitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "retirementChecklistCoupleTimeline": "Phase de planification",
+  "countdown3aTitle": "Compte à rebours 3a",
+  "countdown3aUrgent": "Urgent",
+  "countdown3aSoon": "Bientôt",
+  "countdown3aComfortable": "Confortable",
+  "countdown3aSemanticsLabel": "Compte à rebours 3a. {amount} restant en {days} jours.",
+  "@countdown3aSemanticsLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "countdown3aBadge": "{days} j — {label}",
+  "@countdown3aBadge": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "countdown3aVerse": "Versé",
+  "countdown3aReste": "Reste",
+  "countdown3aPlafond": "Plafond {year}",
+  "@countdown3aPlafond": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "countdown3aChiffreChocNotFull": "Si tu complètes : {amount} d'impôts en moins.\nSi tu ne fais rien : {amount} laissés sur la table. Chaque année.",
+  "@countdown3aChiffreChocNotFull": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "countdown3aChiffreChocFull": "Bravo ! Tu as rempli ton 3a {year}. Économie fiscale : {amount}.",
+  "@countdown3aChiffreChocFull": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "countdown3aDisclaimer": "Plafond 3a {year} : salarié·e affilié·e LPP (OPP3 art. 7). Outil éducatif — ne constitue pas un conseil financier (LSFin).",
+  "@countdown3aDisclaimer": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "arbitrageBilanAppBarTitle": "Bilan d'arbitrage",
+  "arbitrageBilanEmptyMessage": "Complète ton profil pour voir tes pistes d'arbitrage",
+  "arbitrageBilanStart": "Commencer",
+  "arbitrageBilanHeroTitle": "Tes leviers d'action",
+  "arbitrageBilanHeroSubtitle": "{amount}/mois de potentiel identifié",
+  "@arbitrageBilanHeroSubtitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "arbitrageBilanUnlockTitle": "Débloque d'autres pistes",
+  "arbitrageBilanDisclaimer": "Outil éducatif — ne constitue pas un conseil financier (LSFin). Sources : LPP art. 14, 79b / LIFD art. 22, 33, 38 / OPP3 art. 7.",
+  "arbitrageBilanCaveat": "Ces pistes ne s'additionnent pas forcément — certaines sont liées entre elles.",
+  "arbitrageBilanCrossDepTitle": "Liens entre ces pistes",
+  "arbitrageBilanCrossDepCalendrier": "Si tu retires ton LPP en capital, le calendrier de retraits change fondamentalement.",
+  "arbitrageBilanCrossDepRachat": "Un rachat LPP augmente aussi le capital disponible pour le choix rente vs capital.",
+  "arbitrageBilanItemDisclaimer": "Dans ce scénario simulé — à explorer en détail",
+  "simulationScenarioPrudenceLabel": "Prudence",
+  "simulationScenarioPrudenceDesc": "Compte épargne (0.5 %)",
+  "simulationScenarioCentralLabel": "Central",
+  "simulationScenarioCentralDesc": "3a conservateur (3 %)",
+  "simulationScenarioStressLabel": "Stress",
+  "simulationScenarioStressDesc": "3a équilibré (5 %)",
+  "simulationCompoundTitle": "Projection Intérêts Composés",
+  "simulationCompoundSubtitle": "CHF {monthly}/mois pendant {years} ans",
+  "@simulationCompoundSubtitle": {
+    "placeholders": {
+      "monthly": {
+        "type": "String"
+      },
+      "years": {
+        "type": "String"
+      }
+    }
+  },
+  "simulationCompoundDisclaimer": "Hypothèses pédagogiques (inflation {inflation} %). Les rendements passés ne garantissent pas les rendements futurs.",
+  "@simulationCompoundDisclaimer": {
+    "placeholders": {
+      "inflation": {
+        "type": "String"
+      }
+    }
+  },
+  "simulationCompoundDetail": "CHF {total} (dont CHF {interest} d'intérêts)",
+  "@simulationCompoundDetail": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "interest": {
+        "type": "String"
+      }
+    }
+  },
+  "simulationLppBuybackTitle": "Impact Rachat LPP",
+  "simulationLppHypothesesLabel": "Hypothèses :",
+  "simulationLppHypothesisTaux": "• Taux marginal : {rate} % (estimé selon canton/revenu)",
+  "@simulationLppHypothesisTaux": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "simulationLppHypothesisConversion": "• Taux de conversion LPP : {rate} % (hypothèse actuelle)",
+  "@simulationLppHypothesisConversion": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "simulationLppHypothesisVerifie": "Vérifie avec ton certificat LPP et un·e spécialiste en fiscalité.",
+  "simulationLppMetricRachat": "Rachat",
+  "simulationLppMetricEconomie": "Économie fiscale immédiate",
+  "simulationLppMetricAugmentation": "Augmentation rente (dès 65 ans)",
+  "simulationLppMetricAugmentationValue": "+CHF {amount}/an",
+  "@simulationLppMetricAugmentationValue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "expatRightsLossSemantics": "Expatriation droits perdus AVS LPP 3a LAMal avant après",
+  "expatRightsLossTitle": "5 choses que tu perds en partant",
+  "expatRightsLossSubtitle": "Suisse → {destination} · Avant de partir, vérifie chaque point.",
+  "@expatRightsLossSubtitle": {
+    "placeholders": {
+      "destination": {
+        "type": "String"
+      }
+    }
+  },
+  "expatRightsLossEuBadge": "Destination UE — totalisation des périodes d'assurance possible",
+  "expatRightsLossIrreversible": "IRRÉVERSIBLE",
+  "expatRightsLossInSwitzerland": "En Suisse",
+  "expatRightsLossAtDestination": "À {destination}",
+  "@expatRightsLossAtDestination": {
+    "placeholders": {
+      "destination": {
+        "type": "String"
+      }
+    }
+  },
+  "expatRightsLossDisclaimer": "Outil éducatif · ne constitue pas un conseil juridique ou financier au sens de la LSFin. Source : LAVS art. 1a, LPP art. 5, OPP3 art. 1, LAMal art. 3."
 }
