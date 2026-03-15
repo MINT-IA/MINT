@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/arbitrage_summary_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -27,9 +28,11 @@ class ArbitrageBilanScreen extends StatelessWidget {
     final profile =
         context.watch<CoachProfileProvider>().profile;
 
+    final s = S.of(context)!;
+
     if (profile == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Bilan d\'arbitrage')),
+        appBar: AppBar(title: Text(s.arbitrageBilanAppBarTitle)),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(32),
@@ -40,7 +43,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
                     size: 48, color: MintColors.textMuted),
                 const SizedBox(height: 16),
                 Text(
-                  'Complete ton profil pour voir tes pistes d\'arbitrage',
+                  s.arbitrageBilanEmptyMessage,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(
                     fontSize: 15,
@@ -50,7 +53,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 FilledButton(
                   onPressed: () => context.push('/onboarding/quick'),
-                  child: const Text('Commencer'),
+                  child: Text(s.arbitrageBilanStart),
                 ),
               ],
             ),
@@ -89,7 +92,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
-                          'Tes leviers d\'action',
+                          s.arbitrageBilanHeroTitle,
                           style: GoogleFonts.montserrat(
                             fontSize: 22,
                             fontWeight: FontWeight.w800,
@@ -99,7 +102,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
                         const SizedBox(height: 4),
                         if (summary.items.isNotEmpty)
                           Text(
-                            '${formatChfWithPrefix(summary.aggregateMonthlyImpact)}/mois de potentiel identifie',
+                            s.arbitrageBilanHeroSubtitle(formatChfWithPrefix(summary.aggregateMonthlyImpact)),
                             style: GoogleFonts.inter(
                               fontSize: 14,
                               color: MintColors.white.withValues(alpha: 0.85),
@@ -111,7 +114,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
                 ),
               ),
               title: Text(
-                'Bilan d\'arbitrage',
+                s.arbitrageBilanAppBarTitle,
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
@@ -127,7 +130,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
               delegate: SliverChildListDelegate([
                 // Caveat
                 if (summary.items.length > 1)
-                  _buildCaveat(),
+                  _buildCaveat(s),
 
                 // Computed items
                 ...summary.items.map((item) => Padding(
@@ -139,7 +142,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
                 if (summary.lockedItems.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Text(
-                    'Debloque d\'autres pistes',
+                    s.arbitrageBilanUnlockTitle,
                     style: GoogleFonts.montserrat(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -155,13 +158,12 @@ class ArbitrageBilanScreen extends StatelessWidget {
 
                 // Cross-dependencies
                 if (summary.items.length >= 2)
-                  _buildCrossDependencies(summary),
+                  _buildCrossDependencies(summary, s),
 
                 // Disclaimer
                 const SizedBox(height: 16),
                 Text(
-                  'Outil educatif — ne constitue pas un conseil financier (LSFin). '
-                  'Sources : LPP art. 14, 79b / LIFD art. 22, 33, 38 / OPP3 art. 7.',
+                  s.arbitrageBilanDisclaimer,
                   style: GoogleFonts.inter(
                     fontSize: 10,
                     color: MintColors.textMuted,
@@ -177,7 +179,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCaveat() {
+  Widget _buildCaveat(S s) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Container(
@@ -194,8 +196,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Ces pistes ne s\'additionnent pas forcement — '
-                'certaines sont liees entre elles.',
+                s.arbitrageBilanCaveat,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textSecondary,
@@ -209,7 +210,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCrossDependencies(ArbitrageSummary summary) {
+  Widget _buildCrossDependencies(ArbitrageSummary summary, S s) {
     final hasRenteVsCapital =
         summary.items.any((i) => i.id == 'rente_vs_capital');
     final hasCalendrier =
@@ -218,14 +219,10 @@ class ArbitrageBilanScreen extends StatelessWidget {
 
     final notes = <String>[];
     if (hasRenteVsCapital && hasCalendrier) {
-      notes.add(
-          'Si tu retires ton LPP en capital, le calendrier de retraits '
-          'change fondamentalement.');
+      notes.add(s.arbitrageBilanCrossDepCalendrier);
     }
     if (hasRachat && hasRenteVsCapital) {
-      notes.add(
-          'Un rachat LPP augmente aussi le capital disponible pour le '
-          'choix rente vs capital.');
+      notes.add(s.arbitrageBilanCrossDepRachat);
     }
 
     if (notes.isEmpty) return const SizedBox.shrink();
@@ -247,7 +244,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
                 const Icon(Icons.link, size: 16, color: MintColors.info),
                 const SizedBox(width: 8),
                 Text(
-                  'Liens entre ces pistes',
+                  s.arbitrageBilanCrossDepTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -408,7 +405,7 @@ class _ArbitrageItemCard extends StatelessWidget {
 
             // Disclaimer line
             Text(
-              'Dans ce scenario simule — a explorer en detail',
+              S.of(context)!.arbitrageBilanItemDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 10,
                 color: MintColors.textMuted,
