@@ -9961,5 +9961,43 @@
   "disabilityResetEveryMonth": "Chaque mois.",
   "disabilityResetForever": "Pour toujours.",
   "disabilityResetNarrative": "C'est pas juste ton salaire qui baisse.\nC'est ta retraite qui rétrécit.",
-  "disabilityResetDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LPP art. 16, 23-26. Taux de conversion minimum : 6.8 % (LPP art. 14)."
+  "disabilityResetDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LPP art. 16, 23-26. Taux de conversion minimum : 6.8 % (LPP art. 14).",
+  "debtRepaymentSemantics": "Avalanche boule de neige remboursement dettes comparaison",
+  "debtRepaymentTitle": "Avalanche vs Boule de neige",
+  "debtRepaymentSubtitle": "{amount} de dettes · quelle stratégie ?",
+  "@debtRepaymentSubtitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "debtRepaymentAvalancheLabel": "⛰️ Avalanche",
+  "debtRepaymentAvalancheSubtitle": "Taux élevé d'abord",
+  "debtRepaymentSnowballLabel": "❄️ Boule de neige",
+  "debtRepaymentSnowballSubtitle": "Petite dette d'abord",
+  "debtRepaymentOrder": "Ordre de remboursement",
+  "debtRepaymentAvalancheName": "Avalanche",
+  "debtRepaymentSnowballName": "Boule de neige",
+  "debtRepaymentPayoffAll": "pour solder toutes les dettes",
+  "debtRepaymentInterestPaid": "Intérêts payés",
+  "debtRepaymentAvalancheSaves": "L'avalanche économise {amount}",
+  "@debtRepaymentAvalancheSaves": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "debtRepaymentSameCost": "Les deux stratégies ont le même coût",
+  "debtRepaymentSnowballSlower": "La boule de neige prend {months} mois de plus, mais elle est plus motivante (petites victoires rapides).",
+  "@debtRepaymentSnowballSlower": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "debtRepaymentChooseMotivation": "Choisis la stratégie qui te motive le plus à tenir.",
+  "debtRepaymentDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Simulation de remboursement basée sur des versements mensuels constants. Source : LP (Loi fédérale sur la poursuite pour dettes et la faillite)."
 }

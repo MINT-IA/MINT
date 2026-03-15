@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'dart:math' as math;
 
 // ────────────────────────────────────────────────────────────
 //  P10-B  Avalanche vs Boule de neige
-//  Charte : L2 (Avant/Après) + L6 (Chiffre-choc)
-//  Source : CO art. 82, bonnes pratiques désendettement
+//  Charte : L2 (Avant/Apres) + L6 (Chiffre-choc)
+//  Source : CO art. 82, bonnes pratiques desendettement
 // ────────────────────────────────────────────────────────────
 
 class DebtEntry {
@@ -122,13 +123,14 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final avalanche = _simulate(RepaymentStrategy.avalanche);
     final snowball = _simulate(RepaymentStrategy.snowball);
     final current = _strategy == RepaymentStrategy.avalanche ? avalanche : snowball;
     final interestSaved = snowball.totalInterest - avalanche.totalInterest;
 
     return Semantics(
-      label: 'Avalanche boule de neige remboursement dettes comparaison',
+      label: s.debtRepaymentSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -138,21 +140,21 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildStrategyToggle(),
+                  _buildStrategyToggle(s),
                   const SizedBox(height: 16),
-                  _buildDebtList(),
+                  _buildDebtList(s),
                   const SizedBox(height: 16),
-                  _buildResultCard(current),
+                  _buildResultCard(s, current),
                   const SizedBox(height: 12),
-                  _buildComparisonCallout(interestSaved, avalanche, snowball),
+                  _buildComparisonCallout(s, interestSaved, avalanche, snowball),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -162,7 +164,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -171,14 +173,14 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
       ),
       child: Row(
         children: [
-          const Text('⛰️', style: TextStyle(fontSize: 22)),
+          const Text('\u26f0\ufe0f', style: TextStyle(fontSize: 22)),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Avalanche vs Boule de neige',
+                  s.debtRepaymentTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -187,7 +189,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${formatChfWithPrefix(_totalDebt)} de dettes · quelle stratégie ?',
+                  s.debtRepaymentSubtitle(formatChfWithPrefix(_totalDebt)),
                   style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
                 ),
               ],
@@ -198,18 +200,18 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
     );
   }
 
-  Widget _buildStrategyToggle() {
+  Widget _buildStrategyToggle(S s) {
     return Row(
       children: [
         Expanded(child: _buildToggleBtn(
-          label: '⛰️ Avalanche',
-          subtitle: 'Taux élevé d\'abord',
+          label: s.debtRepaymentAvalancheLabel,
+          subtitle: s.debtRepaymentAvalancheSubtitle,
           strategy: RepaymentStrategy.avalanche,
         )),
         const SizedBox(width: 10),
         Expanded(child: _buildToggleBtn(
-          label: '❄️ Boule de neige',
-          subtitle: 'Petite dette d\'abord',
+          label: s.debtRepaymentSnowballLabel,
+          subtitle: s.debtRepaymentSnowballSubtitle,
           strategy: RepaymentStrategy.snowball,
         )),
       ],
@@ -255,7 +257,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
     );
   }
 
-  Widget _buildDebtList() {
+  Widget _buildDebtList(S s) {
     final sorted = List<DebtEntry>.from(widget.debts);
     if (_strategy == RepaymentStrategy.avalanche) {
       sorted.sort((a, b) => b.monthlyRate.compareTo(a.monthlyRate));
@@ -267,7 +269,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Ordre de remboursement',
+          s.debtRepaymentOrder,
           style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -319,7 +321,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
                     ),
                   ),
                   Text(
-                    '${(e.value.monthlyRate * 12 * 100).toStringAsFixed(1)}%/an',
+                    '${(e.value.monthlyRate * 12 * 100).toStringAsFixed(1)}\u00a0%/an',
                     style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
                   ),
                 ],
@@ -331,10 +333,12 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
     );
   }
 
-  Widget _buildResultCard(_SimResult result) {
+  Widget _buildResultCard(S s, _SimResult result) {
     final years = result.months ~/ 12;
     final months = result.months % 12;
-    final label = _strategy == RepaymentStrategy.avalanche ? 'Avalanche' : 'Boule de neige';
+    final label = _strategy == RepaymentStrategy.avalanche
+        ? s.debtRepaymentAvalancheName
+        : s.debtRepaymentSnowballName;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -362,7 +366,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
                   ),
                 ),
                 Text(
-                  'pour solder toutes les dettes',
+                  s.debtRepaymentPayoffAll,
                   style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
                 ),
               ],
@@ -372,7 +376,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                'Intérêts payés',
+                s.debtRepaymentInterestPaid,
                 style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
               ),
               Text(
@@ -390,7 +394,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
     );
   }
 
-  Widget _buildComparisonCallout(double saved, _SimResult avalanche, _SimResult snowball) {
+  Widget _buildComparisonCallout(S s, double saved, _SimResult avalanche, _SimResult snowball) {
     final monthsDiff = snowball.months - avalanche.months;
 
     return Container(
@@ -403,7 +407,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('💡', style: TextStyle(fontSize: 18)),
+          const Text('\ud83d\udca1', style: TextStyle(fontSize: 18)),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -411,8 +415,8 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
               children: [
                 Text(
                   saved > 0
-                      ? 'L\'avalanche économise ${formatChfWithPrefix(saved)}'
-                      : 'Les deux stratégies ont le même coût',
+                      ? s.debtRepaymentAvalancheSaves(formatChfWithPrefix(saved))
+                      : s.debtRepaymentSameCost,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -422,9 +426,8 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
                 const SizedBox(height: 4),
                 Text(
                   saved > 0
-                      ? 'La boule de neige prend $monthsDiff mois de plus, '
-                        'mais elle est plus motivante (petites victoires rapides).'
-                      : 'Choisis la stratégie qui te motive le plus à tenir.',
+                      ? s.debtRepaymentSnowballSlower(monthsDiff)
+                      : s.debtRepaymentChooseMotivation,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -439,11 +442,9 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Simulation de remboursement basée sur des versements mensuels constants. '
-      'Source : LP (Loi fédérale sur la poursuite pour dettes et la faillite).',
+      s.debtRepaymentDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,
