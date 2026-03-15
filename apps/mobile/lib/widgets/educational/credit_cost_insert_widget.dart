@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/educational/educational_insert_widget.dart';
 
@@ -77,14 +78,15 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return EducationalInsertWidget(
-      title: 'Le vrai coût de ton crédit',
-      subtitle: 'Comprendre combien tu paies réellement',
-      disclaimer: 'Calcul par annuites constantes (amortissement). Le cout reel peut varier selon les conditions de ton contrat.',
-      hypotheses: const [
-        'Taux effectif global annuel (TAEG)',
-        'Amortissement par annuites constantes (methode bancaire standard)',
-        'Pas de frais de dossier inclus',
+      title: s.creditCostTitle,
+      subtitle: s.creditCostSubtitle,
+      disclaimer: s.creditCostDisclaimer,
+      hypotheses: [
+        s.creditCostHypothesisTaeg,
+        s.creditCostHypothesisAmortissement,
+        s.creditCostHypothesisFrais,
       ],
       onLearnMore: widget.onLearnMore,
       content: Column(
@@ -92,7 +94,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
         children: [
           // Slider montant
           _buildSlider(
-            label: 'Montant emprunté',
+            label: s.creditCostLabelMontant,
             value: _amount,
             min: 1000,
             max: 50000,
@@ -105,7 +107,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
 
           // Slider taux
           _buildSlider(
-            label: 'Taux d\'intérêt (TAEG)',
+            label: s.creditCostLabelTaux,
             value: _rate,
             min: 4,
             max: 15,
@@ -119,12 +121,12 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
 
           // Slider durée
           _buildSlider(
-            label: 'Durée du crédit',
+            label: s.creditCostLabelDuree,
             value: _months.toDouble(),
             min: 12,
             max: 84,
             divisions: 12,
-            format: (v) => '${v.toInt()} mois',
+            format: (v) => s.creditCostMonths(v.toInt()),
             onChanged: (v) => _onValueChanged(() => _months = v.toInt()),
           ),
           
@@ -154,7 +156,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                       const Icon(Icons.warning_amber, color: MintColors.white, size: 28),
                       const SizedBox(width: 12),
                       Text(
-                        'Cout total des interets',
+                        s.creditCostTotalInterets,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -181,7 +183,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      'soit ${(_totalInterest / _amount * 100).toStringAsFixed(0)}% du montant emprunte',
+                      s.creditCostPercentBorrowed((_totalInterest / _amount * 100).toStringAsFixed(0)),
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -209,7 +211,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Tu rembourses au total'),
+                    Text(s.creditCostTotalRepayment),
                     Text(
                       _currencyFormat.format(_totalCost),
                       style: const TextStyle(fontWeight: FontWeight.bold),
@@ -220,9 +222,9 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Mensualite'),
+                    Text(s.creditCostMensualite),
                     Text(
-                      '${_currencyFormat.format(_monthlyPayment)} / mois',
+                      s.creditCostPerMonth(_currencyFormat.format(_monthlyPayment)),
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -240,27 +242,26 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
               color: MintColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Icon(Icons.lightbulb, color: MintColors.primary, size: 20),
-                    SizedBox(width: 12),
+                    const Icon(Icons.lightbulb, color: MintColors.primary, size: 20),
+                    const SizedBox(width: 12),
                     Text(
-                      'Conseil Mint',
-                      style: TextStyle(
+                      s.creditCostConseilTitle,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         color: MintColors.primary,
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
-                  'Rembourser ce crédit en priorité est souvent la décision financière la plus efficace. '
-                  'L\'économie d\'intérêts est acquise, contrairement aux rendements d\'investissement.',
-                  style: TextStyle(fontSize: 13),
+                  s.creditCostConseilBody,
+                  style: const TextStyle(fontSize: 13),
                 ),
               ],
             ),
