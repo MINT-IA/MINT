@@ -9999,5 +9999,36 @@
     }
   },
   "debtRepaymentChooseMotivation": "Choisis la stratégie qui te motive le plus à tenir.",
-  "debtRepaymentDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Simulation de remboursement basée sur des versements mensuels constants. Source : LP (Loi fédérale sur la poursuite pour dettes et la faillite)."
+  "debtRepaymentDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Simulation de remboursement basée sur des versements mensuels constants. Source : LP (Loi fédérale sur la poursuite pour dettes et la faillite).",
+  "bankImportSummaryHeader": "RÉSUMÉ",
+  "bankImportTransactionsHeader": "TRANSACTIONS",
+  "bankImportMoreTransactions": "... et {count} autres transactions",
+  "@bankImportMoreTransactions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bankImportErrorGeneric": "Une erreur est survenue lors de l'analyse du relevé.",
+  "wizardLearnMoreSnackbar": "En savoir plus\u00a0: {title}",
+  "@wizardLearnMoreSnackbar": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "wizardDatePickerNotImplemented": "Sélecteur de date pas encore disponible",
+  "dataBlockEnrichmentScorePoints": "{score} / {maxScore} pts",
+  "@dataBlockEnrichmentScorePoints": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      },
+      "maxScore": {
+        "type": "String"
+      }
+    }
+  }
 }

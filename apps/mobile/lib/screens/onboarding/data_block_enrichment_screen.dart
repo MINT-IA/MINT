@@ -607,7 +607,10 @@ class _BlockScoreBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '${bloc.score.round()} / ${bloc.maxScore.round()} pts',
+              S.of(context)!.dataBlockEnrichmentScorePoints(
+                bloc.score.round().toString(),
+                bloc.maxScore.round().toString(),
+              ),
               style: GoogleFonts.montserrat(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
