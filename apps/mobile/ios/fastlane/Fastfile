@@ -88,30 +88,16 @@ platform :ios do
       xcodeproj: "Runner.xcodeproj",
     )
 
-    # ── 5. Configure manual code signing (use Match profile) ──
-    # Match sets sigh_ch.mint.app_appstore (UUID) and MATCH_PROVISIONING_PROFILE_MAPPING
-    mapping = Actions.lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING] || {}
-    profile = mapping.values.first.to_s
-    profile = "match AppStore ch.mint.app 1773574035" if profile.empty?
-
-    profile_uuid = Actions.lane_context[SharedValues::SIGH_UUID] || ""
-    UI.important("Provisioning profile: '#{profile}' (UUID: #{profile_uuid})")
-
-    update_code_signing_settings(
-      use_automatic_signing: false,
-      team_id: "7F5UDGYS5H",
-      code_sign_identity: "iPhone Distribution",
-      profile_name: profile,
-      path: "Runner.xcodeproj",
-      targets: ["Runner"],
-    )
+    # ── 5. Signing is configured in pbxproj (Manual + profile specifier) ──
+    # No update_code_signing_settings needed — hardcoded in Runner.xcodeproj
 
     # ── 6. Build the Flutter IPA ──
+    profile = "match AppStore ch.mint.app 1773574035"
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "Runner",
       export_method: "app-store",
-      xcargs: "-allowProvisioningUpdates PROVISIONING_PROFILE_SPECIFIER='#{profile}'",
+      skip_profile_detection: true,
       export_options: {
         signingStyle: "manual",
         provisioningProfiles: {
