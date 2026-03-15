@@ -4,6 +4,7 @@ import 'package:mint_mobile/domain/calculators.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/info_tooltip.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 class SimulatorCompoundScreen extends StatefulWidget {
   const SimulatorCompoundScreen({super.key});
@@ -41,7 +42,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
 
   Future<void> _exportPdf() async {
     if (_result == null) return;
-    
+
     // TODO: Implement PDF export for compound interest simulator
     // await PdfService.generateBilanPdf(
     //   title: 'Simulation Intérêts Composés',
@@ -52,6 +53,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.background,
       body: CustomScrollView(
@@ -63,13 +65,13 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
               IconButton(
                 icon: const Icon(Icons.picture_as_pdf_outlined, color: MintColors.white),
                 onPressed: _exportPdf,
-                tooltip: 'Exporter mon bilan',
+                tooltip: s.simulatorCompoundExportTooltip,
               ),
               const SizedBox(width: 8),
             ],
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Intérêts Composés',
+                s.simulatorCompoundTitle,
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -113,6 +115,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
   }
 
   Widget _buildCoachSection() {
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -122,21 +125,21 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
-              SizedBox(width: 12),
-              Text('L\'avis du Mentor', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+              const Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
+              const SizedBox(width: 12),
+              Text(s.simulatorCompoundCoachTitle, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
             ],
           ),
           const SizedBox(height: 12),
           RichText(
-            text: const TextSpan(
-              style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
+            text: TextSpan(
+              style: const TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
               children: [
-                TextSpan(text: 'Comprendre l\''),
-                WidgetSpan(child: InfoTooltip(term: 'intérêt composé')),
-                TextSpan(text: ', c\'est comprendre comment ton argent travaille pour toi pendant que tu dors.'),
+                TextSpan(text: s.simulatorCompoundCoachBodyPart1),
+                const WidgetSpan(child: InfoTooltip(term: 'int\u00e9r\u00eat compos\u00e9')),
+                TextSpan(text: s.simulatorCompoundCoachBodyPart2),
               ],
             ),
           ),
@@ -146,13 +149,14 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
   }
 
   Widget _buildInputSection() {
+    final s = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Configuration'),
+        _buildSectionHeader(s.simulatorCompoundConfiguration),
         const SizedBox(height: 24),
         _buildSlider(
-          label: 'Capital de départ',
+          label: s.simulatorCompoundInitialCapital,
           value: _principal,
           min: 0,
           max: 100000,
@@ -165,7 +169,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
         ),
         const SizedBox(height: 20),
         _buildSlider(
-          label: 'Épargne mensuelle',
+          label: s.simulatorCompoundMonthlySavings,
           value: _monthlyContribution,
           min: 0,
           max: 5000,
@@ -178,7 +182,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
         ),
         const SizedBox(height: 20),
         _buildSlider(
-          label: 'Taux (Rendement annuel)',
+          label: s.simulatorCompoundAnnualRate,
           value: _annualRate,
           min: 0,
           max: 12,
@@ -191,12 +195,12 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
         ),
         const SizedBox(height: 20),
         _buildSlider(
-          label: 'Horizon de temps',
+          label: s.simulatorCompoundTimeHorizon,
           value: _years.toDouble(),
           min: 1,
           max: 40,
           divisions: 39,
-          format: (v) => '${v.toInt()} ans',
+          format: (v) => s.simulatorCompoundYears(v.toInt()),
           onChanged: (v) {
             _years = v.toInt();
             _calculate();
@@ -262,6 +266,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
   }
 
   Widget _buildResultSection() {
+    final s = S.of(context)!;
     final finalValue = _result!['finalValue']!;
     final gains = _result!['gains']!;
     final gainPercentage = (gains / finalValue * 100);
@@ -275,7 +280,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
       ),
       child: Column(
         children: [
-          const Text('Valeur Finale Potentielle', style: TextStyle(fontSize: 14, color: MintColors.textSecondary)),
+          Text(s.simulatorCompoundFinalValue, style: const TextStyle(fontSize: 14, color: MintColors.textSecondary)),
           const SizedBox(height: 8),
           Text(
             _currencyFormat.format(finalValue),
@@ -297,7 +302,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            '${gainPercentage.toStringAsFixed(0)}% de ce montant provient uniquement de tes gains de placement.',
+            s.simulatorCompoundGainsPercent(gainPercentage.toStringAsFixed(0)),
             style: const TextStyle(fontSize: 13, color: MintColors.success, fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
           ),
@@ -307,14 +312,15 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
   }
 
   Widget _buildLessonSection() {
+    final s = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Leçons Méditées'),
+        _buildSectionHeader(s.simulatorCompoundLessonsHeader),
         const SizedBox(height: 24),
-        _buildLessonItem(Icons.timer_outlined, 'Le temps est roi', 'Attendre 5 ans avant de commencer peut te faire perdre la moitié de ton capital final.'),
-        _buildLessonItem(Icons.auto_graph_outlined, 'L\'effet de levier', 'Une fois lancé, ton capital génère ses propres intérêts, qui en génèrent d\'autres à leur tour.'),
-        _buildLessonItem(Icons.psychology_outlined, 'Discipline', 'La regularite des versements mensuels est souvent plus efficace que la recherche du moment ideal pour investir.'),
+        _buildLessonItem(Icons.timer_outlined, s.simulatorCompoundLessonTimeTitle, s.simulatorCompoundLessonTimeBody),
+        _buildLessonItem(Icons.auto_graph_outlined, s.simulatorCompoundLessonLeverageTitle, s.simulatorCompoundLessonLeverageBody),
+        _buildLessonItem(Icons.psychology_outlined, s.simulatorCompoundLessonDisciplineTitle, s.simulatorCompoundLessonDisciplineBody),
       ],
     );
   }
@@ -350,12 +356,13 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
   }
 
   Widget _buildDisclaimer() {
-    return const Center(
+    final s = S.of(context)!;
+    return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Text(
-          'Calcul théorique basé sur un rendement constant. Les performances passées ne garantissent pas les résultats futurs.',
-          style: TextStyle(color: MintColors.textMuted, fontSize: 11),
+          s.simulatorCompoundDisclaimer,
+          style: const TextStyle(color: MintColors.textMuted, fontSize: 11),
           textAlign: TextAlign.center,
         ),
       ),
