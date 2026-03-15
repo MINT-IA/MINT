@@ -1,45 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'dart:math' as math;
 
 /// Scénario de simulation (prudence/central/stress)
 class SimulationScenario {
-  final String label;
+  final String Function(S) labelResolver;
   final double rate;
   final Color color;
-  final String description;
+  final String Function(S) descriptionResolver;
 
   const SimulationScenario({
-    required this.label,
+    required this.labelResolver,
     required this.rate,
     required this.color,
-    required this.description,
+    required this.descriptionResolver,
   });
 
-  static const prudence = SimulationScenario(
-    label: 'Prudence',
+  String label(S s) => labelResolver(s);
+  String description(S s) => descriptionResolver(s);
+
+  static final prudence = SimulationScenario(
+    labelResolver: (s) => s.simulationScenarioPrudenceLabel,
     rate: 0.5,
     color: MintColors.warning,
-    description: 'Compte épargne (0.5%)',
+    descriptionResolver: (s) => s.simulationScenarioPrudenceDesc,
   );
 
-  static const central = SimulationScenario(
-    label: 'Central',
+  static final central = SimulationScenario(
+    labelResolver: (s) => s.simulationScenarioCentralLabel,
     rate: 3.0,
     color: MintColors.centralScenarioLight,
-    description: '3a conservateur (3%)',
+    descriptionResolver: (s) => s.simulationScenarioCentralDesc,
   );
 
-  static const stress = SimulationScenario(
-    label: 'Stress',
+  static final stress = SimulationScenario(
+    labelResolver: (s) => s.simulationScenarioStressLabel,
     rate: 5.0,
     color: MintColors.stressScenario,
-    description: '3a équilibré (5%)',
+    descriptionResolver: (s) => s.simulationScenarioStressDesc,
   );
 
-  static const all = [prudence, central, stress];
+  static final all = [prudence, central, stress];
 }
 
 /// Graphique d'intérêts composés (scénarios prudence/central/stress)
@@ -64,11 +68,12 @@ class CompoundInterestChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final scenarios = SimulationScenario.all.map((scenario) {
       final futureValue = _calculateFutureValue(monthlyAmount, scenario.rate, years);
       final totalContributions = monthlyAmount * years * 12;
       final interest = futureValue - totalContributions;
-      
+
       return {
         'scenario': scenario,
         'futureValue': futureValue,
@@ -92,7 +97,7 @@ class CompoundInterestChart extends StatelessWidget {
               const Icon(Icons.trending_up, color: MintColors.primary, size: 24),
               const SizedBox(width: 12),
               Text(
-                'Projection Intérêts Composés',
+                s.simulationCompoundTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -102,7 +107,7 @@ class CompoundInterestChart extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'CHF ${monthlyAmount.toStringAsFixed(0)}/mois pendant $years ans',
+            s.simulationCompoundSubtitle(monthlyAmount.toStringAsFixed(0), years.toString()),
             style: const TextStyle(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 4),
@@ -119,7 +124,7 @@ class CompoundInterestChart extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Hypothèses pédagogiques (inflation $inflation%). Les rendements passés ne garantissent pas les rendements futurs.',
+                    s.simulationCompoundDisclaimer(inflation.toString()),
                     style: const TextStyle(fontSize: 11, color: MintColors.warning),
                   ),
                 ),
@@ -147,7 +152,7 @@ class CompoundInterestChart extends StatelessWidget {
                         return Padding(
                           padding: const EdgeInsets.only(top: 8),
                           child: Text(
-                            scenario.label,
+                            scenario.label(s),
                             style: const TextStyle(fontSize: 10),
                             textAlign: TextAlign.center,
                           ),
@@ -224,11 +229,11 @@ class CompoundInterestChart extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          (data['scenario'] as SimulationScenario).description,
+                          (data['scenario'] as SimulationScenario).description(s),
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         Text(
-                          'CHF ${(data['futureValue'] as double).toStringAsFixed(0)} (dont CHF ${(data['interest'] as double).toStringAsFixed(0)} d\'intérêts)',
+                          s.simulationCompoundDetail((data['futureValue'] as double).toStringAsFixed(0), (data['interest'] as double).toStringAsFixed(0)),
                           style: const TextStyle(fontSize: 12, color: MintColors.textSecondary),
                         ),
                       ],
@@ -258,6 +263,7 @@ class LppBuybackSimulation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final taxSavings = buybackAmount * (marginalTaxRate / 100);
     final annualPensionIncrease = buybackAmount * (conversionRate / 100);
 
@@ -276,7 +282,7 @@ class LppBuybackSimulation extends StatelessWidget {
               const Icon(Icons.account_balance, color: MintColors.primary, size: 24),
               const SizedBox(width: 12),
               Text(
-                'Impact Rachat LPP',
+                s.simulationLppBuybackTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -295,52 +301,52 @@ class LppBuybackSimulation extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
-                    Icon(Icons.info_outline, size: 16, color: MintColors.warning),
-                    SizedBox(width: 8),
+                    const Icon(Icons.info_outline, size: 16, color: MintColors.warning),
+                    const SizedBox(width: 8),
                     Text(
-                      'Hypothèses :',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: MintColors.warning),
+                      s.simulationLppHypothesesLabel,
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: MintColors.warning),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '• Taux marginal : ${marginalTaxRate.toStringAsFixed(0)}% (estimé selon canton/revenu)',
+                  s.simulationLppHypothesisTaux(marginalTaxRate.toStringAsFixed(0)),
                   style: const TextStyle(fontSize: 11, color: MintColors.warning),
                 ),
                 Text(
-                  '• Taux de conversion LPP : ${conversionRate.toStringAsFixed(1)}% (hypothèse actuelle)',
+                  s.simulationLppHypothesisConversion(conversionRate.toStringAsFixed(1)),
                   style: const TextStyle(fontSize: 11, color: MintColors.warning),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Vérifie avec ton certificat LPP et un·e spécialiste en fiscalité.',
-                  style: TextStyle(fontSize: 10, color: MintColors.warning, fontStyle: FontStyle.italic),
+                Text(
+                  s.simulationLppHypothesisVerifie,
+                  style: const TextStyle(fontSize: 10, color: MintColors.warning, fontStyle: FontStyle.italic),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 24),
-          
+
           _buildMetric(
-            'Rachat',
+            s.simulationLppMetricRachat,
             'CHF ${buybackAmount.toStringAsFixed(0)}',
             Icons.trending_up,
             MintColors.primary,
           ),
           const SizedBox(height: 16),
           _buildMetric(
-            'Économie fiscale immédiate',
+            s.simulationLppMetricEconomie,
             'CHF ${taxSavings.toStringAsFixed(0)}',
             Icons.savings,
             MintColors.success,
           ),
           const SizedBox(height: 16),
           _buildMetric(
-            'Augmentation rente (dès 65 ans)',
-            '+CHF ${annualPensionIncrease.toStringAsFixed(0)}/an',
+            s.simulationLppMetricAugmentation,
+            s.simulationLppMetricAugmentationValue(annualPensionIncrease.toStringAsFixed(0)),
             Icons.trending_up,
             MintColors.primary,
           ),
