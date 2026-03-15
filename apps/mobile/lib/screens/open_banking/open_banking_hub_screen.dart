@@ -23,10 +23,10 @@ class OpenBankingHubScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
-    final accounts = OpenBankingService.getMockAccounts();
-    final totalBalance = OpenBankingService.getTotalBalance();
-    final summary = OpenBankingService.getMonthlySummary();
-    final categories = OpenBankingService.computeCategoryBreakdown();
+    final accounts = OpenBankingService.getMockAccounts(l);
+    final totalBalance = OpenBankingService.getTotalBalance(l);
+    final summary = OpenBankingService.getMonthlySummary(l);
+    final categories = OpenBankingService.computeCategoryBreakdown(l);
 
     return Scaffold(
       backgroundColor: MintColors.background,

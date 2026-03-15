@@ -33,8 +33,8 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
     'epargne', 'revenu', 'divers',
   ];
 
-  List<BankTransaction> get _filteredTransactions {
-    var transactions = OpenBankingService.getMockTransactions();
+  List<BankTransaction> _getFilteredTransactions(S s) {
+    var transactions = OpenBankingService.getMockTransactions(s);
 
     // Filter by category
     if (_selectedCategory != 'all') {
@@ -48,9 +48,9 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
     return transactions;
   }
 
-  Map<String, List<BankTransaction>> get _groupedTransactions {
+  Map<String, List<BankTransaction>> _getGroupedTransactions(S s) {
     final grouped = <String, List<BankTransaction>>{};
-    for (final tx in _filteredTransactions) {
+    for (final tx in _getFilteredTransactions(s)) {
       final key = _formatDateGroup(tx.date);
       grouped.putIfAbsent(key, () => []).add(tx);
     }
@@ -59,8 +59,9 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final summary = OpenBankingService.getMonthlySummary();
-    final grouped = _groupedTransactions;
+    final s = S.of(context)!;
+    final summary = OpenBankingService.getMonthlySummary(s);
+    final grouped = _getGroupedTransactions(s);
 
     return Scaffold(
       backgroundColor: MintColors.background,

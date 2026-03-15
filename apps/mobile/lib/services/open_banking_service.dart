@@ -11,6 +11,8 @@
 // "certain").
 // ────────────────────────────────────────────────────────────
 
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
+
 /// Represents a bank connection consent (nLPD-compliant).
 class BankingConsent {
   final String consentId;
@@ -143,8 +145,7 @@ class OpenBankingService {
   static const bool isEnabled = false; // Set to true after FINMA consultation
 
   /// FINMA status message.
-  static const String finmaStatusMessage =
-      'Fonctionnalite en preparation \u2014 consultation reglementaire en cours.';
+  static String finmaStatusMessage(S s) => s.openBankingFinmaStatus;
 
   // ── Supported Banks ─────────────────────────────────────────
 
@@ -168,14 +169,14 @@ class OpenBankingService {
   // ── Mock Accounts ───────────────────────────────────────────
 
   /// 3 demo accounts for the mock UI.
-  static List<BankAccount> getMockAccounts() {
+  static List<BankAccount> getMockAccounts(S s) {
     final now = DateTime.now();
     return [
       BankAccount(
         accountId: 'acc-ubs-001',
         bankId: 'ubs',
         bankName: 'UBS',
-        accountName: 'Compte courant',
+        accountName: s.openBankingAccountCurrent,
         iban: 'CH93 0076 2011 6238 5295 7',
         balance: 8450.00,
         lastSync: now.subtract(const Duration(hours: 2)),
@@ -184,7 +185,7 @@ class OpenBankingService {
         accountId: 'acc-pf-002',
         bankId: 'postfinance',
         bankName: 'PostFinance',
-        accountName: 'Epargne',
+        accountName: s.openBankingAccountSavings,
         iban: 'CH18 0900 0000 1234 5678 9',
         balance: 23100.00,
         lastSync: now.subtract(const Duration(hours: 5)),
@@ -193,7 +194,7 @@ class OpenBankingService {
         accountId: 'acc-raif-003',
         bankId: 'raiffeisen',
         bankName: 'Raiffeisen',
-        accountName: '3a',
+        accountName: s.openBankingAccount3a,
         iban: 'CH52 8080 8001 2345 6789 0',
         balance: 45000.00,
         lastSync: now.subtract(const Duration(days: 1)),
@@ -204,7 +205,7 @@ class OpenBankingService {
   // ── Mock Transactions ───────────────────────────────────────
 
   /// 25 mock transactions for the last month with Swiss merchants.
-  static List<BankTransaction> getMockTransactions() {
+  static List<BankTransaction> getMockTransactions(S s) {
     final now = DateTime.now();
     return [
       // Salary
@@ -212,8 +213,8 @@ class OpenBankingService {
         transactionId: 'tx_01',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 1),
-        description: 'Salaire mensuel',
-        merchant: 'Employeur SA',
+        description: s.openBankingTxDescSalary,
+        merchant: s.openBankingTxMerchantEmployer,
         amount: 7200.00,
         category: 'revenu',
         categoryIcon: 'account_balance_wallet',
@@ -223,8 +224,8 @@ class OpenBankingService {
         transactionId: 'tx_02',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 1),
-        description: 'Loyer mensuel',
-        merchant: 'Regie immobiliere',
+        description: s.openBankingTxDescRent,
+        merchant: s.openBankingTxMerchantRealEstate,
         amount: -1850.00,
         category: 'logement',
         categoryIcon: 'home',
@@ -234,7 +235,7 @@ class OpenBankingService {
         transactionId: 'tx_03',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 2),
-        description: 'Prime assurance maladie',
+        description: s.openBankingTxDescHealthInsurance,
         merchant: 'CSS Assurance',
         amount: -380.50,
         category: 'assurances',
@@ -245,7 +246,7 @@ class OpenBankingService {
         transactionId: 'tx_04',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 3),
-        description: 'Abonnement mobile + internet',
+        description: s.openBankingTxDescTelecom,
         merchant: 'Swisscom',
         amount: -89.90,
         category: 'telecom',
@@ -256,7 +257,7 @@ class OpenBankingService {
         transactionId: 'tx_05',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 3),
-        description: 'AG/Abonnement general',
+        description: s.openBankingTxDescTransportPass,
         merchant: 'CFF/SBB',
         amount: -340.00,
         category: 'transport',
@@ -267,7 +268,7 @@ class OpenBankingService {
         transactionId: 'tx_06',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 4),
-        description: 'Courses alimentaires',
+        description: s.openBankingTxDescGroceries,
         merchant: 'Migros',
         amount: -87.35,
         category: 'alimentation',
@@ -277,7 +278,7 @@ class OpenBankingService {
         transactionId: 'tx_07',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 5),
-        description: 'Courses alimentaires',
+        description: s.openBankingTxDescGroceries,
         merchant: 'Coop',
         amount: -63.20,
         category: 'alimentation',
@@ -287,7 +288,7 @@ class OpenBankingService {
         transactionId: 'tx_08',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 7),
-        description: 'Courses alimentaires',
+        description: s.openBankingTxDescGroceries,
         merchant: 'Denner',
         amount: -42.10,
         category: 'alimentation',
@@ -298,8 +299,8 @@ class OpenBankingService {
         transactionId: 'tx_09',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 5),
-        description: 'Electricite + gaz',
-        merchant: 'SIG (Services Industriels)',
+        description: s.openBankingTxDescEnergy,
+        merchant: s.openBankingTxMerchantSig,
         amount: -125.00,
         category: 'energie',
         categoryIcon: 'bolt',
@@ -309,7 +310,7 @@ class OpenBankingService {
         transactionId: 'tx_10',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 6),
-        description: 'Abonnement TPG',
+        description: s.openBankingTxDescLocalTransport,
         merchant: 'TPG',
         amount: -70.00,
         category: 'transport',
@@ -320,8 +321,8 @@ class OpenBankingService {
         transactionId: 'tx_11',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 7),
-        description: 'Restaurant',
-        merchant: 'Cafe du Soleil',
+        description: s.openBankingTxDescRestaurant,
+        merchant: s.openBankingTxMerchantCafeSoleil,
         amount: -45.50,
         category: 'loisirs',
         categoryIcon: 'restaurant',
@@ -330,8 +331,8 @@ class OpenBankingService {
         transactionId: 'tx_12',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 8),
-        description: 'Cinema',
-        merchant: 'Pathe Geneve',
+        description: s.openBankingTxDescCinema,
+        merchant: s.openBankingTxMerchantPathe,
         amount: -24.00,
         category: 'loisirs',
         categoryIcon: 'movie',
@@ -341,7 +342,7 @@ class OpenBankingService {
         transactionId: 'tx_13',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 10),
-        description: 'Courses alimentaires',
+        description: s.openBankingTxDescGroceries,
         merchant: 'Migros',
         amount: -92.60,
         category: 'alimentation',
@@ -351,7 +352,7 @@ class OpenBankingService {
         transactionId: 'tx_14',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 12),
-        description: 'Courses alimentaires',
+        description: s.openBankingTxDescGroceries,
         merchant: 'Lidl',
         amount: -54.80,
         category: 'alimentation',
@@ -362,8 +363,8 @@ class OpenBankingService {
         transactionId: 'tx_15',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 11),
-        description: 'Pharmacie',
-        merchant: 'Pharmacie Amavita',
+        description: s.openBankingTxDescPharmacy,
+        merchant: s.openBankingTxMerchantPharmacy,
         amount: -38.90,
         category: 'sante',
         categoryIcon: 'local_pharmacy',
@@ -373,8 +374,8 @@ class OpenBankingService {
         transactionId: 'tx_16',
         accountId: 'acc-pf-002',
         date: DateTime(now.year, now.month, 1),
-        description: 'Virement epargne mensuel',
-        merchant: 'Virement interne',
+        description: s.openBankingTxDescSavingsTransfer,
+        merchant: s.openBankingTxMerchantInternalTransfer,
         amount: 500.00,
         category: 'epargne',
         categoryIcon: 'savings',
@@ -384,7 +385,7 @@ class OpenBankingService {
         transactionId: 'tx_17',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 15),
-        description: 'Courses alimentaires',
+        description: s.openBankingTxDescGroceries,
         merchant: 'Coop',
         amount: -78.45,
         category: 'alimentation',
@@ -394,7 +395,7 @@ class OpenBankingService {
         transactionId: 'tx_18',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 17),
-        description: 'Courses alimentaires',
+        description: s.openBankingTxDescGroceries,
         merchant: 'Migros',
         amount: -105.20,
         category: 'alimentation',
@@ -405,7 +406,7 @@ class OpenBankingService {
         transactionId: 'tx_19',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 16),
-        description: 'Fitness',
+        description: s.openBankingTxDescFitness,
         merchant: 'Fitness Park',
         amount: -59.00,
         category: 'loisirs',
@@ -416,8 +417,8 @@ class OpenBankingService {
         transactionId: 'tx_20',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 18),
-        description: 'Coiffeur',
-        merchant: 'Salon Beaute',
+        description: s.openBankingTxDescHairdresser,
+        merchant: s.openBankingTxMerchantSalon,
         amount: -55.00,
         category: 'divers',
         categoryIcon: 'content_cut',
@@ -427,7 +428,7 @@ class OpenBankingService {
         transactionId: 'tx_21',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 20),
-        description: 'Courses alimentaires',
+        description: s.openBankingTxDescGroceries,
         merchant: 'Denner',
         amount: -38.70,
         category: 'alimentation',
@@ -437,7 +438,7 @@ class OpenBankingService {
         transactionId: 'tx_22',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 22),
-        description: 'Courses alimentaires',
+        description: s.openBankingTxDescGroceries,
         merchant: 'Migros',
         amount: -96.30,
         category: 'alimentation',
@@ -448,8 +449,8 @@ class OpenBankingService {
         transactionId: 'tx_23',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 15),
-        description: 'Acompte impots',
-        merchant: 'AFC Canton de Geneve',
+        description: s.openBankingTxDescTaxPayment,
+        merchant: s.openBankingTxMerchantTaxOffice,
         amount: -850.00,
         category: 'impots',
         categoryIcon: 'receipt_long',
@@ -459,7 +460,7 @@ class OpenBankingService {
         transactionId: 'tx_24',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 5),
-        description: 'Assurance complementaire',
+        description: s.openBankingTxDescSupplInsurance,
         merchant: 'Helsana',
         amount: -65.00,
         category: 'assurances',
@@ -470,8 +471,8 @@ class OpenBankingService {
         transactionId: 'tx_25',
         accountId: 'acc-ubs-001',
         date: DateTime(now.year, now.month, 21),
-        description: 'Restaurant midi',
-        merchant: 'Manora Geneve',
+        description: s.openBankingTxDescLunchRestaurant,
+        merchant: s.openBankingTxMerchantManora,
         amount: -18.50,
         category: 'loisirs',
         categoryIcon: 'restaurant',
@@ -515,11 +516,12 @@ class OpenBankingService {
   // ── Category Breakdown ──────────────────────────────────────
 
   /// Compute spending by category for a given date range.
-  static List<CategoryBreakdown> computeCategoryBreakdown({
+  static List<CategoryBreakdown> computeCategoryBreakdown(
+    S s, {
     DateTime? from,
     DateTime? to,
   }) {
-    final transactions = getMockTransactions();
+    final transactions = getMockTransactions(s);
     final now = DateTime.now();
     final startDate = from ?? DateTime(now.year, now.month, 1);
     final endDate = to ?? now;
@@ -559,8 +561,8 @@ class OpenBankingService {
   // ── Monthly Summary ─────────────────────────────────────────
 
   /// Compute total income and expenses for the current month.
-  static Map<String, double> getMonthlySummary() {
-    final transactions = getMockTransactions();
+  static Map<String, double> getMonthlySummary(S s) {
+    final transactions = getMockTransactions(s);
     double income = 0;
     double expenses = 0;
 
@@ -581,8 +583,8 @@ class OpenBankingService {
   }
 
   /// Compute total balance across all mock accounts.
-  static double getTotalBalance() {
-    return getMockAccounts().fold(0.0, (sum, acc) => sum + acc.balance);
+  static double getTotalBalance(S s) {
+    return getMockAccounts(s).fold(0.0, (sum, acc) => sum + acc.balance);
   }
 
   // ── Formatting Helpers ──────────────────────────────────────
