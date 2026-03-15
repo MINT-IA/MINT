@@ -46,7 +46,7 @@ class StressCheckInsertWidget extends StatelessWidget {
           _buildStressOption(
             icon: Icons.security,
             label: 'Sécuriser ma retraite',
-            route: '/retirement',
+            route: '/retraite',
           ),
         ],
       ),

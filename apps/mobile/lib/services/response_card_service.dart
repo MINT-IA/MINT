@@ -112,7 +112,7 @@ class ResponseCardService {
         sources: ['LPP art. 2', 'LFLP art. 4'],
       ));
     }
-    if (lower.contains('capital') && lower.contains('rente') ||
+    if ((lower.contains('capital') && lower.contains('rente')) ||
         lower.contains('rente ou capital') ||
         lower.contains('rente vs capital')) {
       cards.add(_buildSimpleCard(
@@ -140,8 +140,8 @@ class ResponseCardService {
         sources: ['LIFD art. 1', 'LHID'],
       ));
     }
-    if (lower.contains('retrait') && lower.contains('echelon') ||
-        lower.contains('retrait 3a') && lower.contains('plusieur')) {
+    if ((lower.contains('retrait') && lower.contains('echelon')) ||
+        (lower.contains('retrait 3a') && lower.contains('plusieur'))) {
       cards.add(_buildSimpleCard(
         id: 'staggered_withdrawal',
         title: 'Retrait 3a echelonne',
@@ -150,7 +150,7 @@ class ResponseCardService {
         sources: ['LIFD art. 38', 'OPP3 art. 3'],
       ));
     }
-    if (lower.contains('rendement') && lower.contains('3a') ||
+    if ((lower.contains('rendement') && lower.contains('3a')) ||
         lower.contains('rendement reel')) {
       cards.add(_buildSimpleCard(
         id: 'real_return_3a',

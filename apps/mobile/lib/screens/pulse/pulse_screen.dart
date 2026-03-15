@@ -287,7 +287,7 @@ class _PulseScreenState extends State<PulseScreen> {
                 : null,
             icon: Icons.beach_access_outlined,
             color: MintColors.primary,
-            onTap: () => context.push('/retirement'),
+            onTap: () => context.push('/retraite'),
           ),
         ),
         const SizedBox(width: 10),

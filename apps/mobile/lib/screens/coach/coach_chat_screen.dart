@@ -1130,7 +1130,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     } else if (file.contains('lifd') || file.contains('fiscal')) {
       context.push('/fiscal');
     } else if (file.contains('lavs') || file.contains('avs')) {
-      context.push('/retirement');
+      context.push('/retraite');
     } else if (file.contains('budget')) {
       context.push('/budget');
     } else {

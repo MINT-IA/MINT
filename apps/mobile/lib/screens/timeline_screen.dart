@@ -125,7 +125,7 @@ const _categories = <_EventCategory>[
         title: 'Retraite',
         subtitle: 'Rente vs capital, échelonnement 3a, lacune AVS',
         icon: Icons.elderly,
-        route: '/retirement',
+        route: '/retraite',
         accentColor: MintColors.primary,
       ),
     ],

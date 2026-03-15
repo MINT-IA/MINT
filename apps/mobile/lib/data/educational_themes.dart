@@ -130,7 +130,7 @@ class EducationData {
       title: 'Les lacunes AVS',
       question: "Ai-je des années de cotisation manquantes ?",
       actionLabel: "Vérifier mon extrait de compte AVS",
-      route: '/retirement',
+      route: '/retraite',
       reminderText: "Commander mon extrait sur ahv-iv.ch",
       icon: Icons.accessibility_new_outlined,
       color: MintColors.warning,

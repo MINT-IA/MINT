@@ -36,7 +36,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
       ActionCategory.protection => '/budget',
       ActionCategory.pillar3a => '/pilier-3a',
       ActionCategory.lpp => '/rachat-lpp',
-      ActionCategory.avs => '/retirement',
+      ActionCategory.avs => '/retraite',
       ActionCategory.tax => '/fiscal',
       ActionCategory.insurance => '/assurances/lamal',
       ActionCategory.investment => '/tools',

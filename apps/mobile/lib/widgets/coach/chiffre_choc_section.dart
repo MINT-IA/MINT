@@ -104,7 +104,7 @@ class ChiffreChocSection extends StatelessWidget {
         narrativeMessage: narratives['avs'],
         source: 'LAVS art. 29',
         ctaLabel: 'V\u00e9rifier mes lacunes',
-        ctaRoute: '/retirement',
+        ctaRoute: '/retraite',
         icon: Icons.shield_outlined,
         color: MintColors.scoreAttention,
       ));

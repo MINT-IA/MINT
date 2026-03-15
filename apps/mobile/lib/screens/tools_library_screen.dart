@@ -63,7 +63,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
           icon: Icons.elderly,
           title: s?.toolsRetirementPlanner ?? 'Planificateur retraite',
           subtitle: s?.toolsRetirementPlannerDesc ?? 'Simule ta retraite AVS + LPP + 3a',
-          route: '/retirement',
+          route: '/retraite',
           color: MintColors.indigo,
         ),
         _ToolItem(

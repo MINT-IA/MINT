@@ -133,7 +133,7 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
       title: 'Planification retraite',
       reason: 'Rente vs capital, échelonnement 3a, lacune AVS',
       icon: Icons.elderly,
-      route: '/retirement',
+      route: '/retraite',
       color: MintColors.primary,
     ));
   }

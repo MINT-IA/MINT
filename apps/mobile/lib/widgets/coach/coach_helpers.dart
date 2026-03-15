@@ -75,7 +75,7 @@ String tipRoute(CoachingTip tip) {
     case 'prevoyance':
       if (tip.id.contains('lpp')) return '/rachat-lpp';
       if (tip.id.contains('3a')) return '/pilier-3a';
-      return '/retirement';
+      return '/retraite';
     case 'budget':
       if (tip.id.contains('debt')) return '/check/debt';
       if (tip.id.contains('emergency')) return '/budget';

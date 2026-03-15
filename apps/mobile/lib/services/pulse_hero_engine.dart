@@ -197,7 +197,7 @@ class PulseHeroEngine {
       subtitle: 'conservé à la retraite.',
       detail: 'Médiane suisse : 60%. Où te situes-tu ?',
       ctaLabel: 'Voir ma projection',
-      ctaRoute: '/retirement',
+      ctaRoute: '/retraite',
       icon: Icons.beach_access_outlined,
       color: MintColors.success,
     );
