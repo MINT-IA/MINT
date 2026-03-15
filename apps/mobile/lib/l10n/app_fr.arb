@@ -9159,5 +9159,35 @@
     "placeholders": {
       "rate": {"type": "String"}
     }
-  }
+  },
+  "simulatorLeasingExportTooltip": "Exporter mon bilan",
+  "simulatorLeasingTitle": "Analyse Anti-Leasing",
+  "simulatorLeasingCoachTitle": "R\u00e9flexion du Mentor",
+  "simulatorLeasingCoachBody": "Le leasing est souvent une \"fuite\" de capital. Cet argent pourrait servir \u00e0 construire ton patrimoine plut\u00f4t qu'\u00e0 financer la d\u00e9pr\u00e9ciation d'un v\u00e9hicule.",
+  "simulatorLeasingContractData": "Donn\u00e9es du Contrat",
+  "simulatorLeasingMonthlyPayment": "Mensualit\u00e9 pr\u00e9vue",
+  "simulatorLeasingDuration": "Dur\u00e9e du leasing",
+  "simulatorLeasingDurationMonths": "{count} mois",
+  "@simulatorLeasingDurationMonths": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "simulatorLeasingAlternativeRate": "Rendement alternatif esp\u00e9r\u00e9",
+  "simulatorLeasingOpportunityCostTitle": "Co\u00fbt d'opportunit\u00e9 sur 20 ans",
+  "simulatorLeasingOpportunityCostBody": "Si tu investissais cette mensualit\u00e9 au lieu de payer un leasing, voil\u00e0 le capital que tu aurais construit.",
+  "simulatorLeasingRealEstateEquity": "C'est environ {amount} de fonds propres pour un achat immobilier.",
+  "@simulatorLeasingRealEstateEquity": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "simulatorLeasingAlternativesHeader": "S'\u00e9carter du Trou Noir",
+  "simulatorLeasingAltUsedCar": "Occasion de Qualit\u00e9",
+  "simulatorLeasingAltUsedCarBody": "Acheter cash une voiture de 3-4 ans r\u00e9duit drastiquement la perte de valeur.",
+  "simulatorLeasingAltTransport": "Abo G\u00e9n\u00e9ral / Transports",
+  "simulatorLeasingAltTransportBody": "Le confort du train en Suisse est souvent plus rentable et serein.",
+  "simulatorLeasingAltSharing": "Mobility / Partage",
+  "simulatorLeasingAltSharingBody": "Ne paie que quand tu roules. Pas d'assurance, pas d'entretien, pas de leasing.",
+  "simulatorLeasingDisclaimer": "Le leasing reste une option pour certains professionnels. Cette analyse vise \u00e0 sensibiliser le particulier sur le co\u00fbt \u00e0 long terme."
 }
