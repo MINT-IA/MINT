@@ -49,7 +49,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
     final reportService = FinancialReportService();
-    final report = reportService.generateReport(wizardAnswers);
+    final report = reportService.generateReport(wizardAnswers, s: l10n);
     final hasDebt = WizardService.isSafeModeActive(wizardAnswers);
     final safeModeReasons = _buildSafeModeReasons(l10n, wizardAnswers);
 

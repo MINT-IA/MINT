@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
 import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
@@ -63,12 +64,12 @@ void main() {
 
   group('Report generation', () {
     test('generates report from minimal answers without throwing', () {
-      final report = service.generateReport(minimalAnswers());
+      final report = service.generateReport(minimalAnswers(), s: SFr());
       expect(report, isA<FinancialReport>());
     });
 
     test('report contains all required sections', () {
-      final report = service.generateReport(minimalAnswers());
+      final report = service.generateReport(minimalAnswers(), s: SFr());
 
       expect(report.profile, isNotNull);
       expect(report.healthScore, isNotNull);
@@ -80,7 +81,7 @@ void main() {
     });
 
     test('report from full answers includes optional sections', () {
-      final report = service.generateReport(fullAnswers());
+      final report = service.generateReport(fullAnswers(), s: SFr());
 
       expect(report.retirementProjection, isNotNull);
       expect(report.pillar3aAnalysis, isNotNull);
@@ -89,7 +90,7 @@ void main() {
 
     test('report generatedAt is close to now', () {
       final before = DateTime.now();
-      final report = service.generateReport(minimalAnswers());
+      final report = service.generateReport(minimalAnswers(), s: SFr());
       final after = DateTime.now();
 
       expect(report.generatedAt.isAfter(before.subtract(const Duration(seconds: 1))), isTrue);
@@ -108,14 +109,14 @@ void main() {
         'q_employment_status': 'employee',
         'q_net_income_period_chf': 5000.0,
       };
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.profile.canton, equals('VD'));
     });
 
     test('defaults civilStatus to single when missing', () {
       final answers = minimalAnswers();
       answers.remove('q_civil_status');
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.profile.civilStatus, equals('single'));
       expect(report.profile.isMarried, isFalse);
     });
@@ -123,12 +124,12 @@ void main() {
     test('correctly identifies married profile', () {
       final answers = minimalAnswers();
       answers['q_civil_status'] = 'married';
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.profile.isMarried, isTrue);
     });
 
     test('computes annual income from monthly net income', () {
-      final report = service.generateReport(minimalAnswers());
+      final report = service.generateReport(minimalAnswers(), s: SFr());
       // 6000 * 12 = 72000
       expect(report.profile.annualIncome, equals(72000.0));
     });
@@ -136,31 +137,31 @@ void main() {
     test('defaults monthly income to 5000 when missing', () {
       final answers = minimalAnswers();
       answers.remove('q_net_income_period_chf');
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.profile.monthlyNetIncome, equals(5000.0));
     });
 
     test('parses children count from string', () {
       final answers = minimalAnswers();
       answers['q_children'] = '3';
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.profile.childrenCount, equals(3));
       expect(report.profile.hasChildren, isTrue);
     });
 
     test('hasChildren is false when 0 children', () {
-      final report = service.generateReport(minimalAnswers());
+      final report = service.generateReport(minimalAnswers(), s: SFr());
       expect(report.profile.hasChildren, isFalse);
     });
 
     test('isSalaried correctly reflects employment status', () {
       final answers = minimalAnswers();
       answers['q_employment_status'] = 'employee';
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.profile.isSalaried, isTrue);
 
       answers['q_employment_status'] = 'self_employed';
-      final report2 = service.generateReport(answers);
+      final report2 = service.generateReport(answers, s: SFr());
       expect(report2.profile.isSalaried, isFalse);
     });
   });
@@ -171,24 +172,24 @@ void main() {
 
   group('Tax simulation', () {
     test('computes positive total tax for standard income', () {
-      final report = service.generateReport(minimalAnswers());
+      final report = service.generateReport(minimalAnswers(), s: SFr());
       expect(report.taxSimulation.totalTax, greaterThan(0));
     });
 
     test('effective rate is between 0 and 1', () {
-      final report = service.generateReport(minimalAnswers());
+      final report = service.generateReport(minimalAnswers(), s: SFr());
       expect(report.taxSimulation.effectiveRate, greaterThan(0));
       expect(report.taxSimulation.effectiveRate, lessThan(1));
     });
 
     test('cantonal + federal equals total tax', () {
-      final report = service.generateReport(minimalAnswers());
+      final report = service.generateReport(minimalAnswers(), s: SFr());
       final sum = report.taxSimulation.cantonalTax + report.taxSimulation.federalTax;
       expect(sum, closeTo(report.taxSimulation.totalTax, 0.01));
     });
 
     test('cantonal tax is approximately 75% of total', () {
-      final report = service.generateReport(minimalAnswers());
+      final report = service.generateReport(minimalAnswers(), s: SFr());
       final ratio = report.taxSimulation.cantonalTax / report.taxSimulation.totalTax;
       expect(ratio, closeTo(0.75, 0.001));
     });
@@ -196,11 +197,11 @@ void main() {
     test('married profile gets lower effective rate', () {
       final singleAnswers = minimalAnswers();
       singleAnswers['q_civil_status'] = 'single';
-      final reportSingle = service.generateReport(singleAnswers);
+      final reportSingle = service.generateReport(singleAnswers, s: SFr());
 
       final marriedAnswers = minimalAnswers();
       marriedAnswers['q_civil_status'] = 'married';
-      final reportMarried = service.generateReport(marriedAnswers);
+      final reportMarried = service.generateReport(marriedAnswers, s: SFr());
 
       expect(reportMarried.taxSimulation.effectiveRate,
           lessThan(reportSingle.taxSimulation.effectiveRate));
@@ -209,7 +210,7 @@ void main() {
     test('3a contribution appears in deductions', () {
       final answers = minimalAnswers();
       answers['q_3a_annual_contribution'] = 7258.0;
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.taxSimulation.deductions.containsKey('3a'), isTrue);
       expect(report.taxSimulation.deductions['3a'], equals(7258.0));
     });
@@ -217,14 +218,14 @@ void main() {
     test('children deduction is 6500 per child', () {
       final answers = minimalAnswers();
       answers['q_children'] = '2';
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.taxSimulation.deductions['D\u00e9duction enfants'], equals(13000.0));
     });
 
     test('LPP buyback triggers tax comparison when available > 50k', () {
       final answers = fullAnswers();
       answers['q_lpp_buyback_available'] = 60000.0;
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.taxSimulation.taxWithLppBuyback, isNotNull);
       expect(report.taxSimulation.taxSavingsFromBuyback, isNotNull);
       expect(report.taxSimulation.taxSavingsFromBuyback!, greaterThan(0));
@@ -233,7 +234,7 @@ void main() {
     test('no LPP buyback comparison when available <= 50k', () {
       final answers = minimalAnswers();
       answers['q_lpp_buyback_available'] = 30000.0;
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.taxSimulation.taxWithLppBuyback, isNull);
       expect(report.taxSimulation.taxSavingsFromBuyback, isNull);
     });
@@ -248,14 +249,14 @@ void main() {
       final answers = minimalAnswers();
       // Born in 1950 => age ~76 => yearsToRetirement = 65 - 76 = -11
       answers['q_birth_year'] = 1950;
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.retirementProjection, isNull);
     });
 
     test('returns projection for working-age person', () {
       final answers = minimalAnswers();
       answers['q_birth_year'] = 1990; // age ~36 => years to retirement ~29
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.retirementProjection, isNotNull);
       expect(report.retirementProjection!.yearsUntilRetirement, greaterThan(0));
     });
@@ -264,7 +265,7 @@ void main() {
       final answers = minimalAnswers();
       answers['q_current_lpp_capital'] = 100000.0;
       answers['q_lpp_buyback_available'] = 20000.0;
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       // Should include current + growth + buyback
       expect(report.retirementProjection!.lppCapital, greaterThan(120000.0));
     });
@@ -272,7 +273,7 @@ void main() {
     test('AVS rent uses correct reduction factor', () {
       final answers = minimalAnswers();
       answers['q_avs_contribution_years'] = 44; // Full contribution
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.profile.avsReductionFactor, equals(1.0));
       // Monthly AVS rent uses RAMD interpolation (LAVS art. 34, echelle 44).
       // For 6000 CHF/mo net (~82k gross), rente is sub-max but close.
@@ -289,7 +290,7 @@ void main() {
       final answers = minimalAnswers();
       answers['q_birth_year'] = 1964; // age 62
       answers['q_avs_contribution_years'] = 22;
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       // Reduced rente: well below max (gapFactor ~0.57 × RAMD-based rente)
       expect(report.retirementProjection!.monthlyAvsRent,
           lessThan(avsRenteMaxMensuelle * 0.7));
@@ -298,7 +299,7 @@ void main() {
 
     test('married couple AVS rent includes both spouse parts', () {
       final answers = fullAnswers(); // married, both spouses have contribution years
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       // Married couple: each gets 1890 * reductionFactor
       expect(report.retirementProjection!.monthlyAvsRent, greaterThan(0));
     });
@@ -366,7 +367,7 @@ void main() {
       // Integration: verify the service passes the real income to the projection
       final answers = minimalAnswers();
       answers['q_net_income_period_chf'] = 10000.0; // 10k/month
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.retirementProjection, isNotNull);
       expect(report.retirementProjection!.currentMonthlyIncome, equals(10000.0));
       // The replacement rate should reflect 10k income, not 7800
@@ -383,7 +384,7 @@ void main() {
     test('returns null when no 3a accounts', () {
       final answers = minimalAnswers();
       answers['q_3a_accounts_count'] = 0;
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.pillar3aAnalysis, isNull);
     });
 
@@ -392,7 +393,7 @@ void main() {
       answers['q_3a_accounts_count'] = 1;
       answers['q_3a_annual_contribution'] = 5000.0;
       answers['q_employment_status'] = 'employee';
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.pillar3aAnalysis, isNotNull);
       expect(report.pillar3aAnalysis!.maxContribution, equals(pilier3aPlafondAvecLpp));
     });
@@ -402,7 +403,7 @@ void main() {
       answers['q_3a_accounts_count'] = 1;
       answers['q_3a_annual_contribution'] = 5000.0;
       answers['q_employment_status'] = 'self_employed';
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.pillar3aAnalysis!.maxContribution, equals(pilier3aPlafondSansLpp));
     });
 
@@ -410,7 +411,7 @@ void main() {
       final answers = minimalAnswers();
       answers['q_3a_accounts_count'] = 1;
       answers['q_3a_annual_contribution'] = 7258.0;
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       final projections = report.pillar3aAnalysis!.projectionsByProvider;
 
       expect(projections.containsKey('bank'), isTrue);
@@ -423,7 +424,7 @@ void main() {
       final answers = minimalAnswers();
       answers['q_3a_accounts_count'] = 1;
       answers['q_3a_annual_contribution'] = 7258.0;
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       final projections = report.pillar3aAnalysis!.projectionsByProvider;
 
       expect(projections['fintech']!, greaterThan(projections['bank']!));
@@ -433,7 +434,7 @@ void main() {
       final answers = minimalAnswers();
       answers['q_3a_accounts_count'] = 1;
       answers['q_3a_annual_contribution'] = 7258.0;
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.pillar3aAnalysis!.potentialGainVsBank, greaterThan(0));
     });
   });
@@ -446,14 +447,14 @@ void main() {
     test('returns null when buyback available < 10000', () {
       final answers = minimalAnswers();
       answers['q_lpp_buyback_available'] = 5000.0;
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.lppBuybackStrategy, isNull);
     });
 
     test('returns strategy when buyback available >= 10000', () {
       final answers = minimalAnswers();
       answers['q_lpp_buyback_available'] = 50000.0;
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.lppBuybackStrategy, isNotNull);
       expect(report.lppBuybackStrategy!.totalBuybackAvailable, equals(50000.0));
     });
@@ -461,7 +462,7 @@ void main() {
     test('yearly plan sums to total buyback available', () {
       final answers = minimalAnswers();
       answers['q_lpp_buyback_available'] = 60000.0;
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       final totalPlanned = report.lppBuybackStrategy!.yearlyPlan
           .fold(0.0, (sum, buy) => sum + buy.amount);
       expect(totalPlanned, closeTo(60000.0, 1.0));
@@ -470,7 +471,7 @@ void main() {
     test('total tax savings is positive', () {
       final answers = minimalAnswers();
       answers['q_lpp_buyback_available'] = 80000.0;
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.lppBuybackStrategy!.totalTaxSavings, greaterThan(0));
     });
   });
@@ -481,7 +482,7 @@ void main() {
 
   group('Priority actions', () {
     test('returns at most 3 priority actions', () {
-      final report = service.generateReport(fullAnswers());
+      final report = service.generateReport(fullAnswers(), s: SFr());
       expect(report.priorityActions.length, lessThanOrEqualTo(3));
     });
 
@@ -489,7 +490,7 @@ void main() {
       final answers = fullAnswers();
       answers['q_has_consumer_debt'] = 'yes';
       answers['q_emergency_fund'] = 'no';
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
 
       // The scoring service will flag debt and emergency fund issues
       // Priority actions should reflect those concerns
@@ -497,12 +498,12 @@ void main() {
     });
 
     test('roadmap has at least one phase', () {
-      final report = service.generateReport(minimalAnswers());
+      final report = service.generateReport(minimalAnswers(), s: SFr());
       expect(report.personalizedRoadmap.phases.length, greaterThanOrEqualTo(1));
     });
 
     test('roadmap immediate phase is labeled correctly', () {
-      final report = service.generateReport(minimalAnswers());
+      final report = service.generateReport(minimalAnswers(), s: SFr());
       final immediatePhase = report.personalizedRoadmap.phases.first;
       expect(immediatePhase.title, equals('Imm\u00e9diat'));
       expect(immediatePhase.timeframe, equals('Ce mois'));
@@ -516,13 +517,13 @@ void main() {
   group('Edge cases', () {
     test('empty answers map does not throw', () {
       expect(
-        () => service.generateReport({}),
+        () => service.generateReport({}, s: SFr()),
         returnsNormally,
       );
     });
 
     test('empty answers use all defaults', () {
-      final report = service.generateReport({});
+      final report = service.generateReport({}, s: SFr());
       expect(report.profile.canton, equals('VD'));
       expect(report.profile.civilStatus, equals('single'));
       expect(report.profile.monthlyNetIncome, equals(5000.0));
@@ -532,14 +533,14 @@ void main() {
     test('zero income produces valid report', () {
       final answers = minimalAnswers();
       answers['q_net_income_period_chf'] = 0.0;
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.taxSimulation.totalTax, equals(0));
     });
 
     test('very high income produces valid report', () {
       final answers = minimalAnswers();
       answers['q_net_income_period_chf'] = 50000.0; // 600k annual
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.taxSimulation.totalTax, greaterThan(0));
       expect(report.taxSimulation.effectiveRate, greaterThan(0.15));
     });
@@ -547,14 +548,14 @@ void main() {
     test('birth year as string is parsed correctly', () {
       final answers = minimalAnswers();
       answers['q_birth_year'] = '1990';
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.profile.birthYear, equals(1990));
     });
 
     test('income as int is handled correctly', () {
       final answers = minimalAnswers();
       answers['q_net_income_period_chf'] = 6000;
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.profile.monthlyNetIncome, equals(6000.0));
     });
   });
@@ -565,27 +566,27 @@ void main() {
 
   group('UserProfile computed properties', () {
     test('yearsToRetirement is 65 - age', () {
-      final report = service.generateReport(minimalAnswers());
+      final report = service.generateReport(minimalAnswers(), s: SFr());
       final expectedAge = DateTime.now().year - 1990;
       expect(report.profile.yearsToRetirement, equals(65 - expectedAge));
     });
 
     test('avsReductionFactor defaults to 1.0 without contribution years', () {
-      final report = service.generateReport(minimalAnswers());
+      final report = service.generateReport(minimalAnswers(), s: SFr());
       expect(report.profile.avsReductionFactor, equals(1.0));
     });
 
     test('avsReductionFactor clamps to 1.0 when years exceed 44', () {
       final answers = minimalAnswers();
       answers['q_avs_contribution_years'] = 50;
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.profile.avsReductionFactor, equals(1.0));
     });
 
     test('spouseAvsReductionFactor is 0 when not married', () {
       final answers = minimalAnswers();
       answers['q_civil_status'] = 'single';
-      final report = service.generateReport(answers);
+      final report = service.generateReport(answers, s: SFr());
       expect(report.profile.spouseAvsReductionFactor, equals(0.0));
     });
   });

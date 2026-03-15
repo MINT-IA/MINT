@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/services/fiscal_service.dart';
 
 void main() {
@@ -157,6 +158,7 @@ void main() {
   group('simulateMove - structure', () {
     test('returns correct structure', () {
       final result = FiscalService.simulateMove(
+        s: SFr(),
         revenuBrut: 100000,
         cantonDepart: 'VD',
         cantonArrivee: 'ZG',
@@ -180,6 +182,7 @@ void main() {
   group('simulateMove - scenarios', () {
     test('BS to ZG shows positive savings', () {
       final result = FiscalService.simulateMove(
+        s: SFr(),
         revenuBrut: 100000,
         cantonDepart: 'BS',
         cantonArrivee: 'ZG',
@@ -200,6 +203,7 @@ void main() {
 
     test('same canton shows zero savings', () {
       final result = FiscalService.simulateMove(
+        s: SFr(),
         revenuBrut: 100000,
         cantonDepart: 'VD',
         cantonArrivee: 'VD',
@@ -212,6 +216,7 @@ void main() {
 
     test('chiffreChoc mentions savings for positive move', () {
       final result = FiscalService.simulateMove(
+        s: SFr(),
         revenuBrut: 100000,
         cantonDepart: 'BS',
         cantonArrivee: 'ZG',
@@ -224,6 +229,7 @@ void main() {
 
     test('chiffreChoc mentions extra cost for negative move', () {
       final result = FiscalService.simulateMove(
+        s: SFr(),
         revenuBrut: 100000,
         cantonDepart: 'ZG',
         cantonArrivee: 'BS',
@@ -235,6 +241,7 @@ void main() {
 
     test('chiffreChoc mentions equivalence for same canton', () {
       final result = FiscalService.simulateMove(
+        s: SFr(),
         revenuBrut: 100000,
         cantonDepart: 'VD',
         cantonArrivee: 'VD',

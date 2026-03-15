@@ -133,6 +133,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         nombreEnfants: _nombreEnfants,
       );
       _moveResult = FiscalService.simulateMove(
+        s: S.of(context)!,
         revenuBrut: _revenuBrut,
         cantonDepart: _cantonDepart,
         cantonArrivee: _cantonArrivee,
@@ -377,7 +378,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                       return DropdownMenuItem(
                         value: code,
                         child: Text(
-                            '$code — ${FiscalService.cantonNames[code]}'),
+                            '$code — ${FiscalService.getCantonName(S.of(context)!, code)}'),
                       );
                     }).toList(),
                     onChanged: (v) {
@@ -868,7 +869,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               ),
               children: [
                 TextSpan(
-                  text: '${FiscalService.cantonNames[_canton]}',
+                  text: FiscalService.getCantonName(S.of(context)!, _canton),
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 TextSpan(text: ' ${S.of(context)!.fiscalRanks} '),
@@ -1124,10 +1125,10 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           MoveSavingsCard(
             cantonFrom: _cantonDepart,
             cantonFromName:
-                FiscalService.cantonNames[_cantonDepart] ?? _cantonDepart,
+                FiscalService.getCantonName(S.of(context)!, _cantonDepart),
             cantonTo: _cantonArrivee,
             cantonToName:
-                FiscalService.cantonNames[_cantonArrivee] ?? _cantonArrivee,
+                FiscalService.getCantonName(S.of(context)!, _cantonArrivee),
             chargeFrom: _moveResult!['chargeDepart'] as double,
             chargeTo: _moveResult!['chargeArrivee'] as double,
             economieAnnuelle: _moveResult!['economieAnnuelle'] as double,
@@ -1244,7 +1245,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 child: Column(
                   children: [
                     Text(
-                      FiscalService.cantonNames[_cantonDepart] ?? _cantonDepart,
+                      FiscalService.getCantonName(S.of(context)!, _cantonDepart),
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: MintColors.textMuted,
@@ -1271,8 +1272,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 child: Column(
                   children: [
                     Text(
-                      FiscalService.cantonNames[_cantonArrivee] ??
-                          _cantonArrivee,
+                      FiscalService.getCantonName(S.of(context)!, _cantonArrivee),
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: MintColors.textMuted,
@@ -1353,7 +1353,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               items: codes.map((code) {
                 return DropdownMenuItem(
                   value: code,
-                  child: Text('$code — ${FiscalService.cantonNames[code]}'),
+                  child: Text('$code — ${FiscalService.getCantonName(S.of(context)!, code)}'),
                 );
               }).toList(),
               onChanged: (v) {

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:mint_mobile/data/commune_data.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FISCAL SERVICE — Sprint S20 / Comparateur 26 cantons
@@ -52,9 +53,10 @@ class FiscalService {
   };
 
   // ════════════════════════════════════════════════════════════
-  //  CANTON NAMES (French)
+  //  CANTON NAMES (i18n via ARB)
   // ════════════════════════════════════════════════════════════
 
+  /// Internal fallback map (used when no [S] is available).
   static const Map<String, String> cantonNames = {
     'ZH': 'Zurich',
     'BE': 'Berne',
@@ -83,6 +85,46 @@ class FiscalService {
     'GE': 'Genève',
     'JU': 'Jura',
   };
+
+  /// Localized canton name via ARB. Falls back to [cantonNames] if unknown code.
+  static String getCantonName(S s, String code) {
+    switch (code) {
+      case 'ZH': return s.fiscalServiceCantonZH;
+      case 'BE': return s.fiscalServiceCantonBE;
+      case 'LU': return s.fiscalServiceCantonLU;
+      case 'UR': return s.fiscalServiceCantonUR;
+      case 'SZ': return s.fiscalServiceCantonSZ;
+      case 'OW': return s.fiscalServiceCantonOW;
+      case 'NW': return s.fiscalServiceCantonNW;
+      case 'GL': return s.fiscalServiceCantonGL;
+      case 'ZG': return s.fiscalServiceCantonZG;
+      case 'FR': return s.fiscalServiceCantonFR;
+      case 'SO': return s.fiscalServiceCantonSO;
+      case 'BS': return s.fiscalServiceCantonBS;
+      case 'BL': return s.fiscalServiceCantonBL;
+      case 'SH': return s.fiscalServiceCantonSH;
+      case 'AR': return s.fiscalServiceCantonAR;
+      case 'AI': return s.fiscalServiceCantonAI;
+      case 'SG': return s.fiscalServiceCantonSG;
+      case 'GR': return s.fiscalServiceCantonGR;
+      case 'AG': return s.fiscalServiceCantonAG;
+      case 'TG': return s.fiscalServiceCantonTG;
+      case 'TI': return s.fiscalServiceCantonTI;
+      case 'VD': return s.fiscalServiceCantonVD;
+      case 'VS': return s.fiscalServiceCantonVS;
+      case 'NE': return s.fiscalServiceCantonNE;
+      case 'GE': return s.fiscalServiceCantonGE;
+      case 'JU': return s.fiscalServiceCantonJU;
+      default: return cantonNames[code] ?? code;
+    }
+  }
+
+  /// Returns all 26 canton names localized via [S].
+  static Map<String, String> getCantonNames(S s) {
+    return {
+      for (final code in cantonNames.keys) code: getCantonName(s, code),
+    };
+  }
 
   // ════════════════════════════════════════════════════════════
   //  INCOME ADJUSTMENT FACTORS (relative to 100k base)
@@ -207,7 +249,10 @@ class FiscalService {
   // ════════════════════════════════════════════════════════════
 
   /// Simulate moving between two cantons (optionally with communes).
+  ///
+  /// [s] is required to produce localized user-facing text (chiffreChoc).
   static Map<String, dynamic> simulateMove({
+    required S s,
     required double revenuBrut,
     required String cantonDepart,
     required String cantonArrivee,
@@ -238,23 +283,23 @@ class FiscalService {
 
     String chiffreChoc;
     if (economieAnnuelle > 0) {
-      chiffreChoc =
-          'En déménageant de ${cantonNames[cantonDepart]} à ${cantonNames[cantonArrivee]}, '
-          'tu économiserais ~${formatChf(economieAnnuelle)}/an soit '
-          '${formatChf(economie10Ans)} sur 10 ans';
+      chiffreChoc = s.fiscalServiceMoveSavings(
+        getCantonName(s, cantonDepart),
+        getCantonName(s, cantonArrivee),
+        formatChf(economieAnnuelle),
+        formatChf(economie10Ans),
+      );
     } else if (economieAnnuelle < 0) {
-      chiffreChoc =
-          'Attention : ce déménagement te coûterait ~${formatChf(-economieAnnuelle)}/an '
-          'en impôts supplémentaires';
+      chiffreChoc = s.fiscalServiceMoveCost(formatChf(-economieAnnuelle));
     } else {
-      chiffreChoc = 'Charge fiscale équivalente dans les deux cantons. Compare les autres avantages (LAMal, allocations).';
+      chiffreChoc = s.fiscalServiceMoveEquivalent;
     }
 
     return {
       'cantonDepart': cantonDepart,
-      'cantonDepartNom': cantonNames[cantonDepart] ?? cantonDepart,
+      'cantonDepartNom': getCantonName(s, cantonDepart),
       'cantonArrivee': cantonArrivee,
-      'cantonArriveeNom': cantonNames[cantonArrivee] ?? cantonArrivee,
+      'cantonArriveeNom': getCantonName(s, cantonArrivee),
       'chargeDepart': taxDepart['chargeTotale'],
       'chargeArrivee': taxArrivee['chargeTotale'],
       'tauxDepart': taxDepart['tauxEffectif'],
