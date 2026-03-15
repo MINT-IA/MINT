@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 
 // ────────────────────────────────────────────────────────────
@@ -96,7 +97,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
         onPressed: () => context.pop(),
       ),
       title: Text(
-        'EXTRAIT AVS',
+        S.of(context)!.avsGuideAppBarTitle,
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w800,
           fontSize: 13,
@@ -114,7 +115,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Comment obtenir ton extrait AVS',
+          S.of(context)!.avsGuideHeaderTitle,
           style: GoogleFonts.montserrat(
             fontSize: 22,
             fontWeight: FontWeight.w700,
@@ -124,9 +125,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          "L'extrait de compte individuel (CI) contient tes années de "
-          "cotisation, ton revenu moyen (RAMD) et tes éventuelles lacunes. "
-          "C'est la clé pour une projection AVS fiable.",
+          S.of(context)!.avsGuideHeaderSubtitle,
           style: GoogleFonts.inter(
             fontSize: 15,
             color: MintColors.textSecondary,
@@ -166,7 +165,9 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '+${DocumentType.avsExtract.confidenceImpact} points de confiance',
+                  S.of(context)!.docScanConfidencePoints(
+                    DocumentType.avsExtract.confidenceImpact,
+                  ),
                   style: GoogleFonts.montserrat(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -175,7 +176,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Annees de cotisation, RAMD, lacunes',
+                  S.of(context)!.avsGuideConfidenceDetail,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -192,32 +193,27 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
   // ── Steps ────────────────────────────────────────────────
 
   Widget _buildSteps() {
-    const steps = [
+    final s = S.of(context)!;
+    final steps = [
       _StepData(
         number: 1,
-        title: 'Va sur www.ahv-iv.ch',
-        subtitle: "C'est le site officiel de l'AVS/AI. Tu peux aussi demander "
-            'ton extrait directement a ta caisse de compensation.',
+        title: s.avsGuideStep1Title,
+        subtitle: s.avsGuideStep1Subtitle,
       ),
       _StepData(
         number: 2,
-        title: 'Connecte-toi avec ton eID ou cree un compte',
-        subtitle: 'Tu auras besoin de ton numero AVS '
-            '(756.XXXX.XXXX.XX, sur ta carte d\'assurance-maladie).',
+        title: s.avsGuideStep2Title,
+        subtitle: s.avsGuideStep2Subtitle,
       ),
       _StepData(
         number: 3,
-        title: 'Demande ton extrait de compte individuel (CI)',
-        subtitle:
-            "Cherche la section \"Extrait de compte\" ou \"Kontoauszug\". "
-            "C'est un document officiel qui recapitule toutes tes cotisations.",
+        title: s.avsGuideStep3Title,
+        subtitle: s.avsGuideStep3Subtitle,
       ),
       _StepData(
         number: 4,
-        title: 'Tu le recevras par courrier ou PDF',
-        subtitle:
-            "Selon ta caisse, l'extrait arrive en 5 a 10 jours ouvrables. "
-            "Certaines caisses proposent un telechargement PDF immediat.",
+        title: s.avsGuideStep4Title,
+        subtitle: s.avsGuideStep4Subtitle,
       ),
     ];
 
@@ -225,7 +221,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'En 4 etapes',
+          s.avsGuideStepsTitle,
           style: GoogleFonts.montserrat(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -305,7 +301,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
         onPressed: _onOpenAhv,
         icon: const Icon(Icons.open_in_new, size: 20),
         label: Text(
-          'Ouvrir ahv-iv.ch',
+          S.of(context)!.avsGuideOpenAhvButton,
           style: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -332,7 +328,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
         onPressed: _isProcessing ? null : _onScanExtract,
         icon: const Icon(Icons.document_scanner_outlined, size: 22),
         label: Text(
-          "J'ai deja mon extrait \u2192 Scanner",
+          S.of(context)!.avsGuideHaveExtractButton,
           style: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -363,7 +359,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       child: Column(
         children: [
           Text(
-            'MODE TEST',
+            S.of(context)!.avsGuideDebugModeLabel,
             style: GoogleFonts.montserrat(
               fontSize: 10,
               fontWeight: FontWeight.w700,
@@ -373,8 +369,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            "Pas d'extrait AVS sous la main ? "
-            "Teste le flux avec un exemple d'extrait.",
+            S.of(context)!.avsGuideDebugDescription,
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 13,
@@ -401,7 +396,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
                     onPressed: _onSimulateScan,
                     icon: const Icon(Icons.science_outlined, size: 20),
                     label: Text(
-                      'Utiliser un exemple',
+                      S.of(context)!.avsGuideDebugUseExample,
                       style: GoogleFonts.inter(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -440,8 +435,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              "L'extrait AVS est gratuit et disponible en 5 a 10 jours ouvrables. "
-              "Tu peux aussi te rendre a ta caisse de compensation cantonale.",
+              S.of(context)!.avsGuideFreeNote,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textPrimary,
@@ -471,9 +465,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              "L'image de ton extrait n'est jamais stockee ni envoyee. "
-              "L'extraction se fait sur ton appareil. "
-              "Seules les valeurs que tu confirmes sont conservees dans ton profil.",
+              S.of(context)!.avsGuidePrivacyNote,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textMuted,
@@ -497,8 +489,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Impossible d\'ouvrir $_ahvUrl. '
-            'Copie l\'adresse et ouvre-la dans ton navigateur.',
+            S.of(context)!.avsGuideOpenUrlError(_ahvUrl),
             style: GoogleFonts.inter(fontSize: 14),
           ),
           backgroundColor: MintColors.warning,

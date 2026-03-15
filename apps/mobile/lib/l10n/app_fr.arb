@@ -10145,5 +10145,33 @@
         "type": "String"
       }
     }
+  },
+  "avsGuideAppBarTitle": "EXTRAIT AVS",
+  "avsGuideHeaderTitle": "Comment obtenir ton extrait AVS",
+  "avsGuideHeaderSubtitle": "L'extrait de compte individuel (CI) contient tes années de cotisation, ton revenu moyen (RAMD) et tes éventuelles lacunes. C'est la clé pour une projection AVS fiable.",
+  "avsGuideConfidenceDetail": "Années de cotisation, RAMD, lacunes",
+  "avsGuideStepsTitle": "En 4\u00a0étapes",
+  "avsGuideStep1Title": "Va sur www.ahv-iv.ch",
+  "avsGuideStep1Subtitle": "C'est le site officiel de l'AVS/AI. Tu peux aussi demander ton extrait directement à ta caisse de compensation.",
+  "avsGuideStep2Title": "Connecte-toi avec ton eID ou crée un compte",
+  "avsGuideStep2Subtitle": "Tu auras besoin de ton numéro AVS (756.XXXX.XXXX.XX, sur ta carte d'assurance-maladie).",
+  "avsGuideStep3Title": "Demande ton extrait de compte individuel (CI)",
+  "avsGuideStep3Subtitle": "Cherche la section «\u00a0Extrait de compte\u00a0» ou «\u00a0Kontoauszug\u00a0». C'est un document officiel qui récapitule toutes tes cotisations.",
+  "avsGuideStep4Title": "Tu le recevras par courrier ou PDF",
+  "avsGuideStep4Subtitle": "Selon ta caisse, l'extrait arrive en 5 à 10\u00a0jours ouvrables. Certaines caisses proposent un téléchargement PDF immédiat.",
+  "avsGuideOpenAhvButton": "Ouvrir ahv-iv.ch",
+  "avsGuideHaveExtractButton": "J'ai déjà mon extrait \u2192 Scanner",
+  "avsGuideDebugModeLabel": "MODE TEST",
+  "avsGuideDebugDescription": "Pas d'extrait AVS sous la main\u00a0? Teste le flux avec un exemple d'extrait.",
+  "avsGuideDebugUseExample": "Utiliser un exemple",
+  "avsGuideFreeNote": "L'extrait AVS est gratuit et disponible en 5 à 10\u00a0jours ouvrables. Tu peux aussi te rendre à ta caisse de compensation cantonale.",
+  "avsGuidePrivacyNote": "L'image de ton extrait n'est jamais stockée ni envoyée. L'extraction se fait sur ton appareil. Seules les valeurs que tu confirmes sont conservées dans ton profil.",
+  "avsGuideOpenUrlError": "Impossible d'ouvrir {url}. Copie l'adresse et ouvre-la dans ton navigateur.",
+  "@avsGuideOpenUrlError": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
   }
 }
