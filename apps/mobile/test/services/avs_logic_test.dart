@@ -1,8 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
 
 void main() {
+  final S _s = SFr();
   group('AVS Logic Tests', () {
     test('UserProfile avsReductionFactor calculation', () {
       // 44 years = 1.0
@@ -79,7 +82,7 @@ void main() {
         'q_current_lpp_capital': 100000,
       };
 
-      final report = service.generateReport(answersSingleGap);
+      final report = service.generateReport(answersSingleGap, s: _s);
       // grossAnnualSalary = NetIncomeBreakdown.estimateBrutFromNet(60000)
       //   uses Newton-Raphson iteration (not the old / 0.87 linear approx)
       //   → ~67548 CHF with current social charges constants
@@ -106,7 +109,7 @@ void main() {
         'q_current_lpp_capital': 150000,
       };
 
-      final report = service.generateReport(answersMarriedGaps);
+      final report = service.generateReport(answersMarriedGaps, s: _s);
 
       // grossAnnualSalary = 8000 * 12 / 0.87 = ~110344.8 (> RAMD max 88200)
       // Both user and spouse get max rente = 2520 CHF/mois

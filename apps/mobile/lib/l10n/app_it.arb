@@ -12724,5 +12724,367 @@
   "precisionPromptMortgageText": "[IT] Pour l''analyse hypothécaire, on a besoin du capital restant dû exact.",
   "precisionPromptMortgageImpact": "[IT] Analyse de capacité plus fiable",
   "precisionPromptExpensesText": "[IT] Tes dépenses mensuelles ne sont pas renseignées. Ajoute-les pour un budget réaliste.",
-  "precisionPromptExpensesImpact": "[IT] Budget +/-15 % plus précis"
+  "precisionPromptExpensesImpact": "[IT] Budget +/-15 % plus précis",
+  "confidenceScorerAssumptionSalaireMissing": "[IT] Salaire non renseigné — estimation impossible",
+  "confidenceScorerAssumptionAgeCantonMissing": "[IT] Âge ou canton manquant",
+  "confidenceScorerAssumptionLppEstimated": "[IT] LPP estimé depuis le salaire — peut varier de +-30 %",
+  "confidenceScorerAssumptionLppMissing": "[IT] Avoir LPP non renseigné — estimation depuis le salaire",
+  "confidenceScorerAssumptionTauxConversion": "[IT] Taux de conversion LPP : minimum légal 6.8 % (réel souvent 5-6 %)",
+  "confidenceScorerAssumptionAvsEstimated": "[IT] Années AVS estimées depuis l''âge — lacunes possibles",
+  "confidenceScorerAssumptionForeignPension": "[IT] Pension étrangère non modélisée",
+  "confidenceScorerPromptSalaireLabel": "[IT] Ajoute ton salaire",
+  "confidenceScorerPromptSalaireAction": "[IT] Renseigne ton salaire brut mensuel",
+  "confidenceScorerPromptObjectifLabel": "[IT] Fixe un objectif retraite",
+  "confidenceScorerPromptObjectifAction": "[IT] À quel âge souhaites-tu prendre ta retraite ? (58-70)",
+  "confidenceScorerPromptFamilleLabel": "[IT] Indique ta situation familiale",
+  "confidenceScorerPromptFamilleAction": "[IT] Célibataire, en couple, marié·e ? Impact sur AVS et impôts.",
+  "confidenceScorerPromptPartenaireAddLabel": "[IT] Ajoute les infos de ton·ta partenaire",
+  "confidenceScorerPromptPartenaireAddActionCouple": "[IT] Revenu et âge de ton·ta partenaire pour des projections couple",
+  "confidenceScorerPromptPartenaireCompleteLabel": "[IT] Complète le profil partenaire",
+  "confidenceScorerPromptPartenaireCompleteAction": "[IT] Ajoute le revenu et l''âge de ton·ta partenaire",
+  "confidenceScorerPromptPartenaireAddActionFiable": "[IT] Revenu et âge pour des projections couple fiables",
+  "confidenceScorerPromptLppConfirmLabel": "[IT] Confirme ton solde LPP",
+  "confidenceScorerPromptLppConfirmAction": "[IT] Ajoute ton certificat de prévoyance (solde exact)",
+  "confidenceScorerPromptLppAddLabel": "[IT] Ajoute ton solde LPP",
+  "confidenceScorerPromptTauxConversionLabel": "[IT] Taux de conversion réel",
+  "confidenceScorerPromptTauxConversionAction": "[IT] Lis ton certificat de prévoyance (taux enveloppe)",
+  "confidenceScorerPromptAvsLabel": "[IT] Commande ton extrait AVS",
+  "confidenceScorerPromptAvsAction": "[IT] Gratuit sur inforegister.ch — années effectives",
+  "confidenceScorerPromptSoldes3aLabel": "[IT] Ajoute tes soldes 3a",
+  "confidenceScorerPromptSoldes3aAction": "[IT] Saisis tes soldes 3e pilier (chaque compte)",
+  "confidenceScorerPromptPatrimoineLabel": "[IT] Renseigne ton patrimoine",
+  "confidenceScorerPromptPatrimoineAction": "[IT] Épargne, investissements, immobilier",
+  "confidenceScorerPromptCommuneLabel": "[IT] Ajoute ta commune",
+  "confidenceScorerPromptCommuneAction": "[IT] Le coefficient communal impacte ton taux d''imposition de 60 % à 130 %",
+  "confidenceScorerPromptFiscalLabel": "[IT] Scanne ta déclaration fiscale",
+  "confidenceScorerPromptFiscalAction": "[IT] Taux marginal réel + revenu imposable + fortune (LIFD art. 38)",
+  "confidenceScorerPromptForeignPensionLabel": "[IT] Pension étrangère",
+  "confidenceScorerPromptForeignPensionAction": "[IT] As-tu des droits à une retraite dans ton pays d''origine ?",
+  "confidenceScorerPromptUrgencyLabel": "[IT] Plus que {yearsLeft} ans avant ta retraite",
+  "@confidenceScorerPromptUrgencyLabel": {
+    "placeholders": {
+      "yearsLeft": {
+        "type": "int"
+      }
+    }
+  },
+  "confidenceScorerPromptUrgencyActionUrgent": "[IT] Chaque mois compte — confirme tes données de prévoyance",
+  "confidenceScorerPromptUrgencyActionNormal": "[IT] Affine tes projections pour une vision claire",
+  "confidenceScorerFieldSalaire": "[IT] Salaire brut",
+  "confidenceScorerFieldAge": "[IT] Âge",
+  "confidenceScorerFieldCanton": "[IT] Canton",
+  "confidenceScorerFieldEtatCivil": "[IT] Situation du ménage",
+  "confidenceScorerFieldAvoirLpp": "[IT] Avoir LPP",
+  "confidenceScorerFieldTauxConversion": "[IT] Taux de conversion",
+  "confidenceScorerFieldAnneesAvs": "[IT] Années AVS",
+  "confidenceScorerFieldEpargne3a": "[IT] Épargne 3a",
+  "confidenceScorerFieldPatrimoine": "[IT] Patrimoine",
+  "confidenceScorerFreshnessPrefix": "[IT] Actualise : ",
+  "confidenceScorerFreshnessStale": "[IT] Donnée datant de {months} mois — rescanne ton certificat",
+  "@confidenceScorerFreshnessStale": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "confidenceScorerFreshnessConfirm": "[IT] Confirme que cette valeur est toujours actuelle",
+  "confidenceScorerAccuracyPrefix": "[IT] Confirme : ",
+  "confidenceScorerAccuracyEstimated": "[IT] Saisis ta valeur réelle",
+  "confidenceScorerAccuracyCertificate": "[IT] Scanne ton certificat pour confirmer",
+  "confidenceScorerUnderstandingExploreLabel": "[IT] Explore les fiches éducatives",
+  "confidenceScorerUnderstandingExploreAction": "[IT] Lis les fiches sur tes thèmes clés (LPP, AVS, fiscalité)",
+  "confidenceScorerUnderstandingCoachLabel": "[IT] Pose une question au coach",
+  "confidenceScorerUnderstandingCoachAction": "[IT] Chaque interaction affine ta compréhension financière",
+  "coachReasonerDisclaimer": "[IT] Outil éducatif, ne constitue pas un conseil financier (LSFin)",
+  "coachReasonerRachatLppAssumptionMarginalRate": "[IT] Taux marginal estimé : {rate} %",
+  "@coachReasonerRachatLppAssumptionMarginalRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasonerRachatLppAssumptionRendement": "[IT] Rendement caisse : {rate} %",
+  "@coachReasonerRachatLppAssumptionRendement": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasonerRachatLppAssumptionLacune": "[IT] Lacune restante : {amount} CHF",
+  "@coachReasonerRachatLppAssumptionLacune": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasonerRachatLppRiskBlocage": "[IT] LPP art. 79b al. 3 : tout retrait EPL est bloqué pendant 3 ans après un rachat.",
+  "coachReasonerRachatLppRiskRendementLimite": "[IT] À {years} ans de la retraite, le rendement composé est limité.",
+  "@coachReasonerRachatLppRiskRendementLimite": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "coachReasonerRachatLppTitle": "[IT] Rachat LPP : économie fiscale de {amount} CHF/an",
+  "@coachReasonerRachatLppTitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasonerRachatLppSummary": "[IT] Avec une lacune de {lacune} CHF, un rachat annuel de {buyback} CHF réduit ton impôt de {saving} CHF/an et génère un capital supplémentaire à la retraite.",
+  "@coachReasonerRachatLppSummary": {
+    "placeholders": {
+      "lacune": {
+        "type": "String"
+      },
+      "buyback": {
+        "type": "String"
+      },
+      "saving": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasonerRachatLppWhy1": "[IT] Déduction fiscale immédiate (LIFD art. 33 al. 1 lit. d)",
+  "coachReasonerRachatLppWhy2": "[IT] Le capital racheté est rémunéré au taux de la caisse ({rate} %)",
+  "@coachReasonerRachatLppWhy2": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasonerRachatLppWhy3": "[IT] Augmente ta rente ou ton capital LPP à la retraite",
+  "coachReasonerRachatLppAlt1": "[IT] Verser dans le 3a si le plafond n''est pas atteint (rendement potentiellement supérieur)",
+  "coachReasonerRachatLppAlt2": "[IT] Amortissement indirect du prêt hypothécaire",
+  "coachReasonerRachatLppEvidenceLabel": "[IT] LPP art. 79b — Rachat",
+  "coachReasonerRachatLppActionSimulate": "[IT] Simuler un rachat échelonné",
+  "coachReasonerRachatLppActionLearn": "[IT] Comprendre le rachat LPP",
+  "coachReasoner3aTitle": "[IT] 3a : {gap} CHF/an de potentiel non utilisé",
+  "@coachReasoner3aTitle": {
+    "placeholders": {
+      "gap": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasoner3aSummary": "[IT] Tu peux encore verser {gap} CHF/an dans ton 3a, soit une économie fiscale de {saving} CHF/an.",
+  "@coachReasoner3aSummary": {
+    "placeholders": {
+      "gap": {
+        "type": "String"
+      },
+      "saving": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasoner3aWhy1": "[IT] Déduction fiscale intégrale (LIFD art. 33 al. 1 lit. e)",
+  "coachReasoner3aWhy2": "[IT] Capital bloqué jusqu''à 5 ans avant la retraite (OPP3 art. 3)",
+  "coachReasoner3aWhy3": "[IT] Rendement estimé {rate} % > compte épargne",
+  "@coachReasoner3aWhy3": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasoner3aAssumptionPlafond": "[IT] Plafond 3a {amount} CHF ({status})",
+  "@coachReasoner3aAssumptionPlafond": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasoner3aStatusIndepSansLpp": "[IT] indépendant sans LPP",
+  "coachReasoner3aStatusSalarieAvecLpp": "[IT] salarié affilié LPP",
+  "coachReasoner3aAssumptionMarginalRate": "[IT] Taux marginal estimé : {rate} %",
+  "@coachReasoner3aAssumptionMarginalRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasoner3aAssumptionContribActuelle": "[IT] Contribution actuelle estimée : {amount} CHF/an (heuristique basée sur le solde total — précise via tes relevés)",
+  "@coachReasoner3aAssumptionContribActuelle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasoner3aRisk1": "[IT] Capital bloqué jusqu''à 60 ans (AHV21)",
+  "coachReasoner3aRisk2": "[IT] Rendement variable selon le type de placement (fonds ou compte)",
+  "coachReasoner3aAlt1": "[IT] Rachat LPP si la lacune est importante (rendement fixé par le règlement de la caisse)",
+  "coachReasoner3aEvidenceLabel": "[IT] OPP3 art. 3 — 3e pilier",
+  "coachReasoner3aActionCompare": "[IT] Comparer les fournisseurs 3a",
+  "coachReasonerAmortiTitle": "[IT] Amortissement indirect : économie de {amount} CHF/an",
+  "@coachReasonerAmortiTitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasonerAmortiSummary": "[IT] En passant à l''amortissement indirect via le 3a, tu conserves la déduction des intérêts hypothécaires ET bénéficies de la déduction 3a.",
+  "coachReasonerAmortiWhy1": "[IT] Double déduction : intérêts hypothécaires + versement 3a (LIFD art. 33)",
+  "coachReasonerAmortiWhy2": "[IT] Le capital 3a est nanti au lieu d''être versé à la banque",
+  "coachReasonerAmortiWhy3": "[IT] Effet de levier fiscal sur toute la durée du prêt",
+  "coachReasonerAmortiAssumptionHypotheque": "[IT] Hypothèque restante : {amount} CHF",
+  "@coachReasonerAmortiAssumptionHypotheque": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasonerAmortiAssumptionAmortissement": "[IT] Amortissement annuel estimé : {amount} CHF",
+  "@coachReasonerAmortiAssumptionAmortissement": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasonerAmortiAssumptionTauxHypo": "[IT] Taux hypothécaire : {rate} %",
+  "@coachReasonerAmortiAssumptionTauxHypo": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasonerAmortiRisk1": "[IT] La dette reste au même niveau jusqu''au nantissement",
+  "coachReasonerAmortiRisk2": "[IT] Risque de placement sur le capital 3a (si fonds)",
+  "coachReasonerAmortiRisk3": "[IT] Certaines banques n''acceptent pas le nantissement 3a",
+  "coachReasonerAmortiAlt1": "[IT] Amortissement direct si priorité = réduire la dette rapidement",
+  "coachReasonerAmortiAlt2": "[IT] Rachat LPP si la lacune est plus avantageuse fiscalement",
+  "coachReasonerAmortiEvidenceLabel": "[IT] LIFD art. 33 — Déductions",
+  "coachReasonerAmortiActionSimulate": "[IT] Simuler l''amortissement indirect",
+  "coachReasonerEchelonnementTitle": "[IT] Échelonner les retraits 3a : économie de {amount} CHF",
+  "@coachReasonerEchelonnementTitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasonerEchelonnementSummary": "[IT] En retirant tes {nAccounts} comptes 3a sur plusieurs années fiscales, tu économises {saving} CHF d''impôt sur le retrait.",
+  "@coachReasonerEchelonnementSummary": {
+    "placeholders": {
+      "nAccounts": {
+        "type": "int"
+      },
+      "saving": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasonerEchelonnementWhy1": "[IT] Progressivité de l''impôt sur le retrait (LIFD art. 38)",
+  "coachReasonerEchelonnementWhy2": "[IT] Chaque retrait est imposé séparément dans l''année fiscale",
+  "coachReasonerEchelonnementWhy3": "[IT] {nAccounts} comptes = {nAccounts} tranches possibles",
+  "@coachReasonerEchelonnementWhy3": {
+    "placeholders": {
+      "nAccounts": {
+        "type": "int"
+      }
+    }
+  },
+  "coachReasonerEchelonnementAssumptionCapital": "[IT] Capital total 3a : {amount} CHF",
+  "@coachReasonerEchelonnementAssumptionCapital": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasonerEchelonnementAssumptionCanton": "[IT] Canton : {canton}",
+  "@coachReasonerEchelonnementAssumptionCanton": {
+    "placeholders": {
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasonerEchelonnementAssumptionSplitting": "[IT] Splitting conjugal appliqué",
+  "coachReasonerEchelonnementAssumptionRetraits": "[IT] Hypothèse : retraits effectués dans des années fiscales différentes",
+  "coachReasonerEchelonnementRisk1": "[IT] Certains cantons cumulent les retraits 2e+3e pilier dans la même année",
+  "coachReasonerEchelonnementRisk2": "[IT] Nécessite de planifier les retraits dès 60 ans (AHV21)",
+  "coachReasonerEchelonnementAlt1": "[IT] Ouvrir des comptes 3a supplémentaires si > 5 ans avant la retraite",
+  "coachReasonerEchelonnementEvidenceLabel": "[IT] LIFD art. 38 — Imposition du capital",
+  "coachReasonerEchelonnementActionSimulate": "[IT] Simuler l''échelonnement",
+  "coachReasonerSplitLpTitle": "[IT] Splitter le libre passage : économie de {amount} CHF",
+  "@coachReasonerSplitLpTitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasonerSplitLpSummary": "[IT] Ton avoir de libre passage de {total} CHF peut être réparti sur 2 comptes pour réduire l''impôt au retrait.",
+  "@coachReasonerSplitLpSummary": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasonerSplitLpWhy1": "[IT] Même logique que l''échelonnement 3a (LIFD art. 38)",
+  "coachReasonerSplitLpWhy2": "[IT] Retrait échelonné = tranches plus petites = taux effectif plus bas",
+  "coachReasonerSplitLpAssumptionAvoir": "[IT] Avoir libre passage : {amount} CHF",
+  "@coachReasonerSplitLpAssumptionAvoir": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasonerSplitLpAssumptionSplit": "[IT] Split en 2 comptes de {amount} CHF",
+  "@coachReasonerSplitLpAssumptionSplit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "coachReasonerSplitLpAssumptionRetraits": "[IT] Hypothèse : retraits effectués dans des années fiscales différentes",
+  "coachReasonerSplitLpRisk1": "[IT] Frais de transfert selon la fondation",
+  "coachReasonerSplitLpRisk2": "[IT] Certaines fondations n''acceptent pas les transferts partiels",
+  "coachReasonerSplitLpAlt1": "[IT] Attendre un changement d''emploi pour effectuer le split naturellement",
+  "coachReasonerSplitLpEvidenceLabel": "[IT] LFLP art. 10 — Libre passage",
+  "coachReasonerSplitLpActionLearn": "[IT] Comprendre le libre passage",
+  "monteCarloServiceDisclaimer": "[IT] Simulation Monte Carlo à titre pédagogique. Les rendements passés ne présagent pas des rendements futurs. Base : 500 simulations, tirages annuels indépendants (LPP, marché, inflation, croissance salariale). Ne constitue pas un conseil en placement ou prévoyance (LSFin).",
+  "monteCarloSourceLpp": "[IT] LPP art. 14, 16 (taux de conversion)",
+  "monteCarloSourceLavs": "[IT] LAVS art. 34-40 (rentes AVS)",
+  "monteCarloSourceLifd": "[IT] LIFD art. 38 (imposition capital)",
+  "monteCarloSourceOpp3": "[IT] OPP3 art. 3 (retrait 3e pilier)",
+  "monteCarloAlerteRuinHigh": "[IT] Probabilité de déficit élevée (>30 %). Envisage d''augmenter ton épargne ou de repousser ta retraite.",
+  "monteCarloAlerteEarlyRetirement": "[IT] Retraite anticipée avant 63 ans : aucune rente AVS durant {years} an(s). Prévois une épargne-relais.",
+  "@monteCarloAlerteEarlyRetirement": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "monteCarloAlerteRuinModerate": "[IT] Risque d''épuisement modéré ({percent} %). Un rachat LPP ou un versement 3a supplémentaire pourrait aider.",
+  "@monteCarloAlerteRuinModerate": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  }
 }

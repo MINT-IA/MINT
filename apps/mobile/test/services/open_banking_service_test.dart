@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/services/open_banking_service.dart';
 
 /// Unit tests for OpenBankingService
@@ -14,6 +16,7 @@ import 'package:mint_mobile/services/open_banking_service.dart';
 ///   - Bank initials extraction
 ///   - Supported banks constants
 void main() {
+  final S _s = SFr();
   // ═══════════════════════════════════════════════════════════════════════
   // 1. FINMA GATE & CONSTANTS
   // ═══════════════════════════════════════════════════════════════════════
@@ -24,8 +27,8 @@ void main() {
     });
 
     test('finmaStatusMessage is non-empty French text', () {
-      expect(OpenBankingService.finmaStatusMessage, isNotEmpty);
-      expect(OpenBankingService.finmaStatusMessage, contains('consultation'));
+      expect(OpenBankingService.finmaStatusMessage(_s), isNotEmpty);
+      expect(OpenBankingService.finmaStatusMessage(_s), contains('consultation'));
     });
 
     test('supportedBanks contains 9 Swiss banks', () {
@@ -257,22 +260,22 @@ void main() {
 
   group('Mock data generators', () {
     test('getMockAccounts returns 3 accounts', () {
-      expect(OpenBankingService.getMockAccounts(), hasLength(3));
+      expect(OpenBankingService.getMockAccounts(_s), hasLength(3));
     });
 
     test('all mock accounts have Swiss IBANs starting with CH', () {
-      for (final acc in OpenBankingService.getMockAccounts()) {
+      for (final acc in OpenBankingService.getMockAccounts(_s)) {
         expect(acc.iban.startsWith('CH'), isTrue,
             reason: '${acc.accountName} IBAN should start with CH');
       }
     });
 
     test('getMockTransactions returns 25 transactions', () {
-      expect(OpenBankingService.getMockTransactions(), hasLength(25));
+      expect(OpenBankingService.getMockTransactions(_s), hasLength(25));
     });
 
     test('mock transactions include both credits and debits', () {
-      final transactions = OpenBankingService.getMockTransactions();
+      final transactions = OpenBankingService.getMockTransactions(_s);
       final credits = transactions.where((tx) => tx.isCredit).toList();
       final debits = transactions.where((tx) => !tx.isCredit).toList();
       expect(credits, isNotEmpty, reason: 'Should have some credits');
@@ -294,7 +297,7 @@ void main() {
 
   group('Total balance', () {
     test('sums all mock account balances correctly', () {
-      final total = OpenBankingService.getTotalBalance();
+      final total = OpenBankingService.getTotalBalance(_s);
       // 8450 + 23100 + 45000 = 76550
       expect(total, equals(76550.0));
     });
@@ -306,18 +309,18 @@ void main() {
 
   group('Category breakdown', () {
     test('returns non-empty list of categories', () {
-      final breakdown = OpenBankingService.computeCategoryBreakdown();
+      final breakdown = OpenBankingService.computeCategoryBreakdown(_s);
       expect(breakdown, isNotEmpty);
     });
 
     test('percentages sum to approximately 100', () {
-      final breakdown = OpenBankingService.computeCategoryBreakdown();
+      final breakdown = OpenBankingService.computeCategoryBreakdown(_s);
       final totalPct = breakdown.fold(0.0, (sum, cat) => sum + cat.percentage);
       expect(totalPct, closeTo(100.0, 0.1));
     });
 
     test('categories are sorted by totalAmount descending', () {
-      final breakdown = OpenBankingService.computeCategoryBreakdown();
+      final breakdown = OpenBankingService.computeCategoryBreakdown(_s);
       for (int i = 1; i < breakdown.length; i++) {
         expect(breakdown[i].totalAmount,
             lessThanOrEqualTo(breakdown[i - 1].totalAmount));
@@ -325,7 +328,7 @@ void main() {
     });
 
     test('only debit transactions are included (no credits)', () {
-      final breakdown = OpenBankingService.computeCategoryBreakdown();
+      final breakdown = OpenBankingService.computeCategoryBreakdown(_s);
       final categoryNames = breakdown.map((b) => b.category).toSet();
       expect(categoryNames.contains('revenu'), isFalse,
           reason: 'Credits should not be in spending breakdown');
@@ -334,7 +337,7 @@ void main() {
     });
 
     test('each category has positive transactionCount', () {
-      final breakdown = OpenBankingService.computeCategoryBreakdown();
+      final breakdown = OpenBankingService.computeCategoryBreakdown(_s);
       for (final cat in breakdown) {
         expect(cat.transactionCount, greaterThan(0),
             reason: '${cat.category} should have > 0 transactions');
@@ -348,7 +351,7 @@ void main() {
 
   group('Monthly summary', () {
     test('returns all required keys', () {
-      final summary = OpenBankingService.getMonthlySummary();
+      final summary = OpenBankingService.getMonthlySummary(_s);
       expect(summary.containsKey('income'), isTrue);
       expect(summary.containsKey('expenses'), isTrue);
       expect(summary.containsKey('net'), isTrue);
@@ -356,18 +359,18 @@ void main() {
     });
 
     test('income equals sum of positive amounts (7200 + 500 = 7700)', () {
-      final summary = OpenBankingService.getMonthlySummary();
+      final summary = OpenBankingService.getMonthlySummary(_s);
       expect(summary['income'], equals(7700.0));
     });
 
     test('net equals income minus expenses', () {
-      final summary = OpenBankingService.getMonthlySummary();
+      final summary = OpenBankingService.getMonthlySummary(_s);
       final computed = summary['income']! - summary['expenses']!;
       expect(summary['net'], closeTo(computed, 0.01));
     });
 
     test('savingsRate is between 0 and 100', () {
-      final summary = OpenBankingService.getMonthlySummary();
+      final summary = OpenBankingService.getMonthlySummary(_s);
       expect(summary['savingsRate']!, greaterThanOrEqualTo(0.0));
       expect(summary['savingsRate']!, lessThanOrEqualTo(100.0));
     });

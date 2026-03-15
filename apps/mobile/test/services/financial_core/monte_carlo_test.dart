@@ -1,8 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_service.dart';
 
 void main() {
+  final S _s = SFr();
   // ════════════════════════════════════════════════════════════
   //  MONTE CARLO PROJECTION SERVICE — TESTS
   // ════════════════════════════════════════════════════════════
@@ -12,6 +15,7 @@ void main() {
     test('returns correct number of projection years (30)', () {
       final profile = _buildFullProfile();
       final result = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         numSimulations: 50,
         seed: 42,
@@ -23,6 +27,7 @@ void main() {
     test('median is between P10 and P90 for each year', () {
       final profile = _buildFullProfile();
       final result = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         numSimulations: 200,
         seed: 42,
@@ -47,6 +52,7 @@ void main() {
     test('P10 < P25 < P50 < P75 < P90 for each year', () {
       final profile = _buildFullProfile();
       final result = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         numSimulations: 300,
         seed: 42,
@@ -79,11 +85,13 @@ void main() {
     test('with seed, results are reproducible', () {
       final profile = _buildFullProfile();
       final result1 = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         numSimulations: 100,
         seed: 12345,
       );
       final result2 = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         numSimulations: 100,
         seed: 12345,
@@ -118,11 +126,13 @@ void main() {
         ),
       );
       final resultLow = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: lowLpp,
         numSimulations: 200,
         seed: 42,
       );
       final resultHigh = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: highLpp,
         numSimulations: 200,
         seed: 42,
@@ -138,6 +148,7 @@ void main() {
     test('ruin probability is between 0 and 1', () {
       final profile = _buildFullProfile();
       final result = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         numSimulations: 100,
         seed: 42,
@@ -150,6 +161,7 @@ void main() {
     test('handles 0 capital gracefully', () {
       final profile = _buildMinimalProfile();
       final result = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         numSimulations: 50,
         seed: 42,
@@ -165,12 +177,14 @@ void main() {
       final profile = _buildFullProfile();
       // Avec 100 simulations
       final result100 = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         numSimulations: 100,
         seed: 42,
       );
       // Avec 1000 simulations
       final result1000 = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         numSimulations: 1000,
         seed: 42,
@@ -198,6 +212,7 @@ void main() {
     test('works with minimal profile', () {
       final profile = _buildMinimalProfile();
       final result = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         numSimulations: 50,
         seed: 42,
@@ -213,6 +228,7 @@ void main() {
     test('disclaimer is non-empty and mentions LSFin', () {
       final profile = _buildFullProfile();
       final result = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         numSimulations: 10,
         seed: 42,
@@ -226,6 +242,7 @@ void main() {
     test('numSimulations matches requested count', () {
       final profile = _buildFullProfile();
       final result = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         numSimulations: 77,
         seed: 42,
@@ -237,6 +254,7 @@ void main() {
     test('medianAt65 equals first projection point p50', () {
       final profile = _buildFullProfile();
       final result = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         numSimulations: 200,
         seed: 42,
@@ -250,6 +268,7 @@ void main() {
     test('years and ages are consistent and sequential', () {
       final profile = _buildFullProfile();
       final result = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         retirementAgeUser: 63,
         numSimulations: 20,
@@ -272,6 +291,7 @@ void main() {
     test('lppCapitalPct > 0 still produces income', () {
       final profile = _buildFullProfile();
       final result = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         lppCapitalPct: 0.5,
         numSimulations: 100,
@@ -284,6 +304,7 @@ void main() {
     test('100% capital LPP works without crash', () {
       final profile = _buildFullProfile();
       final result = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         lppCapitalPct: 1.0,
         numSimulations: 50,

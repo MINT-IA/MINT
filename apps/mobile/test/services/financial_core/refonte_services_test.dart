@@ -1,11 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_service.dart';
 
 void main() {
+  final S _s = SFr();
   // ════════════════════════════════════════════════════════════
   //  1. LppCalculator.adjustedConversionRate
   // ════════════════════════════════════════════════════════════
@@ -330,6 +333,7 @@ void main() {
     test('simulate() with conjoint firstName=null does not crash', () {
       final profile = buildCoupleProfile(conjointFirstName: null);
       final result = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         numSimulations: 10,
         seed: 42,
@@ -342,6 +346,7 @@ void main() {
     test('simulate() with conjoint firstName="" does not crash', () {
       final profile = buildCoupleProfile(conjointFirstName: '');
       final result = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         numSimulations: 10,
         seed: 42,
@@ -375,11 +380,13 @@ void main() {
       );
 
       final withBuyback = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profileWithBuyback,
         numSimulations: 50,
         seed: 42,
       );
       final withoutBuyback = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profileWithout,
         numSimulations: 50,
         seed: 42,
@@ -409,11 +416,13 @@ void main() {
       );
 
       final withContrib = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profileNullName,
         numSimulations: 50,
         seed: 42,
       );
       final withoutContrib = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profileNoContrib,
         numSimulations: 50,
         seed: 42,
@@ -427,11 +436,13 @@ void main() {
     test('simulate() is deterministic with fixed seed', () {
       final profile = buildCoupleProfile(conjointFirstName: 'Lauren');
       final run1 = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         numSimulations: 50,
         seed: 123,
       );
       final run2 = MonteCarloProjectionService.simulate(
+        s: _s,
         profile: profile,
         numSimulations: 50,
         seed: 123,
