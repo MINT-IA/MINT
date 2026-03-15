@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/services/educational_insert_service.dart';
 
 void main() {
+  final S _s = SFr();
   // All 16 question IDs (8 old + 8 new)
   const allQuestionIds = [
     // Existing inserts (S16-S19)
@@ -61,6 +64,7 @@ void main() {
         final widget = EducationalInsertService.getInsertWidget(
           questionId: questionId,
           answers: emptyAnswers,
+          s: _s,
         );
         expect(widget, isNotNull);
         expect(widget, isA<Widget>());
@@ -71,6 +75,7 @@ void main() {
       final widget = EducationalInsertService.getInsertWidget(
         questionId: 'q_does_not_exist',
         answers: emptyAnswers,
+        s: _s,
       );
       expect(widget, isNull);
     });
@@ -79,7 +84,7 @@ void main() {
   group('EducationalInsertService — getLearnMoreTitle()', () {
     for (final questionId in allQuestionIds) {
       test('getLearnMoreTitle returns non-null for $questionId', () {
-        final title = EducationalInsertService.getLearnMoreTitle(questionId);
+        final title = EducationalInsertService.getLearnMoreTitle(questionId, _s);
         expect(title, isNotNull);
         expect(title, isA<String>());
         expect(title!.isNotEmpty, isTrue);
@@ -88,7 +93,7 @@ void main() {
 
     test('getLearnMoreTitle returns null for unknown question ID', () {
       final title =
-          EducationalInsertService.getLearnMoreTitle('q_does_not_exist');
+          EducationalInsertService.getLearnMoreTitle('q_does_not_exist', _s);
       expect(title, isNull);
     });
   });

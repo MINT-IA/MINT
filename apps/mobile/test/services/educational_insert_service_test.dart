@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/services/educational_insert_service.dart';
 
 /// Unit tests for EducationalInsertService
@@ -15,6 +17,8 @@ import 'package:mint_mobile/services/educational_insert_service.dart';
 ///   - Content coverage for all declared question IDs
 ///   - Compliance: sources and disclaimers in GenericInfoInsertWidget content
 void main() {
+  final S _s = SFr();
+
   // ══════════════════════════════════════════════════════════════════════
   // DECLARED QUESTION IDS
   // ══════════════════════════════════════════════════════════════════════
@@ -78,7 +82,7 @@ void main() {
   group('getLearnMoreTitle()', () {
     test('returns non-null title for all declared question IDs', () {
       for (final id in allQuestionIds) {
-        final title = EducationalInsertService.getLearnMoreTitle(id);
+        final title = EducationalInsertService.getLearnMoreTitle(id, _s);
         expect(title, isNotNull, reason: 'Expected title for "$id" to be non-null');
         expect(title!.isNotEmpty, true,
             reason: 'Expected title for "$id" to be non-empty');
@@ -86,33 +90,33 @@ void main() {
     });
 
     test('returns null for unknown question ID', () {
-      expect(EducationalInsertService.getLearnMoreTitle('q_nonexistent'), isNull);
+      expect(EducationalInsertService.getLearnMoreTitle('q_nonexistent', _s), isNull);
     });
 
     test('q_has_pension_fund title mentions LPP', () {
-      final title = EducationalInsertService.getLearnMoreTitle('q_has_pension_fund');
+      final title = EducationalInsertService.getLearnMoreTitle('q_has_pension_fund', _s);
       expect(title, contains('LPP'));
     });
 
     test('q_has_3a and q_3a_annual_amount share the same title', () {
-      final title3a = EducationalInsertService.getLearnMoreTitle('q_has_3a');
+      final title3a = EducationalInsertService.getLearnMoreTitle('q_has_3a', _s);
       final titleAmount =
-          EducationalInsertService.getLearnMoreTitle('q_3a_annual_amount');
+          EducationalInsertService.getLearnMoreTitle('q_3a_annual_amount', _s);
       expect(title3a, titleAmount);
     });
 
     test('q_canton title mentions fiscalite', () {
-      final title = EducationalInsertService.getLearnMoreTitle('q_canton');
+      final title = EducationalInsertService.getLearnMoreTitle('q_canton', _s);
       expect(title!.toLowerCase(), contains('fiscalité'));
     });
 
     test('q_emergency_fund title is about emergency fund', () {
-      final title = EducationalInsertService.getLearnMoreTitle('q_emergency_fund');
+      final title = EducationalInsertService.getLearnMoreTitle('q_emergency_fund', _s);
       expect(title, contains('urgence'));
     });
 
     test('q_mortgage_type title mentions hypotheques', () {
-      final title = EducationalInsertService.getLearnMoreTitle('q_mortgage_type');
+      final title = EducationalInsertService.getLearnMoreTitle('q_mortgage_type', _s);
       expect(title!.toLowerCase(), anyOf(contains('hypotheque'), contains('hypothèque')));
     });
   });
@@ -124,7 +128,8 @@ void main() {
   group('getInsertWidget()', () {
     test('returns non-null widget for q_financial_stress_check', () {
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_financial_stress_check',
+          s: _s,
+          questionId: 'q_financial_stress_check',
         answers: {},
       );
       expect(widget, isNotNull);
@@ -133,7 +138,8 @@ void main() {
 
     test('returns non-null widget for q_has_pension_fund', () {
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_has_pension_fund',
+          s: _s,
+          questionId: 'q_has_pension_fund',
         answers: {'q_has_pension_fund': 'yes'},
       );
       expect(widget, isNotNull);
@@ -141,7 +147,8 @@ void main() {
 
     test('returns non-null widget for q_has_3a with employee status', () {
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_has_3a',
+          s: _s,
+          questionId: 'q_has_3a',
         answers: {
           'q_employment_status': 'employee',
           'q_net_income_period_chf': 6000.0,
@@ -152,7 +159,8 @@ void main() {
 
     test('returns non-null widget for q_3a_annual_amount', () {
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_3a_annual_amount',
+          s: _s,
+          questionId: 'q_3a_annual_amount',
         answers: {'q_employment_status': 'self_employed'},
       );
       expect(widget, isNotNull);
@@ -160,7 +168,8 @@ void main() {
 
     test('returns non-null widget for q_civil_status', () {
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_civil_status',
+          s: _s,
+          questionId: 'q_civil_status',
         answers: {},
       );
       expect(widget, isNotNull);
@@ -168,7 +177,8 @@ void main() {
 
     test('returns non-null widget for q_employment_status', () {
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_employment_status',
+          s: _s,
+          questionId: 'q_employment_status',
         answers: {},
       );
       expect(widget, isNotNull);
@@ -176,7 +186,8 @@ void main() {
 
     test('returns non-null widget for q_housing_status', () {
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_housing_status',
+          s: _s,
+          questionId: 'q_housing_status',
         answers: {},
       );
       expect(widget, isNotNull);
@@ -184,7 +195,8 @@ void main() {
 
     test('returns non-null widget for q_canton', () {
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_canton',
+          s: _s,
+          questionId: 'q_canton',
         answers: {},
       );
       expect(widget, isNotNull);
@@ -192,7 +204,8 @@ void main() {
 
     test('returns non-null widget for q_lpp_buyback_available', () {
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_lpp_buyback_available',
+          s: _s,
+          questionId: 'q_lpp_buyback_available',
         answers: {},
       );
       expect(widget, isNotNull);
@@ -200,7 +213,8 @@ void main() {
 
     test('returns non-null widget for q_3a_accounts_count', () {
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_3a_accounts_count',
+          s: _s,
+          questionId: 'q_3a_accounts_count',
         answers: {},
       );
       expect(widget, isNotNull);
@@ -208,7 +222,8 @@ void main() {
 
     test('returns non-null widget for q_has_investments', () {
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_has_investments',
+          s: _s,
+          questionId: 'q_has_investments',
         answers: {},
       );
       expect(widget, isNotNull);
@@ -216,7 +231,8 @@ void main() {
 
     test('returns non-null widget for q_real_estate_project', () {
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_real_estate_project',
+          s: _s,
+          questionId: 'q_real_estate_project',
         answers: {},
       );
       expect(widget, isNotNull);
@@ -224,7 +240,8 @@ void main() {
 
     test('returns null for unknown question ID', () {
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_nonexistent',
+          s: _s,
+          questionId: 'q_nonexistent',
         answers: {},
       );
       expect(widget, isNull);
@@ -233,6 +250,7 @@ void main() {
     test('returns non-null for all declared question IDs', () {
       for (final id in allQuestionIds) {
         final widget = EducationalInsertService.getInsertWidget(
+          s: _s,
           questionId: id,
           answers: {
             'q_has_pension_fund': 'yes',
@@ -254,7 +272,8 @@ void main() {
     test('uses period income with monthly frequency by default', () {
       // This tests that the widget can be created with period income
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_has_3a',
+          s: _s,
+          questionId: 'q_has_3a',
         answers: {
           'q_net_income_period_chf': 5000.0,
           'q_employment_status': 'employee',
@@ -265,7 +284,8 @@ void main() {
 
     test('handles weekly pay frequency', () {
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_has_3a',
+          s: _s,
+          questionId: 'q_has_3a',
         answers: {
           'q_net_income_period_chf': 1500.0,
           'q_pay_frequency': 'weekly',
@@ -277,7 +297,8 @@ void main() {
 
     test('handles biweekly pay frequency', () {
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_has_3a',
+          s: _s,
+          questionId: 'q_has_3a',
         answers: {
           'q_net_income_period_chf': 3000.0,
           'q_pay_frequency': 'biweekly',
@@ -289,7 +310,8 @@ void main() {
 
     test('falls back to monthly direct income when no period income', () {
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_has_3a',
+          s: _s,
+          questionId: 'q_has_3a',
         answers: {
           'q_income_net_monthly': 6000.0,
           'q_employment_status': 'employee',
@@ -301,7 +323,8 @@ void main() {
     test('defaults to 6000 when no income provided', () {
       // Should not crash; uses default 6000
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_has_3a',
+          s: _s,
+          questionId: 'q_has_3a',
         answers: {
           'q_employment_status': 'employee',
         },
@@ -313,7 +336,8 @@ void main() {
       // Even without explicit q_has_pension_fund, employee defaults to LPP = true
       // This is tested implicitly by verifying the widget creates successfully
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_has_3a',
+          s: _s,
+          questionId: 'q_has_3a',
         answers: {
           'q_employment_status': 'employee',
         },
@@ -324,7 +348,8 @@ void main() {
     test('self-employed defaults to no pension fund unless explicit', () {
       // Self-employed without explicit pension fund -> no LPP -> large 3a
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_has_3a',
+          s: _s,
+          questionId: 'q_has_3a',
         answers: {
           'q_employment_status': 'self_employed',
           'q_net_income_period_chf': 8000.0,
@@ -343,6 +368,7 @@ void main() {
       for (final id in allQuestionIds) {
         // Should not throw
         final widget = EducationalInsertService.getInsertWidget(
+          s: _s,
           questionId: id,
           answers: {},
         );
@@ -353,7 +379,8 @@ void main() {
 
     test('answers with wrong types do not crash', () {
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_has_consumer_credit',
+          s: _s,
+          questionId: 'q_has_consumer_credit',
         answers: {
           'q_credit_amount': 'not_a_number',
           'q_credit_rate': null,
@@ -365,7 +392,8 @@ void main() {
 
     test('handles string-encoded numbers in answers', () {
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_has_3a',
+          s: _s,
+          questionId: 'q_has_3a',
         answers: {
           'q_net_income_period_chf': '5000', // String instead of double
           'q_employment_status': 'employee',
@@ -377,7 +405,8 @@ void main() {
     test('onLearnMore callback is passed through', () {
       var called = false;
       final widget = EducationalInsertService.getInsertWidget(
-        questionId: 'q_canton',
+          s: _s,
+          questionId: 'q_canton',
         answers: {},
         onLearnMore: () => called = true,
       );
@@ -397,9 +426,10 @@ void main() {
       for (final id in EducationalInsertService.questionsWithInserts) {
         expect(EducationalInsertService.hasInsert(id), true,
             reason: 'hasInsert should be true for "$id"');
-        expect(EducationalInsertService.getLearnMoreTitle(id), isNotNull,
+        expect(EducationalInsertService.getLearnMoreTitle(id, _s), isNotNull,
             reason: 'getLearnMoreTitle should be non-null for "$id"');
         final widget = EducationalInsertService.getInsertWidget(
+          s: _s,
           questionId: id,
           answers: {
             'q_has_pension_fund': 'yes',
