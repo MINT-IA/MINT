@@ -1069,6 +1069,8 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 revenu: _revenu,
                 rachatMax: _rachatMax,
                 horizon: _horizon,
+                blocLabel: S.of(context)!.rachatChartBlocLabel,
+                echelonneLabel: S.of(context)!.rachatChartEchelonneLabel(_horizon),
               ),
             ),
           ),
@@ -1450,11 +1452,15 @@ class _WaterfallPainter extends CustomPainter {
   final double revenu;
   final double rachatMax;
   final int horizon;
+  final String blocLabel;
+  final String echelonneLabel;
 
   _WaterfallPainter({
     required this.revenu,
     required this.rachatMax,
     required this.horizon,
+    required this.blocLabel,
+    required this.echelonneLabel,
   });
 
   // Simplified progressive bracket model for visualization
@@ -1541,9 +1547,9 @@ class _WaterfallPainter extends CustomPainter {
     );
 
     // Labels below bars
-    textPainter.text = const TextSpan(
-      text: 'Bloc',
-      style: TextStyle(
+    textPainter.text = TextSpan(
+      text: blocLabel,
+      style: const TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w600,
         color: MintColors.textSecondary,
@@ -1555,9 +1561,8 @@ class _WaterfallPainter extends CustomPainter {
       Offset(blocX + barWidth / 2 - textPainter.width / 2, chartBottom + 8),
     );
 
-    final echelLabel = 'x$horizon ans';
     textPainter.text = TextSpan(
-      text: echelLabel,
+      text: echelonneLabel,
       style: const TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w600,
@@ -1655,7 +1660,9 @@ class _WaterfallPainter extends CustomPainter {
   bool shouldRepaint(covariant _WaterfallPainter oldDelegate) {
     return oldDelegate.revenu != revenu ||
         oldDelegate.rachatMax != rachatMax ||
-        oldDelegate.horizon != horizon;
+        oldDelegate.horizon != horizon ||
+        oldDelegate.blocLabel != blocLabel ||
+        oldDelegate.echelonneLabel != echelonneLabel;
   }
 }
 
