@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -47,13 +48,14 @@ class UnemploymentCounterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final maxDays = _maxDays(age);
     final remaining = (maxDays - daysConsumed).clamp(0, maxDays);
     final progressFraction = daysConsumed / maxDays;
     final monthsRemaining = remaining / 21.7;
 
     return Semantics(
-      label: 'Compteur jours chômage capital temps',
+      label: s.unemploymentCounterSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -63,21 +65,21 @@ class UnemploymentCounterWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(maxDays),
+            _buildHeader(s, maxDays),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildProgressBar(progressFraction, remaining, maxDays),
+                  _buildProgressBar(s, progressFraction, remaining, maxDays),
                   const SizedBox(height: 20),
-                  _buildStatsRow(remaining, monthsRemaining),
+                  _buildStatsRow(s, remaining, monthsRemaining),
                   const SizedBox(height: 20),
-                  _buildAgeTable(age),
+                  _buildAgeTable(s, age),
                   const SizedBox(height: 16),
-                  _buildChiffreChoc(),
+                  _buildChiffreChoc(s),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -87,7 +89,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(int maxDays) {
+  Widget _buildHeader(S s, int maxDays) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -103,7 +105,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Ton capital temps',
+                  s.unemploymentCounterTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -115,7 +117,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            '${_ageLabel(age)} → $maxDays indemnités journalières',
+            s.unemploymentCounterAgeSubtitle(_ageLabel(age), maxDays),
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -125,12 +127,12 @@ class UnemploymentCounterWidget extends StatelessWidget {
           Row(
             children: [
               _buildStatChip(
-                label: 'CHF ${_fmt(monthlyBenefit)}/mois',
+                label: s.unemploymentCounterChipMonthly(_fmt(monthlyBenefit)),
                 color: MintColors.primary,
               ),
               const SizedBox(width: 8),
               _buildStatChip(
-                label: '≈ ${(maxDays / 21.7).toStringAsFixed(0)} mois',
+                label: s.unemploymentCounterChipMonths((maxDays / 21.7).toStringAsFixed(0)),
                 color: MintColors.info,
               ),
             ],
@@ -158,7 +160,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressBar(double fraction, int remaining, int maxDays) {
+  Widget _buildProgressBar(S s, double fraction, int remaining, int maxDays) {
     final color = fraction < 0.5
         ? MintColors.scoreExcellent
         : fraction < 0.75
@@ -172,14 +174,14 @@ class UnemploymentCounterWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Jours utilisés : $daysConsumed',
+              s.unemploymentCounterDaysUsed(daysConsumed),
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textSecondary,
               ),
             ),
             Text(
-              'Restants : $remaining',
+              s.unemploymentCounterDaysRemaining(remaining),
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -203,11 +205,11 @@ class UnemploymentCounterWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Jour 0',
+              s.unemploymentCounterDayZero,
               style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
             ),
             Text(
-              'Jour $maxDays → 0 CHF',
+              s.unemploymentCounterDayEnd(maxDays),
               style: GoogleFonts.inter(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
@@ -220,18 +222,18 @@ class UnemploymentCounterWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsRow(int remaining, double monthsRemaining) {
+  Widget _buildStatsRow(S s, int remaining, double monthsRemaining) {
     return Row(
       children: [
         Expanded(child: _buildStatCard(
-          label: 'Jours restants',
+          label: s.unemploymentCounterDaysRemainingLabel,
           value: '$remaining',
           color: MintColors.info,
         )),
         const SizedBox(width: 12),
         Expanded(child: _buildStatCard(
-          label: 'Soit environ',
-          value: '${monthsRemaining.toStringAsFixed(1)} mois',
+          label: s.unemploymentCounterApproxLabel,
+          value: s.unemploymentCounterMonthsValue(monthsRemaining.toStringAsFixed(1)),
           color: MintColors.primary,
         )),
       ],
@@ -270,11 +272,11 @@ class UnemploymentCounterWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildAgeTable(int currentAge) {
+  Widget _buildAgeTable(S s, int currentAge) {
     final rows = [
       (age: 24, label: '< 25 ans', days: acJoursMinCotisation),
-      (age: 40, label: '25–54 ans', days: acJoursStandard),
-      (age: 57, label: '≥ 55 ans',  days: acJoursSenior),
+      (age: 40, label: '25-54 ans', days: acJoursStandard),
+      (age: 57, label: '\u2265 55 ans',  days: acJoursSenior),
     ];
 
     return Container(
@@ -291,12 +293,12 @@ class UnemploymentCounterWidget extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Tranche d\'âge',
+                    s.unemploymentCounterAgeRange,
                     style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary),
                   ),
                 ),
                 Text(
-                  'Indemnités max',
+                  s.unemploymentCounterMaxBenefits,
                   style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary),
                 ),
               ],
@@ -324,7 +326,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${r.days} jours',
+                    s.unemploymentCounterDaysCount(r.days),
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
@@ -340,7 +342,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildChiffreChoc() {
+  Widget _buildChiffreChoc(S s) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -351,14 +353,14 @@ class UnemploymentCounterWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('⚠️', style: TextStyle(fontSize: 18)),
+          const Text('\u26a0\ufe0f', style: TextStyle(fontSize: 18)),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Après le dernier jour : 0 CHF',
+                  s.unemploymentCounterChiffreChocTitle,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -367,7 +369,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Pas de prolongation. Tu passes à l\'aide sociale — sans délai de grâce.',
+                  s.unemploymentCounterChiffreChocBody,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -382,10 +384,9 @@ class UnemploymentCounterWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : LACI art. 27-30.',
+      s.unemploymentCounterDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

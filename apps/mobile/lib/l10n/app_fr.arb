@@ -8715,7 +8715,9 @@
   "minimumVitalPerMonth": "{amount}/mois",
   "@minimumVitalPerMonth": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "minimumVitalLegallyProtected": "Légalement insaisissable · LP art. 93",
@@ -8725,7 +8727,9 @@
   "minimumVitalChildren": "Enfants ({count})",
   "@minimumVitalChildren": {
     "placeholders": {
-      "count": {"type": "String"}
+      "count": {
+        "type": "String"
+      }
     }
   },
   "minimumVitalChildrenLegalRef": "LP art. 93 al. 1 lit. a — besoins enfants",
@@ -8733,25 +8737,33 @@
   "minimumVitalGrossSalary": "Salaire brut : {amount}/mois",
   "@minimumVitalGrossSalary": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "minimumVitalSeizablePercent": "{percent} % saisissable",
   "@minimumVitalSeizablePercent": {
     "placeholders": {
-      "percent": {"type": "String"}
+      "percent": {
+        "type": "String"
+      }
     }
   },
   "minimumVitalProtectedAmount": "🟢 Protégé : {amount}",
   "@minimumVitalProtectedAmount": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "minimumVitalSeizableAmount": "🟠 Saisissable : {amount}",
   "@minimumVitalSeizableAmount": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "minimumVitalActionTitle": "Si un créancier saisit plus que la limite",
@@ -8764,14 +8776,20 @@
   "clause3aBalanceChip": "Ton 3e pilier : CHF {amount}",
   "@clause3aBalanceChip": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "clause3aChiffreChoc": "Sans clause : ton 3a de CHF {amount} part à tes parents, pas à {partner}.",
   "@clause3aChiffreChoc": {
     "placeholders": {
-      "amount": {"type": "String"},
-      "partner": {"type": "String"}
+      "amount": {
+        "type": "String"
+      },
+      "partner": {
+        "type": "String"
+      }
     }
   },
   "clause3aChiffreChocDetail": "La clause bénéficiaire déroge à la succession ordinaire (OPP3 art. 2). Sans clause déposée auprès de ta fondation, la loi s'applique par défaut.",
@@ -8781,7 +8799,9 @@
   "clause3aFeedbackYes": "Bien ! Vérifie que la clause désigne bien {partner} — et qu'elle est à jour après chaque événement de vie.",
   "@clause3aFeedbackYes": {
     "placeholders": {
-      "partner": {"type": "String"}
+      "partner": {
+        "type": "String"
+      }
     }
   },
   "clause3aFeedbackNo": "Action prioritaire : dépose ta clause bénéficiaire auprès de ta fondation 3a — en 5 minutes.",
@@ -8791,123 +8811,149 @@
   "clause3aStep3": "Désigne ton·ta partenaire ou tes héritiers",
   "clause3aStep4": "Renouvelle à chaque changement de situation",
   "clause3aDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : OPP3 art. 2 al. 1 let. a, CC art. 457-462.",
-
-  "netProceedsSemantics": "Net r\u00e9el vente immobili\u00e8re calculateur cascade d\u00e9ductions",
-  "netProceedsTitle": "Ton net r\u00e9el",
-  "netProceedsSubtitle": "30\u00a0% en dessous de ce que tu imagines.",
-  "netProceedsMortgageLabel": "Hypoth\u00e8que rembours\u00e9e",
+  "netProceedsSemantics": "Net réel vente immobilière calculateur cascade déductions",
+  "netProceedsTitle": "Ton net réel",
+  "netProceedsSubtitle": "30 % en dessous de ce que tu imagines.",
+  "netProceedsMortgageLabel": "Hypothèque remboursée",
   "netProceedsMortgageRef": "Banque",
-  "netProceedsCapitalGainLabel": "Imp\u00f4t sur le gain",
+  "netProceedsCapitalGainLabel": "Impôt sur le gain",
   "netProceedsCapitalGainRef": "LIFD art. 12",
   "netProceedsEplLabel": "Remboursement EPL",
   "netProceedsEplRef": "LPP art. 30c",
   "netProceedsNotaryLabel": "Frais de notaire",
   "netProceedsAgencyLabel": "Commission agence",
-  "netProceedsFeePercent": "{pct}\u00a0% prix",
+  "netProceedsFeePercent": "{pct} % prix",
   "@netProceedsFeePercent": {
     "placeholders": {
-      "pct": {"type": "String"}
+      "pct": {
+        "type": "String"
+      }
     }
   },
-  "netProceedsSalePrice": "Prix de vente\u00a0: {amount}",
+  "netProceedsSalePrice": "Prix de vente : {amount}",
   "@netProceedsSalePrice": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
-  "netProceedsNet": "Net\u00a0: {amount}",
+  "netProceedsNet": "Net : {amount}",
   "@netProceedsNet": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
-  "netProceedsDeductions": "D\u00e9ductions\u00a0: {amount}",
+  "netProceedsDeductions": "Déductions : {amount}",
   "@netProceedsDeductions": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
-  "netProceedsSurprise": "Surprise\u00a0: \u2212\u00a0{amount}",
+  "netProceedsSurprise": "Surprise : − {amount}",
   "@netProceedsSurprise": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
-  "netProceedsSurpriseDetail": "Tu croyais toucher {perceived} \u2014 tu touches {actual}.",
+  "netProceedsSurpriseDetail": "Tu croyais toucher {perceived} — tu touches {actual}.",
   "@netProceedsSurpriseDetail": {
     "placeholders": {
-      "perceived": {"type": "String"},
-      "actual": {"type": "String"}
+      "perceived": {
+        "type": "String"
+      },
+      "actual": {
+        "type": "String"
+      }
     }
   },
-  "netProceedsHideDetail": "Masquer le d\u00e9tail",
-  "netProceedsShowDetail": "Voir le d\u00e9tail des d\u00e9ductions",
-  "netProceedsDisclaimer": "Outil \u00e9ducatif \u00b7 ne constitue pas un conseil fiscal au sens de la LSFin. Source\u00a0: LIFD art. 12 (gain), LPP art. 30c (EPL). Chiffres indicatifs.",
-
-  "monteCarlo3Scenarios": "3 Sc\u00e9narios",
-  "monteCarloProbabilities": "Probabilit\u00e9s",
-  "monteCarloSimulating": "Simulation en cours\u2026",
-  "monteCarloRiskLow": "Risque d'\u00e9puisement faible",
-  "monteCarloRiskModerate": "Risque d'\u00e9puisement mod\u00e9r\u00e9",
-  "monteCarloRiskHigh": "Risque d'\u00e9puisement \u00e9lev\u00e9",
-  "monteCarloDisclaimer": "Dans ces simulations, {count} trajectoires ind\u00e9pendantes sont g\u00e9n\u00e9r\u00e9es. Outil \u00e9ducatif (LSFin).",
+  "netProceedsHideDetail": "Masquer le détail",
+  "netProceedsShowDetail": "Voir le détail des déductions",
+  "netProceedsDisclaimer": "Outil éducatif · ne constitue pas un conseil fiscal au sens de la LSFin. Source : LIFD art. 12 (gain), LPP art. 30c (EPL). Chiffres indicatifs.",
+  "monteCarlo3Scenarios": "3 Scénarios",
+  "monteCarloProbabilities": "Probabilités",
+  "monteCarloSimulating": "Simulation en cours…",
+  "monteCarloRiskLow": "Risque d'épuisement faible",
+  "monteCarloRiskModerate": "Risque d'épuisement modéré",
+  "monteCarloRiskHigh": "Risque d'épuisement élevé",
+  "monteCarloDisclaimer": "Dans ces simulations, {count} trajectoires indépendantes sont générées. Outil éducatif (LSFin).",
   "@monteCarloDisclaimer": {
     "placeholders": {
-      "count": {"type": "String"}
+      "count": {
+        "type": "String"
+      }
     }
   },
-  "monteCarloTeaserTitle": "Probabilit\u00e9s Monte Carlo",
-  "monteCarloTeaserMessage": "Les probabilit\u00e9s Monte Carlo te montrent l'\u00e9ventail de tes futurs possibles.",
-  "monteCarloTeaserCta": "Compl\u00e8te ton profil pour d\u00e9bloquer",
-  "monteCarloTeaserDisclaimer": "Outil \u00e9ducatif simplifi\u00e9 (LSFin). Ne constitue pas un conseil financier.",
+  "monteCarloTeaserTitle": "Probabilités Monte Carlo",
+  "monteCarloTeaserMessage": "Les probabilités Monte Carlo te montrent l'éventail de tes futurs possibles.",
+  "monteCarloTeaserCta": "Complète ton profil pour débloquer",
+  "monteCarloTeaserDisclaimer": "Outil éducatif simplifié (LSFin). Ne constitue pas un conseil financier.",
   "monteCarloCatLpp": "LPP",
   "monteCarloCatAvs": "AVS",
   "monteCarloCat3a": "3a",
   "monteCarloCatPatrimoine": "Patrimoine",
   "monteCarloCatLogement": "Logement",
-  "monteCarloCatForeignPension": "Retraite \u00e9trang\u00e8re",
-  "monteCarloCatDepenses": "D\u00e9penses",
-
-  "mintScoreGaugeSemantics": "Score de forme financi\u00e8re. {score} sur 100. Niveau {level}. Budget {budget}, Pr\u00e9voyance {prevoyance}, Patrimoine {patrimoine}.",
+  "monteCarloCatForeignPension": "Retraite étrangère",
+  "monteCarloCatDepenses": "Dépenses",
+  "mintScoreGaugeSemantics": "Score de forme financière. {score} sur 100. Niveau {level}. Budget {budget}, Prévoyance {prevoyance}, Patrimoine {patrimoine}.",
   "@mintScoreGaugeSemantics": {
     "placeholders": {
-      "score": {"type": "String"},
-      "level": {"type": "String"},
-      "budget": {"type": "String"},
-      "prevoyance": {"type": "String"},
-      "patrimoine": {"type": "String"}
+      "score": {
+        "type": "String"
+      },
+      "level": {
+        "type": "String"
+      },
+      "budget": {
+        "type": "String"
+      },
+      "prevoyance": {
+        "type": "String"
+      },
+      "patrimoine": {
+        "type": "String"
+      }
     }
   },
-  "mintScoreGaugeTitle": "Forme financi\u00e8re",
-  "mintScoreGaugeSubtitle": "Score composite  \u00b7  3 piliers",
+  "mintScoreGaugeTitle": "Forme financière",
+  "mintScoreGaugeSubtitle": "Score composite  ·  3 piliers",
   "mintScoreGaugeLevelExcellent": "Excellent",
   "mintScoreGaugeLevelGood": "Bon",
   "mintScoreGaugeLevelAttention": "Attention",
   "mintScoreGaugeLevelCritical": "Critique",
   "mintScoreGaugeBudget": "Budget",
-  "mintScoreGaugePrevoyance": "Pr\u00e9voyance",
+  "mintScoreGaugePrevoyance": "Prévoyance",
   "mintScoreGaugePatrimoine": "Patrimoine",
   "mintScoreGaugeGainTitle": "Ce qui t'a fait monter",
   "mintScoreGaugeNextActionsTitle": "Pour monter encore",
   "mintScoreGaugePoints": "+{pts} pts",
   "@mintScoreGaugePoints": {
     "placeholders": {
-      "pts": {"type": "String"}
+      "pts": {
+        "type": "String"
+      }
     }
   },
-  "mintScoreGaugeDisclaimer": "Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier.",
-
-  "disabilityRedSemantics": "\u00c9cran rouge ind\u00e9pendant invalidit\u00e9 filet inexistant",
-  "disabilityRedTitle": "Ind\u00e9pendant\u00b7e\u00a0: ton filet n'existe pas",
-  "disabilityRedSubtitle": "Si tu ne peux plus travailler demain\u00a0:",
-  "disabilityRedEmployeeTitle": "Salari\u00e9\u00b7e",
-  "disabilityRedEmployeeApg": "APG 80\u00a0%",
-  "disabilityRedEmployeeLpp": "LPP invalidit\u00e9",
+  "mintScoreGaugeDisclaimer": "Estimations éducatives — ne constitue pas un conseil financier.",
+  "disabilityRedSemantics": "Écran rouge indépendant invalidité filet inexistant",
+  "disabilityRedTitle": "Indépendant·e : ton filet n'existe pas",
+  "disabilityRedSubtitle": "Si tu ne peux plus travailler demain :",
+  "disabilityRedEmployeeTitle": "Salarié·e",
+  "disabilityRedEmployeeApg": "APG 80 %",
+  "disabilityRedEmployeeLpp": "LPP invalidité",
   "disabilityRedEmployeeAi": "AI rente",
-  "disabilityRedEmployeeTotal": "\u2248 CHF {amount}/mois",
+  "disabilityRedEmployeeTotal": "≈ CHF {amount}/mois",
   "@disabilityRedEmployeeTotal": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "disabilityRedYouTitle": "Toi",
@@ -8916,61 +8962,77 @@
   "disabilityRedYouMonths": "~{months} mois",
   "@disabilityRedYouMonths": {
     "placeholders": {
-      "months": {"type": "String"}
+      "months": {
+        "type": "String"
+      }
     }
   },
   "disabilityRedYouTotal": "= 0 CHF/mois",
-  "disabilityRedChiffreChocTitle": "\ud83d\udcb0 Chiffre-choc\u00a0: {months} mois \u00e0 0 CHF.",
+  "disabilityRedChiffreChocTitle": "💰 Chiffre-choc : {months} mois à 0 CHF.",
   "@disabilityRedChiffreChocTitle": {
     "placeholders": {
-      "months": {"type": "String"}
+      "months": {
+        "type": "String"
+      }
     }
   },
-  "disabilityRedChiffreChocBody": "Tu dois avoir CHF {amount} d'\u00e9pargne de s\u00e9curit\u00e9 pour tenir jusqu'\u00e0 la d\u00e9cision AI.",
+  "disabilityRedChiffreChocBody": "Tu dois avoir CHF {amount} d'épargne de sécurité pour tenir jusqu'à la décision AI.",
   "@disabilityRedChiffreChocBody": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
-  "disabilityRedAfterAi": "Apr\u00e8s d\u00e9cision AI\u00a0: CHF {amount}/mois (AI seule)",
+  "disabilityRedAfterAi": "Après décision AI : CHF {amount}/mois (AI seule)",
   "@disabilityRedAfterAi": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
-  "disabilityRedQuestion": "As-tu une assurance perte de gain\u00a0?",
+  "disabilityRedQuestion": "As-tu une assurance perte de gain ?",
   "disabilityRedAnswerYes": "Oui",
   "disabilityRedAnswerNo": "Non",
   "disabilityRedAnswerDontKnow": "Je ne sais pas",
-  "disabilityRedFeedbackYes": "Bien\u00a0! V\u00e9rifie que le d\u00e9lai de carence est inf\u00e9rieur \u00e0 30 jours.",
-  "disabilityRedFeedbackNo": "Action prioritaire\u00a0: compare 3 assurances perte de gain. D\u00e8s CHF 45/mois.",
+  "disabilityRedFeedbackYes": "Bien ! Vérifie que le délai de carence est inférieur à 30 jours.",
+  "disabilityRedFeedbackNo": "Action prioritaire : compare 3 assurances perte de gain. Dès CHF 45/mois.",
   "disabilityRedFeedbackDontKnow": "Retrouve ton contrat ou contacte ta caisse de compensation.",
-  "disabilityRedDisclaimer": "Outil \u00e9ducatif \u00b7 ne constitue pas un conseil financier au sens de la LSFin. Source\u00a0: LAMal art. 67-77, CO art. 324a.",
+  "disabilityRedDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAMal art. 67-77, CO art. 324a.",
   "leasingCostHeaderTitle": "Le vrai coût du leasing",
   "leasingCostVehicleChip": "Véhicule : CHF {amount}",
   "@leasingCostVehicleChip": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "leasingCostYearsChip": "{years} ans",
   "@leasingCostYearsChip": {
     "placeholders": {
-      "years": {"type": "String"}
+      "years": {
+        "type": "String"
+      }
     }
   },
   "leasingCostMonthlyLabel": "Mensualité leasing",
   "leasingCostMonthlyAmount": "CHF {amount}/mois",
   "@leasingCostMonthlyAmount": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "leasingCostLeasingLabel": "Leasing",
   "leasingCostLeasingSubtitle": "{years} ans de mensualités",
   "@leasingCostLeasingSubtitle": {
     "placeholders": {
-      "years": {"type": "String"}
+      "years": {
+        "type": "String"
+      }
     }
   },
   "leasingCostTotalPaid": "total payé",
@@ -8981,9 +9043,15 @@
   "leasingCostInvestmentHypothesis": "Si tu avais investi CHF {amount}/mois sur {years} ans à {rate} %/an :",
   "@leasingCostInvestmentHypothesis": {
     "placeholders": {
-      "amount": {"type": "String"},
-      "years": {"type": "String"},
-      "rate": {"type": "String"}
+      "amount": {
+        "type": "String"
+      },
+      "years": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "leasingCostAccumulatedCapital": "Capital accumulé",
@@ -8992,13 +9060,17 @@
   "leasingCostRealCostNote": "C'est ce que ton leasing te coûte vraiment sur {years} ans.",
   "@leasingCostRealCostNote": {
     "placeholders": {
-      "years": {"type": "String"}
+      "years": {
+        "type": "String"
+      }
     }
   },
   "leasingCostDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : CO art. 255 (leasing). Rendement simulé à {rate} % — ne garantit pas de rendement futur.",
   "@leasingCostDisclaimer": {
     "placeholders": {
-      "rate": {"type": "String"}
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "portfolioTitle": "Mon Patrimoine",
@@ -9020,7 +9092,9 @@
   "horizonLineHeaderSubtitle": "CHF {amount}/mois jusqu'au dernier jour — puis 0 CHF.",
   "@horizonLineHeaderSubtitle": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "horizonLineTrajectory": "Ta trajectoire financière",
@@ -9028,21 +9102,29 @@
   "horizonLineChfPerMonth": "CHF {amount}/mois",
   "@horizonLineChfPerMonth": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "horizonLineWall": "LE MUR",
   "horizonLineWallDay": "Jour {days} → 0 CHF",
   "@horizonLineWallDay": {
     "placeholders": {
-      "days": {"type": "String"}
+      "days": {
+        "type": "String"
+      }
     }
   },
   "horizonLineDaysLeft": "Il te reste {days} jours — soit {months} mois de revenus",
   "@horizonLineDaysLeft": {
     "placeholders": {
-      "days": {"type": "String"},
-      "months": {"type": "String"}
+      "days": {
+        "type": "String"
+      },
+      "months": {
+        "type": "String"
+      }
     }
   },
   "horizonLineAfterTitle": "Après la ligne d'horizon :",
@@ -9055,7 +9137,9 @@
   "horizonLineChiffreChocTitle": "Passage instantané de CHF {amount} → 0 CHF",
   "@horizonLineChiffreChocTitle": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "horizonLineChiffreChocBody": "Il n'y a pas de transition douce. Le jour J+1, tes droits sont épuisés. Prépare ton plan B avant d'atteindre la ligne.",
@@ -9065,39 +9149,53 @@
   "unemploymentCounterAgeSubtitle": "{ageLabel} → {maxDays} indemnités journalières",
   "@unemploymentCounterAgeSubtitle": {
     "placeholders": {
-      "ageLabel": {"type": "String"},
-      "maxDays": {"type": "int"}
+      "ageLabel": {
+        "type": "String"
+      },
+      "maxDays": {
+        "type": "int"
+      }
     }
   },
   "unemploymentCounterChipMonthly": "CHF {amount}/mois",
   "@unemploymentCounterChipMonthly": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "unemploymentCounterChipMonths": "≈ {months} mois",
   "@unemploymentCounterChipMonths": {
     "placeholders": {
-      "months": {"type": "String"}
+      "months": {
+        "type": "String"
+      }
     }
   },
   "unemploymentCounterDaysUsed": "Jours utilisés : {count}",
   "@unemploymentCounterDaysUsed": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "unemploymentCounterDaysRemaining": "Restants : {count}",
   "@unemploymentCounterDaysRemaining": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "unemploymentCounterDayZero": "Jour 0",
   "unemploymentCounterDayEnd": "Jour {maxDays} → 0 CHF",
   "@unemploymentCounterDayEnd": {
     "placeholders": {
-      "maxDays": {"type": "int"}
+      "maxDays": {
+        "type": "int"
+      }
     }
   },
   "unemploymentCounterDaysRemainingLabel": "Jours restants",
@@ -9105,7 +9203,9 @@
   "unemploymentCounterMonthsValue": "{months} mois",
   "@unemploymentCounterMonthsValue": {
     "placeholders": {
-      "months": {"type": "String"}
+      "months": {
+        "type": "String"
+      }
     }
   },
   "unemploymentCounterAgeRange": "Tranche d'âge",
@@ -9113,13 +9213,14 @@
   "unemploymentCounterDaysCount": "{days} jours",
   "@unemploymentCounterDaysCount": {
     "placeholders": {
-      "days": {"type": "int"}
+      "days": {
+        "type": "int"
+      }
     }
   },
   "unemploymentCounterChiffreChocTitle": "Après le dernier jour : 0 CHF",
   "unemploymentCounterChiffreChocBody": "Pas de prolongation. Tu passes à l'aide sociale — sans délai de grâce.",
   "unemploymentCounterDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LACI art. 27-30.",
-
   "survivorPensionSemantics": "Rente survivant mariage concubin décès LAVS LPP comparaison",
   "survivorPensionTitle": "Rentes de survivant",
   "survivorPensionSubtitle": "Si ton·ta partenaire décède — combien touches-tu ?",
@@ -9130,13 +9231,17 @@
   "survivorPensionAmountPerMonth": "{amount}/mois",
   "@survivorPensionAmountPerMonth": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "survivorPensionChiffreChoc": "Le mariage vaut {amount}/mois de rente survivant",
   "@survivorPensionChiffreChoc": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "survivorPensionChiffreChocBody": "Concubin·e sans désignation LPP ni testament = 0 CHF automatique. LAVS art. 23 : seul·e le·la conjoint·e légal·e a droit à la rente de veuf/veuve.",
@@ -9147,7 +9252,9 @@
   "survivorPensionLppOrphan": "LPP rente orphelin ({count} enfant{count, plural, =1{} other{s}}, 20 %/enf.)",
   "@survivorPensionLppOrphan": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "survivorPensionAvsConcubin": "AVS concubin·e",
@@ -9157,85 +9264,98 @@
   "survivorPensionDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAVS art. 23-24 (rente veuf/veuve), LPP art. 19 (rente partenaire). Taux AVS survivant : {rate} %.",
   "@survivorPensionDisclaimer": {
     "placeholders": {
-      "rate": {"type": "String"}
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "simulatorLeasingExportTooltip": "Exporter mon bilan",
   "simulatorLeasingTitle": "Analyse Anti-Leasing",
-  "simulatorLeasingCoachTitle": "R\u00e9flexion du Mentor",
-  "simulatorLeasingCoachBody": "Le leasing est souvent une \"fuite\" de capital. Cet argent pourrait servir \u00e0 construire ton patrimoine plut\u00f4t qu'\u00e0 financer la d\u00e9pr\u00e9ciation d'un v\u00e9hicule.",
-  "simulatorLeasingContractData": "Donn\u00e9es du Contrat",
-  "simulatorLeasingMonthlyPayment": "Mensualit\u00e9 pr\u00e9vue",
-  "simulatorLeasingDuration": "Dur\u00e9e du leasing",
+  "simulatorLeasingCoachTitle": "Réflexion du Mentor",
+  "simulatorLeasingCoachBody": "Le leasing est souvent une \"fuite\" de capital. Cet argent pourrait servir à construire ton patrimoine plutôt qu'à financer la dépréciation d'un véhicule.",
+  "simulatorLeasingContractData": "Données du Contrat",
+  "simulatorLeasingMonthlyPayment": "Mensualité prévue",
+  "simulatorLeasingDuration": "Durée du leasing",
   "simulatorLeasingDurationMonths": "{count} mois",
   "@simulatorLeasingDurationMonths": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
-  "simulatorLeasingAlternativeRate": "Rendement alternatif esp\u00e9r\u00e9",
-  "simulatorLeasingOpportunityCostTitle": "Co\u00fbt d'opportunit\u00e9 sur 20 ans",
-  "simulatorLeasingOpportunityCostBody": "Si tu investissais cette mensualit\u00e9 au lieu de payer un leasing, voil\u00e0 le capital que tu aurais construit.",
+  "simulatorLeasingAlternativeRate": "Rendement alternatif espéré",
+  "simulatorLeasingOpportunityCostTitle": "Coût d'opportunité sur 20 ans",
+  "simulatorLeasingOpportunityCostBody": "Si tu investissais cette mensualité au lieu de payer un leasing, voilà le capital que tu aurais construit.",
   "simulatorLeasingRealEstateEquity": "C'est environ {amount} de fonds propres pour un achat immobilier.",
   "@simulatorLeasingRealEstateEquity": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
-  "simulatorLeasingAlternativesHeader": "S'\u00e9carter du Trou Noir",
-  "simulatorLeasingAltUsedCar": "Occasion de Qualit\u00e9",
-  "simulatorLeasingAltUsedCarBody": "Acheter cash une voiture de 3-4 ans r\u00e9duit drastiquement la perte de valeur.",
-  "simulatorLeasingAltTransport": "Abo G\u00e9n\u00e9ral / Transports",
+  "simulatorLeasingAlternativesHeader": "S'écarter du Trou Noir",
+  "simulatorLeasingAltUsedCar": "Occasion de Qualité",
+  "simulatorLeasingAltUsedCarBody": "Acheter cash une voiture de 3-4 ans réduit drastiquement la perte de valeur.",
+  "simulatorLeasingAltTransport": "Abo Général / Transports",
   "simulatorLeasingAltTransportBody": "Le confort du train en Suisse est souvent plus rentable et serein.",
   "simulatorLeasingAltSharing": "Mobility / Partage",
   "simulatorLeasingAltSharingBody": "Ne paie que quand tu roules. Pas d'assurance, pas d'entretien, pas de leasing.",
-  "simulatorLeasingDisclaimer": "Le leasing reste une option pour certains professionnels. Cette analyse vise \u00e0 sensibiliser le particulier sur le co\u00fbt \u00e0 long terme.",
+  "simulatorLeasingDisclaimer": "Le leasing reste une option pour certains professionnels. Cette analyse vise à sensibiliser le particulier sur le coût à long terme.",
   "simulatorCompoundExportTooltip": "Exporter mon bilan",
-  "simulatorCompoundTitle": "Int\u00e9r\u00eats Compos\u00e9s",
+  "simulatorCompoundTitle": "Intérêts Composés",
   "simulatorCompoundCoachTitle": "L'avis du Mentor",
   "simulatorCompoundCoachBodyPart1": "Comprendre l'",
   "simulatorCompoundCoachBodyPart2": ", c'est comprendre comment ton argent travaille pour toi pendant que tu dors.",
   "simulatorCompoundConfiguration": "Configuration",
-  "simulatorCompoundInitialCapital": "Capital de d\u00e9part",
-  "simulatorCompoundMonthlySavings": "\u00c9pargne mensuelle",
+  "simulatorCompoundInitialCapital": "Capital de départ",
+  "simulatorCompoundMonthlySavings": "Épargne mensuelle",
   "simulatorCompoundAnnualRate": "Taux (Rendement annuel)",
   "simulatorCompoundTimeHorizon": "Horizon de temps",
   "simulatorCompoundYears": "{count} ans",
   "@simulatorCompoundYears": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "simulatorCompoundFinalValue": "Valeur Finale Potentielle",
   "simulatorCompoundGainsPercent": "{percent}% de ce montant provient uniquement de tes gains de placement.",
   "@simulatorCompoundGainsPercent": {
     "placeholders": {
-      "percent": {"type": "String"}
+      "percent": {
+        "type": "String"
+      }
     }
   },
-  "simulatorCompoundLessonsHeader": "Le\u00e7ons M\u00e9dit\u00e9es",
+  "simulatorCompoundLessonsHeader": "Leçons Méditées",
   "simulatorCompoundLessonTimeTitle": "Le temps est roi",
-  "simulatorCompoundLessonTimeBody": "Attendre 5 ans avant de commencer peut te faire perdre la moiti\u00e9 de ton capital final.",
+  "simulatorCompoundLessonTimeBody": "Attendre 5 ans avant de commencer peut te faire perdre la moitié de ton capital final.",
   "simulatorCompoundLessonLeverageTitle": "L'effet de levier",
-  "simulatorCompoundLessonLeverageBody": "Une fois lanc\u00e9, ton capital g\u00e9n\u00e8re ses propres int\u00e9r\u00eats, qui en g\u00e9n\u00e8rent d'autres \u00e0 leur tour.",
+  "simulatorCompoundLessonLeverageBody": "Une fois lancé, ton capital génère ses propres intérêts, qui en génèrent d'autres à leur tour.",
   "simulatorCompoundLessonDisciplineTitle": "Discipline",
-  "simulatorCompoundLessonDisciplineBody": "La r\u00e9gularit\u00e9 des versements mensuels est souvent plus efficace que la recherche du moment id\u00e9al pour investir.",
-  "simulatorCompoundDisclaimer": "Calcul th\u00e9orique bas\u00e9 sur un rendement constant. Les performances pass\u00e9es ne garantissent pas les r\u00e9sultats futurs.",
-
+  "simulatorCompoundLessonDisciplineBody": "La régularité des versements mensuels est souvent plus efficace que la recherche du moment idéal pour investir.",
+  "simulatorCompoundDisclaimer": "Calcul théorique basé sur un rendement constant. Les performances passées ne garantissent pas les résultats futurs.",
   "remploiCountdownSemantics": "Compte à rebours remploi vente immobilière 2 ans LIFD",
   "remploiCountdownTitle": "Chrono du remploi",
   "remploiCountdownExpiredSubtitle": "Délai écoulé — l'impôt est dû.",
   "remploiCountdownSubtitle": "Tu as {years} ans pour racheter une résidence principale.",
   "@remploiCountdownSubtitle": {
     "placeholders": {
-      "years": {"type": "String"}
+      "years": {
+        "type": "String"
+      }
     }
   },
   "remploiCountdownDaysRemaining": "jours restants",
   "remploiCountdownTaxDue": "Impôt dû : {amount}",
   "@remploiCountdownTaxDue": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "remploiCountdownMonthsApprox": "mois environ",
@@ -9243,37 +9363,50 @@
   "remploiCountdownSaleDate": "Vente : {date}",
   "@remploiCountdownSaleDate": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "remploiCountdownDeadlineDate": "Délai : {date}",
   "@remploiCountdownDeadlineDate": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "remploiCountdownDaysElapsed": "{elapsed} jours écoulés sur {total}",
   "@remploiCountdownDaysElapsed": {
     "placeholders": {
-      "elapsed": {"type": "String"},
-      "total": {"type": "String"}
+      "elapsed": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
     }
   },
   "remploiCountdownExpiredExplanation": "Le délai de remploi est dépassé. L'impôt sur le gain de {amount} est dû. Contacte l'administration fiscale cantonale.",
   "@remploiCountdownExpiredExplanation": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "remploiCountdownActiveExplanation": "Si tu achètes une nouvelle résidence principale avant le {deadline}, l'impôt de {amount} est différé. LIFD art. 12 al. 3.",
   "@remploiCountdownActiveExplanation": {
     "placeholders": {
-      "deadline": {"type": "String"},
-      "amount": {"type": "String"}
+      "deadline": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "remploiCountdownDisclaimer": "Outil éducatif · ne constitue pas un conseil fiscal au sens de la LSFin. Source : LIFD art. 12 al. 3 (remploi résidence principale). Délai de 2 ans — vérifier les règles cantonales spécifiques.",
-
   "reportPreviewTitle": "Aperçu de ton Plan Mint",
   "reportPreviewCurrentPrecision": "Précision actuelle",
   "reportPreviewSafeModeTitle": "Mode Protection Actif",
@@ -9281,14 +9414,20 @@
   "reportPreviewActionsReady": "Actions prêtes : {ready}/{total}",
   "@reportPreviewActionsReady": {
     "placeholders": {
-      "ready": {"type": "String"},
-      "total": {"type": "String"}
+      "ready": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
     }
   },
   "reportPreviewMoreActions": "+ {count} autres actions",
   "@reportPreviewMoreActions": {
     "placeholders": {
-      "count": {"type": "String"}
+      "count": {
+        "type": "String"
+      }
     }
   },
   "reportPreviewNextValuableInfo": "Prochaine info la plus rentable",
@@ -9300,7 +9439,51 @@
   "reportPreviewRemainingForPdf": "Encore {percent} % pour le PDF certifié",
   "@reportPreviewRemainingForPdf": {
     "placeholders": {
-      "percent": {"type": "String"}
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "retirementDashboardNextActions": "Tes prochaines actions",
+  "retirementDashboardOneLinerGood": "Tu es en bonne voie pour maintenir ton niveau de vie.",
+  "retirementDashboardOneLinerModerate": "Des leviers existent pour améliorer ta projection.",
+  "retirementDashboardOneLinerLow": "Chaque action compte — explore les pistes disponibles.",
+  "retirementDashboardEnrichTitle": "Améliore ta précision",
+  "retirementDashboardConfidenceCurrent": "Confiance actuelle : {score}%",
+  "@retirementDashboardConfidenceCurrent": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "retirementDashboardPrecisionPts": "+{impact} pts de précision",
+  "@retirementDashboardPrecisionPts": {
+    "placeholders": {
+      "impact": {
+        "type": "String"
+      }
+    }
+  },
+  "retirementDashboardHeroTitle": "Ta retraite en un coup d'œil",
+  "retirementDashboardStartCta": "Commencer — 2 min",
+  "retirementDashboardPrivacyNote": "Aucune donnée stockée sans ton accord.",
+  "retirementDashboardEduTitle": "Comment fonctionne la retraite en Suisse ?",
+  "retirementDashboardEduSubtitle": "AVS, LPP, 3a — les bases en 5 minutes",
+  "retirementDashboardDeadlineDays": "J-{days}",
+  "@retirementDashboardDeadlineDays": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "retirementDashboardPrecisionPercent": "Précision +{impact}%",
+  "@retirementDashboardPrecisionPercent": {
+    "placeholders": {
+      "impact": {
+        "type": "String"
+      }
     }
   }
 }
