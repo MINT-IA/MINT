@@ -9917,5 +9917,37 @@
     }
   },
   "franchiseCostRule": "[EN] Règle : si tu vas chez le médecin plus de 2× par an,\nla franchise basse te coûte moins cher.",
-  "franchiseCostDisclaimer": "[EN] Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAMal art. 64-64a. Changement de franchise : avant le 30.11."
+  "franchiseCostDisclaimer": "[EN] Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAMal art. 64-64a. Changement de franchise : avant le 30.11.",
+"debtRepaymentSemantics": "[EN] Avalanche boule de neige remboursement dettes comparaison",
+  "debtRepaymentTitle": "[EN] Avalanche vs Boule de neige",
+  "debtRepaymentSubtitle": "[EN] {amount} de dettes · quelle stratégie ?",
+  "@debtRepaymentSubtitle": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "debtRepaymentAvalancheLabel": "[EN] ⛰️ Avalanche",
+  "debtRepaymentAvalancheSubtitle": "[EN] Taux élevé d’abord",
+  "debtRepaymentSnowballLabel": "[EN] ❄️ Boule de neige",
+  "debtRepaymentSnowballSubtitle": "[EN] Petite dette d’abord",
+  "debtRepaymentOrder": "[EN] Ordre de remboursement",
+  "debtRepaymentAvalancheName": "[EN] Avalanche",
+  "debtRepaymentSnowballName": "[EN] Boule de neige",
+  "debtRepaymentPayoffAll": "[EN] pour solder toutes les dettes",
+  "debtRepaymentInterestPaid": "[EN] Intérêts payés",
+  "debtRepaymentAvalancheSaves": "[EN] L’avalanche économise {amount}",
+  "@debtRepaymentAvalancheSaves": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "debtRepaymentSameCost": "[EN] Les deux stratégies ont le même coût",
+  "debtRepaymentSnowballSlower": "[EN] La boule de neige prend {months} mois de plus, mais elle est plus motivante.",
+  "@debtRepaymentSnowballSlower": {
+    "placeholders": {
+      "months": {"type": "int"}
+    }
+  },
+  "debtRepaymentChooseMotivation": "[EN] Choisis la stratégie qui te motive le plus à tenir.",
+  "debtRepaymentDisclaimer": "[EN] Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin."
 }
