@@ -11170,5 +11170,271 @@
 
   "coachingMilestone63Title": "63 ans\u00a0: derniers ajustements",
   "coachingMilestone63Message": "À 2 ans de la retraite légale, finalise ta stratégie. Dernier rachat LPP (attention au délai de 3 ans avant retrait), choix rente/capital, et organisation du budget post-retraite.",
-  "coachingMilestone63Action": "Finaliser ma préparation"
+  "coachingMilestone63Action": "Finaliser ma préparation",
+
+  "debtPreventionRecoVertSain": "Ton ratio d''endettement est sain. Continue à maintenir tes dettes sous contrôle.",
+  "debtPreventionRecoVertFonds": "Constitue un fonds d''urgence de 3 à 6 mois de charges fixes.",
+  "debtPreventionRecoOrangeModere": "Ton ratio d''endettement est modéré mais mérite attention. Évite de contracter de nouvelles dettes.",
+  "debtPreventionRecoOrangePriorise": "Priorise le remboursement des dettes au taux le plus élevé.",
+  "debtPreventionRecoOrangeBudget": "Établis un budget strict pour réduire progressivement tes charges de dette.",
+  "debtPreventionRecoRougeCritique": "Ton ratio d''endettement dépasse le seuil critique de 30\u00a0%. Une aide professionnelle est recommandée.",
+  "debtPreventionRecoRougeContacte": "Contacte un service de conseil en dettes gratuit (Dettes Conseils Suisse ou Caritas).",
+  "debtPreventionRecoRougeAucune": "Ne contracte aucune nouvelle dette et cherche à renégocier les conditions existantes.",
+  "debtPreventionAlerteMinVital": "ALERTE\u00a0: Ta marge résiduelle est inférieure au minimum vital (LP art. 93\u00a0: CHF {montant}/mois). Contacte immédiatement un service d''aide aux dettes.",
+  "@debtPreventionAlerteMinVital": {
+    "placeholders": {
+      "montant": {
+        "type": "String",
+        "example": "1''200"
+      }
+    }
+  },
+  "debtPreventionChiffreChocTexte": "{ratio}\u00a0% de tes revenus partent en remboursement de dettes. Il te reste {marge} CHF/mois pour vivre.",
+  "@debtPreventionChiffreChocTexte": {
+    "placeholders": {
+      "ratio": {
+        "type": "String",
+        "example": "25"
+      },
+      "marge": {
+        "type": "String",
+        "example": "3''500"
+      }
+    }
+  },
+  "debtPreventionDisclaimerRatio": "Ce diagnostic est pédagogique et ne constitue pas un avis juridique ou financier. Le minimum vital (LP art. 93) varie selon la situation personnelle et le canton. Pour une analyse personnalisée, consulte un service de conseil en dettes agréé.",
+  "debtPreventionChiffreChocCourt": "Dans {mois} mois, tu es libre. Et tu gardes {economie} CHF qui seraient partis en intérêts.",
+  "@debtPreventionChiffreChocCourt": {
+    "placeholders": {
+      "mois": {
+        "type": "String",
+        "example": "18"
+      },
+      "economie": {
+        "type": "String",
+        "example": "2''340"
+      }
+    }
+  },
+  "debtPreventionChiffreChocLong": "Encore {mois} mois de remboursement. Avec la bonne stratégie, tu économises {economie} CHF d''intérêts.",
+  "@debtPreventionChiffreChocLong": {
+    "placeholders": {
+      "mois": {
+        "type": "String",
+        "example": "36"
+      },
+      "economie": {
+        "type": "String",
+        "example": "5''120"
+      }
+    }
+  },
+  "debtPreventionDisclaimerRepayment": "Cette simulation est pédagogique et ne prend pas en compte les éventuelles pénalités de remboursement anticipé, les frais annexes ou les variations de taux. La méthode avalanche minimise les intérêts totaux, la méthode boule de neige maximise la motivation par des victoires rapides. Consulte un·e spécialiste en dettes pour un plan adapté à ta situation.",
+
+  "assurancesLamalAlerteDelai": "Rappel\u00a0: modification de franchise possible avant le 30 novembre de chaque année pour l''année suivante.",
+  "assurancesLamalDisclaimer": "Cette analyse est indicative. Les primes varient selon l''assureur, la région et le modèle d''assurance. Consulte ta caisse maladie pour des chiffres exacts. Source\u00a0: LAMal art. 62-64, OAMal.",
+  "assurancesLamalRecLowExpenses": "Avec des frais de santé estimés faibles (< CHF\u00a0500/an), une franchise élevée (CHF\u00a02''500) pourrait être avantageuse. Source\u00a0: LAMal art. 62.",
+  "assurancesLamalRecHighExpenses": "Avec des frais de santé estimés élevés (> CHF\u00a03''000/an), une franchise basse (CHF\u00a0300) pourrait être plus économique. Source\u00a0: LAMal art. 62.",
+  "assurancesLamalRecCompareInsurers": "Comparez les primes de différents assureurs sur priminfo.admin.ch (comparateur officiel). Les écarts de prime peuvent dépasser CHF\u00a0200/mois pour des prestations équivalentes. Source\u00a0: LAMal art. 7.",
+  "assurancesLamalRecAlternativeModels": "Envisagez un modèle d''assurance alternatif (médecin de famille, HMO, télémédecine) pour réduire davantage tes primes. Source\u00a0: LAMal art. 41a.",
+
+  "assurancesRcPriveeTitle": "RC privée",
+  "assurancesRcPriveeDescription": "Responsabilité civile privée — couvre les dommages causés à des tiers dans la vie privée.",
+  "assurancesRcPriveeCost": "~80-150 CHF/an",
+
+  "assurancesMenageTitle": "Assurance ménage",
+  "assurancesMenageDescription": "Couvre le mobilier et les effets personnels contre le vol, l''incendie et les dégâts des eaux. Obligatoire dans les cantons VD, FR, NW, JU.",
+  "assurancesMenageCost": "~100-300 CHF/an",
+
+  "assurancesJuridiqueTitle": "Protection juridique",
+  "assurancesJuridiqueDescription": "Couvre les frais d''avocat et de procédure en cas de litige (travail, bail, consommation).",
+  "assurancesJuridiqueCost": "~200-400 CHF/an",
+
+  "assurancesVoyageTitle": "Assurance voyage",
+  "assurancesVoyageDescription": "Couvre l''annulation, les frais médicaux à l''étranger et le rapatriement.",
+  "assurancesVoyageCost": "~50-150 CHF/an",
+
+  "assurancesDecesTitle": "Assurance décès",
+  "assurancesDecesDescription": "Verse un capital aux proches en cas de décès. Importante si hypothèque ou personnes à charge.",
+  "assurancesDecesCost": "~100-500 CHF/an",
+
+  "assurancesIjmTitle": "IJM (indemnité journalière maladie)",
+  "assurancesIjmDescriptionBase": "Couvre 80\u00a0% du salaire en cas de maladie prolongée.",
+  "assurancesIjmDescriptionIndependant": "En tant qu''indépendant, aucune couverture automatique.",
+  "assurancesIjmDescriptionSalarie": "Vérifie si ton employeur propose une IJM collective.",
+  "assurancesIjmCost": "~500-2''000 CHF/an",
+
+  "assurancesLaaTitle": "LAA (assurance accident)",
+  "assurancesLaaDescriptionBase": "Couvre les frais médicaux et la perte de gain en cas d''accident.",
+  "assurancesLaaDescriptionIndependant": "Non obligatoire pour les indépendants.",
+  "assurancesLaaDescriptionSalarie": "Obligatoire via l''employeur pour les salariés.",
+  "assurancesLaaCost": "~300-800 CHF/an",
+
+  "assurancesRcProTitle": "RC professionnelle",
+  "assurancesRcProDescription": "Couvre les dommages causés à des tiers dans le cadre de l''activité professionnelle.",
+  "assurancesRcProCost": "Variable selon activité",
+
+  "assurancesCoverageDisclaimer": "Cette analyse est indicative et ne constitue pas un conseil en assurance personnalisé. Les primes varient selon l''assureur et ton profil. Consulte un·e spécialiste en assurances pour une évaluation complète.",
+
+  "assurancesRecPriority": "PRIORITÉ\u00a0: {title} — {description} Coût estimé\u00a0: {cost}. Source\u00a0: {source}.",
+  "@assurancesRecPriority": {
+    "placeholders": {
+      "title": {"type": "String"},
+      "description": {"type": "String"},
+      "cost": {"type": "String"},
+      "source": {"type": "String"}
+    }
+  },
+  "assurancesRecHighUrgency": "{title} — {description} Coût estimé\u00a0: {cost}. Source\u00a0: {source}.",
+  "@assurancesRecHighUrgency": {
+    "placeholders": {
+      "title": {"type": "String"},
+      "description": {"type": "String"},
+      "cost": {"type": "String"},
+      "source": {"type": "String"}
+    }
+  },
+  "assurancesRecGeneralCompare": "Demandez plusieurs offres pour comparer les primes et les conditions. Les écarts peuvent être significatifs entre assureurs.",
+
+  "donationServiceLienConjoint": "Conjoint(e)",
+  "donationServiceLienDescendant": "Enfant / Descendant(e)",
+  "donationServiceLienParent": "Parent",
+  "donationServiceLienFratrie": "Frère / Sœur",
+  "donationServiceLienConcubin": "Concubin(e)",
+  "donationServiceLienTiers": "Tiers",
+
+  "donationServiceImpactAvancement": "Cette donation en avancement d''hoirie sera rapportée à la masse successorale. La part du donataire sera réduite d''autant lors de la succession.",
+  "donationServiceImpactDepassement": "Cette donation hors avancement d''hoirie dépasse la quotité disponible de CHF\u00a0{montant}. Les héritiers réservataires pourraient la contester par action en réduction (CC art. 522).",
+  "@donationServiceImpactDepassement": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "donationServiceImpactQuotite": "Cette donation hors avancement d''hoirie est imputée sur la quotité disponible (CHF\u00a0{montant}). Elle ne sera pas rapportée à la succession.",
+  "@donationServiceImpactQuotite": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+
+  "donationServiceAlertDepassement": "La donation dépasse la quotité disponible de CHF\u00a0{montant}. Les héritiers réservataires pourraient exercer une action en réduction (CC art. 522 ss).",
+  "@donationServiceAlertDepassement": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "donationServiceAlertConcubin": "Attention\u00a0: le taux d''imposition pour un·e concubin·e est élevé ({canton}\u00a0: {taux}\u00a0%). Un pacte successoral ou un testament pourrait être plus avantageux.",
+  "@donationServiceAlertConcubin": {
+    "placeholders": {
+      "canton": {
+        "type": "String"
+      },
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
+  "donationServiceAlertImmobilier": "Pour une donation immobilière, des droits de mutation supplémentaires peuvent s''appliquer selon le canton. Un passage devant notaire est obligatoire.",
+  "donationServiceAlertAgeDeces": "Attention\u00a0: les donations effectuées peu avant le décès peuvent être contestées (CC art. 527). Plus la donation est proche du décès, plus le risque de contestation est élevé.",
+  "donationServiceAlertFortune": "Cette donation représente plus de 50\u00a0% de ta fortune totale. Assure-toi de conserver suffisamment de réserves pour tes propres besoins (retraite, santé, imprévus).",
+
+  "donationServiceChecklistNotaire": "Vérifier la quotité disponible avec un notaire",
+  "donationServiceChecklistActe": "Rédiger un acte de donation (notarié si immobilier)",
+  "donationServiceChecklistFiscal": "Déclarer la donation aux autorités fiscales cantonales",
+  "donationServiceChecklistHeritiers": "Informer les héritiers réservataires si nécessaire",
+  "donationServiceChecklistCopie": "Conserver une copie de l''acte dans tes documents",
+  "donationServiceChecklistRegistreFoncier": "Procéder à l''inscription au registre foncier",
+  "donationServiceChecklistRapportSuccessoral": "Documenter le montant pour le rapport successoral futur",
+  "donationServiceChecklistTestament": "Envisager un testament en complément de la donation",
+
+  "donationServiceChiffreChocImpot": "Impôt sur la donation\u00a0: CHF\u00a0{montant} ({taux}\u00a0%)",
+  "@donationServiceChiffreChocImpot": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      },
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
+  "donationServiceChiffreChocExonere": "Bonne nouvelle\u00a0: cette donation est exonérée d''impôt dans le canton {canton}",
+  "@donationServiceChiffreChocExonere": {
+    "placeholders": {
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+
+  "donationServiceDisclaimer": "Cet outil éducatif fournit des estimations indicatives et ne constitue pas un conseil juridique, fiscal ou notarial personnalisé au sens de la LSFin. Le droit des donations et successions comporte de nombreuses subtilités cantonales. Consulte un·e spécialiste (notaire) pour ta situation.",
+
+  "lifeEventDivorceAlertLppTransfer": "Le transfert LPP est significatif ({amount}). Vérifie les montants exacts auprès de ta caisse de pension.",
+  "@lifeEventDivorceAlertLppTransfer": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "lifeEventDivorceAlertDettesElevees": "Le niveau de dettes communes est élevé. Clarifie la répartition des dettes avant de signer la convention.",
+  "lifeEventDivorceAlertImpactFiscal": "L''impact fiscal du divorce est important\u00a0: +{amount}/an. Anticipe ce surcoût dans ton budget.",
+  "@lifeEventDivorceAlertImpactFiscal": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "lifeEventDivorceAlertContributionEntretien": "Mariage de longue durée avec écart de revenus important. Une contribution d''entretien au conjoint est probable.",
+  "lifeEventDivorceAlertEnfants": "Avec {count} enfant(s), la garde et les contributions d''entretien seront les points centraux de la convention.",
+  "@lifeEventDivorceAlertEnfants": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "lifeEventDivorceAlertSeparationBiens": "Régime de séparation de biens\u00a0: le partage du patrimoine est plus simple mais le 3a n''est pas automatiquement partagé.",
+  "lifeEventDivorceChecklist1": "Demander les certificats LPP des deux conjoints",
+  "lifeEventDivorceChecklist2": "Demander le relevé détaillé des avoirs 3a",
+  "lifeEventDivorceChecklist3": "Lister tous les biens communs et propres",
+  "lifeEventDivorceChecklist4": "Consulter un·e médiateur/trice agréé·e",
+  "lifeEventDivorceChecklist5": "Vérifier les clauses bénéficiaires 3a et assurances-vie",
+  "lifeEventDivorceChecklist6": "Établir un budget post-divorce pour chaque conjoint",
+  "lifeEventDivorceChecklist7": "Clarifier la garde des enfants et les contributions",
+  "lifeEventDivorceChecklist8": "Préparer la convention de divorce (ou requête)",
+  "lifeEventDivorceChecklist9": "Vérifier l''impact sur le logement familial",
+  "lifeEventDivorceChecklist10": "Mettre à jour le testament et les directives anticipées",
+  "lifeEventSuccessionAlertConcubinage": "En concubinage, ton/ta partenaire n''a AUCUN droit successoral légal. Sans testament, il/elle ne reçoit rien. La fiscalité est aussi nettement plus lourde (taux «\u00a0tiers\u00a0»).",
+  "lifeEventSuccessionAlertAvoirs3a": "Tes avoirs 3a ({amount}) suivent l''ordre de bénéficiaires OPP3, pas ton testament. Vérifie tes clauses bénéficiaires auprès de ta fondation 3a.",
+  "@lifeEventSuccessionAlertAvoirs3a": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "lifeEventSuccessionAlertCapitalDecesLpp": "Le capital-décès LPP ({amount}) n''entre pas dans la masse successorale. Il est versé selon le règlement de ta caisse de pension.",
+  "@lifeEventSuccessionAlertCapitalDecesLpp": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "lifeEventSuccessionAlertQuotiteDisponible": "Nouveau droit 2023\u00a0: la quotité disponible est désormais de {pct}\u00a0% de ta succession. Tu as plus de liberté pour avantager certains héritiers.",
+  "@lifeEventSuccessionAlertQuotiteDisponible": {
+    "placeholders": {
+      "pct": { "type": "String" }
+    }
+  },
+  "lifeEventSuccessionAlertSansDescendant": "Sans descendant ni parent, la fratrie hérite. Sans fratrie non plus, la succession va au canton.",
+  "lifeEventSuccessionChecklist1": "Testament rédigé / mis à jour\u00a0?",
+  "lifeEventSuccessionChecklist2": "Clause bénéficiaire 3a vérifiée\u00a0?",
+  "lifeEventSuccessionChecklist3": "Concubin/conjoint annoncé à la caisse de pension\u00a0?",
+  "lifeEventSuccessionChecklist4": "Mandat pour cause d''inaptitude rédigé\u00a0?",
+  "lifeEventSuccessionChecklist5": "Directives anticipées rédigées\u00a0?",
+  "lifeEventSuccessionChecklist6": "Inventaire des biens (immobilier, comptes, assurances) à jour\u00a0?",
+  "lifeEventSuccessionChecklist7": "Polices d''assurance-vie vérifiées\u00a0?",
+  "lifeEventSuccessionChecklist8": "Discussion avec les héritiers sur les volontés\u00a0?",
+  "lifeEventSuccession3aOrderMarie": "1. Conjoint survivant\n2. Descendants directs / personnes à charge\n3. Parents\n4. Fratrie\n5. Autres héritiers",
+  "lifeEventSuccession3aOrderConcubinage": "1. Partenaire de vie (si clause bénéficiaire déposée)\n2. Descendants directs / personnes à charge\n3. Parents\n4. Fratrie\n5. Autres héritiers\n\nIMPORTANT\u00a0: Sans clause bénéficiaire explicite, le/la concubin·e n''est PAS automatiquement bénéficiaire.",
+  "lifeEventSuccession3aOrderAutre": "1. Descendants directs / personnes à charge\n2. Parents\n3. Fratrie\n4. Autres héritiers"
 }

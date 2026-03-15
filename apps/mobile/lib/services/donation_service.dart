@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:mint_mobile/l10n/app_localizations.dart';
+
 // ────────────────────────────────────────────────────────────
 //  DONATION SERVICE — Sprint S24
 //  Calcul de l'impot sur les donations + impact successoral
@@ -125,17 +127,18 @@ class DonationService {
   };
 
   /// Human-readable labels for relationship types.
-  static const Map<String, String> lienParenteLabels = {
-    'conjoint': 'Conjoint(e)',
-    'descendant': 'Enfant / Descendant(e)',
-    'parent': 'Parent',
-    'fratrie': 'Frère / Sœur',
-    'concubin': 'Concubin(e)',
-    'tiers': 'Tiers',
+  static Map<String, String> lienParenteLabelsLocalized(S s) => {
+    'conjoint': s.donationServiceLienConjoint,
+    'descendant': s.donationServiceLienDescendant,
+    'parent': s.donationServiceLienParent,
+    'fratrie': s.donationServiceLienFratrie,
+    'concubin': s.donationServiceLienConcubin,
+    'tiers': s.donationServiceLienTiers,
   };
 
   /// Calculate the tax and succession impact of a donation.
   static DonationResult calculate({
+    required S s,
     required double montant,
     required int donateurAge,
     required String lienParente,
@@ -220,22 +223,16 @@ class DonationService {
     // ── Impact on succession ──
     String impactSuccession;
     if (avancementHoirie) {
-      impactSuccession =
-          'Cette donation en avancement d\'hoirie sera rapportée à '
-          'la masse successorale. La part du donataire sera réduite '
-          'd\'autant lors de la succession.';
+      impactSuccession = s.donationServiceImpactAvancement;
     } else {
       if (donationDepasseQuotite) {
-        impactSuccession =
-            'Cette donation hors avancement d\'hoirie dépasse la quotité '
-            'disponible de CHF ${quotiteDisponible.round()}. '
-            'Les héritiers réservataires pourraient la contester '
-            'par action en réduction (CC art. 522).';
+        impactSuccession = s.donationServiceImpactDepassement(
+          quotiteDisponible.round().toString(),
+        );
       } else {
-        impactSuccession =
-            'Cette donation hors avancement d\'hoirie est imputée sur '
-            'la quotité disponible (CHF ${quotiteDisponible.round()}). '
-            'Elle ne sera pas rapportée à la succession.';
+        impactSuccession = s.donationServiceImpactQuotite(
+          quotiteDisponible.round().toString(),
+        );
       }
     }
 
@@ -244,83 +241,64 @@ class DonationService {
 
     if (donationDepasseQuotite) {
       alerts.add(
-        'La donation dépasse la quotité disponible de '
-        'CHF ${montantDepassement.round()}. Les héritiers réservataires '
-        'pourraient exercer une action en réduction (CC art. 522 ss).',
+        s.donationServiceAlertDepassement(
+          montantDepassement.round().toString(),
+        ),
       );
     }
 
     if (lienParente == 'concubin' && tauxImposition > 0.15) {
       alerts.add(
-        'Attention : le taux d\'imposition pour un·e concubin·e est '
-        'élevé ($canton : ${(tauxImposition * 100).toStringAsFixed(0)}%). '
-        'Un pacte successoral ou un testament pourrait être plus avantageux.',
+        s.donationServiceAlertConcubin(
+          canton,
+          (tauxImposition * 100).toStringAsFixed(0),
+        ),
       );
     }
 
     if (typeDonation == 'immobilier') {
-      alerts.add(
-        'Pour une donation immobilière, des droits de mutation '
-        'supplémentaires peuvent s\'appliquer selon le canton. '
-        'Un passage devant notaire est obligatoire.',
-      );
+      alerts.add(s.donationServiceAlertImmobilier);
     }
 
     if (donateurAge >= 70) {
-      alerts.add(
-        'Attention : les donations effectuées peu avant le décès '
-        'peuvent être contestées (CC art. 527). Plus la donation est '
-        'proche du décès, plus le risque de contestation est élevé.',
-      );
+      alerts.add(s.donationServiceAlertAgeDeces);
     }
 
     if (montantDonation > fortune * 0.5 && fortuneTotaleDonateur > 0) {
-      alerts.add(
-        'Cette donation représente plus de 50% de ta fortune totale. '
-        'Assure-toi de conserver suffisamment de réserves pour tes '
-        'propres besoins (retraite, santé, imprévus).',
-      );
+      alerts.add(s.donationServiceAlertFortune);
     }
 
     // ── Checklist ──
     final checklist = <String>[
-      'Vérifier la quotité disponible avec un notaire',
-      'Rédiger un acte de donation (notarié si immobilier)',
-      'Déclarer la donation aux autorités fiscales cantonales',
-      'Informer les héritiers réservataires si nécessaire',
-      'Conserver une copie de l\'acte dans tes documents',
+      s.donationServiceChecklistNotaire,
+      s.donationServiceChecklistActe,
+      s.donationServiceChecklistFiscal,
+      s.donationServiceChecklistHeritiers,
+      s.donationServiceChecklistCopie,
     ];
 
     if (typeDonation == 'immobilier') {
-      checklist.add('Procéder à l\'inscription au registre foncier');
+      checklist.add(s.donationServiceChecklistRegistreFoncier);
     }
 
     if (avancementHoirie) {
-      checklist.add(
-        'Documenter le montant pour le rapport successoral futur',
-      );
+      checklist.add(s.donationServiceChecklistRapportSuccessoral);
     }
 
     if (lienParente == 'concubin') {
-      checklist.add(
-        'Envisager un testament en complement de la donation',
-      );
+      checklist.add(s.donationServiceChecklistTestament);
     }
 
     // ── Chiffre choc ──
     final chiffreChoc = impotDonation > 0
-        ? 'Impôt sur la donation : CHF ${impotDonation.round()} '
-            '(${(tauxImposition * 100).toStringAsFixed(0)}%)'
-        : 'Bonne nouvelle : cette donation est exonérée d\'impôt '
-            'dans le canton $canton';
+        ? s.donationServiceChiffreChocImpot(
+            impotDonation.round().toString(),
+            (tauxImposition * 100).toStringAsFixed(0),
+          )
+        : s.donationServiceChiffreChocExonere(canton);
 
     // ── Disclaimer ──
-    const disclaimer =
-        'Cet outil éducatif fournit des estimations indicatives et '
-        'ne constitue pas un conseil juridique, fiscal ou notarial '
-        'personnalisé au sens de la LSFin. Le droit des donations '
-        'et successions comporte de nombreuses subtilités cantonales. '
-        'Consulte un·e spécialiste (notaire) pour ta situation.';
+    final disclaimer = s.donationServiceDisclaimer;
 
     // ── Sources ──
     const sources = [

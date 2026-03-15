@@ -94,6 +94,7 @@ class _DonationScreenState extends State<DonationScreen> {
   void _simulate() {
     setState(() {
       _result = DonationService.calculate(
+        s: S.of(context)!,
         montant: _montant,
         donateurAge: _donateurAge,
         lienParente: _lienParente,
@@ -405,7 +406,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   ),
                 ),
                 child: Text(
-                  DonationService.lienParenteLabels[lien] ?? lien,
+                  DonationService.lienParenteLabelsLocalized(S.of(context)!)[lien] ?? lien,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
@@ -612,7 +613,7 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(height: 4),
           _buildResultRow(
             S.of(context)!.donationLienRow,
-            DonationService.lienParenteLabels[_lienParente] ?? _lienParente,
+            DonationService.lienParenteLabelsLocalized(S.of(context)!)[_lienParente] ?? _lienParente,
           ),
         ],
       ),
