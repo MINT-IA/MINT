@@ -35,7 +35,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
   bool _estCelibataire = true;
   int _nombreEnfants = 0;
 
-  DebtRatioResult get _result => DebtRatioCalculator.calculate(
+  DebtRatioResult _computeResult(S s) => DebtRatioCalculator.calculate(
+        s: s,
         revenusMensuels: _revenusMensuels,
         chargesDetteMensuelles: _chargesDetteMensuelles,
         loyer: _loyer,
@@ -46,7 +47,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final result = _result;
+    final result = _computeResult(S.of(context)!);
 
     final isSafeMode = result.niveau == DebtRiskLevel.rouge;
     final appBarColor = isSafeMode ? MintColors.warning : MintColors.primary;

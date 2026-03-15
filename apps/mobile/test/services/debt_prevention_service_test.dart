@@ -1,7 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/services/debt_prevention_service.dart';
 
 void main() {
+  final S s = SFr();
   // ═══════════════════════════════════════════════════════════════════
   //  A. DebtRatioCalculator tests
   // ═══════════════════════════════════════════════════════════════════
@@ -9,6 +12,7 @@ void main() {
   group('DebtRatioCalculator', () {
     test('ratio below 15% returns vert risk level', () {
       final result = DebtRatioCalculator.calculate(
+        s: s,
         revenusMensuels: 6000,
         chargesDetteMensuelles: 500, // 8.3%
         loyer: 1500,
@@ -19,6 +23,7 @@ void main() {
 
     test('ratio between 15% and 30% returns orange risk level', () {
       final result = DebtRatioCalculator.calculate(
+        s: s,
         revenusMensuels: 5000,
         chargesDetteMensuelles: 1000, // 20%
         loyer: 1200,
@@ -29,6 +34,7 @@ void main() {
 
     test('ratio at or above 30% returns rouge risk level', () {
       final result = DebtRatioCalculator.calculate(
+        s: s,
         revenusMensuels: 5000,
         chargesDetteMensuelles: 1500, // 30%
         loyer: 1000,
@@ -39,6 +45,7 @@ void main() {
 
     test('zero income returns 0% ratio', () {
       final result = DebtRatioCalculator.calculate(
+        s: s,
         revenusMensuels: 0,
         chargesDetteMensuelles: 500,
         loyer: 1000,
@@ -48,6 +55,7 @@ void main() {
 
     test('zero debt returns 0% ratio and vert level', () {
       final result = DebtRatioCalculator.calculate(
+        s: s,
         revenusMensuels: 6000,
         chargesDetteMensuelles: 0,
         loyer: 1500,
@@ -58,6 +66,7 @@ void main() {
 
     test('minimum vital for celibataire is 1200 CHF', () {
       final result = DebtRatioCalculator.calculate(
+        s: s,
         revenusMensuels: 4000,
         chargesDetteMensuelles: 0,
         loyer: 1500,
@@ -69,6 +78,7 @@ void main() {
 
     test('minimum vital for couple is 1750 CHF', () {
       final result = DebtRatioCalculator.calculate(
+        s: s,
         revenusMensuels: 6000,
         chargesDetteMensuelles: 0,
         loyer: 1500,
@@ -80,6 +90,7 @@ void main() {
 
     test('minimum vital includes 400 CHF per child', () {
       final result = DebtRatioCalculator.calculate(
+        s: s,
         revenusMensuels: 6000,
         chargesDetteMensuelles: 0,
         loyer: 1500,
@@ -92,6 +103,7 @@ void main() {
 
     test('marge disponible computed correctly', () {
       final result = DebtRatioCalculator.calculate(
+        s: s,
         revenusMensuels: 6000,
         chargesDetteMensuelles: 500,
         loyer: 1500,
@@ -103,6 +115,7 @@ void main() {
 
     test('minimum vital menace when marge < minimum vital', () {
       final result = DebtRatioCalculator.calculate(
+        s: s,
         revenusMensuels: 3000,
         chargesDetteMensuelles: 500,
         loyer: 1500,
@@ -116,6 +129,7 @@ void main() {
 
     test('minimum vital NOT menace when marge >= minimum vital', () {
       final result = DebtRatioCalculator.calculate(
+        s: s,
         revenusMensuels: 8000,
         chargesDetteMensuelles: 500,
         loyer: 1500,
@@ -128,6 +142,7 @@ void main() {
 
     test('recommandations for vert contain 2 items', () {
       final result = DebtRatioCalculator.calculate(
+        s: s,
         revenusMensuels: 10000,
         chargesDetteMensuelles: 500,
         loyer: 1500,
@@ -138,6 +153,7 @@ void main() {
 
     test('recommandations for orange contain 3 items', () {
       final result = DebtRatioCalculator.calculate(
+        s: s,
         revenusMensuels: 5000,
         chargesDetteMensuelles: 1000,
         loyer: 1000,
@@ -148,6 +164,7 @@ void main() {
 
     test('recommandations for rouge contain reference to professional help', () {
       final result = DebtRatioCalculator.calculate(
+        s: s,
         revenusMensuels: 4000,
         chargesDetteMensuelles: 2000,
         loyer: 1000,
@@ -161,6 +178,7 @@ void main() {
 
     test('minimum vital menace inserts ALERTE at top of recommandations', () {
       final result = DebtRatioCalculator.calculate(
+        s: s,
         revenusMensuels: 2500,
         chargesDetteMensuelles: 800,
         loyer: 1200,
@@ -175,6 +193,7 @@ void main() {
 
     test('disclaimer is present and mentions pedagogique and LP art. 93', () {
       final result = DebtRatioCalculator.calculate(
+        s: s,
         revenusMensuels: 5000,
         chargesDetteMensuelles: 500,
         loyer: 1500,
@@ -187,6 +206,7 @@ void main() {
 
     test('chiffreChoc contains ratio value and text', () {
       final result = DebtRatioCalculator.calculate(
+        s: s,
         revenusMensuels: 5000,
         chargesDetteMensuelles: 1000,
         loyer: 1200,
@@ -198,6 +218,7 @@ void main() {
 
     test('negative inputs are clamped to 0', () {
       final result = DebtRatioCalculator.calculate(
+        s: s,
         revenusMensuels: -1000,
         chargesDetteMensuelles: -500,
         loyer: -200,
@@ -214,6 +235,7 @@ void main() {
   group('RepaymentPlanner', () {
     test('empty debt list returns 0 months for both strategies', () {
       final result = RepaymentPlanner.plan(
+        s: s,
         dettes: [],
         budgetMensuelRemboursement: 500,
       );
@@ -224,6 +246,7 @@ void main() {
 
     test('single debt is repaid correctly', () {
       final result = RepaymentPlanner.plan(
+        s: s,
         dettes: [
           const Debt(
             nom: 'Credit conso',
@@ -243,6 +266,7 @@ void main() {
 
     test('avalanche strategy pays less total interest than snowball', () {
       final result = RepaymentPlanner.plan(
+        s: s,
         dettes: [
           const Debt(
             nom: 'Credit conso',
@@ -267,6 +291,7 @@ void main() {
 
     test('economieInterets is positive or zero', () {
       final result = RepaymentPlanner.plan(
+        s: s,
         dettes: [
           const Debt(
             nom: 'A',
@@ -288,6 +313,7 @@ void main() {
 
     test('timeline has correct number of months', () {
       final result = RepaymentPlanner.plan(
+        s: s,
         dettes: [
           const Debt(
             nom: 'Credit',
@@ -307,6 +333,7 @@ void main() {
     test('chiffreChoc has risk level based on months to liberation', () {
       // Small debt, fast repayment -> vert
       final fastResult = RepaymentPlanner.plan(
+        s: s,
         dettes: [
           const Debt(
             nom: 'Petit',
@@ -322,6 +349,7 @@ void main() {
 
     test('disclaimer is present and mentions pedagogique', () {
       final result = RepaymentPlanner.plan(
+        s: s,
         dettes: [
           const Debt(
             nom: 'Credit',
@@ -339,6 +367,7 @@ void main() {
 
     test('budget lower than sum of minimums uses effective minimum', () {
       final result = RepaymentPlanner.plan(
+        s: s,
         dettes: [
           const Debt(
             nom: 'A',

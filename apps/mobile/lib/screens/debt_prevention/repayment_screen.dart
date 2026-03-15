@@ -35,7 +35,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
 
   double _budgetMensuel = 800;
 
-  RepaymentComparisonResult? get _result {
+  RepaymentComparisonResult? _computeResult(S s) {
     if (_dettes.isEmpty) return null;
     final dettes = _dettes
         .where((d) => d.montant > 0)
@@ -48,6 +48,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         .toList();
     if (dettes.isEmpty) return null;
     return RepaymentPlanner.plan(
+      s: s,
       dettes: dettes,
       budgetMensuelRemboursement: _budgetMensuel,
     );
@@ -55,7 +56,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final result = _result;
+    final result = _computeResult(S.of(context)!);
 
     return Scaffold(
       backgroundColor: MintColors.surface,

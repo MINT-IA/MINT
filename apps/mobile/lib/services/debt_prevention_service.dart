@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 
 // ============================================================================
@@ -71,6 +72,7 @@ class DebtRatioCalculator {
   /// [estCelibataire]            — true si celibataire
   /// [nombreEnfants]             — nombre d'enfants
   static DebtRatioResult calculate({
+    required S s,
     required double revenusMensuels,
     required double chargesDetteMensuelles,
     required double loyer,
@@ -113,46 +115,22 @@ class DebtRatioCalculator {
     // Recommandations
     final recommandations = <String>[];
     if (niveau == DebtRiskLevel.vert) {
-      recommandations.add(
-        'Ton ratio d\'endettement est sain. Continue a maintenir '
-        'tes dettes sous controle.',
-      );
-      recommandations.add(
-        'Constituez un fonds d\'urgence de 3 a 6 mois de charges fixes.',
-      );
+      recommandations.add(s.debtPreventionRecoVertSain);
+      recommandations.add(s.debtPreventionRecoVertFonds);
     } else if (niveau == DebtRiskLevel.orange) {
-      recommandations.add(
-        'Ton ratio d\'endettement est modere mais merite attention. '
-        'Evite de contracter de nouvelles dettes.',
-      );
-      recommandations.add(
-        'Priorisez le remboursement des dettes au taux le plus eleve.',
-      );
-      recommandations.add(
-        'Etablissez un budget strict pour reduire progressivement '
-        'tes charges de dette.',
-      );
+      recommandations.add(s.debtPreventionRecoOrangeModere);
+      recommandations.add(s.debtPreventionRecoOrangePriorise);
+      recommandations.add(s.debtPreventionRecoOrangeBudget);
     } else {
-      recommandations.add(
-        'Ton ratio d\'endettement depasse le seuil critique de 30%. '
-        'Une aide professionnelle est recommandee.',
-      );
-      recommandations.add(
-        'Contactez un service de conseil en dettes gratuit '
-        '(Dettes Conseils Suisse ou Caritas).',
-      );
-      recommandations.add(
-        'Ne contractez aucune nouvelle dette et cherchez a '
-        'renégocier les conditions existantes.',
-      );
+      recommandations.add(s.debtPreventionRecoRougeCritique);
+      recommandations.add(s.debtPreventionRecoRougeContacte);
+      recommandations.add(s.debtPreventionRecoRougeAucune);
     }
 
     if (minimumVitalMenace) {
       recommandations.insert(
         0,
-        'ALERTE\u00a0: Ta marge résiduelle est inférieure au minimum vital '
-        '(LP art. 93\u00a0: CHF ${formatChf(minimumVital)}/mois). '
-        'Contacte immédiatement un service d\'aide aux dettes.',
+        s.debtPreventionAlerteMinVital(formatChf(minimumVital)),
       );
     }
 
@@ -164,16 +142,14 @@ class DebtRatioCalculator {
       minimumVitalMenace: minimumVitalMenace,
       chiffreChoc: DebtChiffreChoc(
         montant: ratio,
-        texte: '${ratio.toStringAsFixed(0)}\u00a0% de tes revenus partent en remboursement de dettes. '
-            'Il te reste ${formatChf(margeDisponible)} CHF/mois pour vivre.',
+        texte: s.debtPreventionChiffreChocTexte(
+          ratio.toStringAsFixed(0),
+          formatChf(margeDisponible),
+        ),
         niveau: niveau,
       ),
       recommandations: recommandations,
-      disclaimer:
-          'Ce diagnostic est pédagogique et ne constitue pas un avis juridique '
-          'ou financier. Le minimum vital (LP art. 93) varie selon la situation '
-          'personnelle et le canton. Pour une analyse personnalisée, '
-          'consulte un service de conseil en dettes agréé.',
+      disclaimer: s.debtPreventionDisclaimerRatio,
     );
   }
 }
@@ -275,6 +251,7 @@ class RepaymentPlanner {
   /// [dettes]                      — liste des dettes
   /// [budgetMensuelRemboursement]  — budget mensuel total pour le remboursement
   static RepaymentComparisonResult plan({
+    required S s,
     required List<Debt> dettes,
     required double budgetMensuelRemboursement,
   }) {
@@ -309,24 +286,21 @@ class RepaymentPlanner {
       chiffreChoc: DebtChiffreChoc(
         montant: meilleur.moisJusquaLiberation.toDouble(),
         texte: meilleur.moisJusquaLiberation <= 24
-            ? 'Dans ${meilleur.moisJusquaLiberation} mois, tu es libre. '
-                'Et tu gardes ${formatChf(economieInterets.abs())} CHF qui seraient partis en intérêts.'
-            : 'Encore ${meilleur.moisJusquaLiberation} mois de remboursement. '
-                'Avec la bonne stratégie, tu économises ${formatChf(economieInterets.abs())} CHF d\'intérêts.',
+            ? s.debtPreventionChiffreChocCourt(
+                meilleur.moisJusquaLiberation.toString(),
+                formatChf(economieInterets.abs()),
+              )
+            : s.debtPreventionChiffreChocLong(
+                meilleur.moisJusquaLiberation.toString(),
+                formatChf(economieInterets.abs()),
+              ),
         niveau: meilleur.moisJusquaLiberation <= 24
             ? DebtRiskLevel.vert
             : meilleur.moisJusquaLiberation <= 60
                 ? DebtRiskLevel.orange
                 : DebtRiskLevel.rouge,
       ),
-      disclaimer:
-          'Cette simulation est pédagogique et ne prend pas en compte '
-          'les éventuelles pénalités de remboursement anticipé, '
-          'les frais annexes ou les variations de taux. '
-          'La méthode avalanche minimise les intérêts totaux, '
-          'la méthode boule de neige maximise la motivation par des '
-          'victoires rapides. Consulte un·e spécialiste en dettes '
-          'pour un plan adapté à ta situation.',
+      disclaimer: s.debtPreventionDisclaimerRepayment,
     );
   }
 
