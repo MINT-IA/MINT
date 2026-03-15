@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -72,8 +73,10 @@ class DisabilityScorecardWidget extends StatelessWidget {
     final worst = _worstItem;
     final overallColor = _gradeColor(overallGrade);
 
+    final s = S.of(context)!;
+
     return Semantics(
-      label: 'Bulletin couverture invalidité notes A-F',
+      label: s.disabilityScorecardSemanticsLabel,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -83,19 +86,19 @@ class DisabilityScorecardWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildGradeTable(),
+                  _buildGradeTable(s),
                   const SizedBox(height: 20),
-                  _buildOverallGrade(overallGrade, overallColor),
+                  _buildOverallGrade(overallGrade, overallColor, s),
                   const SizedBox(height: 16),
-                  if (worst != null) _buildWeakestSubject(worst),
+                  if (worst != null) _buildWeakestSubject(worst, s),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -105,7 +108,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -121,7 +124,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Ton bulletin de couverture invalidité',
+                  s.disabilityScorecardTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -130,7 +133,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Note A–F sur chaque pilier de ta protection',
+                  s.disabilityScorecardSubtitle,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -144,7 +147,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildGradeTable() {
+  Widget _buildGradeTable(S s) {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: MintColors.lightBorder),
@@ -152,7 +155,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildTableHeader(),
+          _buildTableHeader(s),
           const Divider(height: 1),
           ...items.asMap().entries.map((e) {
             final isLast = e.key == items.length - 1;
@@ -168,21 +171,21 @@ class DisabilityScorecardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildTableHeader() {
+  Widget _buildTableHeader(S s) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
         children: [
           Expanded(
             child: Text(
-              'Couverture',
+              s.disabilityScorecardCoverageHeader,
               style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary),
             ),
           ),
           SizedBox(
             width: 40,
             child: Text(
-              'Note',
+              s.disabilityScorecardGradeHeader,
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary),
             ),
@@ -190,7 +193,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Détail',
+              s.disabilityScorecardDetailHeader,
               style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary),
             ),
           ),
@@ -259,7 +262,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildOverallGrade(String grade, Color color) {
+  Widget _buildOverallGrade(String grade, Color color, S s) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -273,7 +276,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                'Moyenne',
+                s.disabilityScorecardOverallLabel,
                 style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
               ),
               Text(
@@ -292,7 +295,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Tu survivrais, mais ton niveau de vie baisserait de ${lifeDropPercent.toStringAsFixed(0)}%.',
+                  s.disabilityScorecardLifeDrop(lifeDropPercent.toStringAsFixed(0)),
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textPrimary,
@@ -308,7 +311,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildWeakestSubject(CoverageItem worst) {
+  Widget _buildWeakestSubject(CoverageItem worst, S s) {
     final worstColor = _gradeColor(worst.grade);
     return Container(
       padding: const EdgeInsets.all(14),
@@ -321,7 +324,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Matière la plus faible : ${worst.label}',
+            s.disabilityScorecardWeakestSubject(worst.label),
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -349,10 +352,9 @@ class DisabilityScorecardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : LAMal, LAVS, LPP art. 23-26.',
+      s.disabilityScorecardDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,
