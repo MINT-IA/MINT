@@ -135,7 +135,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
                     final title = EducationalInsertService.getLearnMoreTitle(
                         widget.question.id);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(S.of(context)!.wizardLearnMoreSnackbar(title))),
+                      SnackBar(content: Text(S.of(context)!.wizardLearnMoreSnackbar(title ?? ''))),
                     );
                   },
                 ) ??

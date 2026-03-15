@@ -278,7 +278,7 @@ class AuthProvider extends ChangeNotifier {
     if (lower.contains('authentication requise') ||
         lower.contains('unauthorized') ||
         lower.contains('forbidden')) {
-      return 'Le service de compte n’est pas disponible sur cet environnement. Utilise le mode local.';
+      return 'Le service de compte n\'est pas disponible sur cet environnement. Utilise le mode local.';
     }
 
     if (lower.contains('invalid') || lower.contains('invalide')) {
@@ -288,7 +288,7 @@ class AuthProvider extends ChangeNotifier {
       return 'Ce lien de réinitialisation a expiré. Demande un nouveau lien.';
     }
     if (lower.contains('non vérifié') || lower.contains('not verified')) {
-      return 'Ton e-mail n’est pas encore vérifié. Vérifie ton e-mail puis réessaie.';
+      return 'Ton e-mail n\'est pas encore vérifié. Vérifie ton e-mail puis réessaie.';
     }
 
     return 'Action impossible pour le moment. Réessaie dans quelques instants.';

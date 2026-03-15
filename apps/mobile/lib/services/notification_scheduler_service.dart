@@ -379,9 +379,9 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.offTrack,
         tier: NotificationTier.event,
-        title: ‘Tu t’éloignes de ton plan’,
-        body: ‘Adhérence à $adherence% sur ${planStatus.totalActions} actions. ‘
-            ‘Indication linéaire (hors rendement/fiscalité): ~CHF $impact.’,
+        title: 'Tu t\'éloignes de ton plan',
+        body: 'Adhérence à $adherence% sur ${planStatus.totalActions} actions. '
+            'Indication linéaire (hors rendement/fiscalité)\u00a0: ~CHF $impact.',
         deeplink: '/coach/checkin',
         scheduledDate: now,
         personalNumber: '$adherence%',

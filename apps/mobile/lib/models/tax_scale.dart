@@ -13,11 +13,11 @@ class TaxScale {
   });
 
   factory TaxScale.fromCsvRow(String canton, List<dynamic> row) {
-    // row: ['Income tax', 'Single...', 'Canton', '6’900', '0.00']
+    // row: ['Income tax', 'Single...', 'Canton', '6'900', '0.00']
 
     // Parsing helper
     double parseAmount(String val) {
-      return double.tryParse(val.replaceAll("’", "").replaceAll("'", "")) ??
+      return double.tryParse(val.replaceAll("'", "").replaceAll("'", "")) ??
           0.0;
     }
 

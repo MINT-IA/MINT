@@ -3211,7 +3211,7 @@
       }
     }
   },
-  "independantAvsBody": "Il tuo contributo AVS stimato: {amount}/anno (aliquota decrescente per redditi inferiori a CHF 58’800, poi ~10.6% sopra).",
+  "independantAvsBody": "Il tuo contributo AVS stimato: {amount}/anno (aliquota decrescente per redditi inferiori a CHF 58'800, poi ~10.6% sopra).",
   "@independantAvsBody": {
     "placeholders": {
       "amount": {
@@ -3220,8 +3220,8 @@
     }
   },
   "independantAvsSource": "Fonte: LAVS art. 8 / Tabelle dei contributi AVS",
-  "independant3aWithLpp": "Con LPP volontaria: tetto 3a standard di CHF 7’258/anno.",
-  "independant3aWithoutLpp": "Senza LPP: tetto 3a \"grande\" del 20% del reddito netto, max {amount}/anno (tetto legale CHF 36’288).",
+  "independant3aWithLpp": "Con LPP volontaria: tetto 3a standard di CHF 7'258/anno.",
+  "independant3aWithoutLpp": "Senza LPP: tetto 3a \"grande\" del 20% del reddito netto, max {amount}/anno (tetto legale CHF 36'288).",
   "@independant3aWithoutLpp": {
     "placeholders": {
       "amount": {
@@ -4739,7 +4739,7 @@
   "enrichmentLppDescription": "Il tuo avere LPP (2° pilastro) rappresenta spesso il capitale più grande della tua previdenza. Un certificato di previdenza dà un valore esatto anziché una stima.",
   "enrichmentLppCta": "Aggiungere il mio certificato LPP",
   "enrichmentAvsTitle": "Estratto AVS",
-  "enrichmentAvsDescription": "L’estratto AVS conferma i tuoi anni di contribuzione effettivi. Le lacune (soggiorni all’estero, anni mancanti) riducono la tua rendita AVS.",
+  "enrichmentAvsDescription": "L'estratto AVS conferma i tuoi anni di contribuzione effettivi. Le lacune (soggiorni all'estero, anni mancanti) riducono la tua rendita AVS.",
   "enrichmentAvsCta": "Ordinare il mio estratto AVS",
   "enrichment3aTitle": "3° pilastro (3a)",
   "enrichment3aDescription": "I tuoi conti 3a si aggiungono alla tua previdenza e offrono un vantaggio fiscale. Inserisci i saldi attuali per una visione completa.",
@@ -4748,7 +4748,7 @@
   "enrichmentPatrimoineDescription": "Risparmio libero, investimenti, immobili: questi dati completano la tua proiezione e permettono di calcolare il tuo Financial Resilience Index.",
   "enrichmentPatrimoineCta": "Inserire il mio patrimonio",
   "enrichmentFiscaliteTitle": "Fiscalità",
-  "enrichmentFiscaliteDescription": "Il tuo comune, il reddito imponibile e la fortuna determinano la tua aliquota marginale d’imposta. Una dichiarazione fiscale o un avviso di tassazione dà un’aliquota reale anziché stimata (coefficiente comunale 60%-130%).",
+  "enrichmentFiscaliteDescription": "Il tuo comune, il reddito imponibile e la fortuna determinano la tua aliquota marginale d'imposta. Una dichiarazione fiscale o un avviso di tassazione dà un'aliquota reale anziché stimata (coefficiente comunale 60%-130%).",
   "enrichmentFiscaliteCta": "Confrontare la mia fiscalità",
   "enrichmentObjectifTitle": "Obiettivo pensionamento",
   "enrichmentObjectifDescription": "A quale età vorresti smettere di lavorare? Un obiettivo chiaro permette di calcolare lo sforzo di risparmio necessario e le opzioni (anticipazione, pensionamento parziale).",
@@ -4774,8 +4774,8 @@
   "enrichmentCoachPromptAvs": "Parlami della mia rendita AVS: ho delle lacune di contribuzione e come colmarle?",
   "enrichmentCoachPromptPatrimoine": "Voglio fare il punto sul mio patrimonio globale e capire come strutturarlo.",
   "enrichmentCoachPromptFiscalite": "Aiutami a capire la mia situazione fiscale e le leve di ottimizzazione possibili.",
-  "enrichmentCoachPromptRevenu": "Voglio capire l’impatto del mio reddito sulla mia previdenza e le mie imposte.",
-  "enrichmentCoachPromptObjectif": "Quale sarebbe l’impatto se andassi in pensione prima o dopo?",
+  "enrichmentCoachPromptRevenu": "Voglio capire l'impatto del mio reddito sulla mia previdenza e le mie imposte.",
+  "enrichmentCoachPromptObjectif": "Quale sarebbe l'impatto se andassi in pensione prima o dopo?",
   "enrichmentCoachPromptMenage": "Come influenza la situazione di coppia le mie proiezioni di pensionamento?",
   "enrichmentCoachPromptDefault": "Aiutami a completare il mio profilo finanziario.",
   "frontalierTitle": "Frontaliere",
@@ -5004,7 +5004,7 @@
   "precisionPromptCta": "Precisare",
   "precisionPromptSkip": "Continuare",
   "letterGeneratorTitle": "Segreteria Automatica",
-  "letterGeneratorSubtitle": "Genera modelli di lettere pronti all’uso.",
+  "letterGeneratorSubtitle": "Genera modelli di lettere pronti all'uso.",
   "letterGeneratorBuybackTitle": "Richiesta di Riscatto LPP",
   "letterGeneratorBuybackSubtitle": "Per conoscere il tuo potenziale di riscatto.",
   "letterGeneratorTaxTitle": "Attestazione Fiscale",
@@ -5044,10 +5044,10 @@
   "renteCapitalOptionCapital": "Capital",
   "renteCapitalOptionMixte": "Mixte",
   "renteCapitalExplRente": "Ta caisse de pension te verse un montant fixe chaque mois, tant que tu vis — même si tu atteins 100 ans. En échange, tu ne récupères jamais ton capital.",
-  "renteCapitalExplCapital": "Tu récupères tout ton avoir LPP d’un coup. Tu le places, tu retires ce dont tu as besoin chaque mois. Liberté totale, mais le risque de manquer est réel.",
+  "renteCapitalExplCapital": "Tu récupères tout ton avoir LPP d'un coup. Tu le places, tu retires ce dont tu as besoin chaque mois. Liberté totale, mais le risque de manquer est réel.",
   "renteCapitalExplMixte": "La partie obligatoire en rente (taux 6.8 %) + le surobligatoire en capital. Un compromis entre sécurité et flexibilité.",
   "renteCapitalModeEstimate": "Estimer pour moi",
-  "renteCapitalModeCertificate": "J’ai mon certificat",
+  "renteCapitalModeCertificate": "J'ai mon certificat",
   "renteCapitalLabelAge": "Ton âge",
   "renteCapitalLabelRetirementAge": "Retraite prévue à",
   "renteCapitalRetirementAgeValue": "{age} ans",
@@ -5089,7 +5089,7 @@
       }
     }
   },
-  "renteCapitalAccrocheTaxAndAge": "Cette décision peut te coûter {taxDelta} d’impôts en trop — ou te laisser sans rien à {age} ans. Tu ne peux la prendre qu’une seule fois.",
+  "renteCapitalAccrocheTaxAndAge": "Cette décision peut te coûter {taxDelta} d'impôts en trop — ou te laisser sans rien à {age} ans. Tu ne peux la prendre qu'une seule fois.",
   "@renteCapitalAccrocheTaxAndAge": {
     "placeholders": {
       "taxDelta": {
@@ -5100,7 +5100,7 @@
       }
     }
   },
-  "renteCapitalAccrocheTaxOnly": "Cette décision peut changer {taxDelta} d’impôts sur ta retraite. Tu ne peux la prendre qu’une seule fois.",
+  "renteCapitalAccrocheTaxOnly": "Cette décision peut changer {taxDelta} d'impôts sur ta retraite. Tu ne peux la prendre qu'une seule fois.",
   "@renteCapitalAccrocheTaxOnly": {
     "placeholders": {
       "taxDelta": {
@@ -5108,7 +5108,7 @@
       }
     }
   },
-  "renteCapitalAccrocheAgeOnly": "Avec le capital, tu pourrais manquer d’argent dès {age} ans. Avec la rente, tu reçois un montant fixe à vie. Tu ne peux choisir qu’une fois.",
+  "renteCapitalAccrocheAgeOnly": "Avec le capital, tu pourrais manquer d'argent dès {age} ans. Avec la rente, tu reçois un montant fixe à vie. Tu ne peux choisir qu'une fois.",
   "@renteCapitalAccrocheAgeOnly": {
     "placeholders": {
       "age": {
@@ -5138,7 +5138,7 @@
   },
   "renteCapitalDuration30Plus": "30+ ans",
   "renteCapitalMicroRente": "Ta caisse te verse ce montant chaque mois, tant que tu vis.",
-  "renteCapitalMicroCapital": "Tu retires {swr} % par an d’un capital placé à {rendement} %.",
+  "renteCapitalMicroCapital": "Tu retires {swr} % par an d'un capital placé à {rendement} %.",
   "@renteCapitalMicroCapital": {
     "placeholders": {
       "swr": {
@@ -5149,7 +5149,7 @@
       }
     }
   },
-  "renteCapitalSyntheseCapitalHigher": "Le capital te donne {delta}/mois de plus, mais pourrait s’épuiser.",
+  "renteCapitalSyntheseCapitalHigher": "Le capital te donne {delta}/mois de plus, mais pourrait s'épuiser.",
   "@renteCapitalSyntheseCapitalHigher": {
     "placeholders": {
       "delta": {
@@ -5157,7 +5157,7 @@
       }
     }
   },
-  "renteCapitalSyntheseRenteHigher": "La rente te donne {delta}/mois de plus, et ne s’arrête jamais.",
+  "renteCapitalSyntheseRenteHigher": "La rente te donne {delta}/mois de plus, et ne s'arrête jamais.",
   "@renteCapitalSyntheseRenteHigher": {
     "placeholders": {
       "delta": {
@@ -5175,12 +5175,12 @@
     }
   },
   "renteCapitalAvsComplement": " supplémentaires dans les deux cas (LAVS art. 29)",
-  "renteCapitalExplorerTitle": "Et si je vis jusqu’à...",
+  "renteCapitalExplorerTitle": "Et si je vis jusqu'à...",
   "renteCapitalLifeExpStat": "Espérance de vie suisse : hommes 84 ans · femmes 87 ans",
   "renteCapitalChartTitle": "Capital restant vs revenus cumulés de la rente",
-  "renteCapitalChartExplain": "Capital (vert) : ce qu’il reste après tes retraits. Rente (bleu) : total reçu depuis le départ. Le croisement = l’âge auquel la rente a plus rapporté.",
+  "renteCapitalChartExplain": "Capital (vert) : ce qu'il reste après tes retraits. Rente (bleu) : total reçu depuis le départ. Le croisement = l'âge auquel la rente a plus rapporté.",
   "renteCapitalChartAxisLabel": "Age",
-  "renteCapitalDeltaBeyondHorizon": "À {age} ans : au-delà de l’horizon de simulation.",
+  "renteCapitalDeltaBeyondHorizon": "À {age} ans : au-delà de l'horizon de simulation.",
   "@renteCapitalDeltaBeyondHorizon": {
     "placeholders": {
       "age": {
@@ -5207,14 +5207,14 @@
       }
     }
   },
-  "renteCapitalDeltaAhead": "d’avance",
+  "renteCapitalDeltaAhead": "d'avance",
   "renteCapitalSectionComprendre": "Ce que ça change concrètement",
   "renteCapitalCardFiscaliteTitle": "Fiscalité",
   "renteCapitalCardFiscaliteLeftSub": "Imposée chaque année",
   "renteCapitalCardFiscaliteRightSub": "Taxé une seule fois",
   "renteCapitalCardFiscaliteOnYears": "sur 30 ans",
   "renteCapitalCardFiscaliteRightDetail": "au retrait (LIFD art. 38)",
-  "renteCapitalCardFiscaliteCapitalSaves": "Sur 30 ans, le capital te fait économiser ~{amount} d’impôts.",
+  "renteCapitalCardFiscaliteCapitalSaves": "Sur 30 ans, le capital te fait économiser ~{amount} d'impôts.",
   "@renteCapitalCardFiscaliteCapitalSaves": {
     "placeholders": {
       "amount": {
@@ -5222,7 +5222,7 @@
       }
     }
   },
-  "renteCapitalCardFiscaliteRenteSaves": "Sur 30 ans, la rente génère ~{amount} d’impôts en moins.",
+  "renteCapitalCardFiscaliteRenteSaves": "Sur 30 ans, la rente génère ~{amount} d'impôts en moins.",
   "@renteCapitalCardFiscaliteRenteSaves": {
     "placeholders": {
       "amount": {
@@ -5231,10 +5231,10 @@
     }
   },
   "renteCapitalCardInflationTitle": "Inflation",
-  "renteCapitalCardInflationLeftTitle": "Aujourd’hui",
+  "renteCapitalCardInflationLeftTitle": "Aujourd'hui",
   "renteCapitalCardInflationRightTitle": "Dans 20 ans",
-  "renteCapitalCardInflationRightSub": "pouvoir d’achat",
-  "renteCapitalCardInflationBottom": "Ta rente LPP n’est pas indexée. Elle achète {percent} % de moins dans 20 ans.",
+  "renteCapitalCardInflationRightSub": "pouvoir d'achat",
+  "renteCapitalCardInflationBottom": "Ta rente LPP n'est pas indexée. Elle achète {percent} % de moins dans 20 ans.",
   "@renteCapitalCardInflationBottom": {
     "placeholders": {
       "percent": {
@@ -5266,8 +5266,8 @@
   "renteCapitalHypRendement": "Ce que ton capital rapporte par an",
   "renteCapitalHypSwr": "Combien tu retires chaque année",
   "renteCapitalHypInflation": "Inflation",
-  "renteCapitalSensitivityTitle": "Qu’est-ce qui change le plus le résultat ?",
-  "renteCapitalSensitivitySubtitle": "Les paramètres les plus influents sur l’écart entre tes options.",
+  "renteCapitalSensitivityTitle": "Qu'est-ce qui change le plus le résultat ?",
+  "renteCapitalSensitivitySubtitle": "Les paramètres les plus influents sur l'écart entre tes options.",
   "renteCapitalTornadoExpand": "Voir le diagramme de sensibilité",
   "renteCapitalHypothesesTitle": "Hypothèses de cette simulation",
   "renteCapitalDisclaimerTitle": "Avertissement",
@@ -5291,9 +5291,9 @@
   "renteCapitalRachatHint": "0 (optionnel)",
   "renteCapitalRachatTooltip": "Si tu fais des rachats LPP chaque année, leur valeur futur est ajoutée au capital à la retraite. Blocage 3 ans avant EPL (LPP art. 79b).",
   "renteCapitalLabelEpl": "Retrait EPL pour achat immobilier",
-  "renteCapitalEplHint": "Montant retiré (min 20’000)",
-  "renteCapitalEplTooltip": "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20’000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
-  "renteCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20’000)",
+  "renteCapitalEplHint": "Montant retiré (min 20'000)",
+  "renteCapitalEplTooltip": "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20'000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
+  "renteCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20'000)",
   "openBankingHubTitle": "OPEN BANKING",
   "openBankingHubFinmaTitle": "Funzionalità in preparazione",
   "openBankingHubFinmaBody": "Consultazione regolamentare FINMA in corso. I dati visualizzati sono esempi dimostrativi.",
@@ -5315,7 +5315,7 @@
   "openBankingHubNetSavings": "Risparmio netto",
   "openBankingHubTopExpenses": "Top 3 spese",
   "openBankingHubPoweredByBlink": "Alimentato da bLink (SIX)",
-  "openBankingHubDisclaimer": "Questa funzionalità è in fase di sviluppo. I dati visualizzati sono esempi. L’attivazione del servizio Open Banking è soggetta a una consultazione regolamentare preliminare.",
+  "openBankingHubDisclaimer": "Questa funzionalità è in fase di sviluppo. I dati visualizzati sono esempi. L'attivazione del servizio Open Banking è soggetta a una consultazione regolamentare preliminare.",
   "openBankingHubSyncMinutesAgo": "{minutes} min fa",
   "openBankingHubSyncHoursAgo": "{hours} h fa",
   "openBankingHubSyncDaysAgo": "{days} g fa",
@@ -5455,7 +5455,7 @@
   "concubinageChecklistTitle3": "Convenzione di concubinato",
   "concubinageChecklistDesc3": "Un contratto scritto che regola la ripartizione delle spese, la proprietà dei beni e cosa succede in caso di separazione. Non obbligatorio, ma fortemente raccomandato — soprattutto se acquistate un immobile insieme.",
   "concubinageChecklistTitle4": "Assicurazione vita incrociata",
-  "concubinageChecklistDesc4": "Un’assicurazione vita dove ciascuno è beneficiario dell’altro permette di compensare l’assenza di rendita AVS/LPP superstite. Confronta le offerte — i premi dipendono dall’età e dal capitale assicurato.",
+  "concubinageChecklistDesc4": "Un'assicurazione vita dove ciascuno è beneficiario dell'altro permette di compensare l'assenza di rendita AVS/LPP superstite. Confronta le offerte — i premi dipendono dall'età e dal capitale assicurato.",
   "concubinageChecklistTitle5": "Mandato precauzionale",
   "concubinageChecklistDesc5": "Se diventi incapace di discernimento (incidente, malattia), il tuo partner non ha alcun potere di rappresentanza. Un mandato precauzionale (CC art. 360 ss) gli conferisce questo diritto.",
   "concubinageChecklistTitle6": "Direttive anticipate",
@@ -5463,7 +5463,7 @@
   "concubinageChecklistTitle7": "Conto congiunto per le spese comuni",
   "concubinageChecklistDesc7": "Un conto congiunto semplifica la gestione delle spese condivise (affitto, spesa, bollette). Definite chiaramente il contributo di ciascuno. In caso di separazione, il saldo è diviso 50/50 salvo accordo diverso.",
   "concubinageChecklistTitle8": "Contratto di locazione congiunto o individuale",
-  "concubinageChecklistDesc8": "Se sei nel contratto con il tuo partner, siete solidalmente responsabili. In caso di separazione, entrambi devono dare disdetta. Se solo uno è titolare, l’altro non ha alcun diritto sull’alloggio.",
+  "concubinageChecklistDesc8": "Se sei nel contratto con il tuo partner, siete solidalmente responsabili. In caso di separazione, entrambi devono dare disdetta. Se solo uno è titolare, l'altro non ha alcun diritto sull'alloggio.",
   "concubinageDisclaimer": "Informazioni semplificate a scopo educativo — non costituisce consulenza legale o fiscale. Le regole dipendono dal cantone, dal comune e dalla tua situazione personale. Consulta uno specialista legale per un parere personalizzato.",
   "successionPatrimoineTitle": "Successione e trasmissione patrimoniale",
   "successionPatrimoineAlertTitle": "Senza testamento, il/la tuo/a convivente non eredita NULLA",
@@ -5480,14 +5480,14 @@
   "successionPatrimoineTestamentBody": "Due forme valide:\n• Olografo: interamente manoscritto, datato e firmato — nessun testimone richiesto.\n• Notarile: davanti a un notaio con 2 testimoni — raccomandato per situazioni complesse.\nNessun testamento = successione legale per difetto.",
   "successionPatrimoineDonationTitle": "Donazione in vita",
   "successionPatrimoineDonationSubtitle": "CO art. 239 segg.",
-  "successionPatrimoineDonationBody": "Trasmettere in vita permette di anticipare la successione e ridurre potenzialmente l’imposta successoria (variabile per cantone). Attenzione: le donazioni sono collazionabili se hai eredi legittimari. I 5 anni precedenti il decesso sono particolarmente scrutinati.",
+  "successionPatrimoineDonationBody": "Trasmettere in vita permette di anticipare la successione e ridurre potenzialmente l'imposta successoria (variabile per cantone). Attenzione: le donazioni sono collazionabili se hai eredi legittimari. I 5 anni precedenti il decesso sono particolarmente scrutinati.",
   "successionPatrimoineBeneficiairesTitle": "Beneficiari LPP e 3a",
   "successionPatrimoineBeneficiairesSubtitle": "LPP art. 20 · OPP3 art. 2",
-  "successionPatrimoineBeneficiairesBody": "Il capitale LPP non convertito in rendita e il saldo 3a NON fanno parte della tua successione ordinaria — vengono versati ai beneficiari designati. Se non designi nessuno, si applica l’ordine legale: coniuge o partner registrato, poi discendenti, poi genitori. Un/a convivente deve essere esplicitamente designato/a.",
+  "successionPatrimoineBeneficiairesBody": "Il capitale LPP non convertito in rendita e il saldo 3a NON fanno parte della tua successione ordinaria — vengono versati ai beneficiari designati. Se non designi nessuno, si applica l'ordine legale: coniuge o partner registrato, poi discendenti, poi genitori. Un/a convivente deve essere esplicitamente designato/a.",
   "successionPatrimoineDecesProche": "In caso di decesso di una persona cara",
   "successionPatrimoinePhase1Timeframe": "G+1 a G+7",
   "successionPatrimoinePhase1Title": "Urgenza immediata",
-  "successionPatrimoinePhase1Action1": "Dichiarare il decesso all’ufficio di stato civile entro 2 giorni",
+  "successionPatrimoinePhase1Action1": "Dichiarare il decesso all'ufficio di stato civile entro 2 giorni",
   "successionPatrimoinePhase1Action2": "Informare il datore di lavoro e le assicurazioni (LAMal, LPP)",
   "successionPatrimoinePhase1Action3": "Bloccare i conti bancari congiunti se necessario",
   "successionPatrimoinePhase1Action4": "Contattare il notaio se la persona aveva un testamento",
@@ -5496,13 +5496,13 @@
   "successionPatrimoinePhase2Action1": "Richiedere le rendite per superstiti AVS (LAVS art. 23)",
   "successionPatrimoinePhase2Action2": "Contattare la cassa LPP per il capitale di decesso",
   "successionPatrimoinePhase2Action3": "Disdire gli abbonamenti e i contratti a nome del defunto",
-  "successionPatrimoinePhase2Action4": "Fare l’inventario dei beni e debiti",
+  "successionPatrimoinePhase2Action4": "Fare l'inventario dei beni e debiti",
   "successionPatrimoinePhase2Action5": "Richiedere i certificati di erede al notaio",
   "successionPatrimoinePhase3Timeframe": "G+31 a G+365",
   "successionPatrimoinePhase3Title": "Successione legale",
   "successionPatrimoinePhase3Action1": "Aprire la procedura di successione con il notaio",
   "successionPatrimoinePhase3Action2": "Ripartire i beni secondo il testamento o la legge (CC art. 537)",
-  "successionPatrimoinePhase3Action3": "Presentare la dichiarazione fiscale per l’anno del decesso",
+  "successionPatrimoinePhase3Action3": "Presentare la dichiarazione fiscale per l'anno del decesso",
   "successionPatrimoinePhase3Action4": "Aggiornare i beneficiari dei tuoi contratti",
   "successionPatrimoineChecklistTitle": "Checklist protezione patrimonio",
   "successionPatrimoineChecklist1": "Verificare la designazione dei beneficiari su ogni conto 3a",
@@ -5511,7 +5511,7 @@
   "successionPatrimoineChecklist4": "Verificare il tuo regime matrimoniale se sposato/a (CC art. 181 segg.)",
   "successionPatrimoineChecklist5": "Informare i tuoi cari della posizione del tuo testamento",
   "successionPatrimoineCtaTitle": "Consultare un/a notaio/a o specialista",
-  "successionPatrimoineCtaBody": "Un/a notaio/a o specialista in diritto successorio può redigere o rivedere il tuo testamento e orientarti sull’organizzazione successoria adatta alla tua situazione.",
+  "successionPatrimoineCtaBody": "Un/a notaio/a o specialista in diritto successorio può redigere o rivedere il tuo testamento e orientarti sull'organizzazione successoria adatta alla tua situazione.",
   "successionPatrimoineLegalSources": "• CC art. 457–640 — Diritto successorio\n• CC art. 470–471 — Riserve ereditarie\n• CC art. 498–504 — Forme del testamento\n• LPP art. 20 — Beneficiari del capitale LPP\n• OPP3 art. 2 — Beneficiari del pilastro 3a",
   "successionPatrimoineDisclaimer": "Informazione a carattere educativo, non costituisce consulenza giuridica o patrimoniale ai sensi della LSerFi o del CC. Le regole successorie variano a seconda della situazione familiare, del regime matrimoniale e del cantone. Consulta un/a notaio/a o specialista in diritto successorio per la tua situazione personale.",
   "annualRefreshTitle": "Check-up annuale",
@@ -5541,7 +5541,7 @@
     }
   },
   "annualRefreshSliderMin": "0 CHF",
-  "annualRefreshSliderMax": "30’000 CHF",
+  "annualRefreshSliderMax": "30'000 CHF",
   "annualRefreshQ2Title": "La tua situazione professionale",
   "annualRefreshQ3Title": "Il tuo avere LPP attuale",
   "annualRefreshQ3Help": "Guarda il tuo certificato di previdenza (lo ricevi ogni gennaio)",
@@ -5632,7 +5632,7 @@
   "reportV2EmergencyFundTarget": "Fondo di emergenza (obiettivo: 6 mesi)",
   "reportV2SourceLpArt93": "Fonte: LP art. 93 — Minimo vitale",
   "reportV2BuildEmergencyFund": "Costituire il mio fondo di emergenza",
-  "reportV2No3aYet": "Ancora nessun 3a — fino a CHF 7’258/anno di deduzione fiscale possibile",
+  "reportV2No3aYet": "Ancora nessun 3a — fino a CHF 7'258/anno di deduzione fiscale possibile",
   "reportV2One3aAccount": "1 conto 3a — apri un 2° per ottimizzare il prelievo",
   "reportV2Multiple3aAccounts": "{count} conti 3a — buona diversificazione",
   "@reportV2Multiple3aAccounts": {
@@ -5756,8 +5756,8 @@
   "reportV2WorkingHypotheses": "Ipotesi di lavoro",
   "reportV2HypothesisStableIncome": "Redditi dichiarati stabili nel periodo",
   "reportV2HypothesisLppRate": "Tasso di conversione LPP obbligatorio: 6.8%",
-  "reportV2Hypothesis3aCeiling": "Massimale 3a dipendenti: CHF 7’258/anno",
-  "reportV2HypothesisAvsMax": "Rendita AVS massima: CHF 30’240/anno",
+  "reportV2Hypothesis3aCeiling": "Massimale 3a dipendenti: CHF 7'258/anno",
+  "reportV2HypothesisAvsMax": "Rendita AVS massima: CHF 30'240/anno",
   "reportV2ConflictsOfInterest": "Conflitti di interesse",
   "reportV2NoConflict": "Nessun conflitto di interesse identificato per questo rapporto.",
   "reportV2NoCommission": "MINT non percepisce alcuna commissione sui prodotti menzionati.",
@@ -5765,7 +5765,7 @@
   "reportV2LimitDeclarative": "Basato solo su informazioni dichiarative",
   "reportV2LimitTaxApprox": "Stima fiscale approssimativa (aliquote medie cantonali)",
   "reportV2LimitNoWealth": "Non tiene conto dei redditi da patrimonio mobiliare",
-  "reportV2LimitNoInflation": "Le proiezioni non tengono conto dell’inflazione",
+  "reportV2LimitNoInflation": "Le proiezioni non tengono conto dell'inflazione",
   "reportV2LegalMention": "Avviso legale",
   "reportV2Disclaimer": "Strumento educativo — non costituisce consulenza finanziaria ai sensi della LSFin. Gli importi sono stime basate sui dati dichiarati.",
   "reportV2DebtPriorityTitle": "Priorità al rientro del debito",
@@ -7446,8 +7446,8 @@
   "consentScopeLabelAccounts": "[IT] Comptes",
   "consentScopeLabelBalances": "[IT] Soldes",
   "consentScopeLabelTransactions": "[IT] Transactions",
-  "firstJobSalaryMin": "[IT] CHF 2’000",
-  "firstJobSalaryMax": "[IT] CHF 15’000",
+  "firstJobSalaryMin": "[IT] CHF 2'000",
+  "firstJobSalaryMax": "[IT] CHF 15'000",
   "firstJobCanton": "[IT] Canton",
   "firstJobActivityMin": "[IT] 10 %",
   "firstJobActivityMax": "[IT] 100 %",
@@ -9927,15 +9927,15 @@
     }
   },
   "debtRepaymentAvalancheLabel": "[IT] ⛰️ Avalanche",
-  "debtRepaymentAvalancheSubtitle": "[IT] Taux élevé d’abord",
+  "debtRepaymentAvalancheSubtitle": "[IT] Taux élevé d'abord",
   "debtRepaymentSnowballLabel": "[IT] ❄️ Boule de neige",
-  "debtRepaymentSnowballSubtitle": "[IT] Petite dette d’abord",
+  "debtRepaymentSnowballSubtitle": "[IT] Petite dette d'abord",
   "debtRepaymentOrder": "[IT] Ordre de remboursement",
   "debtRepaymentAvalancheName": "[IT] Avalanche",
   "debtRepaymentSnowballName": "[IT] Boule de neige",
   "debtRepaymentPayoffAll": "[IT] pour solder toutes les dettes",
   "debtRepaymentInterestPaid": "[IT] Intérêts payés",
-  "debtRepaymentAvalancheSaves": "[IT] L’avalanche économise {amount}",
+  "debtRepaymentAvalancheSaves": "[IT] L'avalanche économise {amount}",
   "@debtRepaymentAvalancheSaves": {
     "placeholders": {
       "amount": {"type": "String"}

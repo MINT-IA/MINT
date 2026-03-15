@@ -4994,7 +4994,7 @@
   "safeModeGateTitle": "Priority Focus",
   "safeModeGateMessage": "For your financial safety, we disable advanced optimisations while a debt signal is active. The priority is to build your security.",
   "safeModeGateCta": "See my debt repayment plan",
-  "safeModeGateWhyTitle": "Why it’s locked",
+  "safeModeGateWhyTitle": "Why it's locked",
   "safeModeGateWhyBody": "In protection mode, MINT prioritises cash-flow stability over tax and pension optimisations.",
   "safeModeGateWhyLink": "Why is it locked?",
   "confidenceCompleteness": "Completeness",
@@ -5065,10 +5065,10 @@
   "renteCapitalOptionCapital": "Capital",
   "renteCapitalOptionMixte": "Mixte",
   "renteCapitalExplRente": "Ta caisse de pension te verse un montant fixe chaque mois, tant que tu vis — même si tu atteins 100 ans. En échange, tu ne récupères jamais ton capital.",
-  "renteCapitalExplCapital": "Tu récupères tout ton avoir LPP d’un coup. Tu le places, tu retires ce dont tu as besoin chaque mois. Liberté totale, mais le risque de manquer est réel.",
+  "renteCapitalExplCapital": "Tu récupères tout ton avoir LPP d'un coup. Tu le places, tu retires ce dont tu as besoin chaque mois. Liberté totale, mais le risque de manquer est réel.",
   "renteCapitalExplMixte": "La partie obligatoire en rente (taux 6.8 %) + le surobligatoire en capital. Un compromis entre sécurité et flexibilité.",
   "renteCapitalModeEstimate": "Estimer pour moi",
-  "renteCapitalModeCertificate": "J’ai mon certificat",
+  "renteCapitalModeCertificate": "J'ai mon certificat",
   "renteCapitalLabelAge": "Ton âge",
   "renteCapitalLabelRetirementAge": "Retraite prévue à",
   "renteCapitalRetirementAgeValue": "{age} ans",
@@ -5110,7 +5110,7 @@
       }
     }
   },
-  "renteCapitalAccrocheTaxAndAge": "Cette décision peut te coûter {taxDelta} d’impôts en trop — ou te laisser sans rien à {age} ans. Tu ne peux la prendre qu’une seule fois.",
+  "renteCapitalAccrocheTaxAndAge": "Cette décision peut te coûter {taxDelta} d'impôts en trop — ou te laisser sans rien à {age} ans. Tu ne peux la prendre qu'une seule fois.",
   "@renteCapitalAccrocheTaxAndAge": {
     "placeholders": {
       "taxDelta": {
@@ -5121,7 +5121,7 @@
       }
     }
   },
-  "renteCapitalAccrocheTaxOnly": "Cette décision peut changer {taxDelta} d’impôts sur ta retraite. Tu ne peux la prendre qu’une seule fois.",
+  "renteCapitalAccrocheTaxOnly": "Cette décision peut changer {taxDelta} d'impôts sur ta retraite. Tu ne peux la prendre qu'une seule fois.",
   "@renteCapitalAccrocheTaxOnly": {
     "placeholders": {
       "taxDelta": {
@@ -5129,7 +5129,7 @@
       }
     }
   },
-  "renteCapitalAccrocheAgeOnly": "Avec le capital, tu pourrais manquer d’argent dès {age} ans. Avec la rente, tu reçois un montant fixe à vie. Tu ne peux choisir qu’une fois.",
+  "renteCapitalAccrocheAgeOnly": "Avec le capital, tu pourrais manquer d'argent dès {age} ans. Avec la rente, tu reçois un montant fixe à vie. Tu ne peux choisir qu'une fois.",
   "@renteCapitalAccrocheAgeOnly": {
     "placeholders": {
       "age": {
@@ -5159,7 +5159,7 @@
   },
   "renteCapitalDuration30Plus": "30+ ans",
   "renteCapitalMicroRente": "Ta caisse te verse ce montant chaque mois, tant que tu vis.",
-  "renteCapitalMicroCapital": "Tu retires {swr} % par an d’un capital placé à {rendement} %.",
+  "renteCapitalMicroCapital": "Tu retires {swr} % par an d'un capital placé à {rendement} %.",
   "@renteCapitalMicroCapital": {
     "placeholders": {
       "swr": {
@@ -5170,7 +5170,7 @@
       }
     }
   },
-  "renteCapitalSyntheseCapitalHigher": "Le capital te donne {delta}/mois de plus, mais pourrait s’épuiser.",
+  "renteCapitalSyntheseCapitalHigher": "Le capital te donne {delta}/mois de plus, mais pourrait s'épuiser.",
   "@renteCapitalSyntheseCapitalHigher": {
     "placeholders": {
       "delta": {
@@ -5178,7 +5178,7 @@
       }
     }
   },
-  "renteCapitalSyntheseRenteHigher": "La rente te donne {delta}/mois de plus, et ne s’arrête jamais.",
+  "renteCapitalSyntheseRenteHigher": "La rente te donne {delta}/mois de plus, et ne s'arrête jamais.",
   "@renteCapitalSyntheseRenteHigher": {
     "placeholders": {
       "delta": {
@@ -5196,12 +5196,12 @@
     }
   },
   "renteCapitalAvsComplement": " supplémentaires dans les deux cas (LAVS art. 29)",
-  "renteCapitalExplorerTitle": "Et si je vis jusqu’à...",
+  "renteCapitalExplorerTitle": "Et si je vis jusqu'à...",
   "renteCapitalLifeExpStat": "Espérance de vie suisse : hommes 84 ans · femmes 87 ans",
   "renteCapitalChartTitle": "Capital restant vs revenus cumulés de la rente",
-  "renteCapitalChartExplain": "Capital (vert) : ce qu’il reste après tes retraits. Rente (bleu) : total reçu depuis le départ. Le croisement = l’âge auquel la rente a plus rapporté.",
+  "renteCapitalChartExplain": "Capital (vert) : ce qu'il reste après tes retraits. Rente (bleu) : total reçu depuis le départ. Le croisement = l'âge auquel la rente a plus rapporté.",
   "renteCapitalChartAxisLabel": "Age",
-  "renteCapitalDeltaBeyondHorizon": "À {age} ans : au-delà de l’horizon de simulation.",
+  "renteCapitalDeltaBeyondHorizon": "À {age} ans : au-delà de l'horizon de simulation.",
   "@renteCapitalDeltaBeyondHorizon": {
     "placeholders": {
       "age": {
@@ -5228,14 +5228,14 @@
       }
     }
   },
-  "renteCapitalDeltaAhead": "d’avance",
+  "renteCapitalDeltaAhead": "d'avance",
   "renteCapitalSectionComprendre": "Ce que ça change concrètement",
   "renteCapitalCardFiscaliteTitle": "Fiscalité",
   "renteCapitalCardFiscaliteLeftSub": "Imposée chaque année",
   "renteCapitalCardFiscaliteRightSub": "Taxé une seule fois",
   "renteCapitalCardFiscaliteOnYears": "sur 30 ans",
   "renteCapitalCardFiscaliteRightDetail": "au retrait (LIFD art. 38)",
-  "renteCapitalCardFiscaliteCapitalSaves": "Sur 30 ans, le capital te fait économiser ~{amount} d’impôts.",
+  "renteCapitalCardFiscaliteCapitalSaves": "Sur 30 ans, le capital te fait économiser ~{amount} d'impôts.",
   "@renteCapitalCardFiscaliteCapitalSaves": {
     "placeholders": {
       "amount": {
@@ -5243,7 +5243,7 @@
       }
     }
   },
-  "renteCapitalCardFiscaliteRenteSaves": "Sur 30 ans, la rente génère ~{amount} d’impôts en moins.",
+  "renteCapitalCardFiscaliteRenteSaves": "Sur 30 ans, la rente génère ~{amount} d'impôts en moins.",
   "@renteCapitalCardFiscaliteRenteSaves": {
     "placeholders": {
       "amount": {
@@ -5252,10 +5252,10 @@
     }
   },
   "renteCapitalCardInflationTitle": "Inflation",
-  "renteCapitalCardInflationLeftTitle": "Aujourd’hui",
+  "renteCapitalCardInflationLeftTitle": "Aujourd'hui",
   "renteCapitalCardInflationRightTitle": "Dans 20 ans",
-  "renteCapitalCardInflationRightSub": "pouvoir d’achat",
-  "renteCapitalCardInflationBottom": "Ta rente LPP n’est pas indexée. Elle achète {percent} % de moins dans 20 ans.",
+  "renteCapitalCardInflationRightSub": "pouvoir d'achat",
+  "renteCapitalCardInflationBottom": "Ta rente LPP n'est pas indexée. Elle achète {percent} % de moins dans 20 ans.",
   "@renteCapitalCardInflationBottom": {
     "placeholders": {
       "percent": {
@@ -5287,8 +5287,8 @@
   "renteCapitalHypRendement": "Ce que ton capital rapporte par an",
   "renteCapitalHypSwr": "Combien tu retires chaque année",
   "renteCapitalHypInflation": "Inflation",
-  "renteCapitalSensitivityTitle": "Qu’est-ce qui change le plus le résultat ?",
-  "renteCapitalSensitivitySubtitle": "Les paramètres les plus influents sur l’écart entre tes options.",
+  "renteCapitalSensitivityTitle": "Qu'est-ce qui change le plus le résultat ?",
+  "renteCapitalSensitivitySubtitle": "Les paramètres les plus influents sur l'écart entre tes options.",
   "renteCapitalTornadoExpand": "Voir le diagramme de sensibilité",
   "renteCapitalHypothesesTitle": "Hypothèses de cette simulation",
   "renteCapitalDisclaimerTitle": "Avertissement",
@@ -5312,9 +5312,9 @@
   "renteCapitalRachatHint": "0 (optionnel)",
   "renteCapitalRachatTooltip": "Si tu fais des rachats LPP chaque année, leur valeur futur est ajoutée au capital à la retraite. Blocage 3 ans avant EPL (LPP art. 79b).",
   "renteCapitalLabelEpl": "Retrait EPL pour achat immobilier",
-  "renteCapitalEplHint": "Montant retiré (min 20’000)",
-  "renteCapitalEplTooltip": "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20’000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
-  "renteCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20’000)",
+  "renteCapitalEplHint": "Montant retiré (min 20'000)",
+  "renteCapitalEplTooltip": "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20'000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
+  "renteCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20'000)",
   "openBankingHubTitle": "OPEN BANKING",
   "openBankingHubFinmaTitle": "Feature in preparation",
   "openBankingHubFinmaBody": "FINMA regulatory consultation in progress. The data displayed are demonstration examples.",
@@ -7446,8 +7446,8 @@
   "consentScopeLabelAccounts": "[EN] Comptes",
   "consentScopeLabelBalances": "[EN] Soldes",
   "consentScopeLabelTransactions": "[EN] Transactions",
-  "firstJobSalaryMin": "[EN] CHF 2’000",
-  "firstJobSalaryMax": "[EN] CHF 15’000",
+  "firstJobSalaryMin": "[EN] CHF 2'000",
+  "firstJobSalaryMax": "[EN] CHF 15'000",
   "firstJobCanton": "[EN] Canton",
   "firstJobActivityMin": "[EN] 10 %",
   "firstJobActivityMax": "[EN] 100 %",
@@ -9927,15 +9927,15 @@
     }
   },
   "debtRepaymentAvalancheLabel": "[EN] ⛰️ Avalanche",
-  "debtRepaymentAvalancheSubtitle": "[EN] Taux élevé d’abord",
+  "debtRepaymentAvalancheSubtitle": "[EN] Taux élevé d'abord",
   "debtRepaymentSnowballLabel": "[EN] ❄️ Boule de neige",
-  "debtRepaymentSnowballSubtitle": "[EN] Petite dette d’abord",
+  "debtRepaymentSnowballSubtitle": "[EN] Petite dette d'abord",
   "debtRepaymentOrder": "[EN] Ordre de remboursement",
   "debtRepaymentAvalancheName": "[EN] Avalanche",
   "debtRepaymentSnowballName": "[EN] Boule de neige",
   "debtRepaymentPayoffAll": "[EN] pour solder toutes les dettes",
   "debtRepaymentInterestPaid": "[EN] Intérêts payés",
-  "debtRepaymentAvalancheSaves": "[EN] L’avalanche économise {amount}",
+  "debtRepaymentAvalancheSaves": "[EN] L'avalanche économise {amount}",
   "@debtRepaymentAvalancheSaves": {
     "placeholders": {
       "amount": {"type": "String"}

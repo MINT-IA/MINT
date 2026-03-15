@@ -3211,7 +3211,7 @@
       }
     }
   },
-  "independantAvsBody": "Tu cotización AVS estimada: {amount}/año (tasa decreciente para ingresos inferiores a CHF 58’800, luego ~10.6% por encima).",
+  "independantAvsBody": "Tu cotización AVS estimada: {amount}/año (tasa decreciente para ingresos inferiores a CHF 58'800, luego ~10.6% por encima).",
   "@independantAvsBody": {
     "placeholders": {
       "amount": {
@@ -3220,8 +3220,8 @@
     }
   },
   "independantAvsSource": "Fuente: LAVS art. 8 / Tablas de cotización AVS",
-  "independant3aWithLpp": "Con LPP voluntaria: techo 3a estándar de CHF 7’258/año.",
-  "independant3aWithoutLpp": "Sin LPP: techo 3a \"grande\" del 20% del ingreso neto, máx. {amount}/año (techo legal CHF 36’288).",
+  "independant3aWithLpp": "Con LPP voluntaria: techo 3a estándar de CHF 7'258/año.",
+  "independant3aWithoutLpp": "Sin LPP: techo 3a \"grande\" del 20% del ingreso neto, máx. {amount}/año (techo legal CHF 36'288).",
   "@independant3aWithoutLpp": {
     "placeholders": {
       "amount": {
@@ -5044,10 +5044,10 @@
   "renteCapitalOptionCapital": "Capital",
   "renteCapitalOptionMixte": "Mixte",
   "renteCapitalExplRente": "Ta caisse de pension te verse un montant fixe chaque mois, tant que tu vis — même si tu atteins 100 ans. En échange, tu ne récupères jamais ton capital.",
-  "renteCapitalExplCapital": "Tu récupères tout ton avoir LPP d’un coup. Tu le places, tu retires ce dont tu as besoin chaque mois. Liberté totale, mais le risque de manquer est réel.",
+  "renteCapitalExplCapital": "Tu récupères tout ton avoir LPP d'un coup. Tu le places, tu retires ce dont tu as besoin chaque mois. Liberté totale, mais le risque de manquer est réel.",
   "renteCapitalExplMixte": "La partie obligatoire en rente (taux 6.8 %) + le surobligatoire en capital. Un compromis entre sécurité et flexibilité.",
   "renteCapitalModeEstimate": "Estimer pour moi",
-  "renteCapitalModeCertificate": "J’ai mon certificat",
+  "renteCapitalModeCertificate": "J'ai mon certificat",
   "renteCapitalLabelAge": "Ton âge",
   "renteCapitalLabelRetirementAge": "Retraite prévue à",
   "renteCapitalRetirementAgeValue": "{age} ans",
@@ -5089,7 +5089,7 @@
       }
     }
   },
-  "renteCapitalAccrocheTaxAndAge": "Cette décision peut te coûter {taxDelta} d’impôts en trop — ou te laisser sans rien à {age} ans. Tu ne peux la prendre qu’une seule fois.",
+  "renteCapitalAccrocheTaxAndAge": "Cette décision peut te coûter {taxDelta} d'impôts en trop — ou te laisser sans rien à {age} ans. Tu ne peux la prendre qu'une seule fois.",
   "@renteCapitalAccrocheTaxAndAge": {
     "placeholders": {
       "taxDelta": {
@@ -5100,7 +5100,7 @@
       }
     }
   },
-  "renteCapitalAccrocheTaxOnly": "Cette décision peut changer {taxDelta} d’impôts sur ta retraite. Tu ne peux la prendre qu’une seule fois.",
+  "renteCapitalAccrocheTaxOnly": "Cette décision peut changer {taxDelta} d'impôts sur ta retraite. Tu ne peux la prendre qu'une seule fois.",
   "@renteCapitalAccrocheTaxOnly": {
     "placeholders": {
       "taxDelta": {
@@ -5108,7 +5108,7 @@
       }
     }
   },
-  "renteCapitalAccrocheAgeOnly": "Avec le capital, tu pourrais manquer d’argent dès {age} ans. Avec la rente, tu reçois un montant fixe à vie. Tu ne peux choisir qu’une fois.",
+  "renteCapitalAccrocheAgeOnly": "Avec le capital, tu pourrais manquer d'argent dès {age} ans. Avec la rente, tu reçois un montant fixe à vie. Tu ne peux choisir qu'une fois.",
   "@renteCapitalAccrocheAgeOnly": {
     "placeholders": {
       "age": {
@@ -5138,7 +5138,7 @@
   },
   "renteCapitalDuration30Plus": "30+ ans",
   "renteCapitalMicroRente": "Ta caisse te verse ce montant chaque mois, tant que tu vis.",
-  "renteCapitalMicroCapital": "Tu retires {swr} % par an d’un capital placé à {rendement} %.",
+  "renteCapitalMicroCapital": "Tu retires {swr} % par an d'un capital placé à {rendement} %.",
   "@renteCapitalMicroCapital": {
     "placeholders": {
       "swr": {
@@ -5149,7 +5149,7 @@
       }
     }
   },
-  "renteCapitalSyntheseCapitalHigher": "Le capital te donne {delta}/mois de plus, mais pourrait s’épuiser.",
+  "renteCapitalSyntheseCapitalHigher": "Le capital te donne {delta}/mois de plus, mais pourrait s'épuiser.",
   "@renteCapitalSyntheseCapitalHigher": {
     "placeholders": {
       "delta": {
@@ -5157,7 +5157,7 @@
       }
     }
   },
-  "renteCapitalSyntheseRenteHigher": "La rente te donne {delta}/mois de plus, et ne s’arrête jamais.",
+  "renteCapitalSyntheseRenteHigher": "La rente te donne {delta}/mois de plus, et ne s'arrête jamais.",
   "@renteCapitalSyntheseRenteHigher": {
     "placeholders": {
       "delta": {
@@ -5175,12 +5175,12 @@
     }
   },
   "renteCapitalAvsComplement": " supplémentaires dans les deux cas (LAVS art. 29)",
-  "renteCapitalExplorerTitle": "Et si je vis jusqu’à...",
+  "renteCapitalExplorerTitle": "Et si je vis jusqu'à...",
   "renteCapitalLifeExpStat": "Espérance de vie suisse : hommes 84 ans · femmes 87 ans",
   "renteCapitalChartTitle": "Capital restant vs revenus cumulés de la rente",
-  "renteCapitalChartExplain": "Capital (vert) : ce qu’il reste après tes retraits. Rente (bleu) : total reçu depuis le départ. Le croisement = l’âge auquel la rente a plus rapporté.",
+  "renteCapitalChartExplain": "Capital (vert) : ce qu'il reste après tes retraits. Rente (bleu) : total reçu depuis le départ. Le croisement = l'âge auquel la rente a plus rapporté.",
   "renteCapitalChartAxisLabel": "Age",
-  "renteCapitalDeltaBeyondHorizon": "À {age} ans : au-delà de l’horizon de simulation.",
+  "renteCapitalDeltaBeyondHorizon": "À {age} ans : au-delà de l'horizon de simulation.",
   "@renteCapitalDeltaBeyondHorizon": {
     "placeholders": {
       "age": {
@@ -5207,14 +5207,14 @@
       }
     }
   },
-  "renteCapitalDeltaAhead": "d’avance",
+  "renteCapitalDeltaAhead": "d'avance",
   "renteCapitalSectionComprendre": "Ce que ça change concrètement",
   "renteCapitalCardFiscaliteTitle": "Fiscalité",
   "renteCapitalCardFiscaliteLeftSub": "Imposée chaque année",
   "renteCapitalCardFiscaliteRightSub": "Taxé une seule fois",
   "renteCapitalCardFiscaliteOnYears": "sur 30 ans",
   "renteCapitalCardFiscaliteRightDetail": "au retrait (LIFD art. 38)",
-  "renteCapitalCardFiscaliteCapitalSaves": "Sur 30 ans, le capital te fait économiser ~{amount} d’impôts.",
+  "renteCapitalCardFiscaliteCapitalSaves": "Sur 30 ans, le capital te fait économiser ~{amount} d'impôts.",
   "@renteCapitalCardFiscaliteCapitalSaves": {
     "placeholders": {
       "amount": {
@@ -5222,7 +5222,7 @@
       }
     }
   },
-  "renteCapitalCardFiscaliteRenteSaves": "Sur 30 ans, la rente génère ~{amount} d’impôts en moins.",
+  "renteCapitalCardFiscaliteRenteSaves": "Sur 30 ans, la rente génère ~{amount} d'impôts en moins.",
   "@renteCapitalCardFiscaliteRenteSaves": {
     "placeholders": {
       "amount": {
@@ -5231,10 +5231,10 @@
     }
   },
   "renteCapitalCardInflationTitle": "Inflation",
-  "renteCapitalCardInflationLeftTitle": "Aujourd’hui",
+  "renteCapitalCardInflationLeftTitle": "Aujourd'hui",
   "renteCapitalCardInflationRightTitle": "Dans 20 ans",
-  "renteCapitalCardInflationRightSub": "pouvoir d’achat",
-  "renteCapitalCardInflationBottom": "Ta rente LPP n’est pas indexée. Elle achète {percent} % de moins dans 20 ans.",
+  "renteCapitalCardInflationRightSub": "pouvoir d'achat",
+  "renteCapitalCardInflationBottom": "Ta rente LPP n'est pas indexée. Elle achète {percent} % de moins dans 20 ans.",
   "@renteCapitalCardInflationBottom": {
     "placeholders": {
       "percent": {
@@ -5266,8 +5266,8 @@
   "renteCapitalHypRendement": "Ce que ton capital rapporte par an",
   "renteCapitalHypSwr": "Combien tu retires chaque année",
   "renteCapitalHypInflation": "Inflation",
-  "renteCapitalSensitivityTitle": "Qu’est-ce qui change le plus le résultat ?",
-  "renteCapitalSensitivitySubtitle": "Les paramètres les plus influents sur l’écart entre tes options.",
+  "renteCapitalSensitivityTitle": "Qu'est-ce qui change le plus le résultat ?",
+  "renteCapitalSensitivitySubtitle": "Les paramètres les plus influents sur l'écart entre tes options.",
   "renteCapitalTornadoExpand": "Voir le diagramme de sensibilité",
   "renteCapitalHypothesesTitle": "Hypothèses de cette simulation",
   "renteCapitalDisclaimerTitle": "Avertissement",
@@ -5291,9 +5291,9 @@
   "renteCapitalRachatHint": "0 (optionnel)",
   "renteCapitalRachatTooltip": "Si tu fais des rachats LPP chaque année, leur valeur futur est ajoutée au capital à la retraite. Blocage 3 ans avant EPL (LPP art. 79b).",
   "renteCapitalLabelEpl": "Retrait EPL pour achat immobilier",
-  "renteCapitalEplHint": "Montant retiré (min 20’000)",
-  "renteCapitalEplTooltip": "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20’000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
-  "renteCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20’000)",
+  "renteCapitalEplHint": "Montant retiré (min 20'000)",
+  "renteCapitalEplTooltip": "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20'000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
+  "renteCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20'000)",
   "exploreEventFirstJob": "Primer empleo",
   "exploreEventFirstJobSub": "AVS, LPP, impuestos : entenderlo todo",
   "exploreEventJobChange": "Cambio de puesto",
@@ -5492,7 +5492,7 @@
     }
   },
   "annualRefreshSliderMin": "0 CHF",
-  "annualRefreshSliderMax": "30’000 CHF",
+  "annualRefreshSliderMax": "30'000 CHF",
   "annualRefreshQ2Title": "Tu situación profesional",
   "annualRefreshQ3Title": "Tu haber LPP actual",
   "annualRefreshQ3Help": "Mira tu certificado de previsión (lo recibes cada enero)",
@@ -5953,7 +5953,7 @@
   "genderGapAppBarTitle": "BRECHA DE GÉNERO PREVISIÓN",
   "genderGapTitle": "Brecha de previsión",
   "genderGapSubtitle": "Impacto del trabajo a tiempo parcial en la jubilación",
-  "genderGapIntroText": "La deducción de coordinación (CHF 26’460) no se prorratea para el trabajo a tiempo parcial, lo que penaliza más a quienes trabajan a tiempo reducido. Mueve el cursor para ver el impacto.",
+  "genderGapIntroText": "La deducción de coordinación (CHF 26'460) no se prorratea para el trabajo a tiempo parcial, lo que penaliza más a quienes trabajan a tiempo reducido. Mueve el cursor para ver el impacto.",
   "genderGapActivityRate": "Tasa de actividad",
   "genderGapParameters": "Parámetros",
   "genderGapGrossAnnualIncome": "Ingreso anual bruto (100 %)",
@@ -5999,7 +5999,7 @@
   "genderGapAnnualGap": "Brecha anual",
   "genderGapTotalGap": "Brecha total (~20 años)",
   "genderGapCoordinationTitle": "Entender la deducción de coordinación",
-  "genderGapCoordinationExplanation": "La deducción de coordinación es un monto fijo de CHF 26’460 restado de tu salario bruto para calcular el salario coordinado (base LPP). Este monto es el mismo trabajes al 100 % o al 50 %.",
+  "genderGapCoordinationExplanation": "La deducción de coordinación es un monto fijo de CHF 26'460 restado de tu salario bruto para calcular el salario coordinado (base LPP). Este monto es el mismo trabajes al 100 % o al 50 %.",
   "genderGapGrossSalary100": "Salario bruto al 100 %",
   "genderGapCoordSalary100": "Salario coordinado al 100 %",
   "genderGapGrossSalaryAtTaux": "Salario bruto al {taux} %",
@@ -7446,8 +7446,8 @@
   "consentScopeLabelAccounts": "[ES] Comptes",
   "consentScopeLabelBalances": "[ES] Soldes",
   "consentScopeLabelTransactions": "[ES] Transactions",
-  "firstJobSalaryMin": "[ES] CHF 2’000",
-  "firstJobSalaryMax": "[ES] CHF 15’000",
+  "firstJobSalaryMin": "[ES] CHF 2'000",
+  "firstJobSalaryMax": "[ES] CHF 15'000",
   "firstJobCanton": "[ES] Canton",
   "firstJobActivityMin": "[ES] 10 %",
   "firstJobActivityMax": "[ES] 100 %",
@@ -9927,15 +9927,15 @@
     }
   },
   "debtRepaymentAvalancheLabel": "[ES] ⛰️ Avalanche",
-  "debtRepaymentAvalancheSubtitle": "[ES] Taux élevé d’abord",
+  "debtRepaymentAvalancheSubtitle": "[ES] Taux élevé d'abord",
   "debtRepaymentSnowballLabel": "[ES] ❄️ Boule de neige",
-  "debtRepaymentSnowballSubtitle": "[ES] Petite dette d’abord",
+  "debtRepaymentSnowballSubtitle": "[ES] Petite dette d'abord",
   "debtRepaymentOrder": "[ES] Ordre de remboursement",
   "debtRepaymentAvalancheName": "[ES] Avalanche",
   "debtRepaymentSnowballName": "[ES] Boule de neige",
   "debtRepaymentPayoffAll": "[ES] pour solder toutes les dettes",
   "debtRepaymentInterestPaid": "[ES] Intérêts payés",
-  "debtRepaymentAvalancheSaves": "[ES] L’avalanche économise {amount}",
+  "debtRepaymentAvalancheSaves": "[ES] L'avalanche économise {amount}",
   "@debtRepaymentAvalancheSaves": {
     "placeholders": {
       "amount": {"type": "String"}

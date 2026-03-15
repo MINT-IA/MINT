@@ -165,7 +165,7 @@ class ReportBuilder {
     if (hasDebt) {
       topActions.add(TopAction(
         effortTag: 'Priorité',
-        label: 'Stopper l’hémorragie',
+        label: 'Stopper l\'hémorragie',
         why: 'Tes dettes te coûtent trop cher.',
         ifThen: 'SI dette > 0 ALORS rembourser avant d\'investir.',
         nextAction: const NextAction(
@@ -177,7 +177,7 @@ class ReportBuilder {
       // Si pas de warning concubinage, on met le budget en top
       topActions.add(TopAction(
         effortTag: 'Fondation',
-        label: 'Sécuriser le Fonds d’Urgence',
+        label: 'Sécuriser le Fonds d\'Urgence',
         why: 'Pour dormir tranquille.',
         ifThen: 'SI réserve < 3 mois ALORS épargner 10% du revenu.',
         nextAction: const NextAction(

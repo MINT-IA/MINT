@@ -31,7 +31,7 @@ class StopRuleCallout extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "SI 'Variables' est à 0, ALORS pause des dépenses discrétionnaires jusqu’à la prochaine période.",
+                  "SI 'Variables' est à 0, ALORS pause des dépenses discrétionnaires jusqu'à la prochaine période.",
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: MintColors.amberDark,
                       ),
