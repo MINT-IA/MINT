@@ -6,6 +6,7 @@ import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/models/session.dart';
 import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 
 class ApiException implements Exception {
@@ -520,6 +521,7 @@ class ApiService {
   }
 
   static Future<ChiffreChoc> computeOnboardingChiffreChoc({
+    required S s,
     required int age,
     required double grossSalary,
     required String canton,
@@ -574,28 +576,28 @@ class ApiService {
 
     final (title, iconName, colorKey, value) = switch (type) {
       ChiffreChocType.liquidityAlert => (
-          'Ta reserve de liquidite',
+          s.apiServiceChiffreChocLiquidityTitle,
           'warning_amber',
           'error',
-          '${primaryNumber.toStringAsFixed(1)} mois',
+          s.apiServiceChiffreChocLiquidityValue(primaryNumber.toStringAsFixed(1)),
         ),
       ChiffreChocType.taxSaving3a => (
-          'Ton economie d\'impot potentielle',
+          s.apiServiceChiffreChocTaxSavingTitle,
           'savings',
           'success',
-          '${_formatChf(primaryNumber)}/an',
+          s.apiServiceChiffreChocTaxSavingValue(_formatChf(primaryNumber)),
         ),
       ChiffreChocType.retirementGap => (
-          'Ton ecart de retraite',
+          s.apiServiceChiffreChocRetirementGapTitle,
           'trending_down',
           'warning',
-          '${_formatChf(primaryNumber)}/mois',
+          s.apiServiceChiffreChocRetirementGapValue(_formatChf(primaryNumber)),
         ),
       ChiffreChocType.retirementIncome => (
-          'Ton revenu estime a la retraite',
+          s.apiServiceChiffreChocRetirementIncomeTitle,
           'account_balance',
           'info',
-          '${_formatChf(primaryNumber)}/mois',
+          s.apiServiceChiffreChocRetirementIncomeValue(_formatChf(primaryNumber)),
         ),
     };
 

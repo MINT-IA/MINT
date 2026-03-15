@@ -59,6 +59,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
     final extra = GoRouterState.of(context).extra;
     if (extra is! Map<String, dynamic>) return;
 
+    final s = S.of(context)!;
     final age = extra['age'] as int? ?? 35;
     final grossSalary = (extra['grossSalary'] as num?)?.toDouble() ?? 80000;
     final canton = extra['canton'] as String? ?? 'ZH';
@@ -83,6 +84,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
         existingLpp: existingLpp,
       );
       final choc = await ApiService.computeOnboardingChiffreChoc(
+        s: s,
         age: age,
         grossSalary: grossSalary,
         canton: canton,

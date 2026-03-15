@@ -12145,5 +12145,156 @@
     }
   },
   "segmentsIndependantRecAvs": "Vérifier ton extrait AVS (compte individuel) pour confirmer que toutes les années de cotisation sont enregistrées.",
-  "segmentsIndependantRecBudget": "Établir un budget prévisionnel pour anticiper les cotisations sociales (AVS, IJM, LAA, 3a)."
+  "segmentsIndependantRecBudget": "Établir un budget prévisionnel pour anticiper les cotisations sociales (AVS, IJM, LAA, 3a).",
+
+  "apiServiceChiffreChocLiquidityTitle": "Ta réserve de liquidité",
+  "apiServiceChiffreChocLiquidityValue": "{months} mois",
+  "@apiServiceChiffreChocLiquidityValue": {
+    "placeholders": {
+      "months": { "type": "String" }
+    }
+  },
+  "apiServiceChiffreChocTaxSavingTitle": "Ton économie d''impôt potentielle",
+  "apiServiceChiffreChocTaxSavingValue": "{amount}/an",
+  "@apiServiceChiffreChocTaxSavingValue": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "apiServiceChiffreChocRetirementGapTitle": "Ton écart de retraite",
+  "apiServiceChiffreChocRetirementGapValue": "{amount}/mois",
+  "@apiServiceChiffreChocRetirementGapValue": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "apiServiceChiffreChocRetirementIncomeTitle": "Ton revenu estimé à la retraite",
+  "apiServiceChiffreChocRetirementIncomeValue": "{amount}/mois",
+  "@apiServiceChiffreChocRetirementIncomeValue": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+
+  "documentServiceFileTooLarge": "Le fichier ({sizeMb}\u00a0Mo) dépasse la limite de {limitMb}\u00a0Mo.",
+  "@documentServiceFileTooLarge": {
+    "placeholders": {
+      "sizeMb": { "type": "String" },
+      "limitMb": { "type": "String" }
+    }
+  },
+  "documentServiceBanqueInconnue": "Banque inconnue",
+  "documentServiceUploadError": "Une erreur est survenue lors de l''envoi du document.",
+  "documentServiceLoadError": "Impossible de charger les documents.",
+  "documentServiceDeleteError": "Impossible de supprimer le document.",
+
+  "fiscalServiceCantonZH": "Zurich",
+  "fiscalServiceCantonBE": "Berne",
+  "fiscalServiceCantonLU": "Lucerne",
+  "fiscalServiceCantonUR": "Uri",
+  "fiscalServiceCantonSZ": "Schwyz",
+  "fiscalServiceCantonOW": "Obwald",
+  "fiscalServiceCantonNW": "Nidwald",
+  "fiscalServiceCantonGL": "Glaris",
+  "fiscalServiceCantonZG": "Zoug",
+  "fiscalServiceCantonFR": "Fribourg",
+  "fiscalServiceCantonSO": "Soleure",
+  "fiscalServiceCantonBS": "Bâle-Ville",
+  "fiscalServiceCantonBL": "Bâle-Campagne",
+  "fiscalServiceCantonSH": "Schaffhouse",
+  "fiscalServiceCantonAR": "Appenzell RE",
+  "fiscalServiceCantonAI": "Appenzell RI",
+  "fiscalServiceCantonSG": "Saint-Gall",
+  "fiscalServiceCantonGR": "Grisons",
+  "fiscalServiceCantonAG": "Argovie",
+  "fiscalServiceCantonTG": "Thurgovie",
+  "fiscalServiceCantonTI": "Tessin",
+  "fiscalServiceCantonVD": "Vaud",
+  "fiscalServiceCantonVS": "Valais",
+  "fiscalServiceCantonNE": "Neuchâtel",
+  "fiscalServiceCantonGE": "Genève",
+  "fiscalServiceCantonJU": "Jura",
+
+  "fiscalServiceMoveSavings": "En déménageant de {cantonFrom} à {cantonTo}, tu économiserais ~{amount}/an soit {amount10y} sur 10 ans",
+  "@fiscalServiceMoveSavings": {
+    "placeholders": {
+      "cantonFrom": { "type": "String" },
+      "cantonTo": { "type": "String" },
+      "amount": { "type": "String" },
+      "amount10y": { "type": "String" }
+    }
+  },
+  "fiscalServiceMoveCost": "Attention\u00a0: ce déménagement te coûterait ~{amount}/an en impôts supplémentaires",
+  "@fiscalServiceMoveCost": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "fiscalServiceMoveEquivalent": "Charge fiscale équivalente dans les deux cantons. Compare les autres avantages (LAMal, allocations).",
+
+  "financialReportDisclaimerEducational": "Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin.",
+  "financialReportDisclaimerEstimates": "Les montants sont des estimations basées sur les données déclarées.",
+  "financialReportDisclaimerPastPerformance": "Les performances passées ne préjugent pas des performances futures.",
+  "financialReportDisclaimerTax": "L''estimation fiscale est approximative et ne remplace pas une déclaration d''impôts.",
+  "financialReportDisclaimerRetirement": "La projection retraite est indicative et dépend de l''évolution législative (réformes AVS/LPP).",
+  "financialReportDisclaimerLppBuyback": "Le rachat LPP est soumis à un blocage de 3 ans pour les retraits EPL (LPP art. 79b al. 3).",
+
+  "financialReportAction3aOpenTitle": "Ouvre ton premier 3a",
+  "financialReportAction3aOpenDesc": "Déduis jusqu''à CHF\u00a07''258/an de ton revenu imposable. Économie immédiate.",
+  "financialReportAction3aOpenStep1": "1. Compare les offres (fintech, banque)",
+  "financialReportAction3aOpenStep2": "2. Ouvre ton compte en 10 minutes",
+  "financialReportAction3aOpenStep3": "3. Configure un versement automatique",
+  "financialReportAction3aOpenStep4": "4. Choisis une stratégie adaptée à ton horizon",
+
+  "financialReportAction3aSecondTitle": "Ouvre un 2e compte 3a fintech",
+  "financialReportAction3aSecondDesc": "Optimise ta fiscalité au retrait et diversifie tes placements.",
+  "financialReportAction3aSecondStep1": "1. Compare les prestataires 3a en ligne",
+  "financialReportAction3aSecondStep2": "2. Crée ton compte (10 min)",
+  "financialReportAction3aSecondStep3": "3. Choisis stratégie 60\u00a0% actions",
+  "financialReportAction3aSecondStep4": "4. Configure versement automatique",
+
+  "financialReportActionLppBuybackTitle": "Planifie ton rachat LPP échelonné",
+  "financialReportActionLppBuybackDesc": "Économise jusqu''à CHF\u00a0{amount} d''impôts sur {years} ans.",
+  "@financialReportActionLppBuybackDesc": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "years": { "type": "int" }
+    }
+  },
+  "financialReportActionLppBuybackStep1": "1. Demande certificat LPP à ta caisse",
+  "financialReportActionLppBuybackStep2": "2. Vérifie montant rachetable exact",
+  "financialReportActionLppBuybackStep3": "3. Planifie rachat échelonné avant retraite",
+  "financialReportActionLppBuybackStep4": "4. Effectue 1er rachat avant 31 décembre",
+
+  "financialReportActionAvsTitle": "Vérifie ton compte AVS",
+  "financialReportActionAvsDesc": "Évite de perdre jusqu''à 38''000 CHF de rente à vie.",
+  "financialReportActionAvsStep1": "1. Commande extrait gratuit sur ahv-iv.ch",
+  "financialReportActionAvsStep2": "2. Vérifie les années de cotisation",
+  "financialReportActionAvsStep3": "3. Si lacunes\u00a0: cotisations volontaires possibles",
+
+  "financialReportActionDebtTitle": "Rembourse tes dettes de consommation",
+  "financialReportActionDebtDesc": "C''est le placement le plus rentable\u00a0: tu économises 6-10\u00a0% par an sur les intérêts.",
+  "financialReportActionDebtStep1": "1. Liste toutes tes dettes (Montant, Taux)",
+  "financialReportActionDebtStep2": "2. Attaque celle avec le plus haut taux",
+  "financialReportActionDebtStep3": "3. Arrête tout nouvel investissement",
+
+  "financialReportActionEmergencyTitle": "Constitue ton fonds d''urgence",
+  "financialReportActionEmergencyDesc": "Vise 3 mois de charges sur un compte épargne séparé.",
+  "financialReportActionEmergencyStep1": "1. Ouvre un compte épargne gratuit (ex\u00a0: Zak, Neon)",
+  "financialReportActionEmergencyStep2": "2. Mets en place un virement auto (ex 10\u00a0% salaire)",
+  "financialReportActionEmergencyStep3": "3. Ne touche pas à cet argent sauf urgence",
+
+  "financialReportRoadmapImmediate": "Immédiat",
+  "financialReportRoadmapThisMonth": "Ce mois",
+  "financialReportRoadmapShortTerm": "Court Terme",
+  "financialReportRoadmapShortTermTimeframe": "3-6 mois",
+
+  "financialReportConfidenceAddSalary": "Ajoute ton salaire",
+  "financialReportConfidenceAddCanton": "Indique ton canton",
+  "financialReportConfidenceAddLpp": "Ajoute ton solde LPP",
+  "financialReportConfidenceAdd3a": "Ajoute tes versements 3a",
+  "financialReportConfidenceAddAvs": "Commande ton extrait AVS",
+
+  "financialReportDeductionLppBuyback": "Rachat LPP",
+  "financialReportDeductionChildren": "Déduction enfants"
 }
