@@ -37,6 +37,7 @@ import 'package:mint_mobile/widgets/dashboard/couple_action_plan.dart';
 import 'package:mint_mobile/widgets/dashboard/couple_phase_timeline.dart';
 import 'package:mint_mobile/widgets/dashboard/replacement_ratio_badge.dart';
 import 'package:mint_mobile/widgets/dashboard/retirement_checklist_card.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COCKPIT DETAIL SCREEN
@@ -249,22 +250,23 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
   // ────────────────────────────────────────────────────────────
 
   String _buildImpactDescription() {
+    final s = S.of(context)!;
     final profile = _profile;
     if (profile == null) {
-      return 'gr\u00e2ce \u00e0 tes actions de pr\u00e9voyance';
+      return s.cockpitDetailImpactPrevoyance;
     }
 
     final has3a = profile.total3aMensuel > 0;
     final hasLpp = profile.totalLppBuybackMensuel > 0;
 
     if (has3a && hasLpp) {
-      return 'gr\u00e2ce au 3e pilier et au rachat LPP';
+      return s.cockpitDetailImpact3aAndLpp;
     } else if (has3a) {
-      return 'gr\u00e2ce au 3e pilier';
+      return s.cockpitDetailImpact3a;
     } else if (hasLpp) {
-      return 'gr\u00e2ce au rachat LPP';
+      return s.cockpitDetailImpactLpp;
     }
-    return 'gr\u00e2ce \u00e0 tes contributions planifi\u00e9es';
+    return s.cockpitDetailImpactContributions;
   }
 
   // ────────────────────────────────────────────────────────────
@@ -416,9 +418,9 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                 // ── Couple Phase Timeline ────────────────────
                 if (isCouple && hasPhases) ...[
                   CouplePhaseTimeline(
-                    userName: profile.firstName ?? 'Toi',
+                    userName: profile.firstName ?? S.of(context)!.dashboardDefaultUserName,
                     conjointName:
-                        profile.conjoint!.firstName ?? 'Conjoint\u00b7e',
+                        profile.conjoint!.firstName ?? S.of(context)!.dashboardDefaultConjointName,
                     userRetirementYear:
                         profile.birthYear + profile.effectiveRetirementAge,
                     conjointRetirementYear: profile.conjoint!.birthYear! +
@@ -512,7 +514,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
         ),
         titlePadding: const EdgeInsets.only(left: 56, bottom: 14),
         title: Text(
-          'Cockpit d\u00e9taill\u00e9',
+          S.of(context)!.cockpitDetailTitle,
           style: GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -547,7 +549,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Compl\u00e8te ton profil pour acc\u00e9der au cockpit d\u00e9taill\u00e9.',
+                      S.of(context)!.cockpitDetailEmptyTitle,
                       textAlign: TextAlign.center,
                       style: GoogleFonts.inter(
                         fontSize: 14,
@@ -560,7 +562,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                       onPressed: () => context.push('/document-scan'),
                       icon: const Icon(Icons.edit_outlined, size: 18),
                       label: Text(
-                        'Enrichir mon profil',
+                        S.of(context)!.cockpitDetailEnrichProfile,
                         style: GoogleFonts.inter(fontWeight: FontWeight.w600),
                       ),
                       style: FilledButton.styleFrom(
@@ -583,8 +585,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
 
   Widget _buildDisclaimer() {
     return Text(
-      'Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin). '
-      'Sources\u00a0: LAVS art. 21-29, LPP art. 14, OPP3 art. 7.',
+      S.of(context)!.cockpitDetailDisclaimer,
       textAlign: TextAlign.center,
       style: GoogleFonts.inter(
         fontSize: 10,

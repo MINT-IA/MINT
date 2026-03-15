@@ -9491,5 +9491,14 @@
   "loginLocalMode": "Continuer en mode local",
   "loginForgotPassword": "Mot de passe oublié ?",
   "loginVerifyEmail": "Vérifier mon e-mail",
-  "loginBack": "Retour"
+  "loginBack": "Retour",
+  "cockpitDetailTitle": "Cockpit détaillé",
+  "cockpitDetailImpactPrevoyance": "grâce à tes actions de prévoyance",
+  "cockpitDetailImpact3aAndLpp": "grâce au 3e pilier et au rachat LPP",
+  "cockpitDetailImpact3a": "grâce au 3e pilier",
+  "cockpitDetailImpactLpp": "grâce au rachat LPP",
+  "cockpitDetailImpactContributions": "grâce à tes contributions planifiées",
+  "cockpitDetailEmptyTitle": "Complète ton profil pour accéder au cockpit détaillé.",
+  "cockpitDetailEnrichProfile": "Enrichir mon profil",
+  "cockpitDetailDisclaimer": "Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 21-29, LPP art. 14, OPP3 art. 7."
 }
