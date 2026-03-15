@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 
 import 'package:mint_mobile/screens/pulse/pulse_screen.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
@@ -290,6 +291,7 @@ void main() {
       // TemporalPriorityService.prioritize should produce items for a
       // profile with positive salary (tax saving > 0) and a valid canton.
       final items = TemporalPriorityService.prioritize(
+        s: SFr(),
         canton: 'VS',
         taxSaving3a: 1500, // non-zero → 3a deadline item expected
         friTotal: 0,

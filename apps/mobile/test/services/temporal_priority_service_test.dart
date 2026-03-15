@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/services/plan_tracking_service.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
 
@@ -19,6 +20,7 @@ void main() {
   group('prioritize — basic output', () {
     test('returns non-empty list for October (3a countdown active)', () {
       final items = TemporalPriorityService.prioritize(
+        s: SFr(),
         today: DateTime(2026, 10, 15),
         canton: 'ZH',
         taxSaving3a: 1800,
@@ -30,6 +32,7 @@ void main() {
 
     test('returns TemporalItem objects with required fields', () {
       final items = TemporalPriorityService.prioritize(
+        s: SFr(),
         today: DateTime(2026, 10, 15),
         canton: 'ZH',
         taxSaving3a: 1800,
@@ -50,6 +53,7 @@ void main() {
 
     test('respects limit parameter', () {
       final items = TemporalPriorityService.prioritize(
+        s: SFr(),
         today: DateTime(2026, 10, 15),
         canton: 'ZH',
         taxSaving3a: 1800,
@@ -68,6 +72,7 @@ void main() {
   group('prioritize — sorting', () {
     test('items sorted by urgency (critical first)', () {
       final items = TemporalPriorityService.prioritize(
+        s: SFr(),
         today: DateTime(2026, 12, 20),
         canton: 'ZH',
         taxSaving3a: 1800,
@@ -92,6 +97,7 @@ void main() {
 
     test('December items have higher urgency than January items', () {
       final decItems = TemporalPriorityService.prioritize(
+        s: SFr(),
         today: DateTime(2026, 12, 15),
         canton: 'ZH',
         taxSaving3a: 1800,
@@ -100,6 +106,7 @@ void main() {
       );
 
       final janItems = TemporalPriorityService.prioritize(
+        s: SFr(),
         today: DateTime(2026, 1, 15),
         canton: 'ZH',
         taxSaving3a: 1800,
@@ -139,6 +146,7 @@ void main() {
   group('prioritize — deduplication', () {
     test('no duplicate 3a items across reengagement and notifications', () {
       final items = TemporalPriorityService.prioritize(
+        s: SFr(),
         today: DateTime(2026, 10, 15),
         canton: 'ZH',
         taxSaving3a: 1800,
@@ -162,6 +170,7 @@ void main() {
 
     test('no duplicate tax items across reengagement and notifications', () {
       final items = TemporalPriorityService.prioritize(
+        s: SFr(),
         today: DateTime(2026, 2, 15),
         canton: 'ZH',
         taxSaving3a: 1800,
@@ -194,6 +203,7 @@ void main() {
     test('3a deadlines always have positive daysUntil', () {
       // Test on Jan 1 (just after Dec 31) — should wrap to next year
       final items = TemporalPriorityService.prioritize(
+        s: SFr(),
         today: DateTime(2027, 1, 1),
         canton: 'ZH',
         taxSaving3a: 1800,
@@ -213,6 +223,7 @@ void main() {
     test('tax deadlines always have positive daysUntil', () {
       // Test on Apr 1 (just after Mar 31) — should wrap to next year
       final items = TemporalPriorityService.prioritize(
+        s: SFr(),
         today: DateTime(2026, 4, 1),
         canton: 'ZH',
         taxSaving3a: 1800,
@@ -237,6 +248,7 @@ void main() {
   group('prioritize — edge cases', () {
     test('zero tax saving still produces items', () {
       final items = TemporalPriorityService.prioritize(
+        s: SFr(),
         today: DateTime(2026, 10, 15),
         canton: 'ZH',
         taxSaving3a: 0,
@@ -249,6 +261,7 @@ void main() {
 
     test('zero limit returns empty list', () {
       final items = TemporalPriorityService.prioritize(
+        s: SFr(),
         today: DateTime(2026, 10, 15),
         limit: 0,
       );
@@ -257,6 +270,7 @@ void main() {
 
     test('default limit is 5', () {
       final items = TemporalPriorityService.prioritize(
+        s: SFr(),
         today: DateTime(2026, 10, 15),
         canton: 'ZH',
         taxSaving3a: 1800,
@@ -277,6 +291,7 @@ void main() {
       );
 
       final items = TemporalPriorityService.prioritize(
+        s: SFr(),
         today: DateTime(2026, 10, 15),
         planStatus: planStatus,
       );

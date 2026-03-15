@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/monthly_briefing_service.dart';
 import 'package:mint_mobile/services/micro_action_engine.dart';
@@ -83,6 +84,7 @@ void main() {
       final current = checkIn(month: DateTime(2026, 3, 1));
 
       final briefing = MonthlyBriefingService.compare(
+        s: SFr(),
         profile: profile,
         current: current,
       );
@@ -101,6 +103,7 @@ void main() {
       final curr = checkIn(month: DateTime(2026, 3, 1));
 
       final briefing = MonthlyBriefingService.compare(
+        s: SFr(),
         profile: profile,
         current: curr,
         previous: prev,
@@ -123,6 +126,7 @@ void main() {
       );
 
       final briefing = MonthlyBriefingService.compare(
+        s: SFr(),
         profile: profile,
         current: curr,
         previous: prev,
@@ -145,6 +149,7 @@ void main() {
       );
 
       final briefing = MonthlyBriefingService.compare(
+        s: SFr(),
         profile: profile,
         current: curr,
         previous: prev,
@@ -166,6 +171,7 @@ void main() {
       );
 
       final briefing = MonthlyBriefingService.compare(
+        s: SFr(),
         profile: profile,
         current: curr,
         previous: prev,
@@ -185,6 +191,7 @@ void main() {
       final current = checkIn(month: DateTime(2026, 3, 1));
 
       final briefing = MonthlyBriefingService.compare(
+        s: SFr(),
         profile: profile,
         current: current,
       );
@@ -209,6 +216,7 @@ void main() {
       );
 
       final briefing = MonthlyBriefingService.compare(
+        s: SFr(),
         profile: profile,
         current: curr,
         previous: prev,
@@ -226,6 +234,7 @@ void main() {
       );
 
       final briefing = MonthlyBriefingService.compare(
+        s: SFr(),
         profile: profile,
         current: curr,
         previous: prev,
@@ -245,7 +254,7 @@ void main() {
   group('MonthlyBriefingService.fromProfile()', () {
     test('returns null for empty check-ins', () {
       final profile = buildProfile();
-      final briefing = MonthlyBriefingService.fromProfile(profile);
+      final briefing = MonthlyBriefingService.fromProfile(profile, s: SFr());
       expect(briefing, isNull);
     });
 
@@ -253,7 +262,7 @@ void main() {
       final profile = buildProfile(
         checkIns: [checkIn(month: DateTime(2026, 3, 1))],
       );
-      final briefing = MonthlyBriefingService.fromProfile(profile);
+      final briefing = MonthlyBriefingService.fromProfile(profile, s: SFr());
       expect(briefing, isNotNull);
       expect(briefing!.isFirstCheckIn, isTrue);
     });
@@ -271,7 +280,7 @@ void main() {
           ),
         ],
       );
-      final briefing = MonthlyBriefingService.fromProfile(profile);
+      final briefing = MonthlyBriefingService.fromProfile(profile, s: SFr());
       expect(briefing, isNotNull);
       expect(briefing!.isFirstCheckIn, isFalse);
       expect(briefing.trend, BriefingTrend.enHausse);
@@ -287,6 +296,7 @@ void main() {
       final profile = buildProfile();
 
       final stable = MonthlyBriefingService.compare(
+        s: SFr(),
         profile: profile,
         current: checkIn(month: DateTime(2026, 3, 1)),
       );
@@ -325,6 +335,7 @@ void main() {
       );
 
       final briefing = MonthlyBriefingService.compare(
+        s: SFr(),
         profile: profile,
         current: currWithFri,
         previous: prevWithFri,
@@ -344,6 +355,7 @@ void main() {
       );
 
       final briefing = MonthlyBriefingService.compare(
+        s: SFr(),
         profile: profile,
         current: curr,
         previous: prev,
@@ -362,6 +374,7 @@ void main() {
       );
 
       final briefing = MonthlyBriefingService.compare(
+        s: SFr(),
         profile: profile,
         current: curr,
       );
@@ -385,6 +398,7 @@ void main() {
       );
 
       final briefing = MonthlyBriefingService.compare(
+        s: SFr(),
         profile: profile,
         current: currWithFri,
         previous: prevWithFri,
@@ -416,21 +430,21 @@ void main() {
   group('MicroActionEngine.suggest() — basic', () {
     test('returns non-empty list for standard profile', () {
       final profile = buildProfile();
-      final actions = MicroActionEngine.suggest(profile: profile);
+      final actions = MicroActionEngine.suggest(profile: profile, s: SFr());
       expect(actions, isNotEmpty);
     });
 
     test('respects limit parameter', () {
       final profile = buildProfile();
       final actions =
-          MicroActionEngine.suggest(profile: profile, limit: 1);
+          MicroActionEngine.suggest(profile: profile, s: SFr(), limit: 1);
       expect(actions.length, lessThanOrEqualTo(1));
     });
 
     test('actions are sorted by priority (highest first)', () {
       final profile = buildProfile();
       final actions =
-          MicroActionEngine.suggest(profile: profile, limit: 10);
+          MicroActionEngine.suggest(profile: profile, s: SFr(), limit: 10);
       if (actions.length >= 2) {
         for (var i = 0; i < actions.length - 1; i++) {
           expect(actions[i].priorityScore,
@@ -442,7 +456,7 @@ void main() {
     test('actions are deduplicated by id', () {
       final profile = buildProfile();
       final actions =
-          MicroActionEngine.suggest(profile: profile, limit: 10);
+          MicroActionEngine.suggest(profile: profile, s: SFr(), limit: 10);
       final ids = actions.map((a) => a.id).toSet();
       expect(ids.length, equals(actions.length));
     });
@@ -450,7 +464,7 @@ void main() {
     test('every action has required fields', () {
       final profile = buildProfile();
       final actions =
-          MicroActionEngine.suggest(profile: profile, limit: 10);
+          MicroActionEngine.suggest(profile: profile, s: SFr(), limit: 10);
       for (final action in actions) {
         expect(action.id, isNotEmpty);
         expect(action.title, isNotEmpty);
@@ -471,7 +485,7 @@ void main() {
     test('missing LPP generates scan action', () {
       final profile = buildProfile(avoirLpp: 0);
       final actions =
-          MicroActionEngine.suggest(profile: profile, limit: 10);
+          MicroActionEngine.suggest(profile: profile, s: SFr(), limit: 10);
       final scanAction = actions.where((a) => a.id == 'scan_lpp_cert');
       expect(scanAction, isNotEmpty,
           reason: 'Missing LPP should suggest certificate scan');
@@ -480,7 +494,7 @@ void main() {
     test('missing assurance generates add action', () {
       final profile = buildProfile(assuranceMaladie: 0);
       final actions =
-          MicroActionEngine.suggest(profile: profile, limit: 10);
+          MicroActionEngine.suggest(profile: profile, s: SFr(), limit: 10);
       final assurAction = actions.where((a) => a.id == 'add_assurance');
       expect(assurAction, isNotEmpty,
           reason: 'Missing assurance should suggest adding it');
@@ -491,9 +505,9 @@ void main() {
       final incomplete = buildProfile(avoirLpp: 0, assuranceMaladie: 0);
 
       final completeActions =
-          MicroActionEngine.suggest(profile: complete, limit: 10);
+          MicroActionEngine.suggest(profile: complete, s: SFr(), limit: 10);
       final incompleteActions =
-          MicroActionEngine.suggest(profile: incomplete, limit: 10);
+          MicroActionEngine.suggest(profile: incomplete, s: SFr(), limit: 10);
 
       final completeGaps =
           completeActions.where((a) => a.category == 'lpp' || a.category == 'assurance');
@@ -512,7 +526,7 @@ void main() {
     test('45+ gets LPP rachat suggestion', () {
       final profile = buildProfile(birthYear: 1977); // age ~49
       final actions =
-          MicroActionEngine.suggest(profile: profile, limit: 10);
+          MicroActionEngine.suggest(profile: profile, s: SFr(), limit: 10);
       final rachat = actions.where((a) => a.id == 'explore_rachat_lpp');
       expect(rachat, isNotEmpty,
           reason: '45+ with LPP should see rachat suggestion');
@@ -525,7 +539,7 @@ void main() {
         assuranceMaladie: 450,
       );
       final actions =
-          MicroActionEngine.suggest(profile: profile, limit: 10);
+          MicroActionEngine.suggest(profile: profile, s: SFr(), limit: 10);
       final fund = actions.where((a) => a.id == 'build_emergency_fund');
       expect(fund, isNotEmpty,
           reason: 'Low liquidity should suggest building emergency fund');
@@ -547,7 +561,7 @@ void main() {
         ),
       );
       final actions =
-          MicroActionEngine.suggest(profile: profile, limit: 10);
+          MicroActionEngine.suggest(profile: profile, s: SFr(), limit: 10);
       final fatca = actions.where((a) => a.id == 'fatca_couple_check');
       expect(fatca, isNotEmpty,
           reason: 'FATCA conjoint should generate compliance action');
@@ -562,7 +576,7 @@ void main() {
         ),
       );
       final actions =
-          MicroActionEngine.suggest(profile: profile, limit: 10);
+          MicroActionEngine.suggest(profile: profile, s: SFr(), limit: 10);
       final complete =
           actions.where((a) => a.id == 'complete_conjoint_profile');
       expect(complete, isNotEmpty,
@@ -583,6 +597,7 @@ void main() {
       );
       final actions = MicroActionEngine.suggest(
         profile: profile,
+        s: SFr(),
         currentCheckIn: current,
         limit: 10,
       );
@@ -604,6 +619,7 @@ void main() {
       );
       final actions = MicroActionEngine.suggest(
         profile: profile,
+        s: SFr(),
         currentCheckIn: curr,
         previousCheckIn: prev,
         limit: 10,
@@ -624,6 +640,7 @@ void main() {
       final current = checkIn(month: DateTime(2026, 3, 1));
 
       final briefing = MonthlyBriefingService.compare(
+        s: SFr(),
         profile: profile,
         current: current,
       );

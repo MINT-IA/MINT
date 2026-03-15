@@ -1,3 +1,4 @@
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/reengagement_engine.dart';
 import 'package:mint_mobile/services/notification_scheduler_service.dart';
 import 'package:mint_mobile/services/plan_tracking_service.dart';
@@ -17,6 +18,7 @@ class TemporalPriorityService {
   /// [NotificationSchedulerService] (event-driven) into a single list,
   /// deduplicated by category and sorted by deadline proximity.
   static List<TemporalItem> prioritize({
+    required S s,
     DateTime? today,
     String canton = 'ZH',
     double taxSaving3a = 0,
@@ -60,6 +62,7 @@ class TemporalPriorityService {
     // Source 2: NotificationSchedulerService — event-driven
     final eventNotifications =
         NotificationSchedulerService.generateEventNotifications(
+      s: s,
       friDelta: friDelta,
       profileUpdated: profileUpdated,
       checkInCompleted: checkInCompleted,

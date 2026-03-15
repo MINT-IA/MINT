@@ -261,7 +261,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
     );
 
     // Re-schedule notifications with updated profile (new check-in resets reminders)
-    NotificationService().scheduleCoachingReminders(profile: updatedProfile);
+    NotificationService().scheduleCoachingReminders(profile: updatedProfile, s: S.of(context)!);
 
     // ── Monthly briefing N vs N-1 (Coach Vivant) ──
     final previousCheckIn = _profile.checkIns.isNotEmpty
@@ -272,6 +272,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
     _briefing = MonthlyBriefingService.compare(
       profile: updatedProfile,
       current: checkIn,
+      s: S.of(context)!,
       previous: previousCheckIn,
     );
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/main_tabs/explore_tab.dart';
 import 'package:mint_mobile/screens/pulse/pulse_screen.dart' show PulseScreen, NavigationShellState;
@@ -85,9 +86,9 @@ class _MainNavigationShellState extends State<MainNavigationShell>
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Bienvenue ! Tes donnees sont a jour.'),
-                  duration: Duration(seconds: 3),
+                SnackBar(
+                  content: Text(S.of(context)!.notifWelcomeBack),
+                  duration: const Duration(seconds: 3),
                 ),
               );
             }

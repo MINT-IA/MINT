@@ -14,6 +14,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'dart:io' show Platform;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -30,9 +31,6 @@ class NotificationService {
 
   /// Android notification channel for coaching reminders
   static const _channelId = 'mint_coaching';
-  static const _channelName = 'Coaching MINT';
-  static const _channelDescription =
-      'Rappels de check-in, deadlines 3a, et notifications de coaching';
 
   // ── Notification IDs (ranges to avoid collisions) ────────
   static const _idCheckinMonthly = 1000;
@@ -127,8 +125,11 @@ class NotificationService {
 
   /// Schedule coaching reminders based on user profile.
   /// Call this after each check-in and at app startup.
+  ///
+  /// [s] — localized strings (pass `S.of(context)!` from caller).
   Future<void> scheduleCoachingReminders({
     required CoachProfile profile,
+    required S s,
   }) async {
     if (kIsWeb || _plugin == null) return;
 
@@ -143,23 +144,24 @@ class NotificationService {
 
     // 1. Monthly check-in reminder: 1st of each month at 10:00
     //    ONLY if check-in not done for current month
-    _scheduleMonthlyCheckin(profile, now);
+    _scheduleMonthlyCheckin(profile, now, s);
 
     // 2. 3a deadline reminders: Oct 1, Nov 15, Dec 15, Dec 28
     //    ONLY if user has 3a AND not maxed
-    _schedule3aDeadlines(profile, now);
+    _schedule3aDeadlines(profile, now, s);
 
     // 3. Tax deadline reminders: Feb 15, Mar 15, Mar 25
-    _scheduleTaxDeadlines(now);
+    _scheduleTaxDeadlines(now, s);
 
     // 4. Streak protection: 25th of each month if no check-in this month
-    _scheduleStreakProtection(profile, now);
+    _scheduleStreakProtection(profile, now, s);
   }
 
   /// Monthly check-in reminder (1st of month, 10:00)
   void _scheduleMonthlyCheckin(
     CoachProfile profile,
     tz.TZDateTime now,
+    S s,
   ) {
     // Check if current month check-in already done
     final hasCurrentMonthCheckin = profile.checkIns.any((ci) =>
@@ -181,10 +183,12 @@ class NotificationService {
     if (nextFirst.isAfter(now)) {
       _scheduleNotification(
         id: _idCheckinMonthly,
-        title: 'Check-in mensuel',
-        body: 'Confirme tes versements du mois en 2 min',
+        title: s.notifCheckinTitle,
+        body: s.notifCheckinBody,
         scheduledDate: nextFirst,
         payload: '/coach/checkin',
+        channelName: s.notifChannelName,
+        channelDescription: s.notifChannelDescription,
         matchDateComponents: DateTimeComponents.dayOfMonthAndTime,
       );
     }
@@ -194,6 +198,7 @@ class NotificationService {
   void _schedule3aDeadlines(
     CoachProfile profile,
     tz.TZDateTime now,
+    S s,
   ) {
     // Only schedule if user has 3a contributions
     final has3a = profile.prevoyance.nombre3a > 0 ||
@@ -211,22 +216,22 @@ class NotificationService {
       (
         month: 10,
         day: 1,
-        body: 'Il reste 3 mois pour verser sur ton 3a (CHF $restant de marge)',
+        body: s.notifDeadline3aBody3months(restant),
       ),
       (
         month: 11,
         day: 15,
-        body: 'Il reste 46 jours pour maximiser ton 3a (CHF $restant de marge)',
+        body: s.notifDeadline3aBody46days(restant),
       ),
       (
         month: 12,
         day: 15,
-        body: 'Il reste 16 jours pour verser sur ton 3a',
+        body: s.notifDeadline3aBody16days,
       ),
       (
         month: 12,
         day: 28,
-        body: 'Derniers jours ! Verse sur ton 3a avant le 31 décembre',
+        body: s.notifDeadline3aBodyFinal,
       ),
     ];
 
@@ -249,32 +254,34 @@ class NotificationService {
       if (scheduledDate.isAfter(now)) {
         _scheduleNotification(
           id: _id3aDeadlineBase + i,
-          title: 'Deadline 3a',
+          title: s.notifDeadline3aTitle,
           body: d.body,
           scheduledDate: scheduledDate,
           payload: '/simulator/3a',
+          channelName: s.notifChannelName,
+          channelDescription: s.notifChannelDescription,
         );
       }
     }
   }
 
   /// Tax deadline reminders: Feb 15, Mar 15, Mar 25
-  void _scheduleTaxDeadlines(tz.TZDateTime now) {
+  void _scheduleTaxDeadlines(tz.TZDateTime now, S s) {
     final deadlines = [
       (
         month: 2,
         day: 15,
-        body: 'Déclaration fiscale dans 44 jours — pense à rassembler tes documents',
+        body: s.notifTaxBody44daysShort,
       ),
       (
         month: 3,
         day: 15,
-        body: 'Déclaration fiscale dans 16 jours — commence à la remplir',
+        body: s.notifTaxBody16daysShort,
       ),
       (
         month: 3,
         day: 25,
-        body: 'Déclaration à rendre avant le 31 mars — dernière semaine !',
+        body: s.notifTaxBodyLastWeekShort,
       ),
     ];
 
@@ -296,10 +303,12 @@ class NotificationService {
       if (scheduledDate.isAfter(now)) {
         _scheduleNotification(
           id: _idTaxDeadlineBase + i,
-          title: 'Déclaration fiscale',
+          title: s.notifTaxTitle,
           body: d.body,
           scheduledDate: scheduledDate,
           payload: '/home',
+          channelName: s.notifChannelName,
+          channelDescription: s.notifChannelDescription,
         );
       }
     }
@@ -309,6 +318,7 @@ class NotificationService {
   void _scheduleStreakProtection(
     CoachProfile profile,
     tz.TZDateTime now,
+    S s,
   ) {
     final streak = profile.streak;
     if (streak <= 0) return;
@@ -343,11 +353,12 @@ class NotificationService {
     if (scheduledDate.isAfter(now)) {
       _scheduleNotification(
         id: _idStreakProtection,
-        title: 'Protège ta série',
-        body:
-            'Tu es à $streak mois consécutifs — ne casse pas ta série !',
+        title: s.notifStreakTitle,
+        body: s.notifStreakBody(streak),
         scheduledDate: scheduledDate,
         payload: '/coach/checkin',
+        channelName: s.notifChannelName,
+        channelDescription: s.notifChannelDescription,
       );
     }
   }
@@ -360,14 +371,16 @@ class NotificationService {
     required String body,
     required tz.TZDateTime scheduledDate,
     required String payload,
+    required String channelName,
+    required String channelDescription,
     DateTimeComponents? matchDateComponents,
   }) async {
     if (_plugin == null) return;
 
     final androidDetails = AndroidNotificationDetails(
       _channelId,
-      _channelName,
-      channelDescription: _channelDescription,
+      channelName,
+      channelDescription: channelDescription,
       importance: Importance.high,
       priority: Priority.defaultPriority,
       styleInformation: BigTextStyleInformation(body),

@@ -1,3 +1,4 @@
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/micro_action_engine.dart';
 
@@ -91,6 +92,7 @@ class MonthlyBriefingService {
   static MonthlyBriefingDelta compare({
     required CoachProfile profile,
     required MonthlyCheckIn current,
+    required S s,
     MonthlyCheckIn? previous,
   }) {
     // ── Versements delta ──────────────────────────────
@@ -130,6 +132,7 @@ class MonthlyBriefingService {
     // ── Micro-actions ────────────────────────────────
     final microActions = MicroActionEngine.suggest(
       profile: profile,
+      s: s,
       currentCheckIn: current,
       previousCheckIn: previous,
     );
@@ -152,7 +155,7 @@ class MonthlyBriefingService {
   /// Convenience: generate briefing from profile's check-in history.
   ///
   /// Uses the last two check-ins from [profile.checkIns].
-  static MonthlyBriefingDelta? fromProfile(CoachProfile profile) {
+  static MonthlyBriefingDelta? fromProfile(CoachProfile profile, {required S s}) {
     if (profile.checkIns.isEmpty) return null;
 
     final sorted = List<MonthlyCheckIn>.from(profile.checkIns)
@@ -164,6 +167,7 @@ class MonthlyBriefingService {
     return compare(
       profile: profile,
       current: current,
+      s: s,
       previous: previous,
     );
   }

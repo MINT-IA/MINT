@@ -16,6 +16,7 @@
 /// - All French, informal "tu"
 library;
 
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/plan_tracking_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -120,6 +121,7 @@ class NotificationSchedulerService {
 
   /// Generate Tier 1 calendar notifications for the year.
   ///
+  /// [s] — localized strings (pass `S.of(context)!` from caller).
   /// [taxSaving3a] — estimated annual tax saving from 3a contributions (CHF).
   /// [today] — override for testing (defaults to DateTime.now()).
   ///
@@ -131,6 +133,7 @@ class NotificationSchedulerService {
   ///   - Jan 5: nouveaux plafonds
   ///   - Monthly 1st: check-in mensuel
   static List<ScheduledNotification> generateCalendarNotifications({
+    required S s,
     required double taxSaving3a,
     DateTime? today,
   }) {
@@ -147,8 +150,8 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.threeADeadline,
         tier: NotificationTier.calendar,
-        title: 'Deadline 3a',
-        body: 'Il reste 92 jours pour verser sur ton 3a.',
+        title: s.notifDeadline3aTitle,
+        body: s.notifDeadline3aBody92days,
         deeplink: '/simulator/3a',
         scheduledDate: oct1,
         personalNumber: savingStr,
@@ -162,8 +165,8 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.threeADeadline,
         tier: NotificationTier.calendar,
-        title: 'Deadline 3a',
-        body: 'Il reste 61 jours. Économie estimée : CHF $savingStr.',
+        title: s.notifDeadline3aTitle,
+        body: s.notifDeadline3aBody61days(savingStr),
         deeplink: '/simulator/3a',
         scheduledDate: nov1,
         personalNumber: 'CHF $savingStr',
@@ -177,8 +180,8 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.threeADeadline,
         tier: NotificationTier.calendar,
-        title: 'Deadline 3a',
-        body: 'Dernier mois pour ton 3a. CHF $savingStr d\'économie en jeu.',
+        title: s.notifDeadline3aTitle,
+        body: s.notifDeadline3aBodyLastMonth(savingStr),
         deeplink: '/simulator/3a',
         scheduledDate: dec1,
         personalNumber: 'CHF $savingStr',
@@ -192,8 +195,8 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.threeADeadline,
         tier: NotificationTier.calendar,
-        title: 'Deadline 3a',
-        body: '11 jours. Dernier rappel 3a.',
+        title: s.notifDeadline3aTitle,
+        body: s.notifDeadline3aBody11days,
         deeplink: '/simulator/3a',
         scheduledDate: dec20,
         personalNumber: savingStr,
@@ -207,9 +210,8 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.newYearPlafonds,
         tier: NotificationTier.calendar,
-        title: 'Nouveaux plafonds ${year + 1}',
-        body:
-            'Nouveaux plafonds ${year + 1}. Ton économie potentielle a changé.',
+        title: s.notifNewYearPlafondsTitle(year + 1),
+        body: s.notifNewYearPlafondsBody(year + 1),
         deeplink: '/simulator/3a',
         scheduledDate: jan5,
         personalNumber: savingStr,
@@ -222,16 +224,16 @@ class NotificationSchedulerService {
     for (int month = now.month + 1; month <= 12; month++) {
       final first = DateTime(year, month, 1, 10, 0);
       if (first.isAfter(now)) {
-        final monthName = _monthName(month);
+        final monthName = _monthNameLocalized(s, month);
         notifications.add(ScheduledNotification(
           category: NotificationCategory.monthlyCheckIn,
           tier: NotificationTier.calendar,
-          title: 'Check-in mensuel',
-          body: 'Ton check-in mensuel est disponible.',
+          title: s.notifCheckinTitle,
+          body: s.notifCheckinAvailable,
           deeplink: '/coach/checkin',
           scheduledDate: first,
           personalNumber: monthName,
-          timeReference: '1er $monthName',
+          timeReference: s.notifCheckinTimeRef(monthName),
         ));
       }
     }
@@ -239,15 +241,16 @@ class NotificationSchedulerService {
     // Also Jan of next year
     final jan1Next = DateTime(year + 1, 1, 1, 10, 0);
     if (jan1Next.isAfter(now)) {
+      final janName = s.notifMonthJanvier;
       notifications.add(ScheduledNotification(
         category: NotificationCategory.monthlyCheckIn,
         tier: NotificationTier.calendar,
-        title: 'Check-in mensuel',
-        body: 'Ton check-in mensuel est disponible.',
+        title: s.notifCheckinTitle,
+        body: s.notifCheckinAvailable,
         deeplink: '/coach/checkin',
         scheduledDate: jan1Next,
-        personalNumber: 'janvier',
-        timeReference: '1er janvier',
+        personalNumber: janName,
+        timeReference: s.notifCheckinTimeRef(janName),
       ));
     }
 
@@ -259,9 +262,8 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.taxDeclaration,
         tier: NotificationTier.calendar,
-        title: 'Déclaration fiscale',
-        body:
-            'Déclaration fiscale dans 44 jours. Pense à rassembler tes documents.',
+        title: s.notifTaxTitle,
+        body: s.notifTaxBody44days,
         deeplink: '/home',
         scheduledDate: feb15,
         personalNumber: savingStr,
@@ -275,8 +277,8 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.taxDeclaration,
         tier: NotificationTier.calendar,
-        title: 'Déclaration fiscale',
-        body: 'Déclaration fiscale dans 16 jours. Commence à la remplir.',
+        title: s.notifTaxTitle,
+        body: s.notifTaxBody16days,
         deeplink: '/home',
         scheduledDate: mar15,
         personalNumber: savingStr,
@@ -290,8 +292,8 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.taxDeclaration,
         tier: NotificationTier.calendar,
-        title: 'Déclaration fiscale',
-        body: 'Déclaration à rendre avant le 31 mars. Dernière semaine.',
+        title: s.notifTaxTitle,
+        body: s.notifTaxBodyLastWeek,
         deeplink: '/home',
         scheduledDate: mar25,
         personalNumber: savingStr,
@@ -306,6 +308,7 @@ class NotificationSchedulerService {
 
   /// Generate Tier 2 event notifications based on state changes.
   ///
+  /// [s] — localized strings (pass `S.of(context)!` from caller).
   /// [friDelta] — change in FRI score since last check-in.
   /// [profileUpdated] — whether profile data was recently updated.
   /// [checkInCompleted] — whether a check-in was just completed.
@@ -313,6 +316,7 @@ class NotificationSchedulerService {
   ///
   /// Returns event-driven notifications (immediate, not calendar-scheduled).
   static List<ScheduledNotification> generateEventNotifications({
+    required S s,
     double friDelta = 0,
     bool profileUpdated = false,
     bool checkInCompleted = false,
@@ -329,8 +333,8 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.friImprovement,
         tier: NotificationTier.event,
-        title: 'Score de solidité',
-        body: 'Depuis ton dernier check-in : $deltaStr points.',
+        title: s.notifFriTitle,
+        body: s.notifFriBodyDelta(deltaStr),
         deeplink: '/coach/dashboard',
         scheduledDate: now,
         personalNumber: '$deltaStr points',
@@ -343,8 +347,8 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.profileUpdate,
         tier: NotificationTier.event,
-        title: 'Profil mis à jour',
-        body: 'Ton profil a été mis à jour. Nouvelles projections disponibles.',
+        title: s.notifProfileUpdatedTitle,
+        body: s.notifProfileUpdatedBody,
         deeplink: '/coach/dashboard',
         scheduledDate: now,
         personalNumber: 'nouvelles projections',
@@ -358,9 +362,8 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.friImprovement,
         tier: NotificationTier.event,
-        title: 'Score de solidité',
-        body:
-            'Ta solidité a progressé de ${friDelta.toStringAsFixed(0)} points.',
+        title: s.notifFriTitle,
+        body: s.notifFriBodyImproved(friDelta.toStringAsFixed(0)),
         deeplink: '/coach/dashboard',
         scheduledDate: now,
         personalNumber: '$deltaStr points',
@@ -379,9 +382,8 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.offTrack,
         tier: NotificationTier.event,
-        title: 'Tu t\'éloignes de ton plan',
-        body: 'Adhérence à $adherence% sur ${planStatus.totalActions} actions. '
-            'Indication linéaire (hors rendement/fiscalité)\u00a0: ~CHF $impact.',
+        title: s.notifOffTrackTitle,
+        body: s.notifOffTrackBody(adherence, planStatus.totalActions, impact),
         deeplink: '/coach/checkin',
         scheduledDate: now,
         personalNumber: '$adherence%',
@@ -405,23 +407,22 @@ class NotificationSchedulerService {
     );
   }
 
-  /// French month name (lowercase).
-  static String _monthName(int month) {
-    const names = [
-      '',
-      'janvier',
-      'février',
-      'mars',
-      'avril',
-      'mai',
-      'juin',
-      'juillet',
-      'août',
-      'septembre',
-      'octobre',
-      'novembre',
-      'décembre',
-    ];
-    return names[month.clamp(1, 12)];
+  /// Localized month name from ARB keys.
+  static String _monthNameLocalized(S s, int month) {
+    switch (month) {
+      case 1: return s.notifMonthJanvier;
+      case 2: return s.notifMonthFevrier;
+      case 3: return s.notifMonthMars;
+      case 4: return s.notifMonthAvril;
+      case 5: return s.notifMonthMai;
+      case 6: return s.notifMonthJuin;
+      case 7: return s.notifMonthJuillet;
+      case 8: return s.notifMonthAout;
+      case 9: return s.notifMonthSeptembre;
+      case 10: return s.notifMonthOctobre;
+      case 11: return s.notifMonthNovembre;
+      case 12: return s.notifMonthDecembre;
+      default: return s.notifMonthJanvier;
+    }
   }
 }

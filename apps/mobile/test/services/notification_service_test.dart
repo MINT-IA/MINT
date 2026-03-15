@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -80,6 +81,7 @@ void main() {
       expect(
         () async => await service.scheduleCoachingReminders(
           profile: buildProfile(),
+          s: SFr(),
         ),
         returnsNormally,
       );
@@ -590,8 +592,8 @@ void main() {
       // because it calls cancelAll() first, then re-schedules everything.
       // With null plugin, it's all no-ops.
       final profile = buildProfile();
-      await service.scheduleCoachingReminders(profile: profile);
-      await service.scheduleCoachingReminders(profile: profile);
+      await service.scheduleCoachingReminders(profile: profile, s: SFr());
+      await service.scheduleCoachingReminders(profile: profile, s: SFr());
       // No exception means idempotent behavior
     });
 
@@ -607,8 +609,8 @@ void main() {
       );
 
       // Both calls should succeed (no-op with null plugin)
-      await service.scheduleCoachingReminders(profile: profile1);
-      await service.scheduleCoachingReminders(profile: profile2);
+      await service.scheduleCoachingReminders(profile: profile1, s: SFr());
+      await service.scheduleCoachingReminders(profile: profile2, s: SFr());
       // The second call replaces the first (cancelAll + re-schedule)
     });
   });
@@ -698,7 +700,7 @@ void main() {
 
       // Should not throw even with a profile that would trigger notifications
       await expectLater(
-        service.scheduleCoachingReminders(profile: profile),
+        service.scheduleCoachingReminders(profile: profile, s: SFr()),
         completes,
       );
     });

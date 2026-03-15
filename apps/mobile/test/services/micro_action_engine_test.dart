@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/micro_action_engine.dart';
 
@@ -56,14 +57,14 @@ void main() {
   group('MicroActionEngine.suggest', () {
     test('returns at most 3 actions by default', () {
       final profile = makeProfile();
-      final actions = MicroActionEngine.suggest(profile: profile);
+      final actions = MicroActionEngine.suggest(profile: profile, s: SFr());
       expect(actions.length, lessThanOrEqualTo(3));
     });
 
     test('respects custom limit', () {
       final profile = makeProfile();
       final actions =
-          MicroActionEngine.suggest(profile: profile, limit: 1);
+          MicroActionEngine.suggest(profile: profile, s: SFr(), limit: 1);
       expect(actions.length, lessThanOrEqualTo(1));
     });
 
@@ -77,13 +78,13 @@ void main() {
         epargneLiquide: 100000,
         investissements: 200000,
       );
-      final actions = MicroActionEngine.suggest(profile: profile);
+      final actions = MicroActionEngine.suggest(profile: profile, s: SFr());
       expect(actions, isA<List<MicroAction>>());
     });
 
     test('all actions have required fields', () {
       final profile = makeProfile();
-      final actions = MicroActionEngine.suggest(profile: profile);
+      final actions = MicroActionEngine.suggest(profile: profile, s: SFr());
       for (final action in actions) {
         expect(action.id, isNotEmpty);
         expect(action.title, isNotEmpty);
@@ -97,7 +98,7 @@ void main() {
 
     test('actions are sorted by priorityScore descending', () {
       final profile = makeProfile();
-      final actions = MicroActionEngine.suggest(profile: profile);
+      final actions = MicroActionEngine.suggest(profile: profile, s: SFr());
       if (actions.length >= 2) {
         for (var i = 0; i < actions.length - 1; i++) {
           expect(
@@ -111,7 +112,7 @@ void main() {
 
     test('no duplicate action IDs', () {
       final profile = makeProfile();
-      final actions = MicroActionEngine.suggest(profile: profile);
+      final actions = MicroActionEngine.suggest(profile: profile, s: SFr());
       final ids = actions.map((a) => a.id).toSet();
       expect(ids.length, actions.length,
           reason: 'Each action ID should be unique');
@@ -125,14 +126,14 @@ void main() {
   group('Profile gap actions', () {
     test('missing LPP data triggers scan_lpp action', () {
       final profile = makeProfile(avoirLpp: null);
-      final actions = MicroActionEngine.suggest(profile: profile);
+      final actions = MicroActionEngine.suggest(profile: profile, s: SFr());
       // Should suggest scanning/enriching LPP data
       expect(actions, isNotEmpty);
     });
 
     test('missing 3a triggers verse_3a action', () {
       final profile = makeProfile(totalEpargne3a: null);
-      final actions = MicroActionEngine.suggest(profile: profile);
+      final actions = MicroActionEngine.suggest(profile: profile, s: SFr());
       expect(actions, isNotEmpty);
     });
   });
@@ -150,7 +151,7 @@ void main() {
           // Missing most data
         ),
       );
-      final actions = MicroActionEngine.suggest(profile: profile);
+      final actions = MicroActionEngine.suggest(profile: profile, s: SFr());
       // Should have at least one couple-related action
       expect(actions, isNotEmpty);
     });
@@ -171,6 +172,7 @@ void main() {
       final profile = makeProfile();
       final actions = MicroActionEngine.suggest(
         profile: profile,
+        s: SFr(),
         currentCheckIn: checkIn,
       );
       expect(actions, isA<List<MicroAction>>());

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
 
@@ -84,6 +85,7 @@ class MicroActionEngine {
   /// 4. Couple coordination (if applicable)
   static List<MicroAction> suggest({
     required CoachProfile profile,
+    required S s,
     MonthlyCheckIn? currentCheckIn,
     MonthlyCheckIn? previousCheckIn,
     int limit = 3,
@@ -93,7 +95,7 @@ class MicroActionEngine {
     final age = now.year - profile.birthYear;
 
     // ── 1. Temporal urgency ──────────────────────────
-    candidates.addAll(_temporalActions(profile, now));
+    candidates.addAll(_temporalActions(profile, now, s));
 
     // ── 2. Profile gaps (data enrichment) ────────────
     candidates.addAll(_profileGapActions(profile));
@@ -128,7 +130,7 @@ class MicroActionEngine {
   // ──────────────────────────────────────────────────
 
   static List<MicroAction> _temporalActions(
-      CoachProfile profile, DateTime now) {
+      CoachProfile profile, DateTime now, S s) {
     final actions = <MicroAction>[];
 
     // ── Compute personalized 3a data for TemporalPriority ──
@@ -140,6 +142,7 @@ class MicroActionEngine {
 
     // ── Get real temporal items from TemporalPriorityService ──
     final temporalItems = TemporalPriorityService.prioritize(
+      s: s,
       today: now,
       canton: profile.canton,
       taxSaving3a: taxSaving3a,
