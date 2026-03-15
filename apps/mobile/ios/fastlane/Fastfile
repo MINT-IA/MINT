@@ -89,10 +89,15 @@ platform :ios do
     )
 
     # ── 5. Configure manual code signing (use Match profile) ──
-    # Use the profile name from Match's lane context (auto-detected)
-    matched_profile = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING]
-    profile = matched_profile&.values&.first || ENV["sigh_ch.mint.app_appstore_profile-name"]
-    UI.message("Using provisioning profile: #{profile}")
+    # Read profile name from Match environment variable (set by match action)
+    profile = ENV["sigh_ch.mint.app_appstore_profile-name"]
+    if profile.to_s.empty?
+      # Fallback: read from lane context
+      mapping = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING]
+      profile = mapping.values.first if mapping.is_a?(Hash) && !mapping.empty?
+    end
+    profile = "match AppStore ch.mint.app 1773574035" if profile.to_s.empty?
+    UI.important("Using provisioning profile: #{profile}")
 
     update_code_signing_settings(
       use_automatic_signing: false,
@@ -103,10 +108,12 @@ platform :ios do
     )
 
     # ── 6. Build the Flutter IPA ──
+    profile_uuid = ENV["sigh_ch.mint.app_appstore"] || ""
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "Runner",
       export_method: "app-store",
+      xcargs: "PROVISIONING_PROFILE_SPECIFIER='#{profile}' CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY='iPhone Distribution'",
       export_options: {
         provisioningProfiles: {
           "ch.mint.app" => profile,
