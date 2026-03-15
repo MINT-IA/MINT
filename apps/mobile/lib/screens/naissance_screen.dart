@@ -203,9 +203,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         ],
 
         _buildEducationalInsert(
-          'La Suisse a introduit le conge paternite en 2021 seulement. '
-          'A 2 semaines, il reste l\'un des plus courts d\'Europe. '
-          'Le conge maternite (14 semaines) existe depuis 2005.',
+          S.of(context)!.naissanceCongeEducational,
         ),
         const SizedBox(height: 20),
 
@@ -309,7 +307,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               const Icon(Icons.timeline, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'CONGE $type'.toUpperCase(),
+                S.of(context)!.naissanceCongeLabel(type),
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -342,7 +340,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        '$weeks semaines',
+                        S.of(context)!.naissanceWeeks(weeks),
                         style: GoogleFonts.montserrat(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -376,7 +374,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                'Plafonne a CHF\u00A0${FamilyService.apgDailyMax.toStringAsFixed(0)}/jour',
+                S.of(context)!.naissanceCappedAt(FamilyService.apgDailyMax.toStringAsFixed(0)),
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -465,7 +463,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           if (perte > 0) ...[
             const SizedBox(height: 8),
             Text(
-              'Perte totale estimée sur le congé : ${FamilyService.formatChf(perte)}',
+              S.of(context)!.naissanceTotalLossEstimated(FamilyService.formatChf(perte)),
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -501,9 +499,11 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           ),
           const SizedBox(height: 6),
           Text(
-            'Ton conge ${_isMother ? "maternite" : "paternite"} '
-            'represente ${FamilyService.formatChf(totalApg)} d\'APG '
-            'sur $weeks semaines',
+            S.of(context)!.naissanceChiffreChocText(
+              _isMother ? S.of(context)!.naissanceMaternite : S.of(context)!.naissancePaternite,
+              FamilyService.formatChf(totalApg),
+              weeks,
+            ),
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.white70,
@@ -651,7 +651,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       child: Column(
         children: [
           Text(
-            '${FamilyService.formatChf(mensuel)}/mois',
+            S.of(context)!.naissanceAllocHeroMonthly(FamilyService.formatChf(mensuel)),
             style: GoogleFonts.montserrat(
               fontSize: 28,
               fontWeight: FontWeight.w800,
@@ -660,7 +660,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           ),
           const SizedBox(height: 6),
           Text(
-            '${FamilyService.formatChf(annuel)}/an',
+            S.of(context)!.naissanceAllocHeroAnnual(FamilyService.formatChf(annuel)),
             style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -669,8 +669,11 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           ),
           const SizedBox(height: 6),
           Text(
-            'Allocations familiales a ${FamilyService.cantonNames[_cantonAlloc]} '
-            'pour $_nbEnfantsAlloc enfant${_nbEnfantsAlloc > 1 ? "s" : ""}',
+            S.of(context)!.naissanceAllocHeroDesc(
+              FamilyService.cantonNames[_cantonAlloc] ?? _cantonAlloc,
+              _nbEnfantsAlloc,
+              _nbEnfantsAlloc > 1 ? 's' : '',
+            ),
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.white60,
@@ -817,7 +820,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                '$cantonNom offre parmi les allocations familiales les plus avantageuses de Suisse !',
+                S.of(context)!.naissanceBestCanton(cantonNom),
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -832,8 +835,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     }
 
     return _buildEducationalInsert(
-      'En habitant a $bestCanton au lieu de $cantonNom, '
-      'tu recevrais ${FamilyService.formatChf(diff)} de plus par an en allocations familiales.',
+      S.of(context)!.naissanceAllocDiff(bestCanton, cantonNom, FamilyService.formatChf(diff)),
     );
   }
 
@@ -972,8 +974,11 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             ),
             const SizedBox(height: 4),
             Text(
-              '(${FamilyService.cantonNames[_cantonAlloc]}, '
-              '$_nbEnfantsImpact enfant${_nbEnfantsImpact > 1 ? "s" : ""})',
+              S.of(context)!.naissanceAllocEnfantsLabel(
+                FamilyService.cantonNames[_cantonAlloc] ?? _cantonAlloc,
+                _nbEnfantsImpact,
+                _nbEnfantsImpact > 1 ? 's' : '',
+              ),
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textMuted,

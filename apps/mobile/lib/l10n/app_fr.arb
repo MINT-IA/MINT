@@ -10101,5 +10101,49 @@
   },
   "chiffreChocCtaAction": "Qu'est-ce que je peux faire\u00a0?",
   "chiffreChocCtaEnrich": "Affiner mon profil",
-  "chiffreChocDisclaimer": "Outil éducatif — ne constitue pas un conseil financier (LSFin). Sources\u00a0: LAVS art. 34, LPP art. 14-16, OPP3 art. 7."
+  "chiffreChocDisclaimer": "Outil éducatif — ne constitue pas un conseil financier (LSFin). Sources\u00a0: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.",
+  "naissanceAllocHeroMonthly": "{amount}/mois",
+  "@naissanceAllocHeroMonthly": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "naissanceAllocHeroAnnual": "{amount}/an",
+  "@naissanceAllocHeroAnnual": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "naissanceAllocHeroDesc": "Allocations familiales à {canton} pour {count} enfant{plural}",
+  "@naissanceAllocHeroDesc": {
+    "placeholders": {
+      "canton": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "plural": {
+        "type": "String"
+      }
+    }
+  },
+  "naissanceAllocEnfantsLabel": "({canton}, {count} enfant{plural})",
+  "@naissanceAllocEnfantsLabel": {
+    "placeholders": {
+      "canton": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "plural": {
+        "type": "String"
+      }
+    }
+  }
 }
