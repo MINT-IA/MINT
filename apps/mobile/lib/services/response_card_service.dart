@@ -160,7 +160,7 @@ class ResponseCardService {
         sources: ['OPP3 art. 7'],
       ));
     }
-    if (lower.contains('prestataire') && lower.contains('3a') ||
+    if ((lower.contains('prestataire') && lower.contains('3a')) ||
         lower.contains('viac') || lower.contains('finpension') ||
         lower.contains('frankly')) {
       cards.add(_buildSimpleCard(
@@ -178,8 +178,8 @@ class ResponseCardService {
       final c = _tryMortgage(profile);
       if (c != null) cards.add(c);
     }
-    if (lower.contains('louer') && lower.contains('acheter') ||
-        lower.contains('location') && lower.contains('propriet')) {
+    if ((lower.contains('louer') && lower.contains('acheter')) ||
+        (lower.contains('location') && lower.contains('propriet'))) {
       cards.add(_buildSimpleCard(
         id: 'rent_vs_buy',
         title: 'Louer ou acheter',
@@ -312,9 +312,9 @@ class ResponseCardService {
         sources: ['LACI art. 8-27'],
       ));
     }
-    if (lower.contains('premier') && lower.contains('emploi') ||
-        lower.contains('premier job') || lower.contains('debut') &&
-        lower.contains('carri')) {
+    if ((lower.contains('premier') && lower.contains('emploi')) ||
+        lower.contains('premier job') ||
+        (lower.contains('debut') && lower.contains('carri'))) {
       cards.add(_buildSimpleCard(
         id: 'first_job',
         title: 'Premier emploi',
@@ -343,8 +343,8 @@ class ResponseCardService {
         sources: ['CDI CH-FR art. 17', 'LIFD art. 83-101'],
       ));
     }
-    if (lower.contains('compar') && lower.contains('offre') ||
-        lower.contains('compar') && lower.contains('emploi') ||
+    if ((lower.contains('compar') && lower.contains('offre')) ||
+        (lower.contains('compar') && lower.contains('emploi')) ||
         lower.contains('deux offres')) {
       cards.add(_buildSimpleCard(
         id: 'job_comparison',
