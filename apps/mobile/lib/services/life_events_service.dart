@@ -1,3 +1,5 @@
+import 'package:mint_mobile/l10n/app_localizations.dart';
+
 // ────────────────────────────────────────────────────────────
 //  DIVORCE SERVICE
 // ────────────────────────────────────────────────────────────
@@ -107,7 +109,7 @@ class DivorceResult {
 /// Service for simulating the financial impact of divorce under Swiss law.
 class DivorceService {
   /// Run a full divorce financial simulation.
-  static DivorceResult simulate({required DivorceInput input}) {
+  static DivorceResult simulate({required DivorceInput input, required S s}) {
     // ---- LPP Split (CC 122 / LFLP 22) ----
     // During marriage, accumulated LPP is split 50/50.
     final totalLpp = input.lppConjoint1 + input.lppConjoint2;
@@ -215,62 +217,46 @@ class DivorceService {
 
     if (lppTransfer > 100000) {
       alerts.add(
-        'Le transfert LPP est significatif ('
-        '${_formatChf(lppTransfer)}). Verifiez les montants exacts '
-        'aupres de ta caisse de pension.',
+        s.lifeEventDivorceAlertLppTransfer(_formatChf(lppTransfer)),
       );
     }
 
     if (input.dettesCommunes > input.fortuneCommune * 0.5) {
-      alerts.add(
-        'Le niveau de dettes communes est eleve. Clarifiez la '
-        'repartition des dettes avant de signer la convention.',
-      );
+      alerts.add(s.lifeEventDivorceAlertDettesElevees);
     }
 
     if (taxImpact.delta > 5000) {
       alerts.add(
-        'L\'impact fiscal du divorce est important : '
-        '+${_formatChf(taxImpact.delta)}/an. Anticipez ce surcout '
-        'dans ton budget.',
+        s.lifeEventDivorceAlertImpactFiscal(_formatChf(taxImpact.delta)),
       );
     }
 
     if (input.marriageDurationYears >= 10 && incomeGap > 40000) {
-      alerts.add(
-        'Mariage de longue duree avec ecart de revenus important. '
-        'Une contribution d\'entretien au conjoint est probable.',
-      );
+      alerts.add(s.lifeEventDivorceAlertContributionEntretien);
     }
 
     if (input.numberOfChildren > 0) {
       alerts.add(
-        'Avec ${input.numberOfChildren} enfant(s), la garde et les '
-        'contributions d\'entretien seront les points centraux de '
-        'la convention.',
+        s.lifeEventDivorceAlertEnfants(input.numberOfChildren),
       );
     }
 
     if (input.regime == MatrimonialRegime.separationDeBiens) {
-      alerts.add(
-        'Regime de separation de biens : le partage du patrimoine '
-        'est plus simple mais le 3a n\'est pas automatiquement '
-        'partage.',
-      );
+      alerts.add(s.lifeEventDivorceAlertSeparationBiens);
     }
 
     // ---- Checklist ----
     final checklist = <String>[
-      'Demander les certificats LPP des deux conjoints',
-      'Demander le releve detaille des avoirs 3a',
-      'Lister tous les biens communs et propres',
-      'Consulter un(e) mediateur/trice agree(e)',
-      'Verifier les clauses beneficiaires 3a et assurances-vie',
-      'Etablir un budget post-divorce pour chaque conjoint',
-      'Clarifier la garde des enfants et les contributions',
-      'Preparer la convention de divorce (ou requete)',
-      'Verifier l\'impact sur le logement familial',
-      'Mettre a jour le testament et les directives anticipees',
+      s.lifeEventDivorceChecklist1,
+      s.lifeEventDivorceChecklist2,
+      s.lifeEventDivorceChecklist3,
+      s.lifeEventDivorceChecklist4,
+      s.lifeEventDivorceChecklist5,
+      s.lifeEventDivorceChecklist6,
+      s.lifeEventDivorceChecklist7,
+      s.lifeEventDivorceChecklist8,
+      s.lifeEventDivorceChecklist9,
+      s.lifeEventDivorceChecklist10,
     ];
 
     return DivorceResult(
@@ -397,7 +383,7 @@ class SuccessionResult {
 /// Service for simulating succession under Swiss law (new 2023 revision).
 class SuccessionService {
   /// Run a full succession simulation.
-  static SuccessionResult simulate({required SuccessionInput input}) {
+  static SuccessionResult simulate({required SuccessionInput input, required S s}) {
     final totalEstate = input.fortuneTotale;
 
     // ---- Legal Distribution ----
@@ -461,67 +447,53 @@ class SuccessionService {
     }
 
     // ---- 3a Beneficiary Order (OPP3 art. 2) ----
-    final pillar3aOrder = _get3aBeneficiaryOrder(input.civilStatus);
+    final pillar3aOrder = _get3aBeneficiaryOrder(input.civilStatus, s);
 
     // ---- Alerts ----
     final alerts = <String>[];
 
     if (input.civilStatus == CivilStatus.concubinage) {
-      alerts.add(
-        'En concubinage, ton/ta partenaire n\'a AUCUN droit '
-        'successoral legal. Sans testament, il/elle ne recoit '
-        'rien. La fiscalite est aussi nettement plus lourde '
-        '(taux "tiers").',
-      );
+      alerts.add(s.lifeEventSuccessionAlertConcubinage);
     }
 
     if (input.avoirs3a > 0 &&
         (input.civilStatus == CivilStatus.concubinage ||
             input.civilStatus == CivilStatus.celibataire)) {
       alerts.add(
-        'Tes avoirs 3a (${_formatChf(input.avoirs3a)}) suivent '
-        'l\'ordre de beneficiaires OPP3, pas ton testament. '
-        'Verifie tes clauses beneficiaires aupres de ta '
-        'fondation 3a.',
+        s.lifeEventSuccessionAlertAvoirs3a(_formatChf(input.avoirs3a)),
       );
     }
 
     if (input.capitalDecesLpp > 0) {
       alerts.add(
-        'Le capital-deces LPP (${_formatChf(input.capitalDecesLpp)}) '
-        'n\'entre pas dans la masse successorale. Il est verse '
-        'selon le reglement de ta caisse de pension.',
+        s.lifeEventSuccessionAlertCapitalDecesLpp(_formatChf(input.capitalDecesLpp)),
       );
     }
 
     if (quotiteDisponiblePct > 0.49 && input.numberOfChildren > 0) {
       alerts.add(
-        'Nouveau droit 2023 : la quotite disponible est desormais '
-        'de ${(quotiteDisponiblePct * 100).toStringAsFixed(0)}% '
-        'de ta succession. Tu as plus de liberte pour '
-        'avantager certains heritiers.',
+        s.lifeEventSuccessionAlertQuotiteDisponible(
+          (quotiteDisponiblePct * 100).toStringAsFixed(0),
+        ),
       );
     }
 
     if (input.numberOfChildren == 0 && !input.parentsVivants) {
-      alerts.add(
-        'Sans descendant ni parent, la fratrie herite. Sans '
-        'fratrie non plus, la succession va au canton.',
-      );
+      alerts.add(s.lifeEventSuccessionAlertSansDescendant);
     }
 
     // ---- Checklist ----
     final checklist = <String>[
-      'Testament redige / mis a jour ?',
-      'Clause beneficiaire 3a verifiee ?',
+      s.lifeEventSuccessionChecklist1,
+      s.lifeEventSuccessionChecklist2,
       if (input.civilStatus == CivilStatus.concubinage ||
           input.civilStatus == CivilStatus.marie)
-        'Concubin/conjoint annonce a la caisse de pension ?',
-      'Mandat pour cause d\'inaptitude redige ?',
-      'Directives anticipees redigees ?',
-      'Inventaire des biens (immobilier, comptes, assurances) a jour ?',
-      'Polices d\'assurance-vie verifiees ?',
-      'Discussion avec les heritiers sur les volontes ?',
+        s.lifeEventSuccessionChecklist3,
+      s.lifeEventSuccessionChecklist4,
+      s.lifeEventSuccessionChecklist5,
+      s.lifeEventSuccessionChecklist6,
+      s.lifeEventSuccessionChecklist7,
+      s.lifeEventSuccessionChecklist8,
     ];
 
     return SuccessionResult(
@@ -787,30 +759,16 @@ class SuccessionService {
   }
 
   /// Get 3a beneficiary order per OPP3 art. 2.
-  static String _get3aBeneficiaryOrder(CivilStatus status) {
+  static String _get3aBeneficiaryOrder(CivilStatus status, S s) {
     switch (status) {
       case CivilStatus.marie:
-        return '1. Conjoint survivant\n'
-            '2. Descendants directs / personnes a charge\n'
-            '3. Parents\n'
-            '4. Fratrie\n'
-            '5. Autres heritiers';
+        return s.lifeEventSuccession3aOrderMarie;
       case CivilStatus.concubinage:
-        return '1. Partenaire de vie (si clause beneficiaire deposee)\n'
-            '2. Descendants directs / personnes a charge\n'
-            '3. Parents\n'
-            '4. Fratrie\n'
-            '5. Autres heritiers\n\n'
-            'IMPORTANT : Sans clause beneficiaire explicite, '
-            'le/la concubin(e) n\'est PAS automatiquement '
-            'beneficiaire.';
+        return s.lifeEventSuccession3aOrderConcubinage;
       case CivilStatus.celibataire:
       case CivilStatus.divorce:
       case CivilStatus.veuf:
-        return '1. Descendants directs / personnes a charge\n'
-            '2. Parents\n'
-            '3. Fratrie\n'
-            '4. Autres heritiers';
+        return s.lifeEventSuccession3aOrderAutre;
     }
   }
 

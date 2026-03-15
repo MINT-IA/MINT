@@ -68,7 +68,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
     );
 
     setState(() {
-      _result = SuccessionService.simulate(input: input);
+      _result = SuccessionService.simulate(input: input, s: S.of(context)!);
       _checklistState = List.filled(_result!.checklist.length, false);
     });
 

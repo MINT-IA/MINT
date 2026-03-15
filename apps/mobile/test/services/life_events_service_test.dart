@@ -1,5 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/services/life_events_service.dart';
+
+final S _s = SFr();
 
 /// Unit tests for DivorceService & SuccessionService — life_events_service.dart
 ///
@@ -18,6 +22,7 @@ void main() {
   group('DivorceService - LPP Split (CC 122 / LFLP 22)', () {
     test('equal LPP avoirs produce zero transfer', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 10,
           numberOfChildren: 0,
@@ -42,6 +47,7 @@ void main() {
 
     test('unequal LPP avoirs produce correct transfer direction 1 -> 2', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 10,
           numberOfChildren: 0,
@@ -67,6 +73,7 @@ void main() {
 
     test('large LPP transfer triggers alert', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 15,
           numberOfChildren: 0,
@@ -99,6 +106,7 @@ void main() {
   group('DivorceService - Patrimoine Split', () {
     test('participation aux acquets splits fortune 50/50', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 10,
           numberOfChildren: 0,
@@ -121,6 +129,7 @@ void main() {
 
     test('communaute de biens also splits 50/50', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 10,
           numberOfChildren: 0,
@@ -143,6 +152,7 @@ void main() {
 
     test('separation de biens splits proportionally to income', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 10,
           numberOfChildren: 0,
@@ -166,6 +176,7 @@ void main() {
 
     test('separation de biens with zero income splits 50/50 as fallback', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 5,
           numberOfChildren: 0,
@@ -187,6 +198,7 @@ void main() {
 
     test('debts greater than 50% of fortune triggers alert', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 10,
           numberOfChildren: 0,
@@ -217,6 +229,7 @@ void main() {
   group('DivorceService - Tax Impact', () {
     test('married tax uses 18% on combined income', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 10,
           numberOfChildren: 0,
@@ -237,6 +250,7 @@ void main() {
 
     test('individual taxes sum is different from married tax', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 10,
           numberOfChildren: 0,
@@ -260,6 +274,7 @@ void main() {
 
     test('large tax delta triggers fiscal impact alert', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 10,
           numberOfChildren: 0,
@@ -286,6 +301,7 @@ void main() {
 
     test('zero income produces zero individual tax', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 5,
           numberOfChildren: 0,
@@ -312,6 +328,7 @@ void main() {
   group('DivorceService - Pension Alimentaire', () {
     test('children produce CHF 600/month each', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 3,
           numberOfChildren: 2,
@@ -333,6 +350,7 @@ void main() {
 
     test('long marriage >= 10y with income gap adds spousal maintenance at 15%', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 12,
           numberOfChildren: 0,
@@ -356,6 +374,7 @@ void main() {
 
     test('medium marriage 5-9y with income gap adds spousal maintenance at 8%', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 7,
           numberOfChildren: 1,
@@ -381,6 +400,7 @@ void main() {
 
     test('short marriage < 5y with no children produces zero', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 3,
           numberOfChildren: 0,
@@ -407,6 +427,7 @@ void main() {
   group('DivorceService - Checklist & Alerts', () {
     test('checklist contains 10 mandatory items', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 10,
           numberOfChildren: 1,
@@ -425,13 +446,14 @@ void main() {
       expect(result.checklist.length, 10);
       expect(result.checklist.any((c) => c.contains('LPP')), isTrue);
       expect(result.checklist.any((c) => c.contains('3a')), isTrue);
-      expect(result.checklist.any((c) => c.contains('mediateur')), isTrue);
+      expect(result.checklist.any((c) => c.contains('médiateur')), isTrue);
       expect(result.checklist.any((c) => c.contains('budget post-divorce')), isTrue);
       expect(result.checklist.any((c) => c.contains('testament')), isTrue);
     });
 
     test('children trigger garde alert', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 5,
           numberOfChildren: 2,
@@ -456,6 +478,7 @@ void main() {
 
     test('separation de biens triggers regime-specific alert', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 5,
           numberOfChildren: 0,
@@ -472,13 +495,14 @@ void main() {
       );
 
       expect(
-        result.alerts.any((a) => a.contains('separation de biens')),
+        result.alerts.any((a) => a.contains('séparation de biens')),
         isTrue,
       );
     });
 
     test('long marriage with large income gap triggers entretien alert', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 15,
           numberOfChildren: 0,
@@ -509,6 +533,7 @@ void main() {
   group('SuccessionService - Legal Distribution', () {
     test('married with children: spouse 1/2, children share 1/2', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.marie,
           numberOfChildren: 2,
@@ -538,6 +563,7 @@ void main() {
 
     test('married without children, parents alive: spouse 3/4, parents 1/4', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.marie,
           numberOfChildren: 0,
@@ -562,6 +588,7 @@ void main() {
 
     test('married without children or parents: spouse gets everything', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.marie,
           numberOfChildren: 0,
@@ -583,6 +610,7 @@ void main() {
 
     test('single with no heirs: canton inherits', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.celibataire,
           numberOfChildren: 0,
@@ -604,6 +632,7 @@ void main() {
 
     test('divorced with children: children share equally', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.divorce,
           numberOfChildren: 3,
@@ -632,6 +661,7 @@ void main() {
   group('SuccessionService - Reserves (nouveau droit 2023)', () {
     test('married with children: quotite disponible = 1/2', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.marie,
           numberOfChildren: 2,
@@ -654,6 +684,7 @@ void main() {
 
     test('single with children: children reserve = 1/2, QD = 1/2', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.celibataire,
           numberOfChildren: 1,
@@ -674,6 +705,7 @@ void main() {
 
     test('parents have no reserve under 2023 law', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.celibataire,
           numberOfChildren: 0,
@@ -701,6 +733,7 @@ void main() {
   group('SuccessionService - Testament Distribution', () {
     test('testament without flag produces null testamentDistribution', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.marie,
           numberOfChildren: 1,
@@ -720,6 +753,7 @@ void main() {
 
     test('testament beneficiary concubin receives quotite disponible', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.concubinage,
           numberOfChildren: 2,
@@ -749,6 +783,7 @@ void main() {
   group('SuccessionService - Cantonal Tax', () {
     test('spouse and children are tax-exempt in VD', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.marie,
           numberOfChildren: 1,
@@ -771,6 +806,7 @@ void main() {
 
     test('ZH taxes children at 2%', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.divorce,
           numberOfChildren: 1,
@@ -796,6 +832,7 @@ void main() {
   group('SuccessionService - Alerts & 3a Beneficiary Order', () {
     test('concubinage triggers no-legal-rights alert', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.concubinage,
           numberOfChildren: 0,
@@ -818,6 +855,7 @@ void main() {
 
     test('3a avoirs with concubinage triggers beneficiary clause alert', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.concubinage,
           numberOfChildren: 0,
@@ -833,13 +871,14 @@ void main() {
       );
 
       expect(
-        result.alerts.any((a) => a.contains('clauses beneficiaires')),
+        result.alerts.any((a) => a.contains('clauses bénéficiaires')),
         isTrue,
       );
     });
 
     test('LPP capital-deces triggers LPP-specific alert', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.marie,
           numberOfChildren: 1,
@@ -855,13 +894,14 @@ void main() {
       );
 
       expect(
-        result.alerts.any((a) => a.contains('capital-deces LPP')),
+        result.alerts.any((a) => a.contains('capital-décès LPP')),
         isTrue,
       );
     });
 
     test('married 3a beneficiary order starts with conjoint survivant', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.marie,
           numberOfChildren: 1,
@@ -881,6 +921,7 @@ void main() {
 
     test('concubinage 3a beneficiary order mentions clause beneficiaire', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.concubinage,
           numberOfChildren: 0,
@@ -895,11 +936,12 @@ void main() {
         ),
       );
 
-      expect(result.pillar3aBeneficiaryOrder, contains('clause beneficiaire'));
+      expect(result.pillar3aBeneficiaryOrder, contains('clause bénéficiaire'));
     });
 
     test('checklist has at least 5 items', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.marie,
           numberOfChildren: 1,
@@ -927,6 +969,7 @@ void main() {
   group('DivorceService & SuccessionService - Edge Cases', () {
     test('divorce with zero fortune and zero debts', () {
       final result = DivorceService.simulate(
+        s: _s,
         input: const DivorceInput(
           marriageDurationYears: 1,
           numberOfChildren: 0,
@@ -951,6 +994,7 @@ void main() {
 
     test('succession with zero fortune', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.marie,
           numberOfChildren: 2,
@@ -974,6 +1018,7 @@ void main() {
 
     test('unknown canton in succession uses VD fallback rates', () {
       final result = SuccessionService.simulate(
+        s: _s,
         input: const SuccessionInput(
           civilStatus: CivilStatus.celibataire,
           numberOfChildren: 0,

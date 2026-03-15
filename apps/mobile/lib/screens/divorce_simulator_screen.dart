@@ -87,7 +87,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
     );
 
     setState(() {
-      _result = DivorceService.simulate(input: input);
+      _result = DivorceService.simulate(input: input, s: S.of(context)!);
       _checklistState = List.filled(_result!.checklist.length, false);
     });
 
