@@ -32,9 +32,9 @@ class _EducationalExplanationWidgetState
     return Container(
       margin: const EdgeInsets.only(top: 16),
       decoration: BoxDecoration(
-        color: widget.accentColor.withValues(alpha: 0.05),
+        color: widget.accentColor.withOpacity(0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: widget.accentColor.withValues(alpha: 0.3)),
+        border: Border.all(color: widget.accentColor.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,7 +68,7 @@ class _EducationalExplanationWidgetState
                             widget.shortExplanation,
                             style: TextStyle(
                               fontSize: 13,
-                              color: widget.accentColor.withValues(alpha: 0.8),
+                              color: widget.accentColor.withOpacity(0.8),
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -103,7 +103,8 @@ class _EducationalExplanationWidgetState
 
                   // Sections détaillées
                   ...widget.sections
-                      .map((section) => _buildSection(section)),
+                      .map((section) => _buildSection(section))
+                      ,
                 ],
               ),
             ),
