@@ -9272,5 +9272,35 @@
       "amount": {"type": "String"}
     }
   },
-  "remploiCountdownDisclaimer": "Outil éducatif · ne constitue pas un conseil fiscal au sens de la LSFin. Source : LIFD art. 12 al. 3 (remploi résidence principale). Délai de 2 ans — vérifier les règles cantonales spécifiques."
+  "remploiCountdownDisclaimer": "Outil éducatif · ne constitue pas un conseil fiscal au sens de la LSFin. Source : LIFD art. 12 al. 3 (remploi résidence principale). Délai de 2 ans — vérifier les règles cantonales spécifiques.",
+
+  "reportPreviewTitle": "Aperçu de ton Plan Mint",
+  "reportPreviewCurrentPrecision": "Précision actuelle",
+  "reportPreviewSafeModeTitle": "Mode Protection Actif",
+  "reportPreviewSafeModeSubtitle": "Priorité : fonds d'urgence et remboursement dettes",
+  "reportPreviewActionsReady": "Actions prêtes : {ready}/{total}",
+  "@reportPreviewActionsReady": {
+    "placeholders": {
+      "ready": {"type": "String"},
+      "total": {"type": "String"}
+    }
+  },
+  "reportPreviewMoreActions": "+ {count} autres actions",
+  "@reportPreviewMoreActions": {
+    "placeholders": {
+      "count": {"type": "String"}
+    }
+  },
+  "reportPreviewNextValuableInfo": "Prochaine info la plus rentable",
+  "reportPreviewBadgesUnlocked": "Badges débloqués",
+  "reportPreviewGeneratePdf": "Générer le PDF final",
+  "reportPreviewContinueToComplete": "Continuer pour compléter (Recommandé)",
+  "reportPreviewViewPartialPlan": "Voir mon plan provisoire (Beta)",
+  "reportPreviewPlanReady": "Ton plan est prêt !",
+  "reportPreviewRemainingForPdf": "Encore {percent} % pour le PDF certifié",
+  "@reportPreviewRemainingForPdf": {
+    "placeholders": {
+      "percent": {"type": "String"}
+    }
+  }
 }

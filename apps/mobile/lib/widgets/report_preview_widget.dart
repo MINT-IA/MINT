@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/clarity_state.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -17,6 +18,7 @@ class ReportPreviewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Column(
       children: [
         Expanded(
@@ -33,7 +35,7 @@ class ReportPreviewWidget extends StatelessWidget {
                     const SizedBox(width: 16),
                     Expanded(
                       child: Text(
-                        'Aperçu de ton Plan Mint',
+                        s.reportPreviewTitle,
                         style: GoogleFonts.montserrat(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -63,7 +65,7 @@ class ReportPreviewWidget extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Précision actuelle',
+                              s.reportPreviewCurrentPrecision,
                               style: TextStyle(
                                 fontSize: 14,
                                 color: state.precisionColor,
@@ -74,7 +76,7 @@ class ReportPreviewWidget extends StatelessWidget {
                             Row(
                               children: [
                                 Text(
-                                  '${state.precisionIndex.toStringAsFixed(0)}%',
+                                  '${state.precisionIndex.toStringAsFixed(0)}\u00a0%',
                                   style: TextStyle(
                                     fontSize: 32,
                                     fontWeight: FontWeight.bold,
@@ -110,27 +112,27 @@ class ReportPreviewWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: MintColors.warning),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.shield,
+                        const Icon(Icons.shield,
                             color: MintColors.warning, size: 24),
-                        SizedBox(width: 12),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Mode Protection Actif',
-                                style: TextStyle(
+                                s.reportPreviewSafeModeTitle,
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: MintColors.warning,
                                 ),
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Text(
-                                'Priorité : fonds d\'urgence et remboursement dettes',
-                                style: TextStyle(
+                                s.reportPreviewSafeModeSubtitle,
+                                style: const TextStyle(
                                   fontSize: 12,
                                   color: MintColors.warningText,
                                 ),
@@ -146,7 +148,7 @@ class ReportPreviewWidget extends StatelessWidget {
 
                 // Actions prêtes
                 Text(
-                  'Actions prêtes : ${state.actionsReady}/${state.totalActions}',
+                  s.reportPreviewActionsReady(state.actionsReady.toString(), state.totalActions.toString()),
                   style: GoogleFonts.montserrat(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -163,7 +165,7 @@ class ReportPreviewWidget extends StatelessWidget {
                 if (state.actions.length > 3) ...[
                   const SizedBox(height: 12),
                   Text(
-                    '+ ${state.actions.length - 3} autres actions',
+                    s.reportPreviewMoreActions((state.actions.length - 3).toString()),
                     style: const TextStyle(
                       fontSize: 14,
                       color: MintColors.textMuted,
@@ -193,9 +195,9 @@ class ReportPreviewWidget extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Prochaine info la plus rentable',
-                                style: TextStyle(
+                              Text(
+                                s.reportPreviewNextValuableInfo,
+                                style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                   color: MintColors.primary,
@@ -221,7 +223,7 @@ class ReportPreviewWidget extends StatelessWidget {
                 // Badges débloqués
                 if (state.unlockedBadges.isNotEmpty) ...[
                   Text(
-                    'Badges débloqués',
+                    s.reportPreviewBadgesUnlocked,
                     style: GoogleFonts.montserrat(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -285,8 +287,8 @@ class ReportPreviewWidget extends StatelessWidget {
                   ),
                   child: Text(
                     state.precisionIndex >= 90
-                        ? 'Générer le PDF final'
-                        : 'Continuer pour compléter (Recommandé)',
+                        ? s.reportPreviewGeneratePdf
+                        : s.reportPreviewContinueToComplete,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -309,7 +311,7 @@ class ReportPreviewWidget extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('Voir mon plan provisoire (Beta)'),
+                    child: Text(s.reportPreviewViewPartialPlan),
                   ),
                 ),
               ],
@@ -319,8 +321,8 @@ class ReportPreviewWidget extends StatelessWidget {
               Center(
                 child: Text(
                   state.precisionIndex >= 90
-                      ? 'Ton plan est prêt !'
-                      : 'Encore ${(90 - state.precisionIndex).toStringAsFixed(0)}% pour le PDF certifié',
+                      ? s.reportPreviewPlanReady
+                      : s.reportPreviewRemainingForPdf((90 - state.precisionIndex).toStringAsFixed(0)),
                   style: const TextStyle(
                     fontSize: 13,
                     color: MintColors.textMuted,
