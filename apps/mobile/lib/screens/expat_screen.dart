@@ -55,13 +55,23 @@ class _ExpatScreenState extends State<ExpatScreen>
   int _yearsAbroad = 10;
   Map<String, dynamic>? _avsResult;
 
+  bool _didInit = false;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _recalculateForfait();
-    _recalculateDepart();
-    _recalculateAvs();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didInit) {
+      _didInit = true;
+      _recalculateForfait();
+      _recalculateDepart();
+      _recalculateAvs();
+    }
   }
 
   @override
@@ -71,31 +81,37 @@ class _ExpatScreenState extends State<ExpatScreen>
   }
 
   void _recalculateForfait() {
+    final s = S.of(context)!;
     setState(() {
       _forfaitResult = ExpatService.simulateForfaitFiscal(
         canton: _forfaitCanton,
         livingExpenses: _livingExpenses,
         actualIncome: _actualIncome,
+        s: s,
       );
     });
   }
 
   void _recalculateDepart() {
+    final s = S.of(context)!;
     setState(() {
       _departResult = ExpatService.planDeparture(
         departureDate: _departureDate,
         canton: _departCanton,
         pillar3aBalance: _pillar3aBalance,
         lppBalance: _lppBalance,
+        s: s,
       );
     });
   }
 
   void _recalculateAvs() {
+    final s = S.of(context)!;
     setState(() {
       _avsResult = ExpatService.estimateAvsGap(
         yearsAbroad: _yearsAbroad,
         yearsInCh: _yearsInCh,
+        s: s,
       );
     });
   }

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
 //  EXPAT SERVICE — Sprint S23 / Expatriation + Frontaliers
@@ -27,11 +28,16 @@ class ExpatService {
   //  DISCLAIMER
   // ════════════════════════════════════════════════════════════
 
+  /// Localized disclaimer. Use [getDisclaimer] with an `S` instance.
+  /// Kept as fallback for callers that don't yet pass `S`.
   static const String disclaimer =
       'Estimations simplifiées à but éducatif — ne constitue pas '
       'un conseil fiscal ou juridique. Les montants dépendent de nombreux '
       'facteurs (déductions, commune, fortune, convention internationale, etc.). '
       'Consulte un·e spécialiste fiscal·e pour une analyse personnalisée.';
+
+  /// Localized disclaimer via ARB.
+  static String getDisclaimer(S s) => s.expatServiceDisclaimer;
 
   // ════════════════════════════════════════════════════════════
   //  FRONTALIER — SOURCE TAX (Bareme C) BY CANTON
@@ -263,8 +269,10 @@ class ExpatService {
     required String canton,
     bool isMarried = false,
     int children = 0,
+    S? s,
   }) {
     final baseRate = sourceTaxRates[canton] ?? 0.13;
+    final disclaimerText = s != null ? getDisclaimer(s) : disclaimer;
 
     // TI special case: taxed in Italy, not at source in CH
     if (canton == 'TI') {
@@ -278,10 +286,11 @@ class ExpatService {
         'isMarried': isMarried,
         'children': children,
         'isTessin': true,
-        'note': 'Depuis le nouvel accord CH-IT (2024), les frontaliers '
-            'travaillant au Tessin sont imposés en Italie. '
-            'La Suisse ne prélève pas d\'impôt à la source.',
-        'disclaimer': disclaimer,
+        'note': s?.expatServiceTessinNote ??
+            'Depuis le nouvel accord CH-IT (2024), les frontaliers '
+                'travaillant au Tessin sont imposés en Italie. '
+                'La Suisse ne prélève pas d\'impôt à la source.',
+        'disclaimer': disclaimerText,
       };
     }
 
@@ -307,7 +316,7 @@ class ExpatService {
       'isMarried': isMarried,
       'children': children,
       'isTessin': false,
-      'disclaimer': disclaimer,
+      'disclaimer': disclaimerText,
     };
   }
 
@@ -323,14 +332,17 @@ class ExpatService {
     required double chIncome,
     required double worldwideIncome,
     required String canton,
+    S? s,
   }) {
+    final disclaimerText = s != null ? getDisclaimer(s) : disclaimer;
+
     if (worldwideIncome <= 0) {
       return {
         'eligible': false,
         'ratio': 0.0,
         'potentialSavings': 0.0,
         'canton': canton,
-        'disclaimer': disclaimer,
+        'disclaimer': disclaimerText,
       };
     }
 
@@ -347,6 +359,22 @@ class ExpatService {
       potentialSavings = chIncome * sourceRate * 0.20;
     }
 
+    final String recommendation;
+    if (s != null) {
+      recommendation = eligible
+          ? s.expatServiceQuasiResidentEligible(formatChf(potentialSavings))
+          : s.expatServiceQuasiResidentNotEligible(
+              (quasiResidentThreshold * 100).toStringAsFixed(0));
+    } else {
+      recommendation = eligible
+          ? 'Tu es éligible au statut de quasi-résident. Cela te permet de '
+              'faire une taxation ordinaire avec déductions (3a, frais effectifs, etc.). '
+              'L\'économie potentielle est estimée à ${formatChf(potentialSavings)}/an.'
+          : 'Tu n\'es pas éligible au statut de quasi-résident. '
+              'Il te faudrait que ${(quasiResidentThreshold * 100).toStringAsFixed(0)}% '
+              'de tes revenus mondiaux proviennent de Suisse.';
+    }
+
     return {
       'eligible': eligible,
       'ratio': ratio,
@@ -357,14 +385,8 @@ class ExpatService {
       'potentialSavings': potentialSavings,
       'canton': canton,
       'cantonNom': cantonNames[canton] ?? canton,
-      'recommendation': eligible
-          ? 'Tu es éligible au statut de quasi-résident. Cela te permet de '
-              'faire une taxation ordinaire avec déductions (3a, frais effectifs, etc.). '
-              'L\'économie potentielle est estimée à ${formatChf(potentialSavings)}/an.'
-          : 'Tu n\'es pas éligible au statut de quasi-résident. '
-              'Il te faudrait que ${(quasiResidentThreshold * 100).toStringAsFixed(0)}% '
-              'de tes revenus mondiaux proviennent de Suisse.',
-      'disclaimer': disclaimer,
+      'recommendation': recommendation,
+      'disclaimer': disclaimerText,
     };
   }
 
@@ -379,9 +401,11 @@ class ExpatService {
   static Map<String, dynamic> simulate90DayRule({
     required int homeOfficeDays,
     required int commuteDays,
+    S? s,
   }) {
     final totalWorkDays = homeOfficeDays + commuteDays;
     final riskDays = homeOfficeDays;
+    final disclaimerText = s != null ? getDisclaimer(s) : disclaimer;
 
     String riskLevel;
     String riskColor;
@@ -390,25 +414,27 @@ class ExpatService {
     if (riskDays < 70) {
       riskLevel = 'low';
       riskColor = 'green';
-      recommendation =
+      recommendation = s?.expatServiceRiskLowRecommendation ??
           'Pas de risque fiscal. Tu es largement sous le seuil de 90 jours. '
-          'Tu peux continuer à travailler depuis ton domicile à l\'étranger '
-          'sans impact sur ton imposition à la source en Suisse.';
+              'Tu peux continuer à travailler depuis ton domicile à l\'étranger '
+              'sans impact sur ton imposition à la source en Suisse.';
     } else if (riskDays < 90) {
       riskLevel = 'medium';
       riskColor = 'orange';
-      recommendation =
+      recommendation = s?.expatServiceRiskMediumRecommendation(
+              (90 - riskDays).toString()) ??
           'Zone d\'attention ! Tu t\'approches du seuil de 90 jours. '
-          'Il te reste ${90 - riskDays} jours de marge. '
-          'Documente bien tes jours de présence au bureau en Suisse.';
+              'Il te reste ${90 - riskDays} jours de marge. '
+              'Documente bien tes jours de présence au bureau en Suisse.';
     } else {
       riskLevel = 'high';
       riskColor = 'red';
-      recommendation =
+      recommendation = s?.expatServiceRiskHighRecommendation(
+              riskDays.toString()) ??
           'Risque fiscal — l\'imposition peut basculer vers ton pays de résidence. '
-          'Avec $riskDays jours de home office, tu dépasses le seuil de 90 jours. '
-          'Ton employeur pourrait devoir cotiser dans ton pays de résidence. '
-          'Consulte un·e spécialiste en fiscalité internationale.';
+              'Avec $riskDays jours de home office, tu dépasses le seuil de 90 jours. '
+              'Ton employeur pourrait devoir cotiser dans ton pays de résidence. '
+              'Consulte un·e spécialiste en fiscalité internationale.';
     }
 
     return {
@@ -425,7 +451,7 @@ class ExpatService {
       'legalReference':
           'Art. 15 al. 4 CDI CH-FR / Accord amiable du 22 décembre 2022 / '
           'Règlement CE 883/2004 art. 13',
-      'disclaimer': disclaimer,
+      'disclaimer': disclaimerText,
     };
   }
 
@@ -437,6 +463,7 @@ class ExpatService {
   static Map<String, dynamic> compareSocialCharges({
     required double salary,
     required String residenceCountry,
+    S? s,
   }) {
     final annualSalary = salary * 12;
 
@@ -479,7 +506,7 @@ class ExpatService {
       'difference': difference,
       'chLessCostly': difference < 0,
       'monthlyDifference': difference / 12,
-      'disclaimer': disclaimer,
+      'disclaimer': s != null ? getDisclaimer(s) : disclaimer,
     };
   }
 
@@ -495,19 +522,23 @@ class ExpatService {
     required String canton,
     required double livingExpenses,
     required double actualIncome,
+    S? s,
   }) {
     final cantonMin = forfaitMinimumByCanton[canton];
+    final disclaimerText = s != null ? getDisclaimer(s) : disclaimer;
 
     if (cantonMin == null) {
+      final cantonName = cantonNames[canton] ?? canton;
       return {
         'canton': canton,
-        'cantonNom': cantonNames[canton] ?? canton,
+        'cantonNom': cantonName,
         'eligible': false,
         'abolished': true,
-        'note': 'Le forfait fiscal a été aboli dans le canton de '
-            '${cantonNames[canton] ?? canton}. Il n\'est plus possible '
-            'd\'en bénéficier.',
-        'disclaimer': disclaimer,
+        'note': s?.expatServiceForfaitAbolished(cantonName) ??
+            'Le forfait fiscal a été aboli dans le canton de '
+                '$cantonName. Il n\'est plus possible '
+                'd\'en bénéficier.',
+        'disclaimer': disclaimerText,
       };
     }
 
@@ -542,7 +573,7 @@ class ExpatService {
       'savings': savings,
       'savingsPercent': savingsPercent,
       'isFavorable': savings > 0,
-      'disclaimer': disclaimer,
+      'disclaimer': disclaimerText,
     };
   }
 
@@ -557,6 +588,7 @@ class ExpatService {
   static Map<String, dynamic> estimateAvsGap({
     required int yearsAbroad,
     required int yearsInCh,
+    S? s,
   }) {
     final totalYears = yearsAbroad + yearsInCh;
     final missingYears = max(0, fullContributionYears - yearsInCh);
@@ -573,22 +605,27 @@ class ExpatService {
 
     String recommendation;
     if (completeness >= 1.0) {
-      recommendation =
+      recommendation = s?.expatServiceAvsComplete(
+              fullContributionYears.toString()) ??
           'Tu as tes $fullContributionYears années complètes de cotisation. '
-          'Ta rente AVS ne devrait pas être réduite.';
+              'Ta rente AVS ne devrait pas être réduite.';
     } else if (completeness >= 0.80) {
-      recommendation =
+      recommendation = s?.expatServiceAvsModerateGap(
+              reductionPercent.toStringAsFixed(1),
+              formatChf(avsVoluntaryMin),
+              formatChf(avsVoluntaryMax)) ??
           'Ta rente pourrait être réduite d\'environ ${reductionPercent.toStringAsFixed(1)}%. '
-          'Si tu vis à l\'étranger, tu peux cotiser volontairement à l\'AVS '
-          '(entre ${formatChf(avsVoluntaryMin)} et ${formatChf(avsVoluntaryMax)}/an) '
-          'pour combler les lacunes.';
+              'Si tu vis à l\'étranger, tu peux cotiser volontairement à l\'AVS '
+              '(entre ${formatChf(avsVoluntaryMin)} et ${formatChf(avsVoluntaryMax)}/an) '
+              'pour combler les lacunes.';
     } else {
-      recommendation =
+      recommendation = s?.expatServiceAvsSevereGap(
+              reductionPercent.toStringAsFixed(1)) ??
           'Attention, ta rente serait significativement réduite '
-          '(-${reductionPercent.toStringAsFixed(1)}%). '
-          'La cotisation volontaire à l\'AVS depuis l\'étranger est fortement '
-          'recommandée pour limiter la perte. '
-          'Délai d\'inscription : 1 an après le départ de Suisse.';
+              '(-${reductionPercent.toStringAsFixed(1)}%). '
+              'La cotisation volontaire à l\'AVS depuis l\'étranger est fortement '
+              'recommandée pour limiter la perte. '
+              'Délai d\'inscription : 1 an après le départ de Suisse.';
     }
 
     return {
@@ -607,7 +644,7 @@ class ExpatService {
       'voluntaryMin': avsVoluntaryMin,
       'voluntaryMax': avsVoluntaryMax,
       'recommendation': recommendation,
-      'disclaimer': disclaimer,
+      'disclaimer': s != null ? getDisclaimer(s) : disclaimer,
     };
   }
 
@@ -621,70 +658,85 @@ class ExpatService {
     required String canton,
     double pillar3aBalance = 0,
     double lppBalance = 0,
+    S? s,
   }) {
     final now = DateTime.now();
     final daysUntilDeparture = departureDate.difference(now).inDays;
+    final disclaimerText = s != null ? getDisclaimer(s) : disclaimer;
 
     final checklist = <Map<String, dynamic>>[
       {
         'id': 'pillar3a',
-        'title': 'Retirer pilier 3a',
-        'subtitle': 'Délai: possible dès le départ. Impôt de sortie réduit.',
-        'timing': 'Avant le départ ou juste après',
+        'title': s?.expatServiceChecklistPillar3aTitle ?? 'Retirer pilier 3a',
+        'subtitle': s?.expatServiceChecklistPillar3aSubtitle ??
+            'Délai: possible dès le départ. Impôt de sortie réduit.',
+        'timing': s?.expatServiceChecklistPillar3aTiming ??
+            'Avant le départ ou juste après',
         'balance': pillar3aBalance,
         'priority': pillar3aBalance > 0 ? 'high' : 'low',
       },
       {
         'id': 'lpp',
-        'title': 'Transférer LPP en libre passage',
-        'subtitle':
+        'title': s?.expatServiceChecklistLppTitle ??
+            'Transférer LPP en libre passage',
+        'subtitle': s?.expatServiceChecklistLppSubtitle ??
             'Si destination hors UE/AELE: retrait en capital possible. '
                 'Sinon: compte de libre passage obligatoire.',
-        'timing': 'À organiser avant le départ',
+        'timing': s?.expatServiceChecklistLppTiming ??
+            'À organiser avant le départ',
         'balance': lppBalance,
         'priority': lppBalance > 0 ? 'high' : 'low',
       },
       {
         'id': 'commune',
-        'title': 'Annoncer départ à la commune',
-        'subtitle': 'Formulaire de départ + désinscription registre des habitants.',
-        'timing': '2-4 semaines avant le départ',
+        'title': s?.expatServiceChecklistCommuneTitle ??
+            'Annoncer départ à la commune',
+        'subtitle': s?.expatServiceChecklistCommuneSubtitle ??
+            'Formulaire de départ + désinscription registre des habitants.',
+        'timing': s?.expatServiceChecklistCommuneTiming ??
+            '2-4 semaines avant le départ',
         'priority': 'high',
       },
       {
         'id': 'lamal',
-        'title': 'Résilier LAMal',
-        'subtitle':
+        'title': s?.expatServiceChecklistLamalTitle ?? 'Résilier LAMal',
+        'subtitle': s?.expatServiceChecklistLamalSubtitle ??
             'Résiliation effective à la date de départ. Prévoir une assurance '
                 'dans le pays de destination.',
-        'timing': 'Dès la confirmation de départ',
+        'timing': s?.expatServiceChecklistLamalTiming ??
+            'Dès la confirmation de départ',
         'priority': 'high',
       },
       {
         'id': 'cdi',
-        'title': 'Vérifier CDI avec pays de destination',
-        'subtitle':
+        'title': s?.expatServiceChecklistCdiTitle ??
+            'Vérifier CDI avec pays de destination',
+        'subtitle': s?.expatServiceChecklistCdiSubtitle ??
             'Convention de double imposition : éviter de payer 2x les impôts. '
                 'La Suisse a signé des CDI avec plus de 100 pays.',
-        'timing': 'Avant le départ',
+        'timing': s?.expatServiceChecklistCdiTiming ?? 'Avant le départ',
         'priority': 'medium',
       },
       {
         'id': 'caution',
-        'title': 'Récupérer caution de loyer',
-        'subtitle':
+        'title': s?.expatServiceChecklistCautionTitle ??
+            'Récupérer caution de loyer',
+        'subtitle': s?.expatServiceChecklistCautionSubtitle ??
             'Demander la libération auprès de la banque. '
                 'Délai: jusqu\'à 1 an si le bailleur ne répond pas.',
-        'timing': 'Après la remise des clés',
+        'timing': s?.expatServiceChecklistCautionTiming ??
+            'Après la remise des clés',
         'priority': 'medium',
       },
       {
         'id': 'impots_prorata',
-        'title': 'Déclarer impôts prorata temporis',
-        'subtitle':
+        'title': s?.expatServiceChecklistImpotsTitle ??
+            'Déclarer impôts prorata temporis',
+        'subtitle': s?.expatServiceChecklistImpotsSubtitle ??
             'Tu seras imposé sur les revenus du 1er janvier jusqu\'à la date de départ. '
                 'Délai de dépôt: 30 jours après le départ.',
-        'timing': '30 jours après le départ',
+        'timing': s?.expatServiceChecklistImpotsTiming ??
+            '30 jours après le départ',
         'priority': 'high',
       },
     ];
@@ -698,11 +750,11 @@ class ExpatService {
       'lppBalance': lppBalance,
       'checklist': checklist,
       'noExitTax': true,
-      'exitTaxNote':
+      'exitTaxNote': s?.expatServiceExitTaxNote ??
           'La Suisse ne prélève pas de taxe de sortie (exit tax). '
-          'Tes gains en capital ne sont pas imposés au départ — '
-          'contrairement a certains pays (USA, France, etc.).',
-      'disclaimer': disclaimer,
+              'Tes gains en capital ne sont pas imposés au départ — '
+              'contrairement a certains pays (USA, France, etc.).',
+      'disclaimer': disclaimerText,
     };
   }
 
@@ -715,6 +767,7 @@ class ExpatService {
     required double salary,
     required String canton,
     required String targetCountry,
+    S? s,
   }) {
     final annualSalary = salary * 12;
 
@@ -756,7 +809,7 @@ class ExpatService {
       },
       'difference': difference,
       'chCheaper': difference < 0,
-      'disclaimer': disclaimer,
+      'disclaimer': s != null ? getDisclaimer(s) : disclaimer,
     };
   }
 

@@ -48,13 +48,23 @@ class _FrontalierScreenState extends State<FrontalierScreen>
   String _chargesCountry = 'France';
   Map<String, dynamic>? _chargesResult;
 
+  bool _didInit = false;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _recalculateTax();
-    _recalculate90Day();
-    _recalculateCharges();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didInit) {
+      _didInit = true;
+      _recalculateTax();
+      _recalculate90Day();
+      _recalculateCharges();
+    }
   }
 
   @override
@@ -64,30 +74,36 @@ class _FrontalierScreenState extends State<FrontalierScreen>
   }
 
   void _recalculateTax() {
+    final s = S.of(context)!;
     setState(() {
       _taxResult = ExpatService.calculateSourceTax(
         salary: _taxSalary,
         canton: _taxCanton,
         isMarried: _taxMaritalStatus == 1,
         children: _taxChildren,
+        s: s,
       );
     });
   }
 
   void _recalculate90Day() {
+    final s = S.of(context)!;
     setState(() {
       _ruleResult = ExpatService.simulate90DayRule(
         homeOfficeDays: _homeOfficeDays,
         commuteDays: _bureauDays,
+        s: s,
       );
     });
   }
 
   void _recalculateCharges() {
+    final s = S.of(context)!;
     setState(() {
       _chargesResult = ExpatService.compareSocialCharges(
         salary: _chargesSalary,
         residenceCountry: _chargesCountry,
+        s: s,
       );
     });
   }
@@ -1583,7 +1599,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              ExpatService.disclaimer,
+              ExpatService.getDisclaimer(S.of(context)!),
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.warningText,
