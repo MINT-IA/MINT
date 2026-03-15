@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/educational/educational_insert_widget.dart';
 
@@ -19,15 +20,14 @@ class LppPivotInsertWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return EducationalInsertWidget(
-      title: 'Le pivot LPP : comprendre ton plafond 3a',
-      subtitle:
-          'Ton affiliation au 2e pilier détermine combien tu peux verser au 3a',
-      disclaimer:
-          'Information pédagogique. Ta situation peut varier selon ton employeur et ta caisse de pension.',
-      hypotheses: const [
-        'Plafonds 2026 : CHF 7\'258 (avec LPP) ou 20% du revenu (sans LPP, max 36\'288)',
-        'Source : VIAC, UBS, ch.ch',
+      title: s.lppPivotTitle,
+      subtitle: s.lppPivotSubtitle,
+      disclaimer: s.lppPivotDisclaimer,
+      hypotheses: [
+        s.lppPivotHypothesisPlafonds,
+        s.lppPivotHypothesisSource,
       ],
       onLearnMore: onLearnMore,
       content: Column(
@@ -35,21 +35,21 @@ class LppPivotInsertWidget extends StatelessWidget {
           _buildPivotCard(
             isSelected: hasPensionFund == true,
             icon: Icons.business,
-            title: 'Avec LPP (salarié)',
-            subtitle: 'Affilié à une caisse de pension',
-            limit: 'CHF 7\'258 / an',
-            description: 'Tu travailles comme salarié avec un 2e pilier.',
+            title: s.lppPivotWithLppTitle,
+            subtitle: s.lppPivotWithLppSubtitle,
+            limit: s.lppPivotWithLppLimit,
+            description: s.lppPivotWithLppDescription,
             onTap: () => onChanged?.call(true),
           ),
           const SizedBox(height: 12),
           _buildPivotCard(
             isSelected: hasPensionFund == false,
             icon: Icons.person,
-            title: 'Sans LPP',
-            subtitle: 'Indépendant ou temps partiel sans caisse',
-            limit: '20% du revenu net',
-            limitSub: '(max CHF 36\'288)',
-            description: 'Tu peux verser jusqu\'à 5x plus au 3a !',
+            title: s.lppPivotWithoutLppTitle,
+            subtitle: s.lppPivotWithoutLppSubtitle,
+            limit: s.lppPivotWithoutLppLimit,
+            limitSub: s.lppPivotWithoutLppLimitSub,
+            description: s.lppPivotWithoutLppDescription,
             onTap: () => onChanged?.call(false),
           ),
           const SizedBox(height: 16),
@@ -66,7 +66,7 @@ class LppPivotInsertWidget extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Le 3a reste l\'un des outils les plus efficaces de défiscalisation en Suisse, quel que soit ton statut.',
+                    s.lppPivotFooter,
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: MintColors.textPrimary,
