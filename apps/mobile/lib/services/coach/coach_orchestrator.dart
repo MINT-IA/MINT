@@ -25,6 +25,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach/fallback_templates.dart';
@@ -122,6 +123,7 @@ class CoachOrchestrator {
   static Future<OrchestratorOutput> generateNarrativeComponent({
     required ComponentType componentType,
     required CoachContext ctx,
+    required S s,
     LlmConfig? byokConfig,
   }) async {
     // 1. SLM tier
@@ -155,7 +157,7 @@ class CoachOrchestrator {
     }
 
     // 3. FallbackTemplates (always succeeds)
-    return _generateFallback(componentType: componentType, ctx: ctx);
+    return _generateFallback(componentType: componentType, ctx: ctx, s: s);
   }
 
   /// Generate a chat response.
@@ -478,8 +480,9 @@ class CoachOrchestrator {
   static OrchestratorOutput _generateFallback({
     required ComponentType componentType,
     required CoachContext ctx,
+    required S s,
   }) {
-    final rawText = _fallbackForComponent(componentType, ctx);
+    final rawText = _fallbackForComponent(componentType, ctx, s);
 
     ComplianceResult compliance;
     try {
@@ -643,21 +646,22 @@ class CoachOrchestrator {
   static String _fallbackForComponent(
     ComponentType type,
     CoachContext ctx,
+    S s,
   ) {
     switch (type) {
       case ComponentType.greeting:
-        return FallbackTemplates.greeting(ctx);
+        return FallbackTemplates.greeting(ctx, s);
       case ComponentType.scoreSummary:
-        return FallbackTemplates.scoreSummary(ctx);
+        return FallbackTemplates.scoreSummary(ctx, s);
       case ComponentType.tip:
-        return _contextualTip(ctx);
+        return _contextualTip(ctx, s);
       case ComponentType.chiffreChoc:
-        return FallbackTemplates.chiffreChocReframe(ctx);
+        return FallbackTemplates.chiffreChocReframe(ctx, s);
       case ComponentType.enrichmentGuide:
-        return FallbackTemplates.enrichmentGuide(ctx, 'general');
+        return FallbackTemplates.enrichmentGuide(ctx, 'general', s);
       case ComponentType.scenario:
       case ComponentType.general:
-        return FallbackTemplates.scoreSummary(ctx);
+        return FallbackTemplates.scoreSummary(ctx, s);
     }
   }
 
@@ -669,32 +673,32 @@ class CoachOrchestrator {
   ///   3. Libre passage for users in job transition
   ///   4. Succession planning for users > 50
   ///   5. Generic tip narrative (default)
-  static String _contextualTip(CoachContext ctx) {
+  static String _contextualTip(CoachContext ctx, S s) {
     // FATCA: highest priority for US taxpayers (complex obligations)
     if (ctx.archetype == 'expat_us') {
-      return FallbackTemplates.fatcaGuidance(ctx);
+      return FallbackTemplates.fatcaGuidance(ctx, s);
     }
 
     // Disability: flag coverage gaps for working-age users
     final hasDisabilityData =
         ctx.dataReliability.keys.any((k) => k.contains('invalidit'));
     if (ctx.age < 55 && !hasDisabilityData) {
-      return FallbackTemplates.disabilityBridge(ctx);
+      return FallbackTemplates.disabilityBridge(ctx, s);
     }
 
     // Libre passage: relevant during job transitions
     final lifeEvent = ctx.knownValues['last_life_event']?.toString() ?? '';
     if (lifeEvent == 'jobLoss' || lifeEvent == 'newJob') {
-      return FallbackTemplates.librePassageGuide(ctx);
+      return FallbackTemplates.librePassageGuide(ctx, s);
     }
 
     // Succession: relevant for 50+ (estate planning horizon)
     if (ctx.age >= 50) {
-      return FallbackTemplates.successionPlanning(ctx);
+      return FallbackTemplates.successionPlanning(ctx, s);
     }
 
     // Default: generic personalized tip
-    return FallbackTemplates.tipNarrative(ctx);
+    return FallbackTemplates.tipNarrative(ctx, s);
   }
 
   /// Map [LlmProvider] to the string expected by [RagService].
