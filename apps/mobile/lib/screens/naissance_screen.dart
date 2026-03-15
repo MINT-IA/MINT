@@ -86,9 +86,11 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     _allocResult = FamilyService.estimateAllocations(
       canton: _cantonAlloc,
       nbEnfants: _nbEnfantsAlloc,
+      s: S.of(context)!,
     );
     _allocRanking = FamilyService.getAllocationsRanking(
       nbEnfants: _nbEnfantsAlloc,
+      s: S.of(context)!,
     );
   }
 
@@ -290,7 +292,8 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     final apgDaily = result['apgJournalier'] as double;
     final totalApg = result['totalApg'] as double;
     final isCapped = result['isCapped'] as bool;
-    final type = result['type'] as String;
+    final typeId = result['type'] as String;
+    final typeLabel = FamilyService.localizedLeaveType(S.of(context)!, typeId);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -307,7 +310,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               const Icon(Icons.timeline, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                S.of(context)!.naissanceCongeLabel(type),
+                S.of(context)!.naissanceCongeLabel(typeLabel),
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -590,7 +593,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                       return DropdownMenuItem(
                         value: code,
                         child: Text(
-                            '$code — ${FamilyService.cantonNames[code]}'),
+                            '$code — ${FamilyService.localizedCantonName(S.of(context)!, code)}'),
                       );
                     }).toList(),
                     onChanged: (v) {
@@ -670,7 +673,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           const SizedBox(height: 6),
           Text(
             S.of(context)!.naissanceAllocHeroDesc(
-              FamilyService.cantonNames[_cantonAlloc] ?? _cantonAlloc,
+              FamilyService.localizedCantonName(S.of(context)!, _cantonAlloc),
               _nbEnfantsAlloc,
               _nbEnfantsAlloc > 1 ? 's' : '',
             ),
@@ -855,6 +858,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     final allocResult = FamilyService.estimateAllocations(
       canton: _cantonAlloc,
       nbEnfants: _nbEnfantsImpact,
+      s: S.of(context)!,
     );
     final allocAnnuel = allocResult['annuelTotal'] as double;
 
@@ -975,7 +979,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             const SizedBox(height: 4),
             Text(
               S.of(context)!.naissanceAllocEnfantsLabel(
-                FamilyService.cantonNames[_cantonAlloc] ?? _cantonAlloc,
+                FamilyService.localizedCantonName(S.of(context)!, _cantonAlloc),
                 _nbEnfantsImpact,
                 _nbEnfantsImpact > 1 ? 's' : '',
               ),

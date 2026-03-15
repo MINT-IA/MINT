@@ -61,6 +61,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         revenu2: _revenu2,
         canton: _canton,
         patrimoine: _patrimoine,
+        s: S.of(context)!,
       );
     });
   }
@@ -269,7 +270,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                       return DropdownMenuItem(
                         value: code,
                         child: Text(
-                            '$code — ${FamilyService.cantonNames[code]}'),
+                            '$code — ${FamilyService.localizedCantonName(S.of(context)!, code)}'),
                       );
                     }).toList(),
                     onChanged: (v) {

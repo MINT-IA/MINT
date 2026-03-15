@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FAMILY SERVICE — Sprint S22 / Famille & Concubinage
@@ -114,6 +115,8 @@ class FamilyService {
   //  CANTON NAMES (French)
   // ════════════════════════════════════════════════════════════
 
+  /// Canton names — fallback values (French).
+  /// Prefer [localizedCantonName] for user-facing text.
   static const Map<String, String> cantonNames = {
     'ZH': 'Zurich',
     'BE': 'Berne',
@@ -126,8 +129,8 @@ class FamilyService {
     'ZG': 'Zoug',
     'FR': 'Fribourg',
     'SO': 'Soleure',
-    'BS': 'Bale-Ville',
-    'BL': 'Bale-Campagne',
+    'BS': 'Bâle-Ville',
+    'BL': 'Bâle-Campagne',
     'SH': 'Schaffhouse',
     'AR': 'Appenzell RE',
     'AI': 'Appenzell RI',
@@ -138,10 +141,44 @@ class FamilyService {
     'TI': 'Tessin',
     'VD': 'Vaud',
     'VS': 'Valais',
-    'NE': 'Neuchatel',
-    'GE': 'Geneve',
+    'NE': 'Neuchâtel',
+    'GE': 'Genève',
     'JU': 'Jura',
   };
+
+  /// Returns the localized canton name for [code] using i18n.
+  /// Falls back to [cantonNames] if [s] is null or key is missing.
+  static String localizedCantonName(S s, String code) {
+    switch (code) {
+      case 'ZH': return s.familyServiceCantonZH;
+      case 'BE': return s.familyServiceCantonBE;
+      case 'LU': return s.familyServiceCantonLU;
+      case 'UR': return s.familyServiceCantonUR;
+      case 'SZ': return s.familyServiceCantonSZ;
+      case 'OW': return s.familyServiceCantonOW;
+      case 'NW': return s.familyServiceCantonNW;
+      case 'GL': return s.familyServiceCantonGL;
+      case 'ZG': return s.familyServiceCantonZG;
+      case 'FR': return s.familyServiceCantonFR;
+      case 'SO': return s.familyServiceCantonSO;
+      case 'BS': return s.familyServiceCantonBS;
+      case 'BL': return s.familyServiceCantonBL;
+      case 'SH': return s.familyServiceCantonSH;
+      case 'AR': return s.familyServiceCantonAR;
+      case 'AI': return s.familyServiceCantonAI;
+      case 'SG': return s.familyServiceCantonSG;
+      case 'GR': return s.familyServiceCantonGR;
+      case 'AG': return s.familyServiceCantonAG;
+      case 'TG': return s.familyServiceCantonTG;
+      case 'TI': return s.familyServiceCantonTI;
+      case 'VD': return s.familyServiceCantonVD;
+      case 'VS': return s.familyServiceCantonVS;
+      case 'NE': return s.familyServiceCantonNE;
+      case 'GE': return s.familyServiceCantonGE;
+      case 'JU': return s.familyServiceCantonJU;
+      default: return cantonNames[code] ?? code;
+    }
+  }
 
   /// Sorted canton codes (alphabetical).
   static List<String> get sortedCantonCodes {
@@ -227,6 +264,7 @@ class FamilyService {
     required double revenu2,
     required String canton,
     int nbEnfants = 0,
+    S? s,
   }) {
     final baseRate = _effectiveRates100kSingle[canton] ?? 0.13;
 
@@ -263,7 +301,7 @@ class FamilyService {
       'revenu1': revenu1,
       'revenu2': revenu2,
       'canton': canton,
-      'cantonNom': cantonNames[canton] ?? canton,
+      'cantonNom': s != null ? localizedCantonName(s, canton) : (cantonNames[canton] ?? canton),
       'nbEnfants': nbEnfants,
       'totalCelibataires': totalCelibataires,
       'taxSingle1': taxSingle1,
@@ -350,7 +388,7 @@ class FamilyService {
       'perteSalaire': perteSalaire,
       'isCapped': isCapped,
       'plafondMensuel': plafondMensuel,
-      'type': isMother ? 'Maternite' : 'Paternite',
+      'type': isMother ? 'maternity' : 'paternity',
     };
   }
 
@@ -362,6 +400,7 @@ class FamilyService {
   static Map<String, dynamic> estimateAllocations({
     required String canton,
     int nbEnfants = 1,
+    S? s,
   }) {
     final mensuelParEnfant = allocationsMensuelles[canton] ?? 200.0;
     final mensuelTotal = mensuelParEnfant * nbEnfants;
@@ -379,17 +418,17 @@ class FamilyService {
 
     return {
       'canton': canton,
-      'cantonNom': cantonNames[canton] ?? canton,
+      'cantonNom': s != null ? localizedCantonName(s, canton) : (cantonNames[canton] ?? canton),
       'nbEnfants': nbEnfants,
       'mensuelParEnfant': mensuelParEnfant,
       'mensuelTotal': mensuelTotal,
       'annuelTotal': annuelTotal,
       'rank': rank,
       'bestCanton': best.key,
-      'bestCantonNom': cantonNames[best.key] ?? best.key,
+      'bestCantonNom': s != null ? localizedCantonName(s, best.key) : (cantonNames[best.key] ?? best.key),
       'bestMontant': best.value,
       'worstCanton': worst.key,
-      'worstCantonNom': cantonNames[worst.key] ?? worst.key,
+      'worstCantonNom': s != null ? localizedCantonName(s, worst.key) : (cantonNames[worst.key] ?? worst.key),
       'worstMontant': worst.value,
       'differenceVsBest': differenceVsBest,
     };
@@ -398,6 +437,7 @@ class FamilyService {
   /// Get all cantons sorted by allocation amount (descending).
   static List<Map<String, dynamic>> getAllocationsRanking({
     int nbEnfants = 1,
+    S? s,
   }) {
     final sorted = allocationsMensuelles.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
@@ -407,7 +447,7 @@ class FamilyService {
       final e = entry.value;
       return {
         'canton': e.key,
-        'cantonNom': cantonNames[e.key] ?? e.key,
+        'cantonNom': s != null ? localizedCantonName(s, e.key) : (cantonNames[e.key] ?? e.key),
         'mensuelParEnfant': e.value,
         'mensuelTotal': e.value * nbEnfants,
         'annuelTotal': e.value * nbEnfants * 12,
@@ -462,6 +502,7 @@ class FamilyService {
     required String canton,
     int nbEnfants = 0,
     double patrimoine = 0,
+    S? s,
   }) {
     // Fiscal comparison
     final fiscal = compareFiscalMariage(
@@ -469,6 +510,7 @@ class FamilyService {
       revenu2: revenu2,
       canton: canton,
       nbEnfants: nbEnfants,
+      s: s,
     );
 
     // Inheritance comparison
@@ -563,6 +605,14 @@ class FamilyService {
   // ════════════════════════════════════════════════════════════
   //  HELPERS
   // ════════════════════════════════════════════════════════════
+
+  /// Returns the localized parental leave type label.
+  /// [typeId] is 'maternity' or 'paternity' (from [simulateCongeParental]).
+  static String localizedLeaveType(S s, String typeId) {
+    return typeId == 'maternity'
+        ? s.familyServiceMaternite
+        : s.familyServicePaternite;
+  }
 
   /// Format a number with Swiss apostrophe separators.
   static String _formatNumber(double value) {

@@ -78,6 +78,7 @@ class _MariageScreenState extends State<MariageScreen>
         revenu2: _revenu2,
         canton: _canton,
         nbEnfants: _nbEnfants,
+        s: S.of(context)!,
       );
     });
   }
@@ -268,7 +269,7 @@ class _MariageScreenState extends State<MariageScreen>
                       return DropdownMenuItem(
                         value: code,
                         child: Text(
-                            '$code — ${FamilyService.cantonNames[code]}'),
+                            '$code — ${FamilyService.localizedCantonName(S.of(context)!, code)}'),
                       );
                     }).toList(),
                     onChanged: (v) {
