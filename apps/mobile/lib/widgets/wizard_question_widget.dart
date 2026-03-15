@@ -135,7 +135,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
                     final title = EducationalInsertService.getLearnMoreTitle(
                         widget.question.id);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('En savoir plus: $title')),
+                      SnackBar(content: Text(S.of(context)!.wizardLearnMoreSnackbar(title))),
                     );
                   },
                 ) ??
@@ -598,7 +598,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
 
   Widget _buildDateInput() {
     // TODO: Implement date picker
-    return const Text('Date picker not yet implemented');
+    return Text(S.of(context)!.wizardDatePickerNotImplemented);
   }
 
   IconData _getIconData(String iconName) {
