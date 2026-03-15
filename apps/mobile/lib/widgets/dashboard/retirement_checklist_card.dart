@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -31,7 +32,8 @@ class RetirementChecklistCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = _buildChecklistItems(profile);
+    final s = S.of(context)!;
+    final items = _buildChecklistItems(profile, s);
     if (items.isEmpty) return const SizedBox.shrink();
 
     return Container(
@@ -73,7 +75,7 @@ class RetirementChecklistCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Prochaines \u00e9tapes',
+                      s.retirementChecklistTitle,
                       style: GoogleFonts.montserrat(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -81,7 +83,7 @@ class RetirementChecklistCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Actions personnalis\u00e9es pour ta situation',
+                      s.retirementChecklistSubtitle,
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: MintColors.textMuted,
@@ -193,7 +195,7 @@ class RetirementChecklistCard extends StatelessWidget {
     );
   }
 
-  static List<_ChecklistItem> _buildChecklistItems(CoachProfile profile) {
+  static List<_ChecklistItem> _buildChecklistItems(CoachProfile profile, S s) {
     final items = <_ChecklistItem>[];
     final yearsToRetirement = profile.anneesAvantRetraite;
     final retirementYear = profile.birthYear + 65;
@@ -202,13 +204,12 @@ class RetirementChecklistCard extends StatelessWidget {
     // 1. AVS extract
     final hasAvsData = profile.prevoyance.anneesContribuees != null;
     if (!hasAvsData) {
-      items.add(const _ChecklistItem(
+      items.add(_ChecklistItem(
         icon: Icons.description_outlined,
         color: MintColors.info,
-        title: 'Commander ton extrait de compte individuel (CI)',
-        subtitle:
-            'Gratuit sur inforegister.ch. Permet de v\u00e9rifier tes ann\u00e9es AVS.',
-        timeline: 'D\u00e8s que possible',
+        title: s.retirementChecklistAvsTitle,
+        subtitle: s.retirementChecklistAvsSubtitle,
+        timeline: s.retirementChecklistAvsTimeline,
         route: '/document-scan/avs-guide',
       ));
     }
@@ -224,11 +225,9 @@ class RetirementChecklistCard extends StatelessWidget {
       items.add(_ChecklistItem(
         icon: Icons.savings_outlined,
         color: MintColors.retirement3a,
-        title: 'Verser ton 3a avant le 31 d\u00e9cembre',
-        subtitle:
-            'CHF\u00a0${_fmt(remaining3a)} restant avant le plafond '
-            '${now.year}.',
-        timeline: 'Avant le 31.12.${now.year}',
+        title: s.retirementChecklist3aTitle,
+        subtitle: s.retirementChecklist3aSubtitle(_fmt(remaining3a), now.year.toString()),
+        timeline: s.retirementChecklist3aTimeline(now.year.toString()),
         route: '/3a-deep/comparator',
       ));
     }
@@ -246,11 +245,9 @@ class RetirementChecklistCard extends StatelessWidget {
       items.add(_ChecklistItem(
         icon: Icons.add_chart_rounded,
         color: MintColors.success,
-        title: '\u00c9valuer un rachat LPP',
-        subtitle:
-            '\u00c9conomie d\u2019imp\u00f4t estim\u00e9e\u00a0: ~CHF\u00a0${_fmt(economie)}. '
-            'Lacune restante\u00a0: CHF\u00a0${_fmt(lacune)}.',
-        timeline: 'Avant $retirementYear (LPP art. 79b)',
+        title: s.retirementChecklistRachatTitle,
+        subtitle: s.retirementChecklistRachatSubtitle(_fmt(economie), _fmt(lacune)),
+        timeline: s.retirementChecklistRachatTimeline(retirementYear.toString()),
         route: '/lpp-deep/rachat',
       ));
     }
@@ -261,10 +258,9 @@ class RetirementChecklistCard extends StatelessWidget {
       items.add(_ChecklistItem(
         icon: Icons.compare_arrows_rounded,
         color: MintColors.purple,
-        title: 'Planifier rente vs capital',
-        subtitle:
-            'D\u00e9cision irr\u00e9versible \u2014 prends le temps de simuler les sc\u00e9narios.',
-        timeline: 'Avant ${retirementYear - 1}',
+        title: s.retirementChecklistRenteVsCapitalTitle,
+        subtitle: s.retirementChecklistRenteVsCapitalSubtitle,
+        timeline: s.retirementChecklistRenteVsCapitalTimeline((retirementYear - 1).toString()),
         route: '/arbitrage/rente-vs-capital',
       ));
     }
@@ -274,15 +270,13 @@ class RetirementChecklistCard extends StatelessWidget {
         profile.isCouple && profile.conjoint?.birthYear != null;
     if (hasConjoint && yearsToRetirement <= 10 &&
         FeatureFlags.enableDecisionScaffold) {
-      final conjName = profile.conjoint!.firstName ?? 'ton/ta partenaire';
+      final conjName = profile.conjoint!.firstName ?? s.retirementChecklistPartnerDefault;
       items.add(_ChecklistItem(
         icon: Icons.people_outline_rounded,
         color: MintColors.indigo,
-        title: 'Coordonner les dates de retrait',
-        subtitle:
-            '\u00c9chelonner les retraits avec $conjName pour r\u00e9duire '
-            'la charge fiscale.',
-        timeline: 'Phase de planification',
+        title: s.retirementChecklistCoupleTitle,
+        subtitle: s.retirementChecklistCoupleSubtitle(conjName),
+        timeline: s.retirementChecklistCoupleTimeline,
         route: '/arbitrage/calendrier-retraits',
       ));
     }
