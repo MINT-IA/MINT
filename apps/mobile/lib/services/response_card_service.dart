@@ -206,8 +206,8 @@ class ResponseCardService {
         sources: ['LIFD art. 21 al. 1 let. b'],
       ));
     }
-    if (lower.contains('saron') || lower.contains('taux fixe') &&
-        lower.contains('hypo')) {
+    if (lower.contains('saron') ||
+        (lower.contains('taux fixe') && lower.contains('hypo'))) {
       cards.add(_buildSimpleCard(
         id: 'saron_vs_fixed',
         title: 'SARON vs taux fixe',
@@ -285,8 +285,8 @@ class ResponseCardService {
         sources: ['CC art. 457-640', 'LIFD art. 24'],
       ));
     }
-    if (lower.contains('donat') || lower.contains('donner') &&
-        lower.contains('enfant')) {
+    if (lower.contains('donat') ||
+        (lower.contains('donner') && lower.contains('enfant'))) {
       cards.add(_buildSimpleCard(
         id: 'donation',
         title: 'Donation',
@@ -903,7 +903,7 @@ class ResponseCardService {
       ),
       cta: const CardCta(
         label: 'Simuler la capacite',
-        route: '/simulator/mortgage',
+        route: '/hypotheque',
         icon: 'home',
       ),
       urgency: ltv > 80 ? CardUrgency.medium : CardUrgency.low,
