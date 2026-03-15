@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
-//  P4-B  Le Reset silencieux — Perte d'ancienneté LPP
-//  Charte : L1 (CHF/mois) + L7 (Métaphore reset/rewind)
-//  Source : LPP art. 16 (bonifications par âge), LPP art. 23
+//  P4-B  Le Reset silencieux — Perte d'anciennete LPP
+//  Charte : L1 (CHF/mois) + L7 (Metaphore reset/rewind)
+//  Source : LPP art. 16 (bonifications par age), LPP art. 23
 // ────────────────────────────────────────────────────────────
 
 class DisabilityResetWidget extends StatelessWidget {
@@ -40,6 +41,7 @@ class DisabilityResetWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final currentRate = getLppBonificationRate(currentAge);
     final bonificationBefore = currentSalary * currentRate;
     final bonificationAfter = reducedSalary * currentRate;
@@ -48,7 +50,7 @@ class DisabilityResetWidget extends StatelessWidget {
     final renteMonthlyDelta = capitalDelta * conversionRate / 12;
 
     return Semantics(
-      label: 'Reset silencieux invalidité LPP ancienneté',
+      label: s.disabilityResetSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -58,21 +60,21 @@ class DisabilityResetWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildContext(currentRate * 100, bonificationBefore, bonificationAfter),
+                  _buildContext(s, currentRate * 100, bonificationBefore, bonificationAfter),
                   const SizedBox(height: 20),
-                  _buildCapitalComparison(capitalDelta),
+                  _buildCapitalComparison(s, capitalDelta),
                   const SizedBox(height: 16),
-                  _buildRenteImpact(renteMonthlyDelta),
+                  _buildRenteImpact(s, renteMonthlyDelta),
                   const SizedBox(height: 16),
-                  _buildNarrative(),
+                  _buildNarrative(s),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -82,7 +84,7 @@ class DisabilityResetWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -91,14 +93,14 @@ class DisabilityResetWidget extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Text('⏪', style: TextStyle(fontSize: 24)),
+          const Text('\u23ea', style: TextStyle(fontSize: 24)),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Le reset silencieux',
+                  s.disabilityResetTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -107,7 +109,7 @@ class DisabilityResetWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'L\'invalidité ne détruit pas que ton revenu actuel — elle rétrécit ta retraite.',
+                  s.disabilityResetSubtitle,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -122,7 +124,7 @@ class DisabilityResetWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildContext(double rate, double bonifBefore, double bonifAfter) {
+  Widget _buildContext(S s, double rate, double bonifBefore, double bonifAfter) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -134,7 +136,7 @@ class DisabilityResetWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'À $currentAge ans — taux de bonification LPP : ${rate.toStringAsFixed(0)}% (LPP art. 16)',
+            s.disabilityResetContextRate(currentAge, rate.toStringAsFixed(0)),
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -142,15 +144,15 @@ class DisabilityResetWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          _buildBonifRow('Avant invalidité', currentSalary, bonifBefore, MintColors.primary),
+          _buildBonifRow(s.disabilityResetBeforeDisability, currentSalary, bonifBefore, MintColors.primary, s),
           const SizedBox(height: 8),
-          _buildBonifRow('Après reconversion', reducedSalary, bonifAfter, MintColors.scoreAttention),
+          _buildBonifRow(s.disabilityResetAfterReconversion, reducedSalary, bonifAfter, MintColors.scoreAttention, s),
         ],
       ),
     );
   }
 
-  Widget _buildBonifRow(String label, double salary, double bonif, Color color) {
+  Widget _buildBonifRow(String label, double salary, double bonif, Color color, S s) {
     return Row(
       children: [
         Container(
@@ -171,7 +173,7 @@ class DisabilityResetWidget extends StatelessWidget {
                 style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
               ),
               Text(
-                'Salaire ${_fmt(salary)} → bonification LPP : CHF ${_fmt(bonif)}/an',
+                s.disabilityResetBonifDetail(_fmt(salary), _fmt(bonif)),
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -185,12 +187,12 @@ class DisabilityResetWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildCapitalComparison(double delta) {
+  Widget _buildCapitalComparison(S s, double delta) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Ton 2e pilier à 65 ans',
+          s.disabilityResetCapitalTitle,
           style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -201,17 +203,17 @@ class DisabilityResetWidget extends StatelessWidget {
         Row(
           children: [
             Expanded(child: _buildCapitalCard(
-              label: 'Sans invalidité',
+              label: s.disabilityResetWithout,
               amount: capitalBefore,
               color: MintColors.scoreExcellent,
-              emoji: '✅',
+              emoji: '\u2705',
             )),
             const SizedBox(width: 12),
             Expanded(child: _buildCapitalCard(
-              label: 'Avec invalidité',
+              label: s.disabilityResetWith,
               amount: capitalAfter,
               color: MintColors.scoreCritique,
-              emoji: '❌',
+              emoji: '\u274c',
             )),
           ],
         ),
@@ -223,7 +225,7 @@ class DisabilityResetWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
-            '△ Différence : -CHF ${_fmt(delta)}',
+            s.disabilityResetDelta(_fmt(delta)),
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -266,7 +268,7 @@ class DisabilityResetWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildRenteImpact(double monthlyDelta) {
+  Widget _buildRenteImpact(S s, double monthlyDelta) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -281,7 +283,7 @@ class DisabilityResetWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Rente mensuelle perdue',
+                  s.disabilityResetRenteLostLabel,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -303,7 +305,7 @@ class DisabilityResetWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                'Chaque mois.',
+                s.disabilityResetEveryMonth,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -311,7 +313,7 @@ class DisabilityResetWidget extends StatelessWidget {
                 ),
               ),
               Text(
-                'Pour toujours.',
+                s.disabilityResetForever,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -325,7 +327,7 @@ class DisabilityResetWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildNarrative() {
+  Widget _buildNarrative(S s) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -336,11 +338,11 @@ class DisabilityResetWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('💡', style: TextStyle(fontSize: 18)),
+          const Text('\ud83d\udca1', style: TextStyle(fontSize: 18)),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'C\'est pas juste ton salaire qui baisse.\nC\'est ta retraite qui rétrécit.',
+              s.disabilityResetNarrative,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -354,10 +356,9 @@ class DisabilityResetWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : LPP art. 16, 23-26. Taux de conversion minimum : 6.8% (LPP art. 14).',
+      s.disabilityResetDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

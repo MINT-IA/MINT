@@ -9918,5 +9918,48 @@
     }
   },
   "franchiseCostRule": "Règle : si tu vas chez le médecin plus de 2× par an,\nla franchise basse te coûte moins cher.",
-  "franchiseCostDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAMal art. 64-64a. Changement de franchise : avant le 30.11."
+  "franchiseCostDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAMal art. 64-64a. Changement de franchise : avant le 30.11.",
+  "disabilityResetSemantics": "Reset silencieux invalidité LPP ancienneté",
+  "disabilityResetTitle": "Le reset silencieux",
+  "disabilityResetSubtitle": "L'invalidité ne détruit pas que ton revenu actuel — elle rétrécit ta retraite.",
+  "disabilityResetContextRate": "À {age} ans — taux de bonification LPP : {rate} % (LPP art. 16)",
+  "@disabilityResetContextRate": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityResetBeforeDisability": "Avant invalidité",
+  "disabilityResetAfterReconversion": "Après reconversion",
+  "disabilityResetBonifDetail": "Salaire {salary} → bonification LPP : CHF {bonif}/an",
+  "@disabilityResetBonifDetail": {
+    "placeholders": {
+      "salary": {
+        "type": "String"
+      },
+      "bonif": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityResetCapitalTitle": "Ton 2e pilier à 65 ans",
+  "disabilityResetWithout": "Sans invalidité",
+  "disabilityResetWith": "Avec invalidité",
+  "disabilityResetDelta": "△ Différence : -CHF {amount}",
+  "@disabilityResetDelta": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityResetRenteLostLabel": "Rente mensuelle perdue",
+  "disabilityResetEveryMonth": "Chaque mois.",
+  "disabilityResetForever": "Pour toujours.",
+  "disabilityResetNarrative": "C'est pas juste ton salaire qui baisse.\nC'est ta retraite qui rétrécit.",
+  "disabilityResetDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LPP art. 16, 23-26. Taux de conversion minimum : 6.8 % (LPP art. 14)."
 }
