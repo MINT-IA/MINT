@@ -979,9 +979,9 @@ class _AskMintScreenState extends State<AskMintScreen> {
     // Map known source files to app routes
     final file = source.file.toLowerCase();
     if (file.contains('3a') || file.contains('pilier')) {
-      context.push('/simulator/3a');
+      context.push('/pilier-3a');
     } else if (file.contains('lpp') || file.contains('pension')) {
-      context.push('/simulator/rente-capital');
+      context.push('/rente-vs-capital');
     } else if (file.contains('leasing')) {
       context.push('/simulator/leasing');
     } else if (file.contains('credit') || file.contains('cr\u00e9dit')) {

@@ -61,7 +61,7 @@ class ChiffreChocSection extends StatelessWidget {
           narrativeMessage: narratives['fiscalite'],
           source: 'OPP3 art. 7 \u00b7 LIFD',
           ctaLabel: 'Simuler mon 3a',
-          ctaRoute: '/simulator/3a',
+          ctaRoute: '/pilier-3a',
           icon: Icons.savings,
           color: MintColors.indigo,
         ));
@@ -82,7 +82,7 @@ class ChiffreChocSection extends StatelessWidget {
         narrativeMessage: narratives['prevoyance'],
         source: 'LPP art. 79b',
         ctaLabel: 'Explorer le rachat',
-        ctaRoute: '/lpp-deep/rachat',
+        ctaRoute: '/rachat-lpp',
         icon: Icons.account_balance,
         color: MintColors.coachAccent,
       ));

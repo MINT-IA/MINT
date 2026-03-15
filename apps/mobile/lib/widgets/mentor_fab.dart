@@ -51,7 +51,7 @@ class _CoachQuickSheet extends StatelessWidget {
       title: 'Scanner un document',
       subtitle: 'LPP, AVS, fiscal — enrichis ton profil',
       color: MintColors.primary,
-      route: '/document-scan',
+      route: '/scan',
     );
     const simuler = _CoachAction(
       icon: Icons.calculate_outlined,
@@ -65,7 +65,7 @@ class _CoachQuickSheet extends StatelessWidget {
       title: 'Mon bilan financier',
       subtitle: 'Rapport complet de ta situation',
       color: MintColors.success,
-      route: '/report',
+      route: '/rapport',
     );
     const enrichir = _CoachAction(
       icon: Icons.tune_outlined,

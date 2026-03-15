@@ -457,10 +457,10 @@ void main() {
     });
 
     test('second call returns null after route was consumed', () {
-      NotificationService.pendingRoute = '/simulator/3a';
+      NotificationService.pendingRoute = '/pilier-3a';
 
       final first = NotificationService.consumePendingRoute();
-      expect(first, '/simulator/3a');
+      expect(first, '/pilier-3a');
 
       final second = NotificationService.consumePendingRoute();
       expect(second, isNull,
@@ -626,11 +626,11 @@ void main() {
       expect(payload, contains('checkin'));
     });
 
-    test('3a deadline notification uses GoRouter path /simulator/3a', () {
-      // From source: payload: '/simulator/3a'
-      const payload = '/simulator/3a';
+    test('3a deadline notification uses GoRouter path /pilier-3a', () {
+      // From source: payload: '/pilier-3a'
+      const payload = '/pilier-3a';
       expect(payload, startsWith('/'));
-      expect(payload, contains('simulator'));
+      expect(payload, contains('pilier'));
       expect(payload, contains('3a'));
     });
 
@@ -658,7 +658,7 @@ void main() {
     });
 
     test('all known payloads are valid GoRouter paths', () {
-      final payloads = ['/coach/checkin', '/simulator/3a', '/home'];
+      final payloads = ['/coach/checkin', '/pilier-3a', '/home'];
       for (final p in payloads) {
         expect(p, startsWith('/'),
             reason: 'Payload "$p" must start with /');

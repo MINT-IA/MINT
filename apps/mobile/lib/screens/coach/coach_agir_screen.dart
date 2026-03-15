@@ -1393,7 +1393,7 @@ class _TimelineItem extends StatelessWidget {
                           final cta = event.cta;
                           if (cta == null) return;
                           if (cta.contains('3a')) {
-                            context.push('/simulator/3a');
+                            context.push('/pilier-3a');
                           } else if (cta.contains('documents')) {
                             context.push('/documents');
                           } else if (cta.contains('franchises')) {

@@ -203,7 +203,7 @@ class ProfileScreen extends StatelessWidget {
                     status: 'Couple+',
                     isComplete: false,
                     icon: Icons.people_outline,
-                    onTap: () => context.push('/household'),
+                    onTap: () => context.push('/couple'),
                   ),
                   const SizedBox(height: 32),
                   Text(S.of(context)?.profileDocuments ?? 'Mes documents',

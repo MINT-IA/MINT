@@ -70,7 +70,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
           icon: Icons.savings,
           title: s?.toolsSimulator3a ?? 'Simulateur 3a',
           subtitle: s?.toolsSimulator3aDesc ?? 'Calcule ton économie fiscale annuelle',
-          route: '/simulator/3a',
+          route: '/pilier-3a',
           color: MintColors.categoryGreen,
         ),
         _ToolItem(
@@ -98,28 +98,28 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
           icon: Icons.account_balance,
           title: s?.toolsRenteVsCapital ?? 'Rente vs Capital',
           subtitle: s?.toolsRenteVsCapitalDesc ?? 'Compare rente LPP et retrait du capital',
-          route: '/arbitrage/rente-vs-capital',
+          route: '/rente-vs-capital',
           color: MintColors.indigo,
         ),
         _ToolItem(
           icon: Icons.trending_up,
           title: s?.toolsRachatLpp ?? 'Rachat échelonné LPP',
           subtitle: s?.toolsRachatLppDesc ?? 'Optimise tes rachats LPP sur plusieurs années',
-          route: '/lpp-deep/rachat',
+          route: '/rachat-lpp',
           color: MintColors.categoryGreen,
         ),
         _ToolItem(
           icon: Icons.swap_horiz,
           title: s?.toolsLibrePassage ?? 'Libre passage',
           subtitle: s?.toolsLibrePassageDesc ?? 'Checklist changement d\'emploi ou départ',
-          route: '/lpp-deep/libre-passage',
+          route: '/libre-passage',
           color: MintColors.categoryBlue,
         ),
         _ToolItem(
           icon: Icons.shield_outlined,
           title: s?.toolsDisabilityGap ?? 'Filet de sécurité',
           subtitle: s?.toolsDisabilityGapDesc ?? 'Simule ton gap invalidité/décès',
-          route: '/simulator/disability-gap',
+          route: '/invalidite',
           color: MintColors.deepOrange,
         ),
         _ToolItem(
@@ -161,14 +161,14 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
           icon: Icons.family_restroom,
           title: s?.toolsDivorce ?? 'Simulateur divorce',
           subtitle: s?.toolsDivorceDesc ?? 'Impact financier du divorce sur la LPP',
-          route: '/life-event/divorce',
+          route: '/divorce',
           color: MintColors.violetDeep,
         ),
         _ToolItem(
           icon: Icons.volunteer_activism,
           title: s?.toolsSuccession ?? 'Simulateur succession',
           subtitle: s?.toolsSuccessionDesc ?? 'Calcule les parts légales et impôts',
-          route: '/life-event/succession',
+          route: '/succession',
           color: MintColors.teal,
         ),
       ],
@@ -266,7 +266,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
           icon: Icons.house,
           title: s?.toolsAffordability ?? 'Capacité d\'achat',
           subtitle: s?.toolsAffordabilityDesc ?? 'Calcule le prix max que tu peux acheter',
-          route: '/mortgage/affordability',
+          route: '/hypotheque',
           color: MintColors.teal,
         ),
         _ToolItem(
@@ -301,7 +301,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
           icon: Icons.home_outlined,
           title: s?.toolsEplLpp ?? 'Retrait EPL (LPP)',
           subtitle: s?.toolsEplLppDesc ?? 'Financer un logement avec ton 2e pilier',
-          route: '/lpp-deep/epl',
+          route: '/epl',
           color: MintColors.teal,
         ),
       ],
@@ -465,7 +465,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
               .where(
                 (tool) =>
                     !tool.route.startsWith('/arbitrage/') &&
-                    tool.route != '/simulator/rente-capital',
+                    tool.route != '/rente-vs-capital',
               )
               .toList();
           return _ToolCategory(

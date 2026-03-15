@@ -130,7 +130,7 @@ class SmartShortcuts extends StatelessWidget {
       shortcuts.add(_Shortcut(
         label: 'Rente vs Capital',
         icon: Icons.compare_arrows_outlined,
-        route: '/arbitrage/rente-vs-capital',
+        route: '/rente-vs-capital',
         color: MintColors.purpleDark,
       ));
     }
@@ -140,7 +140,7 @@ class SmartShortcuts extends StatelessWidget {
       shortcuts.add(_Shortcut(
         label: 'Rachat LPP',
         icon: Icons.trending_up,
-        route: '/lpp-deep/rachat',
+        route: '/rachat-lpp',
         color: MintColors.retirementLpp,
       ));
     }
@@ -150,7 +150,7 @@ class SmartShortcuts extends StatelessWidget {
       shortcuts.add(_Shortcut(
         label: 'Simulateur 3a',
         icon: Icons.savings_outlined,
-        route: '/simulator/3a',
+        route: '/pilier-3a',
         color: MintColors.retirement3a,
       ));
     }
@@ -160,7 +160,7 @@ class SmartShortcuts extends StatelessWidget {
       shortcuts.add(_Shortcut(
         label: 'Capacité immobilière',
         icon: Icons.home_outlined,
-        route: '/mortgage/affordability',
+        route: '/hypotheque',
         color: MintColors.retirementAvs,
       ));
     }
@@ -190,7 +190,7 @@ class SmartShortcuts extends StatelessWidget {
       shortcuts.add(_Shortcut(
         label: 'Calendrier retraits',
         icon: Icons.event_outlined,
-        route: '/arbitrage/calendrier-retraits',
+        route: '/decaissement',
         color: MintColors.urgentOrange,
       ));
     }
@@ -218,7 +218,7 @@ class SmartShortcuts extends StatelessWidget {
         _Shortcut(
           label: 'Scanner un document',
           icon: Icons.document_scanner_outlined,
-          route: '/document-scan',
+          route: '/scan',
           color: MintColors.primary,
         ),
       );

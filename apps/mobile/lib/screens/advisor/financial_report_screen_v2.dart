@@ -34,8 +34,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
   String _routeForCategory(ActionCategory category) {
     return switch (category) {
       ActionCategory.protection => '/budget',
-      ActionCategory.pillar3a => '/simulator/3a',
-      ActionCategory.lpp => '/lpp-deep/rachat',
+      ActionCategory.pillar3a => '/pilier-3a',
+      ActionCategory.lpp => '/rachat-lpp',
       ActionCategory.avs => '/retirement',
       ActionCategory.tax => '/fiscal',
       ActionCategory.insurance => '/assurances/lamal',

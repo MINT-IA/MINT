@@ -513,16 +513,16 @@ class VisibilityScoreService {
 
   static String _routeForCategory(String category) {
     return switch (category) {
-      'lpp' => '/lpp-deep/rachat',
+      'lpp' => '/rachat-lpp',
       'avs' => '/profile/bilan',
-      '3a' => '/simulator/3a',
+      '3a' => '/pilier-3a',
       'patrimoine' => '/profile/bilan',
       'fiscalite' => '/profile/bilan',
-      'menage' => '/household',
+      'menage' => '/couple',
       'income' => '/profile/bilan',
       'objectif_retraite' => '/profile/bilan',
       'foreign_pension' => '/profile/bilan',
-      'accuracy' => '/document-scan',
+      'accuracy' => '/scan',
       'freshness' => '/profile/bilan',
       _ => '/profile/bilan',
     };

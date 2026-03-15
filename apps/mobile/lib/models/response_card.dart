@@ -116,7 +116,7 @@ class CardCta {
   /// Texte du bouton (ex: "Simuler un rachat").
   final String label;
 
-  /// Route GoRouter (ex: "/lpp-deep/rachat").
+  /// Route GoRouter (ex: "/rachat-lpp").
   final String route;
 
   /// Icone optionnel.

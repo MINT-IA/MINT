@@ -548,7 +548,7 @@ class HeroRetirementCard extends StatelessWidget {
           width: double.infinity,
           child: FilledButton.icon(
             onPressed: onCompleteProfil ??
-                () => context.push('/document-scan'),
+                () => context.push('/scan'),
             icon: const Icon(Icons.edit_outlined, size: 18),
             label: Text(
               'Compl\u00e9ter mon profil',

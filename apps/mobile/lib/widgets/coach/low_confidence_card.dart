@@ -97,7 +97,7 @@ class LowConfidenceCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed: () => context.push('/document-scan'),
+              onPressed: () => context.push('/scan'),
               icon: const Icon(Icons.edit_outlined, size: 18),
               label: Text(
                 'Compl\u00e9ter mon profil',

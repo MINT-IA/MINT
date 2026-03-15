@@ -195,7 +195,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
           ),
           const SizedBox(height: 32),
           FilledButton(
-            onPressed: () => context.go('/household'),
+            onPressed: () => context.go('/couple'),
             child: const Text('Voir mon menage'),
           ),
         ],

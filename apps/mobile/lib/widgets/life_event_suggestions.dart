@@ -81,7 +81,7 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
       title: 'Planification successorale',
       reason: 'Réserves héréditaires et quotité disponible (CC art. 470)',
       icon: Icons.account_balance_outlined,
-      route: '/life-event/succession',
+      route: '/succession',
       color: MintColors.primary,
     ));
   }
@@ -145,7 +145,7 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
       title: 'Achat immobilier',
       reason: 'Simule ta capacité d\'emprunt et l\'apport EPL',
       icon: Icons.home_outlined,
-      route: '/mortgage/affordability',
+      route: '/hypotheque',
       color: MintColors.success,
     ));
   }
@@ -171,7 +171,7 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
       title: 'Invalidité',
       reason: 'Vérifie ta couverture AI + LPP en cas d\'accident',
       icon: Icons.accessible,
-      route: '/simulator/disability-gap',
+      route: '/invalidite',
       color: MintColors.error,
     ));
   }

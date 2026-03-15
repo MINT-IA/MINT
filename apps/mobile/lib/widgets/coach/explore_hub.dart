@@ -51,7 +51,7 @@ class ExploreHub extends StatelessWidget {
               icon: Icons.balance,
               title: 'Rente vs capital',
               subtitle: 'Comparer les options de retrait LPP',
-              route: '/arbitrage/rente-vs-capital',
+              route: '/rente-vs-capital',
             ),
           _ExploreRow(
             icon: Icons.chat_outlined,
@@ -63,7 +63,7 @@ class ExploreHub extends StatelessWidget {
             icon: Icons.document_scanner_outlined,
             title: 'Scanner un document',
             subtitle: 'Certificat LPP, d\u00e9claration fiscale',
-            route: '/document-scan',
+            route: '/scan',
           ),
           _ExploreRow(
             icon: Icons.assignment_outlined,

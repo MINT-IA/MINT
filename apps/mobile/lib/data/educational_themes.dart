@@ -109,7 +109,7 @@ class EducationData {
       title: 'Le 3e pilier (3a)',
       question: "C'est quoi le 3a et pourquoi tout le monde en parle ?",
       actionLabel: "Estimer mon économie fiscale",
-      route: '/simulator/3a',
+      route: '/pilier-3a',
       reminderText: "Décembre → Dernier moment pour verser cette année",
       icon: Icons.savings_outlined,
       color: MintColors.success,

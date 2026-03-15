@@ -193,7 +193,7 @@ class _ExploreTabState extends State<ExploreTab>
           subtitle: l10n?.exploreGoalPropertySub ??
               'Simuler mon achat → 5 min',
           tint: MintColors.info,
-          onTap: () => context.push('/mortgage/affordability'),
+          onTap: () => context.push('/hypotheque'),
         ),
         const SizedBox(height: 10),
         _buildGoalCard(
@@ -203,7 +203,7 @@ class _ExploreTabState extends State<ExploreTab>
           subtitle:
               l10n?.exploreGoalTaxSub ?? 'Optimiser mon 3a → 3 min',
           tint: MintColors.success,
-          onTap: () => context.push('/simulator/3a'),
+          onTap: () => context.push('/pilier-3a'),
         ),
         const SizedBox(height: 10),
         _buildGoalCard(
@@ -298,11 +298,11 @@ class _ExploreTabState extends State<ExploreTab>
       _LifeEventData(id: 'divorce', icon: Icons.family_restroom,
         title: l10n?.exploreEventDivorce ?? 'Divorce',
         subtitle: l10n?.exploreEventDivorceSub ?? 'Partage LPP et AVS',
-        color: MintColors.warning, route: '/life-event/divorce'),
+        color: MintColors.warning, route: '/divorce'),
       _LifeEventData(id: 'succession', icon: Icons.volunteer_activism,
         title: l10n?.exploreEventSuccession ?? 'Succession',
         subtitle: l10n?.exploreEventSuccessionSub ?? 'Droits et planning',
-        color: MintColors.success, route: '/life-event/succession'),
+        color: MintColors.success, route: '/succession'),
       _LifeEventData(id: 'housing_sale', icon: Icons.home_work_outlined,
         title: l10n?.exploreEventHouseSale ?? 'Vente immobilière',
         subtitle: l10n?.exploreEventHouseSaleSub ?? 'Impôt plus-value',
@@ -338,11 +338,11 @@ class _ExploreTabState extends State<ExploreTab>
       _LifeEventData(id: 'housing_purchase', icon: Icons.house_outlined,
         title: 'Achat immobilier',
         subtitle: 'Fonds propres et hypothèque',
-        color: MintColors.cyan, route: '/mortgage/affordability'),
+        color: MintColors.cyan, route: '/hypotheque'),
       _LifeEventData(id: 'disability', icon: Icons.health_and_safety_outlined,
         title: 'Invalidité',
         subtitle: 'Lacune de prévoyance',
-        color: MintColors.error, route: '/disability/gap'),
+        color: MintColors.error, route: '/invalidite'),
       _LifeEventData(id: 'canton_move', icon: Icons.map_outlined,
         title: 'Déménagement cantonal',
         subtitle: 'Comparer la fiscalité',
@@ -351,7 +351,7 @@ class _ExploreTabState extends State<ExploreTab>
         icon: Icons.sentiment_very_dissatisfied_outlined,
         title: 'Décès d\'un proche',
         subtitle: 'Succession et démarches',
-        color: MintColors.textMuted, route: '/life-event/succession'),
+        color: MintColors.textMuted, route: '/succession'),
       _LifeEventData(id: 'debt_crisis', icon: Icons.warning_amber_outlined,
         title: 'Crise de dette',
         subtitle: 'Diagnostic et solutions',
@@ -943,14 +943,14 @@ class _ExploreTabState extends State<ExploreTab>
       subtitle = l10n?.exploreSuggestion3aSub ?? 'Découvre combien tu peux économiser d\'impôts';
       icon = Icons.savings_outlined;
       color = MintColors.success;
-      route = '/simulator/3a';
+      route = '/pilier-3a';
     } else if (hasLpp && (profile.prevoyance.rachatMaximum ?? 0) > 20000) {
       // Has LPP with buyback potential → suggest LPP deep
       title = l10n?.exploreSuggestionLppTitle ?? 'Rachat LPP : une opportunité\u00a0?';
       subtitle = l10n?.exploreSuggestionLppSub ?? 'Simule l\'impact sur ta retraite et tes impôts';
       icon = Icons.account_balance_outlined;
       color = MintColors.cyan;
-      route = '/lpp-deep/rachat';
+      route = '/rachat-lpp';
     } else if (age >= 50) {
       // Over 50 → retirement planning
       title = l10n?.exploreSuggestionRetirementTitle ?? 'Ta retraite approche';

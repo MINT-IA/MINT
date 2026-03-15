@@ -261,7 +261,7 @@ class CoupleActionPlan extends StatelessWidget {
             '$firstRetires prend sa retraite en premier. '
             '\u00c9chelonner 3a/LPP peut r\u00e9duire la charge fiscale.',
         impactLabel: 'Jusqu\u2019\u00e0 CHF\u00a015\u2019000\u201340\u2019000 d\u2019\u00e9conomie (estimation)',
-        route: '/arbitrage/calendrier-retraits',
+        route: '/decaissement',
       ));
     }
 
@@ -366,7 +366,7 @@ class CoupleActionPlan extends StatelessWidget {
             'La strat\u00e9gie mixte (rente oblig. + capital suroblig.) '
             'peut \u00eatre diff\u00e9rente pour chaque partenaire.',
         impactLabel: null,
-        route: '/arbitrage/rente-vs-capital',
+        route: '/rente-vs-capital',
       ));
     }
 

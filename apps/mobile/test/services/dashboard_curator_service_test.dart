@@ -307,9 +307,9 @@ void main() {
           if (c.deeplink != null) c.title: c.deeplink!,
       };
 
-      expect(deeplinks['Tip missing_3a'], '/simulator/3a');
-      expect(deeplinks['Tip lpp_buyback'], '/arbitrage/rachat-vs-marche');
-      expect(deeplinks['Tip retirement_countdown'], '/coach/dashboard');
+      expect(deeplinks['Tip missing_3a'], '/pilier-3a');
+      expect(deeplinks['Tip lpp_buyback'], '/rachat-lpp');
+      expect(deeplinks['Tip retirement_countdown'], '/retraite');
       expect(deeplinks['Tip debt_ratio'], '/debt/ratio');
     });
 

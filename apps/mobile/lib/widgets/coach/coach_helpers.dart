@@ -71,10 +71,10 @@ Color colorForCategory(String category) {
 String tipRoute(CoachingTip tip) {
   switch (tip.category) {
     case 'fiscalite':
-      return '/simulator/3a';
+      return '/pilier-3a';
     case 'prevoyance':
-      if (tip.id.contains('lpp')) return '/lpp-deep/rachat';
-      if (tip.id.contains('3a')) return '/simulator/3a';
+      if (tip.id.contains('lpp')) return '/rachat-lpp';
+      if (tip.id.contains('3a')) return '/pilier-3a';
       return '/retirement';
     case 'budget':
       if (tip.id.contains('debt')) return '/check/debt';
@@ -82,14 +82,14 @@ String tipRoute(CoachingTip tip) {
       return '/budget';
     case 'retraite':
       if (tip.id.contains('rente') || tip.id.contains('capital')) {
-        if (!FeatureFlags.enableDecisionScaffold) return '/coach/dashboard';
-        return '/arbitrage/rente-vs-capital';
+        if (!FeatureFlags.enableDecisionScaffold) return '/retraite';
+        return '/rente-vs-capital';
       }
       if (tip.id.contains('projection')) {
-        return '/coach/dashboard';
+        return '/retraite';
       }
-      return '/coach/dashboard';
+      return '/retraite';
     default:
-      return '/report';
+      return '/rapport';
   }
 }

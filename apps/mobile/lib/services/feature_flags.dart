@@ -42,23 +42,22 @@ class FeatureFlags {
   static bool safeModeDegraded = false;
 
   // ── V1 screen gating ───────────────────────────────────────
-  // Set to true to enable post-V1 features.
-  // All default false — only V1-essential routes are accessible.
+  // All enabled for V1 launch (S49). Server-driven override available.
 
-  /// Coach Phase 2: agir, refresh, succession, decaissement
-  static bool enableCoachPhase2 = false;
+  /// Coach Phase 2: refresh, succession, decaissement
+  static bool enableCoachPhase2 = true;
 
   /// Life event screens: mariage, divorce, naissance, concubinage, etc.
-  static bool enableLifeEventScreens = false;
+  static bool enableLifeEventScreens = true;
 
-  /// Advanced simulators: compound, leasing, credit, disability
-  static bool enableAdvancedSimulators = false;
+  /// Advanced simulators: compound, leasing, credit
+  static bool enableAdvancedSimulators = true;
 
   /// Mortgage tools: affordability, amortization, EPL, etc.
-  static bool enableMortgageTools = false;
+  static bool enableMortgageTools = true;
 
   /// Self-employed tools: AVS cotisations, IJM, 3a indep, etc.
-  static bool enableIndependantTools = false;
+  static bool enableIndependantTools = true;
 
   /// Open banking screens: hub, transactions, consents
   static bool enableOpenBanking = false;

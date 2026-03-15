@@ -40,7 +40,7 @@ class StressCheckInsertWidget extends StatelessWidget {
           _buildStressOption(
             icon: Icons.receipt_long,
             label: 'Optimiser mes impôts',
-            route: '/simulator/3a',
+            route: '/pilier-3a',
           ),
           const SizedBox(height: 8),
           _buildStressOption(

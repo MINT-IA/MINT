@@ -1116,9 +1116,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (file.contains('3a') ||
         file.contains('opp3') ||
         file.contains('pilier')) {
-      context.push('/simulator/3a');
+      context.push('/pilier-3a');
     } else if (file.contains('lpp') || file.contains('pension')) {
-      context.push('/simulator/rente-capital');
+      context.push('/rente-vs-capital');
     } else if (file.contains('lifd') || file.contains('fiscal')) {
       context.push('/fiscal');
     } else if (file.contains('lavs') || file.contains('avs')) {

@@ -193,7 +193,7 @@ class ResponseCardService {
       ),
       cta: const CardCta(
         label: 'Simuler mon 3a',
-        route: '/simulator/3a',
+        route: '/pilier-3a',
         icon: 'savings',
       ),
       urgency: daysLeft <= 30
@@ -235,7 +235,7 @@ class ResponseCardService {
       ),
       cta: const CardCta(
         label: 'Simuler un rachat',
-        route: '/lpp-deep/rachat',
+        route: '/rachat-lpp',
         icon: 'account_balance',
       ),
       urgency: CardUrgency.low,
@@ -281,7 +281,7 @@ class ResponseCardService {
       ),
       cta: const CardCta(
         label: 'Explorer mes scenarios',
-        route: '/simulator/rente-capital',
+        route: '/rente-vs-capital',
         icon: 'trending_up',
       ),
       urgency: profile.age >= 58 ? CardUrgency.high : CardUrgency.medium,
@@ -356,7 +356,7 @@ class ResponseCardService {
       ),
       cta: const CardCta(
         label: 'Enrichir le profil couple',
-        route: '/household',
+        route: '/couple',
         icon: 'family_restroom',
       ),
       urgency: gap >= 25 ? CardUrgency.high : CardUrgency.medium,
@@ -389,7 +389,7 @@ class ResponseCardService {
       ),
       cta: const CardCta(
         label: 'Explorer mes options',
-        route: '/simulator/3a',
+        route: '/pilier-3a',
         icon: 'savings',
       ),
       urgency: CardUrgency.medium,

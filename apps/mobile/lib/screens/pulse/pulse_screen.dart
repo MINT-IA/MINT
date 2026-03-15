@@ -220,7 +220,7 @@ class _PulseScreenState extends State<PulseScreen> {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: () => context.push('/document-scan'),
+              onPressed: () => context.push('/scan'),
               icon: const Icon(Icons.camera_alt_outlined, size: 16),
               label: Text(l.pulseEnrichirCta),
               style: OutlinedButton.styleFrom(
