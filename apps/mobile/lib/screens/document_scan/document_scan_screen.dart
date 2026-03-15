@@ -1071,7 +1071,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         warnings: upload.warnings,
         disclaimer:
             S.of(context)!.docScanDisclaimerAutoExtracted,
-        sources: const ['Extraction backend Docling (LPP)'],
+        sources: [S.of(context)!.docScanSourceBackendDocling],
       );
     }
 
@@ -1153,7 +1153,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       warnings: upload.warnings,
       disclaimer:
           S.of(context)!.docScanDisclaimerVerify,
-      sources: const ['Extraction backend Docling (LPP)'],
+      sources: [S.of(context)!.docScanSourceBackendDocling],
     );
   }
 
@@ -1245,7 +1245,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         disclaimer: visionResponse.disclaimers.isNotEmpty
             ? visionResponse.disclaimers.first
             : S.of(context)!.docScanDisclaimerVisionDefault,
-        sources: const ['Extraction Vision IA (BYOK)'],
+        sources: [S.of(context)!.docScanSourceVisionByok],
       );
 
       if (!mounted) return;
