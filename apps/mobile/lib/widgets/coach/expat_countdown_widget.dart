@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -64,12 +65,13 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final visibleDeadlines = widget.deadlines
         .where((d) => !d.isEuOnly || widget.isEuDestination)
         .toList();
 
     return Semantics(
-      label: 'Compte à rebours expatriation deadlines LPP 3a AVS départ',
+      label: s.expatCountdownSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -79,7 +81,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(visibleDeadlines.length),
+            _buildHeader(visibleDeadlines.length, s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
@@ -87,12 +89,12 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
                 children: [
                   ...visibleDeadlines.asMap().entries.map((e) => Padding(
                     padding: const EdgeInsets.only(bottom: 10),
-                    child: _buildDeadlineCard(e.key, e.value),
+                    child: _buildDeadlineCard(e.key, e.value, s),
                   )),
                   const SizedBox(height: 12),
-                  _buildCriticalNote(),
+                  _buildCriticalNote(s),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -102,7 +104,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
     );
   }
 
-  Widget _buildHeader(int count) {
+  Widget _buildHeader(int count, S s) {
     final progress = count > 0 ? _completedCount / count : 0.0;
     return Container(
       padding: const EdgeInsets.all(20),
@@ -119,7 +121,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Checklist départ — deadlines légales',
+                  s.expatCountdownTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -141,7 +143,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
           ),
           const SizedBox(height: 6),
           Text(
-            '$_completedCount / $count actions complétées',
+            s.expatCountdownActionsCompleted(_completedCount.toString(), count.toString()),
             style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
           ),
         ],
@@ -149,7 +151,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
     );
   }
 
-  Widget _buildDeadlineCard(int index, ExpatDeadline d) {
+  Widget _buildDeadlineCard(int index, ExpatDeadline d, S s) {
     final daysRemaining = _daysFrom(d.daysFromDeparture);
     final isUrgent = daysRemaining < 30 && daysRemaining >= 0;
     final isOverdue = daysRemaining < 0;
@@ -219,7 +221,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
                           ),
                         ),
                       ),
-                      _buildDaysBadge(daysRemaining, isDone),
+                      _buildDaysBadge(daysRemaining, isDone, s),
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -256,7 +258,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
     );
   }
 
-  Widget _buildDaysBadge(int days, bool isDone) {
+  Widget _buildDaysBadge(int days, bool isDone, S s) {
     if (isDone) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -265,7 +267,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
-          '✓ Fait',
+          s.expatCountdownDone,
           style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: MintColors.scoreExcellent),
         ),
       );
@@ -278,7 +280,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
-          'En retard',
+          s.expatCountdownLate,
           style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: MintColors.white),
         ),
       );
@@ -297,7 +299,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
     );
   }
 
-  Widget _buildCriticalNote() {
+  Widget _buildCriticalNote(S s) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -312,8 +314,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Chaque jour de retard peut te coûter un formulaire de plus '
-              'ou des droits irréversibles. Le libre passage LPP doit être transféré avant ton départ.',
+              s.expatCountdownCriticalNote,
               style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary, height: 1.4),
             ),
           ),
@@ -322,10 +323,9 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil juridique au sens de la LSFin. '
-      'Source : LAVS art. 2, LPP art. 5 (libre passage), OPP3 art. 1.',
+      s.expatCountdownDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

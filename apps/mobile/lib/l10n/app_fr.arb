@@ -9500,5 +9500,73 @@
   "cockpitDetailImpactContributions": "grâce à tes contributions planifiées",
   "cockpitDetailEmptyTitle": "Complète ton profil pour accéder au cockpit détaillé.",
   "cockpitDetailEnrichProfile": "Enrichir mon profil",
-  "cockpitDetailDisclaimer": "Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 21-29, LPP art. 14, OPP3 art. 7."
+  "cockpitDetailDisclaimer": "Outil_MARKER_ éducatif simplifié. Ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 21-29, LPP art. 14, OPP3 art. 7.",
+  "budgetBebeSemantics": "Budget 50 30 20 bébé impact mensuel",
+  "budgetBebeTitle": "Budget 50/30/20 avec bébé",
+  "budgetBebeSubtitle": "Besoins / Envies / Épargne — avant et après",
+  "budgetBebeChildrenCount": "Nombre d'enfants",
+  "budgetBebeNoChild": "Sans enfant",
+  "budgetBebeChildrenLabel": "{count} enfant(s)",
+  "@budgetBebeChildrenLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "budgetBebeMonthlyBreakdown": "Répartition mensuelle",
+  "budgetBebeNeeds": "🏠 Besoins (50 %)",
+  "budgetBebeNeedsNote": "Loyer, nourriture, santé",
+  "budgetBebeWants": "🎭 Envies (30 %)",
+  "budgetBebeWantsNote": "Loisirs, restaurants, voyages",
+  "budgetBebeSavings": "💰 Épargne (20 %)",
+  "budgetBebeSavingsNote": "3a, LPP rachat, fonds urgence",
+  "budgetBebeChildrenRowLabel": "👶 Enfant(s)",
+  "@budgetBebeChildrenRowLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "budgetBebeChildCostNote": "CHF {amount}/enfant/mois",
+  "@budgetBebeChildCostNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetBebeAlertSerious": "Ton épargne est fortement impactée",
+  "budgetBebeAlertMild": "Pense à ajuster ton épargne",
+  "budgetBebeAlertSavingsReduced": "Tes enfants coûtent CHF {childCost}/mois, ce qui réduit ton épargne de CHF {savingsLost}/mois.",
+  "@budgetBebeAlertSavingsReduced": {
+    "placeholders": {
+      "childCost": {
+        "type": "String"
+      },
+      "savingsLost": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetBebeAlertSavingsIntact": "Tes enfants sont financés par tes envies — ton épargne reste intacte.",
+  "budgetBebeDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : OFS statistiques des ménages suisses, règle budgétaire 50/30/20.",
+  "expatCountdownSemantics": "Compte à rebours expatriation deadlines LPP 3a AVS départ",
+  "expatCountdownTitle": "Checklist départ — deadlines légales",
+  "expatCountdownActionsCompleted": "{completed} / {total} actions complétées",
+  "@expatCountdownActionsCompleted": {
+    "placeholders": {
+      "completed": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "expatCountdownDone": "✓ Fait",
+  "expatCountdownLate": "En retard",
+  "expatCountdownCriticalNote": "Chaque jour de retard peut te coûter un formulaire de plus ou des droits irréversibles. Le libre passage LPP doit être transféré avant ton départ.",
+  "expatCountdownDisclaimer": "Outil éducatif · ne constitue pas un conseil juridique au sens de la LSFin. Source : LAVS art. 2, LPP art. 5 (libre passage), OPP3 art. 1."
 }
