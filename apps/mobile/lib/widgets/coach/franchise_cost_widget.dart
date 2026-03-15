@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -47,8 +48,8 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
   }
 
   // Annual out-of-pocket for a given franchise (normal year).
-  // LAMal art. 64 : tu paies d'abord ta franchise en totalité, puis 10 % des
-  // frais AU-DELÀ de la franchise, plafonné à _quotePartMax (700 CHF).
+  // LAMal art. 64 : tu paies d'abord ta franchise en totalite, puis 10 % des
+  // frais AU-DELA de la franchise, plafonne a _quotePartMax (700 CHF).
   double _annualCostNormal(FranchiseOption opt) {
     final totalRaw = _consultationsPerYear * _consultationCost;
     final belowFranchise = totalRaw.clamp(0.0, opt.franchiseAmount);
@@ -58,7 +59,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
   }
 
   // Annual max out-of-pocket for a long illness (chronic illness worst-case).
-  // Each year : tu atteins la franchise complète + le plafond de quote-part.
+  // Each year : tu atteins la franchise complete + le plafond de quote-part.
   double _annualCostLongIllness(FranchiseOption opt) {
     return opt.franchiseAmount + _quotePartMax;
   }
@@ -75,8 +76,9 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Franchise LAMal coût pépin long terme',
+      label: s.franchiseCostSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -86,19 +88,19 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSlider(),
+                  _buildSlider(s),
                   const SizedBox(height: 20),
-                  _buildComparisonTable(),
+                  _buildComparisonTable(s),
                   const SizedBox(height: 16),
-                  _buildLongIllnessScenario(),
+                  _buildLongIllnessScenario(s),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -108,7 +110,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -120,11 +122,11 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
         children: [
           Row(
             children: [
-              const Text('🏥', style: TextStyle(fontSize: 22)),
+              const Text('\ud83c\udfe5', style: TextStyle(fontSize: 22)),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Ta franchise en cas de pépin long',
+                  s.franchiseCostTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -136,7 +138,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Scénario : maladie ou accident nécessitant 2 ans de soins',
+            s.franchiseCostScenario,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -147,12 +149,12 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
     );
   }
 
-  Widget _buildSlider() {
+  Widget _buildSlider(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Combien de fois vas-tu chez le médecin/an ?',
+          s.franchiseCostSliderLabel,
           style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -164,12 +166,12 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
           min: 0,
           max: 20,
           divisions: 20,
-          label: '$_consultationsPerYear× / an',
+          label: '$_consultationsPerYear\u00d7 / an',
           activeColor: MintColors.primary,
           onChanged: (v) => setState(() => _consultationsPerYear = v.round()),
         ),
         Text(
-          '$_consultationsPerYear consultation${_consultationsPerYear > 1 ? 's' : ''} / an',
+          s.franchiseCostConsultationsPerYear(_consultationsPerYear),
           style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -180,15 +182,14 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
     );
   }
 
-  Widget _buildComparisonTable() {
+  Widget _buildComparisonTable(S s) {
     if (widget.options.isEmpty) return const SizedBox.shrink();
-    final baseOption = widget.options.first;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Comparaison des franchises',
+          s.franchiseCostComparisonTitle,
           style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -204,7 +205,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
           ),
           child: Column(
             children: [
-              _buildTableHeader(),
+              _buildTableHeader(s),
               const Divider(height: 1),
               ...widget.options.map((opt) {
                 final normalCost = _annualCostNormal(opt);
@@ -212,7 +213,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
                   widget.options.first,
                   (best, o) => _annualCostNormal(o) < _annualCostNormal(best) ? o : best,
                 ) == opt;
-                return _buildTableRow(opt, normalCost, isLowest, baseOption);
+                return _buildTableRow(opt, normalCost, isLowest);
               }),
             ],
           ),
@@ -221,28 +222,28 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
     );
   }
 
-  Widget _buildTableHeader() {
+  Widget _buildTableHeader(S s) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       child: Row(
         children: [
           Expanded(
-            child: Text('Franchise', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary)),
+            child: Text(s.franchiseCostColumnFranchise, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary)),
           ),
           SizedBox(
             width: 90,
-            child: Text('Éco. prime', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary), textAlign: TextAlign.center),
+            child: Text(s.franchiseCostColumnPremiumSavings, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary), textAlign: TextAlign.center),
           ),
           SizedBox(
             width: 90,
-            child: Text('Coût net/an', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary), textAlign: TextAlign.center),
+            child: Text(s.franchiseCostColumnNetCost, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary), textAlign: TextAlign.center),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTableRow(FranchiseOption opt, double normalCost, bool isLowest, FranchiseOption base) {
+  Widget _buildTableRow(FranchiseOption opt, double normalCost, bool isLowest) {
     final savings = opt.monthlyPremiumSavings * 12;
     return Container(
       color: isLowest ? MintColors.scoreExcellent.withValues(alpha: 0.07) : null,
@@ -296,7 +297,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
     );
   }
 
-  Widget _buildLongIllnessScenario() {
+  Widget _buildLongIllnessScenario(S s) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -308,7 +309,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Si maladie longue (2 ans de soins) :',
+            s.franchiseCostLongIllnessTitle,
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -324,7 +325,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Franchise CHF ${_fmt(opt.franchiseAmount)}',
+                      s.franchiseCostFranchiseChf(_fmt(opt.franchiseAmount)),
                       style: GoogleFonts.inter(fontSize: 13, color: MintColors.textPrimary),
                     ),
                   ),
@@ -342,8 +343,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
           }),
           const Divider(height: 16),
           Text(
-            'Règle : si tu vas chez le médecin plus de 2× par an,\n'
-            'la franchise basse te coûte moins cher.',
+            s.franchiseCostRule,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -356,10 +356,9 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : LAMal art. 64-64a. Changement de franchise : avant le 30.11.',
+      s.franchiseCostDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

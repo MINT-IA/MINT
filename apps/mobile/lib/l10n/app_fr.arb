@@ -9500,7 +9500,7 @@
   "cockpitDetailImpactContributions": "grâce à tes contributions planifiées",
   "cockpitDetailEmptyTitle": "Complète ton profil pour accéder au cockpit détaillé.",
   "cockpitDetailEnrichProfile": "Enrichir mon profil",
-  "cockpitDetailDisclaimer": "Outil_MARKER_ éducatif simplifié. Ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 21-29, LPP art. 14, OPP3 art. 7.",
+  "cockpitDetailDisclaimer": "Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 21-29, LPP art. 14, OPP3 art. 7.",
   "budgetBebeSemantics": "Budget 50 30 20 bébé impact mensuel",
   "budgetBebeTitle": "Budget 50/30/20 avec bébé",
   "budgetBebeSubtitle": "Besoins / Envies / Épargne — avant et après",
@@ -9891,5 +9891,32 @@
     }
   },
   "progressiveDashboardMoreDetails": "Plus de détails",
-  "progressiveDashboardDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Niveaux basés sur le score de confiance du profil. Projection indicative."
+  "progressiveDashboardDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Niveaux basés sur le score de confiance du profil. Projection indicative.",
+  "franchiseCostSemantics": "Franchise LAMal coût pépin long terme",
+  "franchiseCostTitle": "Ta franchise en cas de pépin long",
+  "franchiseCostScenario": "Scénario : maladie ou accident nécessitant 2 ans de soins",
+  "franchiseCostSliderLabel": "Combien de fois vas-tu chez le médecin/an ?",
+  "franchiseCostConsultationsPerYear": "{count} consultation(s) / an",
+  "@franchiseCostConsultationsPerYear": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "franchiseCostComparisonTitle": "Comparaison des franchises",
+  "franchiseCostColumnFranchise": "Franchise",
+  "franchiseCostColumnPremiumSavings": "Éco. prime",
+  "franchiseCostColumnNetCost": "Coût net/an",
+  "franchiseCostLongIllnessTitle": "Si maladie longue (2 ans de soins) :",
+  "franchiseCostFranchiseChf": "Franchise CHF {amount}",
+  "@franchiseCostFranchiseChf": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "franchiseCostRule": "Règle : si tu vas chez le médecin plus de 2× par an,\nla franchise basse te coûte moins cher.",
+  "franchiseCostDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAMal art. 64-64a. Changement de franchise : avant le 30.11."
 }
