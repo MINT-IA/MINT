@@ -95,28 +95,28 @@ class ExpatService {
   /// Federal forfait minimum.
   static const double forfaitFederalMinimum = 400000.0;
 
-  /// Cantonal forfait minimums (depenses de vie minimum).
+  /// Cantonal forfait minimums (dépenses de vie minimum).
   /// null means abolished / not available.
-  /// Source: LIFD art. 14 al. 3 (base federale CHF 400'000), lois cantonales.
+  /// Source: LIFD art. 14 al. 3 (base fédérale CHF 400'000), lois cantonales.
   static const Map<String, double?> forfaitMinimumByCanton = {
     'VD': 1000000.0,  // LI-VD art. 60
     'GE': 600000.0,   // LIPP-GE art. 15
     'VS': 250000.0,   // LF-VS art. 12
     'ZG': 500000.0,   // StG-ZG § 12
     'FR': 400000.0,   // LICD-FR art. 12
-    'LU': 400000.0,   // StG-LU § 14 (base federale)
+    'LU': 400000.0,   // StG-LU § 14 (base fédérale)
     'BE': 400000.0,   // StG-BE art. 14
     'NE': 500000.0,   // LCdir-NE art. 14
-    'TI': 400000.0,   // LT-TI art. 7 (base federale)
+    'TI': 400000.0,   // LT-TI art. 7 (base fédérale)
     'GR': 400000.0,   // StG-GR art. 11
     'SG': 400000.0,   // StG-SG art. 12
     'TG': 400000.0,   // StG-TG § 12
     'AG': 400000.0,   // StG-AG § 12
     'SO': 400000.0,   // StG-SO § 11
-    'OW': 400000.0,   // StG-OW art. 12 (base federale)
-    'NW': 400000.0,   // StG-NW art. 12 (base federale)
-    'GL': 400000.0,   // StG-GL art. 12 (base federale)
-    'UR': 400000.0,   // StG-UR art. 12 (base federale)
+    'OW': 400000.0,   // StG-OW art. 12 (base fédérale)
+    'NW': 400000.0,   // StG-NW art. 12 (base fédérale)
+    'GL': 400000.0,   // StG-GL art. 12 (base fédérale)
+    'UR': 400000.0,   // StG-UR art. 12 (base fédérale)
     'SZ': 400000.0,   // StG-SZ § 12
     'JU': 400000.0,   // LI-JU art. 12
     // Abolished:
@@ -223,8 +223,8 @@ class ExpatService {
     'ZG': 'Zoug',
     'FR': 'Fribourg',
     'SO': 'Soleure',
-    'BS': 'Bale-Ville',
-    'BL': 'Bale-Campagne',
+    'BS': 'Bâle-Ville',
+    'BL': 'Bâle-Campagne',
     'SH': 'Schaffhouse',
     'AR': 'Appenzell RE',
     'AI': 'Appenzell RI',
@@ -235,8 +235,8 @@ class ExpatService {
     'TI': 'Tessin',
     'VD': 'Vaud',
     'VS': 'Valais',
-    'NE': 'Neuchatel',
-    'GE': 'Geneve',
+    'NE': 'Neuchâtel',
+    'GE': 'Genève',
     'JU': 'Jura',
   };
 
@@ -279,8 +279,8 @@ class ExpatService {
         'children': children,
         'isTessin': true,
         'note': 'Depuis le nouvel accord CH-IT (2024), les frontaliers '
-            'travaillant au Tessin sont imposes en Italie. '
-            'La Suisse ne preleve pas d\'impot a la source.',
+            'travaillant au Tessin sont imposés en Italie. '
+            'La Suisse ne prélève pas d\'impôt à la source.',
         'disclaimer': disclaimer,
       };
     }
@@ -392,15 +392,15 @@ class ExpatService {
       riskColor = 'green';
       recommendation =
           'Pas de risque fiscal. Tu es largement sous le seuil de 90 jours. '
-          'Tu peux continuer a travailler depuis ton domicile a l\'etranger '
-          'sans impact sur ton imposition a la source en Suisse.';
+          'Tu peux continuer à travailler depuis ton domicile à l\'étranger '
+          'sans impact sur ton imposition à la source en Suisse.';
     } else if (riskDays < 90) {
       riskLevel = 'medium';
       riskColor = 'orange';
       recommendation =
           'Zone d\'attention ! Tu t\'approches du seuil de 90 jours. '
           'Il te reste ${90 - riskDays} jours de marge. '
-          'Documente bien tes jours de presence au bureau en Suisse.';
+          'Documente bien tes jours de présence au bureau en Suisse.';
     } else {
       riskLevel = 'high';
       riskColor = 'red';
@@ -423,8 +423,8 @@ class ExpatService {
       'isOverThreshold': riskDays >= ninetyDayRuleThreshold,
       'recommendation': recommendation,
       'legalReference':
-          'Art. 15 al. 4 CDI CH-FR / Accord amiable du 22 decembre 2022 / '
-          'Reglement CE 883/2004 art. 13',
+          'Art. 15 al. 4 CDI CH-FR / Accord amiable du 22 décembre 2022 / '
+          'Règlement CE 883/2004 art. 13',
       'disclaimer': disclaimer,
     };
   }
@@ -504,9 +504,9 @@ class ExpatService {
         'cantonNom': cantonNames[canton] ?? canton,
         'eligible': false,
         'abolished': true,
-        'note': 'Le forfait fiscal a ete aboli dans le canton de '
+        'note': 'Le forfait fiscal a été aboli dans le canton de '
             '${cantonNames[canton] ?? canton}. Il n\'est plus possible '
-            'd\'en beneficier.',
+            'd\'en bénéficier.',
         'disclaimer': disclaimer,
       };
     }
@@ -574,21 +574,21 @@ class ExpatService {
     String recommendation;
     if (completeness >= 1.0) {
       recommendation =
-          'Tu as tes $fullContributionYears annees completes de cotisation. '
-          'Ta rente AVS ne devrait pas etre reduite.';
+          'Tu as tes $fullContributionYears années complètes de cotisation. '
+          'Ta rente AVS ne devrait pas être réduite.';
     } else if (completeness >= 0.80) {
       recommendation =
-          'Ta rente pourrait etre reduite d\'environ ${reductionPercent.toStringAsFixed(1)}%. '
-          'Si tu vis a l\'etranger, tu peux cotiser volontairement a l\'AVS '
+          'Ta rente pourrait être réduite d\'environ ${reductionPercent.toStringAsFixed(1)}%. '
+          'Si tu vis à l\'étranger, tu peux cotiser volontairement à l\'AVS '
           '(entre ${formatChf(avsVoluntaryMin)} et ${formatChf(avsVoluntaryMax)}/an) '
           'pour combler les lacunes.';
     } else {
       recommendation =
-          'Attention, ta rente serait significativement reduite '
+          'Attention, ta rente serait significativement réduite '
           '(-${reductionPercent.toStringAsFixed(1)}%). '
-          'La cotisation volontaire a l\'AVS depuis l\'etranger est fortement '
-          'recommandee pour limiter la perte. '
-          'Delai d\'inscription : 1 an apres le depart de Suisse.';
+          'La cotisation volontaire à l\'AVS depuis l\'étranger est fortement '
+          'recommandée pour limiter la perte. '
+          'Délai d\'inscription : 1 an après le départ de Suisse.';
     }
 
     return {
@@ -629,62 +629,62 @@ class ExpatService {
       {
         'id': 'pillar3a',
         'title': 'Retirer pilier 3a',
-        'subtitle': 'Delai: possible des le depart. Impot de sortie reduit.',
-        'timing': 'Avant le depart ou juste apres',
+        'subtitle': 'Délai: possible dès le départ. Impôt de sortie réduit.',
+        'timing': 'Avant le départ ou juste après',
         'balance': pillar3aBalance,
         'priority': pillar3aBalance > 0 ? 'high' : 'low',
       },
       {
         'id': 'lpp',
-        'title': 'Transferer LPP en libre passage',
+        'title': 'Transférer LPP en libre passage',
         'subtitle':
             'Si destination hors UE/AELE: retrait en capital possible. '
                 'Sinon: compte de libre passage obligatoire.',
-        'timing': 'A organiser avant le depart',
+        'timing': 'À organiser avant le départ',
         'balance': lppBalance,
         'priority': lppBalance > 0 ? 'high' : 'low',
       },
       {
         'id': 'commune',
-        'title': 'Annoncer depart a la commune',
-        'subtitle': 'Formulaire de depart + desinscription registre des habitants.',
-        'timing': '2-4 semaines avant le depart',
+        'title': 'Annoncer départ à la commune',
+        'subtitle': 'Formulaire de départ + désinscription registre des habitants.',
+        'timing': '2-4 semaines avant le départ',
         'priority': 'high',
       },
       {
         'id': 'lamal',
-        'title': 'Resilier LAMal',
+        'title': 'Résilier LAMal',
         'subtitle':
-            'Resiliation effective a la date de depart. Prevoir une assurance '
+            'Résiliation effective à la date de départ. Prévoir une assurance '
                 'dans le pays de destination.',
-        'timing': 'Des la confirmation de depart',
+        'timing': 'Dès la confirmation de départ',
         'priority': 'high',
       },
       {
         'id': 'cdi',
-        'title': 'Verifier CDI avec pays de destination',
+        'title': 'Vérifier CDI avec pays de destination',
         'subtitle':
-            'Convention de double imposition : eviter de payer 2x les impots. '
-                'La Suisse a signe des CDI avec plus de 100 pays.',
-        'timing': 'Avant le depart',
+            'Convention de double imposition : éviter de payer 2x les impôts. '
+                'La Suisse a signé des CDI avec plus de 100 pays.',
+        'timing': 'Avant le départ',
         'priority': 'medium',
       },
       {
         'id': 'caution',
-        'title': 'Recuperer caution de loyer',
+        'title': 'Récupérer caution de loyer',
         'subtitle':
-            'Demander la liberation aupres de la banque. '
-                'Delai: jusqu\'a 1 an si le bailleur ne repond pas.',
-        'timing': 'Apres la remise des cles',
+            'Demander la libération auprès de la banque. '
+                'Délai: jusqu\'à 1 an si le bailleur ne répond pas.',
+        'timing': 'Après la remise des clés',
         'priority': 'medium',
       },
       {
         'id': 'impots_prorata',
-        'title': 'Declarer impots prorata temporis',
+        'title': 'Déclarer impôts prorata temporis',
         'subtitle':
-            'Tu seras impose sur les revenus du 1er janvier jusqu\'a la date de depart. '
-                'Delai de depot: 30 jours apres le depart.',
-        'timing': '30 jours apres le depart',
+            'Tu seras imposé sur les revenus du 1er janvier jusqu\'à la date de départ. '
+                'Délai de dépôt: 30 jours après le départ.',
+        'timing': '30 jours après le départ',
         'priority': 'high',
       },
     ];
@@ -699,8 +699,8 @@ class ExpatService {
       'checklist': checklist,
       'noExitTax': true,
       'exitTaxNote':
-          'La Suisse ne preleve pas de taxe de sortie (exit tax). '
-          'Tes gains en capital ne sont pas imposes au depart — '
+          'La Suisse ne prélève pas de taxe de sortie (exit tax). '
+          'Tes gains en capital ne sont pas imposés au départ — '
           'contrairement a certains pays (USA, France, etc.).',
       'disclaimer': disclaimer,
     };

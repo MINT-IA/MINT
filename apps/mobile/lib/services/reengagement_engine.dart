@@ -9,8 +9,8 @@
 ///   - A deeplink to relevant simulation
 ///
 /// BANNED:
-/// - "Tu n'as pas utilise MINT depuis X jours"
-/// - "Reviens decouvrir nos nouvelles fonctionnalites!"
+/// - "Tu n'as pas utilisé MINT depuis X jours"
+/// - "Reviens découvrir nos nouvelles fonctionnalités!"
 /// - "Tu nous manques!"
 ///
 /// Sources:
@@ -23,22 +23,22 @@ library;
 //  REENGAGEMENT ENGINE — S40 / Reengagement + Consent
 // ────────────────────────────────────────────────────────────
 //
-// Service purement deterministe : genere des ReengagementMessage
-// a partir des donnees du profil et de la date courante.
+// Service purement déterministe : génère des ReengagementMessage
+// à partir des données du profil et de la date courante.
 //
 // Calendar mapping:
 //   Jan  → Nouveaux plafonds 3a
-//   Feb  → Preparation declaration fiscale
-//   Mar  → Deadline declaration (canton-dependent)
+//   Feb  → Préparation déclaration fiscale
+//   Mar  → Deadline déclaration (canton-dependent)
 //   Oct  → Countdown 3a (jours restants)
-//   Nov  → Countdown 3a + economie estimee
+//   Nov  → Countdown 3a + économie estimée
 //   Dec  → Dernier mois 3a
 //   Q    → Score FRI trimestriel
 //
 // Conventions :
 //   - Montants CHF formated avec apostrophe suisse (1'820)
 //   - Toujours un chiffre personnel + contrainte temporelle + deeplink
-//   - Ton pedagogique, tutoiement, pas de termes bannis
+//   - Ton pédagogique, tutoiement, pas de termes bannis
 // ────────────────────────────────────────────────────────────
 
 /// Calendar trigger types for reengagement messages.
@@ -136,20 +136,20 @@ class ReengagementEngine {
         trigger: ReengagementTrigger.newYear,
         title: 'Nouveaux plafonds 3a',
         body: 'Nouveaux plafonds 3a : CHF 7\'258. '
-            'Ton economie potentielle : CHF $savingStr.',
+            'Ton économie potentielle : CHF $savingStr.',
         deeplink: '/simulator/3a',
         personalNumber: 'CHF $savingStr',
-        timeConstraint: 'Annee ${now.year}',
+        timeConstraint: 'Année ${now.year}',
         month: 1,
       ));
     }
 
-    // ── February: Preparation declaration fiscale ────────────
+    // ── February: Préparation déclaration fiscale ────────────
     if (month == 2) {
       messages.add(ReengagementMessage(
         trigger: ReengagementTrigger.taxPrep,
-        title: 'Declaration fiscale',
-        body: 'Prepare ta declaration : tes chiffres cles sont disponibles.',
+        title: 'Déclaration fiscale',
+        body: 'Prépare ta déclaration : tes chiffres clés sont disponibles.',
         deeplink: '/tools',
         personalNumber: 'CHF $savingStr',
         timeConstraint: 'Avant le 31 mars',
@@ -193,7 +193,7 @@ class ReengagementEngine {
         trigger: ReengagementTrigger.threeAUrgency,
         title: 'Deadline 3a',
         body: 'Il reste $daysLeft jours. '
-            'Economie estimee : CHF $savingStr.',
+            'Économie estimée : CHF $savingStr.',
         deeplink: '/simulator/3a',
         personalNumber: 'CHF $savingStr',
         timeConstraint: '$daysLeft jours',
@@ -221,8 +221,8 @@ class ReengagementEngine {
       final deltaStr = '$deltaSign${friDelta.toStringAsFixed(0)}';
       messages.add(ReengagementMessage(
         trigger: ReengagementTrigger.quarterlyFri,
-        title: 'Score de solidite',
-        body: 'Ton score de solidite : $friStr '
+        title: 'Score de solidité',
+        body: 'Ton score de solidité : $friStr '
             '($deltaStr ce trimestre).',
         deeplink: '/coach/dashboard',
         personalNumber: '$friStr points',

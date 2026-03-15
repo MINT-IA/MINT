@@ -90,29 +90,29 @@ class PrecisionService {
     'lpp_total': const FieldHelp(
       fieldName: 'lpp_total',
       whereToFind:
-          'Sur ton certificat de prevoyance, ligne "Avoir de vieillesse" ou "Total des avoirs".',
-      documentName: 'Certificat de prevoyance LPP',
+          'Sur ton certificat de prévoyance, ligne "Avoir de vieillesse" ou "Total des avoirs".',
+      documentName: 'Certificat de prévoyance LPP',
       germanName: 'Altersguthaben (Vorsorgeausweis)',
       fallbackEstimation:
-          'On peut estimer depuis ton salaire et ton age, mais la precision sera de +/-30 %.',
+          'On peut estimer depuis ton salaire et ton âge, mais la précision sera de +/-30 %.',
     ),
     'lpp_obligatoire': const FieldHelp(
       fieldName: 'lpp_obligatoire',
       whereToFind:
-          'Sur ton certificat de prevoyance, ligne "Part obligatoire" ou "Obligatorisches Altersguthaben".',
-      documentName: 'Certificat de prevoyance LPP',
+          'Sur ton certificat de prévoyance, ligne "Part obligatoire" ou "Obligatorisches Altersguthaben".',
+      documentName: 'Certificat de prévoyance LPP',
       germanName: 'Obligatorisches Altersguthaben (Vorsorgeausweis)',
       fallbackEstimation:
-          'Estimation possible depuis le salaire coordonne et les bonifications legales.',
+          'Estimation possible depuis le salaire coordonné et les bonifications légales.',
     ),
     'lpp_surobligatoire': const FieldHelp(
       fieldName: 'lpp_surobligatoire',
       whereToFind:
-          'Sur ton certificat de prevoyance, ligne "Part surobligatoire" (= total - obligatoire).',
-      documentName: 'Certificat de prevoyance LPP',
-      germanName: 'Ueberobligatorisches Altersguthaben (Vorsorgeausweis)',
+          'Sur ton certificat de prévoyance, ligne "Part surobligatoire" (= total - obligatoire).',
+      documentName: 'Certificat de prévoyance LPP',
+      germanName: 'Überobligatorisches Altersguthaben (Vorsorgeausweis)',
       fallbackEstimation:
-          'Calculable comme la difference entre LPP total et LPP obligatoire.',
+          'Calculable comme la différence entre LPP total et LPP obligatoire.',
     ),
     'salaire_brut': const FieldHelp(
       fieldName: 'salaire_brut',
@@ -125,7 +125,7 @@ class PrecisionService {
     'salaire_net': const FieldHelp(
       fieldName: 'salaire_net',
       whereToFind:
-          'Sur ta fiche de salaire, ligne "Salaire net" ou "Montant verse".',
+          'Sur ta fiche de salaire, ligne "Salaire net" ou "Montant versé".',
       documentName: 'Fiche de salaire mensuelle',
       germanName: 'Nettolohn (Lohnabrechnung)',
       fallbackEstimation:
@@ -136,7 +136,7 @@ class PrecisionService {
       whereToFind:
           'Sur ton avis de taxation, compare l\'impot total avec le revenu imposable. '
           'Ou utilise le simulateur cantonal.',
-      documentName: 'Avis de taxation (Declaration fiscale)',
+      documentName: 'Avis de taxation (Déclaration fiscale)',
       germanName: 'Grenzsteuersatz (Steuerveranlagung)',
       fallbackEstimation:
           'Estimation possible depuis le revenu et le canton, mais peut varier de +/-5 points.',
@@ -144,57 +144,57 @@ class PrecisionService {
     'avs_contribution_years': const FieldHelp(
       fieldName: 'avs_contribution_years',
       whereToFind:
-          'Sur ton extrait de compte individuel AVS (CI), section "Annees de cotisation".',
+          'Sur ton extrait de compte individuel AVS (CI), section "Années de cotisation".',
       documentName: 'Extrait de compte individuel AVS',
       germanName: 'Beitragsjahre (Individueller Kontoauszug AHV)',
       fallbackEstimation:
-          'On estime depuis ton age et ton arrivee en Suisse, mais des lacunes sont possibles.',
+          'On estime depuis ton âge et ton arrivée en Suisse, mais des lacunes sont possibles.',
     ),
     'pillar_3a_balance': const FieldHelp(
       fieldName: 'pillar_3a_balance',
       whereToFind:
-          'Sur ton attestation 3a ou dans ton e-banking, section "Prevoyance 3a".',
+          'Sur ton attestation 3a ou dans ton e-banking, section "Prévoyance 3a".',
       documentName: 'Attestation 3e pilier a',
-      germanName: 'Saeule-3a-Guthaben (Vorsorgebescheinigung)',
+      germanName: 'Säule-3a-Guthaben (Vorsorgebescheinigung)',
       fallbackEstimation:
           'On peut estimer si tu cotises depuis un certain nombre d\'annees.',
     ),
     'mortgage_remaining': const FieldHelp(
       fieldName: 'mortgage_remaining',
       whereToFind:
-          'Sur ton attestation hypothecaire ou dans ton e-banking, "Capital restant du".',
-      documentName: 'Attestation hypothecaire',
-      germanName: 'Restschuld (Hypothekarbestaetiung)',
+          'Sur ton attestation hypothécaire ou dans ton e-banking, "Capital restant dû".',
+      documentName: 'Attestation hypothécaire',
+      germanName: 'Restschuld (Hypothekarbestätigung)',
       fallbackEstimation: null,
     ),
     'monthly_expenses': const FieldHelp(
       fieldName: 'monthly_expenses',
       whereToFind:
-          'Additionne tes depenses fixes (loyer, assurances, abonnements) '
+          'Additionne tes dépenses fixes (loyer, assurances, abonnements) '
           'et variables (courses, loisirs). Ton e-banking peut t\'aider.',
-      documentName: 'Releve de compte bancaire',
+      documentName: 'Relevé de compte bancaire',
       germanName: 'Monatliche Ausgaben (Kontoauszug)',
       fallbackEstimation:
-          'Estimation possible selon ton profil, mais la precision sera limitee.',
+          'Estimation possible selon ton profil, mais la précision sera limitée.',
     ),
     'replacement_ratio': const FieldHelp(
       fieldName: 'replacement_ratio',
       whereToFind:
-          'C\'est le pourcentage de ton dernier salaire que tu veux maintenir a la retraite. '
-          'En general entre 60 % et 80 %.',
+          'C\'est le pourcentage de ton dernier salaire que tu veux maintenir à la retraite. '
+          'En général entre 60 % et 80 %.',
       documentName: 'Aucun document — c\'est un objectif personnel',
       germanName: 'Ersatzquote',
-      fallbackEstimation: 'Par defaut on utilise 70 % (norme suisse courante).',
+      fallbackEstimation: 'Par défaut on utilise 70 % (norme suisse courante).',
     ),
     'tax_saving_3a': const FieldHelp(
       fieldName: 'tax_saving_3a',
       whereToFind:
-          'Calcule depuis ton taux marginal et ta cotisation 3a annuelle. '
+          'Calculé depuis ton taux marginal et ta cotisation 3a annuelle. '
           'Visible aussi sur ton avis de taxation.',
       documentName: 'Avis de taxation',
-      germanName: 'Steuerersparnis Saeule 3a (Steuerveranlagung)',
+      germanName: 'Steuerersparnis Säule 3a (Steuerveranlagung)',
       fallbackEstimation:
-          'Estimation = cotisation 3a x taux marginal estime.',
+          'Estimation = cotisation 3a x taux marginal estimé.',
     ),
   };
 
@@ -250,16 +250,16 @@ class PrecisionService {
           message:
               'Ton avoir LPP (CHF ${_fmt(lppTotal)}) semble bas pour ton age et ton salaire.',
           suggestion:
-              'As-tu recemment change d\'emploi, retire un EPL ou travaille a temps partiel?',
+              'As-tu récemment changé d\'emploi, retiré un EPL ou travaillé à temps partiel?',
         ));
       }
       if (lppTotal > expectedMax) {
         alerts.add(const CrossValidationAlert(
           fieldName: 'lpp_total',
           severity: 'warning',
-          message: 'Ton avoir LPP semble tres eleve.',
+          message: 'Ton avoir LPP semble très élevé.',
           suggestion:
-              'Est-ce que ca inclut bien le surobligatoire? Verifie sur ton certificat de prevoyance.',
+              'Est-ce que ça inclut bien le surobligatoire? Vérifie sur ton certificat de prévoyance.',
         ));
       }
     }
@@ -275,7 +275,7 @@ class PrecisionService {
               'La somme obligatoire + surobligatoire (CHF ${_fmt(sum)}) '
               'ne correspond pas au total LPP (CHF ${_fmt(lppTotal)}).',
           suggestion:
-              'Verifie les montants sur ton certificat de prevoyance.',
+              'Vérifie les montants sur ton certificat de prévoyance.',
         ));
       }
     }
@@ -288,9 +288,9 @@ class PrecisionService {
           fieldName: 'salaire_net',
           severity: 'warning',
           message:
-              'Ton net est tres proche du brut — les deductions semblent faibles.',
+              'Ton net est très proche du brut — les déductions semblent faibles.',
           suggestion:
-              'Verifie que tu as bien entre le salaire brut (avant deductions AVS, LPP, etc.).',
+              'Vérifie que tu as bien entré le salaire brut (avant déductions AVS, LPP, etc.).',
         ));
       }
       if (ratio < 0.55) {
@@ -298,9 +298,9 @@ class PrecisionService {
           fieldName: 'salaire_net',
           severity: 'warning',
           message:
-              'L\'ecart entre ton brut et ton net est inhabituellement grand.',
+              'L\'écart entre ton brut et ton net est inhabituellement grand.',
           suggestion:
-              'Verifie que le brut inclut bien le 13e salaire si applicable, '
+              'Vérifie que le brut inclut bien le 13e salaire si applicable, '
               'et que le net n\'inclut pas de remboursements de frais.',
         ));
       }
@@ -314,9 +314,9 @@ class PrecisionService {
           fieldName: 'avs_contribution_years',
           severity: 'error',
           message:
-              '$avsYears annees de cotisation AVS ne sont pas possibles a ${age.round()} ans.',
+              '$avsYears années de cotisation AVS ne sont pas possibles à ${age.round()} ans.',
           suggestion:
-              'Le nombre d\'annees ne peut pas depasser ${maxYears.round()} (cotisation des 20 ans).',
+              'Le nombre d\'années ne peut pas dépasser ${maxYears.round()} (cotisation dès 20 ans).',
         ));
       }
     }
@@ -331,17 +331,17 @@ class PrecisionService {
         alerts.add(const CrossValidationAlert(
           fieldName: 'pillar_3a_balance',
           severity: 'warning',
-          message: 'Ton solde 3a semble tres eleve par rapport a ton age.',
+          message: 'Ton solde 3a semble très élevé par rapport à ton âge.',
           suggestion:
-              'Verifie qu\'il s\'agit bien du solde 3a et non du total patrimoine.',
+              'Vérifie qu\'il s\'agit bien du solde 3a et non du total patrimoine.',
         ));
       }
       if (age < 18 && pillar3a > 0) {
         alerts.add(const CrossValidationAlert(
           fieldName: 'pillar_3a_balance',
           severity: 'error',
-          message: 'Tu ne peux ouvrir un 3a qu\'a partir de 18 ans.',
-          suggestion: 'Verifie ton age ou ton solde 3a.',
+          message: 'Tu ne peux ouvrir un 3a qu\'à partir de 18 ans.',
+          suggestion: 'Vérifie ton âge ou ton solde 3a.',
         ));
       }
     }
@@ -353,9 +353,9 @@ class PrecisionService {
           fieldName: 'monthly_expenses',
           severity: 'warning',
           message:
-              'Tes depenses mensuelles depassent largement ton salaire net.',
+              'Tes dépenses mensuelles dépassent largement ton salaire net.',
           suggestion:
-              'Verifie que tu n\'as pas inclus des depenses annuelles (impots, assurances) en mensuel.',
+              'Vérifie que tu n\'as pas inclus des dépenses annuelles (impôts, assurances) en mensuel.',
         ));
       }
     }
@@ -367,10 +367,10 @@ class PrecisionService {
           fieldName: 'taux_marginal',
           severity: 'warning',
           message:
-              'Un taux marginal superieur a 50 % est tres rare en Suisse.',
+              'Un taux marginal supérieur à 50 % est très rare en Suisse.',
           suggestion:
-              'Verifie ton avis de taxation — le taux marginal est l\'impot supplementaire '
-              'sur le prochain franc gagne, pas le taux moyen.',
+              'Vérifie ton avis de taxation — le taux marginal est l\'impôt supplémentaire '
+              'sur le prochain franc gagné, pas le taux moyen.',
         ));
       }
       if (tauxMarginal < 0.05 && salaireBrut > 3000) {
@@ -380,7 +380,7 @@ class PrecisionService {
           message:
               'Un taux marginal inferieur a 5 % semble bas pour ton salaire.',
           suggestion:
-              'Verifie que tu n\'as pas entre le taux moyen au lieu du taux marginal.',
+              'Vérifie que tu n\'as pas entré le taux moyen au lieu du taux marginal.',
         ));
       }
     }
@@ -420,7 +420,7 @@ class PrecisionService {
       defaults.add(const SmartDefault(
         fieldName: 'lpp_total',
         value: 0,
-        source: 'Independant sans LPP — pas de 2e pilier obligatoire',
+        source: 'Indépendant sans LPP — pas de 2e pilier obligatoire',
         confidence: 0.90,
       ));
     } else {
@@ -428,7 +428,7 @@ class PrecisionService {
         fieldName: 'lpp_total',
         value: _round(lppEstimate),
         source:
-            'Estimation pour un profil $archetype de $age ans (bonifications legales)',
+            'Estimation pour un profil $archetype de $age ans (bonifications légales)',
         confidence: archetype == 'swiss_native' ? 0.40 : 0.25,
       ));
     }
@@ -447,7 +447,7 @@ class PrecisionService {
         fieldName: 'lpp_obligatoire',
         value: _round(obligEstimate),
         source:
-            'Estimation part obligatoire (salaire coordonne min LPP art. 8)',
+            'Estimation part obligatoire (salaire coordonné min LPP art. 8)',
         confidence: 0.30,
       ));
     }
@@ -477,7 +477,7 @@ class PrecisionService {
     defaults.add(SmartDefault(
       fieldName: 'avs_contribution_years',
       value: avsYears,
-      source: 'Estimation pour archetype $archetype (sans lacunes)',
+      source: 'Estimation pour archétype $archetype (sans lacunes)',
       confidence: archetype == 'swiss_native' ? 0.55 : 0.30,
     ));
 
@@ -526,7 +526,7 @@ class PrecisionService {
       fieldName: 'tax_saving_3a',
       value: _round(taxSaving3a),
       source:
-          'Cotisation max CHF 7\'258 x taux marginal estime ${(tauxEstimate * 100).round()} %',
+          'Cotisation max CHF 7\'258 x taux marginal estimé ${(tauxEstimate * 100).round()} %',
       confidence: 0.25,
     ));
 
@@ -559,9 +559,9 @@ class PrecisionService {
           trigger: 'rente_vs_capital',
           fieldNeeded: 'lpp_obligatoire',
           promptText:
-              'Pour comparer rente et capital precisement, '
+              'Pour comparer rente et capital précisément, '
               'on a besoin de la part obligatoire de ta LPP.',
-          impactText: 'Resultat +/-20 % plus precis',
+          impactText: 'Résultat +/-20 % plus précis',
         ));
       }
       if (!hasLppTotal) {
@@ -569,9 +569,9 @@ class PrecisionService {
           trigger: 'rente_vs_capital',
           fieldNeeded: 'lpp_total',
           promptText:
-              'Ton avoir LPP total est estime. '
+              'Ton avoir LPP total est estimé. '
               'Avec le chiffre exact, la projection sera fiable.',
-          impactText: 'Resultat +/-30 % plus precis',
+          impactText: 'Résultat +/-30 % plus précis',
         ));
       }
     }
@@ -583,9 +583,9 @@ class PrecisionService {
           trigger: 'tax_optimization',
           fieldNeeded: 'taux_marginal',
           promptText:
-              'Ton taux marginal est estime. '
+              'Ton taux marginal est estimé. '
               'Ton avis de taxation contient le chiffre exact.',
-          impactText: 'Economie d\'impot +/-5 points de precision',
+          impactText: 'Économie d\'impôt +/-5 points de précision',
         ));
       }
     }
@@ -597,9 +597,9 @@ class PrecisionService {
           trigger: 'retirement',
           fieldNeeded: 'avs_contribution_years',
           promptText:
-              'Tes annees AVS sont estimees. '
+              'Tes années AVS sont estimées. '
               'Commande ton extrait de compte individuel (gratuit) pour un chiffre exact.',
-          impactText: 'Rente AVS +/-CHF 200/mois de precision',
+          impactText: 'Rente AVS +/-CHF 200/mois de précision',
         ));
       }
       if (!has3a) {
@@ -607,9 +607,9 @@ class PrecisionService {
           trigger: 'retirement',
           fieldNeeded: 'pillar_3a_balance',
           promptText:
-              'Ton solde 3a n\'est pas renseigne. '
+              'Ton solde 3a n\'est pas renseigné. '
               'Ajoute-le pour une projection de retraite complete.',
-          impactText: 'Projection retraite plus complete',
+          impactText: 'Projection retraite plus complète',
         ));
       }
     }
@@ -621,9 +621,9 @@ class PrecisionService {
           trigger: '3a_optimization',
           fieldNeeded: 'taux_marginal',
           promptText:
-              'Pour calculer ton economie fiscale 3a, '
+              'Pour calculer ton économie fiscale 3a, '
               'on a besoin de ton taux marginal reel.',
-          impactText: 'Calcul d\'economie +/-5 points de precision',
+          impactText: 'Calcul d\'économie +/-5 points de précision',
         ));
       }
     }
@@ -635,9 +635,9 @@ class PrecisionService {
           trigger: 'mortgage',
           fieldNeeded: 'mortgage_remaining',
           promptText:
-              'Pour l\'analyse hypothecaire, '
-              'on a besoin du capital restant du exact.',
-          impactText: 'Analyse de capacite plus fiable',
+              'Pour l\'analyse hypothécaire, '
+              'on a besoin du capital restant dû exact.',
+          impactText: 'Analyse de capacité plus fiable',
         ));
       }
     }
@@ -650,9 +650,9 @@ class PrecisionService {
           trigger: 'budget',
           fieldNeeded: 'monthly_expenses',
           promptText:
-              'Tes depenses mensuelles ne sont pas renseignees. '
-              'Ajoute-les pour un budget realiste.',
-          impactText: 'Budget +/-15 % plus precis',
+              'Tes dépenses mensuelles ne sont pas renseignées. '
+              'Ajoute-les pour un budget réaliste.',
+          impactText: 'Budget +/-15 % plus précis',
         ));
       }
     }

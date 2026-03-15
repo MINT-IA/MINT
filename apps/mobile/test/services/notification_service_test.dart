@@ -724,8 +724,8 @@ void main() {
       final titles = [
         'Check-in mensuel',
         'Deadline 3a',
-        'Declaration fiscale',
-        'Protege ta serie',
+        'Déclaration fiscale',
+        'Protège ta série',
       ];
 
       for (final title in titles) {

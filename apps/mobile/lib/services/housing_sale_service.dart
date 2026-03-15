@@ -243,9 +243,9 @@ class HousingSaleService {
 
     if (!cantonExplicit) {
       alerts.add(
-        'Ton canton ($canton) n\'a pas de bareme detaille dans notre base. '
-        'Les taux de Vaud (VD) sont utilises par defaut. '
-        'Consulte l\'administration fiscale de ton canton pour des chiffres precis.',
+        'Ton canton ($canton) n\'a pas de barème détaillé dans notre base. '
+        'Les taux de Vaud (VD) sont utilisés par défaut. '
+        'Consulte l\'administration fiscale de ton canton pour des chiffres précis.',
       );
     }
 
@@ -277,17 +277,17 @@ class HousingSaleService {
     }
 
     checklist.add(
-      'Declarer le gain immobilier dans ta prochaine declaration fiscale',
+      'Déclarer le gain immobilier dans ta prochaine déclaration fiscale',
     );
 
     // ── Chiffre choc ──
     final chiffreChoc = produitNet >= 0
         ? 'Produit net de ta vente : CHF ${produitNet.round()}'
-        : 'Attention : produit net negatif de CHF ${produitNet.abs().round()}';
+        : 'Attention : produit net négatif de CHF ${produitNet.abs().round()}';
 
     // ── Disclaimer ──
     final disclaimer =
-        'Cet outil educatif fournit des estimations indicatives et '
+        'Cet outil éducatif fournit des estimations indicatives et '
         'ne constitue pas un conseil fiscal, juridique ou immobilier '
         'personnalisé au sens de la LSFin. Les taux d\'imposition '
         'sont simplifiés et peuvent varier selon la commune et les '
@@ -296,10 +296,10 @@ class HousingSaleService {
 
     // ── Sources ──
     const sources = [
-      'LHID art. 12 (Loi sur l\'harmonisation des impots directs)',
+      'LHID art. 12 (Loi sur l\'harmonisation des impôts directs)',
       'LPP art. 30d (Remboursement EPL)',
-      'OPP2 art. 30e (Modalites EPL)',
-      'CC art. 712a ss (Propriete par etages)',
+      'OPP2 art. 30e (Modalités EPL)',
+      'CC art. 712a ss (Propriété par étages)',
       'Lois fiscales cantonales (ZH, BE, VD, GE, LU, BS)',
     ];
 

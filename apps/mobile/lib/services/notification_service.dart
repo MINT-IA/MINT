@@ -1,6 +1,6 @@
 /// Service de notifications locales pour le coaching proactif MINT.
 ///
-/// Notifications schedulees localement sur le device.
+/// Notifications schedulées localement sur le device.
 /// Pas de Firebase, pas de backend — tout est local.
 /// Respecte le consentement coaching_notifications.
 ///
@@ -42,7 +42,7 @@ class NotificationService {
 
   // ── Init ──────────────────────────────────────────────────
 
-  /// Init au demarrage de l'app (dans app.dart initState).
+  /// Init au démarrage de l'app (dans app.dart initState).
   /// Safe to call on web — no-ops silently.
   Future<void> init() async {
     if (_isInitialized) return;
@@ -226,7 +226,7 @@ class NotificationService {
       (
         month: 12,
         day: 28,
-        body: 'Derniers jours ! Verse sur ton 3a avant le 31 decembre',
+        body: 'Derniers jours ! Verse sur ton 3a avant le 31 décembre',
       ),
     ];
 
@@ -264,17 +264,17 @@ class NotificationService {
       (
         month: 2,
         day: 15,
-        body: 'Declaration fiscale dans 44 jours — pense a rassembler tes documents',
+        body: 'Déclaration fiscale dans 44 jours — pense à rassembler tes documents',
       ),
       (
         month: 3,
         day: 15,
-        body: 'Declaration fiscale dans 16 jours — commence a la remplir',
+        body: 'Déclaration fiscale dans 16 jours — commence à la remplir',
       ),
       (
         month: 3,
         day: 25,
-        body: 'Declaration a rendre avant le 31 mars — derniere semaine !',
+        body: 'Déclaration à rendre avant le 31 mars — dernière semaine !',
       ),
     ];
 
@@ -296,7 +296,7 @@ class NotificationService {
       if (scheduledDate.isAfter(now)) {
         _scheduleNotification(
           id: _idTaxDeadlineBase + i,
-          title: 'Declaration fiscale',
+          title: 'Déclaration fiscale',
           body: d.body,
           scheduledDate: scheduledDate,
           payload: '/home',
@@ -343,9 +343,9 @@ class NotificationService {
     if (scheduledDate.isAfter(now)) {
       _scheduleNotification(
         id: _idStreakProtection,
-        title: 'Protege ta serie',
+        title: 'Protège ta série',
         body:
-            'Tu es a $streak mois consecutifs — ne casse pas ta serie !',
+            'Tu es à $streak mois consécutifs — ne casse pas ta série !',
         scheduledDate: scheduledDate,
         payload: '/coach/checkin',
       );

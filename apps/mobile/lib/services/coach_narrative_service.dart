@@ -26,33 +26,33 @@ import 'package:shared_preferences/shared_preferences.dart';
 //  COACH NARRATIVE SERVICE — Coach AI Layer / T1
 // ────────────────────────────────────────────────────────────
 //
-// Le cerveau du Coach Layer. Genere tout le contenu narratif
-// du dashboard via 3 modes (par priorite) :
+// Le cerveau du Coach Layer. Génère tout le contenu narratif
+// du dashboard via 3 modes (par priorité) :
 //
 // TRIPLE MODE (privacy-first) :
-//   1. SLM on-device (Gemma 3n) → zero reseau, privacy totale
-//   2. Templates enrichis       → toujours disponible, zero LLM
+//   1. SLM on-device (Gemma 3n) → zéro réseau, privacy totale
+//   2. Templates enrichis       → toujours disponible, zéro LLM
 //   3. BYOK cloud LLM           → optionnel, opt-in explicite
 //
 // CACHE :
-//   - SharedPreferences, cle "coach_narrative_{yyyy-MM-dd}"
-//   - TTL 24h, invalide si nouveau check-in
+//   - SharedPreferences, clé "coach_narrative_{yyyy-MM-dd}"
+//   - TTL 24h, invalidé si nouveau check-in
 //
 // GUARDRAILS :
 //   - ComplianceGuard (5 couches) sur TOUTE sortie LLM/SLM
 //   - Filtrage des termes bannis
-//   - Detection d'hallucinations
+//   - Détection d'hallucinations
 //   - Disclaimer obligatoire
-//   - Fallback vers statique si echec
+//   - Fallback vers statique si échec
 //
 // Aucun terme banni : garanti, certain, assure, sans risque,
 //                     optimal, meilleur, parfait.
 // ────────────────────────────────────────────────────────────
 
-/// Resultat narratif du Coach Layer.
+/// Résultat narratif du Coach Layer.
 ///
 /// Contient tous les textes narratifs du dashboard,
-/// generes soit par le LLM (BYOK) soit en mode statique.
+/// générés soit par le LLM (BYOK) soit en mode statique.
 class CoachNarrative {
   /// Salutation personnalisee ("Bonjour Julien")
   final String greeting;
@@ -308,9 +308,9 @@ class CoachNarrativeService {
     );
   }
 
-  /// Applique un mode de rendu a un texte narratif.
+  /// Applique un mode de rendu à un texte narratif.
   /// - detailed: texte complet
-  /// - concise: premiere phrase utile (ou coupe a ~120 chars)
+  /// - concise: première phrase utile (ou coupé à ~120 chars)
   static String applyDetailMode(
     String text,
     CoachNarrativeMode mode,
@@ -348,15 +348,15 @@ class CoachNarrativeService {
   }) async {
     final slmAvailableNow = await _resolveSlmAvailability();
 
-    // 1. Verifier le cache (mode-aware for kill switches)
+    // 1. Vérifier le cache (mode-aware for kill switches)
     final cached = await _loadFromCache(
       profile,
       slmAvailableNow: slmAvailableNow,
     );
     if (cached != null) return cached;
 
-    // 2. Generer le narratif (priorite privacy-first : SLM > Templates > BYOK)
-    //    Ref: BRIEFING_AUDIT_EXTERNE:170,231 — architecture cible adoptee.
+    // 2. Générer le narratif (priorité privacy-first : SLM > Templates > BYOK)
+    //    Ref: BRIEFING_AUDIT_EXTERNE:170,231 — architecture cible adoptée.
     CoachNarrative narrative;
 
     if (FeatureFlags.safeModeDegraded) {
@@ -391,8 +391,8 @@ class CoachNarrativeService {
       );
 
       // Tier 3: BYOK cloud LLM (optionnel, opt-in explicite)
-      // Tente d'ameliorer le narratif statique si BYOK est configure.
-      // En cas d'echec, le narratif statique reste intact.
+      // Tente d'améliorer le narratif statique si BYOK est configuré.
+      // En cas d'échec, le narratif statique reste intact.
       if (byokConfig != null &&
           byokConfig.hasApiKey &&
           !FeatureFlags.safeModeDegraded) {
@@ -405,7 +405,7 @@ class CoachNarrativeService {
           );
         } catch (e) {
           debugPrint('CoachNarrative: $e');
-          // Resilience: garde le narratif statique deja genere
+          // Résilience: garde le narratif statique déjà généré
         }
       }
     }
@@ -491,7 +491,7 @@ class CoachNarrativeService {
     String? urgentAlert;
     final now = DateTime.now();
 
-    // Oct-Dec: deadline 3a avant le 31 decembre (OPP3 art. 7)
+    // Oct-Dec: deadline 3a avant le 31 décembre (OPP3 art. 7)
     // Enhanced with personalized tax savings estimate (M6C)
     if (now.month >= 10 && now.month <= 12) {
       final plafond =
@@ -505,14 +505,14 @@ class CoachNarrativeService {
         final tauxEstime = profile.canton.isNotEmpty ? 0.30 : 0.28;
         final economie = marge * tauxEstime;
         urgentAlert = 'Il te reste $joursRestants jours pour verser '
-            'CHF ${marge.toStringAsFixed(0)} en 3a et economiser '
-            '~CHF ${economie.toStringAsFixed(0)} d\'impots '
+            'CHF ${marge.toStringAsFixed(0)} en 3a et économiser '
+            '~CHF ${economie.toStringAsFixed(0)} d\'impôts '
             '(canton ${profile.canton.isNotEmpty ? profile.canton : "CH"}). '
             '\u2014 OPP3 art. 7';
       }
     }
 
-    // Feb-Mar: declaration fiscale avant le 31 mars (LIFD / LHID).
+    // Feb-Mar: déclaration fiscale avant le 31 mars (LIFD / LHID).
     // Suppressed if coaching tips already contain a 'tax_deadline' card
     // (avoids triple repetition: greeting + urgentAlert + curated card).
     final hasTaxDeadlineTip = tips.any((t) => t.id == 'tax_deadline');
@@ -520,7 +520,7 @@ class CoachNarrativeService {
       final deadline = DateTime(now.year, 3, 31);
       final joursRestants = deadline.difference(now).inDays;
       if (joursRestants >= 0) {
-        urgentAlert = 'Declaration fiscale a rendre avant le 31 mars '
+        urgentAlert = 'Déclaration fiscale à rendre avant le 31 mars '
             '($joursRestants jours restants). '
             '\u2014 LIFD / LHID';
       }
@@ -578,8 +578,8 @@ class CoachNarrativeService {
       final monthly = (s.revenuAnnuelRetraite / 12).isFinite
           ? (s.revenuAnnuelRetraite / 12)
           : 0.0;
-      return '${s.label}: capital projete ${ForecasterService.formatChf(s.capitalFinal)}. '
-          'Revenu retraite estime ${ForecasterService.formatChf(monthly)}/mois.';
+      return '${s.label}: capital projeté ${ForecasterService.formatChf(s.capitalFinal)}. '
+          'Revenu retraite estimé ${ForecasterService.formatChf(monthly)}/mois.';
     }
 
     return [
@@ -622,9 +622,9 @@ class CoachNarrativeService {
   /// Genere un narratif via le SLM on-device (Gemma 3n).
   ///
   /// Avantages :
-  ///   - Zero reseau → fonctionne hors-ligne
-  ///   - Zero donnees envoyees → privacy totale
-  ///   - Latence reduite (~2-4s sur device recent)
+  ///   - Zéro réseau → fonctionne hors-ligne
+  ///   - Zéro données envoyées → privacy totale
+  ///   - Latence réduite (~2-4s sur device récent)
   ///
   /// Le ComplianceGuard valide la sortie avant affichage.
   static Future<CoachNarrative> _generateViaSlm({
@@ -641,12 +641,12 @@ class CoachNarrativeService {
 
     final result = await slm.generate(
       systemPrompt: systemPrompt,
-      userPrompt: 'Genere le JSON narratif complet du dashboard.',
+      userPrompt: 'Génère le JSON narratif complet du dashboard.',
       maxTokens: 512,
     );
 
     if (result == null || result.text.trim().isEmpty) {
-      // SLM n'a pas genere de contenu → fallback
+      // SLM n'a pas généré de contenu → fallback
       return _generateStatic(
         profile: profile,
         scoreHistory: scoreHistory,
@@ -836,47 +836,47 @@ class CoachNarrativeService {
         '- Rente AVS max individuelle : 2\'520 CHF/mois (LAVS art. 34)');
     buffer.writeln('- Taux conversion LPP min : 6.8% (LPP art. 14)');
     buffer.writeln(
-        '- Reduction taux conversion par annee anticipee : ~0.2% (LPP art. 13 al. 2)');
-    buffer.writeln('- Plafond 3a salarie : 7\'258 CHF/an (OPP3 art. 7)');
+        '- Réduction taux conversion par année anticipée : ~0.2% (LPP art. 13 al. 2)');
+    buffer.writeln('- Plafond 3a salarié : 7\'258 CHF/an (OPP3 art. 7)');
     buffer.writeln('- Seuil LPP : 22\'680 CHF/an (LPP art. 7)');
-    buffer.writeln('- Reduction AVS par annee anticipee : 6.8% (LAVS art. 40)');
+    buffer.writeln('- Réduction AVS par année anticipée : 6.8% (LAVS art. 40)');
     buffer.writeln();
 
     // Grounding values for hallucination detection (CoachContext)
     final ctx = _buildCoachContext(profile);
     if (ctx.knownValues.isNotEmpty) {
-      buffer.writeln('VALEURS DE REFERENCE (ne pas inventer de chiffres differents) :');
+      buffer.writeln('VALEURS DE RÉFÉRENCE (ne pas inventer de chiffres différents) :');
       for (final entry in ctx.knownValues.entries) {
         buffer.writeln('- ${entry.key}: ${entry.value.toStringAsFixed(0)}');
       }
-      buffer.writeln('Tolerance : ±5% pour les CHF, ±2 points pour les scores/pourcentages.');
+      buffer.writeln('Tolérance : ±5% pour les CHF, ±2 points pour les scores/pourcentages.');
       buffer.writeln();
     }
 
-    buffer.writeln('TIPS ACTIFS (par priorite) :');
+    buffer.writeln('TIPS ACTIFS (par priorité) :');
     buffer.writeln(tipsFormatted);
     buffer.writeln();
     buffer.writeln('INSTRUCTIONS :');
     buffer.writeln(
-        '1. Genere un JSON avec les champs : greeting, scoreSummary, trendMessage, topTipNarrative, urgentAlert (null si aucune urgence), milestoneMessage (null si aucun nouveau milestone), scenarioNarrations (liste de 3 paragraphes: prudent, base, optimiste), chiffreChocNarration (null si age < 45, sinon max 100 mots contextualisant le chiffre-choc), retirementCountdown (null si age < 45, sinon phrase de countdown retraite)');
+        '1. Génère un JSON avec les champs : greeting, scoreSummary, trendMessage, topTipNarrative, urgentAlert (null si aucune urgence), milestoneMessage (null si aucun nouveau milestone), scenarioNarrations (liste de 3 paragraphes: prudent, base, optimiste), chiffreChocNarration (null si âge < 45, sinon max 100 mots contextualisant le chiffre-choc), retirementCountdown (null si âge < 45, sinon phrase de countdown retraite)');
     buffer.writeln(
-        '2. Le greeting doit etre personnel et chaleureux (max 2 phrases)');
+        '2. Le greeting doit être personnel et chaleureux (max 2 phrases)');
     buffer.writeln(
         '3. Le scoreSummary doit expliquer le score avec les chiffres de l\'utilisateur (max 3 phrases)');
     buffer.writeln(
-        '4. Le trendMessage doit etre contextuel a la trajectoire (max 2 phrases)');
+        '4. Le trendMessage doit être contextuel à la trajectoire (max 2 phrases)');
     buffer.writeln(
-        '5. Le topTipNarrative doit transformer le tip #1 en conseil emotionnel avec impact CHF (max 4 phrases)');
+        '5. Le topTipNarrative doit transformer le tip #1 en conseil émotionnel avec impact CHF (max 4 phrases)');
     buffer.writeln('6. Utilise le tutoiement ("tu")');
     buffer.writeln(
-        '7. JAMAIS de termes : garanti, certain, assure, sans risque, optimal, meilleur, parfait');
+        '7. JAMAIS de termes : garanti, certain, assuré, sans risque, optimal, meilleur, parfait');
     buffer.writeln(
-        '8. Cite les sources legales quand pertinent (LPP art. X, LIFD art. Y)');
+        '8. Cite les sources légales quand pertinent (LPP art. X, LIFD art. Y)');
     buffer.writeln(
-        '9. Ton educatif, jamais prescriptif. "Tu pourrais" et non "Tu dois"');
-    buffer.writeln('10. Reponds UNIQUEMENT en JSON valide');
+        '9. Ton éducatif, jamais prescriptif. "Tu pourrais" et non "Tu dois"');
+    buffer.writeln('10. Réponds UNIQUEMENT en JSON valide');
     buffer.writeln(
-        '11. Utilise UNIQUEMENT les valeurs de reference ci-dessus — ne pas halluciner de montants');
+        '11. Utilise UNIQUEMENT les valeurs de référence ci-dessus — ne pas halluciner de montants');
 
     return buffer.toString();
   }
@@ -952,7 +952,7 @@ class CoachNarrativeService {
       final marge = pilier3aPlafondAvecLpp - cotisation3a;
       snippets.add(
           'SNIPPET 3A: Il reste CHF ${marge.toStringAsFixed(0)} de marge 3a '
-          'cette annee (plafond 7\'258 CHF, OPP3 art. 7).');
+          'cette année (plafond 7\'258 CHF, OPP3 art. 7).');
     }
 
     // LPP buyback available
@@ -960,23 +960,23 @@ class CoachNarrativeService {
     if (lacune > 5000) {
       snippets.add(
           'SNIPPET LPP: Lacune de rachat LPP de CHF ${lacune.toStringAsFixed(0)} '
-          '— deductible a 100% du revenu imposable (LPP art. 79b).');
+          '— déductible à 100% du revenu imposable (LPP art. 79b).');
     }
 
     // AVS gaps
     final lacunesAvs = profile.prevoyance.lacunesAVS ?? 0;
     if (lacunesAvs > 0) {
       snippets
-          .add('SNIPPET AVS: $lacunesAvs annee${lacunesAvs > 1 ? 's' : ''} de '
-              'cotisation manquante${lacunesAvs > 1 ? 's' : ''}. Chaque annee '
-              'manquante reduit la rente de 1/44 (LAVS art. 29ter).');
+          .add('SNIPPET AVS: $lacunesAvs année${lacunesAvs > 1 ? 's' : ''} de '
+              'cotisation manquante${lacunesAvs > 1 ? 's' : ''}. Chaque année '
+              'manquante réduit la rente de 1/44 (LAVS art. 29ter).');
     }
 
     // Close to retirement — coordination reminder
     if (profile.age >= 55 && profile.anneesAvantRetraite <= 10) {
       snippets.add(
-          'SNIPPET COORDINATION: A ${profile.anneesAvantRetraite} ans de la '
-          'retraite, la coordination des retraits (3a echelonne, LPP '
+          'SNIPPET COORDINATION: À ${profile.anneesAvantRetraite} ans de la '
+          'retraite, la coordination des retraits (3a échelonné, LPP '
           'rente/capital, AVS anticipation/ajournement) peut avoir un '
           'impact fiscal significatif.');
     }
@@ -1048,11 +1048,11 @@ class CoachNarrativeService {
   static String _buildDataReliabilitySection(CoachProfile profile) {
     final sources = profile.dataSources;
     if (sources.isEmpty) {
-      return 'FIABILITE DES DONNEES :\n'
-          '- Aucune donnee certifiee par document. '
-          'Toutes les projections sont basees sur des estimations.\n'
-          '- Suggere a l\'utilisateur de scanner son certificat LPP ou '
-          'son extrait AVS pour ameliorer la precision.\n\n';
+      return 'FIABILITÉ DES DONNÉES :\n'
+          '- Aucune donnée certifiée par document. '
+          'Toutes les projections sont basées sur des estimations.\n'
+          '- Suggère à l\'utilisateur de scanner son certificat LPP ou '
+          'son extrait AVS pour améliorer la précision.\n\n';
     }
 
     final certified = <String>[];
@@ -1067,14 +1067,14 @@ class CoachNarrativeService {
       'prevoyance.tauxConversion': 'Taux de conversion',
       'prevoyance.tauxConversionSuroblig': 'Taux conv. suroblig.',
       'prevoyance.rachatMaximum': 'Lacune rachat LPP',
-      'prevoyance.salaireAssure': 'Salaire assure LPP',
-      'prevoyance.anneesContribuees': 'Annees AVS cotisees',
+      'prevoyance.salaireAssure': 'Salaire assuré LPP',
+      'prevoyance.anneesContribuees': 'Années AVS cotisées',
       'prevoyance.lacunesAVS': 'Lacunes AVS',
-      'prevoyance.renteAVSEstimeeMensuelle': 'Rente AVS estimee',
+      'prevoyance.renteAVSEstimeeMensuelle': 'Rente AVS estimée',
       'prevoyance.ramd': 'RAMD',
-      'prevoyance.totalEpargne3a': 'Epargne 3a',
+      'prevoyance.totalEpargne3a': 'Épargne 3a',
       'salaireBrutMensuel': 'Salaire brut',
-      'patrimoine.epargneLiquide': 'Epargne liquide',
+      'patrimoine.epargneLiquide': 'Épargne liquide',
       'patrimoine.investissements': 'Investissements',
       'patrimoine.immobilier': 'Immobilier',
       'depenses.loyer': 'Loyer',
@@ -1120,11 +1120,11 @@ class CoachNarrativeService {
         e.value == ProfileDataSource.certificate);
     if (!hasCertifiedLpp) {
       buffer.writeln(
-          '- MANQUE: Certificat LPP non scanne — l\'avoir LPP est estime.');
+          '- MANQUE: Certificat LPP non scanné — l\'avoir LPP est estimé.');
     }
     if (!hasCertifiedAvs) {
       buffer.writeln(
-          '- MANQUE: Extrait AVS non scanne — les annees de cotisation sont estimees.');
+          '- MANQUE: Extrait AVS non scanné — les années de cotisation sont estimées.');
     }
     buffer.writeln();
     return buffer.toString();
@@ -1339,7 +1339,7 @@ class CoachNarrativeService {
         if (age.inHours >= _cacheTtlHours) return null;
       }
 
-      // Verifier si nouveau check-in depuis la derniere generation
+      // Vérifier si nouveau check-in depuis la dernière génération
       final cachedCheckInCount = prefs.getInt(_cacheCheckInCountKey) ?? 0;
       if (profile.checkIns.length != cachedCheckInCount) return null;
 

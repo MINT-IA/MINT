@@ -7,11 +7,11 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Provider pour le profil Coach MINT.
 ///
-/// Charge les reponses du wizard depuis SharedPreferences
-/// et construit un CoachProfile. Si aucun wizard n'a ete complete,
-/// [profile] est null et les ecrans Coach affichent un etat vide.
+/// Charge les réponses du wizard depuis SharedPreferences
+/// et construit un CoachProfile. Si aucun wizard n'a été complété,
+/// [profile] est null et les écrans Coach affichent un état vide.
 ///
-/// Le profil est recalcule a chaque appel a [loadFromWizard()].
+/// Le profil est recalculé à chaque appel à [loadFromWizard()].
 class CoachProfileProvider extends ChangeNotifier {
   CoachProfile? _profile;
   bool _isLoading = false;
@@ -22,8 +22,8 @@ class CoachProfileProvider extends ChangeNotifier {
   bool _profileUpdatedSinceBudget = false;
   Map<String, dynamic> _lastAnswers = const {};
 
-  /// Le profil Coach construit a partir des reponses wizard.
-  /// Null si le wizard n'a pas ete complete.
+  /// Le profil Coach construit à partir des réponses wizard.
+  /// Null si le wizard n'a pas été complété.
   CoachProfile? get profile => _profile;
 
   /// S47: Stamp dataTimestamps for a set of field paths.
@@ -56,16 +56,16 @@ class CoachProfileProvider extends ChangeNotifier {
   /// True pendant le chargement initial.
   bool get isLoading => _isLoading;
 
-  /// True si le chargement a ete effectue au moins une fois.
+  /// True si le chargement a été effectué au moins une fois.
   bool get isLoaded => _isLoaded;
 
-  /// True si un profil est disponible (wizard complete).
+  /// True si un profil est disponible (wizard complété).
   bool get hasProfile => _profile != null;
 
   /// True si le profil est partiel (mini-onboarding, pas wizard complet).
   bool get isPartialProfile => _isPartialProfile;
 
-  /// True si le profil est complet (wizard complete).
+  /// True si le profil est complet (wizard complété).
   bool get hasFullProfile => _profile != null && !_isPartialProfile;
 
   /// Niveau de completude du profil (0.0 a 1.0).
@@ -90,7 +90,7 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Historique des scores mensuels (max 24 mois).
   List<Map<String, dynamic>> get scoreHistory => _scoreHistory;
 
-  /// True si le profil a ete mis a jour depuis la derniere synchro budget.
+  /// True si le profil a été mis à jour depuis la dernière synchro budget.
   bool get profileUpdatedSinceBudget => _profileUpdatedSinceBudget;
 
   String get personaKey {
@@ -214,7 +214,7 @@ class CoachProfileProvider extends ChangeNotifier {
     _profileUpdatedSinceBudget = false;
   }
 
-  /// Charge le profil depuis les reponses wizard stockees.
+  /// Charge le profil depuis les réponses wizard stockées.
   ///
   /// Appele automatiquement au demarrage de l'app et apres
   /// la completion du wizard.
@@ -593,9 +593,9 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Met a jour le profil depuis le check-up annuel (annual refresh).
-  /// Seuls les champs non-null sont mis a jour.
-  /// Persiste les reponses wizard mises a jour et recalcule le score.
+  /// Met à jour le profil depuis le check-up annuel (annual refresh).
+  /// Seuls les champs non-null sont mis à jour.
+  /// Persiste les réponses wizard mises à jour et recalcule le score.
   Future<void> updateFromRefresh({
     double? salaireBrutMensuel,
     String? employmentStatus,

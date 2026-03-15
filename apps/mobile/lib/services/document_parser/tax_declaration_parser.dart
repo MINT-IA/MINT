@@ -3,7 +3,7 @@
 // ────────────────────────────────────────────────────────────
 //
 //  Extracts structured financial fields from OCR text of a
-//  Swiss tax declaration (Declaration fiscale / Steuererklarung)
+//  Swiss tax declaration (Déclaration fiscale / Steuererklärung)
 //  or tax assessment notice (Avis de taxation / Steuerveranlagung).
 //
 //  Handles both French and German document formats.
@@ -150,7 +150,7 @@ class TaxDeclarationParser {
     // ── Deductions effectuees ──
     _TaxFieldPattern(
       fieldName: "deductions_effectuees",
-      label: "Deductions effectuees",
+      label: "Déductions effectuées",
       profileField: "actualDeductions",
       patterns: [
         RegExp(
@@ -171,7 +171,7 @@ class TaxDeclarationParser {
     // ── Impot cantonal (+ communal) ──
     _TaxFieldPattern(
       fieldName: "impot_cantonal",
-      label: "Impot cantonal et communal",
+      label: "Impôt cantonal et communal",
       profileField: "actualCantonalTax",
       patterns: [
         RegExp(
@@ -192,7 +192,7 @@ class TaxDeclarationParser {
     // ── Impot federal direct ──
     _TaxFieldPattern(
       fieldName: "impot_federal",
-      label: "Impot federal direct",
+      label: "Impôt fédéral direct",
       profileField: "actualFederalTax",
       patterns: [
         RegExp(
@@ -503,22 +503,22 @@ FORTUNE IMPOSABLE
 Fortune imposable:                             CHF 245'000.00
 
 DEDUCTIONS
-Total des deductions effectuees:               CHF 18'750.00
+Total des déductions effectuées:               CHF 18'750.00
   dont pilier 3a:                              CHF 7'258.00
   dont frais professionnels:                   CHF 4'200.00
   dont assurance-maladie:                      CHF 3'192.00
-  dont autres deductions:                      CHF 4'100.00
+  dont autres déductions:                      CHF 4'100.00
 
 IMPOTS
-Impot cantonal et communal:                    CHF 14'520.00
-Impot federal direct:                          CHF 3'840.00
+Impôt cantonal et communal:                    CHF 14'520.00
+Impôt fédéral direct:                          CHF 3'840.00
 
 TAUX
 Taux d'imposition effectif:                    19.15 %
 Taux marginal effectif:                        32.5 %
 
 ---
-Ce document est emis conformement a la LIFD et la loi fiscale cantonale.
-Il constitue l'avis de taxation definitif pour la periode fiscale 2025.
+Ce document est émis conformément à la LIFD et la loi fiscale cantonale.
+Il constitue l'avis de taxation définitif pour la période fiscale 2025.
 """;
 }

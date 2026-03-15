@@ -124,7 +124,7 @@ class ConfidenceScorer {
     if (profile.salaireBrutMensuel > 0) {
       total += _wSalaire;
     } else {
-      assumptions.add('Salaire non renseigne — estimation impossible');
+      assumptions.add('Salaire non renseigné — estimation impossible');
       prompts.add(const EnrichmentPrompt(
         label: 'Ajoute ton salaire',
         impact: _wSalaire,
@@ -177,7 +177,7 @@ class ConfidenceScorer {
         label: 'Indique ta situation familiale',
         impact: 10,
         category: 'menage',
-        action: 'Celibataire, en couple, marie·e ? Impact sur AVS et impots.',
+        action: 'Célibataire, en couple, marié·e ? Impact sur AVS et impôts.',
       ));
     } else if (profile.conjoint == null) {
       // Coupled but no partner data at all
@@ -222,19 +222,19 @@ class ConfidenceScorer {
         label: 'Confirme ton solde LPP',
         impact: 7,
         category: 'lpp',
-        action: 'Ajoute ton certificat de prevoyance (solde exact)',
+        action: 'Ajoute ton certificat de prévoyance (solde exact)',
       ));
-      assumptions.add('LPP estime depuis le salaire — peut varier de +-30%');
+      assumptions.add('LPP estimé depuis le salaire — peut varier de +-30%');
     } else if (isIndepSansLpp) {
       // Independent without LPP: not applicable
       total += _wLpp;
     } else {
-      assumptions.add('Avoir LPP non renseigne — estimation depuis le salaire');
+      assumptions.add('Avoir LPP non renseigné — estimation depuis le salaire');
       prompts.add(const EnrichmentPrompt(
         label: 'Ajoute ton solde LPP',
         impact: _wLpp,
         category: 'lpp',
-        action: 'Ajoute ton certificat de prevoyance (solde exact)',
+        action: 'Ajoute ton certificat de prévoyance (solde exact)',
       ));
     }
 
@@ -248,13 +248,13 @@ class ConfidenceScorer {
       } else {
         total += 1;
         prompts.add(const EnrichmentPrompt(
-          label: 'Taux de conversion reel',
+          label: 'Taux de conversion réel',
           impact: 4,
           category: 'lpp',
-          action: 'Lis ton certificat de prevoyance (taux enveloppe)',
+          action: 'Lis ton certificat de prévoyance (taux enveloppe)',
         ));
         assumptions.add(
-            'Taux de conversion LPP: minimum legal 6.8% (reel souvent 5-6%)');
+            'Taux de conversion LPP: minimum légal 6.8% (réel souvent 5-6%)');
       }
     }
 
@@ -268,9 +268,9 @@ class ConfidenceScorer {
         label: 'Commande ton extrait AVS',
         impact: 7,
         category: 'avs',
-        action: 'Gratuit sur inforegister.ch — annees effectives',
+        action: 'Gratuit sur inforegister.ch — années effectives',
       ));
-      assumptions.add('Annees AVS estimees depuis l\'age — lacunes possibles');
+      assumptions.add('Années AVS estimées depuis l\'âge — lacunes possibles');
     }
 
     // --- Soldes 3a reels (8 pts) — OPP3 art. 7 ---
@@ -297,7 +297,7 @@ class ConfidenceScorer {
         label: 'Renseigne ton patrimoine',
         impact: 6,
         category: 'patrimoine',
-        action: 'Epargne, investissements, immobilier',
+        action: 'Épargne, investissements, immobilier',
       ));
     }
 
@@ -307,16 +307,16 @@ class ConfidenceScorer {
         label: 'Ajoute ta commune',
         impact: 4,
         category: 'fiscalite',
-        action: 'Le coefficient communal impacte ton taux d\'imposition de 60% a 130%',
+        action: 'Le coefficient communal impacte ton taux d\'imposition de 60% à 130%',
       ));
     }
     final ds = profile.dataSources;
     if (ds['tauxMarginal'] != ProfileDataSource.certificate) {
       prompts.add(const EnrichmentPrompt(
-        label: 'Scanne ta declaration fiscale',
+        label: 'Scanne ta déclaration fiscale',
         impact: 8,
         category: 'fiscalite',
-        action: 'Taux marginal reel + revenu imposable + fortune (LIFD art. 38)',
+        action: 'Taux marginal réel + revenu imposable + fortune (LIFD art. 38)',
       ));
     }
 
@@ -324,12 +324,12 @@ class ConfidenceScorer {
     final isExpat = profile.arrivalAge != null && profile.arrivalAge! > 21;
     if (isExpat) {
       prompts.add(const EnrichmentPrompt(
-        label: 'Pension etrangere',
+        label: 'Pension étrangère',
         impact: _wForeignPension,
         category: 'foreign_pension',
         action: 'As-tu des droits a une retraite dans ton pays d\'origine?',
       ));
-      assumptions.add('Pension etrangere non modelisee');
+      assumptions.add('Pension étrangère non modélisée');
     } else {
       total += _wForeignPension;
     }
@@ -363,7 +363,7 @@ class ConfidenceScorer {
         impact: yearsLeft <= 5 ? 15 : 10,
         category: 'retirement_urgency',
         action: urgencyLabel == 'URGENT'
-            ? 'Chaque mois compte — confirme tes donnees de prevoyance'
+            ? 'Chaque mois compte — confirme tes données de prévoyance'
             : 'Affine tes projections pour une vision claire',
       ));
     }

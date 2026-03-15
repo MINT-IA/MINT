@@ -129,7 +129,7 @@ class DonationService {
     'conjoint': 'Conjoint(e)',
     'descendant': 'Enfant / Descendant(e)',
     'parent': 'Parent',
-    'fratrie': 'Frere / Soeur',
+    'fratrie': 'Frère / Sœur',
     'concubin': 'Concubin(e)',
     'tiers': 'Tiers',
   };
@@ -221,21 +221,21 @@ class DonationService {
     String impactSuccession;
     if (avancementHoirie) {
       impactSuccession =
-          'Cette donation en avancement d\'hoirie sera rapportee a '
-          'la masse successorale. La part du donataire sera reduite '
+          'Cette donation en avancement d\'hoirie sera rapportée à '
+          'la masse successorale. La part du donataire sera réduite '
           'd\'autant lors de la succession.';
     } else {
       if (donationDepasseQuotite) {
         impactSuccession =
-            'Cette donation hors avancement d\'hoirie depasse la quotite '
+            'Cette donation hors avancement d\'hoirie dépasse la quotité '
             'disponible de CHF ${quotiteDisponible.round()}. '
-            'Les heritiers reservataires pourraient la contester '
-            'par action en reduction (CC art. 522).';
+            'Les héritiers réservataires pourraient la contester '
+            'par action en réduction (CC art. 522).';
       } else {
         impactSuccession =
-            'Cette donation hors avancement d\'hoirie est imputee sur '
-            'la quotite disponible (CHF ${quotiteDisponible.round()}). '
-            'Elle ne sera pas rapportee a la succession.';
+            'Cette donation hors avancement d\'hoirie est imputée sur '
+            'la quotité disponible (CHF ${quotiteDisponible.round()}). '
+            'Elle ne sera pas rapportée à la succession.';
       }
     }
 
@@ -244,55 +244,55 @@ class DonationService {
 
     if (donationDepasseQuotite) {
       alerts.add(
-        'La donation depasse la quotite disponible de '
-        'CHF ${montantDepassement.round()}. Les heritiers reservataires '
-        'pourraient exercer une action en reduction (CC art. 522 ss).',
+        'La donation dépasse la quotité disponible de '
+        'CHF ${montantDepassement.round()}. Les héritiers réservataires '
+        'pourraient exercer une action en réduction (CC art. 522 ss).',
       );
     }
 
     if (lienParente == 'concubin' && tauxImposition > 0.15) {
       alerts.add(
         'Attention : le taux d\'imposition pour un·e concubin·e est '
-        'eleve ($canton : ${(tauxImposition * 100).toStringAsFixed(0)}%). '
-        'Un pacte successoral ou un testament pourrait etre plus avantageux.',
+        'élevé ($canton : ${(tauxImposition * 100).toStringAsFixed(0)}%). '
+        'Un pacte successoral ou un testament pourrait être plus avantageux.',
       );
     }
 
     if (typeDonation == 'immobilier') {
       alerts.add(
-        'Pour une donation immobiliere, des droits de mutation '
-        'supplementaires peuvent s\'appliquer selon le canton. '
+        'Pour une donation immobilière, des droits de mutation '
+        'supplémentaires peuvent s\'appliquer selon le canton. '
         'Un passage devant notaire est obligatoire.',
       );
     }
 
     if (donateurAge >= 70) {
       alerts.add(
-        'Attention : les donations effectuees peu avant le deces '
-        'peuvent etre contestees (CC art. 527). Plus la donation est '
-        'proche du deces, plus le risque de contestation est eleve.',
+        'Attention : les donations effectuées peu avant le décès '
+        'peuvent être contestées (CC art. 527). Plus la donation est '
+        'proche du décès, plus le risque de contestation est élevé.',
       );
     }
 
     if (montantDonation > fortune * 0.5 && fortuneTotaleDonateur > 0) {
       alerts.add(
-        'Cette donation represente plus de 50% de ta fortune totale. '
-        'Assure-toi de conserver suffisamment de reserves pour tes '
-        'propres besoins (retraite, sante, imprevus).',
+        'Cette donation représente plus de 50% de ta fortune totale. '
+        'Assure-toi de conserver suffisamment de réserves pour tes '
+        'propres besoins (retraite, santé, imprévus).',
       );
     }
 
     // ── Checklist ──
     final checklist = <String>[
-      'Verifier la quotite disponible avec un notaire',
-      'Rediger un acte de donation (notarie si immobilier)',
-      'Declarer la donation aux autorites fiscales cantonales',
-      'Informer les heritiers reservataires si necessaire',
+      'Vérifier la quotité disponible avec un notaire',
+      'Rédiger un acte de donation (notarié si immobilier)',
+      'Déclarer la donation aux autorités fiscales cantonales',
+      'Informer les héritiers réservataires si nécessaire',
       'Conserver une copie de l\'acte dans tes documents',
     ];
 
     if (typeDonation == 'immobilier') {
-      checklist.add('Proceder a l\'inscription au registre foncier');
+      checklist.add('Procéder à l\'inscription au registre foncier');
     }
 
     if (avancementHoirie) {
@@ -309,9 +309,9 @@ class DonationService {
 
     // ── Chiffre choc ──
     final chiffreChoc = impotDonation > 0
-        ? 'Impot sur la donation : CHF ${impotDonation.round()} '
+        ? 'Impôt sur la donation : CHF ${impotDonation.round()} '
             '(${(tauxImposition * 100).toStringAsFixed(0)}%)'
-        : 'Bonne nouvelle : cette donation est exoneree d\'impot '
+        : 'Bonne nouvelle : cette donation est exonérée d\'impôt '
             'dans le canton $canton';
 
     // ── Disclaimer ──
@@ -325,8 +325,8 @@ class DonationService {
     // ── Sources ──
     const sources = [
       'CC art. 457-471 (Droit successoral)',
-      'CC art. 471 (Reserves hereditaires, revision 2023)',
-      'CC art. 522 ss (Action en reduction)',
+      'CC art. 471 (Réserves héréditaires, révision 2023)',
+      'CC art. 522 ss (Action en réduction)',
       'CC art. 527 (Donations contestables)',
       'Lois fiscales cantonales sur les donations',
       'CO art. 239 ss (Donation)',

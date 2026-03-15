@@ -190,7 +190,7 @@ class FirstJobService {
         color: '#FF453A', // error red
       ),
       SalaryDeductionItem(
-        label: 'Chomage (AC)',
+        label: 'Chômage (AC)',
         montant: ac,
         pourcentage: (ac / brut) * 100,
         color: '#FF9F0A', // warning orange
@@ -242,7 +242,7 @@ class FirstJobService {
       franchiseRecommandee: franchiseData.$2,
       economieAnnuelleVs300: franchiseData.$3,
       noteLamal:
-          'Si tu es jeune et en bonne sante, la franchise 2500 est souvent '
+          'Si tu es jeune et en bonne santé, la franchise 2500 est souvent '
           'plus avantageuse. Compare sur priminfo.admin.ch pour ton canton.',
       checklist: _buildChecklist(),
       chiffreChoc: chiffreChoc,
@@ -292,11 +292,11 @@ class FirstJobService {
     return const [
       'Ouvrir un compte 3a fintech (pas une assurance-vie !)',
       'Choisir ta franchise LAMal sur priminfo.admin.ch',
-      'Souscrire une RC privee (~CHF 5/mois)',
-      'Verifier ton certificat de prevoyance LPP',
-      'Preparer ta premiere declaration fiscale',
-      'Mettre en place un virement epargne automatique (10-20% du net)',
-      'Demander ton attestation de salaire pour les impots',
+      'Souscrire une RC privée (~CHF 5/mois)',
+      'Vérifier ton certificat de prévoyance LPP',
+      'Préparer ta première déclaration fiscale',
+      'Mettre en place un virement épargne automatique (10-20% du net)',
+      'Demander ton attestation de salaire pour les impôts',
     ];
   }
 

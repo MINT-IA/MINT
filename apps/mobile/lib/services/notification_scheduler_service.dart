@@ -22,17 +22,17 @@ import 'package:mint_mobile/services/plan_tracking_service.dart';
 //  NOTIFICATION SCHEDULER SERVICE — S36 / Notifications + Milestones
 // ────────────────────────────────────────────────────────────
 //
-// Service purement deterministe : genere des objets ScheduledNotification
-// a partir des donnees du profil. Aucune dependance LLM (Tier 1 & 2).
+// Service purement déterministe : génère des objets ScheduledNotification
+// à partir des données du profil. Aucune dépendance LLM (Tier 1 & 2).
 //
-// Tier 1 : Calendar-driven (deadlines 3a, declarations fiscales, check-in)
+// Tier 1 : Calendar-driven (deadlines 3a, déclarations fiscales, check-in)
 // Tier 2 : Event-driven (FRI delta, profile update, check-in complete)
 // Tier 3 : BYOK-enriched (delegue au CoachNarrativeService — hors scope ici)
 //
 // Conventions :
 //   - Montants CHF formated avec apostrophe suisse (1'820)
 //   - Toujours un chiffre personnel + reference temporelle + deeplink
-//   - Ton pedagogique, tutoiement, pas de termes bannis
+//   - Ton pédagogique, tutoiement, pas de termes bannis
 // ────────────────────────────────────────────────────────────
 
 /// Tier of notification scheduling.
@@ -52,22 +52,22 @@ enum NotificationCategory {
   /// Deadline 3e pilier (31 dec).
   threeADeadline,
 
-  /// Deadline declaration fiscale (31 mars).
+  /// Deadline déclaration fiscale (31 mars).
   taxDeclaration,
 
   /// Check-in mensuel disponible.
   monthlyCheckIn,
 
-  /// Score de solidite (FRI) ameliore.
+  /// Score de solidité (FRI) amélioré.
   friImprovement,
 
-  /// Profil mis a jour — nouvelles projections.
+  /// Profil mis à jour — nouvelles projections.
   profileUpdate,
 
   /// Plan vs realite: trajectory drift detected.
   offTrack,
 
-  /// Nouveaux plafonds de l'annee.
+  /// Nouveaux plafonds de l'année.
   newYearPlafonds,
 }
 
@@ -259,7 +259,7 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.taxDeclaration,
         tier: NotificationTier.calendar,
-        title: 'Declaration fiscale',
+        title: 'Déclaration fiscale',
         body:
             'Déclaration fiscale dans 44 jours. Pense à rassembler tes documents.',
         deeplink: '/home',
@@ -275,7 +275,7 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.taxDeclaration,
         tier: NotificationTier.calendar,
-        title: 'Declaration fiscale',
+        title: 'Déclaration fiscale',
         body: 'Déclaration fiscale dans 16 jours. Commence à la remplir.',
         deeplink: '/home',
         scheduledDate: mar15,
@@ -284,18 +284,18 @@ class NotificationSchedulerService {
       ));
     }
 
-    // Mar 25 — derniere semaine
+    // Mar 25 — dernière semaine
     final mar25 = DateTime(year, 3, 25, 10, 0);
     if (mar25.isAfter(now)) {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.taxDeclaration,
         tier: NotificationTier.calendar,
-        title: 'Declaration fiscale',
+        title: 'Déclaration fiscale',
         body: 'Déclaration à rendre avant le 31 mars. Dernière semaine.',
         deeplink: '/home',
         scheduledDate: mar25,
         personalNumber: savingStr,
-        timeReference: 'Derniere semaine',
+        timeReference: 'Dernière semaine',
       ));
     }
 
@@ -379,9 +379,9 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.offTrack,
         tier: NotificationTier.event,
-        title: 'Tu t’eloignes de ton plan',
-        body: 'Adherence a $adherence% sur ${planStatus.totalActions} actions. '
-            'Indication lineaire (hors rendement/fiscalite): ~CHF $impact.',
+        title: ‘Tu t’éloignes de ton plan’,
+        body: ‘Adhérence à $adherence% sur ${planStatus.totalActions} actions. ‘
+            ‘Indication linéaire (hors rendement/fiscalité): ~CHF $impact.’,
         deeplink: '/coach/checkin',
         scheduledDate: now,
         personalNumber: '$adherence%',

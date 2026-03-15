@@ -24,15 +24,15 @@ extension DocumentTypeLabel on DocumentType {
   String get label {
     switch (this) {
       case DocumentType.lppCertificate:
-        return 'Certificat de prevoyance LPP';
+        return 'Certificat de prévoyance LPP';
       case DocumentType.taxDeclaration:
-        return 'Declaration fiscale';
+        return 'Déclaration fiscale';
       case DocumentType.avsExtract:
         return 'Extrait de compte AVS';
       case DocumentType.threeAAttestation:
         return 'Attestation 3e pilier';
       case DocumentType.mortgageAttestation:
-        return 'Attestation hypothecaire';
+        return 'Attestation hypothécaire';
       case DocumentType.salaryCertificate:
         return 'Fiche de salaire';
     }
@@ -46,13 +46,13 @@ extension DocumentTypeLabel on DocumentType {
       case DocumentType.taxDeclaration:
         return 'Revenu imposable, fortune, taux marginal effectif';
       case DocumentType.avsExtract:
-        return 'Annees de cotisation, RAMD, lacunes';
+        return 'Années de cotisation, RAMD, lacunes';
       case DocumentType.threeAAttestation:
-        return 'Solde 3a, versements cumules, rendement';
+        return 'Solde 3a, versements cumulés, rendement';
       case DocumentType.mortgageAttestation:
-        return 'Capital restant du, taux, echeance';
+        return 'Capital restant dû, taux, échéance';
       case DocumentType.salaryCertificate:
-        return 'Salaire brut, deductions, 13eme, LPP employe, taux d\'activite';
+        return 'Salaire brut, déductions, 13ème, LPP employé, taux d\'activité';
     }
   }
 
@@ -185,6 +185,21 @@ class ExtractedField {
 
 /// Confidence level for UI color coding.
 enum ConfidenceLevel { high, medium, low }
+
+/// How a field was extracted — for provenance tracking in the review screen.
+enum ExtractionSource {
+  /// Deterministic regex pattern matching (highest trust).
+  regex,
+
+  /// On-device SLM (Gemma 3n) enhancement — validated but needs review.
+  slm,
+
+  /// Cloud vision API via BYOK (Claude/OpenAI).
+  byokVision,
+
+  /// User entered the value manually.
+  manual,
+}
 
 /// Result of parsing a complete document.
 class ExtractionResult {
