@@ -10213,5 +10213,133 @@
       }
     }
   },
-  "disabilityScorecardDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source\u00a0: LAMal, LAVS, LPP art.\u00a023-26."
+  "disabilityScorecardDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source\u00a0: LAMal, LAVS, LPP art.\u00a023-26.",
+  "donationTypeEspeces": "Espèces / Liquidités",
+  "donationTypeImmobilier": "Immobilier",
+  "donationTypeTitres": "Titres / Valeurs mobilières",
+  "donationRegimeParticipation": "Participation aux acquêts",
+  "donationRegimeCommunaute": "Communauté de biens",
+  "donationRegimeSeparation": "Séparation de biens",
+  "donationAgeAns": "{age} ans",
+  "@donationAgeAns": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "donationReservePct": "Réserve {pct}\u00a0%",
+  "@donationReservePct": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "donationDisponiblePct": "Disponible {pct}\u00a0%",
+  "@donationDisponiblePct": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "chiffreChocSectionSuffixPerYear": "/an",
+  "chiffreChocSectionTaxSavings3a": "Économie d''impôts potentielle chaque année en maximisant ton 3a. Sur {years} ans, cela représente ~CHF\u00a0{amount}.",
+  "@chiffreChocSectionTaxSavings3a": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "chiffreChocSectionCta3a": "Simuler mon 3a",
+  "chiffreChocSectionLppBuybackMessage": "Déduction fiscale potentielle en rachetant ta lacune LPP de CHF\u00a0{amount}.",
+  "@chiffreChocSectionLppBuybackMessage": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "chiffreChocSectionCtaLppBuyback": "Explorer le rachat",
+  "chiffreChocSectionAvsGapMessageSingular": "Rente AVS perdue sur 20 ans de retraite avec {count} année de cotisation manquante.",
+  "@chiffreChocSectionAvsGapMessageSingular": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chiffreChocSectionAvsGapMessagePlural": "Rente AVS perdue sur 20 ans de retraite avec {count} années de cotisation manquantes.",
+  "@chiffreChocSectionAvsGapMessagePlural": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chiffreChocSectionCtaAvsGap": "Vérifier mes lacunes",
+  "chiffreChocSectionDisclaimer": "Simulation à titre éducatif uniquement. Ne constitue pas un conseil en placement ou prévoyance (LSFin). Hypothèses modifiables\u00a0— résultats non garantis.",
+  "simDisabilityChfAmount": "{amount}\u00a0CHF",
+  "@simDisabilityChfAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "simDisabilityYears": "{count} ans",
+  "@simDisabilityYears": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "simDisabilityPhase1Bar": "Phase 1 — Employeur ({weeks} sem.)",
+  "@simDisabilityPhase1Bar": {
+    "placeholders": {
+      "weeks": {
+        "type": "String"
+      }
+    }
+  },
+  "simDisabilityPhase2Bar": "Phase 2 — IJM (24 mois)",
+  "simDisabilityPhase3Bar": "Phase 3 — AI + LPP",
+  "simDisabilityGapLabel": "Gap\u00a0: {amount}",
+  "@simDisabilityGapLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "simDisabilityMaxGapChfMois": "{amount}\u00a0CHF/mois",
+  "@simDisabilityMaxGapChfMois": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "simDisabilityLegalSourcePhase1": "CO art. 324a",
+  "simDisabilityPhase3Coverage": "AI\u00a0: {ai}\u00a0CHF/mois\nLPP\u00a0: {lpp}\u00a0CHF/mois\nTotal\u00a0: {total}\u00a0CHF/mois",
+  "@simDisabilityPhase3Coverage": {
+    "placeholders": {
+      "ai": {
+        "type": "String"
+      },
+      "lpp": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "simDisabilityLegalSourcePhase3": "LAI art. 28 + LPP art. 23"
 }

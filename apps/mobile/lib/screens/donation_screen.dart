@@ -63,10 +63,11 @@ class _DonationScreenState extends State<DonationScreen> {
   static List<String> get _cantons => sortedCantonCodes;
 
   static const _typesDonation = ['especes', 'immobilier', 'titres'];
-  static const _typesDonationLabels = {
-    'especes': 'Espèces / Liquidités',
-    'immobilier': 'Immobilier',
-    'titres': 'Titres / Valeurs mobilières',
+
+  Map<String, String> _typesDonationLabels(BuildContext context) => {
+    'especes': S.of(context)!.donationTypeEspeces,
+    'immobilier': S.of(context)!.donationTypeImmobilier,
+    'titres': S.of(context)!.donationTypeTitres,
   };
 
   static const _liensParente = [
@@ -78,10 +79,10 @@ class _DonationScreenState extends State<DonationScreen> {
     'tiers',
   ];
 
-  static const _regimesLabels = {
-    'participation_acquets': 'Participation aux acquêts',
-    'communaute_biens': 'Communauté de biens',
-    'separation_biens': 'Séparation de biens',
+  Map<String, String> _regimesLabels(BuildContext context) => {
+    'participation_acquets': S.of(context)!.donationRegimeParticipation,
+    'communaute_biens': S.of(context)!.donationRegimeCommunaute,
+    'separation_biens': S.of(context)!.donationRegimeSeparation,
   };
 
   @override
@@ -337,7 +338,7 @@ class _DonationScreenState extends State<DonationScreen> {
             min: 18,
             max: 95,
             divisions: 77,
-            format: (v) => '${v.toInt()} ans',
+            format: (v) => S.of(context)!.donationAgeAns(v.toInt()),
             onChanged: (v) => setState(() => _donateurAge = v.toInt()),
           ),
           const SizedBox(height: 16),
@@ -457,7 +458,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   ),
                 ),
                 child: Text(
-                  _typesDonationLabels[type] ?? type,
+                  _typesDonationLabels(context)[type] ?? type,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
@@ -512,7 +513,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   ),
                 ),
                 child: Text(
-                  _regimesLabels[regime] ?? regime,
+                  _regimesLabels(context)[regime] ?? regime,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
@@ -708,7 +709,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   alignment: Alignment.center,
                   child: reservePct > 0.15
                       ? Text(
-                          'Réserve ${(reservePct * 100).toStringAsFixed(0)}%',
+                          S.of(context)!.donationReservePct((reservePct * 100).toStringAsFixed(0)),
                           style: GoogleFonts.inter(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
@@ -726,7 +727,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   alignment: Alignment.center,
                   child: quotitePct > 0.15
                       ? Text(
-                          'Disponible ${(quotitePct * 100).toStringAsFixed(0)}%',
+                          S.of(context)!.donationDisponiblePct((quotitePct * 100).toStringAsFixed(0)),
                           style: GoogleFonts.inter(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
@@ -1113,10 +1114,7 @@ class _DonationScreenState extends State<DonationScreen> {
           Expanded(
             child: Text(
               _result?.disclaimer ??
-                  'Cet outil éducatif fournit des estimations indicatives et '
-                      'ne constitue pas un conseil juridique, fiscal ou notarial '
-                      'personnalisé au sens de la LSFin. Consulte un·e spécialiste '
-                      '(notaire) pour ta situation.',
+                  S.of(context)!.donationDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: MintColors.deepOrange,
