@@ -103,7 +103,7 @@ class ArbitrageSummaryService {
         id: 'rente_vs_capital',
         title: 'Rente vs Capital',
         missingDataPrompt: 'Ajoute ton avoir LPP pour voir cette comparaison',
-        enrichmentRoute: '/document-scan',
+        enrichmentRoute: '/scan',
       ));
     }
 
@@ -123,7 +123,7 @@ class ArbitrageSummaryService {
         title: 'Calendrier de retraits',
         missingDataPrompt:
             'Ajoute ton avoir LPP et 3a pour voir le calendrier',
-        enrichmentRoute: '/document-scan',
+        enrichmentRoute: '/scan',
       ));
     }
 
@@ -146,7 +146,7 @@ class ArbitrageSummaryService {
         title: 'Rachat LPP vs Marche',
         missingDataPrompt:
             'Scanne ton certificat LPP pour connaitre ta lacune de rachat',
-        enrichmentRoute: '/document-scan',
+        enrichmentRoute: '/scan',
       ));
     }
 
@@ -244,7 +244,7 @@ class ArbitrageSummaryService {
           'a un rendement implicite d\'environ 5%.',
       monthlyImpactChf: diff,
       confidenceScore: result.confidenceScore,
-      route: '/arbitrage/rente-vs-capital',
+      route: '/rente-vs-capital',
       fullResult: result,
     );
   }
@@ -314,7 +314,7 @@ class ArbitrageSummaryService {
           'progressivement — retirer tout la meme annee coute significativement plus.',
       monthlyImpactChf: saving / (profile.anneesAvantRetraite * 12).clamp(1, 999),
       confidenceScore: result.confidenceScore,
-      route: '/arbitrage/calendrier-retraits',
+      route: '/decaissement',
       fullResult: result,
     );
   }
@@ -355,7 +355,7 @@ class ArbitrageSummaryService {
           'capital est bloque jusqu\'a la retraite (LPP art. 79b).',
       monthlyImpactChf: taxSaving / 12,
       confidenceScore: result.confidenceScore,
-      route: '/arbitrage/rachat-vs-marche',
+      route: '/rachat-lpp',
       fullResult: result,
     );
   }
@@ -509,7 +509,7 @@ class ArbitrageSummaryService {
           'reduit la progressivite de l\'impot (LIFD art. 38).',
       monthlyImpactChf: monthlyImpact,
       confidenceScore: 60.0,
-      route: '/arbitrage/calendrier-retraits',
+      route: '/decaissement',
       fullResult: fullResult,
     );
   }

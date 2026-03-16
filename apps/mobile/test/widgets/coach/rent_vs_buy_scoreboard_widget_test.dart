@@ -24,8 +24,8 @@ void main() {
   // Buyer wins (708'756 > 608'354)
 
   Widget buildWidget() => const MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,

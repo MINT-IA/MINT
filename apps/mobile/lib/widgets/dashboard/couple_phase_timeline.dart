@@ -252,7 +252,7 @@ class _CouplePhaseTimelineState extends State<CouplePhaseTimeline> {
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.tune_rounded,
                 size: 16,
                 color: MintColors.purple,

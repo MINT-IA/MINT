@@ -81,8 +81,8 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
             _buildGuidanceSection(),
             const SizedBox(height: 32),
             // ── P10-B : Avalanche vs Boule de neige ──────────────
-            DebtRepaymentWidget(
-              debts: const [
+            const DebtRepaymentWidget(
+              debts: [
                 DebtEntry(
                   label: 'Carte de crédit',
                   emoji: '💳',
@@ -266,10 +266,10 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: rateWarning ? MintColors.error.withOpacity(0.05) : MintColors.appleSurface.withOpacity(0.3),
+        color: rateWarning ? MintColors.error.withValues(alpha: 0.05) : MintColors.appleSurface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: rateWarning ? MintColors.error.withOpacity(0.2) : MintColors.primary.withOpacity(0.1),
+          color: rateWarning ? MintColors.error.withValues(alpha: 0.2) : MintColors.primary.withValues(alpha: 0.1),
         ),
       ),
       child: Column(
@@ -298,7 +298,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: MintColors.error.withOpacity(0.1),
+                color: MintColors.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Row(

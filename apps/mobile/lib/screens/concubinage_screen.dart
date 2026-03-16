@@ -299,28 +299,28 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             isPenalite ? Advantage.concubinage : Advantage.marriage,
         icon: Icons.account_balance_outlined,
       ),
-      ComparisonCriteria(
+      const ComparisonCriteria(
         label: 'Heritage',
         marriageLabel: 'Exonere (CC art. 462)',
         concubinageLabel: 'Impot cantonal',
         advantage: Advantage.marriage,
         icon: Icons.family_restroom,
       ),
-      ComparisonCriteria(
+      const ComparisonCriteria(
         label: 'Protection deces',
         marriageLabel: 'AVS + LPP survivant',
         concubinageLabel: 'Aucune rente automatique',
         advantage: Advantage.marriage,
         icon: Icons.shield_outlined,
       ),
-      ComparisonCriteria(
+      const ComparisonCriteria(
         label: 'Flexibilite',
         marriageLabel: 'Procedure judiciaire',
         concubinageLabel: 'Separation simplifiee',
         advantage: Advantage.concubinage,
         icon: Icons.swap_horiz,
       ),
-      ComparisonCriteria(
+      const ComparisonCriteria(
         label: 'Pension alim.',
         marriageLabel: 'Protegee par le juge',
         concubinageLabel: 'Accord prealable',
@@ -328,68 +328,6 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         icon: Icons.balance,
       ),
     ];
-  }
-
-  Widget _buildMatrixRow(String label, bool marriageGood, bool concubinGood) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 3,
-            child: Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Center(
-              child: Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: marriageGood
-                      ? MintColors.success.withValues(alpha: 0.12)
-                      : MintColors.error.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  marriageGood ? Icons.check : Icons.close,
-                  size: 16,
-                  color:
-                      marriageGood ? MintColors.success : MintColors.error,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Center(
-              child: Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: concubinGood
-                      ? MintColors.success.withValues(alpha: 0.12)
-                      : MintColors.error.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  concubinGood ? Icons.check : Icons.close,
-                  size: 16,
-                  color:
-                      concubinGood ? MintColors.success : MintColors.error,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildScoreSummary() {
@@ -1096,7 +1034,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

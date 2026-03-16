@@ -172,15 +172,15 @@ class DashboardCuratorService {
       case 'deadline_3a':
       case 'missing_3a':
       case '3a_not_maxed':
-        return '/simulator/3a';
+        return '/pilier-3a';
       case 'lpp_buyback':
         return FeatureFlags.enableDecisionScaffold
-            ? '/arbitrage/rachat-vs-marche'
+            ? '/rachat-lpp'
             : null;
       case 'tax_deadline':
         return '/fiscal';
       case 'retirement_countdown':
-        return '/coach/dashboard';
+        return '/retraite';
       case 'emergency_fund':
       case 'budget_missing':
       case 'budget_drift':

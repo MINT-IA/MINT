@@ -60,7 +60,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
-          Text(
+          const Text(
             'Loyer + assurances + abonnements + crédits',
             style: TextStyle(fontSize: 12, color: MintColors.textSecondary),
           ),
@@ -120,8 +120,8 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
           ),
           
           // Labels
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -142,7 +142,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(
-                  color: MintColors.primary.withOpacity(0.1),
+                  color: MintColors.primary.withValues(alpha: 0.1),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -201,12 +201,12 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
                       if (_currentProgress < 1)
                         Text(
                           'Il te manque ${_currencyFormat.format(_targetAmount - widget.currentSavings!)}',
-                          style: TextStyle(fontSize: 13, color: MintColors.warning),
+                          style: const TextStyle(fontSize: 13, color: MintColors.warning),
                         )
                       else
                         Row(
                           children: [
-                            Icon(Icons.check_circle, color: MintColors.success, size: 16),
+                            const Icon(Icons.check_circle, color: MintColors.success, size: 16),
                             const SizedBox(width: 8),
                             Text(
                               'Objectif atteint ! 🎉',

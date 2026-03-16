@@ -39,8 +39,8 @@ void main() {
     testWidgets('AffordabilityScreen renders without error', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -62,8 +62,8 @@ void main() {
     testWidgets('SaronVsFixedScreen renders without error', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -84,8 +84,8 @@ void main() {
     testWidgets('AmortizationScreen renders without error', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -115,8 +115,8 @@ void main() {
     testWidgets('AvsCotisationsScreen renders without error', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -138,8 +138,8 @@ void main() {
         (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -160,8 +160,8 @@ void main() {
     testWidgets('IjmScreen renders without error', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -188,8 +188,8 @@ void main() {
     testWidgets('RepaymentScreen renders without error', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -210,8 +210,8 @@ void main() {
     testWidgets('DebtRatioScreen renders without error', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -232,8 +232,8 @@ void main() {
     testWidgets('HelpResourcesScreen renders without error', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -275,8 +275,8 @@ void main() {
     testWidgets('LibrePassageScreen renders without error', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -308,8 +308,8 @@ void main() {
     testWidgets('LamalFranchiseScreen renders without error', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -334,8 +334,8 @@ void main() {
     testWidgets('CoverageCheckScreen renders without error', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -365,8 +365,8 @@ void main() {
         (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,

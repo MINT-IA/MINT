@@ -11,8 +11,8 @@ void main() {
     return ChangeNotifierProvider(
       create: (_) => CoachProfileProvider(),
       child: const MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,

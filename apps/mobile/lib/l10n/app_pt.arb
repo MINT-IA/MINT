@@ -4389,5 +4389,22 @@
   "drawerCeQueTuDois": "O que deves",
   "drawerCeQueTuDoisSubtitle": "Dívida total",
   "drawerCeQueTuAuras": "O que terás",
-  "drawerCeQueTuAurasSubtitle": "Rendimento de reforma projetado"
+  "drawerCeQueTuAurasSubtitle": "Rendimento de reforma projetado",
+  "shellWelcomeBack": "Bem-vindo de volta! Os teus dados estão atualizados.",
+  "shellRecommendationsUpdated": "Recomendações atualizadas",
+  "pulseEnrichirTitle": "Digitaliza o teu certificado LPP",
+  "pulseEnrichirSubtitle": "Confiança → +{points} pontos",
+  "@pulseEnrichirSubtitle": {
+    "placeholders": {
+      "points": {"type": "String"}
+    }
+  },
+  "pulseEnrichirCta": "Digitalizar →",
+  "tabMoi": "Eu",
+  "coupleSwitchSolo": "Solo",
+  "coupleSwitchDuo": "Duo",
+  "identityStatusSalarie": "Assalariado",
+  "identityStatusIndependant": "Independente",
+  "identityStatusChomage": "Em busca",
+  "identityStatusRetraite": "Reformado"
 }

@@ -183,7 +183,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
                   lifeDropPercent: _lifeDropPercent,
                 ),
                 const SizedBox(height: 20),
-                FranchiseCostWidget(
+                const FranchiseCostWidget(
                   options: _franchiseOptions,
                   initialConsultationsPerYear: 3,
                 ),
@@ -386,7 +386,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: MintColors.primary,
+          activeTrackColor: MintColors.primary,
         ),
       ],
     );

@@ -26,8 +26,8 @@ void main() {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -46,8 +46,8 @@ void main() {
     testWidgets('displays French title in AppBar', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -68,8 +68,8 @@ void main() {
     testWidgets('shows calculator input sliders', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -96,8 +96,8 @@ void main() {
     testWidgets('shows result section with computed values', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -117,8 +117,8 @@ void main() {
     testWidgets('displays disclaimer with legal reference', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -144,8 +144,8 @@ void main() {
     testWidgets('shows mentor guidance section', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -176,8 +176,8 @@ void main() {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -196,8 +196,8 @@ void main() {
     testWidgets('displays French AppBar title', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -218,8 +218,8 @@ void main() {
     testWidgets('shows questionnaire with French questions', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -254,8 +254,8 @@ void main() {
     testWidgets('shows OUI/NON choice buttons', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -275,8 +275,8 @@ void main() {
     testWidgets('shows mentor intro and privacy note', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -303,8 +303,8 @@ void main() {
         (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,

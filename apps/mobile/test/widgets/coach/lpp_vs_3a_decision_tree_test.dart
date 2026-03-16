@@ -5,7 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
-  final lppOption = const DecisionOption(
+  const lppOption = DecisionOption(
     title: 'LPP volontaire',
     emoji: '\ud83c\udfe6',
     subtitle: 'Rente garantie + protection invalidit\u00e9',
@@ -14,7 +14,7 @@ void main() {
     annualTaxSavings: 1815,
   );
 
-  final grand3aOption = const DecisionOption(
+  const grand3aOption = DecisionOption(
     title: 'Grand 3a',
     emoji: '\ud83d\udcb0',
     subtitle: 'Plafond 36\u2019288 CHF, flexibilit\u00e9 totale',

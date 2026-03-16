@@ -22,6 +22,7 @@ import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
+import 'package:mint_mobile/widgets/coach/life_event_sheet.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN — SLM-first, streaming, prod-ready
@@ -48,7 +49,14 @@ class CoachChatScreen extends StatefulWidget {
   /// Used for contextual routing (e.g., "Parle au coach" from data blocks).
   final String? initialPrompt;
 
-  const CoachChatScreen({super.key, this.initialPrompt});
+  /// When true, hides the back button (used when embedded as a tab).
+  final bool isEmbeddedInTab;
+
+  const CoachChatScreen({
+    super.key,
+    this.initialPrompt,
+    this.isEmbeddedInTab = false,
+  });
 
   @override
   State<CoachChatScreen> createState() => _CoachChatScreenState();
@@ -194,6 +202,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   // ════════════════════════════════════════════════════════════
   //  MESSAGE SENDING — SLM streaming or standard
   // ════════════════════════════════════════════════════════════
+
+  Future<void> _showLifeEventSheet() async {
+    final prompt = await LifeEventSheet.show(context);
+    if (prompt != null && prompt.isNotEmpty && mounted) {
+      _sendMessage(prompt);
+    }
+  }
 
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
@@ -626,11 +641,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, color: MintColors.white),
-                onPressed: () => Navigator.of(context).maybePop(),
-              ),
-              const SizedBox(width: 8),
+              if (!widget.isEmbeddedInTab) ...[
+                IconButton(
+                  icon: const Icon(Icons.arrow_back, color: MintColors.white),
+                  onPressed: () => Navigator.of(context).maybePop(),
+                ),
+                const SizedBox(width: 8),
+              ] else
+                const SizedBox(width: 4),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1024,9 +1042,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: MintColors.info.withOpacity(0.05),
+        color: MintColors.info.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.info.withOpacity(0.15)),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1036,7 +1054,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
-              color: MintColors.info.withOpacity(0.8),
+              color: MintColors.info.withValues(alpha: 0.8),
               letterSpacing: 0.5,
             ),
           ),
@@ -1050,7 +1068,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                   children: [
                     Icon(Icons.description_outlined,
                         size: 13,
-                        color: MintColors.info.withOpacity(0.7)),
+                        color: MintColors.info.withValues(alpha: 0.7)),
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(
@@ -1059,7 +1077,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                           fontSize: 11,
                           color: MintColors.info,
                           decoration: TextDecoration.underline,
-                          decorationColor: MintColors.info.withOpacity(0.5),
+                          decorationColor: MintColors.info.withValues(alpha: 0.5),
                         ),
                       ),
                     ),
@@ -1076,22 +1094,22 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: MintColors.warning.withOpacity(0.06),
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.warning.withOpacity(0.2)),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.2)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.info_outline,
-              size: 14, color: MintColors.warning.withOpacity(0.8)),
+              size: 14, color: MintColors.warning.withValues(alpha: 0.8)),
           const SizedBox(width: 6),
           Expanded(
             child: Text(
               disclaimers.join('\n'),
               style: TextStyle(
                 fontSize: 11,
-                color: MintColors.warning.withOpacity(0.9),
+                color: MintColors.warning.withValues(alpha: 0.9),
                 height: 1.4,
               ),
             ),
@@ -1106,13 +1124,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (file.contains('3a') ||
         file.contains('opp3') ||
         file.contains('pilier')) {
-      context.push('/simulator/3a');
+      context.push('/pilier-3a');
     } else if (file.contains('lpp') || file.contains('pension')) {
-      context.push('/simulator/rente-capital');
+      context.push('/rente-vs-capital');
     } else if (file.contains('lifd') || file.contains('fiscal')) {
       context.push('/fiscal');
     } else if (file.contains('lavs') || file.contains('avs')) {
-      context.push('/retirement');
+      context.push('/retraite');
     } else if (file.contains('budget')) {
       context.push('/budget');
     } else {
@@ -1140,6 +1158,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Row(
             children: [
+              // Life event trigger button
+              IconButton(
+                icon: const Icon(Icons.flash_on_outlined,
+                    color: MintColors.coachAccent, size: 22),
+                tooltip: 'Evenement de vie',
+                onPressed: _isStreaming ? null : _showLifeEventSheet,
+              ),
               Expanded(
                 child: TextField(
                   controller: _controller,

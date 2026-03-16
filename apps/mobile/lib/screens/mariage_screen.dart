@@ -787,59 +787,6 @@ class _MariageScreenState extends State<MariageScreen>
     );
   }
 
-  Widget _buildPieLegend({
-    required String label,
-    required String value,
-    required String pct,
-    required Color color,
-  }) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(3),
-              ),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              pct,
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            color: MintColors.textSecondary,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 2),
-        Text(
-          value,
-          style: GoogleFonts.montserrat(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textPrimary,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
   Widget _buildChiffreChocRegime() {
     final total = _patrimoine1 + _patrimoine2;
     if (total <= 0) return const SizedBox.shrink();
@@ -894,7 +841,7 @@ class _MariageScreenState extends State<MariageScreen>
   // ════════════════════════════════════════════════════════════
 
   Widget _buildTab3Protection() {
-    final avsSurvivor = avsRenteMaxMensuelle *
+    const avsSurvivor = avsRenteMaxMensuelle *
         FamilyService.avsSurvivorFactor;
     final lppSurvivor = _renteLpp * FamilyService.lppSurvivorFactor;
     final totalSurvivor = avsSurvivor + lppSurvivor;
@@ -1712,7 +1659,7 @@ class _MariageScreenState extends State<MariageScreen>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -1730,61 +1677,3 @@ class _MariageScreenState extends State<MariageScreen>
   }
 }
 
-// ── Pie Chart Painter ───────────────────────────────────────
-
-class _PieChartPainter extends CustomPainter {
-  final double ratio1;
-  final Color color1;
-  final Color color2;
-
-  _PieChartPainter({
-    required this.ratio1,
-    required this.color1,
-    required this.color2,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = min(size.width, size.height) / 2;
-
-    final paint1 = Paint()
-      ..color = color1
-      ..style = PaintingStyle.fill;
-
-    final paint2 = Paint()
-      ..color = color2
-      ..style = PaintingStyle.fill;
-
-    const startAngle = -pi / 2;
-    final sweep1 = 2 * pi * ratio1;
-    final sweep2 = 2 * pi * (1 - ratio1);
-
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      startAngle,
-      sweep1,
-      true,
-      paint1,
-    );
-
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      startAngle + sweep1,
-      sweep2,
-      true,
-      paint2,
-    );
-
-    // White center hole
-    final holePaint = Paint()
-      ..color = MintColors.white
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, radius * 0.55, holePaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _PieChartPainter oldDelegate) {
-    return oldDelegate.ratio1 != ratio1;
-  }
-}

@@ -9,7 +9,10 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 import 'package:mint_mobile/widgets/coach/countdown_3a_widget.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/collapsible_section.dart';
 
 class Simulator3aScreen extends StatefulWidget {
   const Simulator3aScreen({super.key});
@@ -137,6 +140,9 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
                   'Rembourser tes dettes est un rendement plus eleve que tout placement.',
               child: _buildEducationSection(),
             ),
+            const SizedBox(height: 32),
+            // ── Related sections (hub) ──
+            _buildRelatedSections(),
             const SizedBox(height: 48),
             _buildDisclaimer(),
             const SizedBox(height: 24),
@@ -298,9 +304,9 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: MintColors.appleSurface.withOpacity(0.3),
+        color: MintColors.appleSurface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: MintColors.primary.withOpacity(0.1)),
+        border: Border.all(color: MintColors.primary.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [
@@ -373,6 +379,45 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildRelatedSections() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Explorer aussi',
+          style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
+        const SizedBox(height: 12),
+        CollapsibleSection(
+          title: 'Comparateur prestataires',
+          subtitle: 'VIAC, Finpension, frankly...',
+          icon: Icons.compare,
+          child: _buildSectionCta('Comparer', '/3a-deep/comparator'),
+        ),
+        CollapsibleSection(
+          title: 'Rendement réel',
+          subtitle: 'Après frais, inflation et fiscal',
+          icon: Icons.trending_up,
+          child: _buildSectionCta('Calculer', '/3a-deep/real-return'),
+        ),
+        CollapsibleSection(
+          title: 'Retrait échelonné',
+          subtitle: 'Étaler les retraits pour réduire l\'impôt',
+          icon: Icons.calendar_month,
+          child: _buildSectionCta('Planifier', '/3a-deep/staggered-withdrawal'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionCta(String label, String route) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: () => context.push(route),
+        child: Text(label),
       ),
     );
   }

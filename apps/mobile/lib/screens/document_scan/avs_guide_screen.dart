@@ -512,7 +512,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
   }
 
   void _onScanExtract() {
-    context.push('/document-scan', extra: DocumentType.avsExtract);
+    context.push('/scan', extra: DocumentType.avsExtract);
   }
 
   void _onSimulateScan() async {

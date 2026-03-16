@@ -557,7 +557,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                     ),
                     const SizedBox(height: 20),
                     FilledButton.icon(
-                      onPressed: () => context.push('/document-scan'),
+                      onPressed: () => context.push('/scan'),
                       icon: const Icon(Icons.edit_outlined, size: 18),
                       label: Text(
                         'Enrichir mon profil',

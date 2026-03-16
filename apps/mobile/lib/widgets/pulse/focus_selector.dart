@@ -31,28 +31,28 @@ class _FocusSelectorState extends State<FocusSelector> {
   @override
   Widget build(BuildContext context) {
     final categories = [
-      _FocusCategory(
+      const _FocusCategory(
         key: 'comprendre',
         icon: Icons.explore_outlined,
         label: 'Comprendre',
         subtitle: 'Mon argent',
         color: MintColors.info,
       ),
-      _FocusCategory(
+      const _FocusCategory(
         key: 'proteger',
         icon: Icons.shield_outlined,
         label: 'Protéger',
         subtitle: 'Retraite, famille',
         color: MintColors.success,
       ),
-      _FocusCategory(
+      const _FocusCategory(
         key: 'optimiser',
         icon: Icons.trending_up_outlined,
         label: 'Optimiser',
         subtitle: 'Impôts, épargne',
         color: MintColors.warning,
       ),
-      _FocusCategory(
+      const _FocusCategory(
         key: 'naviguer',
         icon: Icons.compass_calibration_outlined,
         label: 'Naviguer',
@@ -196,13 +196,13 @@ class _FocusSelectorState extends State<FocusSelector> {
             apercu: _salaryApercu(profile),
           ),
           if (isExpat || age < 28)
-            _SubOption(
+            const _SubOption(
               focus: 'comprendre_systeme',
               icon: Icons.account_balance_outlined,
               label: 'Le système suisse ?',
               apercu: 'AVS + LPP + 3a = ?',
             ),
-          _SubOption(
+          const _SubOption(
             focus: 'comprendre_situation',
             icon: Icons.pie_chart_outline,
             label: 'Ma situation financière ?',
@@ -218,7 +218,7 @@ class _FocusSelectorState extends State<FocusSelector> {
             apercu: _retirementApercu(profile),
           ),
           if (isCouple)
-            _SubOption(
+            const _SubOption(
               focus: 'proteger_famille',
               icon: Icons.people_outline,
               label: 'Ma famille / mon couple',
@@ -247,7 +247,7 @@ class _FocusSelectorState extends State<FocusSelector> {
             apercu: _patrimoineApercu(profile),
           ),
           if (age > 50)
-            _SubOption(
+            const _SubOption(
               focus: 'optimiser_capital_rente',
               icon: Icons.compare_arrows_outlined,
               label: 'Capital ou Rente ?',
@@ -257,7 +257,7 @@ class _FocusSelectorState extends State<FocusSelector> {
       case 'naviguer':
         options = [
           if (isExpat)
-            _SubOption(
+            const _SubOption(
               focus: 'naviguer_expat',
               icon: Icons.flight_land_outlined,
               label: "J'arrive en Suisse",
@@ -270,13 +270,13 @@ class _FocusSelectorState extends State<FocusSelector> {
             apercu: _housingApercu(profile),
           ),
           if (profile.employmentStatus != 'independant')
-            _SubOption(
+            const _SubOption(
               focus: 'naviguer_independant',
               icon: Icons.business_center_outlined,
               label: 'Je deviens indépendant·e',
               apercu: 'Filet sans employeur',
             ),
-          _SubOption(
+          const _SubOption(
             focus: 'naviguer_evenement',
             icon: Icons.family_restroom_outlined,
             label: 'Un événement familial',
@@ -334,7 +334,7 @@ class _FocusSelectorState extends State<FocusSelector> {
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios_rounded,
+            const Icon(Icons.arrow_forward_ios_rounded,
                 size: 12, color: MintColors.textMuted),
           ],
         ),

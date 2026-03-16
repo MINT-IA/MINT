@@ -93,7 +93,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
                 const SizedBox(height: 12),
 
                 // Source legale
-                Text(
+                const Text(
                   'Source : LPP art. 30c (EPL), OPP3, LIFD art. 38. '
                   'Taux cantonaux estimes a titre pedagogique.',
                   style: TextStyle(
@@ -121,7 +121,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3), width: 2),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
       ),
       child: Column(
         children: [
@@ -151,7 +151,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
           ),
           if (!result.objectifAtteint) ...[
             const SizedBox(height: 8),
-            Text(
+            const Text(
               'Minimum requis : 20%',
               style: TextStyle(
                 fontSize: 12,
@@ -517,7 +517,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Impot estime',
                 style: TextStyle(
                   fontSize: 11,
@@ -526,7 +526,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
               ),
               Text(
                 '-CHF ${formatChf(source.impotEstime)}',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: MintColors.error,
@@ -691,13 +691,13 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.warning_amber_rounded,
+                const Icon(Icons.warning_amber_rounded,
                     color: MintColors.warningText, size: 20),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     alerte,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
                       color: MintColors.amberDark,
                       height: 1.4,
@@ -751,12 +751,12 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 fontStyle: FontStyle.italic,
                 color: MintColors.deepOrange,

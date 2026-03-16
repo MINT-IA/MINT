@@ -153,8 +153,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -177,8 +177,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -203,8 +203,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -226,8 +226,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -250,8 +250,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -274,8 +274,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -299,8 +299,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -322,8 +322,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -353,8 +353,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -377,8 +377,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -403,8 +403,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -426,8 +426,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -449,8 +449,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -473,8 +473,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -496,8 +496,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -520,8 +520,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -551,8 +551,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -575,8 +575,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -601,8 +601,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -624,8 +624,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -647,8 +647,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -673,8 +673,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -697,8 +697,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -720,8 +720,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -743,8 +743,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -769,8 +769,8 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,

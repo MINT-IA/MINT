@@ -32,8 +32,8 @@ class CircleScoreCard extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                color.withOpacity(0.1),
-                color.withOpacity(0.05),
+                color.withValues(alpha: 0.1),
+                color.withValues(alpha: 0.05),
               ],
             ),
           ),
@@ -170,11 +170,11 @@ class CircleScoreCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                      const Row(
                         children: [
                           Icon(Icons.lightbulb_outline,
                               size: 16, color: MintColors.warningText),
-                          const SizedBox(width: 8),
+                          SizedBox(width: 8),
                           Text(
                             'Actions recommandées',
                             style: TextStyle(
@@ -191,13 +191,13 @@ class CircleScoreCard extends StatelessWidget {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('• ',
+                                const Text('• ',
                                     style: TextStyle(
                                         color: MintColors.warningText)),
                                 Expanded(
                                   child: Text(
                                     reco,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 11,
                                       color: MintColors.amberDark,
                                     ),

@@ -299,7 +299,7 @@ class _ConfidenceBarState extends State<ConfidenceBar>
                         ),
                       ),
                     ),
-                    Icon(Icons.chevron_right,
+                    const Icon(Icons.chevron_right,
                         size: 16, color: MintColors.textMuted),
                   ],
                 ),

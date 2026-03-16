@@ -320,7 +320,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                     final route = switch (choc.type) {
                       ChiffreChocType.liquidityAlert => '/budget',
                       ChiffreChocType.retirementGap => '/coach/cockpit',
-                      ChiffreChocType.taxSaving3a => '/simulator/3a',
+                      ChiffreChocType.taxSaving3a => '/pilier-3a',
                       ChiffreChocType.retirementIncome => '/coach/cockpit',
                     };
                     AnalyticsService().trackCTAClick(

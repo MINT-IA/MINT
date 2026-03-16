@@ -425,13 +425,13 @@ class _DataBlockEnrichmentScreenState
   String? _enrichmentRoute(String type) {
     const routes = {
       'revenu': '/onboarding/quick',
-      'lpp': '/document-scan',
+      'lpp': '/scan',
       'avs': '/document-scan/avs-guide',
-      '3a': '/simulator/3a',
+      '3a': '/pilier-3a',
       'patrimoine': '/profile/bilan',
       'fiscalite': '/fiscal',
       'objectifRetraite': '/coach/cockpit',
-      'compositionMenage': '/household',
+      'compositionMenage': '/couple',
     };
     return routes[type] ?? '/profile/bilan';
   }

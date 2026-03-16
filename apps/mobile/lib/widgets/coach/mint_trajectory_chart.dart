@@ -199,7 +199,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
     final points = widget.result.base.points;
     if (points.isEmpty) return null;
 
-    final chartLeft = 48.0; // approx left margin
+    const chartLeft = 48.0; // approx left margin
     final chartRight = (context.size?.width ?? 300) - 48 - 16;
     final chartWidth = chartRight - chartLeft;
 
@@ -383,12 +383,12 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
 
     // Compute approximate x position
     final xFraction = points.length > 1 ? index / (points.length - 1) : 0.0;
-    final chartAreaLeft = 48.0;
+    const chartAreaLeft = 48.0;
     final chartAreaWidth = chartWidth - chartAreaLeft - 16;
     final xPos = chartAreaLeft + xFraction * chartAreaWidth;
 
     // Position tooltip above chart center, clamped to bounds
-    final tooltipWidth = 180.0;
+    const tooltipWidth = 180.0;
     final tooltipLeft =
         (xPos - tooltipWidth / 2).clamp(0.0, chartWidth - tooltipWidth);
 
@@ -811,9 +811,9 @@ class _TrajectoryPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (basePoints.isEmpty) return;
 
-    final chartLeft = _marginLeft;
+    const chartLeft = _marginLeft;
     final chartRight = size.width - _marginRight;
-    final chartTop = _marginTop;
+    const chartTop = _marginTop;
     final chartBottom = size.height - _marginBottom;
     final chartWidth = chartRight - chartLeft;
     final chartHeight = chartBottom - chartTop;

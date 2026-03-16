@@ -16,21 +16,21 @@ class ComprendreSection extends StatelessWidget {
       title: l.pulseComprendreRenteCapital,
       subtitle: l.pulseComprendreRenteCapitalSub,
       icon: Icons.compare_arrows,
-      route: '/arbitrage/rente-vs-capital',
+      route: '/rente-vs-capital',
       color: MintColors.retirementLpp,
     ),
     _ComprendreItem(
       title: l.pulseComprendreRachatLpp,
       subtitle: l.pulseComprendreRachatLppSub,
       icon: Icons.account_balance,
-      route: '/lpp-deep/rachat',
+      route: '/rachat-lpp',
       color: MintColors.retirementAvs,
     ),
     _ComprendreItem(
       title: l.pulseComprendre3a,
       subtitle: l.pulseComprendre3aSub,
       icon: Icons.savings,
-      route: '/simulator/3a',
+      route: '/pilier-3a',
       color: MintColors.retirement3a,
     ),
     _ComprendreItem(
@@ -44,7 +44,7 @@ class ComprendreSection extends StatelessWidget {
       title: l.pulseComprendreAchat,
       subtitle: l.pulseComprendreAchatSub,
       icon: Icons.home_outlined,
-      route: '/mortgage/affordability',
+      route: '/hypotheque',
       color: MintColors.teal,
     ),
   ];

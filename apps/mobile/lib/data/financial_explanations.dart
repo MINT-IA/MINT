@@ -44,11 +44,11 @@ class FinancialExplanations {
         content:
             'Si tu veux retirer ton 2e pilier en CAPITAL à la retraite (et pas en rente), tu dois finir tous tes rachats AU MINIMUM 3 ans avant le retrait.',
         keyPoints: [
-          const KeyPoint(
+          KeyPoint(
             'Rachat aujourd\'hui → Capital bloqué pendant 3 ans minimum',
             isPositive: false,
           ),
-          const KeyPoint(
+          KeyPoint(
             'Si tu veux retirer à 65 ans en capital → dernier rachat au plus tard à 62 ans',
           ),
         ],
@@ -58,13 +58,13 @@ class FinancialExplanations {
         content:
             'Pour maximiser l\'économie fiscale, il faut racheter dans les dernières années pré-retraite (quand ton salaire est au plus haut).',
         keyPoints: [
-          const KeyPoint(
+          KeyPoint(
             'Timing idéal : 3-5 ans avant la retraite',
           ),
-          const KeyPoint(
+          KeyPoint(
             'Salaire au maximum = taux marginal au maximum = économie maximum',
           ),
-          const KeyPoint(
+          KeyPoint(
             'Respecter la règle des 3 ans si retrait capital prévu',
           ),
         ],
@@ -121,10 +121,10 @@ class FinancialExplanations {
         content:
             'Le plafond du 3a est lié à l\'AVS et est généralement indexé tous les 2 ans. Cela signifie que ta capacité d\'épargne fiscale augmente avec le temps !',
         keyPoints: [
-          const KeyPoint(
+          KeyPoint(
             'Bonus Indexation : Ton économie fiscale grandit tous les 2 ans',
           ),
-          const KeyPoint(
+          KeyPoint(
             'Protection Inflation : Investir en actions (via VIAC) protège ton pouvoir d\'achat',
           ),
         ],
@@ -239,11 +239,11 @@ class FinancialExplanations {
         content:
             'Partir à l\'étranger sans cotiser au moins le minimum AVS (env. CHF 514/an) crée une lacune irrécupérable après 5 ans.',
         keyPoints: [
-          const KeyPoint(
+          KeyPoint(
             'Chaque année à l\'étranger sans cotisation = -2.3% de rente AVS à vie',
             isPositive: false,
           ),
-          const KeyPoint(
+          KeyPoint(
             'Solution : Cotiser à l\'AVS facultative ou compenser par un 3e pilier plus fort',
           ),
         ],
@@ -273,13 +273,13 @@ class FinancialExplanations {
       content:
           'Il est possible de racheter les 5 dernières années manquantes si tu étais domicilié en Suisse.',
       keyPoints: [
-        const KeyPoint(
+        KeyPoint(
           'Commande un extrait de compte individuel (CI) gratuit',
         ),
-        const KeyPoint(
+        KeyPoint(
           'Vérifie les années avec ta caisse de compensation',
         ),
-        const KeyPoint(
+        KeyPoint(
           'Rachète les lacunes récentes (< 5 ans) si possible',
         ),
       ],

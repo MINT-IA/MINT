@@ -50,20 +50,20 @@ void main() {
     });
 
     test('Y coordinate normalization', () {
-      final minScore = 40.0;
-      final range = 40.0;
+      const minScore = 40.0;
+      const range = 40.0;
       const height = 28.0;
 
       // Score 40 → y = height (bottom)
-      final y40 = height - ((40.0 - minScore) / range * height);
+      const y40 = height - ((40.0 - minScore) / range * height);
       expect(y40, height);
 
       // Score 80 → y = 0 (top)
-      final y80 = height - ((80.0 - minScore) / range * height);
+      const y80 = height - ((80.0 - minScore) / range * height);
       expect(y80, 0.0);
 
       // Score 60 → y = height/2 (middle)
-      final y60 = height - ((60.0 - minScore) / range * height);
+      const y60 = height - ((60.0 - minScore) / range * height);
       expect(y60, height / 2);
     });
 
@@ -118,13 +118,13 @@ void main() {
 
     test('delta badge color: positive = success', () {
       const delta = 5.0;
-      final isSuccess = delta >= 0;
+      const isSuccess = delta >= 0;
       expect(isSuccess, true);
     });
 
     test('delta badge color: negative = warning', () {
       const delta = -3.0;
-      final isSuccess = delta >= 0;
+      const isSuccess = delta >= 0;
       expect(isSuccess, false);
     });
 

@@ -251,7 +251,7 @@ class BudgetSandwichChart extends StatelessWidget {
       child: Center(
         child: Column(
           children: [
-            Icon(Icons.keyboard_arrow_down,
+            const Icon(Icons.keyboard_arrow_down,
                 size: 20, color: MintColors.textMuted),
             Text(
               label,

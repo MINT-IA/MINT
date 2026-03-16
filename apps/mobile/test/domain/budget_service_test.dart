@@ -11,7 +11,7 @@ void main() {
 
   group('BudgetService Logic', () {
     test('computePlan justAvailable calculates correctly', () {
-      final inputs = BudgetInputs(
+      const inputs = BudgetInputs(
         payFrequency: PayFrequency.monthly,
         netIncome: 6000,
         housingCost: 2000,
@@ -29,7 +29,7 @@ void main() {
     });
 
     test('computePlan Envelopes3 default splits (all to variables)', () {
-      final inputs = BudgetInputs(
+      const inputs = BudgetInputs(
         payFrequency: PayFrequency.monthly,
         netIncome: 5000,
         housingCost: 1500,
@@ -47,7 +47,7 @@ void main() {
     });
 
     test('computePlan Envelopes3 with Future override', () {
-      final inputs = BudgetInputs(
+      const inputs = BudgetInputs(
         payFrequency: PayFrequency.monthly,
         netIncome: 5000,
         housingCost: 1500,
@@ -65,7 +65,7 @@ void main() {
     });
 
     test('computePlan Envelopes3 Stop Rule Triggered', () {
-      final inputs = BudgetInputs(
+      const inputs = BudgetInputs(
         payFrequency: PayFrequency.monthly,
         netIncome: 5000,
         housingCost: 1500,
@@ -83,7 +83,7 @@ void main() {
     });
 
     test('computePlan negative fallback', () {
-      final inputs = BudgetInputs(
+      const inputs = BudgetInputs(
         payFrequency: PayFrequency.monthly,
         netIncome: 1000,
         housingCost: 2000, // Costs > Income
@@ -96,7 +96,7 @@ void main() {
     });
 
     test('computePlan inclut impots, lamal et autres charges fixes', () {
-      final inputs = BudgetInputs(
+      const inputs = BudgetInputs(
         payFrequency: PayFrequency.monthly,
         netIncome: 8000,
         housingCost: 1800,

@@ -33,7 +33,7 @@ class TemporalStrip extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 8),
           child: Row(
             children: [
-              Icon(Icons.schedule, size: 14, color: MintColors.textMuted),
+              const Icon(Icons.schedule, size: 14, color: MintColors.textMuted),
               const SizedBox(width: 6),
               Text(
                 '\u00c0 ne pas manquer',

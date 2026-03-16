@@ -32,12 +32,12 @@ class IndependantScreen extends StatefulWidget {
 class _IndependantScreenState extends State<IndependantScreen> {
   // ── State ──────────────────────────────────────────────────
   double _revenuNet = 80000;
-  int _age = 42;
+  final int _age = 42;
   bool _hasLpp = false;
   bool _hasIjm = false;
   bool _hasLaa = false;
   bool _has3a = false;
-  String _canton = 'VD';
+  final String _canton = 'VD';
 
   IndependantResult? _result;
 
@@ -205,7 +205,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
             color: MintColors.disclaimerBg,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Icon(
+          child: const Icon(
             Icons.business_center,
             color: MintColors.warningText,
             size: 28,
@@ -317,7 +317,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
           // Header
           Row(
             children: [
-              Text('\ud83d\udd04', style: const TextStyle(fontSize: 20)),
+              const Text('\ud83d\udd04', style: TextStyle(fontSize: 20)),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -418,7 +418,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               ),
             ),
           ),
-          Expanded(
+          const Expanded(
             child: Icon(Icons.check_circle, color: MintColors.success, size: 18),
           ),
           Expanded(
@@ -451,13 +451,13 @@ class _IndependantScreenState extends State<IndependantScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: MintColors.primary.withOpacity(0.06),
+            color: MintColors.primary.withValues(alpha: 0.06),
             blurRadius: 20,
             offset: const Offset(0, 6),
             spreadRadius: -4,
           ),
         ],
-        border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -497,7 +497,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               activeTrackColor: MintColors.primary,
               inactiveTrackColor: MintColors.border,
               thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withOpacity(0.1),
+              overlayColor: MintColors.primary.withValues(alpha: 0.1),
               trackHeight: 6,
             ),
             child: Slider(
@@ -531,7 +531,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -584,7 +584,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: MintColors.success,
+            activeTrackColor: MintColors.success,
           ),
         ],
       ),
@@ -609,9 +609,9 @@ class _IndependantScreenState extends State<IndependantScreen> {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.06),
+              color: color.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: color.withOpacity(0.3)),
+              border: Border.all(color: color.withValues(alpha: 0.3)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -695,7 +695,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: statusColor.withOpacity(0.3),
+          color: statusColor.withValues(alpha: 0.3),
           width: gap.isCovered ? 0.8 : 1.5,
         ),
       ),
@@ -708,7 +708,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
+                  color: statusColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -734,7 +734,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.1),
+                        color: statusColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -783,13 +783,13 @@ class _IndependantScreenState extends State<IndependantScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: MintColors.primary.withOpacity(0.06),
+            color: MintColors.primary.withValues(alpha: 0.06),
             blurRadius: 20,
             offset: const Offset(0, 6),
             spreadRadius: -4,
           ),
         ],
-        border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -820,7 +820,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
           _buildCostRow(S.of(context)!.independantCost3a, cost.pillar3aMensuel, MintColors.indigo),
           const SizedBox(height: 16),
 
-          Divider(color: MintColors.border.withOpacity(0.5)),
+          Divider(color: MintColors.border.withValues(alpha: 0.5)),
           const SizedBox(height: 12),
 
           Row(
@@ -915,7 +915,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.people_outline, color: MintColors.tealLight, size: 20),
+              const Icon(Icons.people_outline, color: MintColors.tealLight, size: 20),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.independantAvsTitle,
@@ -953,7 +953,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: MintColors.indigo.withOpacity(0.05),
+        color: MintColors.indigo.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -1027,7 +1027,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               decoration: BoxDecoration(
                 color: MintColors.white,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+                border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1036,7 +1036,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
                     width: 24,
                     height: 24,
                     decoration: BoxDecoration(
-                      color: MintColors.primary.withOpacity(0.1),
+                      color: MintColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Center(
@@ -1149,7 +1149,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
         FiscalSuperpowerWidget(
           taxRate: 0.25,
           superpowers: [
-            FiscalSuperpower(
+            const FiscalSuperpower(
               label: 'Pilier 3a grand versement',
               emoji: '🏦',
               annualDeduction: 20000,
@@ -1165,7 +1165,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               legalRef: 'LIFD art. 27 al. 2',
               note: 'Loyer bureau, matériel, formation — déductibles au réel',
             ),
-            FiscalSuperpower(
+            const FiscalSuperpower(
               label: 'Primes assurance maladie (LPP vol.)',
               emoji: '🛡️',
               annualDeduction: 3600,
@@ -1211,14 +1211,14 @@ class _IndependantScreenState extends State<IndependantScreen> {
         const SizedBox(height: 20),
 
         // 90-day plan
-        NinetyDayPlanWidget(
+        const NinetyDayPlanWidget(
           phases: [
             PlanPhase(
               title: 'Administratif urgent',
               emoji: '📋',
               deadline: 'J+30',
               urgencyColor: MintColors.scoreCritique,
-              actions: const [
+              actions: [
                 PlanAction(
                   label: 'Inscription caisse AVS indépendants',
                   consequence: 'Amendes rétroactives si délai dépassé',
@@ -1236,7 +1236,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               emoji: '🏦',
               deadline: 'J+60',
               urgencyColor: MintColors.scoreAttention,
-              actions: const [
+              actions: [
                 PlanAction(
                   label: 'Ouvrir compte 3a (déduction jusqu\'à CHF 36\'288)',
                   legalRef: 'OPP3',
@@ -1252,7 +1252,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               emoji: '💡',
               deadline: 'J+90',
               urgencyColor: MintColors.primary,
-              actions: const [
+              actions: [
                 PlanAction(label: 'Frais professionnels déductibles — tenir registre'),
                 PlanAction(label: 'Acomptes impôts cantonaux — éviter les intérêts'),
               ],
@@ -1276,7 +1276,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

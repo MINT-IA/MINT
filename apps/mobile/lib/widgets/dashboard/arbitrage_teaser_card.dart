@@ -127,7 +127,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
           title: 'Rente vs Capital',
           chiffreChoc:
               'L\u2019option $betterOption pourrait donner +CHF\u00a0${_fmt(diff)}/mois nets',
-          route: '/arbitrage/rente-vs-capital',
+          route: '/rente-vs-capital',
         ));
       }
     }
@@ -158,7 +158,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
           title: 'Calendrier de retraits',
           chiffreChoc:
               '\u00c9chelonner tes retraits pourrait \u00e9conomiser ~CHF\u00a0${_fmt(saving)} d\u2019imp\u00f4t',
-          route: '/arbitrage/calendrier-retraits',
+          route: '/decaissement',
         ));
       }
     }
@@ -181,7 +181,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
         title: 'Rachat LPP',
         chiffreChoc:
             'Un rachat de CHF\u00a0${_fmt(lacune)} pourrait r\u00e9duire ton imp\u00f4t de ~CHF\u00a0${_fmt(saving)}',
-        route: '/lpp-deep/rachat',
+        route: '/rachat-lpp',
       ));
     }
 

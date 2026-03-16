@@ -30,21 +30,21 @@ void main() {
           create: (_) => ByokProvider(),
         ),
       ],
-      child: MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      child: const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: S.supportedLocales,
-        home: const Scaffold(body: PulseScreen()),
+        home: Scaffold(body: PulseScreen()),
       ),
     );
   }
 
-  CoachProfileProvider _buildProfileProvider({
+  CoachProfileProvider buildProfileProvider({
     String firstName = 'Julien',
     int birthYear = 1977,
     String canton = 'VS',
@@ -104,7 +104,7 @@ void main() {
 
   group('PulseScreen — loaded state', () {
     testWidgets('renders greeting with name', (tester) async {
-      final provider = _buildProfileProvider(firstName: 'Julien');
+      final provider = buildProfileProvider(firstName: 'Julien');
       await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
       await tester.pump(const Duration(seconds: 2));
 
@@ -112,7 +112,7 @@ void main() {
     });
 
     testWidgets('renders readiness score card', (tester) async {
-      final provider = _buildProfileProvider();
+      final provider = buildProfileProvider();
       await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
       await tester.pump(const Duration(seconds: 2));
 
@@ -121,7 +121,7 @@ void main() {
     });
 
     testWidgets('renders disclaimer in loaded state', (tester) async {
-      final provider = _buildProfileProvider();
+      final provider = buildProfileProvider();
       await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
       await tester.pump(const Duration(seconds: 2));
 
@@ -132,7 +132,7 @@ void main() {
   group('PulseScreen — couple mode', () {
     testWidgets('renders couple greeting when married with conjoint',
         (tester) async {
-      final provider = _buildProfileProvider(
+      final provider = buildProfileProvider(
         firstName: 'Julien',
         civilStatus: 'marie',
         conjointFirstName: 'Lauren',
@@ -308,7 +308,7 @@ void main() {
   group('PulseScreen — key figures section', () {
     testWidgets('renders retraite, budget, patrimoine cards',
         (tester) async {
-      final provider = _buildProfileProvider(
+      final provider = buildProfileProvider(
         firstName: 'Julien',
         birthYear: 1977,
         canton: 'VS',
@@ -332,7 +332,7 @@ void main() {
   group('PulseScreen — couple card', () {
     testWidgets('shows couple greeting when profile.isCouple is true',
         (tester) async {
-      final provider = _buildProfileProvider(
+      final provider = buildProfileProvider(
         firstName: 'Julien',
         civilStatus: 'marie',
         conjointFirstName: 'Lauren',
@@ -349,7 +349,7 @@ void main() {
 
     testWidgets('does not show couple card for celibataire',
         (tester) async {
-      final provider = _buildProfileProvider(
+      final provider = buildProfileProvider(
         firstName: 'Julien',
         civilStatus: 'celibataire',
       );
@@ -365,12 +365,12 @@ void main() {
     test('conjoint profile preserves patrimoine when available', () {
       // This tests that ConjointProfile.patrimoine is properly threaded
       // through to the synthetic CoachProfile used for couple scoring.
-      final conjoint = ConjointProfile(
+      const conjoint = ConjointProfile(
         firstName: 'Lauren',
         birthYear: 1982,
         salaireBrutMensuel: 4800,
         employmentStatus: 'salarie',
-        patrimoine: const PatrimoineProfile(
+        patrimoine: PatrimoineProfile(
           epargneLiquide: 20000,
           investissements: 380000,
         ),
@@ -382,11 +382,11 @@ void main() {
     });
 
     test('conjoint patrimoine serializes/deserializes correctly', () {
-      final conjoint = ConjointProfile(
+      const conjoint = ConjointProfile(
         firstName: 'Lauren',
         birthYear: 1982,
         salaireBrutMensuel: 4800,
-        patrimoine: const PatrimoineProfile(
+        patrimoine: PatrimoineProfile(
           epargneLiquide: 20000,
           investissements: 380000,
         ),
@@ -402,11 +402,11 @@ void main() {
     });
 
     test('conjoint patrimoine copyWith preserves value', () {
-      final conjoint = ConjointProfile(
+      const conjoint = ConjointProfile(
         firstName: 'Lauren',
         birthYear: 1982,
         salaireBrutMensuel: 4800,
-        patrimoine: const PatrimoineProfile(
+        patrimoine: PatrimoineProfile(
           investissements: 380000,
         ),
       );

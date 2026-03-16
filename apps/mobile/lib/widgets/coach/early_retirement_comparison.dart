@@ -218,7 +218,7 @@ class EarlyRetirementComparison extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 4),
-                Icon(Icons.arrow_forward,
+                const Icon(Icons.arrow_forward,
                     size: 16, color: MintColors.primary),
               ],
             ),
@@ -264,8 +264,8 @@ class EarlyRetirementComparison extends StatelessWidget {
                   ),
                 ),
                 if (r.isTarget)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 4),
                     child: Icon(Icons.star,
                         size: 12, color: MintColors.primary),
                   ),

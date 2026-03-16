@@ -191,7 +191,7 @@ class FinancialSummaryScreen extends StatelessWidget {
               confidenceBoostPercent:
                   missingCount > 0 ? (missingCount * 10).clamp(5, 30) : null,
               onScanTap: missingCount > 0
-                  ? () => context.push('/document-scan')
+                  ? () => context.push('/scan')
                   : null,
             ),
             const SizedBox(height: 20),
@@ -330,7 +330,7 @@ class FinancialSummaryScreen extends StatelessWidget {
             if (missingCount > 0)
               EnrichmentCta(
                 missingFieldsCount: missingCount,
-                onTap: () => context.push('/document-scan'),
+                onTap: () => context.push('/scan'),
               ),
             if (missingCount > 0) const SizedBox(height: 16),
 

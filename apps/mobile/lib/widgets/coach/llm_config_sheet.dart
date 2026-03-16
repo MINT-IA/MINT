@@ -279,11 +279,11 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: MintColors.lightBorder),
+          borderSide: const BorderSide(color: MintColors.lightBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: MintColors.lightBorder),
+          borderSide: const BorderSide(color: MintColors.lightBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -292,7 +292,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
             width: 1.5,
           ),
         ),
-        prefixIcon: Icon(
+        prefixIcon: const Icon(
           Icons.key,
           color: MintColors.textMuted,
           size: 20,
@@ -340,7 +340,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
     return OutlinedButton.icon(
       onPressed: _isTesting ? null : _testConnection,
       icon: _isTesting
-          ? SizedBox(
+          ? const SizedBox(
               width: 16,
               height: 16,
               child: CircularProgressIndicator(
@@ -348,7 +348,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
                 color: MintColors.coachAccent,
               ),
             )
-          : Icon(
+          : const Icon(
               Icons.wifi_tethering,
               size: 18,
               color: MintColors.coachAccent,
@@ -423,7 +423,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
       ),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.lock_outline,
             size: 16,
             color: MintColors.success,

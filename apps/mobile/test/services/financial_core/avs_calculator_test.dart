@@ -131,9 +131,9 @@ void main() {
     });
 
     test('mid income → interpolated', () {
-      final mid = (avsRAMDMin + avsRAMDMax) / 2; // 51450
+      const mid = (avsRAMDMin + avsRAMDMax) / 2; // 51450
       final rente = AvsCalculator.renteFromRAMD(mid);
-      final expected = (avsRenteMinMensuelle + avsRenteMaxMensuelle) / 2;
+      const expected = (avsRenteMinMensuelle + avsRenteMaxMensuelle) / 2;
       expect(rente, closeTo(expected, 1));
     });
   });

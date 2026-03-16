@@ -584,7 +584,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               ),
               Switch(
                 value: _isChurchMember,
-                activeColor: MintColors.primary,
+                activeTrackColor: MintColors.primary,
                 onChanged: (v) {
                   _isChurchMember = v;
                   _recalculate();
@@ -1645,7 +1645,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

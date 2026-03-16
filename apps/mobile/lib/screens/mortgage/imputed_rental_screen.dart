@@ -82,7 +82,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
                 const SizedBox(height: 12),
 
                 // Source legale
-                Text(
+                const Text(
                   'Source : LIFD art. 21 al. 1 let. b, art. 32. '
                   'Taux cantonaux estimés à titre pédagogique.',
                   style: TextStyle(
@@ -148,7 +148,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3), width: 2),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
       ),
       child: Column(
         children: [
@@ -273,13 +273,13 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
               child: Container(
                 height: 24,
                 decoration: BoxDecoration(
-                  color: MintColors.error.withOpacity(0.2),
+                  color: MintColors.error.withValues(alpha: 0.2),
                   borderRadius: const BorderRadius.horizontal(
                     left: Radius.circular(6),
                   ),
                 ),
                 alignment: Alignment.center,
-                child: Text(
+                child: const Text(
                   'Valeur locative',
                   style: TextStyle(fontSize: 10, color: MintColors.error),
                   overflow: TextOverflow.ellipsis,
@@ -291,13 +291,13 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
               child: Container(
                 height: 24,
                 decoration: BoxDecoration(
-                  color: MintColors.success.withOpacity(0.2),
+                  color: MintColors.success.withValues(alpha: 0.2),
                   borderRadius: const BorderRadius.horizontal(
                     right: Radius.circular(6),
                   ),
                 ),
                 alignment: Alignment.center,
-                child: Text(
+                child: const Text(
                   'Déductions',
                   style: TextStyle(fontSize: 10, color: MintColors.success),
                   overflow: TextOverflow.ellipsis,
@@ -449,7 +449,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
               ),
               Switch(
                 value: _bienAncien,
-                activeColor: MintColors.primary,
+                activeTrackColor: MintColors.primary,
                 onChanged: (v) => setState(() => _bienAncien = v),
               ),
             ],
@@ -558,12 +558,12 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 fontStyle: FontStyle.italic,
                 color: MintColors.deepOrange,

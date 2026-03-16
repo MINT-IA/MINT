@@ -162,8 +162,8 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   _buildChecklist(),
                   const SizedBox(height: 24),
                   // ── P11-C : Checklist changement de job ────────
-                  JobChangeChecklistWidget(
-                    items: const [
+                  const JobChangeChecklistWidget(
+                    items: [
                       ChecklistItem(
                         deadline: 'Avant de quitter',
                         emoji: '📄',
@@ -1118,7 +1118,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   Widget _buildCareerTimeLapse() {
     const monthly3a = pilier3aPlafondAvecLpp / 12;
-    final annual3a = monthly3a * 12;
+    const annual3a = monthly3a * 12;
 
     final candidateAges = [22, 25, 30, 35].where((a) => a <= _age + 5).toList();
     final scenarioAges = candidateAges.isEmpty ? [_age] : candidateAges;
@@ -1255,7 +1255,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

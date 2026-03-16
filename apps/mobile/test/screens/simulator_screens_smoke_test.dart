@@ -58,8 +58,8 @@ void main() {
           ),
         ],
         child: const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -157,8 +157,8 @@ void main() {
   group('SimulatorLeasingScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -255,8 +255,8 @@ void main() {
   group('SimulatorCompoundScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -365,8 +365,8 @@ void main() {
       return ChangeNotifierProvider<CoachProfileProvider>(
         create: (_) => CoachProfileProvider(),
         child: const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -518,8 +518,8 @@ void main() {
   group('GenderGapScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
