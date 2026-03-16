@@ -199,7 +199,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 16),
                 // Birth year dropdown (LPD minimisation: only year needed for AVS/LPP)
                 DropdownButtonFormField<int>(
-                  initialValue: _birthYear,
+                  value: _birthYear,
                   decoration: const InputDecoration(
                     labelText: 'Annee de naissance',
                     prefixIcon: Icon(Icons.cake_outlined),
