@@ -533,7 +533,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
           ),
           Switch(
             value: value,
-            activeColor: MintColors.primary,
+            activeTrackColor: MintColors.primary,
             onChanged: (v) {
               setState(() => onChanged(v));
             },

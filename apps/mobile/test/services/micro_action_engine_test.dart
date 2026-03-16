@@ -11,7 +11,7 @@ import 'package:mint_mobile/services/micro_action_engine.dart';
 void main() {
   // ── Helper ──────────────────────────────────────────────
 
-  CoachProfile _makeProfile({
+  CoachProfile makeProfile({
     int birthYear = 1977,
     double salaire = 10000,
     String canton = 'VS',
@@ -55,13 +55,13 @@ void main() {
 
   group('MicroActionEngine.suggest', () {
     test('returns at most 3 actions by default', () {
-      final profile = _makeProfile();
+      final profile = makeProfile();
       final actions = MicroActionEngine.suggest(profile: profile);
       expect(actions.length, lessThanOrEqualTo(3));
     });
 
     test('respects custom limit', () {
-      final profile = _makeProfile();
+      final profile = makeProfile();
       final actions =
           MicroActionEngine.suggest(profile: profile, limit: 1);
       expect(actions.length, lessThanOrEqualTo(1));
@@ -70,7 +70,7 @@ void main() {
     test('returns empty list for fully-filled profile', () {
       // A "complete" profile might still have temporal actions, so
       // we just verify it doesn't crash
-      final profile = _makeProfile(
+      final profile = makeProfile(
         avoirLpp: 500000,
         rachatMax: 0,
         totalEpargne3a: 50000,
@@ -82,7 +82,7 @@ void main() {
     });
 
     test('all actions have required fields', () {
-      final profile = _makeProfile();
+      final profile = makeProfile();
       final actions = MicroActionEngine.suggest(profile: profile);
       for (final action in actions) {
         expect(action.id, isNotEmpty);
@@ -96,7 +96,7 @@ void main() {
     });
 
     test('actions are sorted by priorityScore descending', () {
-      final profile = _makeProfile();
+      final profile = makeProfile();
       final actions = MicroActionEngine.suggest(profile: profile);
       if (actions.length >= 2) {
         for (var i = 0; i < actions.length - 1; i++) {
@@ -110,7 +110,7 @@ void main() {
     });
 
     test('no duplicate action IDs', () {
-      final profile = _makeProfile();
+      final profile = makeProfile();
       final actions = MicroActionEngine.suggest(profile: profile);
       final ids = actions.map((a) => a.id).toSet();
       expect(ids.length, actions.length,
@@ -124,14 +124,14 @@ void main() {
 
   group('Profile gap actions', () {
     test('missing LPP data triggers scan_lpp action', () {
-      final profile = _makeProfile(avoirLpp: null);
+      final profile = makeProfile(avoirLpp: null);
       final actions = MicroActionEngine.suggest(profile: profile);
       // Should suggest scanning/enriching LPP data
       expect(actions, isNotEmpty);
     });
 
     test('missing 3a triggers verse_3a action', () {
-      final profile = _makeProfile(totalEpargne3a: null);
+      final profile = makeProfile(totalEpargne3a: null);
       final actions = MicroActionEngine.suggest(profile: profile);
       expect(actions, isNotEmpty);
     });
@@ -143,7 +143,7 @@ void main() {
 
   group('Couple actions', () {
     test('couple with incomplete conjoint triggers coordination', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         etatCivil: CoachCivilStatus.marie,
         conjoint: const ConjointProfile(
           firstName: 'Lauren',
@@ -168,7 +168,7 @@ void main() {
         depensesExceptionnelles: 5000,
         completedAt: DateTime.now(),
       );
-      final profile = _makeProfile();
+      final profile = makeProfile();
       final actions = MicroActionEngine.suggest(
         profile: profile,
         currentCheckIn: checkIn,

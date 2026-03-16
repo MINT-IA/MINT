@@ -275,7 +275,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           height: 56,
           child: FilledButton.icon(
             onPressed: _isProcessing ? null : _onCameraPressed,
-            icon: Icon(
+            icon: const Icon(
               kIsWeb ? Icons.upload_file_outlined : Icons.camera_alt_outlined,
               size: 22,
             ),

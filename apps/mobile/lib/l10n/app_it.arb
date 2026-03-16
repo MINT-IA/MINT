@@ -4389,5 +4389,22 @@
   "drawerCeQueTuDois": "Ciò che devi",
   "drawerCeQueTuDoisSubtitle": "Debiti totali",
   "drawerCeQueTuAuras": "Ciò che avrai",
-  "drawerCeQueTuAurasSubtitle": "Reddito pensionistico proiettato"
+  "drawerCeQueTuAurasSubtitle": "Reddito pensionistico proiettato",
+  "shellWelcomeBack": "Bentornato! I tuoi dati sono aggiornati.",
+  "shellRecommendationsUpdated": "Raccomandazioni aggiornate",
+  "pulseEnrichirTitle": "Scansiona il tuo certificato LPP",
+  "pulseEnrichirSubtitle": "Fiducia → +{points} punti",
+  "@pulseEnrichirSubtitle": {
+    "placeholders": {
+      "points": {"type": "String"}
+    }
+  },
+  "pulseEnrichirCta": "Scansiona →",
+  "tabMoi": "Io",
+  "coupleSwitchSolo": "Solo",
+  "coupleSwitchDuo": "Duo",
+  "identityStatusSalarie": "Dipendente",
+  "identityStatusIndependant": "Indipendente",
+  "identityStatusChomage": "In cerca",
+  "identityStatusRetraite": "Pensionato"
 }

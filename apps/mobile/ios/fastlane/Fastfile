@@ -114,10 +114,10 @@ platform :ios do
     # ── 7. Upload to TestFlight ──
     upload_to_testflight(
       api_key: api_key,
-      skip_waiting_for_build_processing: true,
+      skip_waiting_for_build_processing: false,
       distribute_external: true,
-      groups: ["Beta Testeurs"],  # <-- ton groupe TestFlight
-      changelog: "Nouvelle version automatique depuis CI/CD",
+      groups: ["Beta Testeurs"],
+      changelog: ENV["TESTFLIGHT_CHANGELOG"] || `git log -1 --pretty=format:"%s"`.strip,
     )
   end
 

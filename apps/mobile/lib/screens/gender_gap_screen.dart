@@ -24,11 +24,11 @@ class GenderGapScreen extends StatefulWidget {
 class _GenderGapScreenState extends State<GenderGapScreen> {
   // ── State ──────────────────────────────────────────────────
   double _tauxActivite = 60;
-  double _revenuAnnuel = 85000;
-  int _age = 40;
-  double _avoirLpp = 120000;
-  int _anneesCotisation = 15;
-  String _canton = 'VD';
+  final double _revenuAnnuel = 85000;
+  final int _age = 40;
+  final double _avoirLpp = 120000;
+  final int _anneesCotisation = 15;
+  final String _canton = 'VD';
 
   GenderGapResult? _result;
 
@@ -141,7 +141,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             color: MintColors.successionBg,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Icon(
+          child: const Icon(
             Icons.balance,
             color: MintColors.categoryPurple,
             size: 28,
@@ -218,13 +218,13 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: MintColors.primary.withOpacity(0.06),
+            color: MintColors.primary.withValues(alpha: 0.06),
             blurRadius: 20,
             offset: const Offset(0, 6),
             spreadRadius: -4,
           ),
         ],
-        border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,10 +244,10 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: _tauxActivite < 60
-                      ? MintColors.error.withOpacity(0.1)
+                      ? MintColors.error.withValues(alpha: 0.1)
                       : _tauxActivite < 80
-                          ? MintColors.warning.withOpacity(0.1)
-                          : MintColors.success.withOpacity(0.1),
+                          ? MintColors.warning.withValues(alpha: 0.1)
+                          : MintColors.success.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -271,7 +271,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
               activeTrackColor: MintColors.primary,
               inactiveTrackColor: MintColors.border,
               thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withOpacity(0.1),
+              overlayColor: MintColors.primary.withValues(alpha: 0.1),
               trackHeight: 6,
             ),
             child: Slider(
@@ -305,7 +305,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,7 +319,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          _buildInputRow('Revenu annuel brut (100%)', '${GenderGapService.formatChf(_revenuAnnuel)}'),
+          _buildInputRow('Revenu annuel brut (100%)', GenderGapService.formatChf(_revenuAnnuel)),
           const SizedBox(height: 8),
           _buildInputRow('Age', '$_age ans'),
           const SizedBox(height: 8),
@@ -337,7 +337,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             ),
             child: Row(
               children: [
-                Icon(Icons.science_outlined, color: MintColors.categoryBlue, size: 16),
+                const Icon(Icons.science_outlined, color: MintColors.categoryBlue, size: 16),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -389,13 +389,13 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: MintColors.primary.withOpacity(0.06),
+            color: MintColors.primary.withValues(alpha: 0.06),
             blurRadius: 20,
             offset: const Offset(0, 6),
             spreadRadius: -4,
           ),
         ],
-        border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -435,9 +435,9 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: MintColors.error.withOpacity(0.06),
+              color: MintColors.error.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: MintColors.error.withOpacity(0.2)),
+              border: Border.all(color: MintColors.error.withValues(alpha: 0.2)),
             ),
             child: Column(
               children: [
@@ -545,14 +545,14 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.school_outlined, color: MintColors.purple, size: 20),
+              const Icon(Icons.school_outlined, color: MintColors.purple, size: 20),
               const SizedBox(width: 8),
               Text(
                 'Comprendre la deduction de coordination',
@@ -661,7 +661,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [MintColors.successionBg, MintColors.successionBg.withOpacity(0.5)],
+          colors: [MintColors.successionBg, MintColors.successionBg.withValues(alpha: 0.5)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -670,7 +670,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.bar_chart, color: MintColors.categoryPurple, size: 24),
+          const Icon(Icons.bar_chart, color: MintColors.categoryPurple, size: 24),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -740,7 +740,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -785,7 +785,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

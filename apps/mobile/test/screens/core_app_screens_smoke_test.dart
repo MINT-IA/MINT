@@ -104,7 +104,7 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('MON PROFIL'), findsWidgets);
+      expect(find.text('Moi'), findsWidgets);
     });
 
     testWidgets('shows Precision Index card', (tester) async {
@@ -482,15 +482,14 @@ void main() {
       expect(find.byType(MainNavigationShell), findsOneWidget);
     });
 
-    testWidgets('shows bottom navigation with 4 tabs', (tester) async {
+    testWidgets('shows bottom navigation with 3 tabs', (tester) async {
       await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
       await tester.pump(const Duration(seconds: 1));
 
-      // Tab labels appear in the bottom nav (S48: 4-tab coach layout)
+      // Tab labels appear in the bottom nav (S49: 3-tab layout)
       expect(find.text('Pulse'), findsOneWidget);
-      expect(find.text('Agir'), findsOneWidget);
-      expect(find.text('Apprendre'), findsOneWidget);
-      expect(find.text('Profil'), findsOneWidget);
+      expect(find.text('Mint'), findsOneWidget);
+      expect(find.text('Moi'), findsOneWidget);
     });
 
     testWidgets('shows tab icons', (tester) async {
@@ -498,9 +497,9 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
 
       // Active tab shows filled icon (Pulse = show_chart), others show outlined
+      // S49: 3 tabs — Pulse, Mint (chat_bubble), Moi (person)
       expect(find.byIcon(Icons.show_chart), findsOneWidget); // Active (Pulse)
-      expect(find.byIcon(Icons.flash_on_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.explore_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.chat_bubble_outline), findsOneWidget);
       expect(find.byIcon(Icons.person_outline), findsOneWidget);
     });
 

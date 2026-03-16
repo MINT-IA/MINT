@@ -252,7 +252,7 @@ class NotificationService {
           title: 'Deadline 3a',
           body: d.body,
           scheduledDate: scheduledDate,
-          payload: '/simulator/3a',
+          payload: '/pilier-3a',
         );
       }
     }

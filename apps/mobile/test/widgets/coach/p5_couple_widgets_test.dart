@@ -15,9 +15,9 @@ void main() {
 
   group('HeroCoupleCard', () {
     testWidgets('displays both partners with names', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -43,9 +43,9 @@ void main() {
     });
 
     testWidgets('shows household total', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -71,9 +71,9 @@ void main() {
     });
 
     testWidgets('shows retirement ages', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -99,9 +99,9 @@ void main() {
     });
 
     testWidgets('shows replacement ratio when provided', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -129,9 +129,9 @@ void main() {
     });
 
     testWidgets('displays LSFin disclaimer', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -156,9 +156,9 @@ void main() {
     });
 
     testWidgets('no banned terms', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -391,9 +391,9 @@ void main() {
     });
 
     testWidgets('returns SizedBox.shrink with < 2 phases', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -406,7 +406,7 @@ void main() {
             conjointName: 'Lauren',
             userRetirementYear: 2041,
             conjointRetirementYear: 2041,
-            phases: const [
+            phases: [
               RetirementPhase(
                 label: 'Les deux \u00e0 la retraite',
                 startYear: 2041,
@@ -531,7 +531,7 @@ void main() {
 
       // Drag slider towards max
       final slider = find.byType(Slider);
-      await tester.drag(slider, Offset(100, 0));
+      await tester.drag(slider, const Offset(100, 0));
       await tester.pumpAndSettle();
 
       // Should show "Et si" with new age
@@ -567,7 +567,7 @@ void main() {
       expect(find.textContaining('initialiser'), findsNothing);
 
       // Drag slider
-      await tester.drag(find.byType(Slider), Offset(100, 0));
+      await tester.drag(find.byType(Slider), const Offset(100, 0));
       await tester.pumpAndSettle();
 
       // After drag: reset button visible
@@ -690,7 +690,7 @@ void main() {
         salaireBrutMensuel: 8000,
         employmentStatus: 'salarie',
         etatCivil: CoachCivilStatus.marie,
-        conjoint: ConjointProfile(
+        conjoint: const ConjointProfile(
           firstName: 'Partner',
           // birthYear intentionally null
           salaireBrutMensuel: 5000,
@@ -836,9 +836,9 @@ void main() {
 
   group('HeroCoupleCard — edge cases', () {
     testWidgets('handles zero income correctly', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -863,9 +863,9 @@ void main() {
     });
 
     testWidgets('handles very long names with ellipsis', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,

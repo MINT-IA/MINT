@@ -8,7 +8,7 @@ void main() {
   final departure = DateTime.now().add(const Duration(days: 90));
 
   final deadlines = [
-    ExpatDeadline(
+    const ExpatDeadline(
       label: 'Clôturer le compte 3a',
       emoji: '💰',
       daysFromDeparture: -30,
@@ -16,7 +16,7 @@ void main() {
       legalRef: 'OPP3 art. 1',
       consequence: 'Impossibilité de rachat futur.',
     ),
-    ExpatDeadline(
+    const ExpatDeadline(
       label: 'Transférer libre passage LPP',
       emoji: '🏦',
       daysFromDeparture: 0,

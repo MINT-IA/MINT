@@ -904,7 +904,7 @@ void main() {
       );
 
       // 70% of net (8000 * 0.87) = 4872 — should be AT LEAST this
-      final netFloor = 8000 * 0.87 * 0.70;
+      const netFloor = 8000 * 0.87 * 0.70;
       expect(result.budgetGap.depensesMensuelles, greaterThanOrEqualTo(netFloor));
     });
   });
@@ -1069,7 +1069,7 @@ void main() {
   });
 
   group('AVS couple cap married-only (LAVS art. 35)', () {
-    CoachProfile _coupleProfile(CoachCivilStatus status) {
+    CoachProfile coupleProfile(CoachCivilStatus status) {
       return CoachProfile(
         firstName: 'A',
         birthYear: 1985,
@@ -1095,7 +1095,7 @@ void main() {
 
     test('married couple AVS capped at 3780 (150%)', () {
       final result = RetirementProjectionService.project(
-        profile: _coupleProfile(CoachCivilStatus.marie),
+        profile: coupleProfile(CoachCivilStatus.marie),
       );
       final phase2 = result.phases.last;
       final totalAvs = phase2.sources
@@ -1108,7 +1108,7 @@ void main() {
 
     test('concubin couple AVS NOT capped — each gets individual rente', () {
       final result = RetirementProjectionService.project(
-        profile: _coupleProfile(CoachCivilStatus.concubinage),
+        profile: coupleProfile(CoachCivilStatus.concubinage),
       );
       final phase2 = result.phases.last;
       final totalAvs = phase2.sources
@@ -1123,10 +1123,10 @@ void main() {
 
     test('concubin AVS higher than married AVS', () {
       final marriedResult = RetirementProjectionService.project(
-        profile: _coupleProfile(CoachCivilStatus.marie),
+        profile: coupleProfile(CoachCivilStatus.marie),
       );
       final concubinResult = RetirementProjectionService.project(
-        profile: _coupleProfile(CoachCivilStatus.concubinage),
+        profile: coupleProfile(CoachCivilStatus.concubinage),
       );
 
       final marriedAvs = marriedResult.phases.last.sources

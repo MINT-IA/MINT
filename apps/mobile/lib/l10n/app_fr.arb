@@ -4265,5 +4265,22 @@
   "drawerCeQueTuDois": "Ce que tu dois",
   "drawerCeQueTuDoisSubtitle": "Dettes totales",
   "drawerCeQueTuAuras": "Ce que tu auras",
-  "drawerCeQueTuAurasSubtitle": "Revenu retraite projeté"
+  "drawerCeQueTuAurasSubtitle": "Revenu retraite projeté",
+  "shellWelcomeBack": "Bienvenue\u00a0! Tes données sont à jour.",
+  "shellRecommendationsUpdated": "Recommandations mises à jour",
+  "pulseEnrichirTitle": "Scanne ton certificat LPP",
+  "pulseEnrichirSubtitle": "Confiance → +{points} points",
+  "@pulseEnrichirSubtitle": {
+    "placeholders": {
+      "points": {"type": "String"}
+    }
+  },
+  "pulseEnrichirCta": "Scanner →",
+  "tabMoi": "Moi",
+  "coupleSwitchSolo": "Solo",
+  "coupleSwitchDuo": "Duo",
+  "identityStatusSalarie": "Salarié",
+  "identityStatusIndependant": "Indépendant",
+  "identityStatusChomage": "En recherche",
+  "identityStatusRetraite": "Retraité"
 }

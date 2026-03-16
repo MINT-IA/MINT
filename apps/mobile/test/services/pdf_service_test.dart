@@ -82,12 +82,12 @@ void main() {
             note: 'Objectif: 20%',
           ),
         ],
-        recommendedGoal: GoalTemplate(
+        recommendedGoal: const GoalTemplate(
           id: 'goal_pension_opt',
           label: 'Optimiser ma prevoyance',
         ),
         alternativeGoals: [
-          GoalTemplate(
+          const GoalTemplate(
             id: 'goal_tax_basic',
             label: 'Payer moins d\'impots',
           ),
@@ -99,7 +99,7 @@ void main() {
             why: 'Frais 3x moins eleves qu\'en banque',
             ifThen:
                 'Si tu places 7258 CHF/an a 5% net, tu auras 30% de plus a 65 ans',
-            nextAction: NextAction(
+            nextAction: const NextAction(
               type: NextActionType.partnerHandoff,
               label: 'Ouvrir un compte VIAC',
               partnerId: 'viac',
@@ -114,17 +114,17 @@ void main() {
             summary: 'Tu peux deduire jusqu\'a 7258 CHF de tes impots.',
             why: ['Deduction fiscale', 'Rendement long terme'],
             assumptions: ['Salarie affilie LPP'],
-            impact: Impact(amountCHF: 2200.0, period: Period.yearly),
+            impact: const Impact(amountCHF: 2200.0, period: Period.yearly),
             risks: ['Argent bloque jusqu\'a 60/65 ans'],
             alternatives: ['Compte epargne classique'],
             evidenceLinks: [
-              EvidenceLink(
+              const EvidenceLink(
                 label: 'OPP3 art. 7',
                 url: 'https://www.fedlex.admin.ch/eli/cc/1986/1452/fr',
               ),
             ],
             nextActions: [
-              NextAction(
+              const NextAction(
                 type: NextActionType.learn,
                 label: 'Comprendre le 3e pilier',
               ),
@@ -190,7 +190,7 @@ void main() {
           conflicts: [],
         ),
         scoreboard: [],
-        recommendedGoal: GoalTemplate(id: 'g1', label: 'Test'),
+        recommendedGoal: const GoalTemplate(id: 'g1', label: 'Test'),
         alternativeGoals: [],
         topActions: [],
         recommendations: [],
@@ -222,7 +222,7 @@ void main() {
       );
 
       final report = FinancialReport(
-        profile: UserProfile(
+        profile: const UserProfile(
           firstName: 'Marc',
           birthYear: 1990,
           canton: 'GE',
@@ -231,7 +231,7 @@ void main() {
           employmentStatus: 'employee',
           monthlyNetIncome: 6500.0,
         ),
-        healthScore: FinancialHealthScore(
+        healthScore: const FinancialHealthScore(
           circle1Protection: dummyCircle,
           circle2Prevoyance: dummyCircle,
           circle3Croissance: dummyCircle,
@@ -239,7 +239,7 @@ void main() {
           overallScore: 72.0,
           topPriorities: ['Ouvrir un 3a', 'Fonds urgence'],
         ),
-        taxSimulation: TaxSimulation(
+        taxSimulation: const TaxSimulation(
           taxableIncome: 78000.0,
           deductions: {'3a': 7258.0, 'frais_professionnels': 3200.0},
           cantonalTax: 12500.0,
@@ -248,7 +248,7 @@ void main() {
           effectiveRate: 20.1,
         ),
         priorityActions: [
-          ActionItem(
+          const ActionItem(
             title: 'Ouvrir un 3a',
             description: 'Maximise ta deduction fiscale',
             priority: ActionPriority.high,
@@ -257,7 +257,7 @@ void main() {
             steps: ['Comparer les offres', 'Ouvrir un compte', 'Verser'],
           ),
         ],
-        personalizedRoadmap: Roadmap(phases: [
+        personalizedRoadmap: const Roadmap(phases: [
           RoadmapPhase(
             title: 'Immediat',
             timeframe: '0-1 mois',
@@ -276,7 +276,7 @@ void main() {
     });
 
     test('UserProfile computes age correctly', () {
-      final profile = UserProfile(
+      const profile = UserProfile(
         birthYear: 1990,
         canton: 'GE',
         civilStatus: 'single',
@@ -289,7 +289,7 @@ void main() {
     });
 
     test('UserProfile computes yearsToRetirement', () {
-      final profile = UserProfile(
+      const profile = UserProfile(
         birthYear: 1990,
         canton: 'GE',
         civilStatus: 'single',

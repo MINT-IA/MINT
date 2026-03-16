@@ -240,7 +240,7 @@ class FinancialReportService {
     double? savings;
 
     if (lppBuybackAvailable > 50000) {
-      final buybackAmount = 50000.0; // 1ère tranche recommandée
+      const buybackAmount = 50000.0; // 1ère tranche recommandée
       final taxableWithBuyback = taxableIncome - buybackAmount;
       final rateWithBuyback = _estimateEffectiveRate(
           taxableWithBuyback, profile.canton, profile.isMarried);
@@ -302,7 +302,7 @@ class FinancialReportService {
 
     // Rentes
     final monthlyAvsRent = _estimateAvsRent(profile);
-    final lppConversionRate = lppTauxConversionMin / 100; // LPP art. 14: 6.8% minimum légal
+    const lppConversionRate = lppTauxConversionMin / 100; // LPP art. 14: 6.8% minimum légal
     final monthlyLppRent = (lppCapital * lppConversionRate) / 12;
 
     return RetirementProjection(
@@ -478,13 +478,13 @@ class FinancialReportService {
   }) {
     // Parsing basé sur keywords avec gains calculés à partir des données réelles
     if (recommendation.contains('premier compte 3a') || recommendation.contains('premier 3a')) {
-      return ActionItem(
+      return const ActionItem(
         title: 'Ouvre ton premier 3a',
         description: 'Déduis jusqu\'à CHF 7\'258/an de ton revenu imposable. Économie immédiate.',
         priority: ActionPriority.high,
         potentialGainChf: 1500,
         category: ActionCategory.pillar3a,
-        steps: const [
+        steps: [
           '1. Compare les offres (fintech, banque)',
           '2. Ouvre ton compte en 10 minutes',
           '3. Configure un versement automatique',
@@ -597,7 +597,7 @@ class FinancialReportService {
                 a.priority == ActionPriority.high)
             .toList(),
       ),
-      RoadmapPhase(
+      const RoadmapPhase(
         title: 'Court Terme',
         timeframe: '3-6 mois',
         actions: [], // À compléter selon contexte

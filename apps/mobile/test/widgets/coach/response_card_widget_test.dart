@@ -14,7 +14,7 @@ ResponseCard _makeCard({
   double chiffreValue = 2200,
   String chiffreUnit = 'CHF',
   String ctaLabel = 'Simuler mon 3a',
-  String ctaRoute = '/simulator/3a',
+  String ctaRoute = '/pilier-3a',
   CardUrgency urgency = CardUrgency.low,
   DateTime? deadline,
   List<String> sources = const ['OPP3 art. 7'],

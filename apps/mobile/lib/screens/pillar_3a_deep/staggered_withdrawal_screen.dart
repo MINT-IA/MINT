@@ -151,7 +151,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
             const SizedBox(height: 8),
             Text(
               'Nombre adapté : ${result.nbComptesOptimal} comptes',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: MintColors.info,
@@ -430,13 +430,13 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
             ),
             child: Row(
               children: [
-                Icon(Icons.savings, color: MintColors.greenDark, size: 24),
+                const Icon(Icons.savings, color: MintColors.greenDark, size: 24),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'En échelonnant, tu paies CHF ${formatChf(result.economie)} '
                     'de moins en impôts.',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: MintColors.greenForest,
@@ -533,8 +533,8 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           const SizedBox(height: 16),
 
           // Header
-          Row(
-            children: const [
+          const Row(
+            children: [
               SizedBox(
                 width: 40,
                 child: Text('Age',
@@ -583,7 +583,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
                   Expanded(
                     child: Text(
                       'CHF ${formatChf(year.impotEstime)}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         color: MintColors.redDeep,
                         fontWeight: FontWeight.w600,
@@ -594,7 +594,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
                   Expanded(
                     child: Text(
                       'CHF ${formatChf(year.montantNet)}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         color: MintColors.greenDark,
                         fontWeight: FontWeight.w600,
@@ -628,7 +628,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
               Expanded(
                 child: Text(
                   'CHF ${formatChf(result.impotEchelonne)}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: MintColors.redDeep,
@@ -639,7 +639,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
               Expanded(
                 child: Text(
                   'CHF ${formatChf(_avoirTotal - result.impotEchelonne)}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: MintColors.greenDark,
@@ -665,12 +665,12 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: MintColors.deepOrange,
                 height: 1.4,

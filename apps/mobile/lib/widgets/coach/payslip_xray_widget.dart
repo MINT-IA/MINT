@@ -117,8 +117,8 @@ class _PayslipXRayWidgetState extends State<PayslipXRayWidget> {
                 ),
                 child: Row(
                   children: [
-                    Text('\ud83d\udca1',
-                        style: const TextStyle(fontSize: 16)),
+                    const Text('\ud83d\udca1',
+                        style: TextStyle(fontSize: 16)),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(

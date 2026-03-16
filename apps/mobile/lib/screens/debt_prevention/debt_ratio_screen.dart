@@ -154,7 +154,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -167,9 +167,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
+          const Text(
             'Ratio dette / revenus',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               color: MintColors.textMuted,
             ),
@@ -285,8 +285,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           // Situation personnelle
           Row(
             children: [
-              Expanded(
-                child: const Text(
+              const Expanded(
+                child: Text(
                   'Celibataire',
                   style: TextStyle(
                     fontSize: 13,
@@ -296,7 +296,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               ),
               Switch(
                 value: _estCelibataire,
-                activeColor: MintColors.primary,
+                activeTrackColor: MintColors.primary,
                 onChanged: (v) => setState(() => _estCelibataire = v),
               ),
             ],
@@ -408,11 +408,11 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                 color: MintColors.redBg,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Row(
+              child: const Row(
                 children: [
                   Icon(Icons.warning_amber_rounded,
                       color: MintColors.redMedium, size: 20),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Votre marge residuelle est inferieure au minimum vital. '
@@ -511,7 +511,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [MintColors.urgentBg, MintColors.warningBg],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -522,7 +522,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.support_agent, color: MintColors.redMedium, size: 24),
+              const Icon(Icons.support_agent, color: MintColors.redMedium, size: 24),
               const SizedBox(width: 12),
               Text(
                 'AIDE PROFESSIONNELLE',
@@ -598,7 +598,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                     const SizedBox(height: 4),
                     Text(
                       telephone,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         color: MintColors.info,
                         fontWeight: FontWeight.w600,
@@ -627,12 +627,12 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: MintColors.deepOrange,
                 height: 1.4,
@@ -683,7 +683,7 @@ class _GaugePainter extends CustomPainter {
 
     // Green zone (0-15%)
     final greenPaint = Paint()
-      ..color = MintColors.success.withOpacity(0.3)
+      ..color = MintColors.success.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 16
       ..strokeCap = StrokeCap.round;
@@ -698,7 +698,7 @@ class _GaugePainter extends CustomPainter {
 
     // Orange zone (15-30%)
     final orangePaint = Paint()
-      ..color = MintColors.warning.withOpacity(0.3)
+      ..color = MintColors.warning.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 16;
 
@@ -712,7 +712,7 @@ class _GaugePainter extends CustomPainter {
 
     // Red zone (30%+)
     final redPaint = Paint()
-      ..color = MintColors.error.withOpacity(0.3)
+      ..color = MintColors.error.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 16;
 

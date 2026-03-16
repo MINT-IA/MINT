@@ -365,7 +365,7 @@ void main() {
       // Simulate what updateFromLppExtraction does:
       // rendementCaisseVal = value / 100
       const rawCertificateValue = 5.0; // "5%" on certificate
-      final converted = rawCertificateValue / 100; // → 0.05
+      const converted = rawCertificateValue / 100; // → 0.05
       const prev = PrevoyanceProfile(
         avoirLppTotal: 70377,
         rendementCaisse: 0.05,

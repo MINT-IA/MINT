@@ -40,13 +40,13 @@ class StressCheckInsertWidget extends StatelessWidget {
           _buildStressOption(
             icon: Icons.receipt_long,
             label: 'Optimiser mes impôts',
-            route: '/simulator/3a',
+            route: '/pilier-3a',
           ),
           const SizedBox(height: 8),
           _buildStressOption(
             icon: Icons.security,
             label: 'Sécuriser ma retraite',
-            route: '/retirement',
+            route: '/retraite',
           ),
         ],
       ),
@@ -64,7 +64,7 @@ class StressCheckInsertWidget extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          border: Border.all(color: MintColors.primary.withOpacity(0.3)),
+          border: Border.all(color: MintColors.primary.withValues(alpha: 0.3)),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(

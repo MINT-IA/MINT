@@ -383,7 +383,7 @@ class CoachDeductionCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.psychology_outlined, size: 20, color: MintColors.primary),
+              const Icon(Icons.psychology_outlined, size: 20, color: MintColors.primary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(

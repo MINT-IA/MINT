@@ -7,7 +7,7 @@ void main() {
   //  HELPER: answers de base pour un profil valide
   // ════════════════════════════════════════════════════════════
 
-  Map<String, dynamic> _baseAnswers({
+  Map<String, dynamic> baseAnswers({
     double netIncome = 6000,
     String? mainGoal,
     String? emergencyFund,
@@ -49,31 +49,31 @@ void main() {
 
   group('_parseBool via fromWizardAnswers', () {
     test('accepts "yes" for boolean fields', () {
-      final answers = _baseAnswers(hasDebt: 'yes');
+      final answers = baseAnswers(hasDebt: 'yes');
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.dettes.hasDette, true);
     });
 
     test('accepts "oui" for boolean fields', () {
-      final answers = _baseAnswers(hasDebt: 'oui');
+      final answers = baseAnswers(hasDebt: 'oui');
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.dettes.hasDette, true);
     });
 
     test('accepts "true" for boolean fields', () {
-      final answers = _baseAnswers(hasDebt: 'true');
+      final answers = baseAnswers(hasDebt: 'true');
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.dettes.hasDette, true);
     });
 
     test('rejects "no" for boolean fields', () {
-      final answers = _baseAnswers(hasDebt: 'no');
+      final answers = baseAnswers(hasDebt: 'no');
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.dettes.hasDette, false);
     });
 
     test('rejects "false" for boolean fields', () {
-      final answers = _baseAnswers(hasDebt: 'false');
+      final answers = baseAnswers(hasDebt: 'false');
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.dettes.hasDette, false);
     });
@@ -85,7 +85,7 @@ void main() {
 
   group('Emergency fund mapping', () {
     test('"yes_6months" produit une epargne liquide > 0', () {
-      final answers = _baseAnswers(emergencyFund: 'yes_6months');
+      final answers = baseAnswers(emergencyFund: 'yes_6months');
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.patrimoine.epargneLiquide, greaterThan(0));
       // Doit etre environ 6 x (loyer + assurance maladie)
@@ -93,13 +93,13 @@ void main() {
     });
 
     test('"yes_3months" produit une epargne intermediaire', () {
-      final answers = _baseAnswers(emergencyFund: 'yes_3months');
+      final answers = baseAnswers(emergencyFund: 'yes_3months');
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.patrimoine.epargneLiquide, greaterThan(0));
     });
 
     test('"no" produit une epargne minimale', () {
-      final answers = _baseAnswers(emergencyFund: 'no');
+      final answers = baseAnswers(emergencyFund: 'no');
       final profile = CoachProfile.fromWizardAnswers(answers);
       // Avec savingsMonthly=500, epargneLiquide = 500 * 1 = 500
       expect(profile.patrimoine.epargneLiquide, equals(500));
@@ -107,13 +107,13 @@ void main() {
 
     test('"yes_6months" > "yes_3months" > "no"', () {
       final p6 = CoachProfile.fromWizardAnswers(
-        _baseAnswers(emergencyFund: 'yes_6months'),
+        baseAnswers(emergencyFund: 'yes_6months'),
       );
       final p3 = CoachProfile.fromWizardAnswers(
-        _baseAnswers(emergencyFund: 'yes_3months'),
+        baseAnswers(emergencyFund: 'yes_3months'),
       );
       final pNo = CoachProfile.fromWizardAnswers(
-        _baseAnswers(emergencyFund: 'no'),
+        baseAnswers(emergencyFund: 'no'),
       );
       expect(p6.patrimoine.epargneLiquide,
           greaterThan(p3.patrimoine.epargneLiquide));
@@ -122,7 +122,7 @@ void main() {
     });
 
     test('valeur numerique directe est acceptee', () {
-      final answers = Map<String, dynamic>.from(_baseAnswers());
+      final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_emergency_fund'] = 25000.0;
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.patrimoine.epargneLiquide, equals(25000));
@@ -135,28 +135,28 @@ void main() {
 
   group('Main goal parsing', () {
     test('"retirement" → GoalAType.retraite', () {
-      final answers = _baseAnswers(mainGoal: 'retirement');
+      final answers = baseAnswers(mainGoal: 'retirement');
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.goalA.type, GoalAType.retraite);
       expect(profile.goalA.label, contains('Retraite'));
     });
 
     test('"real_estate" → GoalAType.achatImmo', () {
-      final answers = _baseAnswers(mainGoal: 'real_estate');
+      final answers = baseAnswers(mainGoal: 'real_estate');
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.goalA.type, GoalAType.achatImmo);
       expect(profile.goalA.label, contains('immobilier'));
     });
 
     test('"independence" → GoalAType.independance', () {
-      final answers = _baseAnswers(mainGoal: 'independence');
+      final answers = baseAnswers(mainGoal: 'independence');
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.goalA.type, GoalAType.independance);
       expect(profile.goalA.label, contains('Independance'));
     });
 
     test('"inheritance" → GoalAType.retraite avec label retraite', () {
-      final answers = _baseAnswers(mainGoal: 'inheritance');
+      final answers = baseAnswers(mainGoal: 'inheritance');
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.goalA.type, GoalAType.retraite);
       // inheritance maps to retirement goal with retirement label
@@ -164,26 +164,26 @@ void main() {
     });
 
     test('"project" → GoalAType.custom', () {
-      final answers = _baseAnswers(mainGoal: 'project');
+      final answers = baseAnswers(mainGoal: 'project');
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.goalA.type, GoalAType.custom);
       expect(profile.goalA.label, contains('Projet'));
     });
 
     test('ancien format "house" reste compatible', () {
-      final answers = _baseAnswers(mainGoal: 'house');
+      final answers = baseAnswers(mainGoal: 'house');
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.goalA.type, GoalAType.achatImmo);
     });
 
     test('ancien format "invest" reste compatible', () {
-      final answers = _baseAnswers(mainGoal: 'invest');
+      final answers = baseAnswers(mainGoal: 'invest');
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.goalA.type, GoalAType.independance);
     });
 
     test('valeur inconnue → retraite par defaut', () {
-      final answers = _baseAnswers(mainGoal: 'something_unknown');
+      final answers = baseAnswers(mainGoal: 'something_unknown');
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.goalA.type, GoalAType.retraite);
     });
@@ -196,10 +196,10 @@ void main() {
   group('Debt estimate scales with income', () {
     test('dette plus elevee avec salaire plus eleve', () {
       final profileHigh = CoachProfile.fromWizardAnswers(
-        _baseAnswers(netIncome: 10000, hasDebt: 'yes'),
+        baseAnswers(netIncome: 10000, hasDebt: 'yes'),
       );
       final profileLow = CoachProfile.fromWizardAnswers(
-        _baseAnswers(netIncome: 5000, hasDebt: 'yes'),
+        baseAnswers(netIncome: 5000, hasDebt: 'yes'),
       );
       expect(
         profileHigh.dettes.creditConsommation,
@@ -209,7 +209,7 @@ void main() {
 
     test('dette est ~5% du salaire brut annuel', () {
       final profile = CoachProfile.fromWizardAnswers(
-        _baseAnswers(netIncome: 6000, hasDebt: 'yes'),
+        baseAnswers(netIncome: 6000, hasDebt: 'yes'),
       );
       // salaireBrutMensuel ~ 6000 / (1 - 0.13) ≈ 6897
       // dette = 6897 * 12 * 0.05 ≈ 4138
@@ -219,7 +219,7 @@ void main() {
 
     test('pas de dette quand hasDebt=no', () {
       final profile = CoachProfile.fromWizardAnswers(
-        _baseAnswers(hasDebt: 'no'),
+        baseAnswers(hasDebt: 'no'),
       );
       expect(profile.dettes.hasDette, false);
       expect(profile.dettes.totalDettes, 0);
@@ -232,37 +232,37 @@ void main() {
 
   group('Nouveaux champs depuis wizard', () {
     test('housingStatus est peuple', () {
-      final answers = _baseAnswers(housingStatus: 'renter');
+      final answers = baseAnswers(housingStatus: 'renter');
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.housingStatus, 'renter');
     });
 
     test('riskTolerance est peuple', () {
-      final answers = _baseAnswers(riskTolerance: 'balanced');
+      final answers = baseAnswers(riskTolerance: 'balanced');
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.riskTolerance, 'balanced');
     });
 
     test('realEstateProject est peuple', () {
-      final answers = _baseAnswers(realEstateProject: 'yes_main');
+      final answers = baseAnswers(realEstateProject: 'yes_main');
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.realEstateProject, 'yes_main');
     });
 
     test('providers3a est peuple depuis une liste', () {
-      final answers = _baseAnswers(providers3a: ['bank', 'fintech']);
+      final answers = baseAnswers(providers3a: ['bank', 'fintech']);
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.providers3a, ['bank', 'fintech']);
     });
 
     test('providers3a est vide par defaut', () {
-      final answers = _baseAnswers();
+      final answers = baseAnswers();
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.providers3a, isEmpty);
     });
 
     test('champs null quand non fournis', () {
-      final answers = _baseAnswers();
+      final answers = baseAnswers();
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.housingStatus, isNull);
       expect(profile.riskTolerance, isNull);
@@ -339,7 +339,7 @@ void main() {
     });
 
     test('profil complet avec AVS no_gaps', () {
-      final answers = _baseAnswers();
+      final answers = baseAnswers();
       answers['q_avs_lacunes_status'] = 'no_gaps';
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.prevoyance.lacunesAVS, isNull);
@@ -352,14 +352,14 @@ void main() {
 
   group('AVS lacunes status parsing', () {
     test('"no_gaps" → lacunesAVS null (aucune lacune)', () {
-      final answers = Map<String, dynamic>.from(_baseAnswers());
+      final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_avs_lacunes_status'] = 'no_gaps';
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.prevoyance.lacunesAVS, isNull);
     });
 
     test('"arrived_late" sans arrival_year → default 5 ans de lacune', () {
-      final answers = Map<String, dynamic>.from(_baseAnswers());
+      final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_avs_lacunes_status'] = 'arrived_late';
       // Pas de q_avs_arrival_year → fallback 5
       final profile = CoachProfile.fromWizardAnswers(answers);
@@ -367,7 +367,7 @@ void main() {
     });
 
     test('"arrived_late" avec arrival_year → calcul depuis birthYear+21', () {
-      final answers = Map<String, dynamic>.from(_baseAnswers());
+      final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_birth_year'] = 1990;
       answers['q_avs_lacunes_status'] = 'arrived_late';
       answers['q_avs_arrival_year'] = 2018; // Arrive a 28 ans → 28-21 = 7 ans de lacune
@@ -376,7 +376,7 @@ void main() {
     });
 
     test('"arrived_late" avec arrival_year precoce → clamp a 0', () {
-      final answers = Map<String, dynamic>.from(_baseAnswers());
+      final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_birth_year'] = 1990;
       answers['q_avs_lacunes_status'] = 'arrived_late';
       answers['q_avs_arrival_year'] = 2010; // Arrive a 20 ans → 2010-(1990+21)=-1 → clamp 0
@@ -385,14 +385,14 @@ void main() {
     });
 
     test('"lived_abroad" sans years_abroad → default 3 ans', () {
-      final answers = Map<String, dynamic>.from(_baseAnswers());
+      final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_avs_lacunes_status'] = 'lived_abroad';
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.prevoyance.lacunesAVS, 3);
     });
 
     test('"lived_abroad" avec years_abroad → valeur exacte', () {
-      final answers = Map<String, dynamic>.from(_baseAnswers());
+      final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_avs_lacunes_status'] = 'lived_abroad';
       answers['q_avs_years_abroad'] = 8;
       final profile = CoachProfile.fromWizardAnswers(answers);
@@ -400,14 +400,14 @@ void main() {
     });
 
     test('"unknown" → estimation conservatrice 2 ans', () {
-      final answers = Map<String, dynamic>.from(_baseAnswers());
+      final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_avs_lacunes_status'] = 'unknown';
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.prevoyance.lacunesAVS, 2);
     });
 
     test('null (pas de reponse) → aucune lacune', () {
-      final answers = Map<String, dynamic>.from(_baseAnswers());
+      final answers = Map<String, dynamic>.from(baseAnswers());
       // q_avs_lacunes_status absent
       answers.remove('q_avs_lacunes_status');
       final profile = CoachProfile.fromWizardAnswers(answers);
@@ -415,11 +415,11 @@ void main() {
     });
 
     test('impact sur rente estimee: lacunes reduisent la rente', () {
-      final noGaps = Map<String, dynamic>.from(_baseAnswers());
+      final noGaps = Map<String, dynamic>.from(baseAnswers());
       noGaps['q_avs_lacunes_status'] = 'no_gaps';
       final profileNoGaps = CoachProfile.fromWizardAnswers(noGaps);
 
-      final withGaps = Map<String, dynamic>.from(_baseAnswers());
+      final withGaps = Map<String, dynamic>.from(baseAnswers());
       withGaps['q_avs_lacunes_status'] = 'lived_abroad';
       withGaps['q_avs_years_abroad'] = 10;
       final profileWithGaps = CoachProfile.fromWizardAnswers(withGaps);
@@ -437,7 +437,7 @@ void main() {
 
   group('JSON round-trip', () {
     test('JSON round-trip preserve les nouveaux champs', () {
-      final answers = _baseAnswers(
+      final answers = baseAnswers(
         housingStatus: 'owner',
         riskTolerance: 'aggressive',
         realEstateProject: 'no',

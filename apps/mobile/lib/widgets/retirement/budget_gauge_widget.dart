@@ -364,7 +364,7 @@ class _GaugePainter extends CustomPainter {
             color,
           ],
           stops: const [0.0, 0.5, 1.0],
-          transform: GradientRotation(startAngle),
+          transform: const GradientRotation(startAngle),
         ).createShader(arcRect);
 
       canvas.drawArc(arcRect, startAngle, valueSweep, false, fillPaint);

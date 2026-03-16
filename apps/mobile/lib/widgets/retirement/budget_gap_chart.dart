@@ -155,10 +155,10 @@ class _WaterfallPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final chartTop = 20.0;
+    const chartTop = 20.0;
     final chartBottom = size.height - 50;
     final chartHeight = chartBottom - chartTop;
-    final chartLeft = 10.0;
+    const chartLeft = 10.0;
     final chartRight = size.width - 10;
     final chartWidth = chartRight - chartLeft;
 

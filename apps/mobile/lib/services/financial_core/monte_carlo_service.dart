@@ -32,7 +32,7 @@ class MonteCarloProjectionService {
   // ── Constantes ──────────────────────────────────────────
   static const double _safeWithdrawalRate = 0.04;
   static const int _projectionYears = 30;
-  static const double _3aDrawdownYears = 20.0;
+  static const double _pillar3aDrawdownYears = 20.0;
 
   static const String _disclaimer =
       'Simulation Monte Carlo \u00e0 titre p\u00e9dagogique. '
@@ -277,7 +277,7 @@ class MonteCarloProjectionService {
       );
       final threeANet = threeABalance - threeATax;
       final threeAMonthly =
-          threeANet > 0 ? threeANet / _3aDrawdownYears / 12 : 0.0;
+          threeANet > 0 ? threeANet / _pillar3aDrawdownYears / 12 : 0.0;
 
       // ── 3a conjoint : projection avec rendement propre + contributions ─
       // Skip if conjoint cannot contribute to 3a (e.g. FATCA US persons)
@@ -321,7 +321,7 @@ class MonteCarloProjectionService {
           );
           final conj3aNet = conj3aBalance - conj3aTax;
           conjointThreeAMonthly =
-              conj3aNet > 0 ? conj3aNet / _3aDrawdownYears / 12 : 0.0;
+              conj3aNet > 0 ? conj3aNet / _pillar3aDrawdownYears / 12 : 0.0;
         }
       }
 
@@ -365,9 +365,9 @@ class MonteCarloProjectionService {
         }
 
         // 3a : versement fixe sur 20 ans, puis 0
-        final threeAThisYear = y < _3aDrawdownYears ? threeAMonthly : 0.0;
+        final threeAThisYear = y < _pillar3aDrawdownYears ? threeAMonthly : 0.0;
         final conjThreeAThisYear =
-            y < _3aDrawdownYears ? conjointThreeAMonthly : 0.0;
+            y < _pillar3aDrawdownYears ? conjointThreeAMonthly : 0.0;
 
         // Patrimoine libre : SWR 4%
         double libreMonthly = 0;

@@ -6,8 +6,8 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   Widget buildWidget() => const MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,

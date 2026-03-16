@@ -105,7 +105,7 @@ class TimelineService {
         label: 'Renégociation hypothèque',
         description:
             'Comparer les offres du marché 90-180 jours avant échéance',
-        actionUrl: '/mortgage/affordability',
+        actionUrl: '/hypotheque',
         priority: ReminderPriority.high,
         sourceSessionId: sessionId,
       ));
@@ -159,7 +159,7 @@ class TimelineService {
         label: 'Planifier apport logement',
         description:
             'Vérifier fonds disponibles (3a, épargne, apport familial)',
-        actionUrl: '/mortgage/affordability',
+        actionUrl: '/hypotheque',
         priority: ReminderPriority.high,
         sourceSessionId: sessionId,
       ));
@@ -200,7 +200,7 @@ class TimelineService {
         category: 'pension',
         label: 'Optimiser versement 3a',
         description: 'Vérifier si tu as maximisé ton versement annuel',
-        actionUrl: '/simulator/3a',
+        actionUrl: '/pilier-3a',
         priority: ReminderPriority.medium,
         sourceSessionId: sessionId,
       ));
@@ -275,7 +275,7 @@ class TimelineService {
           category: 'pension',
           label: 'Transfert LPP',
           description: 'Transférer ton avoir LPP vers ta nouvelle caisse',
-          actionUrl: '/lpp-deep/rachat',
+          actionUrl: '/rachat-lpp',
           priority: ReminderPriority.high,
           sourceSessionId: sessionId,
         ));

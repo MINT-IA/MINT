@@ -291,7 +291,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: MintColors.black.withOpacity(0.04),
+                    color: MintColors.black.withValues(alpha: 0.04),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   )
@@ -373,7 +373,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? MintColors.primary.withOpacity(0.1)
+                        ? MintColors.primary.withValues(alpha: 0.1)
                         : MintColors.white,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(

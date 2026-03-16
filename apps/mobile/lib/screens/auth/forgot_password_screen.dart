@@ -123,7 +123,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: l10n?.authEmail ?? 'Adresse e-mail',
-                    prefixIcon: Icon(Icons.email_outlined),
+                    prefixIcon: const Icon(Icons.email_outlined),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -157,7 +157,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   decoration: InputDecoration(
                     labelText:
                         l10n?.authForgotResetTokenLabel ?? 'Token de réinitialisation',
-                    prefixIcon: Icon(Icons.key_outlined),
+                    prefixIcon: const Icon(Icons.key_outlined),
                   ),
                   validator: (v) => (v == null || v.trim().isEmpty)
                       ? (l10n?.authTokenRequired ?? 'Token requis')

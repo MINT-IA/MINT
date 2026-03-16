@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/screens/independant_screen.dart';
 import 'package:mint_mobile/screens/independants/lpp_volontaire_screen.dart';
 import 'package:mint_mobile/screens/independants/pillar_3a_indep_screen.dart';
-import 'package:mint_mobile/screens/main_tabs/explore_tab.dart';
 import 'package:mint_mobile/screens/timeline_screen.dart';
 import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
 
@@ -285,49 +284,10 @@ void main() {
     });
   });
 
-  // ===========================================================================
-  // 4. EXPLORE TAB (needs ProfileProvider + ByokProvider)
-  // ===========================================================================
-
-  group('ExploreTab', () {
-    testWidgets('renders without crashing', (tester) async {
-      await tester.pumpWidget(buildWithExploreProviders(const ExploreTab()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.byType(ExploreTab), findsOneWidget);
-    });
-
-    testWidgets('displays EXPLORER app bar title', (tester) async {
-      await tester.pumpWidget(buildWithExploreProviders(const ExploreTab()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.text('EXPLORER'), findsOneWidget);
-    });
-
-    testWidgets('shows comprendre pillar', (tester) async {
-      await tester.pumpWidget(buildWithExploreProviders(const ExploreTab()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.text('Je veux comprendre'), findsOneWidget);
-    });
-
-    testWidgets('shows calculer pillar with goal cards', (tester) async {
-      await tester.pumpWidget(buildWithExploreProviders(const ExploreTab()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.text('Je veux calculer'), findsOneWidget);
-    });
-
-    testWidgets('shows calculer goal cards', (tester) async {
-      await tester.pumpWidget(buildWithExploreProviders(const ExploreTab()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.textContaining('Budget'), findsWidgets);
-    });
-  });
+  // ExploreTab tests removed — screen deleted in S49 Phase 5
 
   // ===========================================================================
-  // 5. TIMELINE SCREEN
+  // 4. TIMELINE SCREEN
   //    Uses a larger surface size to prevent overflow in quick-action cards.
   // ===========================================================================
 

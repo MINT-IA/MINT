@@ -818,7 +818,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   const SizedBox(height: 6),
                   Switch(
                     value: _isMarried,
-                    activeColor: MintColors.primary,
+                    activeTrackColor: MintColors.primary,
                     onChanged: (v) { _isMarried = v; _recalculate(); },
                   ),
                 ],
@@ -1364,11 +1364,11 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           title: 'Inflation',
           leftTitle: 'Aujourd\'hui',
           leftSubtitle: '',
-          leftValue: '${formatChf(r.renteNetMensuelle)}',
+          leftValue: formatChf(r.renteNetMensuelle),
           leftDetail: '/mois',
           rightTitle: 'Dans 20 ans',
           rightSubtitle: 'pouvoir d\'achat',
-          rightValue: '${formatChf(r.renteReelleAn20 / 12)}',
+          rightValue: formatChf(r.renteReelleAn20 / 12),
           rightDetail: '/mois',
           bottomText: 'Ta rente LPP n\'est pas indexée. '
               'Elle achète ${((1 - 1 / math.pow(1 + inflation, 20)) * 100).round()} % '
@@ -1844,9 +1844,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
             ),
-            suffixIcon: Tooltip(
+            suffixIcon: const Tooltip(
               message: 'Si tu fais des rachats LPP chaque année, leur valeur futur est ajoutée au capital à la retraite. Blocage 3 ans avant EPL (LPP art. 79b).',
-              child: const Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
+              child: Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
             ),
           ),
           onChanged: (_) => _recalculate(),
@@ -1869,7 +1869,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             ),
             Switch(
               value: _hasEpl,
-              activeColor: MintColors.primary,
+              activeTrackColor: MintColors.primary,
               onChanged: (v) => setState(() { _hasEpl = v; _recalculate(); }),
             ),
           ],
@@ -1892,9 +1892,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
               ),
-              suffixIcon: Tooltip(
+              suffixIcon: const Tooltip(
                 message: "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20'000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
-                child: const Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
+                child: Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
               ),
             ),
             onChanged: (_) => _recalculate(),

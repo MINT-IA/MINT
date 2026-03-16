@@ -235,8 +235,8 @@ class AvancementHoirieWidget extends StatelessWidget {
   }
 
   Widget _buildArrow() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 8),
       child: Center(
         child: Icon(Icons.keyboard_arrow_down, color: MintColors.textSecondary, size: 28),
       ),

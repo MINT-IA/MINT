@@ -17,8 +17,8 @@ void main() {
     testWidgets('shows child when hasDebt is false', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -40,8 +40,8 @@ void main() {
     testWidgets('shows locked state when hasDebt is true', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -66,8 +66,8 @@ void main() {
     testWidgets('shows default locked title', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -89,8 +89,8 @@ void main() {
     testWidgets('shows custom locked title', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -115,8 +115,8 @@ void main() {
     testWidgets('shows custom locked message', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -139,8 +139,8 @@ void main() {
     testWidgets('shows "Pourquoi est-ce bloque ?" link', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -162,8 +162,8 @@ void main() {
     testWidgets('shows lock icon when gated', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -185,8 +185,8 @@ void main() {
     testWidgets('child is not rendered when gated', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
+          locale: Locale('fr'),
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,

@@ -11,7 +11,7 @@ import 'package:mint_mobile/services/micro_action_engine.dart';
 /// Legal references: OPP3 art. 7, LPP art. 79b, LIFD art. 33
 void main() {
   // ── Helper: standard test profile ─────────────────────────
-  CoachProfile _buildProfile({
+  CoachProfile buildProfile({
     int birthYear = 1977,
     String canton = 'VS',
     double salaire = 9078,
@@ -58,7 +58,7 @@ void main() {
     );
   }
 
-  MonthlyCheckIn _checkIn({
+  MonthlyCheckIn checkIn({
     required DateTime month,
     Map<String, double> versements = const {'3a_julien': 604.83},
     double? depensesExc,
@@ -79,8 +79,8 @@ void main() {
 
   group('MonthlyBriefingService.compare() — basic', () {
     test('first check-in (no previous) produces valid briefing', () {
-      final profile = _buildProfile();
-      final current = _checkIn(month: DateTime(2026, 3, 1));
+      final profile = buildProfile();
+      final current = checkIn(month: DateTime(2026, 3, 1));
 
       final briefing = MonthlyBriefingService.compare(
         profile: profile,
@@ -96,9 +96,9 @@ void main() {
     });
 
     test('two months with same versements → stable trend', () {
-      final profile = _buildProfile();
-      final prev = _checkIn(month: DateTime(2026, 2, 1));
-      final curr = _checkIn(month: DateTime(2026, 3, 1));
+      final profile = buildProfile();
+      final prev = checkIn(month: DateTime(2026, 2, 1));
+      final curr = checkIn(month: DateTime(2026, 3, 1));
 
       final briefing = MonthlyBriefingService.compare(
         profile: profile,
@@ -112,12 +112,12 @@ void main() {
     });
 
     test('versements increase > 10% → en hausse', () {
-      final profile = _buildProfile();
-      final prev = _checkIn(
+      final profile = buildProfile();
+      final prev = checkIn(
         month: DateTime(2026, 2, 1),
         versements: {'3a': 500},
       );
-      final curr = _checkIn(
+      final curr = checkIn(
         month: DateTime(2026, 3, 1),
         versements: {'3a': 700},
       );
@@ -134,12 +134,12 @@ void main() {
     });
 
     test('versements decrease > 10% → en baisse', () {
-      final profile = _buildProfile();
-      final prev = _checkIn(
+      final profile = buildProfile();
+      final prev = checkIn(
         month: DateTime(2026, 2, 1),
         versements: {'3a': 700},
       );
-      final curr = _checkIn(
+      final curr = checkIn(
         month: DateTime(2026, 3, 1),
         versements: {'3a': 400},
       );
@@ -155,12 +155,12 @@ void main() {
     });
 
     test('depenses exceptionnelles delta is calculated', () {
-      final profile = _buildProfile();
-      final prev = _checkIn(
+      final profile = buildProfile();
+      final prev = checkIn(
         month: DateTime(2026, 2, 1),
         depensesExc: 500,
       );
-      final curr = _checkIn(
+      final curr = checkIn(
         month: DateTime(2026, 3, 1),
         depensesExc: 3000,
       );
@@ -181,8 +181,8 @@ void main() {
 
   group('MonthlyBriefingService.compare() — insights', () {
     test('first check-in gets welcome insight', () {
-      final profile = _buildProfile();
-      final current = _checkIn(month: DateTime(2026, 3, 1));
+      final profile = buildProfile();
+      final current = checkIn(month: DateTime(2026, 3, 1));
 
       final briefing = MonthlyBriefingService.compare(
         profile: profile,
@@ -196,13 +196,13 @@ void main() {
     });
 
     test('insights are max 3', () {
-      final profile = _buildProfile();
-      final prev = _checkIn(
+      final profile = buildProfile();
+      final prev = checkIn(
         month: DateTime(2026, 2, 1),
         versements: {'3a': 500, 'lpp': 200},
         depensesExc: 100,
       );
-      final curr = _checkIn(
+      final curr = checkIn(
         month: DateTime(2026, 3, 1),
         versements: {'3a': 700, 'lpp': 400},
         depensesExc: 3000,
@@ -218,9 +218,9 @@ void main() {
     });
 
     test('large depenses exc generates budget insight', () {
-      final profile = _buildProfile();
-      final prev = _checkIn(month: DateTime(2026, 2, 1));
-      final curr = _checkIn(
+      final profile = buildProfile();
+      final prev = checkIn(month: DateTime(2026, 2, 1));
+      final curr = checkIn(
         month: DateTime(2026, 3, 1),
         depensesExc: 5000,
       );
@@ -244,14 +244,14 @@ void main() {
 
   group('MonthlyBriefingService.fromProfile()', () {
     test('returns null for empty check-ins', () {
-      final profile = _buildProfile();
+      final profile = buildProfile();
       final briefing = MonthlyBriefingService.fromProfile(profile);
       expect(briefing, isNull);
     });
 
     test('returns briefing for single check-in', () {
-      final profile = _buildProfile(
-        checkIns: [_checkIn(month: DateTime(2026, 3, 1))],
+      final profile = buildProfile(
+        checkIns: [checkIn(month: DateTime(2026, 3, 1))],
       );
       final briefing = MonthlyBriefingService.fromProfile(profile);
       expect(briefing, isNotNull);
@@ -259,13 +259,13 @@ void main() {
     });
 
     test('returns comparison for two check-ins', () {
-      final profile = _buildProfile(
+      final profile = buildProfile(
         checkIns: [
-          _checkIn(
+          checkIn(
             month: DateTime(2026, 2, 1),
             versements: {'3a': 500},
           ),
-          _checkIn(
+          checkIn(
             month: DateTime(2026, 3, 1),
             versements: {'3a': 700},
           ),
@@ -284,11 +284,11 @@ void main() {
 
   group('MonthlyBriefingDelta — model', () {
     test('trendLabel returns French labels', () {
-      final profile = _buildProfile();
+      final profile = buildProfile();
 
       final stable = MonthlyBriefingService.compare(
         profile: profile,
-        current: _checkIn(month: DateTime(2026, 3, 1)),
+        current: checkIn(month: DateTime(2026, 3, 1)),
       );
       expect(stable.trendLabel, 'stable');
     });
@@ -300,12 +300,12 @@ void main() {
 
   group('FRI delta — persisted snapshots', () {
     test('friDelta computed from check-in friScore fields', () {
-      final profile = _buildProfile();
-      final prev = _checkIn(
+      final profile = buildProfile();
+      final prev = checkIn(
         month: DateTime(2026, 2, 1),
         versements: {'3a': 604},
       );
-      final curr = _checkIn(
+      final curr = checkIn(
         month: DateTime(2026, 3, 1),
         versements: {'3a': 604},
       );
@@ -334,8 +334,8 @@ void main() {
     });
 
     test('friDelta is 0 when previous has no friScore (legacy)', () {
-      final profile = _buildProfile();
-      final prev = _checkIn(month: DateTime(2026, 2, 1));
+      final profile = buildProfile();
+      final prev = checkIn(month: DateTime(2026, 2, 1));
       final curr = MonthlyCheckIn(
         month: DateTime(2026, 3, 1),
         versements: const {'3a': 604},
@@ -353,7 +353,7 @@ void main() {
     });
 
     test('friDelta is 0 for first check-in', () {
-      final profile = _buildProfile();
+      final profile = buildProfile();
       final curr = MonthlyCheckIn(
         month: DateTime(2026, 3, 1),
         versements: const {'3a': 604},
@@ -370,7 +370,7 @@ void main() {
     });
 
     test('negative friDelta when FRI decreases', () {
-      final profile = _buildProfile();
+      final profile = buildProfile();
       final prevWithFri = MonthlyCheckIn(
         month: DateTime(2026, 2, 1),
         versements: const {'3a': 604},
@@ -415,20 +415,20 @@ void main() {
 
   group('MicroActionEngine.suggest() — basic', () {
     test('returns non-empty list for standard profile', () {
-      final profile = _buildProfile();
+      final profile = buildProfile();
       final actions = MicroActionEngine.suggest(profile: profile);
       expect(actions, isNotEmpty);
     });
 
     test('respects limit parameter', () {
-      final profile = _buildProfile();
+      final profile = buildProfile();
       final actions =
           MicroActionEngine.suggest(profile: profile, limit: 1);
       expect(actions.length, lessThanOrEqualTo(1));
     });
 
     test('actions are sorted by priority (highest first)', () {
-      final profile = _buildProfile();
+      final profile = buildProfile();
       final actions =
           MicroActionEngine.suggest(profile: profile, limit: 10);
       if (actions.length >= 2) {
@@ -440,7 +440,7 @@ void main() {
     });
 
     test('actions are deduplicated by id', () {
-      final profile = _buildProfile();
+      final profile = buildProfile();
       final actions =
           MicroActionEngine.suggest(profile: profile, limit: 10);
       final ids = actions.map((a) => a.id).toSet();
@@ -448,7 +448,7 @@ void main() {
     });
 
     test('every action has required fields', () {
-      final profile = _buildProfile();
+      final profile = buildProfile();
       final actions =
           MicroActionEngine.suggest(profile: profile, limit: 10);
       for (final action in actions) {
@@ -469,7 +469,7 @@ void main() {
 
   group('MicroActionEngine — profile gaps', () {
     test('missing LPP generates scan action', () {
-      final profile = _buildProfile(avoirLpp: 0);
+      final profile = buildProfile(avoirLpp: 0);
       final actions =
           MicroActionEngine.suggest(profile: profile, limit: 10);
       final scanAction = actions.where((a) => a.id == 'scan_lpp_cert');
@@ -478,7 +478,7 @@ void main() {
     });
 
     test('missing assurance generates add action', () {
-      final profile = _buildProfile(assuranceMaladie: 0);
+      final profile = buildProfile(assuranceMaladie: 0);
       final actions =
           MicroActionEngine.suggest(profile: profile, limit: 10);
       final assurAction = actions.where((a) => a.id == 'add_assurance');
@@ -487,8 +487,8 @@ void main() {
     });
 
     test('complete profile has fewer gap actions', () {
-      final complete = _buildProfile();
-      final incomplete = _buildProfile(avoirLpp: 0, assuranceMaladie: 0);
+      final complete = buildProfile();
+      final incomplete = buildProfile(avoirLpp: 0, assuranceMaladie: 0);
 
       final completeActions =
           MicroActionEngine.suggest(profile: complete, limit: 10);
@@ -510,7 +510,7 @@ void main() {
 
   group('MicroActionEngine — financial actions', () {
     test('45+ gets LPP rachat suggestion', () {
-      final profile = _buildProfile(birthYear: 1977); // age ~49
+      final profile = buildProfile(birthYear: 1977); // age ~49
       final actions =
           MicroActionEngine.suggest(profile: profile, limit: 10);
       final rachat = actions.where((a) => a.id == 'explore_rachat_lpp');
@@ -519,7 +519,7 @@ void main() {
     });
 
     test('low liquidity generates emergency fund action', () {
-      final profile = _buildProfile(
+      final profile = buildProfile(
         epargneLiquide: 1000,
         loyer: 925,
         assuranceMaladie: 450,
@@ -538,8 +538,8 @@ void main() {
 
   group('MicroActionEngine — couple actions', () {
     test('FATCA conjoint generates compliance action', () {
-      final profile = _buildProfile(
-        conjoint: ConjointProfile(
+      final profile = buildProfile(
+        conjoint: const ConjointProfile(
           firstName: 'Lauren',
           birthYear: 1982,
           salaireBrutMensuel: 4800,
@@ -554,8 +554,8 @@ void main() {
     });
 
     test('incomplete conjoint generates profile action', () {
-      final profile = _buildProfile(
-        conjoint: ConjointProfile(
+      final profile = buildProfile(
+        conjoint: const ConjointProfile(
           firstName: 'Lauren',
           birthYear: 1982,
           salaireBrutMensuel: 0,
@@ -576,8 +576,8 @@ void main() {
 
   group('MicroActionEngine — check-in driven', () {
     test('large depenses exc generates budget review', () {
-      final profile = _buildProfile();
-      final current = _checkIn(
+      final profile = buildProfile();
+      final current = checkIn(
         month: DateTime(2026, 3, 1),
         depensesExc: 5000,
       );
@@ -593,12 +593,12 @@ void main() {
     });
 
     test('versements drop generates alert', () {
-      final profile = _buildProfile();
-      final prev = _checkIn(
+      final profile = buildProfile();
+      final prev = checkIn(
         month: DateTime(2026, 2, 1),
         versements: {'3a': 1000},
       );
-      final curr = _checkIn(
+      final curr = checkIn(
         month: DateTime(2026, 3, 1),
         versements: {'3a': 200},
       );
@@ -620,8 +620,8 @@ void main() {
 
   group('Integration: briefing + micro-actions', () {
     test('briefing includes micro-actions', () {
-      final profile = _buildProfile(avoirLpp: 0);
-      final current = _checkIn(month: DateTime(2026, 3, 1));
+      final profile = buildProfile(avoirLpp: 0);
+      final current = checkIn(month: DateTime(2026, 3, 1));
 
       final briefing = MonthlyBriefingService.compare(
         profile: profile,

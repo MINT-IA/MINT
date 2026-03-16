@@ -154,8 +154,8 @@ void main() {
         salaireBrut: 120000,
         tauxCotisationEmploye: 5.0,
       );
-      final grossMonthly = 120000.0 / 12;
-      final socialCharges = grossMonthly * 0.064;
+      const grossMonthly = 120000.0 / 12;
+      const socialCharges = grossMonthly * 0.064;
       final lppMonthly = plan.cotisationEmployeAnnuelle / 12;
       expect(plan.salaireNetMensuel,
           closeTo(grossMonthly - socialCharges - lppMonthly, 0.01));

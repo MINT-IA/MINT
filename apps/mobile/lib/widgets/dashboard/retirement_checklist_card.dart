@@ -251,7 +251,7 @@ class RetirementChecklistCard extends StatelessWidget {
             '\u00c9conomie d\u2019imp\u00f4t estim\u00e9e\u00a0: ~CHF\u00a0${_fmt(economie)}. '
             'Lacune restante\u00a0: CHF\u00a0${_fmt(lacune)}.',
         timeline: 'Avant $retirementYear (LPP art. 79b)',
-        route: '/lpp-deep/rachat',
+        route: '/rachat-lpp',
       ));
     }
 
@@ -265,7 +265,7 @@ class RetirementChecklistCard extends StatelessWidget {
         subtitle:
             'D\u00e9cision irr\u00e9versible \u2014 prends le temps de simuler les sc\u00e9narios.',
         timeline: 'Avant ${retirementYear - 1}',
-        route: '/arbitrage/rente-vs-capital',
+        route: '/rente-vs-capital',
       ));
     }
 
@@ -283,7 +283,7 @@ class RetirementChecklistCard extends StatelessWidget {
             '\u00c9chelonner les retraits avec $conjName pour r\u00e9duire '
             'la charge fiscale.',
         timeline: 'Phase de planification',
-        route: '/arbitrage/calendrier-retraits',
+        route: '/decaissement',
       ));
     }
 

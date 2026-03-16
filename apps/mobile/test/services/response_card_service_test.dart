@@ -160,7 +160,7 @@ void main() {
         subtitle: 'Potentiel',
         chiffreChoc:
             ChiffreChoc(value: 539414, unit: 'CHF', explanation: 'max'),
-        cta: CardCta(label: 'Simuler', route: '/lpp-deep/rachat'),
+        cta: CardCta(label: 'Simuler', route: '/rachat-lpp'),
         disclaimer: 'Outil educatif',
         sources: ['LPP art. 79b'],
         impactPoints: 20,

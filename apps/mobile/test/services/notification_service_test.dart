@@ -201,8 +201,8 @@ void main() {
       // The Nov 15 deadline is already past. Service uses:
       // year = (now.month > d.month || (now.month == d.month && now.day > d.day))
       //        ? now.year + 1 : now.year
-      final dMonth = 11;
-      final dDay = 15;
+      const dMonth = 11;
+      const dDay = 15;
       final year = now.month > dMonth ||
               (now.month == dMonth && now.day > dDay)
           ? now.year + 1
@@ -292,8 +292,8 @@ void main() {
       final now = tz.TZDateTime(tz.local, 2026, 1, 10, 8, 0);
 
       // First tax deadline: Feb 15
-      final dMonth = 2;
-      final dDay = 15;
+      const dMonth = 2;
+      const dDay = 15;
       final year = now.month > dMonth ||
               (now.month == dMonth && now.day > dDay)
           ? now.year + 1
@@ -311,8 +311,8 @@ void main() {
       final now = tz.TZDateTime(tz.local, 2026, 4, 1, 8, 0);
 
       // All tax deadlines (Feb 15, Mar 15, Mar 25) are in the past
-      final dMonth = 3;
-      final dDay = 25;
+      const dMonth = 3;
+      const dDay = 25;
       final year = now.month > dMonth ||
               (now.month == dMonth && now.day > dDay)
           ? now.year + 1
@@ -457,10 +457,10 @@ void main() {
     });
 
     test('second call returns null after route was consumed', () {
-      NotificationService.pendingRoute = '/simulator/3a';
+      NotificationService.pendingRoute = '/pilier-3a';
 
       final first = NotificationService.consumePendingRoute();
-      expect(first, '/simulator/3a');
+      expect(first, '/pilier-3a');
 
       final second = NotificationService.consumePendingRoute();
       expect(second, isNull,
@@ -626,11 +626,11 @@ void main() {
       expect(payload, contains('checkin'));
     });
 
-    test('3a deadline notification uses GoRouter path /simulator/3a', () {
-      // From source: payload: '/simulator/3a'
-      const payload = '/simulator/3a';
+    test('3a deadline notification uses GoRouter path /pilier-3a', () {
+      // From source: payload: '/pilier-3a'
+      const payload = '/pilier-3a';
       expect(payload, startsWith('/'));
-      expect(payload, contains('simulator'));
+      expect(payload, contains('pilier'));
       expect(payload, contains('3a'));
     });
 
@@ -658,7 +658,7 @@ void main() {
     });
 
     test('all known payloads are valid GoRouter paths', () {
-      final payloads = ['/coach/checkin', '/simulator/3a', '/home'];
+      final payloads = ['/coach/checkin', '/pilier-3a', '/home'];
       for (final p in payloads) {
         expect(p, startsWith('/'),
             reason: 'Payload "$p" must start with /');

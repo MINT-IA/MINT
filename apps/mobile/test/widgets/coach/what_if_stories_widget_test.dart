@@ -86,9 +86,9 @@ void main() {
     });
 
     testWidgets('handles empty stories', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -96,7 +96,7 @@ void main() {
         ],
         supportedLocales: S.supportedLocales,
         home: Scaffold(
-          body: WhatIfStoriesWidget(stories: const []),
+          body: WhatIfStoriesWidget(stories: []),
         ),
       ));
       await tester.pumpAndSettle();

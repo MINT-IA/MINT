@@ -95,7 +95,7 @@ void main() {
 
   group('Social charges', () {
     test('social charges = gross * cotisationsSalarieTotal', () {
-      final gross = 100000.0;
+      const gross = 100000.0;
       final b = NetIncomeBreakdown.compute(
         grossSalary: gross,
         canton: 'ZH',
@@ -152,7 +152,7 @@ void main() {
     });
 
     test('LPP uses coordination deduction correctly', () {
-      final gross = 80000.0;
+      const gross = 80000.0;
       final b = NetIncomeBreakdown.compute(
         grossSalary: gross,
         canton: 'ZH',
@@ -282,7 +282,7 @@ void main() {
     });
 
     test('round-trip: compute then inverse is accurate', () {
-      final original = 100000.0;
+      const original = 100000.0;
       final breakdown = NetIncomeBreakdown.compute(
         grossSalary: original,
         canton: 'VS',

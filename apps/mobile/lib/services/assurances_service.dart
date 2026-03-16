@@ -446,7 +446,7 @@ class CoverageCheckService {
       id: 'ijm',
       title: 'IJM (indemnité journalière maladie)',
       description: 'Couvre 80% du salaire en cas de maladie prolongée. '
-          '${isIndependant ? "En tant qu\'indépendant, aucune couverture automatique." : "Vérifie si ton employeur propose une IJM collective."}',
+          '${isIndependant ? "En tant qu\u0027indépendant, aucune couverture automatique." : "Vérifie si ton employeur propose une IJM collective."}',
       urgency: _ijmUrgency(isIndependant, isSalarie, aIjmCollective),
       status: _ijmStatus(isIndependant, isSalarie, aIjmCollective),
       estimatedCostRange: '~500-2\'000 CHF/an',
@@ -459,8 +459,8 @@ class CoverageCheckService {
       id: 'laa',
       title: 'LAA (assurance accident)',
       description: 'Couvre les frais médicaux et la perte de gain '
-          'en cas d\'accident. '
-          '${isIndependant ? "Non obligatoire pour les indépendants." : "Obligatoire via l\'employeur pour les salariés."}',
+          "en cas d'accident. "
+          '${isIndependant ? "Non obligatoire pour les indépendants." : "Obligatoire via l\u0027employeur pour les salariés."}',
       urgency: _laaUrgency(isIndependant, isSalarie, aLaa),
       status: _laaStatus(isIndependant, isSalarie, aLaa),
       estimatedCostRange: '~300-800 CHF/an',

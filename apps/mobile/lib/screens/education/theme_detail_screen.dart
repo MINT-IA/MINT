@@ -86,7 +86,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: MintColors.white.withOpacity(0.2),
+                  color: MintColors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -114,7 +114,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                     end: Alignment.bottomRight,
                     colors: [
                       theme.color,
-                      theme.color.withOpacity(0.8),
+                      theme.color.withValues(alpha: 0.8),
                     ],
                   ),
                 ),
@@ -132,7 +132,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: MintColors.white.withOpacity(0.2),
+                                color: MintColors.white.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               child: Icon(theme.icon,
@@ -153,7 +153,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                               theme.question,
                               style: GoogleFonts.inter(
                                 fontSize: 14,
-                                color: MintColors.white.withOpacity(0.85),
+                                color: MintColors.white.withValues(alpha: 0.85),
                                 height: 1.4,
                               ),
                             ),
@@ -232,12 +232,12 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            theme.color.withOpacity(0.08),
-            theme.color.withOpacity(0.03),
+            theme.color.withValues(alpha: 0.08),
+            theme.color.withValues(alpha: 0.03),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: theme.color.withOpacity(0.15)),
+        border: Border.all(color: theme.color.withValues(alpha: 0.15)),
       ),
       child: Column(
         children: [
@@ -274,7 +274,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                   style: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: theme.color.withOpacity(0.7),
+                    color: theme.color.withValues(alpha: 0.7),
                   ),
                 ),
               ],
@@ -321,7 +321,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
-            color: MintColors.black.withOpacity(0.03),
+            color: MintColors.black.withValues(alpha: 0.03),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -335,7 +335,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: theme.color.withOpacity(0.1),
+                  color: theme.color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child:
@@ -379,7 +379,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                       height: 24,
                       margin: const EdgeInsets.only(top: 1),
                       decoration: BoxDecoration(
-                        color: theme.color.withOpacity(0.12),
+                        color: theme.color.withValues(alpha: 0.12),
                         shape: BoxShape.circle,
                       ),
                       child: Center(
@@ -426,8 +426,8 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
         border: Border.all(
           color: _quizAnswered
               ? (_selectedQuizAnswer == quiz.correctIndex
-                  ? MintColors.success.withOpacity(0.3)
-                  : MintColors.error.withOpacity(0.3))
+                  ? MintColors.success.withValues(alpha: 0.3)
+                  : MintColors.error.withValues(alpha: 0.3))
               : MintColors.lightBorder,
         ),
       ),
@@ -439,7 +439,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: MintColors.purple.withOpacity(0.1),
+                  color: MintColors.purple.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(Icons.quiz_outlined,
@@ -480,17 +480,17 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
             IconData? trailingIcon;
 
             if (showResult && isCorrect) {
-              bgColor = MintColors.success.withOpacity(0.08);
+              bgColor = MintColors.success.withValues(alpha: 0.08);
               borderColor = MintColors.success;
               textColor = MintColors.success;
               trailingIcon = Icons.check_circle;
             } else if (showResult && isSelected && !isCorrect) {
-              bgColor = MintColors.error.withOpacity(0.08);
+              bgColor = MintColors.error.withValues(alpha: 0.08);
               borderColor = MintColors.error;
               textColor = MintColors.error;
               trailingIcon = Icons.cancel;
             } else if (isSelected && !showResult) {
-              bgColor = theme.color.withOpacity(0.08);
+              bgColor = theme.color.withValues(alpha: 0.08);
               borderColor = theme.color;
             }
 
@@ -523,10 +523,10 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                           height: 28,
                           decoration: BoxDecoration(
                             color: showResult && isCorrect
-                                ? MintColors.success.withOpacity(0.15)
+                                ? MintColors.success.withValues(alpha: 0.15)
                                 : showResult && isSelected && !isCorrect
-                                    ? MintColors.error.withOpacity(0.15)
-                                    : theme.color.withOpacity(0.08),
+                                    ? MintColors.error.withValues(alpha: 0.15)
+                                    : theme.color.withValues(alpha: 0.08),
                             shape: BoxShape.circle,
                           ),
                           child: Center(
@@ -581,13 +581,13 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: _selectedQuizAnswer == quiz.correctIndex
-                      ? MintColors.success.withOpacity(0.06)
-                      : MintColors.warning.withOpacity(0.06),
+                      ? MintColors.success.withValues(alpha: 0.06)
+                      : MintColors.warning.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
                     color: _selectedQuizAnswer == quiz.correctIndex
-                        ? MintColors.success.withOpacity(0.2)
-                        : MintColors.warning.withOpacity(0.2),
+                        ? MintColors.success.withValues(alpha: 0.2)
+                        : MintColors.warning.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Column(
@@ -656,7 +656,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: MintColors.warning.withOpacity(0.1),
+                  color: MintColors.warning.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(Icons.auto_awesome,
@@ -773,7 +773,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: theme.color.withOpacity(0.08),
+              color: theme.color.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(Icons.notifications_active_outlined,

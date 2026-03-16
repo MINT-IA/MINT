@@ -98,7 +98,7 @@ class LppPivotInsertWidget extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color:
-              isSelected ? MintColors.primary.withOpacity(0.1) : MintColors.white,
+              isSelected ? MintColors.primary.withValues(alpha: 0.1) : MintColors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? MintColors.primary : MintColors.greyBorder,
@@ -136,7 +136,7 @@ class LppPivotInsertWidget extends StatelessWidget {
                   ),
                   Text(
                     subtitle,
-                    style: TextStyle(fontSize: 12, color: MintColors.textSecondary),
+                    style: const TextStyle(fontSize: 12, color: MintColors.textSecondary),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -145,7 +145,7 @@ class LppPivotInsertWidget extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: MintColors.primary.withOpacity(0.2),
+                          color: MintColors.primary.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -161,7 +161,7 @@ class LppPivotInsertWidget extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           limitSub,
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontSize: 12, color: MintColors.textSecondary),
                         ),
                       ],
@@ -174,7 +174,7 @@ class LppPivotInsertWidget extends StatelessWidget {
               const Icon(Icons.check_circle,
                   color: MintColors.primary, size: 24)
             else
-              Icon(Icons.radio_button_unchecked,
+              const Icon(Icons.radio_button_unchecked,
                   color: MintColors.greyBorderLight, size: 24),
           ],
         ),

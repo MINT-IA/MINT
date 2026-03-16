@@ -15,8 +15,8 @@ void main() {
   // totalEmployerCost ≈ 5000 + 265 + 175 + 30 = 5470+
 
   Widget buildWidget() => const MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,

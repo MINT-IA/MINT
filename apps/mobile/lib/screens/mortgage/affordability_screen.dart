@@ -7,7 +7,9 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/widgets/coach/mortgage_journey_widget.dart';
+import 'package:mint_mobile/widgets/collapsible_section.dart';
 
 /// Ecran de capacite d'achat immobilier.
 ///
@@ -94,6 +96,10 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                 _buildDetailSection(result),
                 const SizedBox(height: 24),
 
+                // ── Related sections (hub) ──
+                _buildRelatedSections(),
+                const SizedBox(height: 24),
+
                 // Disclaimer
                 _buildDisclaimer(result.disclaimer),
                 const SizedBox(height: 24),
@@ -105,7 +111,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                 // Source legale
                 Text(
                   S.of(context)!.affordabilitySource,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
                     color: MintColors.textMuted,
@@ -130,7 +136,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3), width: 2),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
       ),
       child: Column(
         children: [
@@ -247,7 +253,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -349,7 +355,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
             children: [
               Text(
                 S.of(context)!.affordabilityCanton,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: MintColors.textPrimary,
@@ -562,7 +568,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
           const SizedBox(height: 12),
           Text(
             S.of(context)!.affordabilityCalculationNote,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 11,
               color: MintColors.textMuted,
               height: 1.4,
@@ -602,6 +608,52 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
     );
   }
 
+  Widget _buildRelatedSections() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 24),
+        Text('Explorer aussi',
+          style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
+        const SizedBox(height: 12),
+        CollapsibleSection(
+          title: 'Amortissement direct vs indirect',
+          subtitle: 'Impact fiscal de chaque stratégie',
+          icon: Icons.compare_arrows,
+          child: _buildSectionCta('Simuler', '/mortgage/amortization'),
+        ),
+        CollapsibleSection(
+          title: 'SARON vs taux fixe',
+          subtitle: 'Comparer les types d\'hypothèque',
+          icon: Icons.swap_horiz,
+          child: _buildSectionCta('Comparer', '/mortgage/saron-vs-fixed'),
+        ),
+        CollapsibleSection(
+          title: 'Valeur locative',
+          subtitle: 'Comprendre l\'imposition du logement',
+          icon: Icons.home_work_outlined,
+          child: _buildSectionCta('Calculer', '/mortgage/imputed-rental'),
+        ),
+        CollapsibleSection(
+          title: 'EPL — Utiliser mon 2e pilier',
+          subtitle: 'Retrait anticipé pour l\'achat',
+          icon: Icons.account_balance_outlined,
+          child: _buildSectionCta('Simuler', '/mortgage/epl-combined'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionCta(String label, String route) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: () => context.push(route),
+        child: Text(label),
+      ),
+    );
+  }
+
   Widget _buildDisclaimer(String disclaimer) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -613,12 +665,12 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: MintColors.warning, size: 20),
+          const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               disclaimer,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 fontStyle: FontStyle.italic,
                 color: MintColors.deepOrange,

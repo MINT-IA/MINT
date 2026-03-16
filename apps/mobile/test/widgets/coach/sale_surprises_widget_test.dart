@@ -12,8 +12,8 @@ void main() {
   // salePrice shown: "800'000"
 
   Widget buildWidget() => const MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,

@@ -50,13 +50,13 @@ class Pillar3aComparatorWidget extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            MintColors.primary.withOpacity(0.05),
-            MintColors.accentPastel.withOpacity(0.1),
+            MintColors.primary.withValues(alpha: 0.05),
+            MintColors.accentPastel.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(24),
         border:
-            Border.all(color: MintColors.primary.withOpacity(0.2), width: 2),
+            Border.all(color: MintColors.primary.withValues(alpha: 0.2), width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,15 +209,15 @@ class Pillar3aComparatorWidget extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: MintColors.success.withOpacity(0.05),
+                color: MintColors.success.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: MintColors.success.withOpacity(0.3), width: 2),
+                border: Border.all(color: MintColors.success.withValues(alpha: 0.3), width: 2),
               ),
               child: Column(
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.trending_up,
+                      const Icon(Icons.trending_up,
                           color: MintColors.success, size: 32),
                       const SizedBox(width: 16),
                       Expanded(
@@ -226,7 +226,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                           children: [
                             Text(
                               S.of(context)!.pillar3aViacGainLabel,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: MintColors.success,
@@ -243,7 +243,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                             ),
                             Text(
                               S.of(context)!.pillar3aMoreAtRetirement,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 12, color: MintColors.success),
                             ),
                           ],
@@ -277,20 +277,20 @@ class Pillar3aComparatorWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: MintColors.warning.withOpacity(0.08),
+              color: MintColors.warning.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.info_outline,
+                const Icon(Icons.info_outline,
                     size: 16, color: MintColors.warning),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     S.of(context)!.pillar3aDisclaimer,
                     style:
-                        TextStyle(fontSize: 11, color: MintColors.warning),
+                        const TextStyle(fontSize: 11, color: MintColors.warning),
                   ),
                 ),
               ],
@@ -341,9 +341,9 @@ class Pillar3aComparatorWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: MintColors.info.withOpacity(0.05),
+        color: MintColors.info.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.info.withOpacity(0.3)),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -415,7 +415,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                     flex: 3,
                     child: Text(
                       currencyFormat.format(viacCapital),
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
                         color: MintColors.success,
@@ -426,13 +426,13 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                 ],
               ),
             );
-          }).toList(),
+          }),
           const Divider(),
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Text(
               '💡 ${S.of(context)!.pillar3aCompoundTip}',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: MintColors.info,
                 fontStyle: FontStyle.italic,
@@ -474,11 +474,11 @@ class Pillar3aComparatorWidget extends StatelessWidget {
     Color borderColor = MintColors.border;
 
     if (isRecommended) {
-      bgColor = MintColors.success.withOpacity(0.05);
-      borderColor = MintColors.success.withOpacity(0.5);
+      bgColor = MintColors.success.withValues(alpha: 0.05);
+      borderColor = MintColors.success.withValues(alpha: 0.5);
     } else if (isWarning) {
-      bgColor = MintColors.error.withOpacity(0.05);
-      borderColor = MintColors.error.withOpacity(0.3);
+      bgColor = MintColors.error.withValues(alpha: 0.05);
+      borderColor = MintColors.error.withValues(alpha: 0.3);
     }
 
     return Container(
@@ -523,7 +523,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                   ),
                   child: Text(
                     S.of(context)!.pillar3aRecommended,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: MintColors.white,
                       fontSize: 9,
                       fontWeight: FontWeight.bold,
@@ -583,7 +583,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: gain > 0 ? MintColors.success.withOpacity(0.15) : MintColors.error.withOpacity(0.15),
+                color: gain > 0 ? MintColors.success.withValues(alpha: 0.15) : MintColors.error.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
