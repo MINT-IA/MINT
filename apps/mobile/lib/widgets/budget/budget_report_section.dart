@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/budget/spending_meter.dart';
 
@@ -15,6 +16,7 @@ class BudgetReportSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -35,9 +37,9 @@ class BudgetReportSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Ton Budget Calculé',
-                style: TextStyle(
+              Text(
+                l.budgetReportTitle,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -65,13 +67,13 @@ class BudgetReportSection extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildRow(context, "Disponible", plan.available,
+                    _buildRow(context, l.budgetReportDisponible, plan.available,
                         isTotal: true),
                     const Divider(),
-                    _buildRow(context, "Variables (Vivre)", plan.variables,
+                    _buildRow(context, l.budgetReportVariables, plan.variables,
                         color: MintColors.success),
                     const SizedBox(height: 8),
-                    _buildRow(context, "Futur (Épargne)", plan.future,
+                    _buildRow(context, l.budgetReportFutur, plan.future,
                         color: MintColors.info),
                   ],
                 ),
@@ -86,16 +88,16 @@ class BudgetReportSection extends StatelessWidget {
                 color: MintColors.warning.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.warning_amber_rounded,
+                  const Icon(Icons.warning_amber_rounded,
                       size: 16, color: MintColors.warning),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      "Attention: Aucune marge de manœuvre pour les dépenses variables.",
-                      style:
-                          TextStyle(fontSize: 12, color: MintColors.warning),
+                      l.budgetReportStopWarning,
+                      style: const TextStyle(
+                          fontSize: 12, color: MintColors.warning),
                     ),
                   ),
                 ],
@@ -108,6 +110,7 @@ class BudgetReportSection extends StatelessWidget {
 
   Widget _buildRow(BuildContext context, String label, double amount,
       {bool isTotal = false, Color? color}) {
+    final l = S.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -120,7 +123,7 @@ class BudgetReportSection extends StatelessWidget {
           ),
         ),
         Text(
-          'CHF ${amount.toStringAsFixed(0)}',
+          l.budgetReportChfAmount(amount.toStringAsFixed(0)),
           style: TextStyle(
             fontSize: isTotal ? 16 : 14,
             fontWeight: FontWeight.bold,
