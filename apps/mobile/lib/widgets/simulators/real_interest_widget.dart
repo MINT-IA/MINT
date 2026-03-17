@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/simulators/real_interest_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
@@ -30,6 +31,7 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     // Calcul live
     final result = RealInterestCalculator.simulate(
       amountInvested: _amount,
@@ -38,14 +40,14 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
     );
 
     return SimulatorCard(
-      title: "Simulateur d'Intérêt Réel",
-      subtitle: "Capital + Économie d'impôt réinvestie (Virtuel)",
+      title: l.simRealInterestTitle,
+      subtitle: l.simRealInterestSubtitle,
       icon: Icons.auto_graph,
       child: Column(
         children: [
           // Inputs
           _buildSlider(
-            label: "Montant Investi",
+            label: l.simRealInterestAmount,
             value: _amount,
             min: 1000,
             max: 36000,
@@ -55,12 +57,12 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: "Durée",
+            label: l.simRealInterestDuration,
             value: _duration.toDouble(),
             min: 5,
             max: 30,
             divisions: 25,
-            unit: "ans",
+            unit: l.simLppBuybackUnitYears,
             onChanged: (v) => setState(() => _duration = v.toInt()),
           ),
 
@@ -70,19 +72,21 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
           Row(
             children: [
               _buildScenarioCard(
-                  "Pessimiste", result.pessimistic, MintColors.textSecondary),
+                  l.simRealInterestPessimistic, result.pessimistic, MintColors.textSecondary),
               const SizedBox(width: 12),
-              _buildScenarioCard("Neutre", result.neutral, MintColors.primary,
+              _buildScenarioCard(l.simRealInterestNeutral, result.neutral, MintColors.primary,
                   isMain: true),
               const SizedBox(width: 12),
               _buildScenarioCard(
-                  "Optimiste", result.optimistic, MintColors.success),
+                  l.simRealInterestOptimistic, result.optimistic, MintColors.success),
             ],
           ),
 
           const SizedBox(height: 16),
           Text(
-            "Hypothèses: Taux marginal ${(widget.marginalTaxRate * 100).toStringAsFixed(1)}%. Rendements marché: 2% / 4% / 6%.",
+            l.simRealInterestHypotheses(
+              (widget.marginalTaxRate * 100).toStringAsFixed(1),
+            ),
             style: GoogleFonts.inter(
                 fontSize: 10,
                 color: MintColors.textMuted,
@@ -109,7 +113,7 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
                         color: MintColors.info, size: 18),
                     const SizedBox(width: 8),
                     Text(
-                      "Comprendre le rendement réel",
+                      l.simRealInterestEducTitle,
                       style: GoogleFonts.montserrat(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -119,17 +123,11 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                _buildBulletPoint(
-                  "Le rendement réel = rendement nominal \u2212 inflation \u2212 frais",
-                ),
+                _buildBulletPoint(l.simRealInterestEducBullet1),
                 const SizedBox(height: 6),
-                _buildBulletPoint(
-                  "Un placement à 3% avec 1.5% d'inflation et 0.5% de frais rapporte seulement 1% en réel",
-                ),
+                _buildBulletPoint(l.simRealInterestEducBullet2),
                 const SizedBox(height: 6),
-                _buildBulletPoint(
-                  "Sur 30 ans, cette différence peut représenter des dizaines de milliers de francs",
-                ),
+                _buildBulletPoint(l.simRealInterestEducBullet3),
               ],
             ),
           ),

@@ -8,6 +8,7 @@ import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/screens/pulse/pulse_screen.dart' show NavigationShellState;
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Quick Start — single-screen onboarding that gets the user to the dashboard
@@ -92,7 +93,12 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
 
     _analytics.trackCTAClick('quick_start_completed', screenName: '/onboarding/quick');
 
-    if (mounted) context.go('/home');
+    if (mounted) {
+      // Navigate to home and ensure Pulse tab (index 0) is active
+      context.go('/home');
+      // Reset tab to Pulse after onboarding (avoid returning to coach empty state)
+      NavigationShellState.switchTab(0);
+    }
   }
 
   // ── Build ──
@@ -120,7 +126,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                   children: [
                     // Header
                     Text(
-                      'Ton plan retraite\nen 30 secondes',
+                      'Ta situation financière\nen 30 secondes',
                       style: GoogleFonts.montserrat(
                         fontSize: 26,
                         fontWeight: FontWeight.w800,

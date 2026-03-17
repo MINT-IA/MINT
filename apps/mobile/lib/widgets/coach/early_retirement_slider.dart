@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -91,27 +92,28 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
     return MintColors.scoreBon; // 66+
   }
 
-  String _zoneLabel(int age) {
-    if (age <= 62) return 'Risqu\u00e9 \u2014 sacrifice financier important';
-    if (age <= 64) return 'Faisable \u2014 avec compromis';
-    if (age == 65) return 'Standard \u2014 pas de p\u00e9nalit\u00e9';
-    return 'Bonus \u2014 tu gagnes plus, mais moins longtemps';
+  String _zoneLabel(BuildContext context, int age) {
+    final s = S.of(context)!;
+    if (age <= 62) return s.earlyRetirementZoneRisky;
+    if (age <= 64) return s.earlyRetirementZoneFeasible;
+    if (age == 65) return s.earlyRetirementZoneStandard;
+    return s.earlyRetirementZoneBonus;
   }
 
   @override
   Widget build(BuildContext context) {
     if (widget.scenarios.isEmpty) return const SizedBox.shrink();
 
+    final s = S.of(context)!;
     final minAge =
-        widget.scenarios.map((s) => s.age).reduce((a, b) => a < b ? a : b);
+        widget.scenarios.map((sc) => sc.age).reduce((a, b) => a < b ? a : b);
     final maxAge =
-        widget.scenarios.map((s) => s.age).reduce((a, b) => a > b ? a : b);
+        widget.scenarios.map((sc) => sc.age).reduce((a, b) => a > b ? a : b);
     final scenario = _selectedScenario;
     final color = _zoneColor(_selectedAge);
 
     return Semantics(
-      label:
-          'Simulateur de d\u00e9part \u00e0 la retraite. \u00c2ge s\u00e9lectionn\u00e9\u00a0: $_selectedAge ans.',
+      label: s.earlyRetirementSemanticsLabel(_selectedAge),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(20),
@@ -125,7 +127,7 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
           children: [
             // ── Header ──
             Text(
-              'Et si je partais \u00e0\u2026',
+              s.earlyRetirementHeader,
               style: GoogleFonts.montserrat(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -137,7 +139,7 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
             // ── Age display ──
             Center(
               child: Text(
-                '$_selectedAge ans',
+                s.earlyRetirementAgeDisplay(_selectedAge),
                 style: GoogleFonts.montserrat(
                   fontSize: 36,
                   fontWeight: FontWeight.w800,
@@ -158,7 +160,7 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  _zoneLabel(_selectedAge),
+                  _zoneLabel(context, _selectedAge),
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -213,12 +215,12 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
             const SizedBox(height: 16),
 
             // ── Result panel ──
-            if (scenario != null) _buildResultPanel(scenario, color),
+            if (scenario != null) _buildResultPanel(context, scenario, color),
 
             // ── Disclaimer ──
             const SizedBox(height: 12),
             Text(
-              'Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier (LSFin).',
+              s.earlyRetirementDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 10,
                 color: MintColors.textMuted,
@@ -231,7 +233,8 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
     );
   }
 
-  Widget _buildResultPanel(RetirementAgeScenario scenario, Color color) {
+  Widget _buildResultPanel(BuildContext context, RetirementAgeScenario scenario, Color color) {
+    final s = S.of(context)!;
     final delta = scenario.deltaPercent;
     final isGain = delta >= 0;
 
@@ -249,7 +252,7 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
             children: [
               Expanded(
                 child: Text(
-                  '\u00c0 ${scenario.age} ans : ${formatChfWithPrefix(scenario.monthlyIncome)}/mois',
+                  s.earlyRetirementResultLine(scenario.age, formatChfWithPrefix(scenario.monthlyIncome)),
                   style: GoogleFonts.montserrat(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -282,7 +285,7 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
           if (scenario.age != 65) ...[
             const SizedBox(height: 6),
             Text(
-              _buildNarrative(scenario),
+              _buildNarrative(context, scenario),
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textSecondary,
@@ -293,7 +296,7 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
           if (scenario.lifetimeDelta != null) ...[
             const SizedBox(height: 4),
             Text(
-              'Impact estim\u00e9 sur 25 ans\u00a0: ${formatChfWithPrefix(scenario.lifetimeDelta!.abs())}',
+              s.earlyRetirementLifetimeImpact(formatChfWithPrefix(scenario.lifetimeDelta!.abs())),
               style: GoogleFonts.inter(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -306,13 +309,22 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
     );
   }
 
-  String _buildNarrative(RetirementAgeScenario scenario) {
+  String _buildNarrative(BuildContext context, RetirementAgeScenario scenario) {
+    final s = S.of(context)!;
     final diff = scenario.monthlyIncome - widget.monthlyIncomeAt65;
     if (scenario.age < 65) {
-      return 'Tu perds ${formatChfWithPrefix(diff.abs())}/mois \u00e0 vie. '
-          'Mais tu gagnes ${65 - scenario.age} an${65 - scenario.age > 1 ? "s" : ""} de libert\u00e9.';
+      final years = 65 - scenario.age;
+      return s.earlyRetirementNarrativeEarly(
+        formatChfWithPrefix(diff.abs()),
+        years,
+        years > 1 ? 's' : '',
+      );
     }
-    return 'Tu gagnes ${formatChfWithPrefix(diff.abs())}/mois de plus. '
-        '${scenario.age - 65} an${scenario.age - 65 > 1 ? "s" : ""} de travail suppl\u00e9mentaire.';
+    final years = scenario.age - 65;
+    return s.earlyRetirementNarrativeLate(
+      formatChfWithPrefix(diff.abs()),
+      years,
+      years > 1 ? 's' : '',
+    );
   }
 }

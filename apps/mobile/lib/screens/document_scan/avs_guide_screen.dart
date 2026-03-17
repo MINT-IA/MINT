@@ -7,6 +7,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
 import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
 //  AVS GUIDE SCREEN — Sprint S45
@@ -47,33 +48,34 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.background,
       body: CustomScrollView(
         slivers: [
-          _buildAppBar(context),
+          _buildAppBar(context, l),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 12),
-                _buildHeader(),
+                _buildHeader(l),
                 const SizedBox(height: 24),
-                _buildConfidenceImpact(),
+                _buildConfidenceImpact(l),
                 const SizedBox(height: 28),
-                _buildSteps(),
+                _buildSteps(l),
                 const SizedBox(height: 28),
-                _buildOpenAhvButton(),
+                _buildOpenAhvButton(l),
                 const SizedBox(height: 16),
-                _buildScanButton(),
+                _buildScanButton(l),
                 if (kDebugMode) ...[
                   const SizedBox(height: 16),
-                  _buildSimulateButton(),
+                  _buildSimulateButton(l),
                 ],
                 const SizedBox(height: 24),
-                _buildFreeNote(),
+                _buildFreeNote(l),
                 const SizedBox(height: 16),
-                _buildPrivacyNote(),
+                _buildPrivacyNote(l),
                 const SizedBox(height: 100),
               ]),
             ),
@@ -85,7 +87,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
 
   // ── AppBar ───────────────────────────────────────────────
 
-  Widget _buildAppBar(BuildContext context) {
+  Widget _buildAppBar(BuildContext context, S l) {
     return SliverAppBar(
       pinned: true,
       backgroundColor: MintColors.background,
@@ -96,7 +98,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
         onPressed: () => context.pop(),
       ),
       title: Text(
-        'EXTRAIT AVS',
+        l.avsGuideAppBarTitle,
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w800,
           fontSize: 13,
@@ -109,12 +111,12 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
 
   // ── Header ───────────────────────────────────────────────
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S l) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Comment obtenir ton extrait AVS',
+          l.avsGuideHeaderTitle,
           style: GoogleFonts.montserrat(
             fontSize: 22,
             fontWeight: FontWeight.w700,
@@ -124,9 +126,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          "L'extrait de compte individuel (CI) contient tes années de "
-          "cotisation, ton revenu moyen (RAMD) et tes éventuelles lacunes. "
-          "C'est la clé pour une projection AVS fiable.",
+          l.avsGuideHeaderSubtitle,
           style: GoogleFonts.inter(
             fontSize: 15,
             color: MintColors.textSecondary,
@@ -139,7 +139,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
 
   // ── Confidence impact card ─────────────────────────────────
 
-  Widget _buildConfidenceImpact() {
+  Widget _buildConfidenceImpact(S l) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -166,7 +166,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '+${DocumentType.avsExtract.confidenceImpact} points de confiance',
+                  l.avsGuideConfidencePoints(DocumentType.avsExtract.confidenceImpact),
                   style: GoogleFonts.montserrat(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -175,7 +175,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Annees de cotisation, RAMD, lacunes',
+                  l.avsGuideConfidenceSubtitle,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -191,33 +191,27 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
 
   // ── Steps ────────────────────────────────────────────────
 
-  Widget _buildSteps() {
-    const steps = [
+  Widget _buildSteps(S l) {
+    final steps = [
       _StepData(
         number: 1,
-        title: 'Va sur www.ahv-iv.ch',
-        subtitle: "C'est le site officiel de l'AVS/AI. Tu peux aussi demander "
-            'ton extrait directement a ta caisse de compensation.',
+        title: l.avsGuideStep1Title,
+        subtitle: l.avsGuideStep1Subtitle,
       ),
       _StepData(
         number: 2,
-        title: 'Connecte-toi avec ton eID ou cree un compte',
-        subtitle: 'Tu auras besoin de ton numero AVS '
-            '(756.XXXX.XXXX.XX, sur ta carte d\'assurance-maladie).',
+        title: l.avsGuideStep2Title,
+        subtitle: l.avsGuideStep2Subtitle,
       ),
       _StepData(
         number: 3,
-        title: 'Demande ton extrait de compte individuel (CI)',
-        subtitle:
-            "Cherche la section \"Extrait de compte\" ou \"Kontoauszug\". "
-            "C'est un document officiel qui recapitule toutes tes cotisations.",
+        title: l.avsGuideStep3Title,
+        subtitle: l.avsGuideStep3Subtitle,
       ),
       _StepData(
         number: 4,
-        title: 'Tu le recevras par courrier ou PDF',
-        subtitle:
-            "Selon ta caisse, l'extrait arrive en 5 a 10 jours ouvrables. "
-            "Certaines caisses proposent un telechargement PDF immediat.",
+        title: l.avsGuideStep4Title,
+        subtitle: l.avsGuideStep4Subtitle,
       ),
     ];
 
@@ -225,7 +219,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'En 4 etapes',
+          l.avsGuideStepsTitle,
           style: GoogleFonts.montserrat(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -297,7 +291,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
 
   // ── Open ahv-iv.ch button ──────────────────────────────────
 
-  Widget _buildOpenAhvButton() {
+  Widget _buildOpenAhvButton(S l) {
     return SizedBox(
       width: double.infinity,
       height: 56,
@@ -305,7 +299,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
         onPressed: _onOpenAhv,
         icon: const Icon(Icons.open_in_new, size: 20),
         label: Text(
-          'Ouvrir ahv-iv.ch',
+          l.avsGuideOpenAhvButton,
           style: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -324,7 +318,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
 
   // ── Scan button ────────────────────────────────────────────
 
-  Widget _buildScanButton() {
+  Widget _buildScanButton(S l) {
     return SizedBox(
       width: double.infinity,
       height: 56,
@@ -332,7 +326,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
         onPressed: _isProcessing ? null : _onScanExtract,
         icon: const Icon(Icons.document_scanner_outlined, size: 22),
         label: Text(
-          "J'ai deja mon extrait \u2192 Scanner",
+          l.avsGuideScanButton,
           style: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -351,7 +345,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
 
   // ── Simulate button (debug/QA) ───────────────────────────
 
-  Widget _buildSimulateButton() {
+  Widget _buildSimulateButton(S l) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -363,7 +357,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       child: Column(
         children: [
           Text(
-            'MODE TEST',
+            l.avsGuideTestMode,
             style: GoogleFonts.montserrat(
               fontSize: 10,
               fontWeight: FontWeight.w700,
@@ -373,8 +367,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            "Pas d'extrait AVS sous la main ? "
-            "Teste le flux avec un exemple d'extrait.",
+            l.avsGuideTestDescription,
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 13,
@@ -401,7 +394,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
                     onPressed: _onSimulateScan,
                     icon: const Icon(Icons.science_outlined, size: 20),
                     label: Text(
-                      'Utiliser un exemple',
+                      l.avsGuideTestButton,
                       style: GoogleFonts.inter(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -423,7 +416,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
 
   // ── Free note ──────────────────────────────────────────────
 
-  Widget _buildFreeNote() {
+  Widget _buildFreeNote(S l) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
@@ -440,8 +433,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              "L'extrait AVS est gratuit et disponible en 5 a 10 jours ouvrables. "
-              "Tu peux aussi te rendre a ta caisse de compensation cantonale.",
+              l.avsGuideFreeNote,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textPrimary,
@@ -456,7 +448,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
 
   // ── Privacy note ──────────────────────────────────────────
 
-  Widget _buildPrivacyNote() {
+  Widget _buildPrivacyNote(S l) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
@@ -471,9 +463,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              "L'image de ton extrait n'est jamais stockee ni envoyee. "
-              "L'extraction se fait sur ton appareil. "
-              "Seules les valeurs que tu confirmes sont conservees dans ton profil.",
+              l.avsGuidePrivacyNote,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textMuted,
@@ -494,11 +484,11 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       if (!mounted) return;
+      final l = S.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Impossible d\'ouvrir $_ahvUrl. '
-            'Copie l\'adresse et ouvre-la dans ton navigateur.',
+            l.avsGuideSnackbarError(_ahvUrl),
             style: GoogleFonts.inter(fontSize: 14),
           ),
           backgroundColor: MintColors.warning,

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/family_service.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/visualizations/concubinage_decision_matrix.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -102,7 +103,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: 16),
         title: Text(
-          'Mariage vs Concubinage',
+          S.of(context)!.concubinageAppBarTitle,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -136,9 +137,9 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           fontSize: 13,
           fontWeight: FontWeight.w400,
         ),
-        tabs: const [
-          Tab(text: 'Comparateur'),
-          Tab(text: 'Checklist'),
+        tabs: [
+          Tab(text: S.of(context)!.concubinageTabComparateur),
+          Tab(text: S.of(context)!.concubinageTabChecklist),
         ],
       ),
     );
@@ -200,7 +201,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSlider(
-            label: 'Revenu 1',
+            label: S.of(context)!.concubinageRevenu1,
             value: _revenu1,
             min: 0,
             max: 300000,
@@ -212,7 +213,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'Revenu 2',
+            label: S.of(context)!.concubinageRevenu2,
             value: _revenu2,
             min: 0,
             max: 300000,
@@ -224,7 +225,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'Patrimoine total',
+            label: S.of(context)!.concubinagePatrimoineTotal,
             value: _patrimoine,
             min: 0,
             max: 2000000,
@@ -241,7 +242,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             children: [
               Expanded(
                 child: Text(
-                  'Canton',
+                  S.of(context)!.concubinageCanton,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -292,38 +293,38 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         : false;
     return [
       ComparisonCriteria(
-        label: 'Impots',
-        marriageLabel: isPenalite ? 'Penalite fiscale' : 'Bonus fiscal',
-        concubinageLabel: isPenalite ? 'Avantageux' : 'Desavantageux',
+        label: S.of(context)!.concubinageCriteriaImpots,
+        marriageLabel: isPenalite ? S.of(context)!.concubinageCriteriaPenaliteFiscale : S.of(context)!.concubinageCriteriaBonusFiscal,
+        concubinageLabel: isPenalite ? S.of(context)!.concubinageCriteriaAvantageux : S.of(context)!.concubinageCriteriaDesavantageux,
         advantage:
             isPenalite ? Advantage.concubinage : Advantage.marriage,
         icon: Icons.account_balance_outlined,
       ),
-      const ComparisonCriteria(
-        label: 'Heritage',
-        marriageLabel: 'Exonere (CC art. 462)',
-        concubinageLabel: 'Impot cantonal',
+      ComparisonCriteria(
+        label: S.of(context)!.concubinageCriteriaHeritage,
+        marriageLabel: S.of(context)!.concubinageCriteriaHeritageMarriage,
+        concubinageLabel: S.of(context)!.concubinageCriteriaHeritageConcubinage,
         advantage: Advantage.marriage,
         icon: Icons.family_restroom,
       ),
-      const ComparisonCriteria(
-        label: 'Protection deces',
-        marriageLabel: 'AVS + LPP survivant',
-        concubinageLabel: 'Aucune rente automatique',
+      ComparisonCriteria(
+        label: S.of(context)!.concubinageCriteriaProtection,
+        marriageLabel: S.of(context)!.concubinageCriteriaProtectionMarriage,
+        concubinageLabel: S.of(context)!.concubinageCriteriaProtectionConcubinage,
         advantage: Advantage.marriage,
         icon: Icons.shield_outlined,
       ),
-      const ComparisonCriteria(
-        label: 'Flexibilite',
-        marriageLabel: 'Procedure judiciaire',
-        concubinageLabel: 'Separation simplifiee',
+      ComparisonCriteria(
+        label: S.of(context)!.concubinageCriteriaFlexibilite,
+        marriageLabel: S.of(context)!.concubinageCriteriaFlexibiliteMarriage,
+        concubinageLabel: S.of(context)!.concubinageCriteriaFlexibiliteConcubinage,
         advantage: Advantage.concubinage,
         icon: Icons.swap_horiz,
       ),
-      const ComparisonCriteria(
-        label: 'Pension alim.',
-        marriageLabel: 'Protegee par le juge',
-        concubinageLabel: 'Accord prealable',
+      ComparisonCriteria(
+        label: S.of(context)!.concubinageCriteriaPension,
+        marriageLabel: S.of(context)!.concubinageCriteriaPensionMarriage,
+        concubinageLabel: S.of(context)!.concubinageCriteriaPensionConcubinage,
         advantage: Advantage.marriage,
         icon: Icons.balance,
       ),
@@ -356,7 +357,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'avantages',
+                  S.of(context)!.concubinageAvantages,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.white60,
@@ -364,7 +365,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Mariage',
+                  S.of(context)!.concubinageMariage,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -392,7 +393,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'avantages',
+                  S.of(context)!.concubinageAvantages,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.white60,
@@ -400,7 +401,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Concubinage',
+                  S.of(context)!.concubinageConcubinage,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -439,7 +440,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                   size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'DETAIL FISCAL',
+                S.of(context)!.concubinageDetailFiscal,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -451,12 +452,12 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           ),
           const SizedBox(height: 16),
           _buildResultRow(
-            'Impots 2 celibataires',
+            S.of(context)!.concubinageImpots2Celibataires,
             FamilyService.formatChf(totalCelib),
           ),
           const SizedBox(height: 8),
           _buildResultRow(
-            'Impots maries',
+            S.of(context)!.concubinageImpotsMaries,
             FamilyService.formatChf(totalMarie),
           ),
           const SizedBox(height: 8),
@@ -466,7 +467,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                isPenalite ? 'Penalite mariage' : 'Bonus mariage',
+                isPenalite ? S.of(context)!.concubinagePenaliteMariage : S.of(context)!.concubinageBonusMariage,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -512,7 +513,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                   size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'IMPOT SUR LA SUCCESSION',
+                S.of(context)!.concubinageImpotSuccession,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -524,7 +525,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           ),
           const SizedBox(height: 16),
           _buildResultRow(
-            'Patrimoine transmis',
+            S.of(context)!.concubinagePatrimoineTransmis,
             FamilyService.formatChf(_patrimoine),
           ),
           const SizedBox(height: 8),
@@ -535,10 +536,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildResultRow('Marie-e', 'CHF\u00A00 (exonere)'),
+                    _buildResultRow(S.of(context)!.concubinageMarieExonereLabel, S.of(context)!.concubinageMarieExonere),
                     const SizedBox(height: 8),
                     _buildResultRow(
-                      'Concubin-e (~${(taux * 100).toStringAsFixed(0)}%)',
+                      S.of(context)!.concubinageConcubinTaux((taux * 100).toStringAsFixed(0)),
                       FamilyService.formatChf(impot),
                     ),
                   ],
@@ -561,10 +562,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'En concubinage, ton partenaire paierait '
-                    '${FamilyService.formatChf(impot)} d\'impot successoral '
-                    'sur un patrimoine de ${FamilyService.formatChf(_patrimoine)}. '
-                    'Marie-e, il/elle serait totalement exonere-e.',
+                    S.of(context)!.concubinageWarningSuccession(FamilyService.formatChf(impot), FamilyService.formatChf(_patrimoine)),
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: MintColors.textPrimary,
@@ -604,7 +602,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Aucune option n\'est universellement meilleure',
+                  S.of(context)!.concubinageNeutralTitle,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -613,11 +611,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Le choix entre mariage et concubinage depend de ta situation : '
-                  'revenus, patrimoine, enfants, canton, projet de vie. '
-                  'Le mariage offre plus de protections legales automatiques, '
-                  'le concubinage plus de flexibilite. '
-                  'Un-e specialiste peut t\'aider a y voir plus clair.',
+                  S.of(context)!.concubinageNeutralDesc,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -637,7 +631,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
   // ════════════════════════════════════════════════════════════
 
   Widget _buildTab2Checklist() {
-    final items = _checklistItems;
+    final items = _checklistItems(context);
     final nbChecked = _checkedItems.length;
 
     return ListView(
@@ -659,9 +653,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'En concubinage, rien n\'est automatique. '
-                  'Voici les protections essentielles a mettre en place '
-                  'pour proteger ton/ta partenaire.',
+                  S.of(context)!.concubinageChecklistIntro,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -688,7 +680,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '$nbChecked/${items.length} protections en place',
+                    S.of(context)!.concubinageProtectionsCount(nbChecked, items.length),
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -874,62 +866,38 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
   //  CHECKLIST DATA
   // ════════════════════════════════════════════════════════════
 
-  static final List<Map<String, String>> _checklistItems = [
+  List<Map<String, String>> _checklistItems(BuildContext context) => [
     {
-      'title': 'Rediger un testament',
-      'description':
-          'Sans testament, ton partenaire n\'herite de rien — tout va a tes parents '
-          'ou a tes freres et soeurs. Un testament olographe (ecrit a la main, date, signe) '
-          'suffit. Tu peux leguer la quotite disponible a ton/ta partenaire.',
+      'title': S.of(context)!.concubinageChecklist1Title,
+      'description': S.of(context)!.concubinageChecklist1Desc,
     },
     {
-      'title': 'Clause beneficiaire LPP',
-      'description':
-          'Contacte ta caisse de pension pour inscrire ton/ta partenaire comme '
-          'beneficiaire. Sans cette clause, le capital deces LPP ne lui revient pas. '
-          'La plupart des caisses acceptent le concubin sous conditions (menage commun, etc.).',
+      'title': S.of(context)!.concubinageChecklist2Title,
+      'description': S.of(context)!.concubinageChecklist2Desc,
     },
     {
-      'title': 'Convention de concubinage',
-      'description':
-          'Un contrat ecrit qui regle le partage des frais, la propriete des biens, '
-          'et ce qui se passe en cas de separation. Pas obligatoire, mais fortement '
-          'recommande — surtout si tu achetes un bien immobilier ensemble.',
+      'title': S.of(context)!.concubinageChecklist3Title,
+      'description': S.of(context)!.concubinageChecklist3Desc,
     },
     {
-      'title': 'Assurance-vie croisee',
-      'description':
-          'Une assurance-vie ou chacun est beneficiaire de l\'autre permet de '
-          'compenser l\'absence de rente AVS/LPP de survivant. '
-          'Compare les offres — les primes dependent de l\'age et du capital assure.',
+      'title': S.of(context)!.concubinageChecklist4Title,
+      'description': S.of(context)!.concubinageChecklist4Desc,
     },
     {
-      'title': 'Mandat pour cause d\'inaptitude',
-      'description':
-          'Si tu deviens incapable de discernement (accident, maladie), ton/ta '
-          'partenaire n\'a aucun pouvoir de representation. Un mandat pour cause '
-          'd\'inaptitude (CC art. 360 ss) lui donne ce droit.',
+      'title': S.of(context)!.concubinageChecklist5Title,
+      'description': S.of(context)!.concubinageChecklist5Desc,
     },
     {
-      'title': 'Directives anticipees',
-      'description':
-          'Un document qui precise tes volontes medicales en cas d\'incapacite. '
-          'Tu peux y designer ton/ta partenaire comme personne de confiance '
-          'pour les decisions medicales (CC art. 370 ss).',
+      'title': S.of(context)!.concubinageChecklist6Title,
+      'description': S.of(context)!.concubinageChecklist6Desc,
     },
     {
-      'title': 'Compte joint pour les depenses communes',
-      'description':
-          'Un compte commun simplifie la gestion des depenses partagees '
-          '(loyer, courses, factures). Definissez clairement la contribution de chacun. '
-          'En cas de separation, le solde est partage a 50/50 sauf convention contraire.',
+      'title': S.of(context)!.concubinageChecklist7Title,
+      'description': S.of(context)!.concubinageChecklist7Desc,
     },
     {
-      'title': 'Bail commun ou individuel',
-      'description':
-          'Si tu es sur le bail avec ton/ta partenaire, vous etes solidairement responsables. '
-          'En cas de separation, les deux doivent donner conge. '
-          'Si un seul est titulaire, l\'autre n\'a aucun droit sur le logement.',
+      'title': S.of(context)!.concubinageChecklist8Title,
+      'description': S.of(context)!.concubinageChecklist8Desc,
     },
   ];
 
@@ -1038,10 +1006,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Informations simplifiees a but educatif — ne constitue pas '
-              'un conseil juridique ou fiscal. Les regles dependent du canton, '
-              'de la commune et de ta situation personnelle. '
-              'Consulte un-e specialiste juridique pour un avis personnalise.',
+              S.of(context)!.concubinageDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.deepOrange,

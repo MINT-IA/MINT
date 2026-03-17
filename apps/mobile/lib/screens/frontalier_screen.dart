@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/expat_service.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FRONTALIER SCREEN — Sprint S23 / Expatriation + Frontaliers
@@ -130,7 +131,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: 16),
         title: Text(
-          'Frontalier',
+          S.of(context)!.frontalierAppBarTitle,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -164,10 +165,10 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           fontSize: 13,
           fontWeight: FontWeight.w400,
         ),
-        tabs: const [
-          Tab(text: 'Impôts'),
-          Tab(text: '90 jours'),
-          Tab(text: 'Charges'),
+        tabs: [
+          Tab(text: S.of(context)!.frontalierTabImpots),
+          Tab(text: S.of(context)!.frontalierTab90Jours),
+          Tab(text: S.of(context)!.frontalierTabCharges),
         ],
       ),
     );
@@ -194,10 +195,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           if (_taxResult!['isTessin'] == true) const SizedBox(height: 20),
         ],
         _buildEducationalInsert(
-          'En Suisse, les frontaliers sont imposés à la source (barème C). '
-          'Le taux varie selon le canton, l\'état civil et le nombre d\'enfants. '
-          'À Genève, si plus de 90% de tes revenus mondiaux proviennent de Suisse, '
-          'tu peux demander le statut de quasi-résident pour bénéficier des déductions.',
+          S.of(context)!.frontalierEducationalTax,
         ),
         const SizedBox(height: 20),
         _buildDisclaimer(),
@@ -224,7 +222,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             children: [
               Expanded(
                 child: Text(
-                  'Canton de travail',
+                  S.of(context)!.frontalierCantonTravail,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -267,7 +265,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
 
           // Salary slider
           _buildSlider(
-            label: 'Salaire brut mensuel',
+            label: S.of(context)!.frontalierSalaireBrut,
             value: _taxSalary,
             min: 3000,
             max: 25000,
@@ -281,7 +279,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
 
           // Marital status segmented button
           Text(
-            'Etat civil',
+            S.of(context)!.frontalierEtatCivil,
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -314,7 +312,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                     ),
                     child: Center(
                       child: Text(
-                        'Celibataire',
+                        S.of(context)!.frontalierCelibataire,
                         style: GoogleFonts.inter(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -350,7 +348,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                     ),
                     child: Center(
                       child: Text(
-                        'Marie(e)',
+                        S.of(context)!.frontalierMarie,
                         style: GoogleFonts.inter(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -372,7 +370,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             children: [
               Expanded(
                 child: Text(
-                  'Enfants a charge',
+                  S.of(context)!.frontalierEnfantsCharge,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -455,7 +453,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'par mois',
+                  S.of(context)!.frontalierParMois,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     color: MintColors.textMuted,
@@ -471,7 +469,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Taux effectif',
+                S.of(context)!.frontalierTauxEffectif,
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   color: MintColors.textSecondary,
@@ -511,7 +509,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Total annuel',
+                  S.of(context)!.frontalierTotalAnnuel,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -560,7 +558,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Quasi-résident (Genève)',
+                  S.of(context)!.frontalierQuasiResidentTitle,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -569,10 +567,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Si plus de 90% de tes revenus mondiaux proviennent de Suisse, '
-                  'tu peux demander la taxation ordinaire avec déductions '
-                  '(3a, frais effectifs, etc.). Cela peut réduire '
-                  'significativement ton impôt.',
+                  S.of(context)!.frontalierQuasiResidentDesc,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -606,7 +601,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Tessin — regime special',
+                  S.of(context)!.frontalierTessinTitle,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -657,10 +652,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
         ],
 
         _buildEducationalInsert(
-          'Depuis 2023, les accords amiables entre la Suisse et ses voisins '
-          'fixent un seuil de tolerance pour le teletravail des frontaliers. '
-          'Au-dela de 90 jours de home office par an, les cotisations sociales '
-          'et l\'imposition peuvent basculer vers le pays de residence.',
+          S.of(context)!.frontalierEducational90Days,
         ),
         const SizedBox(height: 20),
         _buildDisclaimer(),
@@ -681,7 +673,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSlider(
-            label: 'Jours au bureau en Suisse',
+            label: S.of(context)!.frontalierJoursBureau,
             value: _bureauDays.toDouble(),
             min: 0,
             max: 250,
@@ -691,11 +683,11 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               _recalculate90Day();
             },
             formatAsInt: true,
-            suffix: 'jours',
+            suffix: S.of(context)!.frontalierJoursSuffix,
           ),
           const SizedBox(height: 20),
           _buildSlider(
-            label: 'Jours en home office a l\'etranger',
+            label: S.of(context)!.frontalierJoursHomeOffice,
             value: _homeOfficeDays.toDouble(),
             min: 0,
             max: 250,
@@ -705,7 +697,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               _recalculate90Day();
             },
             formatAsInt: true,
-            suffix: 'jours',
+            suffix: S.of(context)!.frontalierJoursSuffix,
           ),
         ],
       ),
@@ -725,18 +717,18 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     switch (riskLevel) {
       case 'low':
         gaugeColor = MintColors.success;
-        statusLabel = 'Pas de risque';
+        statusLabel = S.of(context)!.frontalierRiskLow;
         statusIcon = Icons.check_circle;
         break;
       case 'medium':
         gaugeColor = MintColors.warning;
-        statusLabel = 'Zone d\'attention';
+        statusLabel = S.of(context)!.frontalierRiskMedium;
         statusIcon = Icons.warning_amber;
         break;
       case 'high':
       default:
         gaugeColor = MintColors.error;
-        statusLabel = 'Risque fiscal — l\'imposition bascule';
+        statusLabel = S.of(context)!.frontalierRiskHigh;
         statusIcon = Icons.dangerous;
         break;
     }
@@ -763,7 +755,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               const Icon(Icons.speed, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'JAUGE DE RISQUE',
+                S.of(context)!.frontalierJaugeRisque,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -785,7 +777,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             ),
           ),
           Text(
-            'jours de home office',
+            S.of(context)!.frontalierJoursHomeOfficeLabel,
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.textMuted,
@@ -840,7 +832,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           if (riskLevel != 'high') ...[
             const SizedBox(height: 12),
             Text(
-              'Il te reste $daysRemaining jours de marge',
+              S.of(context)!.frontalierDaysRemaining(daysRemaining),
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -971,7 +963,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               const Icon(Icons.tips_and_updates, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'RECOMMANDATION',
+                S.of(context)!.frontalierRecommandation,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -1044,10 +1036,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           const SizedBox(height: 20),
         ],
         _buildEducationalInsert(
-          'En tant que frontalier, tu cotises aux assurances sociales suisses '
-          '(AVS/AI/APG, AC, LPP). Les taux sont generalement plus bas qu\'en '
-          'France ou en Allemagne — mais la LAMal est a ta charge individuellement, '
-          'ce qui peut compenser l\'avantage.',
+          S.of(context)!.frontalierEducationalCharges,
         ),
         const SizedBox(height: 20),
         _buildDisclaimer(),
@@ -1070,7 +1059,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSlider(
-            label: 'Salaire brut mensuel',
+            label: S.of(context)!.frontalierSalaireBrut,
             value: _chargesSalary,
             min: 3000,
             max: 25000,
@@ -1083,7 +1072,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           const SizedBox(height: 20),
 
           Text(
-            'Pays de residence',
+            S.of(context)!.frontalierPaysResidence,
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -1161,7 +1150,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Charges CH',
+                  S.of(context)!.frontalierChargesCh,
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -1173,10 +1162,10 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                 _buildChargeRow('AC', ch['ac'] as double),
                 _buildChargeRow('LPP (est.)', ch['lpp'] as double),
                 const Divider(height: 16),
-                _buildChargeRow('Total', ch['total'] as double, bold: true),
+                _buildChargeRow(S.of(context)!.frontalierChargesTotal, ch['total'] as double, bold: true),
                 const SizedBox(height: 4),
                 Text(
-                  '${((ch['totalRate'] as double) * 100).toStringAsFixed(1)}% du salaire',
+                  S.of(context)!.frontalierDuSalaire(((ch['totalRate'] as double) * 100).toStringAsFixed(1)),
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: MintColors.textMuted,
@@ -1200,7 +1189,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Charges $country',
+                  S.of(context)!.frontalierChargesCountry(country),
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -1211,10 +1200,10 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                 ..._buildForeignChargeRows(foreign),
                 const Divider(height: 16),
                 _buildChargeRow(
-                    'Total', foreign['total'] as double, bold: true),
+                    S.of(context)!.frontalierChargesTotal, foreign['total'] as double, bold: true),
                 const SizedBox(height: 4),
                 Text(
-                  '${((foreign['totalRate'] as double) * 100).toStringAsFixed(1)}% du salaire',
+                  S.of(context)!.frontalierDuSalaire(((foreign['totalRate'] as double) * 100).toStringAsFixed(1)),
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: MintColors.textMuted,
@@ -1308,8 +1297,8 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           Flexible(
             child: Text(
               chLessCostly
-                  ? 'Charges CH moins elevees: ${ExpatService.formatChf(difference.abs())}/an'
-                  : 'Charges CH plus elevees: +${ExpatService.formatChf(difference.abs())}/an',
+                  ? S.of(context)!.frontalierChargesChMoins(ExpatService.formatChf(difference.abs()))
+                  : S.of(context)!.frontalierChargesChPlus(ExpatService.formatChf(difference.abs())),
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
@@ -1338,7 +1327,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               const Icon(Icons.local_hospital, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'ASSURANCE MALADIE',
+                S.of(context)!.frontalierAssuranceMaladie,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -1350,23 +1339,20 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           ),
           const SizedBox(height: 12),
           _buildLamalOptionRow(
-            'LAMal (suisse)',
-            'Obligatoire si tu travailles en CH. '
-                'Prime individuelle (~CHF 300-500/mois).',
+            S.of(context)!.frontalierLamalTitle,
+            S.of(context)!.frontalierLamalDesc,
             Icons.shield_outlined,
           ),
           const SizedBox(height: 10),
           _buildLamalOptionRow(
-            'CMU/Secu (France)',
-            'Droit d\'option possible pour les frontaliers FR. '
-                'Cotisation ~8% du revenu fiscal.',
+            S.of(context)!.frontalierCmuTitle,
+            S.of(context)!.frontalierCmuDesc,
             Icons.health_and_safety_outlined,
           ),
           const SizedBox(height: 10),
           _buildLamalOptionRow(
-            'Assurance privee (DE/IT/AT)',
-            'En Allemagne, option PKV pour hauts revenus. '
-                'IT/AT: regime obligatoire du pays.',
+            S.of(context)!.frontalierAssurancePriveeTitle,
+            S.of(context)!.frontalierAssurancePriveeDesc,
             Icons.security_outlined,
           ),
         ],
@@ -1557,7 +1543,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Le savais-tu ?',
+                  S.of(context)!.frontalierLeSavaisTu,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
