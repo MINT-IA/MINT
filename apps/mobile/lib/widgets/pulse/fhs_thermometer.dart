@@ -113,9 +113,11 @@ class _FhsThermometerState extends State<FhsThermometer>
   }
 
   /// Derive [FhsTrend] from the delta value.
+  /// Uses ±2.0 threshold (same as FinancialHealthScoreService.kFhsTrendThreshold)
+  /// to avoid conflicting signals between service and widget.
   FhsTrend get _trend {
-    if (widget.deltaVsYesterday > 0) return FhsTrend.up;
-    if (widget.deltaVsYesterday < 0) return FhsTrend.down;
+    if (widget.deltaVsYesterday > 2.0) return FhsTrend.up;
+    if (widget.deltaVsYesterday < -2.0) return FhsTrend.down;
     return FhsTrend.stable;
   }
 
@@ -133,8 +135,9 @@ class _FhsThermometerState extends State<FhsThermometer>
           child: AnimatedBuilder(
             animation: _arcAnimation,
             builder: (context, _) {
+              // Bug fix: clamp to 0-100 to prevent easeOutBack overshoot showing >100.
               final displayScore =
-                  (widget.score * _arcAnimation.value).round();
+                  (widget.score * _arcAnimation.value).round().clamp(0, 100);
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [

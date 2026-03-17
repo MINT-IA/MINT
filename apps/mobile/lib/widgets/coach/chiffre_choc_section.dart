@@ -103,7 +103,7 @@ class ChiffreChocSection extends StatelessWidget {
             'de cotisation manquante${lacunesAVS > 1 ? 's' : ''} '
             '(calcul\u00a0: rente mensuelle \u00d7 13 mois/an, 13\u1d49 rente incluse).', // TODO: i18n
         narrativeMessage: narratives['avs'],
-        source: 'LAVS art. 29, 13\u1d49 rente AVS (d\u00e8s d\u00e9c. 2026)',
+        source: 'LAVS art. 29bis-29ter, 13\u1d49 rente AVS (d\u00e8s d\u00e9c. 2026)',
         ctaLabel: 'V\u00e9rifier mes lacunes',
         ctaRoute: '/retraite',
         icon: Icons.shield_outlined,

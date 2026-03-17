@@ -60,8 +60,8 @@ class FinancialHealthScoreService {
   Future<FhsDailyScore> computeDailyAt(FriBreakdown fri, DateTime now) async {
     final history = _loadHistory();
 
-    final deltaYesterday = _computeDelta(fri.total, history, 1);
-    final deltaWeek = _computeDelta(fri.total, history, 7);
+    final deltaYesterday = _computeDelta(fri.total, history, 1, now);
+    final deltaWeek = _computeDelta(fri.total, history, 7, now);
     final trend = _computeTrend(deltaYesterday);
 
     final fhs = FhsDailyScore(
@@ -118,6 +118,12 @@ class FinancialHealthScoreService {
   }
 
   void _appendAndSave(FhsDailyScore fhs, List<Map<String, dynamic>> history) {
+    // Bug fix: deduplicate same-day entries — replace instead of accumulate.
+    final today = DateTime(fhs.computedAt.year, fhs.computedAt.month, fhs.computedAt.day);
+    history.removeWhere((entry) {
+      final d = DateTime.parse(entry['computedAt'] as String);
+      return DateTime(d.year, d.month, d.day) == today;
+    });
     history.add(fhs.toJson());
 
     // Prune: keep only the most recent kFhsMaxHistoryDays entries.
@@ -146,16 +152,21 @@ class FinancialHealthScoreService {
     double todayScore,
     List<Map<String, dynamic>> history,
     int daysAgo,
+    DateTime now,
   ) {
     if (history.isEmpty) return 0.0;
 
-    final target = DateTime.now().subtract(Duration(days: daysAgo));
+    // Bug fix: use injected `now` (not DateTime.now()) for testability + midnight safety.
+    final target = now.subtract(Duration(days: daysAgo));
+    // Bug fix: compare by calendar date (year/month/day) to avoid Duration.inDays truncation.
+    final targetDay = DateTime(target.year, target.month, target.day);
     Map<String, dynamic>? closest;
     var closestDiff = 2; // tolerance: max 1 day
 
     for (final entry in history) {
       final entryDate = DateTime.parse(entry['computedAt'] as String);
-      final diff = (entryDate.difference(target).inDays).abs();
+      final entryDay = DateTime(entryDate.year, entryDate.month, entryDate.day);
+      final diff = (entryDay.difference(targetDay).inDays).abs();
       if (diff < closestDiff) {
         closestDiff = diff;
         closest = entry;
