@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/simulators/lpp_buyback_advanced_simulator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
@@ -36,6 +37,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     final result = LppBuybackAdvancedSimulator.simulate(
       totalBuybackPotential: _totalPotential,
       yearsUntilRetirement: _yearsToRetirement,
@@ -46,8 +48,8 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
     );
 
     return SimulatorCard(
-      title: "Optimisation de Rachat LPP",
-      subtitle: "Effet levier fiscal + Capitalisation",
+      title: l.simLppBuybackTitle,
+      subtitle: l.simLppBuybackSubtitle,
       icon: Icons.account_balance_wallet_outlined,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,40 +71,41 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
   }
 
   Widget _buildInputSection() {
+    final l = S.of(context)!;
     return Column(
       children: [
         _buildSlider(
-          label: "Potentiel de rachat",
+          label: l.simLppBuybackPotential,
           value: _totalPotential,
           min: 50000,
           max: 500000,
           divisions: 45,
-          unit: "CHF",
+          unit: l.simLppBuybackUnitChf,
           onChanged: (v) => setState(() => _totalPotential = v),
         ),
         const SizedBox(height: 12),
         _buildSlider(
-          label: "Années jusqu'à la retraite",
+          label: l.simLppBuybackYearsToRetirement,
           value: _yearsToRetirement.toDouble(),
           min: 3,
           max: 25,
           divisions: 22,
-          unit: "ans",
+          unit: l.simLppBuybackUnitYears,
           onChanged: (v) => setState(() => _yearsToRetirement = v.toInt()),
         ),
         const SizedBox(height: 12),
         _buildSlider(
-          label: "Lissage (staggering)",
+          label: l.simLppBuybackStaggering,
           value: _staggeringYears.toDouble(),
           min: 1,
           max: 10,
           divisions: 9,
-          unit: "ans",
+          unit: l.simLppBuybackUnitYears,
           onChanged: (v) => setState(() => _staggeringYears = v.toInt()),
         ),
         const SizedBox(height: 12),
         _buildSlider(
-          label: "Taux de la caisse LPP",
+          label: l.simLppBuybackFundRate,
           value: _fundRate * 100,
           min: 1,
           max: 4,
@@ -112,12 +115,12 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
         ),
         const SizedBox(height: 12),
         _buildSlider(
-          label: "Revenu imposable",
+          label: l.simLppBuybackTaxableIncome,
           value: _taxableIncome,
           min: 50000,
           max: 300000,
           divisions: 25,
-          unit: "CHF",
+          unit: l.simLppBuybackUnitChf,
           onChanged: (v) => setState(() => _taxableIncome = v),
         ),
       ],
@@ -125,6 +128,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
   }
 
   Widget _buildPrimaryResult(LppAdvancedResult result) {
+    final l = S.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -146,7 +150,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
       child: Column(
         children: [
           Text(
-            "Valeur Finale Capitalisée",
+            l.simLppBuybackFinalCapital,
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.white70,
@@ -170,7 +174,9 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              "Rendement Réel : ${(result.realAnnualReturn * 100).toStringAsFixed(1)}% / an",
+              l.simLppBuybackRealReturn(
+                (result.realAnnualReturn * 100).toStringAsFixed(1),
+              ),
               style: const TextStyle(
                 color: MintColors.white,
                 fontWeight: FontWeight.bold,
@@ -184,17 +190,18 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
   }
 
   Widget _buildMetricsGrid(LppAdvancedResult result) {
+    final l = S.of(context)!;
     return Row(
       children: [
         _buildSmallMetric(
-          "Économie Impôts",
+          l.simLppBuybackTaxSavings,
           "CHF ${result.totalTaxSavings.toStringAsFixed(0)}",
           Icons.savings_outlined,
           MintColors.success,
         ),
         const SizedBox(width: 12),
         _buildSmallMetric(
-          "Effort Net",
+          l.simLppBuybackNetEffort,
           "CHF ${result.netEffort.toStringAsFixed(0)}",
           Icons.payments_outlined,
           MintColors.primary,
@@ -237,6 +244,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
   }
 
   Widget _buildComparisonSection(LppAdvancedResult result) {
+    final l = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -247,17 +255,17 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Gain Total de l'opération",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          Text(
+            l.simLppBuybackTotalGain,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
           ),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Capital - Effort Net",
+              Text(l.simLppBuybackCapitalMinusEffort,
                   style:
-                      TextStyle(color: MintColors.textSecondary, fontSize: 13)),
+                      const TextStyle(color: MintColors.textSecondary, fontSize: 13)),
               Text(
                 "+ CHF ${result.totalValueGained.toStringAsFixed(0)}",
                 style: const TextStyle(
@@ -271,8 +279,8 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Taux LPP servi",
-                  style: TextStyle(
+              Text(l.simLppBuybackFundRateLabel,
+                  style: const TextStyle(
                       color: MintColors.textMuted, fontSize: 12)),
               Text("${(_fundRate * 100).toStringAsFixed(1)}%",
                   style: const TextStyle(fontSize: 12)),
@@ -281,8 +289,8 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Effet levier fiscal",
-                  style: TextStyle(
+              Text(l.simLppBuybackFiscalLeverage,
+                  style: const TextStyle(
                       color: MintColors.textMuted, fontSize: 12)),
               Text(
                   "+${((result.realAnnualReturn - _fundRate) * 100).toStringAsFixed(1)}%",
@@ -298,6 +306,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
   }
 
   Widget _buildBonASavoir() {
+    final l = S.of(context)!;
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: Container(
@@ -312,7 +321,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
           leading: const Icon(Icons.lightbulb_outline,
               color: MintColors.primary, size: 20),
           title: Text(
-            "Bon à savoir",
+            l.simLppBuybackBonASavoir,
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -320,19 +329,12 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
             ),
           ),
           children: [
-            _buildBonASavoirItem(
-              "Le rachat LPP est l'un des rares outils de planification "
-              "fiscale accessibles à tous les salarié\u00B7e\u00B7s en Suisse.",
-            ),
+            _buildBonASavoirItem(l.simLppBuybackBonASavoirItem1),
+            const SizedBox(height: 10),
+            _buildBonASavoirItem(l.simLppBuybackBonASavoirItem2),
             const SizedBox(height: 10),
             _buildBonASavoirItem(
-              "Chaque franc racheté est déductible de ton revenu imposable "
-              "(LIFD art. 33 al. 1 let. d).",
-            ),
-            const SizedBox(height: 10),
-            _buildBonASavoirItem(
-              "Attention : tout retrait EPL est bloqué pendant 3 ans "
-              "après un rachat (LPP art. 79b al. 3).",
+              l.simLppBuybackBonASavoirItem3,
               isWarning: true,
             ),
           ],
@@ -369,8 +371,13 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
   }
 
   Widget _buildDisclaimer() {
+    final l = S.of(context)!;
     return Text(
-      "Simulation incluant l'intérêt de la caisse (${(_fundRate * 100).toStringAsFixed(1)}%) et l'économie d'impôt lissée sur $_staggeringYears ans pour un revenu imposable de CHF ${_taxableIncome.toStringAsFixed(0)}. Le rendement réel est calculé sur ton effort net réel.",
+      l.simLppBuybackDisclaimer(
+        (_fundRate * 100).toStringAsFixed(1),
+        _staggeringYears,
+        _taxableIncome.toStringAsFixed(0),
+      ),
       style: GoogleFonts.inter(
           fontSize: 10,
           color: MintColors.textMuted,

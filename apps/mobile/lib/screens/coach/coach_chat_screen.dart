@@ -608,12 +608,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               ),
               const SizedBox(height: 16),
               FilledButton(
-                onPressed: () => context.push('/advisor'),
+                onPressed: () => context.go('/onboarding/quick'),
                 style: FilledButton.styleFrom(
                   backgroundColor: MintColors.primary,
                 ),
                 child: Text(
-                  'Faire mon diagnostic',
+                  'Commencer',
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,

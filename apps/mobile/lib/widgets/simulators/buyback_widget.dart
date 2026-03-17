@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/simulators/buyback_simulator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
@@ -30,6 +31,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     if (widget.totalBuybackPotential <= 0) {
       return const SizedBox.shrink(); // Hide if no potential
     }
@@ -46,27 +48,24 @@ class _BuybackWidgetState extends State<BuybackWidget> {
 
     return SafeModeGate(
       hasDebt: hasDebt,
-      lockedTitle: 'Rachat LPP bloqué',
-      lockedMessage:
-          'Le rachat LPP est désactivé en mode protection. '
-          'Un rachat bloque ta liquidité pendant 3 ans (LPP art. 79b al. 3). '
-          'Rembourse d\'abord tes dettes avant d\'immobiliser du capital.',
+      lockedTitle: l.simBuybackLockedTitle,
+      lockedMessage: l.simBuybackLockedMessage,
       child: SimulatorCard(
-      title: "Stratégie Rachat LPP",
-      subtitle: "Optimisation par lissage (Staggering)",
+      title: l.simBuybackTitle,
+      subtitle: l.simBuybackSubtitle,
       icon: Icons.calendar_view_week,
       child: Column(
         children: [
           Row(
             children: [
               Expanded(
-                  child: Text("Durée du lissage",
+                  child: Text(l.simBuybackDuration,
                       style: GoogleFonts.inter(fontSize: 14))),
               DropdownButton<int>(
                 value: _years,
                 items: [2, 3, 4, 5]
                     .map((y) =>
-                        DropdownMenuItem(value: y, child: Text("$y ans")))
+                        DropdownMenuItem(value: y, child: Text(l.simBuybackYears(y))))
                     .toList(),
                 onChanged: (v) => setState(() => _years = v!),
                 underline: Container(), // clean look
@@ -82,14 +81,14 @@ class _BuybackWidgetState extends State<BuybackWidget> {
           // Comparison
           Row(
             children: [
-              _buildOption("Moins Optimisé", "En 1 fois",
+              _buildOption(l.simBuybackLessOptimized, l.simBuybackSingleShot,
                   result.singleShotTaxSaving, false),
               const SizedBox(width: 16),
               // Arrow
               const Icon(Icons.arrow_forward,
                   color: MintColors.textMuted, size: 20),
               const SizedBox(width: 16),
-              _buildOption("Optimisé", "En $_years fois",
+              _buildOption(l.simBuybackOptimized, l.simBuybackInNTimes(_years),
                   result.staggeredTotalTaxSaving, true),
             ],
           ),
@@ -109,7 +108,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                     color: MintColors.success, size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  "Gain estimé: + CHF ${result.delta.toStringAsFixed(0)}",
+                  l.simBuybackEstimatedGain(result.delta.toStringAsFixed(0)),
                   style: GoogleFonts.outfit(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -138,7 +137,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      "Qu'est-ce que le taux marginal d'imposition ?",
+                      l.simBuybackMarginalRateQuestion,
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: MintColors.info,
@@ -167,6 +166,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
   }
 
   void _showTauxMarginalInfo(BuildContext context) {
+    final l = S.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: MintColors.white,
@@ -192,7 +192,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
               ),
               const SizedBox(height: 24),
               Text(
-                "Taux marginal d'imposition",
+                l.simBuybackMarginalRateTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -201,8 +201,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
               ),
               const SizedBox(height: 16),
               Text(
-                "Le taux marginal est le pourcentage d'impôt sur ton dernier franc gagné. "
-                "Plus ton revenu est élevé, plus ce taux est fort.",
+                l.simBuybackMarginalRateExplanation,
                 style: GoogleFonts.inter(
                   fontSize: 15,
                   color: MintColors.textPrimary,
@@ -223,9 +222,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        "En lissant tes rachats, tu restes dans des tranches "
-                        "d'imposition plus basses chaque année, ce qui augmente "
-                        "ton économie fiscale totale.",
+                        l.simBuybackMarginalRateTip,
                         style: GoogleFonts.inter(
                           fontSize: 13,
                           color: MintColors.primary,
@@ -245,6 +242,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
 
   Widget _buildOption(
       String label, String sublabel, double amount, bool highlight) {
+    final l = S.of(context)!;
     return Expanded(
       child: Column(
         children: [
@@ -271,7 +269,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
               child: Column(
                 children: [
                   Text(
-                    "Économie",
+                    l.simBuybackSavingsLabel,
                     style: GoogleFonts.inter(
                         fontSize: 10,
                         color:

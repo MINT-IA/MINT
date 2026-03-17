@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -125,10 +126,13 @@ class _ForfaitFiscalCompareState extends State<ForfaitFiscalCompare>
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return Semantics(
-      label:
-          'Comparaison forfait fiscal. Imposition ordinaire: ${_formatChf(_ordinaryTotal)}. '
-          'Forfait fiscal: ${_formatChf(_forfaitTotal)}. Economie: ${_formatChf(_savings)}.',
+      label: l.forfaitFiscalSemanticsLabel(
+        _formatChf(_ordinaryTotal),
+        _formatChf(_forfaitTotal),
+        _formatChf(_savings),
+      ),
       child: GestureDetector(
         onTap: widget.onTap,
         child: LayoutBuilder(
@@ -151,11 +155,11 @@ class _ForfaitFiscalCompareState extends State<ForfaitFiscalCompare>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildHeader(),
+                  _buildHeader(l),
                   const SizedBox(height: 20),
-                  _buildBarChart(constraints.maxWidth - 48),
+                  _buildBarChart(constraints.maxWidth - 48, l),
                   const SizedBox(height: 16),
-                  _buildSavingsBadge(),
+                  _buildSavingsBadge(l),
                 ],
               ),
             );
@@ -165,7 +169,7 @@ class _ForfaitFiscalCompareState extends State<ForfaitFiscalCompare>
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S l) {
     return Row(
       children: [
         Container(
@@ -187,7 +191,7 @@ class _ForfaitFiscalCompareState extends State<ForfaitFiscalCompare>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Forfait fiscal vs Ordinaire',
+                l.forfaitFiscalTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -195,7 +199,7 @@ class _ForfaitFiscalCompareState extends State<ForfaitFiscalCompare>
                 ),
               ),
               Text(
-                'Comparaison annuelle  ·  Expatries',
+                l.forfaitFiscalSubtitle,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textSecondary,
@@ -208,7 +212,7 @@ class _ForfaitFiscalCompareState extends State<ForfaitFiscalCompare>
     );
   }
 
-  Widget _buildBarChart(double availableWidth) {
+  Widget _buildBarChart(double availableWidth, S l) {
     return AnimatedBuilder(
       animation: _barAnimation,
       builder: (context, _) {
@@ -224,6 +228,9 @@ class _ForfaitFiscalCompareState extends State<ForfaitFiscalCompare>
               maxTotal: _maxTotal,
               savings: _savings,
               progress: _barAnimation.value,
+              ordinaryBarLabel: l.forfaitFiscalOrdinaryLabel,
+              forfaitBarLabel: l.forfaitFiscalForfaitLabel,
+              baseLineLabel: l.forfaitFiscalBaseLine,
             ),
             size: Size(availableWidth, 320),
           ),
@@ -232,7 +239,7 @@ class _ForfaitFiscalCompareState extends State<ForfaitFiscalCompare>
     );
   }
 
-  Widget _buildSavingsBadge() {
+  Widget _buildSavingsBadge(S l) {
     final isSaving = _savings > 0;
     final color = isSaving ? MintColors.success : MintColors.error;
 
@@ -272,7 +279,9 @@ class _ForfaitFiscalCompareState extends State<ForfaitFiscalCompare>
                   Column(
                     children: [
                       Text(
-                        isSaving ? 'Economie forfait' : 'Surcout forfait',
+                        isSaving
+                            ? l.forfaitFiscalSaving
+                            : l.forfaitFiscalSurcharge,
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -289,7 +298,7 @@ class _ForfaitFiscalCompareState extends State<ForfaitFiscalCompare>
                         ),
                       ),
                       Text(
-                        'par annee',
+                        l.forfaitFiscalPerYear,
                         style: GoogleFonts.inter(
                           fontSize: 11,
                           color: color.withValues(alpha: 0.7),
@@ -363,6 +372,9 @@ class _ForfaitBarPainter extends CustomPainter {
   final double maxTotal;
   final double savings;
   final double progress;
+  final String ordinaryBarLabel;
+  final String forfaitBarLabel;
+  final String baseLineLabel;
 
   // Segment colors for stacked bars
   static const _ordinaryColors = [
@@ -387,6 +399,9 @@ class _ForfaitBarPainter extends CustomPainter {
     required this.maxTotal,
     required this.savings,
     required this.progress,
+    required this.ordinaryBarLabel,
+    required this.forfaitBarLabel,
+    required this.baseLineLabel,
   });
 
   @override
@@ -434,9 +449,9 @@ class _ForfaitBarPainter extends CustomPainter {
     );
 
     // ── Bar labels at bottom ──
-    _drawBarLabel(canvas, 'Imposition\nordinaire', ordinaryX, barWidth,
+    _drawBarLabel(canvas, ordinaryBarLabel, ordinaryX, barWidth,
         chartBottom + 6, MintColors.error);
-    _drawBarLabel(canvas, 'Forfait\nfiscal', forfaitX, barWidth,
+    _drawBarLabel(canvas, forfaitBarLabel, forfaitX, barWidth,
         chartBottom + 6, MintColors.success);
 
     // ── Total labels at top ──
@@ -460,7 +475,7 @@ class _ForfaitBarPainter extends CustomPainter {
       // Label for dashed line
       final lineLabelTp = TextPainter(
         text: TextSpan(
-          text: 'Base forfaitaire',
+          text: baseLineLabel,
           style: GoogleFonts.inter(
             fontSize: 8,
             fontWeight: FontWeight.w600,
@@ -773,6 +788,9 @@ class _ForfaitBarPainter extends CustomPainter {
     return oldDelegate.progress != progress ||
         oldDelegate.ordinarySegments != ordinarySegments ||
         oldDelegate.forfaitSegments != forfaitSegments ||
-        oldDelegate.maxTotal != maxTotal;
+        oldDelegate.maxTotal != maxTotal ||
+        oldDelegate.ordinaryBarLabel != ordinaryBarLabel ||
+        oldDelegate.forfaitBarLabel != forfaitBarLabel ||
+        oldDelegate.baseLineLabel != baseLineLabel;
   }
 }

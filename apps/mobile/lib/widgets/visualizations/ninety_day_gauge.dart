@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -76,15 +77,15 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
   bool get _isOrangeZone =>
       widget.currentDays >= 70 && widget.currentDays < 90;
 
-  String get _statusText {
+  String _statusText(S l) {
     if (_isRedZone) {
-      return 'Seuil depasse — risque d\'imposition ordinaire en Suisse';
+      return l.ninetyDayGaugeStatusRed;
     } else if (_isOrangeZone) {
       final remaining = 90 - widget.currentDays;
-      return 'Attention: plus que $remaining jour${remaining > 1 ? 's' : ''} avant le seuil';
+      return l.ninetyDayGaugeStatusOrange(remaining, remaining > 1 ? 's' : '');
     } else {
       final remaining = 90 - widget.currentDays;
-      return 'Zone sure — $remaining jour${remaining > 1 ? 's' : ''} restants avant le seuil';
+      return l.ninetyDayGaugeStatusGreen(remaining, remaining > 1 ? 's' : '');
     }
   }
 
@@ -102,9 +103,10 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
+    final statusText = _statusText(l);
     return Semantics(
-      label:
-          'Jauge de la regle des 90 jours. ${widget.currentDays} jours sur 90. $_statusText',
+      label: l.ninetyDayGaugeSemanticsLabel(widget.currentDays, statusText),
       child: GestureDetector(
         onTap: widget.onTap,
         child: LayoutBuilder(
@@ -128,7 +130,7 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildHeader(),
+                  _buildHeader(l),
                   const SizedBox(height: 20),
                   // Gauge
                   AnimatedBuilder(
@@ -144,14 +146,17 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
                             maxDays: widget.maxDays,
                             progress: _needleAnimation.value,
                             isRedZone: _isRedZone,
+                            zoneSafeLabel: l.ninetyDayGaugeZoneSafe,
+                            zoneAttentionLabel: l.ninetyDayGaugeZoneAttention,
+                            zoneRiskLabel: l.ninetyDayGaugeZoneRisk,
                           ),
-                          child: _buildCenterLabel(),
+                          child: _buildCenterLabel(l),
                         ),
                       );
                     },
                   ),
                   const SizedBox(height: 16),
-                  _buildStatusBadge(),
+                  _buildStatusBadge(statusText),
                 ],
               ),
             );
@@ -161,7 +166,7 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S l) {
     return Row(
       children: [
         Container(
@@ -183,7 +188,7 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Regle des 90 jours',
+                l.ninetyDayGaugeTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -191,7 +196,7 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
                 ),
               ),
               Text(
-                'Frontaliers  ·  Seuil fiscal',
+                l.ninetyDayGaugeSubtitle,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textSecondary,
@@ -204,7 +209,7 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
     );
   }
 
-  Widget _buildCenterLabel() {
+  Widget _buildCenterLabel(S l) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.only(top: 30),
@@ -228,7 +233,7 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
               },
             ),
             Text(
-              '/ 90 jours',
+              l.ninetyDayGaugeDaysOf90,
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
@@ -241,7 +246,7 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
     );
   }
 
-  Widget _buildStatusBadge() {
+  Widget _buildStatusBadge(String statusText) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
@@ -258,7 +263,7 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
           const SizedBox(width: 8),
           Flexible(
             child: Text(
-              _statusText,
+              statusText,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -282,12 +287,18 @@ class _NinetyDayGaugePainter extends CustomPainter {
   final int maxDays;
   final double progress;
   final bool isRedZone;
+  final String zoneSafeLabel;
+  final String zoneAttentionLabel;
+  final String zoneRiskLabel;
 
   _NinetyDayGaugePainter({
     required this.currentDays,
     required this.maxDays,
     required this.progress,
     required this.isRedZone,
+    required this.zoneSafeLabel,
+    required this.zoneAttentionLabel,
+    required this.zoneRiskLabel,
   });
 
   static const double _startAngle = 135 * pi / 180; // 135°
@@ -357,11 +368,11 @@ class _NinetyDayGaugePainter extends CustomPainter {
     canvas.drawArc(arcRect, redStart, redSweep, false, redPaint);
 
     // ── Zone labels ──
-    _drawZoneLabel(canvas, center, radius, 35 / maxDays, 'Zone sure',
+    _drawZoneLabel(canvas, center, radius, 35 / maxDays, zoneSafeLabel,
         MintColors.success);
-    _drawZoneLabel(canvas, center, radius, 79.5 / maxDays, 'Attention',
+    _drawZoneLabel(canvas, center, radius, 79.5 / maxDays, zoneAttentionLabel,
         MintColors.warning);
-    _drawZoneLabel(canvas, center, radius, 105 / maxDays, 'Risque fiscal',
+    _drawZoneLabel(canvas, center, radius, 105 / maxDays, zoneRiskLabel,
         MintColors.error);
   }
 
@@ -489,6 +500,9 @@ class _NinetyDayGaugePainter extends CustomPainter {
     return oldDelegate.currentDays != currentDays ||
         oldDelegate.maxDays != maxDays ||
         oldDelegate.progress != progress ||
-        oldDelegate.isRedZone != isRedZone;
+        oldDelegate.isRedZone != isRedZone ||
+        oldDelegate.zoneSafeLabel != zoneSafeLabel ||
+        oldDelegate.zoneAttentionLabel != zoneAttentionLabel ||
+        oldDelegate.zoneRiskLabel != zoneRiskLabel;
   }
 }

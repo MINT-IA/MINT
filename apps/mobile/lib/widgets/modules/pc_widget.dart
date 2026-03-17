@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/modules/pc_module.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
@@ -28,6 +29,7 @@ class _PCWidgetState extends State<PCWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final result = PCModule.checkEligibility(
       netIncome: widget.netIncome,
       netWealth: widget.netWealth,
@@ -41,17 +43,17 @@ class _PCWidgetState extends State<PCWidget> {
     final isEligible = result.isPotentiallyEligible;
 
     return SimulatorCard(
-      title: "Droits aux Prestations (PC)",
-      subtitle: "Checklist d'éligibilité locale",
+      title: s.pcWidgetTitle,
+      subtitle: s.pcWidgetSubtitle,
       icon: Icons.shield_outlined,
       accentColor: isEligible ? MintColors.success : MintColors.textSecondary,
       child: Column(
         children: [
           Row(
             children: [
-              _buildMetric("Revenus", widget.netIncome),
-              _buildMetric("Fortune", widget.netWealth),
-              _buildMetric("Loyer", widget.rent),
+              _buildMetric(s.pcWidgetRevenus, widget.netIncome),
+              _buildMetric(s.pcWidgetFortune, widget.netWealth),
+              _buildMetric(s.pcWidgetLoyer, widget.rent),
             ],
           ),
           const SizedBox(height: 20),
@@ -79,8 +81,8 @@ class _PCWidgetState extends State<PCWidget> {
                 Expanded(
                   child: Text(
                     isEligible
-                        ? "Ta situation suggère un droit potentiel aux PC."
-                        : "Tes revenus semblent suffisants selon les barèmes standards.",
+                        ? s.pcWidgetEligible
+                        : s.pcWidgetNotEligible,
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -100,7 +102,7 @@ class _PCWidgetState extends State<PCWidget> {
                   // Open Link Action
                 },
                 icon: const Icon(Icons.open_in_new, size: 16),
-                label: Text("Trouver l'office PC (${widget.canton})"),
+                label: Text(s.pcWidgetFindOffice(widget.canton)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: MintColors.success,
                   foregroundColor: MintColors.white,

@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -99,13 +100,14 @@ class _SpendingMeterState extends State<SpendingMeter>
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     // Edge case: no data
     if (widget.totalAvailable <= 0) {
       return SizedBox(
         height: 200,
         child: Center(
           child: Text(
-            'Budget non disponible',
+            l.spendingMeterBudgetUnavailable,
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.textMuted,
@@ -145,7 +147,7 @@ class _SpendingMeterState extends State<SpendingMeter>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Disponible',
+                        l.spendingMeterDisponible,
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           color: MintColors.textMuted,
@@ -175,12 +177,12 @@ class _SpendingMeterState extends State<SpendingMeter>
           children: [
             _buildLegendItem(
               color: MintColors.success,
-              label: 'Variables $_variablesPercent%',
+              label: l.spendingMeterVariablesLegend(_variablesPercent),
             ),
             const SizedBox(width: 24),
             _buildLegendItem(
               color: MintColors.info,
-              label: 'Futur $_futurePercent%',
+              label: l.spendingMeterFuturLegend(_futurePercent),
             ),
           ],
         ),

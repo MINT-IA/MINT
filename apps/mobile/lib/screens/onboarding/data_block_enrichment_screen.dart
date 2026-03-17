@@ -8,6 +8,7 @@ import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/services/cross_validation_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 /// Data block enrichment screen — deep-edit a specific confidence bloc.
 ///
@@ -68,7 +69,8 @@ class _DataBlockEnrichmentScreenState
         : <String, BlockScore>{};
     final bloc = isKnownBlock ? blocs[canonicalBlockType] : null;
 
-    final meta = _blockMeta(isKnownBlock ? canonicalBlockType : 'unknown');
+    final l = S.of(context)!;
+    final meta = _blockMeta(isKnownBlock ? canonicalBlockType : 'unknown', l);
 
     // Check if SLM or BYOK is available for coach mode
     final slmProvider = context.watch<SlmProvider>();
@@ -179,8 +181,7 @@ class _DataBlockEnrichmentScreenState
 
               // ── Disclaimer ───────────────────────────────────────
               Text(
-                'Outil éducatif simplifié. Ne constitue pas un conseil '
-                'financier (LSFin).',
+                S.of(context)!.dataBlockDisclaimer,
                 style: GoogleFonts.inter(
                   fontSize: 10,
                   color: MintColors.textMuted,
@@ -219,8 +220,7 @@ class _DataBlockEnrichmentScreenState
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Ce bloc est encore incomplet. Ouvre la section dédiée pour '
-                  'ajouter les données manquantes.',
+                  S.of(context)!.dataBlockIncomplete,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     color: MintColors.textPrimary,
@@ -245,7 +245,7 @@ class _DataBlockEnrichmentScreenState
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Ce bloc est complet.',
+                S.of(context)!.dataBlockComplete,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.success,
@@ -517,84 +517,57 @@ class _DataBlockEnrichmentScreenState
     return normalized;
   }
 
-  _BlockMeta _blockMeta(String type) {
+  _BlockMeta _blockMeta(String type, S l) {
     return switch (type) {
-      'revenu' => const _BlockMeta(
-          title: 'Revenu',
-          description:
-              'Ton salaire brut est la base de toutes les projections : '
-              'prévoyance, impôts, budget. Plus il est précis, plus tes '
-              'résultats seront fiables.',
-          ctaLabel: 'Préciser mon revenu',
+      'revenu' => _BlockMeta(
+          title: l.dataBlockRevenuTitle,
+          description: l.dataBlockRevenuDesc,
+          ctaLabel: l.dataBlockRevenuCta,
         ),
-      'lpp' => const _BlockMeta(
-          title: 'Prévoyance LPP',
-          description:
-              'Ton avoir LPP (2e pilier) représente souvent le plus gros '
-              'capital de ta prévoyance. Un certificat de prévoyance donne '
-              'une valeur exacte plutôt qu\'une estimation.',
-          ctaLabel: 'Ajouter mon certificat LPP',
+      'lpp' => _BlockMeta(
+          title: l.dataBlockLppTitle,
+          description: l.dataBlockLppDesc,
+          ctaLabel: l.dataBlockLppCta,
         ),
-      'avs' => const _BlockMeta(
-          title: 'Extrait AVS',
-          description:
-              "L'extrait AVS confirme tes années de cotisation effectives. "
-              "Des lacunes (séjour à l'étranger, années manquantes) réduisent "
-              'ta rente AVS.',
-          ctaLabel: 'Commander mon extrait AVS',
+      'avs' => _BlockMeta(
+          title: l.dataBlockAvsTitle,
+          description: l.dataBlockAvsDesc,
+          ctaLabel: l.dataBlockAvsCta,
         ),
-      '3a' => const _BlockMeta(
-          title: '3e pilier (3a)',
-          description:
-              "Tes comptes 3a s'ajoutent à ta prévoyance et offrent un "
-              'avantage fiscal. Renseigne les soldes actuels pour une vue '
-              'complète.',
-          ctaLabel: 'Simuler mon 3a',
+      '3a' => _BlockMeta(
+          title: l.dataBlock3aTitle,
+          description: l.dataBlock3aDesc,
+          ctaLabel: l.dataBlock3aCta,
         ),
-      'patrimoine' => const _BlockMeta(
-          title: 'Patrimoine',
-          description:
-              'Épargne libre, investissements, immobilier : ces données '
-              'complètent ta projection et permettent de calculer ton '
-              'Financial Resilience Index.',
-          ctaLabel: 'Renseigner mon patrimoine',
+      'patrimoine' => _BlockMeta(
+          title: l.dataBlockPatrimoineTitle,
+          description: l.dataBlockPatrimoineDesc,
+          ctaLabel: l.dataBlockPatrimoineCta,
         ),
-      'fiscalite' => const _BlockMeta(
-          title: 'Fiscalité',
-          description:
-              'Ta commune, ton revenu imposable et ta fortune déterminent '
-              'ton taux marginal d\'imposition. Une déclaration fiscale '
-              'ou un avis de taxation donne un taux réel plutôt qu\'estimé '
-              '(coefficient communal 60%-130%).',
-          ctaLabel: 'Comparer ma fiscalité',
+      'fiscalite' => _BlockMeta(
+          title: l.dataBlockFiscaliteTitle,
+          description: l.dataBlockFiscaliteDesc,
+          ctaLabel: l.dataBlockFiscaliteCta,
         ),
-      'objectifRetraite' => const _BlockMeta(
-          title: 'Objectif retraite',
-          description: 'À quel âge souhaites-tu arrêter de travailler ? '
-              "Un objectif clair permet de calculer l'effort d'épargne "
-              'nécessaire et les options (anticipation, retraite partielle).',
-          ctaLabel: 'Voir ma projection',
+      'objectifRetraite' => _BlockMeta(
+          title: l.dataBlockObjectifTitle,
+          description: l.dataBlockObjectifDesc,
+          ctaLabel: l.dataBlockObjectifCta,
         ),
-      'compositionMenage' => const _BlockMeta(
-          title: 'Composition du ménage',
-          description:
-              'En couple, les projections changent : AVS plafonnée pour '
-              'les mariés (LAVS art. 35), rente de survivant (LPP art. 19), '
-              'optimisation fiscale à deux.',
-          ctaLabel: 'Gérer mon ménage',
+      'compositionMenage' => _BlockMeta(
+          title: l.dataBlockMenageTitle,
+          description: l.dataBlockMenageDesc,
+          ctaLabel: l.dataBlockMenageCta,
         ),
-      'unknown' => const _BlockMeta(
-          title: 'Données',
-          description:
-              'Ce lien de données n’est plus à jour. Utilise la section '
-              'recommandée pour compléter ton profil.',
-          ctaLabel: 'Ouvrir le diagnostic',
+      'unknown' => _BlockMeta(
+          title: l.dataBlockUnknownTitle,
+          description: l.dataBlockUnknownDesc,
+          ctaLabel: l.dataBlockUnknownCta,
         ),
-      _ => const _BlockMeta(
-          title: 'Données',
-          description: 'Complète ce bloc pour améliorer la précision de '
-              'tes projections.',
-          ctaLabel: 'Compléter',
+      _ => _BlockMeta(
+          title: l.dataBlockDefaultTitle,
+          description: l.dataBlockDefaultDesc,
+          ctaLabel: l.dataBlockDefaultCta,
         ),
     };
   }
@@ -648,9 +621,9 @@ class _BlockScoreBar extends StatelessWidget {
               ),
               child: Text(
                 switch (bloc.status) {
-                  'complete' => 'Complet',
-                  'partial' => 'Partiel',
-                  _ => 'Manquant',
+                  'complete' => S.of(context)!.dataBlockStatusComplete,
+                  'partial' => S.of(context)!.dataBlockStatusPartial,
+                  _ => S.of(context)!.dataBlockStatusMissing,
                 },
                 style: GoogleFonts.inter(
                   fontSize: 12,
@@ -697,7 +670,7 @@ class _CoachModeToggle extends StatelessWidget {
       children: [
         Expanded(
           child: _ModeChip(
-            label: 'Formulaire',
+            label: S.of(context)!.dataBlockModeForm,
             icon: Icons.edit_note,
             isSelected: !isCoachMode,
             onTap: () => onToggle(false),
@@ -706,7 +679,7 @@ class _CoachModeToggle extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: _ModeChip(
-            label: 'Parle au coach',
+            label: S.of(context)!.dataBlockModeCoach,
             icon: Icons.smart_toy_outlined,
             isSelected: isCoachMode,
             isDisabled: !coachAvailable,
