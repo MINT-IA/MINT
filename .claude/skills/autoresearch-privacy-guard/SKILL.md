@@ -1,18 +1,18 @@
 ---
 name: autoresearch-privacy-guard
-description: "Audit-only scan for PII leaks in logs, analytics, LLM prompts, and CoachContext. Reports violations without modifying code. Use with /autoresearch-privacy-guard."
+description: "PII leak scanner + fixer. Scans logs, analytics, LLM prompts, and CoachContext for PII. Now includes autonomous fix loop: detect → replace with hash/anonymized → verify → commit. Use with /autoresearch-privacy-guard."
 compatibility: Requires Flutter SDK and Python 3.10+
-allowed-tools: Bash(grep:*) Bash(find:*) Read Glob Grep
+allowed-tools: Bash(grep:*) Bash(find:*) Bash(flutter:*) Bash(git:*) Read Edit Write Glob Grep
 metadata:
   author: mint-team
-  version: "1.0"
+  version: "2.0"
 ---
 
-# Autoresearch Privacy Guard — PII leak scanner (audit-only)
+# Autoresearch Privacy Guard — PII leak scanner + autonomous fixer
 
 ## Purpose
 
-Scan the entire MINT codebase for potential PII (Personally Identifiable Information) leaks. This skill is **read-only** — it produces a report but never modifies code.
+Scan the entire MINT codebase for potential PII (Personally Identifiable Information) leaks, then autonomously fix them. Loop: detect → replace with anonymized equivalent → verify → commit.
 
 ## Legal context
 
@@ -93,6 +93,55 @@ grep -rn "SharedPreferences\|setString\|setDouble\|setInt" apps/mobile/lib/ --in
 
 Verify sensitive data is not stored in plain text.
 
+## Fix Loop
+
+When PII is detected in scan phases 1-6, apply the autonomous fix loop:
+
+1. **READ** the file containing PII
+2. **IDENTIFY** the type (salary, IBAN, name, SSN, employer, NPA)
+3. **REPLACE** with anonymized equivalent:
+   - Exact salary → range bracket (`"100-120K"`)
+   - IBAN → `"[IBAN_REDACTED]"`
+   - Name → `"[USER]"` or `"[CONJOINT]"`
+   - NPA → canton code only (`"VS"`)
+   - Employer → `"[EMPLOYER]"`
+   - SSN/AVS number → `"[AVS_REDACTED]"`
+   - Phone number → `"[PHONE_REDACTED]"`
+   - Email → `"[EMAIL_REDACTED]"`
+4. **VERIFY**: grep for the original PII pattern → must return 0 hits
+5. **RUN** `flutter test` → ensure nothing breaks
+6. **COMMIT** if clean, **REVERT** if tests fail
+
+```bash
+# Example fix verification
+grep -rn "profile\.salaireBrut" apps/mobile/lib/ --include="*.dart" | grep -v test | grep "print\|log\|debug"
+# Must return 0 results after fix
+```
+
+For each fix, commit with:
+```bash
+git add <specific files>
+git commit -m "fix(privacy): redact PII in <file> — <type> removed from <context>
+
+Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
+```
+
+## CoachContext Sanitization Check
+
+Verify that CoachContext (sent to LLM) NEVER contains:
+- Exact salary (must use bracket: "80-100K", "100-120K", etc.)
+- Exact savings or debt amounts (must use bracket)
+- NPA or commune name (must use canton code only: "VS", "GE", "ZH")
+- Employer name (must be omitted or "[EMPLOYER]")
+- IBAN or account numbers
+
+```bash
+# Find CoachContext construction and check for raw financial fields
+grep -A 20 "CoachContext\|buildCoachContext\|_buildContext" apps/mobile/lib/ -r --include="*.dart" | grep -i "salaire\|salary\|savings\|dette\|debt\|npa\|postal\|employer\|employeur\|iban"
+```
+
+If any raw fields are found in CoachContext, apply the Fix Loop above.
+
 ## Report format
 
 ```
@@ -124,8 +173,12 @@ RECOMMENDATIONS:
 
 ## Strict rules
 
-- **NEVER** modify any code — this is an audit-only skill
-- **NEVER** create files (except the report)
+- **FIX all CRITICAL findings** (PII in logs, analytics, LLM prompts) — do not leave them as audit-only
+- **Report WARNING findings** that need manual judgment (potential PII, ambiguous cases)
+- **NEVER** delete functionality — only redact/anonymize the PII portion
+- **NEVER** fix PII in test files — test data with fake PII is acceptable
+- **ALWAYS** run `flutter test` after each fix to verify no breakage
+- **ALWAYS** revert immediately if tests fail after a fix
 - Report ALL findings, even if they seem minor
 - False positives are OK — better to over-report than miss a leak
 - Focus on what reaches external systems (logs, analytics, LLM, network)

@@ -1,11 +1,11 @@
 ---
 name: autoresearch-coach-evolution
-description: "Autonomous coaching content optimizer. Scores coaching text mechanically, generates 3 variants, keeps best if +5 points improvement. Use with /autoresearch-coach-evolution or /autoresearch-coach-evolution 30."
+description: "Autonomous coaching content optimizer with lifecycle-aware scoring. Scores coaching text mechanically, generates 3 variants, keeps best if +5 points improvement. Adjusts tone expectations by life phase (22-99). Use with /autoresearch-coach-evolution or /autoresearch-coach-evolution 30."
 compatibility: Requires Flutter SDK
 allowed-tools: Bash(flutter:*) Bash(grep:*) Bash(git:*) Read Edit Write Glob Grep
 metadata:
   author: mint-team
-  version: "1.0"
+  version: "2.0"
 ---
 
 # Autoresearch Coach Evolution — Autonomous Coaching Content Optimizer
@@ -29,6 +29,26 @@ Each coaching text is scored on these criteria:
 | **Compliance** | 5% | Banned terms present | Minor issues | Clean: no garanti/optimal/conseiller |
 
 **Composite** = weighted sum of all criteria.
+
+## Lifecycle Phase Context
+
+The 7 phases of life from the Lifecycle Engine affect coaching tone:
+
+| Phase | Age | Tone Target | Key Words |
+|-------|-----|-------------|-----------|
+| Demarrage | 22-28 | Encourageant, simple | "C'est le bon moment", "petit a petit" |
+| Construction | 28-35 | Motivant, concret | "Tu construis", "etape par etape" |
+| Acceleration | 35-45 | Strategique | "Optimise", "maximise l'impact" |
+| Consolidation | 45-55 | Rassurant, precis | "Tu es sur la bonne voie", "verifie" |
+| Transition | 55-65 | Expert, detaille | "Prepare", "anticipe", "planifie" |
+| Retraite | 65-80 | Bienveillant, clair | "Profite", "simplifie", "protege" |
+| Transmission | 75-99 | Simple, respectueux | "Transmet", "organise", "sereinement" |
+
+When scoring coaching text, adjust the "MINT voice" criterion weight based on which phase the text targets. Text for 65+ must score higher on simplicity. Specifically:
+- **Demarrage/Construction**: Standard weights apply
+- **Acceleration/Consolidation**: Increase "Concreteness" weight to 25% (reduce "Brevity" to 5%)
+- **Transition**: Increase "Actionability" weight to 25% (reduce "Brevity" to 5%)
+- **Retraite/Transmission**: Increase "Jargon-free" weight to 25% and "Brevity" to 15% (reduce "Concreteness" to 10% and "Emotional hook" to 10%)
 
 ## Scoring Commands
 

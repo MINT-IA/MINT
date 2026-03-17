@@ -27,11 +27,33 @@
 | S28 | SafeMode Enforcement + Compliance Tests | done | done | 1596 tests | `54026e3` |
 | S29 | Smoke Test Coverage (26 screens) | done | done | 52 Flutter tests | `968f972` |
 | S30 | Disability Gap Service (Chantier 3) | done | done | 1629 tests | `4d6f317` |
+| S31-S33 | Arbitrage modules (rente vs capital, 3a, LPP buyback) | done | done | done | various |
+| S34 | ComplianceGuard (25+ adversarial tests) | done | done | done | various |
+| S35 | Coach Layer V1 (BYOK + fallback templates) | done | done | done | various |
+| S36-S37 | FRI Calculator + Monte Carlo simulations | done | done | done | various |
+| S38-S39 | FRI UI + tornado sensitivity analysis | done | done | done | various |
+| S40 | Data Acquisition OCR (document scanning) | done | done | done | various |
+| S41 | Rente vs Capital screen (UX masterplan hero) | done | done | done | various |
+| S42 | Social insurance constants centralization | done | done | done | various |
+| S43 | i18n foundation (6-language ARB, S.of(context)) | done | done | done | various |
+| S44 | Intelligence branchement (arbitrage engine) | done | done | done | `06a7627` |
+| S45 | Dashboard "film pas photo" (waterfall, narrative) | done | done | done | `57f4781` |
+| S46 | Enhanced confidence scoring (4-axis) | done | done | 20 tests | `5d96840` |
+| S47 | dataTimestamps wiring (per-field timestamps) | done | done | done | `a294eb2` |
+| S48 | SLM audit + codebase audit + constants | done | done | done | `8dfc28c` |
+| S49 | Navigation V1 (3 tabs, 85 routes, -3213 lines) | done | done | done | `24b6e25` |
+| S50 | Prod readiness (v0.1.0, tests, i18n, docs) | done | done | in progress | in progress |
 
-## Baselines
+## Baselines (updated 2026-03-17)
 
-- **Backend test baseline**: 1965 passed, 0 failed, 80 skipped
-- **Flutter analyze**: 0 errors (~896 info/warnings)
-- **i18n**: 6 locales (fr, de, en, es, it, pt) — `2fc39a1`
-- **QA fix**: LPP 3780 + AVS 2520 aligned — `750286b`
-- **Financial Core**: unified AVS/LPP/Tax calculators + confidence scorer — `656e620`
+- **Production version**: v0.1.0
+- **Navigation**: 3 tabs (Pulse, Mint, Moi), 85 routes
+- **Backend test baseline**: 84 tests (pytest)
+- **Flutter tests**: 235 tests
+- **Flutter analyze**: 0 errors
+- **i18n**: 6 locales (fr, de, en, es, it, pt) — ~2800+ keys, ~5600 lines in app_fr.arb
+- **Screens**: ~100
+- **Services**: ~124
+- **Widgets**: ~211
+- **Financial Core**: unified AVS/LPP/Tax/FRI/Monte Carlo/Arbitrage/Confidence calculators
+- **Autoresearch skills**: 10 (5 existing + 5 new)

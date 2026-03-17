@@ -1,18 +1,18 @@
 ---
 name: autoresearch-test-coverage
-description: "Audit-only scan for test coverage gaps. Maps services to tests, flags under-tested or untested files. Reports without modifying code. Use with /autoresearch-test-coverage."
+description: "Test coverage auditor + gap delegator. Maps services to tests, flags under-tested files, outputs test_gaps.json for autoresearch-test-generation to consume. Use with /autoresearch-test-coverage."
 compatibility: Requires Flutter SDK and Python 3.10+
-allowed-tools: Bash(flutter:*) Bash(pytest:*) Bash(grep:*) Read Glob Grep
+allowed-tools: Bash(flutter:*) Bash(pytest:*) Bash(grep:*) Read Edit Write Glob Grep
 metadata:
   author: mint-team
-  version: "1.0"
+  version: "2.0"
 ---
 
 # Autoresearch Test Coverage — Gap scanner (audit-only)
 
 ## Purpose
 
-Identify services, calculators, and screens with missing or insufficient tests. This skill is **read-only** — it produces a coverage matrix but never modifies code.
+Identify services, calculators, and screens with missing or insufficient tests. Produces a coverage matrix and generates `test_gaps.json` for downstream consumption by `/autoresearch-test-generation`.
 
 ## CLAUDE.md requirements
 
@@ -133,6 +133,30 @@ RECOMMENDATIONS:
   ...
 ```
 
+## Phase 2 — DELEGATE
+
+After the audit phases complete, generate `test_gaps.json` listing all files with <10 tests. This file is consumed by `/autoresearch-test-generation` for autonomous test creation.
+
+**Output path**: `apps/mobile/test/test_gaps.json`
+
+**Format**:
+
+```json
+[
+  {"file": "lib/services/xyz_service.dart", "current_tests": 3, "target_tests": 10, "priority": "high"},
+  {"file": "lib/services/financial_core/abc_calculator.dart", "current_tests": 0, "target_tests": 10, "priority": "critical"},
+  {"file": "lib/screens/budget_screen.dart", "current_tests": 0, "target_tests": 3, "priority": "medium"}
+]
+```
+
+**Priority mapping**:
+- `critical` — `financial_core/` with 0 tests (P0)
+- `high` — `financial_core/` with <10 tests OR other services with 0 tests (P1-P2)
+- `medium` — screens with no widget test (P3)
+- `low` — backend services with <5 tests (P4)
+
+After generating `test_gaps.json`, run `/autoresearch-test-generation` to automatically fill the gaps.
+
 ## Priority ranking
 
 | Priority | What | Why |
@@ -145,8 +169,8 @@ RECOMMENDATIONS:
 
 ## Strict rules
 
-- **NEVER** modify any code — this is an audit-only skill
-- **NEVER** create test files (only report gaps)
+- **NEVER** modify any source code — this skill only creates `test_gaps.json` as output
+- **NEVER** create test files (only report gaps — test creation is delegated to `/autoresearch-test-generation`)
 - Count `test(` and `testWidgets(` calls (not `group(`)
 - Exclude `integration_test/` from the scan
 - Report both absolute count and relative to the 10-test minimum

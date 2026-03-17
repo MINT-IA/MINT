@@ -1,11 +1,11 @@
 ---
 name: autoresearch-quality
-description: "Autonomous bug hunter. Runs flutter test, reads failures, fixes the CODE (not the test), re-runs to verify. Falls back to flutter analyze when tests are green. Use with /autoresearch-quality or /autoresearch-quality 20."
+description: "Autonomous bug hunter. Runs flutter test, reads failures, fixes the CODE (not the test), re-runs to verify. Falls back to flutter analyze when tests are green. GATE for ROADMAP_V2.md Phase 1 Chat AI — quality must be green before proceeding. Use with /autoresearch-quality or /autoresearch-quality 20."
 compatibility: Requires Flutter SDK
 allowed-tools: Bash(flutter:*) Bash(dart:*) Bash(git:*) Read Edit Write Glob Grep
 metadata:
   author: mint-team
-  version: "3.0"
+  version: "3.1"
 ---
 
 # Autoresearch Quality v3 — Autonomous Bug Hunter
@@ -37,6 +37,8 @@ flutter test 2>&1 | tail -5
 ```
 
 Extract: `+N ~M -F` → N passed, M skipped, F failed.
+
+> **GATE**: This skill is a GATE for Phase 1 Chat AI — quality must be green before proceeding with chat implementation. All tests passing + 0 analyze errors = green light.
 
 If F = 0 (all tests pass), fall back to **Phase 0b — Analyze Mode**:
 ```bash
@@ -79,6 +81,10 @@ For the highest-priority failure:
 2. **Read the error message** — understand what actually happened
 3. **Read the source code** — find the bug
 4. **Identify root cause** — is it a missing parameter? Wrong logic? Stale import?
+
+**Golden test profiles** for validation:
+- **Julien** (49 ans, VS, 122K, swiss_native) + **Lauren** (43 ans, VS, 67K, expat_us) — see CLAUDE.md § 8
+- **Marco** (24 ans, TI, 52K, apprenti) — young profile for early-career edge cases
 
 Common patterns:
 - `missing_required_argument` → service method signature changed, caller not updated
@@ -142,10 +148,10 @@ Continue until:
 
 When `flutter test` is green, switch to lint fixes:
 
-1. Run `flutter analyze`
-2. Fix errors first, then warnings, then infos
-3. Verify with `flutter test` after every 5 lint fixes (guard against regressions)
-4. Use `dart fix --apply` for bulk mechanical fixes (prefer_const, etc.)
+1. Run `dart fix --apply` for bulk mechanical fixes (prefer_const, unnecessary_new, etc.) before manual fixes
+2. Run `flutter analyze`
+3. Fix errors first, then warnings, then infos
+4. Verify with `flutter test` after every 5 lint fixes (guard against regressions)
 5. Stop when only `avoid_print` in tests + `constant_identifier_names` remain
 
 ## Anti-patterns (never do)

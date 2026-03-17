@@ -5,7 +5,7 @@ compatibility: Requires Flutter SDK
 allowed-tools: Bash(flutter:*) Bash(grep:*) Bash(git:*) Read Edit Write Glob Grep
 metadata:
   author: mint-team
-  version: "2.0"
+  version: "2.1"
 ---
 
 # Autoresearch i18n v2 — Karpathy-Style String Extraction Loop
@@ -17,6 +17,12 @@ Autonomous agent that systematically extracts hardcoded French strings from Flut
 ## Primary Metric
 
 **Hardcoded French string count** in `lib/screens/` and `lib/widgets/`.
+
+**Secondary metric**: NBSP violations = count of `:`, `?`, `!`, `;`, `%` NOT preceded by `\u00a0` in French ARB strings. Measure with:
+
+```bash
+grep -Pn '[^\u00a0][!?:;%]' apps/mobile/lib/l10n/app_fr.arb | grep -v '"@' | grep -v '//\|http\|mailto\|regex' | wc -l
+```
 
 Detection command:
 
@@ -84,6 +90,8 @@ BASELINE: YYYY-MM-DD HH:MM
 
 For each batch, pick one file (the one with the most hardcoded strings). Extract up to 5 strings from that file.
 
+**Skip files in `archive/` and `docs/archive/` directories** — these are not active code.
+
 **Extraction steps for each string**:
 
 1. **Read the file** to understand the context
@@ -118,10 +126,12 @@ For each batch, pick one file (the one with the most hardcoded strings). Extract
 
 After each batch of 5 extractions:
 
+If `flutter gen-l10n` FAILS, immediately revert the last batch with `git checkout -- lib/l10n/app_*.arb` and diagnose the ARB syntax error before continuing.
+
 ```bash
 cd /Users/julienbattaglia/Desktop/MINT/apps/mobile
 
-# Verify ARB syntax
+# Verify ARB syntax — if this fails, revert immediately
 flutter gen-l10n 2>&1
 
 # Verify analyze
@@ -162,6 +172,7 @@ Go back to Phase 2 until:
 8. **Preserve formatting.** If the original uses `\n` or string interpolation, handle it properly in the ARB.
 9. **Run `flutter gen-l10n` after every batch.** If it fails, fix the ARB syntax error before continuing.
 10. **If tests break, fix immediately** before continuing the extraction loop.
+11. **Skip archive directories** — files in `archive/` or `docs/archive/` are not active code and must not be scanned or modified.
 
 ## Key Name Convention
 
