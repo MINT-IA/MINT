@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/retirement_projection_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -48,13 +49,14 @@ class _BudgetGapChartState extends State<BudgetGapChart>
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final gap = widget.budgetGap;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Replacement rate badge
-        _buildReplacementBadge(gap.tauxRemplacement),
+        _buildReplacementBadge(gap.tauxRemplacement, s),
         const SizedBox(height: 16),
 
         // Chart
@@ -81,7 +83,7 @@ class _BudgetGapChartState extends State<BudgetGapChart>
     );
   }
 
-  Widget _buildReplacementBadge(double rate) {
+  Widget _buildReplacementBadge(double rate, S s) {
     final color = rate >= 80
         ? MintColors.success
         : rate >= 60
@@ -105,7 +107,7 @@ class _BudgetGapChartState extends State<BudgetGapChart>
           ),
           const SizedBox(width: 8),
           Text(
-            'Taux de remplacement : ${rate.toStringAsFixed(0)}%',
+            s.retirementBudgetGapReplacementRate(rate.toStringAsFixed(0)),
             style: GoogleFonts.montserrat(
               fontSize: 13,
               fontWeight: FontWeight.w700,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/retirement_service.dart';
 
@@ -32,7 +33,8 @@ class AvsScenarioCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final config = _scenarioConfig;
+    final s = S.of(context)!;
+    final config = _getScenarioConfig(s);
 
     return GestureDetector(
       onTap: onTap,
@@ -94,7 +96,7 @@ class AvsScenarioCard extends StatelessWidget {
             ),
             const SizedBox(height: 2),
             Text(
-              'par mois',
+              s.retirementAvsParMois,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textMuted,
@@ -113,7 +115,7 @@ class AvsScenarioCard extends StatelessWidget {
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
-                    'Référence',
+                    s.retirementAvsReference,
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -156,7 +158,7 @@ class AvsScenarioCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  'à vie',
+                  s.retirementAvsAVie,
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
@@ -171,30 +173,30 @@ class AvsScenarioCard extends StatelessWidget {
     );
   }
 
-  _ScenarioConfig get _scenarioConfig {
+  _ScenarioConfig _getScenarioConfig(S s) {
     switch (scenario) {
       case 'anticipation':
-        return const _ScenarioConfig(
-          label: 'Anticipation',
+        return _ScenarioConfig(
+          label: s.retirementAvsAnticipation,
           icon: Icons.fast_rewind,
           color: MintColors.error,
         );
       case 'ajournement':
-        return const _ScenarioConfig(
-          label: 'Ajournement',
+        return _ScenarioConfig(
+          label: s.retirementAvsAjournement,
           icon: Icons.fast_forward,
           color: MintColors.info,
         );
       case 'normal':
-        return const _ScenarioConfig(
-          label: 'Normal (65 ans)',
+        return _ScenarioConfig(
+          label: s.retirementAvsNormal65,
           icon: Icons.check_circle_outline,
           color: MintColors.success,
         );
       default:
         assert(false, 'Unknown AVS scenario: $scenario');
-        return const _ScenarioConfig(
-          label: 'Normal (65 ans)',
+        return _ScenarioConfig(
+          label: s.retirementAvsNormal65,
           icon: Icons.check_circle_outline,
           color: MintColors.success,
         );
@@ -207,7 +209,7 @@ class _ScenarioConfig {
   final IconData icon;
   final Color color;
 
-  const _ScenarioConfig({
+  _ScenarioConfig({
     required this.label,
     required this.icon,
     required this.color,

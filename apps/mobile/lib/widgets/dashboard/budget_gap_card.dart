@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/retirement_projection_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -25,6 +26,7 @@ class BudgetGapCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final isSurplus = budgetGap.soldeMensuel >= 0;
     final soldeColor = isSurplus ? MintColors.success : MintColors.error;
 
@@ -66,7 +68,7 @@ class BudgetGapCard extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Budget retraite estim\u00e9',
+                  s.dashboardBudgetTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -80,20 +82,20 @@ class BudgetGapCard extends StatelessWidget {
 
           // Budget lines
           _buildLine(
-            label: 'Revenus totaux',
+            label: s.dashboardBudgetRevenusTotaux,
             amount: budgetGap.totalRevenusMensuel,
             color: MintColors.textPrimary,
           ),
           const SizedBox(height: 8),
           _buildLine(
-            label: 'Imp\u00f4t estim\u00e9',
+            label: s.dashboardBudgetImpotEstime,
             amount: -budgetGap.impotEstimeMensuel,
             color: MintColors.textSecondary,
             isDeduction: true,
           ),
           const SizedBox(height: 8),
           _buildLine(
-            label: 'D\u00e9penses estim\u00e9es',
+            label: s.dashboardBudgetDepensesEstimees,
             amount: -budgetGap.depensesMensuelles,
             color: MintColors.textSecondary,
             isDeduction: true,
@@ -108,7 +110,7 @@ class BudgetGapCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  isSurplus ? 'Exc\u00e9dent mensuel' : 'D\u00e9ficit mensuel',
+                  isSurplus ? s.dashboardBudgetExcedentMensuel : s.dashboardBudgetDeficitMensuel,
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,

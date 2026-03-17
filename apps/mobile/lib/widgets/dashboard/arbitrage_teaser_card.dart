@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
@@ -31,10 +32,11 @@ class ArbitrageTeaserSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     if (!FeatureFlags.enableDecisionScaffold) {
       return const SizedBox.shrink();
     }
-    final teasers = _computeTeasers(profile);
+    final teasers = _computeTeasers(profile, s);
     if (teasers.isEmpty) return const SizedBox.shrink();
 
     return Column(
@@ -44,7 +46,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                'Pistes d\u2019arbitrage',
+                s.dashboardArbitrageSectionTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -55,7 +57,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
             GestureDetector(
               onTap: () => context.push('/arbitrage/bilan'),
               child: Text(
-                'Voir tout \u2192',
+                s.dashboardArbitrageSeeAll,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -67,7 +69,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          'Estimations rapides \u2014 appuie pour explorer en d\u00e9tail',
+          s.dashboardArbitrageSubtitle,
           style: GoogleFonts.inter(
             fontSize: 12,
             color: MintColors.textMuted,
@@ -82,7 +84,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
     );
   }
 
-  static List<_TeaserData> _computeTeasers(CoachProfile profile) {
+  static List<_TeaserData> _computeTeasers(CoachProfile profile, S s) {
     final teasers = <_TeaserData>[];
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
@@ -124,9 +126,9 @@ class ArbitrageTeaserSection extends StatelessWidget {
         teasers.add(_TeaserData(
           icon: Icons.compare_arrows_rounded,
           color: MintColors.purple,
-          title: 'Rente vs Capital',
+          title: s.dashboardArbitrageRenteVsCapital,
           chiffreChoc:
-              'L\u2019option $betterOption pourrait donner +CHF\u00a0${_fmt(diff)}/mois nets',
+              s.dashboardArbitrageOptionBetter(betterOption, _fmt(diff)),
           route: '/rente-vs-capital',
         ));
       }
@@ -155,9 +157,9 @@ class ArbitrageTeaserSection extends StatelessWidget {
         teasers.add(_TeaserData(
           icon: Icons.calendar_month_outlined,
           color: MintColors.info,
-          title: 'Calendrier de retraits',
+          title: s.dashboardArbitrageCalendrierRetraits,
           chiffreChoc:
-              '\u00c9chelonner tes retraits pourrait \u00e9conomiser ~CHF\u00a0${_fmt(saving)} d\u2019imp\u00f4t',
+              s.dashboardArbitrageStaggerSaving(_fmt(saving)),
           route: '/decaissement',
         ));
       }
@@ -178,9 +180,9 @@ class ArbitrageTeaserSection extends StatelessWidget {
       teasers.add(_TeaserData(
         icon: Icons.add_chart_rounded,
         color: MintColors.success,
-        title: 'Rachat LPP',
+        title: s.dashboardArbitrageRachatLpp,
         chiffreChoc:
-            'Un rachat de CHF\u00a0${_fmt(lacune)} pourrait r\u00e9duire ton imp\u00f4t de ~CHF\u00a0${_fmt(saving)}',
+            s.dashboardArbitrageRachatSaving(_fmt(lacune), _fmt(saving)),
         route: '/rachat-lpp',
       ));
     }
@@ -269,7 +271,7 @@ class _ArbitrageTeaserTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Dans ce sc\u00e9nario simul\u00e9 \u2014 \u00e0 explorer en d\u00e9tail',
+                    S.of(context)!.dashboardArbitrageDisclaimer,
                     style: GoogleFonts.inter(
                       fontSize: 10,
                       color: MintColors.textMuted,

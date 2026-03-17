@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -48,8 +49,9 @@ class SaleSurprisesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Surprises vente immobilière impôt gain capital EPL remploi',
+      label: s.coachSaleSurprisesSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -59,7 +61,7 @@ class SaleSurprisesWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
@@ -69,7 +71,7 @@ class SaleSurprisesWidget extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildNetCascade(),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -79,7 +81,7 @@ class SaleSurprisesWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -95,7 +97,7 @@ class SaleSurprisesWidget extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Les 3 surprises de la vente',
+                  s.coachSaleSurprisesTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -107,8 +109,7 @@ class SaleSurprisesWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Tu vends ${formatChfWithPrefix(salePrice)}. Tu penses toucher ${formatChfWithPrefix(_netReal + _gainTax)}. '
-            'Tu reçois ${formatChfWithPrefix(_netReal)}.',
+            s.coachSaleSurprisesSubtitle(formatChfWithPrefix(salePrice), formatChfWithPrefix(_netReal + _gainTax), formatChfWithPrefix(_netReal)),
             style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary, height: 1.4),
           ),
         ],
@@ -280,11 +281,9 @@ class SaleSurprisesWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil fiscal au sens de la LSFin. '
-      'Source : LIFD art. 12 (impôt gain immobilier), LPP art. 30c (EPL). '
-      'Taux gain indicatif pour $canton, $holdingYears ans de détention.',
+      s.coachSaleSurprisesDisclaimer(canton, holdingYears),
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

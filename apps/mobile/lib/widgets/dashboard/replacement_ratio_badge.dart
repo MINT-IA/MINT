@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -25,9 +26,10 @@ class ReplacementRatioBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final color = _colorForRatio(ratio);
     final icon = _iconForRatio(ratio);
-    final message = _messageForRatio(ratio);
+    final message = _messageForRatio(ratio, s);
 
     return Container(
       width: double.infinity,
@@ -73,7 +75,7 @@ class ReplacementRatioBadge extends StatelessWidget {
                     Icon(icon, size: 14, color: color),
                     const SizedBox(width: 4),
                     Text(
-                      'Taux de remplacement',
+                      s.dashboardReplacementRatioLabel,
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -84,7 +86,7 @@ class ReplacementRatioBadge extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${ratio.toStringAsFixed(0)}% de ton revenu actuel',
+                  s.dashboardReplacementRatioOfIncome(ratio.toStringAsFixed(0)),
                   style: GoogleFonts.montserrat(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -120,16 +122,16 @@ class ReplacementRatioBadge extends StatelessWidget {
     return Icons.warning_amber_outlined;
   }
 
-  static String _messageForRatio(double ratio) {
+  static String _messageForRatio(double ratio, S s) {
     if (ratio >= 80) {
-      return 'Couverture confortable. Le niveau de vie peut \u00eatre maintenu.';
+      return s.dashboardReplacementRatioExcellent;
     }
     if (ratio >= 70) {
-      return 'Bon niveau. Quelques ajustements mineurs pourraient suffire.';
+      return s.dashboardReplacementRatioGood;
     }
     if (ratio >= 55) {
-      return 'Niveau moyen. Des compl\u00e9ments (3a, \u00e9pargne) pourraient aider.';
+      return s.dashboardReplacementRatioMedium;
     }
-    return 'Niveau bas. Des actions de pr\u00e9voyance sont a envisager.';
+    return s.dashboardReplacementRatioLow;
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/retirement_service.dart';
 
@@ -82,15 +83,16 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
     return MintColors.error;
   }
 
-  String get _gaugeLabel {
-    if (widget.tauxRemplacement >= 80) return 'Excellent';
-    if (widget.tauxRemplacement >= 60) return 'Suffisant';
-    if (widget.tauxRemplacement >= 40) return 'Insuffisant';
-    return 'Critique';
+  String _gaugeLabel(S s) {
+    if (widget.tauxRemplacement >= 80) return s.retirementGaugeExcellent;
+    if (widget.tauxRemplacement >= 60) return s.retirementGaugeSuffisant;
+    if (widget.tauxRemplacement >= 40) return s.retirementGaugeInsuffisant;
+    return s.retirementGaugeCritique;
   }
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final solde = widget.revenus - widget.depenses;
     final isSurplus = solde >= 0;
 
@@ -136,7 +138,7 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
                           ),
                         ),
                         Text(
-                          _gaugeLabel,
+                          _gaugeLabel(s),
                           style: GoogleFonts.inter(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -152,7 +154,7 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
           ),
           const SizedBox(height: 8),
           Text(
-            'Taux de remplacement',
+            s.retirementGaugeLabel,
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -161,7 +163,7 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
           ),
           const SizedBox(height: 4),
           Text(
-            'Objectif : 60-80% du revenu pre-retraite',
+            s.retirementGaugeObjective,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textMuted,
@@ -176,14 +178,14 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
               return Column(
                 children: [
                   _buildComparisonBar(
-                    label: 'Revenus retraite',
+                    label: s.retirementGaugeRevenus,
                     value: widget.revenus,
                     maxValue: max(widget.revenus, widget.depenses),
                     color: MintColors.success,
                   ),
                   const SizedBox(height: 10),
                   _buildComparisonBar(
-                    label: 'Depenses mensuelles',
+                    label: s.retirementGaugeDepenses,
                     value: widget.depenses,
                     maxValue: max(widget.revenus, widget.depenses),
                     color: MintColors.error,
@@ -201,7 +203,7 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                isSurplus ? 'Excedent mensuel' : 'Deficit mensuel',
+                isSurplus ? s.retirementGaugeExcedent : s.retirementGaugeDeficit,
                 style: GoogleFonts.inter(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -35,45 +36,46 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
   }
 
   // Returns (partnerShare%, inheritanceTaxRate%, withTestamentNote)
-  ({double partnerPct, double taxRate, String withNote, String withoutNote}) _calc(FamilyStatus s) {
+  ({double partnerPct, double taxRate, String Function(S) withNote, String Function(S) withoutNote}) _calcData(FamilyStatus s) {
     return switch (s) {
       FamilyStatus.married => (
         partnerPct: 50,
         taxRate: 0,
-        withNote: 'Conjoint hérite de 50%+. Impôt = 0%.',
-        withoutNote: 'Conjoint hérite selon CC. Impôt = 0%.',
+        withNote: (S l) => l.coachTestamentMarriedWith,
+        withoutNote: (S l) => l.coachTestamentMarriedWithout,
       ),
       FamilyStatus.concubin => (
         partnerPct: 0,
         taxRate: 24,
-        withNote: 'Clause bénéficiaire 3a + testament indispensables.',
-        withoutNote: 'Ton partenaire hérite 0%. L\'État ou tes parents touchent tout.',
+        withNote: (S l) => l.coachTestamentConcubinWith,
+        withoutNote: (S l) => l.coachTestamentConcubinWithout,
       ),
       // CC reform 2022 : partenaire enregistré·e = droits équivalents au conjoint
       FamilyStatus.couple => (
         partnerPct: 50,
         taxRate: 0,
-        withNote: 'Droits héréditaires équivalents au conjoint depuis 2022 (CC art. 462).',
-        withoutNote: 'Partenaire enregistré·e hérite selon CC art. 462 — même droits que conjoint. Impôt = 0%.',
+        withNote: (S l) => l.coachTestamentRegisteredWith,
+        withoutNote: (S l) => l.coachTestamentRegisteredWithout,
       ),
       _ => (
         partnerPct: 0,
         taxRate: 0,
-        withNote: 'Libre de léguer à qui tu veux.',
-        withoutNote: 'La loi distribue selon CC art. 457-462.',
+        withNote: (S l) => l.coachTestamentSingleWith,
+        withoutNote: (S l) => l.coachTestamentSingleWithout,
       ),
     };
   }
 
   @override
   Widget build(BuildContext context) {
-    final c = _calc(_status);
+    final s = S.of(context)!;
+    final c = _calcData(_status);
     final partnerGets = widget.patrimoine * c.partnerPct / 100;
     final taxAmount = widget.patrimoine * c.taxRate / 100;
     final isConcubin = _status == FamilyStatus.concubin;
 
     return Semantics(
-      label: 'Testament invisible distribution succession',
+      label: s.coachTestamentSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -83,19 +85,19 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(isConcubin),
+            _buildHeader(s, isConcubin),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildStatusSelector(),
+                  _buildStatusSelector(s),
                   const SizedBox(height: 20),
-                  _buildComparison(c, partnerGets, taxAmount),
+                  _buildComparison(s, c, partnerGets, taxAmount),
                   const SizedBox(height: 16),
-                  if (isConcubin) _buildChiffreChoc(taxAmount),
+                  if (isConcubin) _buildChiffreChoc(s, taxAmount),
                   if (isConcubin) const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -105,7 +107,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
     );
   }
 
-  Widget _buildHeader(bool isConcubin) {
+  Widget _buildHeader(S s, bool isConcubin) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -121,7 +123,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Si tu mourais ce soir…',
+                  s.coachTestamentTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -133,7 +135,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Distribution légale automatique vs avec testament · CC art. 457-462',
+            s.coachTestamentSubtitle,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -144,19 +146,19 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
     );
   }
 
-  Widget _buildStatusSelector() {
+  Widget _buildStatusSelector(S s) {
     final labels = {
-      FamilyStatus.married: '💍 Marié·e',
-      FamilyStatus.concubin: '🏠 Concubin·e',
-      FamilyStatus.couple: '💑 Partenaire enregistré·e',
-      FamilyStatus.single: '👤 Célibataire',
+      FamilyStatus.married: '💍 ${s.coachTestamentMarried}',
+      FamilyStatus.concubin: '🏠 ${s.coachTestamentConcubin}',
+      FamilyStatus.couple: '💑 ${s.coachTestamentRegistered}',
+      FamilyStatus.single: '👤 ${s.coachTestamentSingle}',
     };
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Ta situation',
+          s.coachTestamentSituation,
           style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -198,7 +200,8 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
   }
 
   Widget _buildComparison(
-    ({double partnerPct, double taxRate, String withNote, String withoutNote}) c,
+    S s,
+    ({double partnerPct, double taxRate, String Function(S) withNote, String Function(S) withoutNote}) c,
     double partnerGets,
     double taxAmount,
   ) {
@@ -206,7 +209,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Patrimoine : ${formatChfWithPrefix(widget.patrimoine)}',
+          s.coachTestamentPatrimoine(formatChfWithPrefix(widget.patrimoine)),
           style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -217,20 +220,20 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
         Row(
           children: [
             Expanded(child: _buildScenarioCard(
-              label: 'Sans testament',
+              label: s.coachTestamentWithout,
               emoji: '❌',
               partnerGets: partnerGets,
               taxAmount: taxAmount,
-              note: c.withoutNote,
+              note: c.withoutNote(s),
               color: MintColors.scoreCritique,
             )),
             const SizedBox(width: 12),
             Expanded(child: _buildScenarioCard(
-              label: 'Avec testament',
+              label: s.coachTestamentWith,
               emoji: '✅',
               partnerGets: partnerGets > 0 ? partnerGets : widget.patrimoine * 0.5,
               taxAmount: taxAmount,
-              note: c.withNote,
+              note: c.withNote(s),
               color: MintColors.scoreExcellent,
               isOptimized: true,
             )),
@@ -269,7 +272,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Partenaire reçoit',
+            S.of(context)!.coachTestamentPartnerReceives,
             style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
           ),
           Text(
@@ -294,7 +297,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
     );
   }
 
-  Widget _buildChiffreChoc(double taxAmount) {
+  Widget _buildChiffreChoc(S s, double taxAmount) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -306,7 +309,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '💰 Concubin·e : 0% d\'héritage + impôt jusqu\'à 24%',
+            '💰 ${s.coachTestamentChiffreChocTitle}',
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -315,8 +318,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Sans testament ni clause 3a, ton partenaire ne reçoit rien. '
-            'Un testament coûte ~500 CHF. Le silence peut coûter ${formatChfWithPrefix(taxAmount)} d\'impôts.',
+            s.coachTestamentChiffreChocBody(formatChfWithPrefix(taxAmount)),
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textPrimary,
@@ -328,11 +330,9 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : CC art. 457-462, OPP3 art. 2. '
-      'Taux successoral concubin·e illustratif (ex. VD) — varie de 0 % à 40 % selon canton et lien de parenté.',
+      s.coachTestamentDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

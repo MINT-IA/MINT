@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'dart:math' as math;
 
@@ -65,8 +66,9 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Leasing coût caché opportunité investissement comparaison',
+      label: s.coachLeasingSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -114,7 +116,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Le vrai coût du leasing',
+                  S.of(context)!.coachLeasingTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -169,7 +171,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Mensualité leasing',
+              S.of(context)!.coachLeasingMonthly,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -387,9 +389,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
 
   Widget _buildDisclaimer() {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : CO art. 255 (leasing). '
-      'Rendement simulé à ${(widget.annualReturnRate * 100).toStringAsFixed(0)}% — ne garantit pas de rendement futur.',
+      S.of(context)!.coachLeasingDisclaimer((widget.annualReturnRate * 100).toStringAsFixed(0)),
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -30,6 +31,7 @@ class DocumentScanCta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final targetScore =
         estimatedConfidenceAfterScan ?? (currentConfidence + 20).clamp(0, 95);
 
@@ -85,7 +87,7 @@ class DocumentScanCta extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Affine ta projection',
+                            s.dashboardScanTitle,
                             style: GoogleFonts.montserrat(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -94,7 +96,7 @@ class DocumentScanCta extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Scanne ton certificat de pr\u00e9voyance LPP',
+                            s.dashboardScanSubtitle,
                             style: GoogleFonts.inter(
                               fontSize: 13,
                               color: MintColors.white.withValues(alpha: 0.75),
@@ -120,7 +122,7 @@ class DocumentScanCta extends StatelessWidget {
                     children: [
                       // Current confidence
                       _buildConfidencePill(
-                        label: 'Maintenant',
+                        label: s.dashboardScanNow,
                         score: currentConfidence,
                         isActive: false,
                       ),
@@ -133,7 +135,7 @@ class DocumentScanCta extends StatelessWidget {
                       const SizedBox(width: 10),
                       // After scan
                       _buildConfidencePill(
-                        label: 'Avec tes chiffres',
+                        label: s.dashboardScanWithData,
                         score: targetScore,
                         isActive: true,
                       ),
@@ -160,7 +162,7 @@ class DocumentScanCta extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Scanner mon certificat LPP',
+                        s.dashboardScanButton,
                         style: GoogleFonts.inter(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,

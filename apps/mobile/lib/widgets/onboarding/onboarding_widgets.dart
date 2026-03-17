@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 class MintSelectableCard extends StatelessWidget {
@@ -154,7 +155,7 @@ class MintChfInputField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          optional ? '$label (optionnel)' : label,
+          optional ? S.of(context)!.onboardingOptionalSuffix(label) : label,
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -387,7 +388,7 @@ class CoachDeductionCard extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Voici ce que ton coach a déduit',
+                  S.of(context)!.onboardingCoachDeductionTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -455,7 +456,7 @@ class CoachDeductionCard extends StatelessWidget {
                     side: const BorderSide(color: MintColors.lightBorder),
                   ),
                   child: Text(
-                    'Corriger',
+                    S.of(context)!.onboardingCorrectButton,
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -477,7 +478,7 @@ class CoachDeductionCard extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'C\'est correct',
+                    S.of(context)!.onboardingConfirmButton,
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,

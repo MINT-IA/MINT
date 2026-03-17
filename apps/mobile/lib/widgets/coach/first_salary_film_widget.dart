@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -70,8 +71,9 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
       _buildAct5(),
     ];
 
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Film premier salaire 5 actes AVS LPP 3a LAMal douche froide',
+      label: s.coachFirstSalarySemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -116,7 +118,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Le film de ton premier salaire',
+                  S.of(context)!.coachFirstSalaryTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -128,7 +130,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
           ),
           const SizedBox(height: 8),
           Text(
-            'CHF ${_fmt(widget.grossMonthly)} brut — 5 actes pour tout comprendre.',
+            S.of(context)!.coachFirstSalarySubtitle(_fmt(widget.grossMonthly)),
             style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
           ),
         ],
@@ -137,7 +139,9 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
   }
 
   Widget _buildActSelector() {
-    final actLabels = ['1 · Brut→Net', '2 · Invisible', '3 · 3a', '4 · LAMal', '5 · Action'];
+    final s = S.of(context)!;
+    final sl = S.of(context)!;
+    final actLabels = [sl.coachFirstSalaryAct1Label, sl.coachFirstSalaryAct2Label, sl.coachFirstSalaryAct3Label, sl.coachFirstSalaryAct4Label, sl.coachFirstSalaryAct5Label];
 
     return Container(
       height: 44,
@@ -544,9 +548,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
 
   Widget _buildDisclaimer() {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : LAVS art. 3, LPP art. 7, LACI art. 3, OPP3 art. 7 (3a 7\'258 CHF/an). '
-      'Taux cotisations indicatifs 2026. Projection 3a : rendement hypothétique 4%/an.',
+      S.of(context)!.coachFirstSalaryDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

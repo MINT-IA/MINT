@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -50,8 +51,9 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
   Widget build(BuildContext context) {
     final isExpired = _daysRemaining == 0;
 
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Compte à rebours remploi vente immobilière 2 ans LIFD',
+      label: s.coachRemploiSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -101,7 +103,7 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Chrono du remploi',
+                  S.of(context)!.coachRemploiTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -110,8 +112,8 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
                 ),
                 Text(
                   isExpired
-                      ? 'Délai écoulé — l\'impôt est dû.'
-                      : 'Tu as $_remploidDeadlineYears ans pour racheter une résidence principale.',
+                      ? S.of(context)!.coachRemploiSubtitleExpired
+                      : S.of(context)!.coachRemploiSubtitleActive(_remploidDeadlineYears),
                   style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4),
                 ),
               ],
@@ -143,12 +145,12 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
               ),
             ),
             Text(
-              'jours restants',
+              S.of(context)!.coachRemploiDaysRemaining,
               style: GoogleFonts.inter(fontSize: 14, color: MintColors.textSecondary),
             ),
             const SizedBox(height: 8),
             Text(
-              'Impôt dû : ${formatChfWithPrefix(widget.deferredTax)}',
+              S.of(context)!.coachRemploiTaxDue(formatChfWithPrefix(widget.deferredTax)),
               style: GoogleFonts.montserrat(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
@@ -281,9 +283,7 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
 
   Widget _buildDisclaimer() {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil fiscal au sens de la LSFin. '
-      'Source : LIFD art. 12 al. 3 (remploi résidence principale). '
-      'Délai de 2 ans — vérifier les règles cantonales spécifiques.',
+      S.of(context)!.coachRemploiDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

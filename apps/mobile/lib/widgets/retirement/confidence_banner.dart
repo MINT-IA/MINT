@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/financial_core/bayesian_enricher.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -15,8 +16,9 @@ class ConfidenceBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final color = _levelColor(confidence.level);
-    final label = _levelLabel(confidence.level);
+    final label = _levelLabel(confidence.level, s);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -39,7 +41,7 @@ class ConfidenceBanner extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Fiabilite de la projection',
+                  s.retirementConfidenceTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -83,7 +85,7 @@ class ConfidenceBanner extends StatelessWidget {
           if (_hasPrompts) ...[
             const SizedBox(height: 14),
             Text(
-              'Ameliore ta projection :',
+              s.retirementConfidenceImprove,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -270,14 +272,14 @@ class ConfidenceBanner extends StatelessWidget {
     }
   }
 
-  String _levelLabel(String level) {
+  String _levelLabel(String level, S s) {
     switch (level) {
       case 'high':
-        return 'Fiable';
+        return s.retirementConfidenceHigh;
       case 'medium':
-        return 'Moderee';
+        return s.retirementConfidenceMedium;
       default:
-        return 'Estimative';
+        return s.retirementConfidenceLow;
     }
   }
 

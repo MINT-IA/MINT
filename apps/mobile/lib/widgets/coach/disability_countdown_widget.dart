@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -61,8 +62,9 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
             ? MintColors.scoreAttention
             : MintColors.scoreCritique;
 
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Compte à rebours délai carence AI invalidité',
+      label: s.coachDisabilityCountdownSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -72,19 +74,19 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSavingsSlider(),
+                  _buildSavingsSlider(s),
                   const SizedBox(height: 20),
-                  _buildTimeline(hold, gap, color),
+                  _buildTimeline(s, hold, gap, color),
                   const SizedBox(height: 16),
-                  _buildChiffreChoc(hold, gap, color, isOk),
+                  _buildChiffreChoc(s, hold, gap, color, isOk),
                   const SizedBox(height: 16),
-                  if (!isOk) _buildActions(),
+                  if (!isOk) _buildActions(s),
                   if (!isOk) const SizedBox(height: 16),
                   _buildDisclaimer(),
                 ],
@@ -96,7 +98,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -112,7 +114,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Combien de temps tu tiens ?',
+                  s.coachDisabilityCountdownTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -124,7 +126,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Délai moyen de décision AI : $_aiDelayMonths mois (LAI art. 28)',
+            s.coachDisabilityCountdownSubtitle(_aiDelayMonths),
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -135,7 +137,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
     );
   }
 
-  Widget _buildSavingsSlider() {
+  Widget _buildSavingsSlider(S s) {
     final maxSavings = _aiDelayMonths * widget.monthlyExpenses * 1.5;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,7 +146,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Ton épargne disponible',
+              s.coachDisabilityCountdownSavings,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -183,12 +185,12 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
     );
   }
 
-  Widget _buildTimeline(double hold, double gap, Color color) {
+  Widget _buildTimeline(S s, double hold, double gap, Color color) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Durée de tenir vs délai AI',
+          s.coachDisabilityCountdownDuration,
           style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -236,7 +238,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
                   ),
                 ),
                 Text(
-                  'Tu tiens',
+                  s.coachDisabilityCountdownYouHold,
                   style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
                 ),
               ],
@@ -254,7 +256,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
                     ),
                   ),
                   Text(
-                    'Le vide',
+                    s.coachDisabilityCountdownGap,
                     style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
                   ),
                 ],
@@ -265,7 +267,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
         Align(
           alignment: Alignment.centerRight,
           child: Text(
-            'Jour J → Décision AI : $_aiDelayMonths mois',
+            s.coachDisabilityCountdownDayJ(_aiDelayMonths),
             style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
           ),
         ),
@@ -273,7 +275,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
     );
   }
 
-  Widget _buildChiffreChoc(double hold, double gap, Color color, bool isOk) {
+  Widget _buildChiffreChoc(S s, double hold, double gap, Color color, bool isOk) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -286,7 +288,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
         children: [
           if (isOk) ...[
             Text(
-              '✅ Tes réserves couvrent tout le délai AI.',
+              '✅ ${s.coachDisabilityCountdownOk}',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
@@ -295,12 +297,12 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Tu tiens ${hold.toStringAsFixed(1)} mois, soit plus que le délai moyen de $_aiDelayMonths mois.',
+              s.coachDisabilityCountdownOkDetail(hold.toStringAsFixed(1), _aiDelayMonths),
               style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
             ),
           ] else ...[
             Text(
-              '💰 Chiffre-choc : après ${hold.toStringAsFixed(1)} mois, tu dois emprunter ou vendre pour survivre.',
+              '💰 ${s.coachDisabilityCountdownChiffreChoc(hold.toStringAsFixed(1))}',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
@@ -309,7 +311,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Il te manque CHF ${_fmt(_gapAmount)} pour tenir jusqu\'à la décision AI.',
+              s.coachDisabilityCountdownMissing(_fmt(_gapAmount)),
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textPrimary,
@@ -322,16 +324,16 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
     );
   }
 
-  Widget _buildActions() {
+  Widget _buildActions(S s) {
     return Column(
       children: [
         _buildAction(
-          '→ Constitue un fonds d\'urgence de 6 mois de charges',
+          '→ ${s.coachDisabilityCountdownAction1}',
           MintColors.primary,
         ),
         const SizedBox(height: 8),
         _buildAction(
-          '→ Souscris une APG privée (dès CHF 45/mois)',
+          '→ ${s.coachDisabilityCountdownAction2}',
           MintColors.info,
         ),
       ],
@@ -359,8 +361,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
 
   Widget _buildDisclaimer() {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : LAI art. 28, LPGA art. 19.',
+      S.of(context)!.coachDisabilityCountdownDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -45,10 +46,11 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final partner = widget.partnerName ?? 'ton·ta partenaire';
+    final s = S.of(context)!;
+    final partner = widget.partnerName ?? s.coachClause3aDefaultPartner;
 
     return Semantics(
-      label: 'Clause 3a bénéficiaire OPP3 succession',
+      label: s.coachClause3aSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -58,23 +60,23 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildBalanceChip(),
+                  _buildBalanceChip(s),
                   const SizedBox(height: 20),
-                  _buildChiffreChoc(partner),
+                  _buildChiffreChoc(s, partner),
                   const SizedBox(height: 16),
-                  _buildClauseQuestion(),
+                  _buildClauseQuestion(s),
                   const SizedBox(height: 12),
-                  _buildFeedback(partner),
+                  _buildFeedback(s, partner),
                   const SizedBox(height: 16),
-                  _buildSteps(),
+                  _buildSteps(s),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -84,7 +86,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -100,7 +102,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'La clause 3a oubliée',
+                  s.coachClause3aTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -109,7 +111,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'OPP3 art. 2 — Le 3e pilier ne suit PAS les règles successorales ordinaires.',
+                  s.coachClause3aSubtitle,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -124,7 +126,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
     );
   }
 
-  Widget _buildBalanceChip() {
+  Widget _buildBalanceChip(S s) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
@@ -137,7 +139,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
           const Icon(Icons.savings_outlined, color: MintColors.primary, size: 18),
           const SizedBox(width: 10),
           Text(
-            'Ton 3e pilier : CHF ${_fmt(widget.balance3a)}',
+            s.coachClause3aBalance(_fmt(widget.balance3a)),
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -149,7 +151,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
     );
   }
 
-  Widget _buildChiffreChoc(String partner) {
+  Widget _buildChiffreChoc(S s, String partner) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -161,7 +163,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '💰 Sans clause : ton 3a de CHF ${_fmt(widget.balance3a)} part à tes parents, pas à $partner.',
+            '💰 ${s.coachClause3aChiffreChoc(_fmt(widget.balance3a), partner)}',
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -170,8 +172,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
           ),
           const SizedBox(height: 6),
           Text(
-            'La clause bénéficiaire déroge à la succession ordinaire (OPP3 art. 2). '
-            'Sans clause déposée auprès de ta fondation, la loi s\'applique par défaut.',
+            s.coachClause3aExplanation,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -183,12 +184,12 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
     );
   }
 
-  Widget _buildClauseQuestion() {
+  Widget _buildClauseQuestion(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'As-tu déposé une clause bénéficiaire ?',
+          s.coachClause3aQuestion,
           style: GoogleFonts.inter(
             fontSize: 14,
             fontWeight: FontWeight.w700,
@@ -198,9 +199,9 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
         const SizedBox(height: 8),
         Row(
           children: [
-            _buildToggle('Oui', true),
+            _buildToggle(s.coachClause3aYes, true),
             const SizedBox(width: 8),
-            _buildToggle('Non', false),
+            _buildToggle(s.coachClause3aNo, false),
           ],
         ),
       ],
@@ -234,7 +235,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
     );
   }
 
-  Widget _buildFeedback(String partner) {
+  Widget _buildFeedback(S s, String partner) {
     if (_hasClause) {
       return Container(
         padding: const EdgeInsets.all(12),
@@ -248,7 +249,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Bien ! Vérifie que la clause désigne bien $partner — et qu\'elle est à jour après chaque événement de vie.',
+                s.coachClause3aFeedbackYes(partner),
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textPrimary,
@@ -272,7 +273,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Action prioritaire : dépose ta clause bénéficiaire auprès de ta fondation 3a — en 5 minutes.',
+                s.coachClause3aFeedbackNo,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -287,12 +288,12 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
     }
   }
 
-  Widget _buildSteps() {
+  Widget _buildSteps(S s) {
     final steps = [
-      'Contacte ta fondation 3a (banque ou assurance)',
-      'Demande le formulaire "clause bénéficiaire"',
-      'Désigne ton·ta partenaire ou tes héritiers',
-      'Renouvelle à chaque changement de situation',
+      s.coachClause3aStep1,
+      s.coachClause3aStep2,
+      s.coachClause3aStep3,
+      s.coachClause3aStep4,
     ];
 
     return Container(
@@ -306,7 +307,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Comment déposer une clause en 5 minutes :',
+            s.coachClause3aStepsTitle,
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -348,10 +349,9 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : OPP3 art. 2 al. 1 let. a, CC art. 457-462.',
+      s.coachClause3aDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

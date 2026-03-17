@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -95,8 +96,9 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Bilan de match louer acheter patrimoine break-even FINMA amortissement',
+      label: s.coachRentVsBuySemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -106,7 +108,7 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(s),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
@@ -120,7 +122,7 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildKeyInsight(),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                 ],
               ),
             ),
@@ -130,7 +132,7 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -146,7 +148,7 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Grand Match · Louer vs Acheter',
+                  s.coachRentVsBuyTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -158,7 +160,7 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Dans $years ans, voici ton patrimoine selon ton choix aujourd\'hui.',
+            s.coachRentVsBuySubtitle(years),
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -429,12 +431,9 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Hypothèses : appréciation immobilière ${ (appreciationRate * 100).round()}%/an, '
-      'rendement placement ${(investmentReturnRate * 100).round()}%/an, amortissement FINMA 1%/an. '
-      'Source : FINMA/ASB (taux théorique 5%), CO art. 261ss.',
+      s.coachRentVsBuyDisclaimer((appreciationRate * 100).round(), (investmentReturnRate * 100).round()),
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/retirement_service.dart';
 
@@ -35,6 +36,7 @@ class LppComparisonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Column(
       children: [
         // Side-by-side comparison
@@ -42,21 +44,21 @@ class LppComparisonCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── LEFT: Rente ─────────────────────────────
-            Expanded(child: _buildRenteCard()),
+            Expanded(child: _buildRenteCard(s)),
             const SizedBox(width: 12),
             // ── RIGHT: Capital ──────────────────────────
-            Expanded(child: _buildCapitalCard()),
+            Expanded(child: _buildCapitalCard(s)),
           ],
         ),
         const SizedBox(height: 16),
 
         // ── Breakeven indicator ─────────────────────────
-        _buildBreakevenBar(),
+        _buildBreakevenBar(s),
       ],
     );
   }
 
-  Widget _buildRenteCard() {
+  Widget _buildRenteCard(S s) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -85,7 +87,7 @@ class LppComparisonCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'Rente',
+                s.retirementLppRente,
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -107,7 +109,7 @@ class LppComparisonCard extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            'par mois',
+            s.retirementLppParMois,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textMuted,
@@ -117,7 +119,7 @@ class LppComparisonCard extends StatelessWidget {
 
           // Annual
           Text(
-            '${RetirementService.formatChf(renteAnnuelle)}/an',
+            s.retirementLppAnnuelSuffix(RetirementService.formatChf(renteAnnuelle)),
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -139,7 +141,7 @@ class LppComparisonCard extends StatelessWidget {
                     size: 12, color: MintColors.info),
                 const SizedBox(width: 4),
                 Text(
-                  'a vie',
+                  s.retirementLppAVie,
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -154,7 +156,7 @@ class LppComparisonCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCapitalCard() {
+  Widget _buildCapitalCard(S s) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -183,7 +185,7 @@ class LppComparisonCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'Capital',
+                s.retirementLppCapital,
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -205,7 +207,7 @@ class LppComparisonCard extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            'net (une fois)',
+            s.retirementLppNetUneFois,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textMuted,
@@ -221,7 +223,7 @@ class LppComparisonCard extends StatelessWidget {
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
-                  'Impot: ${RetirementService.formatChf(capitalImpot)}',
+                  s.retirementLppImpot(RetirementService.formatChf(capitalImpot)),
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.error,
@@ -245,7 +247,7 @@ class LppComparisonCard extends StatelessWidget {
                 const Icon(Icons.bolt, size: 12, color: MintColors.success),
                 const SizedBox(width: 4),
                 Text(
-                  'unique',
+                  s.retirementLppUnique,
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -260,7 +262,7 @@ class LppComparisonCard extends StatelessWidget {
     );
   }
 
-  Widget _buildBreakevenBar() {
+  Widget _buildBreakevenBar(S s) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -288,7 +290,7 @@ class LppComparisonCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Point d\'equilibre',
+                  s.retirementLppBreakevenTitle,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -297,7 +299,7 @@ class LppComparisonCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Si tu vis au-dela de $breakevenAge ans, la rente est plus avantageuse',
+                  s.retirementLppBreakevenDesc(breakevenAge),
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
