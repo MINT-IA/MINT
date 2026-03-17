@@ -91,6 +91,7 @@ import 'package:mint_mobile/screens/coach/optimisation_decaissement_screen.dart'
 import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
+import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
 import 'package:mint_mobile/screens/coach/annual_refresh_screen.dart';
 import 'package:mint_mobile/screens/coach/cockpit_detail_screen.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
@@ -229,6 +230,11 @@ final _router = GoRouter(
         final prompt = state.uri.queryParameters['prompt'];
         return CoachChatScreen(initialPrompt: prompt);
       },
+    ),
+    GoRoute(
+      path: '/coach/history',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ConversationHistoryScreen(),
     ),
     GoRoute(
       path: '/succession',

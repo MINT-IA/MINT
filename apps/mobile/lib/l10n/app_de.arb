@@ -4827,5 +4827,53 @@
   "concubinageCriteriaPensionConcubinage": "Accord préalable",
   "concubinageMarieExonereLabel": "Marié·e",
   "frontalierChargesTotal": "Total",
-  "frontalierJoursSuffix": "Tage"
+  "frontalierJoursSuffix": "Tage",
+  "conversationHistoryTitle": "Verlauf",
+  "conversationNew": "Neues Gespräch",
+  "conversationEmptyTitle": "Keine Gespräche",
+  "conversationEmptySubtitle": "Beginne ein Gespräch mit deinem Coach",
+  "conversationStartFirst": "Gespräch starten",
+  "conversationErrorTitle": "Ladefehler",
+  "conversationRetry": "Erneut versuchen",
+  "conversationDeleteTitle": "Dieses Gespräch löschen?",
+  "conversationDeleteConfirm": "Diese Aktion kann nicht rückgängig gemacht werden.",
+  "conversationDeleteCancel": "Abbrechen",
+  "conversationDeleteAction": "Löschen",
+  "conversationDateNow": "Gerade eben",
+  "conversationDateYesterday": "Gestern",
+  "conversationDateMinutesAgo": "Vor {minutes} Min.",
+  "@conversationDateMinutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "conversationDateHoursAgo": "Vor {hours} Std.",
+  "@conversationDateHoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "conversationDateFormatted": "{day}. {month}",
+  "@conversationDateFormatted": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "conversationMonth": "{month, select, 1{Januar} 2{Februar} 3{März} 4{April} 5{Mai} 6{Juni} 7{Juli} 8{August} 9{September} 10{Oktober} 11{November} 12{Dezember} other{Monat}}",
+  "@conversationMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -608,6 +608,11 @@ class CoachOrchestrator {
       case ComponentType.enrichmentGuide:
         return 'enrichment_guide';
       case ComponentType.general:
+      case ComponentType.chatSystem:
+      case ComponentType.chatSafeMode:
+      case ComponentType.chatFollowUp:
+      case ComponentType.chatSimulation:
+      case ComponentType.chatSenior:
         return 'general';
     }
   }
@@ -631,6 +636,11 @@ class CoachOrchestrator {
       case ComponentType.enrichmentGuide:
         return 'Guide l\'utilisateur pour compléter son profil.';
       case ComponentType.general:
+      case ComponentType.chatSystem:
+      case ComponentType.chatSafeMode:
+      case ComponentType.chatFollowUp:
+      case ComponentType.chatSimulation:
+      case ComponentType.chatSenior:
         return 'Réponds de manière éducative.';
     }
   }
@@ -657,6 +667,11 @@ class CoachOrchestrator {
         return FallbackTemplates.enrichmentGuide(ctx, 'general');
       case ComponentType.scenario:
       case ComponentType.general:
+      case ComponentType.chatSystem:
+      case ComponentType.chatSafeMode:
+      case ComponentType.chatFollowUp:
+      case ComponentType.chatSimulation:
+      case ComponentType.chatSenior:
         return FallbackTemplates.scoreSummary(ctx);
     }
   }

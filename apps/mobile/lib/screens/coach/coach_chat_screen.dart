@@ -23,6 +23,7 @@ import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/widgets/coach/life_event_sheet.dart';
+import 'package:mint_mobile/services/coach/conversation_store.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN — SLM-first, streaming, prod-ready
@@ -75,6 +76,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   final StringBuffer _streamBuffer = StringBuffer();
   bool _isByokConfigured = false;
 
+  /// Conversation persistence
+  final ConversationStore _conversationStore = ConversationStore();
+  String? _conversationId;
+
   /// SLM stream timeout — prevents infinite hang if model deadlocks.
   static const Duration _streamTimeout = Duration(seconds: 45);
 
@@ -83,6 +88,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   @override
   void initState() {
     super.initState();
+    _conversationId = DateTime.now().millisecondsSinceEpoch.toString();
   }
 
   @override
@@ -116,10 +122,18 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   @override
   void dispose() {
+    _autoSaveConversation();
     _controller.dispose();
     _scrollController.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  /// Auto-save conversation to persistent storage on dispose or background.
+  void _autoSaveConversation() {
+    if (_conversationId != null && _messages.any((m) => m.isUser)) {
+      _conversationStore.saveConversation(_conversationId!, _messages);
+    }
   }
 
   // ════════════════════════════════════════════════════════════
@@ -665,6 +679,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                     _buildTierSubtitle(tier),
                   ],
                 ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.history, color: MintColors.white),
+                tooltip: 'Historique',
+                onPressed: () {
+                  _autoSaveConversation();
+                  context.push('/coach/history');
+                },
               ),
               if (_messages.any((m) => m.isUser))
                 IconButton(
