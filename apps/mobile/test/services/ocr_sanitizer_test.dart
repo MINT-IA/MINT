@@ -40,7 +40,7 @@ void main() {
     test('rejects negative amount', () {
       final result = OcrSanitizer.sanitizeChfAmount('-5000');
       expect(result.isValid, false);
-      expect(result.rejectionReason, contains('negatif'));
+      expect(result.rejectionReason, contains('gatif'));
     });
 
     test('rejects amount above sanity cap (50M)', () {

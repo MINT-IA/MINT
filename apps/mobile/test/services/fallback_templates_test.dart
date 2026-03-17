@@ -77,8 +77,10 @@ const _bannedTerms = [
 void _assertNoBannedTerms(String text, String context) {
   final lower = text.toLowerCase();
   for (final term in _bannedTerms) {
+    // Use word boundary to avoid false positives (e.g., "certaines" ≠ "certain")
+    final pattern = RegExp('\\b${RegExp.escape(term)}\\b');
     expect(
-      lower.contains(term),
+      pattern.hasMatch(lower),
       isFalse,
       reason: 'Banned term "$term" found in $context: "$text"',
     );

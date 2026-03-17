@@ -44,7 +44,7 @@ $baseSystemPrompt
 
 CONTEXTE UTILISATEUR :
 - Prénom : ${ctx.firstName}
-- Score actuel : ${ctx.friTotal}/100
+- Score actuel : ${ctx.friTotal.toStringAsFixed(0)}/100
 - Variation depuis dernier check-in : ${ctx.friDelta >= 0 ? '+' : ''}${ctx.friDelta.toStringAsFixed(0)}
 - Priorité actuelle : ${ctx.primaryFocus}
 - Jours depuis dernière visite : ${ctx.daysSinceLastVisit}
@@ -61,7 +61,7 @@ $baseSystemPrompt
 
 CONTEXTE UTILISATEUR :
 - Prénom : ${ctx.firstName}
-- Score FRI total : ${ctx.friTotal}/100
+- Score FRI total : ${ctx.friTotal.toStringAsFixed(0)}/100
 - Variation : ${ctx.friDelta >= 0 ? '+' : ''}${ctx.friDelta.toStringAsFixed(0)}
 - Sous-scores : L=${ctx.knownValues['fri_l'] ?? 0}, F=${ctx.knownValues['fri_f'] ?? 0}, R=${ctx.knownValues['fri_r'] ?? 0}, S=${ctx.knownValues['fri_s'] ?? 0}
 - Priorité : ${ctx.primaryFocus}

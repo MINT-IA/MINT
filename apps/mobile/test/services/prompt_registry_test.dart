@@ -197,7 +197,7 @@ void main() {
 
       expect(prompt, contains('lpp'));
       expect(prompt, contains('122207'));
-      expect(prompt, contains('estime'));
+      expect(prompt, contains('estimated'));
     });
 
     test('enrichmentGuide with avs block includes archetype', () {
