@@ -44,8 +44,9 @@ class _TaxFieldPattern {
 }
 
 // Reusable regex fragment: Swiss number capture group
-// Matches: CHF 85'400.00, Fr. 98 400, 44887.50, etc.
-const String _numCapture = r"([CHFfr.\s]*[\d\s'.,]+)";
+// Matches: CHF 85'400.00, Fr. 98 400, 44887.50, -25'000.00, CHF -25'000, etc.
+// Requires at least one digit to avoid matching whitespace-only (e.g. section headers).
+const String _numCapture = r"(-?\s*[CHFfr.\s]*-?\s*\d[\d\s'.,]*)";
 
 /// Service for parsing tax declaration OCR text into structured fields.
 ///
@@ -73,7 +74,8 @@ class TaxDeclarationParser {
     cleaned = cleaned.replaceAll("\u00A0", ""); // Non-breaking space
 
     // Handle space as thousand separator (but not decimal)
-    cleaned = cleaned.replaceAll(RegExp(r"(\d)\s+(\d)"), r"$1$2");
+    cleaned = cleaned.replaceAllMapped(
+        RegExp(r"(\d)\s+(\d)"), (m) => "${m[1]}${m[2]}");
 
     // Handle comma as decimal separator (Swiss German style)
     if (cleaned.contains(",") && !cleaned.contains(".")) {
@@ -214,7 +216,7 @@ class TaxDeclarationParser {
       isPercentage: true,
       patterns: [
         RegExp(
-            r"(?:taux\s+(?:marginal\s+)?effectif|taux\s+d[' ]?imposition\s+(?:marginal|effectif))\s*[:\s]*([\d,.\s]+\s*%?)",
+            r"(?:taux\s+marginal\s+effectif|taux\s+d[' ]?imposition\s+marginal)\s*[:\s]*([\d,.\s]+\s*%?)",
             caseSensitive: false),
         RegExp(
             r"(?:Grenzsteuersatz|Effektiver?\s+Steuersatz|Marginaler?\s+Steuersatz)\s*[:\s]*([\d,.\s]+\s*%?)",
@@ -329,7 +331,7 @@ class TaxDeclarationParser {
           warnings.add(
             "Le taux marginal effectif a été estimé à partir du taux moyen "
             "(${inferredRate.toStringAsFixed(1)}%). Le taux marginal réel est "
-            "généralement 5 à 15 points plus élevé. Vérifie sur ton avis de taxation.",
+            "généralement 5 à 15 points au-dessus. Vérifie sur ton avis de taxation.",
           );
         }
       }

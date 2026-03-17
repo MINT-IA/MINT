@@ -37,7 +37,8 @@ double? parseSwissNumber(String text) {
   cleaned = cleaned.replaceAll("\u00A0", ""); // Non-breaking space
 
   // Handle space as thousand separator (but not decimal)
-  cleaned = cleaned.replaceAll(RegExp(r"(\d)\s+(\d)"), r"$1$2");
+  cleaned = cleaned.replaceAllMapped(
+      RegExp(r"(\d)\s+(\d)"), (m) => "${m[1]}${m[2]}");
 
   // Handle mixed dot+comma formats (German-Swiss: "7.083,35")
   // If both dot and comma are present, the LAST separator is the decimal.

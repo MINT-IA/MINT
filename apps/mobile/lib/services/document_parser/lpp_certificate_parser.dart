@@ -36,8 +36,9 @@ class _FieldPattern {
 }
 
 // Reusable regex fragment: Swiss number capture group
-// Matches: CHF 143'287.50, Fr. 98 400, 44887.50, etc.
-const String _numCapture = r"([CHFfr.\s]*[\d\s'.,]+)";
+// Matches: CHF 143'287.50, Fr. 98 400, 44887.50, -25'000.00, etc.
+// Requires at least one digit to avoid matching whitespace-only (e.g. section headers).
+const String _numCapture = r"(-?\s*[CHFfr.\s]*\d[\d\s'.,]*)";
 
 /// Service for parsing LPP certificate OCR text into structured fields.
 ///
@@ -64,7 +65,8 @@ class LppCertificateParser {
     cleaned = cleaned.replaceAll("\u00A0", ""); // Non-breaking space
 
     // Handle space as thousand separator (but not decimal)
-    cleaned = cleaned.replaceAll(RegExp(r"(\d)\s+(\d)"), r"$1$2");
+    cleaned = cleaned.replaceAllMapped(
+        RegExp(r"(\d)\s+(\d)"), (m) => "${m[1]}${m[2]}");
 
     // Handle comma as decimal separator (Swiss German style)
     if (cleaned.contains(",") && !cleaned.contains(".")) {
@@ -178,7 +180,7 @@ class LppCertificateParser {
       isPercentage: true,
       patterns: [
         RegExp(
-            r"(?:taux\s+de\s+bonification|bonification\s+de\s+vieillesse)\s*[:\s]*([\d,.\s]+\s*%?)",
+            r"(?:taux\s+de\s+bonification(?:\s+de\s+vieillesse)?|bonification\s+de\s+vieillesse)\s*[:\s]*([\d,.\s]+\s*%?)",
             caseSensitive: false),
         RegExp(
             r"(?:Altersgutschrift(?:en)?[\-\s]*(?:Satz|Rate))\s*[:\s]*([\d,.\s]+\s*%?)",
@@ -194,10 +196,13 @@ class LppCertificateParser {
       isPercentage: true,
       patterns: [
         RegExp(
-            r"(?:taux\s+de\s+conversion\s*(?:[\(]?oblig|LPP|minimum|legal))\s*[:\s)]*([\d,.\s]+\s*%?)",
+            r"(?:taux\s+de\s+conversion\s*[\(]?oblig[a-z]*[\)]?)\s*[:\s]*([\d,.\s]+\s*%?)",
             caseSensitive: false),
         RegExp(
-            r"(?:Umwandlungssatz\s*(?:[\(]?oblig|BVG|Mindest|gesetzlich))\s*[:\s)]*([\d,.\s]+\s*%?)",
+            r"(?:taux\s+de\s+conversion\s*[\(]?(?:LPP|minimum|l[eé]gal)[a-z]*[\)]?)\s*[:\s]*([\d,.\s]+\s*%?)",
+            caseSensitive: false),
+        RegExp(
+            r"(?:Umwandlungssatz\s*[\(]?(?:oblig[a-z]*|BVG|Mindest|gesetzlich)[a-z]*[\)]?)\s*[:\s]*([\d,.\s]+\s*%?)",
             caseSensitive: false),
         // Generic: "taux de conversion" followed by 6.8 or similar
         RegExp(
@@ -214,10 +219,13 @@ class LppCertificateParser {
       isPercentage: true,
       patterns: [
         RegExp(
-            r"(?:taux\s+de\s+conversion\s*(?:[\(]?sur[\-]?oblig|enveloppe))\s*[:\s)]*([\d,.\s]+\s*%?)",
+            r"(?:taux\s+de\s+conversion\s*[\(]?sur[\-]?oblig[a-z]*[\)]?)\s*[:\s]*([\d,.\s]+\s*%?)",
             caseSensitive: false),
         RegExp(
-            r"(?:Umwandlungssatz\s*(?:[\(]?[u\u00fc]beroblig|Huelle))\s*[:\s)]*([\d,.\s]+\s*%?)",
+            r"(?:taux\s+de\s+conversion\s*[\(]?enveloppe[a-z]*[\)]?)\s*[:\s]*([\d,.\s]+\s*%?)",
+            caseSensitive: false),
+        RegExp(
+            r"(?:Umwandlungssatz\s*[\(]?(?:[u\u00fc]beroblig[a-z]*|Huelle)[\)]?)\s*[:\s]*([\d,.\s]+\s*%?)",
             caseSensitive: false),
       ],
     ),
@@ -296,7 +304,7 @@ class LppCertificateParser {
       profileField: "buybackPotential",
       patterns: [
         RegExp(
-            r"(?:rachat?\s+(?:possible|maximum|maximal)|lacune\s+de\s+rachat|montant\s+(?:de\s+)?rachat)\s*[:\s]*" +
+            r"(?:rachat?\s+(?:possible|maximum|maximal)|lacune\s+de\s+rachat|montant\s+(?:de\s+)?rachat)(?:\s*\([^)]*\))?\s*[:\s]*" +
                 _numCapture,
             caseSensitive: false),
         RegExp(
