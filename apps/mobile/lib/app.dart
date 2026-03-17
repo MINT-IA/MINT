@@ -82,6 +82,7 @@ import 'package:mint_mobile/screens/admin_analytics_screen.dart';
 import 'package:mint_mobile/screens/pillar_3a_deep/provider_comparator_screen.dart';
 import 'package:mint_mobile/screens/pillar_3a_deep/real_return_screen.dart';
 import 'package:mint_mobile/screens/pillar_3a_deep/staggered_withdrawal_screen.dart';
+import 'package:mint_mobile/screens/pillar_3a_deep/retroactive_3a_screen.dart';
 import 'package:mint_mobile/screens/debt_prevention/debt_ratio_screen.dart';
 import 'package:mint_mobile/screens/debt_prevention/help_resources_screen.dart';
 import 'package:mint_mobile/screens/debt_prevention/repayment_screen.dart';
@@ -273,6 +274,11 @@ final _router = GoRouter(
       path: '/3a-deep/staggered-withdrawal',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const StaggeredWithdrawalScreen(),
+    ),
+    GoRoute(
+      path: '/3a-retroactif',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const Retroactive3aScreen(),
     ),
     GoRoute(
       path: '/fiscal',
