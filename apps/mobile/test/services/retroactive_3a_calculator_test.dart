@@ -184,7 +184,32 @@ void main() {
       }
     });
 
-    // ── 15. Chiffre choc singular for 1 year ──
+    // ── 15. Sans LPP with income cap: 20% rule applied ──
+    test('sans LPP with revenuNetAnnuel applies 20% income cap', () {
+      final result = Retroactive3aCalculator.calculate(
+        gapYears: 3,
+        tauxMarginal: 0.30,
+        hasLpp: false,
+        revenuNetAnnuel: 80000, // 20% = 16'000 < grand limit ~34k
+      );
+      // Each year should be capped at 16'000 (20% of 80K)
+      for (final entry in result.breakdown) {
+        expect(entry.limit, closeTo(16000, 1));
+      }
+      expect(result.totalRetroactive, closeTo(48000, 10));
+    });
+
+    // ── 16. Taux marginal clamped to 0.60 max ──
+    test('taux marginal clamped to prevent absurd results', () {
+      final result = Retroactive3aCalculator.calculate(
+        gapYears: 5,
+        tauxMarginal: 1.5, // absurd value
+      );
+      // Should be clamped to 0.60, not produce savings > total
+      expect(result.economiesFiscales, lessThanOrEqualTo(result.totalRetroactive * 0.61));
+    });
+
+    // ── 17. Chiffre choc singular for 1 year ──
     test('chiffreChoc uses singular "an" for 1 year', () {
       final result = Retroactive3aCalculator.calculate(
         gapYears: 1,

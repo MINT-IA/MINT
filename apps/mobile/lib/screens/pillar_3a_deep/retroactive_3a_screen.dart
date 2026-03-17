@@ -453,7 +453,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
                 const SizedBox(
                   width: 48,
                   child: Text(
-                    '2026', // TODO: i18n (referenceYear)
+                    '${DateTime.now().year}', // TODO: i18n (referenceYear)
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -489,7 +489,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'TOTAL D\u00c9DUCTIBLE EN 2026', // TODO: i18n
+                  'TOTAL D\u00c9DUCTIBLE EN ${DateTime.now().year}', // TODO: i18n
                   style: GoogleFonts.montserrat(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
