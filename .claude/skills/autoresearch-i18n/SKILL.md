@@ -1,242 +1,106 @@
 ---
 name: autoresearch-i18n
-description: "Karpathy-style string extraction loop for i18n. Finds hardcoded French strings in screens/widgets, extracts to ARB files, verifies periodically. Use with /autoresearch-i18n or /autoresearch-i18n 40."
+description: "Karpathy-style string extraction loop. Finds hardcoded French strings → extracts to ALL 6 ARB files → verifies with gen-l10n + tests → repeats. Use with /autoresearch-i18n or /autoresearch-i18n 40."
 compatibility: Requires Flutter SDK
-allowed-tools: Bash(flutter:*) Bash(grep:*) Bash(git:*) Read Edit Write Glob Grep
 metadata:
   author: mint-team
-  version: "2.1"
+  version: "3.0"
 ---
 
-# Autoresearch i18n v2 — Karpathy-Style String Extraction Loop
+# Autoresearch i18n v3 — Karpathy String Extraction Loop
 
-## Philosophy
+> Measure → extract → verify → repeat. Until zero hardcoded strings remain.
 
-Autonomous agent that systematically extracts hardcoded French strings from Flutter screens and widgets into ARB files. Measures, extracts, verifies — repeats until budget is spent or all strings are extracted.
+## Constraints (NON-NEGOTIABLE)
 
-## Primary Metric
+- **Single metric**: hardcoded French string count in `lib/screens/` + `lib/widgets/` (lower = better).
+- **Time budget**: 5 min per batch (5 strings). If gen-l10n fails → revert batch → fix ARB → retry.
+- **Single target**: ONE file per batch. The file with the most hardcoded strings.
+- **Guard metrics**: `flutter gen-l10n` (must succeed) | `flutter test` every 10 extractions (0 regressions) | ARB parity (6 files within 5 lines)
 
-**Hardcoded French string count** in `lib/screens/` and `lib/widgets/`.
-
-**Secondary metric**: NBSP violations = count of `:`, `?`, `!`, `;`, `%` NOT preceded by `\u00a0` in French ARB strings. Measure with:
-
-```bash
-grep -Pn '[^\u00a0][!?:;%]' apps/mobile/lib/l10n/app_fr.arb | grep -v '"@' | grep -v '//\|http\|mailto\|regex' | wc -l
-```
-
-Detection command:
-
-```bash
-cd /Users/julienbattaglia/Desktop/MINT/apps/mobile
-grep -rn "Text(\s*'" lib/screens/ lib/widgets/ --include="*.dart" \
-  | grep -v "Text(S\." \
-  | grep -v "Text(widget\." \
-  | grep -v "Text(state\." \
-  | grep -v "Text(format" \
-  | grep -v "Text(style" \
-  | grep -v "// " \
-  | grep -v "_test.dart" \
-  | grep -v "archive/" \
-  | wc -l
-```
-
-Also check for hardcoded strings in other patterns:
-
-```bash
-grep -rn "'[A-ZÀÂÉÈÊËÏÎÔÙÛÜÇ][a-zàâéèêëïîôùûüç]" lib/screens/ lib/widgets/ --include="*.dart" \
-  | grep -v "SharedPreferences\|route\|key\|enum\|case\|'\$\|import\|// \|_test.dart\|archive/" \
-  | grep -v "S\.of" \
-  | head -30
-```
-
-### Guard Metrics
-| Guard | Command | Threshold |
-|-------|---------|-----------|
-| Tests | `flutter test` | 0 failures (run every 10 extractions) |
-| Analyze | `flutter analyze` | Must not increase errors |
-| gen-l10n | `flutter gen-l10n` | Must succeed (no ARB syntax errors) |
-| ARB parity | `wc -l lib/l10n/app_*.arb` | All 6 files within 5 lines of each other |
-
-## Loop Structure
-
-### Phase 0 — INVENTORY
+## Detection Commands
 
 ```bash
 cd /Users/julienbattaglia/Desktop/MINT/apps/mobile
 
-# Count hardcoded strings
+# Count hardcoded strings (PRIMARY METRIC)
 grep -rn "Text(\s*'" lib/screens/ lib/widgets/ --include="*.dart" \
   | grep -v "Text(S\.\|Text(widget\.\|Text(state\.\|Text(format\|// \|_test.dart\|archive/" \
   | wc -l
 
-# List files with most hardcoded strings
-grep -rl "Text(\s*'" lib/screens/ lib/widgets/ --include="*.dart" \
-  | grep -v "_test.dart\|archive/" \
-  | xargs -I{} sh -c 'echo "$(grep -c "Text('" '"'"'" {} 2>/dev/null) {}"' \
-  | sort -rn | head -20
+# NBSP violations (SECONDARY)
+grep -Pn '[^\u00a0][!?:;%]' lib/l10n/app_fr.arb | grep -v '"@\|//\|http\|mailto' | wc -l
 ```
 
-### Phase 1 — BASELINE
+## The Loop
 
 ```
-BASELINE: YYYY-MM-DD HH:MM
-  hardcoded_strings: N
-  arb_keys_fr: M (grep -c '"' lib/l10n/app_fr.arb)
-  budget_total: B (from user arg, default 30)
-  budget_spent: 0
+┌─ INVENTORY: Run detection command. List top-20 files by hardcoded count.
+│
+├─ SELECT: File with most hardcoded strings. Skip archive/.
+│
+├─ EXTRACT BATCH (≤5 strings, ≤3 min):
+│  For each string:
+│  1. Read file, understand context
+│  2. Choose key: camelCase, {screenOrWidget}{Description} (e.g., budgetScreenTitle)
+│  3. Check for duplicate: grep -i "term" lib/l10n/app_fr.arb
+│  4. Add key to ALL 6 ARB files (fr, en, de, es, it, pt) — keys at END before }
+│  5. Handle placeholders: "Il te reste {amount} CHF" + @key metadata
+│  6. Replace: Text('...') → Text(S.of(context)!.keyName)
+│  7. Add import if missing: import 'package:mint_mobile/l10n/app_localizations.dart';
+│
+├─ VERIFY (≤2 min):
+│  flutter gen-l10n 2>&1  — if FAILS → git checkout -- lib/l10n/app_*.arb → fix → retry
+│  flutter analyze 2>&1 | tail -5
+│  Recount hardcoded strings (must decrease)
+│  Every 2 batches: flutter test 2>&1 | tail -10
+│
+├─ LOG: Append to experiment log
+│
+├─ COMMIT: git add ... && git commit -m "i18n: extract N strings from <file>"
+│
+└─ REPEAT until: budget exhausted | 0 hardcoded strings | 3 consecutive batches with 0 extractions
 ```
 
-### Phase 2 — EXTRACT BATCH (5 strings per batch)
+## Extraction Rules
 
-For each batch, pick one file (the one with the most hardcoded strings). Extract up to 5 strings from that file.
+1. **French accents MANDATORY**: impôt, être, prévoyance, retraite — ASCII = bug
+2. **NBSP before double punctuation**: `\u00a0` before `!`, `?`, `:`, `;`, `%`
+3. **No duplicate keys**: always search first, reuse if exists
+4. **ALL 6 ARB files**: never add to just app_fr.arb
+5. **Keys at END**: minimize merge conflicts
+6. **Do NOT i18n**: variable names, routes, enums, SharedPreferences keys, analytics, debug strings
+7. **Preserve formatting**: handle `\n`, interpolation properly
 
-**Skip files in `archive/` and `docs/archive/` directories** — these are not active code.
-
-**Extraction steps for each string**:
-
-1. **Read the file** to understand the context
-2. **Choose a key name**: `camelCase`, descriptive, prefixed by screen/widget name
-   - Example: `budgetScreenTitle`, `retirementProjectionDisclaimer`
-3. **Check for existing key** in `app_fr.arb` (avoid duplicates!)
-   ```bash
-   grep -i "searchTerm" apps/mobile/lib/l10n/app_fr.arb
-   ```
-4. **Add the key to ALL 6 ARB files** (fr, en, de, es, it, pt):
-   - `app_fr.arb`: French text (with proper accents and NBSP)
-   - `app_en.arb`: English translation
-   - `app_de.arb`: German translation
-   - `app_es.arb`: Spanish translation
-   - `app_it.arb`: Italian translation
-   - `app_pt.arb`: Portuguese translation
-   - Add keys at END of each file (before closing `}`)
-5. **Handle placeholders** if the string contains variables:
-   ```json
-   "budgetRemaining": "Il te reste {amount} CHF",
-   "@budgetRemaining": {
-     "placeholders": {
-       "amount": { "type": "String" }
-     }
-   }
-   ```
-6. **Replace the hardcoded string** in the Dart file:
-   - Add import if missing: `import 'package:mint_mobile/l10n/app_localizations.dart';`
-   - Replace `Text('Texte en dur')` with `Text(S.of(context)!.keyName)`
-
-### Phase 3 — VERIFY
-
-After each batch of 5 extractions:
-
-If `flutter gen-l10n` FAILS, immediately revert the last batch with `git checkout -- lib/l10n/app_*.arb` and diagnose the ARB syntax error before continuing.
-
-```bash
-cd /Users/julienbattaglia/Desktop/MINT/apps/mobile
-
-# Verify ARB syntax — if this fails, revert immediately
-flutter gen-l10n 2>&1
-
-# Verify analyze
-flutter analyze 2>&1 | tail -5
-
-# Count remaining hardcoded strings
-grep -rn "Text(\s*'" lib/screens/ lib/widgets/ --include="*.dart" \
-  | grep -v "Text(S\.\|Text(widget\.\|Text(state\.\|Text(format\|// \|_test.dart\|archive/" \
-  | wc -l
-```
-
-Every 2 batches (10 extractions), also run:
-
-```bash
-flutter test 2>&1 | tail -10
-```
-
-### Phase 4 — LOG
-
-Track progress in TSV format (see below).
-
-### Phase 5 — REPEAT
-
-Go back to Phase 2 until:
-- Budget exhausted
-- 0 hardcoded strings remaining
-- 3 consecutive batches with 0 new extractions possible (plateau)
-
-## Strict Rules
-
-1. **French accents are MANDATORY.** Never write `impot`, `etre`, `prevoyance`, `retraite` without proper accents (`impot` -> `imp\u00f4t`, `etre` -> `\u00eatre`, etc.). This is a bug, not a style choice.
-2. **NBSP before double punctuation.** In French ARB strings, use `\u00a0` before `!`, `?`, `:`, `;`, `%`. Example: `"montant\u00a0: {amount}\u00a0CHF"`.
-3. **No duplicate keys.** Always search existing ARB keys before adding a new one. Reuse if the same string already exists.
-4. **ALL 6 ARB files must be updated.** Never add a key to just `app_fr.arb`. Add to all 6 languages in the same batch.
-5. **Keys at END of file.** Add new keys before the closing `}` to minimize merge conflicts.
-6. **Do NOT i18n**: variable names, route paths, enum values, SharedPreferences keys, analytics event names, debug-only strings.
-7. **Do NOT extract strings inside `print()` or `debugPrint()`.** Those are dev-only.
-8. **Preserve formatting.** If the original uses `\n` or string interpolation, handle it properly in the ARB.
-9. **Run `flutter gen-l10n` after every batch.** If it fails, fix the ARB syntax error before continuing.
-10. **If tests break, fix immediately** before continuing the extraction loop.
-11. **Skip archive directories** — files in `archive/` or `docs/archive/` are not active code and must not be scanned or modified.
-
-## Key Name Convention
+## Experiment Log (append-only)
 
 ```
-{screenOrWidgetName}{ElementDescription}
+batch  file_processed           strings_before  strings_after  delta  keys_added  gen_l10n  tests
+1      budget_screen.dart       87              82             -5     5           OK        not_run
+2      retirement_screen.dart   82              77             -5     3(+2reuse)  OK        PASS
+3      lpp_deep_screen.dart     77              72             -5     5           OK        not_run
 ```
 
-Examples:
-- `budgetScreenTitle` — title of budget screen
-- `retirementDisclaimer` — disclaimer on retirement screen
-- `lppDeepBuybackLabel` — label for buyback in LPP deep screen
-- `coachGreetingMorning` — morning greeting in coach
-- `wizardStressCheckOption1` — first option in stress check question
-
-For strings with placeholders:
-- `budgetRemainingAmount` — "Il te reste {amount} CHF"
-- `lppProjectionAt` — "Projection a {age} ans"
-
-## TSV Session Log Format
+## Final Report
 
 ```
-batch	timestamp	strings_before	strings_after	delta	file_processed	keys_added	gen_l10n	tests
-1	HH:MM	87	82	-5	budget_screen.dart	5	OK	not_run
-2	HH:MM	82	77	-5	retirement_screen.dart	5	OK	PASS
-3	HH:MM	77	72	-5	lpp_deep_screen.dart	5	OK	not_run
-```
+AUTORESEARCH I18N — SESSION REPORT
+Date: YYYY-MM-DD | Branch: feature/S{XX}-... | Budget: X/Y extractions
 
-## Final Output
+Hardcoded strings: N → M (delta: -K)
+ARB keys (fr): A → B (+C)
+Tests: PASS | gen-l10n: OK
 
-```
-## Autoresearch i18n — Session Report
+EXPERIMENT LOG:
+batch  file  before  after  delta  keys  gen_l10n  tests
+1      ...
 
-**Date**: YYYY-MM-DD
-**Branch**: feature/S{XX}-...
-**Budget**: X extractions used / Y total
-
-### Results
-| Metric | Before | After | Delta |
-|--------|--------|-------|-------|
-| Hardcoded FR strings | N | M | -K |
-| ARB keys (fr) | A | B | +C |
-| Tests | PASS | PASS | 0 |
-| gen-l10n | OK | OK | 0 |
-
-### Files Processed
-| File | Strings extracted | Keys added |
-|------|-------------------|------------|
-| budget_screen.dart | 5 | 5 |
-| retirement_screen.dart | 5 | 3 (2 reused) |
-
-### Batches
-batch	strings_before	strings_after	delta	file
-1	...
-2	...
-
-### Remaining Hardcoded Strings (budget exhausted)
-- N strings remaining in M files
-- Top files: file1.dart (X), file2.dart (Y), ...
+REMAINING: N strings in M files
+Top: file1.dart (X), file2.dart (Y), ...
 ```
 
 ## Invocation
 
-- `/autoresearch-i18n` — run with default budget of 30 extractions
-- `/autoresearch-i18n 40` — run with budget of 40 extractions
-- `/autoresearch-i18n 100` — run with budget of 100 extractions
-
-The number is the maximum number of individual string extractions. Each batch = 5 extractions. So budget 40 = max 8 batches.
+- `/autoresearch-i18n` — 30 extractions (default, 6 batches)
+- `/autoresearch-i18n 40` — 8 batches
+- `/autoresearch-i18n 100` — deep pass, 20 batches
