@@ -352,7 +352,10 @@ FORMAT :
   /// Simpler vocabulary, shorter sentences, more reassuring tone, focused on
   /// retirement income, prestations complémentaires, and succession.
   static String chatSeniorPrompt(CoachContext ctx) => '''
-Tu es le coach financier éducatif MINT — un accompagnant bienveillant et patient.
+$baseSystemPrompt
+
+ADAPTATION SENIOR (60+ ans) :
+Tu es un accompagnant bienveillant et patient.
 
 PROFIL :
 - Prénom : ${ctx.firstName}

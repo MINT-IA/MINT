@@ -181,20 +181,28 @@ class ConversationTile extends StatelessWidget {
     final now = DateTime.now();
     final diff = now.difference(date);
 
+    // Bug fix: handle future dates (clock skew, timezone issues).
+    if (diff.isNegative) {
+      return l10n.conversationDateNow;
+    }
+
     if (diff.inMinutes < 1) {
-      return l10n.conversationDateNow; // TODO: add to ARB files
+      return l10n.conversationDateNow;
     } else if (diff.inMinutes < 60) {
-      return l10n.conversationDateMinutesAgo(diff.inMinutes.toString()); // TODO: add to ARB files
+      return l10n.conversationDateMinutesAgo(diff.inMinutes.toString());
     } else if (diff.inHours < 24 && now.day == date.day) {
-      return l10n.conversationDateHoursAgo(diff.inHours.toString()); // TODO: add to ARB files
-    } else if (diff.inHours < 48 &&
-        now.day - date.day == 1) {
-      return l10n.conversationDateYesterday; // TODO: add to ARB files
+      return l10n.conversationDateHoursAgo(diff.inHours.toString());
     } else {
+      // Bug fix: compare calendar dates for "yesterday" (handles month/year boundaries).
+      final yesterday = DateTime(now.year, now.month, now.day - 1);
+      final dateOnly = DateTime(date.year, date.month, date.day);
+      if (dateOnly == yesterday) {
+        return l10n.conversationDateYesterday;
+      }
       return l10n.conversationDateFormatted(
         date.day.toString(),
         _monthName(context, date.month),
-      ); // TODO: add to ARB files
+      );
     }
   }
 

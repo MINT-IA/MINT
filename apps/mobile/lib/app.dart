@@ -229,7 +229,11 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         final prompt = state.uri.queryParameters['prompt'];
-        return CoachChatScreen(initialPrompt: prompt);
+        final conversationId = state.uri.queryParameters['conversationId'];
+        return CoachChatScreen(
+          initialPrompt: prompt,
+          conversationId: conversationId,
+        );
       },
     ),
     GoRoute(

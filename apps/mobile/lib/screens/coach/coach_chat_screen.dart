@@ -50,12 +50,16 @@ class CoachChatScreen extends StatefulWidget {
   /// Used for contextual routing (e.g., "Parle au coach" from data blocks).
   final String? initialPrompt;
 
+  /// Optional conversation ID to resume an existing conversation.
+  final String? conversationId;
+
   /// When true, hides the back button (used when embedded as a tab).
   final bool isEmbeddedInTab;
 
   const CoachChatScreen({
     super.key,
     this.initialPrompt,
+    this.conversationId,
     this.isEmbeddedInTab = false,
   });
 
@@ -85,10 +89,29 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   bool _profileInitialized = false;
 
+  bool _isResumingConversation = false;
+
   @override
   void initState() {
     super.initState();
-    _conversationId = DateTime.now().millisecondsSinceEpoch.toString();
+    // Bug fix: use provided conversationId when resuming, else generate unique ID.
+    _conversationId = widget.conversationId ??
+        '${DateTime.now().millisecondsSinceEpoch}_${DateTime.now().microsecond}';
+    if (widget.conversationId != null) {
+      _isResumingConversation = true;
+      _loadExistingConversation(widget.conversationId!);
+    }
+  }
+
+  /// Load an existing conversation from persistent storage.
+  Future<void> _loadExistingConversation(String id) async {
+    final messages = await _conversationStore.loadConversation(id);
+    if (messages.isNotEmpty && mounted) {
+      setState(() {
+        _messages.addAll(messages);
+        _profileInitialized = true; // Skip greeting for resumed conversations
+      });
+    }
   }
 
   @override
@@ -107,7 +130,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       if (coachProvider.hasProfile) {
         _profile = coachProvider.profile!;
         _hasProfile = true;
-        _addInitialGreeting();
+        // Skip greeting when resuming an existing conversation.
+        if (!_isResumingConversation) {
+          _addInitialGreeting();
+        }
         if (mounted) setState(() {});
         // Auto-send initial prompt if provided (contextual routing)
         final prompt = widget.initialPrompt;
@@ -129,10 +155,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     super.dispose();
   }
 
-  /// Auto-save conversation to persistent storage on dispose or background.
-  void _autoSaveConversation() {
+  /// Auto-save conversation to persistent storage.
+  /// Returns a Future so callers can await before navigating.
+  Future<void> _autoSaveConversation() async {
     if (_conversationId != null && _messages.any((m) => m.isUser)) {
-      _conversationStore.saveConversation(_conversationId!, _messages);
+      await _conversationStore.saveConversation(_conversationId!, _messages);
     }
   }
 
@@ -683,9 +710,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               IconButton(
                 icon: const Icon(Icons.history, color: MintColors.white),
                 tooltip: 'Historique',
-                onPressed: () {
-                  _autoSaveConversation();
-                  context.push('/coach/history');
+                onPressed: () async {
+                  await _autoSaveConversation();
+                  if (mounted) context.push('/coach/history');
                 },
               ),
               if (_messages.any((m) => m.isUser))

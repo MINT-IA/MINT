@@ -450,7 +450,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
             ),
             child: Row(
               children: [
-                const SizedBox(
+                SizedBox(
                   width: 48,
                   child: Text(
                     '${DateTime.now().year}', // TODO: i18n (referenceYear)
