@@ -5,10 +5,10 @@ compatibility: Requires Flutter SDK
 allowed-tools: Bash(flutter:*) Bash(dart:*) Bash(git:*) Read Edit Write Glob Grep
 metadata:
   author: mint-team
-  version: "3.1"
+  version: "4.0"
 ---
 
-# Autoresearch Quality v3 — Autonomous Bug Hunter
+# Autoresearch Quality v4 — Autonomous Bug Hunter + Deep Code Auditor
 
 ## Philosophy
 
@@ -144,7 +144,41 @@ Continue until:
 - **Stuck** — same failure after 3 fix attempts → skip and move to next
 - **Analyze mode complete** — all issues fixed or only info-level remain
 
-## Analyze Mode (when all tests pass)
+## Deep Audit Mode (when tests + analyze are green)
+
+When tests are green AND analyze has 0 errors, switch to **deep code audit** — read the actual source code looking for REAL bugs that tests don't catch:
+
+### What to look for (prioritized)
+
+| Category | Examples | How to find |
+|----------|---------|-------------|
+| **Logic bugs** | Wrong formula, off-by-one, wrong constant, missing edge case | Read financial_core calculators, compare formulas vs legal source comments |
+| **Compliance violations** | Banned terms in user-facing strings, missing disclaimers, prescriptive language | `grep -rn "garanti\|certain\|assur\|optimal\|meilleur\|parfait\|conseiller" lib/` |
+| **Data safety** | PII in logs/analytics, async save without error handling, SharedPreferences overflow | Read services that handle profile data, coach context, analytics |
+| **Race conditions** | Async calls in dispose(), concurrent reads/writes, unguarded state mutations | Read StatefulWidgets with async operations |
+| **Input validation** | Missing clamp/bounds on user inputs, division by zero, null dereference | Read calculators + screens with sliders/inputs |
+| **Hardcoded values** | Constants not from social_insurance.dart, hex colors not from MintColors | `grep -rn "Color(0x\|const.*= [0-9]" lib/screens/ lib/widgets/` |
+| **Cross-doc inconsistency** | CLAUDE.md says X but code does Y, SOT.md field missing from model | Cross-reference docs vs code |
+
+### Audit loop
+
+1. Pick a recently-modified file (prioritize financial calculators > services > screens)
+2. Read the ENTIRE file
+3. For each function: check inputs validated? edge cases handled? formula correct?
+4. Check compliance: any user-facing text without i18n? any banned terms?
+5. If bug found → fix → verify tests still pass → commit
+6. Log all findings (fixed or not) in the session report
+
+### Severity classification
+
+| Severity | Definition | Action |
+|----------|-----------|--------|
+| CRITICAL | Wrong financial calculation, compliance violation, data loss | Fix immediately |
+| HIGH | Missing input validation, race condition, edge case crash | Fix in this session |
+| MEDIUM | Hardcoded value, missing i18n, design debt | Fix if budget allows |
+| LOW | Style, documentation, naming | Skip (not this skill's job) |
+
+## Analyze Mode (when all tests pass but analyze has issues)
 
 When `flutter test` is green, switch to lint fixes:
 

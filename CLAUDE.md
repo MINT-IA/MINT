@@ -165,7 +165,7 @@ Crise:         debtCrisis
 - `EnhancedConfidence` (0-100%) — **4-axis**: completeness × accuracy × freshness × understanding (geometric mean)
 - `enrichmentPrompts` — actions to improve accuracy (axis-specific)
 - Uncertainty band (min/max) when confidence < 70%
-- Data sources: estimated(0.25), userInput(0.50), crossValidated(0.70), documentScan(0.85), certificate(0.95), openBanking(1.00)
+- Data sources: estimated(0.25), userInput(0.60), crossValidated(0.70), certificate(0.95), openBanking(1.00)
 - Understanding axis: financial literacy engagement (beginner/intermediate/advanced + coach session bonus)
 
 ### Capital vs Rente Taxation (CRITICAL)

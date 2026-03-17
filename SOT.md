@@ -61,13 +61,14 @@ The central technical deliverable of a Session.
 - `axisPrompts`: List<EnrichmentPrompt> — axis-specific actions to improve score.
 
 ## 4. Enum: ProfileDataSource
+> Must match `coach_profile.dart` enum exactly.
+
 | Source | Weight | Description |
 |--------|--------|-------------|
-| `systemEstimate` | 0.25 | Default/estimated values |
-| `userEntry` | 0.50 | User-entered, not validated |
-| `userEntryCrossValidated` | 0.70 | User-entered, cross-checked |
-| `documentScan` | 0.85 | OCR-extracted from document |
-| `documentScanVerified` | 0.95 | OCR-extracted + user-confirmed |
+| `estimated` | 0.25 | Default/system-estimated values |
+| `userInput` | 0.60 | User-entered, not validated |
+| `crossValidated` | 0.70 | User-entered, cross-checked against other data |
+| `certificate` | 0.95 | Extracted from official document (LPP cert, tax declaration) |
 | `openBanking` | 1.00 | Live data from bLink/Open Banking |
 
 ## 5. Compliance & Governance Invariants
