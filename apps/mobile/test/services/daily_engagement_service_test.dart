@@ -231,9 +231,44 @@ void main() {
 
       final streak =
           await DailyEngagementService.currentStreak(prefs: prefs, now: now);
-      // Yesterday was engaged, so streak continues
-      // (the freeze handles 18 as today's gap)
+      // Yesterday was engaged, starts scan from i=1 (17), counts 17+16 = 2
       expect(streak, equals(2));
+    });
+
+    // ── 15. Freeze preserved overnight (Bug fix verification) ────
+    test('freeze preserved when checking streak next morning', () async {
+      // Engaged 15, 16, skip 17 (freeze), engaged 18
+      await recordOn(DateTime(2026, 3, 15));
+      await recordOn(DateTime(2026, 3, 16));
+      // Skip 17
+      await recordOn(DateTime(2026, 3, 18));
+
+      // Check streak ON day 18 (engaged today): freeze bridges 17
+      final streakDay18 =
+          await DailyEngagementService.currentStreak(
+              prefs: prefs, now: DateTime(2026, 3, 18));
+      expect(streakDay18, equals(3)); // 18 + 16 + 15 (freeze on 17)
+
+      // Next morning (day 19), user hasn't engaged yet.
+      // Streak should still be 3 — freeze NOT consumed by "today pending".
+      final streakDay19 =
+          await DailyEngagementService.currentStreak(
+              prefs: prefs, now: DateTime(2026, 3, 19));
+      expect(streakDay19, equals(3)); // 18 + 16 + 15 (freeze on 17)
+    });
+
+    // ── 16. Double gap breaks streak even with freeze ────────────
+    test('two consecutive missed days break streak', () async {
+      await recordOn(DateTime(2026, 3, 14));
+      await recordOn(DateTime(2026, 3, 15));
+      // Skip 16 AND 17
+      await recordOn(DateTime(2026, 3, 18));
+
+      final streak =
+          await DailyEngagementService.currentStreak(
+              prefs: prefs, now: DateTime(2026, 3, 18));
+      // 18 engaged, 17 miss (freeze), 16 miss (no freeze) → break
+      expect(streak, equals(1)); // Only day 18
     });
   });
 }

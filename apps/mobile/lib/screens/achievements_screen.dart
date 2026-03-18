@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -85,7 +86,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         ),
         body: Center(
           child: Text(
-            'Complete ton profil pour debloquer les accomplissements.', // TODO: i18n
+            'Complète ton profil pour débloquer les accomplissements.', // TODO: i18n
             style: GoogleFonts.inter(color: MintColors.textSecondary),
             textAlign: TextAlign.center,
           ),
@@ -124,7 +125,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             ),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: MintColors.white),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
             ),
           ),
 
@@ -216,7 +217,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
               Text(
                 _dailyStreak == 1
                     ? 'jour' // TODO: i18n
-                    : 'jours', // TODO: i18n
+                    : 'jours\u00a0!', // TODO: i18n
                 style: GoogleFonts.inter(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -270,7 +271,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Fais une action aujourd\'hui pour maintenir ta serie\u00a0!', // TODO: i18n
+                      'Fais une action aujourd\'hui pour maintenir ta série\u00a0!', // TODO: i18n
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -292,7 +293,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Engagement enregistre aujourd\'hui', // TODO: i18n
+                  'Engagement enregistré aujourd\'hui', // TODO: i18n
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -411,8 +412,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       ),
       _BadgeInfo(
         id: 'regulier',
-        label: 'Regulier\u00b7e',
-        description: '3 mois consecutifs de check-in.',
+        label: 'Régulier\u00b7e',
+        description: '3 mois consécutifs de check-in.',
         icon: Icons.local_fire_department,
         requiredStreak: 3,
       ),

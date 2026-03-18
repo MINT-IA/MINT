@@ -159,20 +159,23 @@ class DailyEngagementService {
     if (dates.isEmpty) return 0;
 
     final todayKey = _dateKey(today);
-
-    // Must have engaged today or yesterday to have an active streak
     final yesterdayKey = _dateKey(today.subtract(const Duration(days: 1)));
+
+    // Must have engaged today or yesterday to have an active streak.
     if (!dates.contains(todayKey) && !dates.contains(yesterdayKey)) {
       return 0;
     }
+
+    // Bug fix: if user hasn't engaged TODAY but engaged YESTERDAY,
+    // start scanning from yesterday (i=1) so the freeze is NOT consumed
+    // by today's "pending" state. This preserves the freeze for real gaps.
+    final startDay = dates.contains(todayKey) ? 0 : 1;
 
     int streak = 0;
     int freezesUsedInWindow = 0;
     int daysSinceLastFreeze = 7; // Start with freeze available
 
-    // Start from today and count backwards
-    for (int i = 0; i < 3650; i++) {
-      // Max ~10 years
+    for (int i = startDay; i < 3650; i++) {
       final date = today.subtract(Duration(days: i));
       final key = _dateKey(date);
 
@@ -180,18 +183,17 @@ class DailyEngagementService {
         streak++;
         daysSinceLastFreeze++;
       } else {
-        // Check if we can use a freeze
-        // Reset freeze counter every 7 days
+        // Reset freeze counter every 7 engaged/frozen days.
         if (daysSinceLastFreeze >= 7) {
           freezesUsedInWindow = 0;
         }
 
         if (freezesUsedInWindow < 1) {
-          // Use the freeze — gap forgiven, but doesn't add to streak count
+          // Use the freeze — gap forgiven, streak continues.
           freezesUsedInWindow++;
           daysSinceLastFreeze = 0;
         } else {
-          // No freeze available — streak broken
+          // No freeze available — streak broken.
           break;
         }
       }
