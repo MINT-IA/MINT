@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
+// TODO: add Semantics for accessibility
+
 // ────────────────────────────────────────────────────────────
 //  RESPONSE CARD WIDGET — Phase 1 / Dynamic Cards
 // ────────────────────────────────────────────────────────────

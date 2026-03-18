@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -510,8 +511,8 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         height: 56,
         child: FilledButton.icon(
           onPressed: () {
-            // Pop all the way back to root (dashboard)
-            Navigator.of(context).popUntil((route) => route.isFirst);
+            // Navigate back to root dashboard via GoRouter
+            context.go('/');
           },
           icon: const Icon(Icons.dashboard_outlined, size: 22),
           label: Text(

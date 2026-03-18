@@ -548,11 +548,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       }
 
       if (!mounted) return;
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => ExtractionReviewScreen(result: result),
-        ),
-      );
+      await context.push('/scan/review', extra: result);
     } catch (e) {
       _showErrorSnack('Parsing impossible pour ce document: $e');
     } finally {
