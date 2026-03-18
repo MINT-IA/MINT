@@ -13,7 +13,7 @@ class LifeEventSheet extends StatelessWidget {
     return showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: MintColors.transparent,
       builder: (_) => const LifeEventSheet(),
     );
   }
@@ -133,7 +133,7 @@ class LifeEventSheet extends StatelessWidget {
       builder: (context) => Padding(
         padding: const EdgeInsets.only(bottom: 4),
         child: Material(
-          color: Colors.transparent,
+          color: MintColors.transparent,
           child: InkWell(
             onTap: () => Navigator.of(context).pop(event.prompt),
             borderRadius: BorderRadius.circular(12),

@@ -757,7 +757,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
           decoration: BoxDecoration(
             color: isCurrent
                 ? MintColors.primary.withValues(alpha: 0.06)
-                : Colors.transparent,
+                : MintColors.transparent,
             borderRadius: BorderRadius.circular(8),
             border: isCurrent
                 ? Border.all(
@@ -879,7 +879,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
                       decoration: BoxDecoration(
                         color: checked
                             ? MintColors.success
-                            : Colors.transparent,
+                            : MintColors.transparent,
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
                           color: checked

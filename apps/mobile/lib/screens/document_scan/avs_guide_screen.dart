@@ -521,15 +521,8 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
 
     setState(() => _isProcessing = false);
 
-    // Navigate to extraction review
-    // Navigator.push acceptable — ExtractionReviewScreen requires complex object param,
-    // no GoRouter route defined (would need Extra or serialization)
     if (!mounted) return;
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ExtractionReviewScreen(result: result),
-      ),
-    );
+    context.push('/scan/review', extra: result);
   }
 }
 

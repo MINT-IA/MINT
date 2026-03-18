@@ -68,7 +68,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700,
                   fontSize: 18,
-                  color: Colors.white,
+                  color: MintColors.white,
                 ),
               ),
               background: Container(

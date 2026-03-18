@@ -1369,7 +1369,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                         decoration: BoxDecoration(
                           color: isChecked
                               ? MintColors.success
-                              : Colors.transparent,
+                              : MintColors.transparent,
                           borderRadius: BorderRadius.circular(7),
                           border: Border.all(
                             color: isChecked

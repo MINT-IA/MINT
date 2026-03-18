@@ -594,7 +594,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isCurrent ? MintColors.primary.withValues(alpha: 0.06) : Colors.transparent,
+        color: isCurrent ? MintColors.primary.withValues(alpha: 0.06) : MintColors.transparent,
         borderRadius: BorderRadius.circular(10),
         border: isCurrent
             ? Border.all(color: MintColors.primary.withValues(alpha: 0.3))

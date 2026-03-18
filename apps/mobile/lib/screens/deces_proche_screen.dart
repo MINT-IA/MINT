@@ -1,0 +1,477 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
+
+/// Screen for navigating the financial impact of a relative's death in Switzerland.
+///
+/// Covers succession timeline, urgent actions, fiscal obligations,
+/// 2nd/3rd pillar beneficiaries, and marital regime impact.
+/// Life Event: deathOfRelative.
+class DecesProcheScreen extends StatefulWidget {
+  const DecesProcheScreen({super.key});
+
+  @override
+  State<DecesProcheScreen> createState() => _DecesProcheScreenState();
+}
+
+class _DecesProcheScreenState extends State<DecesProcheScreen> {
+  // ── Input state ──
+  String _lienParente = 'conjoint';
+  String _canton = 'VD';
+  String _regimeMatrimonial = 'participation_acquets';
+  double _fortuneDefunt = 500000;
+  double _lppDefunt = 200000;
+  double _pilier3aDefunt = 50000;
+  int _nbHeritiers = 2;
+  bool _testamentExiste = false;
+  bool _defuntMarie = true;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context)!;
+    return Scaffold(
+      backgroundColor: MintColors.background,
+      appBar: AppBar(
+        title: Text(s.decesProcheTitre),
+        backgroundColor: MintColors.primary,
+        foregroundColor: MintColors.white,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Hero: chiffre choc ──
+              _buildChiffreChoc(s),
+              const SizedBox(height: 24),
+
+              // ── Urgences 48h ──
+              _buildUrgences48h(s),
+              const SizedBox(height: 24),
+
+              // ── Inputs ──
+              _buildInputs(s),
+              const SizedBox(height: 24),
+
+              // ── Timeline succession ──
+              _buildTimeline(s),
+              const SizedBox(height: 24),
+
+              // ── Beneficiaires LPP / 3a ──
+              _buildBeneficiaires(s),
+              const SizedBox(height: 24),
+
+              // ── Impact fiscal ──
+              _buildImpactFiscal(s),
+              const SizedBox(height: 24),
+
+              // ── Actions concrètes ──
+              _buildActions(s),
+              const SizedBox(height: 24),
+
+              // ── Disclaimer ──
+              _buildDisclaimer(s),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChiffreChoc(S s) {
+    final delaiRepudiation = 3; // mois — CC art. 567
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [MintColors.primary, MintColors.primaryLight],
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          Text(
+            '$delaiRepudiation',
+            style: GoogleFonts.montserrat(
+              fontSize: 48,
+              fontWeight: FontWeight.w800,
+              color: MintColors.white,
+            ),
+          ),
+          Text(
+            s.decesProcheMoisRepudiation,
+            style: GoogleFonts.inter(
+              fontSize: 16,
+              color: MintColors.white70,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUrgences48h(S s) {
+    final urgences = [
+      s.decesProche48hActe,
+      s.decesProche48hBanque,
+      s.decesProche48hAssurance,
+      s.decesProche48hEmployeur,
+    ];
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.urgentBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            s.decesProche48hTitre,
+            style: GoogleFonts.montserrat(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: MintColors.error,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...urgences.asMap().entries.map(
+                (e) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 24,
+                        height: 24,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: MintColors.error,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '${e.key + 1}',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: MintColors.white,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          e.value,
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: MintColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInputs(S s) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          s.decesProcheSituation,
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: MintColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Lien de parenté
+        Text(s.decesProcheLienParente,
+            style: GoogleFonts.inter(fontSize: 14, color: MintColors.textSecondary)),
+        const SizedBox(height: 8),
+        SegmentedButton<String>(
+          segments: [
+            ButtonSegment(value: 'conjoint', label: Text(s.decesProcheLienConjoint)),
+            ButtonSegment(value: 'parent', label: Text(s.decesProcheLienParent)),
+            ButtonSegment(value: 'enfant', label: Text(s.decesProcheLienEnfant)),
+          ],
+          selected: {_lienParente},
+          onSelectionChanged: (v) => setState(() => _lienParente = v.first),
+        ),
+        const SizedBox(height: 16),
+
+        // Fortune du défunt
+        Text(s.decesProcheFortune,
+            style: GoogleFonts.inter(fontSize: 14, color: MintColors.textSecondary)),
+        Slider(
+          value: _fortuneDefunt,
+          min: 0,
+          max: 5000000,
+          divisions: 100,
+          label: formatChfWithPrefix(_fortuneDefunt),
+          activeColor: MintColors.primary,
+          onChanged: (v) => setState(() => _fortuneDefunt = v),
+        ),
+        Text(formatChfWithPrefix(_fortuneDefunt),
+            style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: MintColors.textPrimary)),
+        const SizedBox(height: 16),
+
+        // Canton
+        Row(
+          children: [
+            Text(s.decesProcheCanton,
+                style: GoogleFonts.inter(fontSize: 14, color: MintColors.textSecondary)),
+            const SizedBox(width: 12),
+            DropdownButton<String>(
+              value: _canton,
+              items: ['VD', 'GE', 'VS', 'BE', 'ZH', 'BS', 'LU', 'TI', 'SG', 'AG']
+                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                  .toList(),
+              onChanged: (v) => setState(() => _canton = v ?? _canton),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Testament
+        SwitchListTile(
+          title: Text(s.decesProchTestament,
+              style: GoogleFonts.inter(fontSize: 14)),
+          value: _testamentExiste,
+          activeColor: MintColors.primary,
+          onChanged: (v) => setState(() => _testamentExiste = v),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTimeline(S s) {
+    final etapes = [
+      (s.decesProchTimeline1Titre, s.decesProchTimeline1Desc, '0-3\u00A0j'),
+      (s.decesProchTimeline2Titre, s.decesProchTimeline2Desc, '1-4\u00A0sem'),
+      (s.decesProchTimeline3Titre, s.decesProchTimeline3Desc, '1-3\u00A0mois'),
+      (s.decesProchTimeline4Titre, s.decesProchTimeline4Desc, '3-12\u00A0mois'),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          s.decesProchTimelineTitre,
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: MintColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 16),
+        ...etapes.map(
+          (e) => Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 64,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: MintColors.surface,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(e.$3,
+                      style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: MintColors.textSecondary),
+                      textAlign: TextAlign.center),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(e.$1,
+                          style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: MintColors.textPrimary)),
+                      const SizedBox(height: 4),
+                      Text(e.$2,
+                          style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: MintColors.textSecondary)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBeneficiaires(S s) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.coachBubble,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            s.decesProchebeneficiairesTitre,
+            style: GoogleFonts.montserrat(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: MintColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _infoRow(s.decesProchebeneficiairesLpp,
+              formatChfWithPrefix(_lppDefunt)),
+          const SizedBox(height: 8),
+          _infoRow(s.decesProchebeneficiaires3a,
+              formatChfWithPrefix(_pilier3aDefunt)),
+          const SizedBox(height: 12),
+          Text(
+            s.decesProchebeneficiairesNote,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontStyle: FontStyle.italic,
+              color: MintColors.textMuted,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label,
+            style: GoogleFonts.inter(
+                fontSize: 14, color: MintColors.textSecondary)),
+        Text(value,
+            style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: MintColors.textPrimary)),
+      ],
+    );
+  }
+
+  Widget _buildImpactFiscal(S s) {
+    // Simplified succession tax estimate — most cantons exempt conjoint
+    final estExempt = _lienParente == 'conjoint';
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: estExempt ? MintColors.successBg : MintColors.warningBg,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            s.decesProchImpactFiscalTitre,
+            style: GoogleFonts.montserrat(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: MintColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            estExempt
+                ? s.decesProchImpactFiscalExempt(_canton)
+                : s.decesProchImpactFiscalTaxe(_canton),
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: MintColors.textPrimary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActions(S s) {
+    final actions = [
+      s.decesProchAction1,
+      s.decesProchAction2,
+      s.decesProchAction3,
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          s.decesProchActionsTitre,
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: MintColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        ...actions.map(
+          (a) => Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: MintColors.surface,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.check_circle_outline,
+                    color: MintColors.success, size: 20),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(a,
+                      style: GoogleFonts.inter(
+                          fontSize: 14, color: MintColors.textPrimary)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDisclaimer(S s) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.disclaimerBg,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        s.decesProchDisclaimer,
+        style: GoogleFonts.inter(
+          fontSize: 11,
+          fontStyle: FontStyle.italic,
+          color: MintColors.textMuted,
+        ),
+      ),
+    );
+  }
+}

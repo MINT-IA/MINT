@@ -58,7 +58,7 @@ class ConjointInvitationCard extends StatelessWidget {
         color: MintColors.card,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _isLinked ? MintColors.lightBorder : Colors.transparent,
+          color: _isLinked ? MintColors.lightBorder : MintColors.transparent,
         ),
       ),
       // For dashed border we use foregroundDecoration
@@ -148,7 +148,7 @@ class ConjointInvitationCard extends StatelessWidget {
         bgColor = MintColors.success.withAlpha(15);
       default:
         message = '';
-        bgColor = Colors.transparent;
+        bgColor = MintColors.transparent;
     }
 
     return Container(

@@ -308,7 +308,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
   Widget _buildBonASavoir() {
     final l = S.of(context)!;
     return Theme(
-      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.accentPastel,

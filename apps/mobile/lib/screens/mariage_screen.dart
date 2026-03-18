@@ -1388,7 +1388,7 @@ class _MariageScreenState extends State<MariageScreen>
                         decoration: BoxDecoration(
                           color: isChecked
                               ? MintColors.success
-                              : Colors.transparent,
+                              : MintColors.transparent,
                           borderRadius: BorderRadius.circular(7),
                           border: Border.all(
                             color: isChecked

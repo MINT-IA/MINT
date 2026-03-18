@@ -238,7 +238,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? MintColors.coachAccent : Colors.transparent,
+            color: isSelected ? MintColors.coachAccent : MintColors.transparent,
             borderRadius: BorderRadius.circular(11),
           ),
           child: Text(

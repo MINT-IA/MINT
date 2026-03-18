@@ -300,7 +300,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
         await showModalBottomSheet(
           context: context,
           isScrollControlled: true,
-          backgroundColor: Colors.transparent,
+          backgroundColor: MintColors.transparent,
           builder: (_) => MilestoneCelebrationSheet(milestone: milestone),
         );
       } catch (_) {
@@ -724,7 +724,7 @@ Reponds uniquement avec le texte final.
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: MintColors.transparent,
       builder: (ctx) {
         return StatefulBuilder(
           builder: (ctx, setSheetState) {

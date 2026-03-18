@@ -119,7 +119,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         onPressed: () => context.pop(),
       ),
       title: Text(
-        'SCANNER UN DOCUMENT',
+        S.of(context)!.docScanAppBarTitle,
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w800,
           fontSize: 13,
@@ -135,7 +135,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Améliore la précision de ton profil',
+          S.of(context)!.docScanHeaderTitle,
           style: GoogleFonts.montserrat(
             fontSize: 22,
             fontWeight: FontWeight.w700,
@@ -145,8 +145,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Photographie un document financier et on extrait les chiffres '
-          'pour toi. Tu vérifies ensuite chaque valeur avant confirmation.',
+          S.of(context)!.docScanHeaderSubtitle,
           style: GoogleFonts.inter(
             fontSize: 15,
             color: MintColors.textSecondary,
@@ -166,7 +165,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Type de document',
+          S.of(context)!.docScanDocumentType,
           style: GoogleFonts.montserrat(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -253,7 +252,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   color: MintColors.success, size: 16),
               const SizedBox(width: 6),
               Text(
-                '+${_selectedType.confidenceImpact} points de confiance',
+                S.of(context)!.docScanConfidencePoints(_selectedType.confidenceImpact),
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -307,7 +306,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             onPressed: _isProcessing ? null : _onGalleryPressed,
             icon: const Icon(Icons.photo_library_outlined, size: 22),
             label: Text(
-              'Depuis la galerie',
+              S.of(context)!.docScanFromGallery,
               style: GoogleFonts.inter(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -334,7 +333,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         onPressed: _isProcessing ? null : _onPasteTextPressed,
         icon: const Icon(Icons.text_snippet_outlined, size: 20),
         label: Text(
-          'Coller le texte OCR',
+          S.of(context)!.docScanPasteOcrText,
           style: GoogleFonts.inter(
             fontSize: 15,
             fontWeight: FontWeight.w600,
@@ -360,7 +359,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         onPressed: _isProcessing ? null : _onUseExamplePressed,
         icon: const Icon(Icons.science_outlined, size: 20),
         label: Text(
-          'Utiliser un exemple de test',
+          S.of(context)!.docScanUseExample,
           style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
         ),
         style: OutlinedButton.styleFrom(
@@ -389,10 +388,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              "L'image est analysée localement (OCR sur l'appareil). "
-              "Si tu utilises l'analyse Vision IA, l'image est envoyée "
-              "à ton fournisseur IA via ta propre clé API. "
-              'Seules les valeurs confirmées sont conservées dans ton profil.',
+              S.of(context)!.docScanPrivacyNote,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textMuted,
@@ -420,7 +416,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       if (image == null) return;
       await _processImageFile(image);
     } catch (e) {
-      _showErrorSnack("Impossible d'ouvrir la caméra. Utilise la galerie.");
+      _showErrorSnack(S.of(context)!.docScanCameraError);
     }
   }
 
@@ -449,7 +445,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       if (ext == 'txt') {
         final text = await _readTextFile(file);
         if (text.trim().isEmpty) {
-          _showErrorSnack('Le fichier texte est vide.');
+          _showErrorSnack(S.of(context)!.docScanEmptyTextFile);
           return;
         }
         await _processOcrText(text);
@@ -464,16 +460,15 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       final localPath = await _resolveLocalPath(file, ext: ext);
       if (localPath == null || localPath.isEmpty) {
         await _showOcrRecoverySheet(
-          title: 'Fichier non exploitable',
-          message: "Nous n'avons pas pu lire ce fichier directement depuis ton "
-              'appareil. Prends une photo du document ou colle un texte OCR.',
+          title: S.of(context)!.docScanFileUnreadableTitle,
+          message: S.of(context)!.docScanFileUnreadableMessage,
         );
         return;
       }
 
       await _processImageFile(XFile(localPath));
     } catch (e) {
-      _showErrorSnack('Impossible d\'importer le fichier: $e');
+      _showErrorSnack(S.of(context)!.docScanImportError(e.toString()));
     }
   }
 
@@ -509,9 +504,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         if (!mounted) return;
         setState(() => _isProcessing = false);
         await _showOcrRecoverySheet(
-          title: 'Texte non détecté',
-          message:
-              "Nous n'avons pas pu lire suffisamment de texte sur la photo.",
+          title: S.of(context)!.docScanOcrNotDetectedTitle,
+          message: S.of(context)!.docScanOcrNotDetectedMessage,
           imageFile: file,
         );
         return;
@@ -521,9 +515,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     } catch (_) {
       if (!mounted) return;
       await _showOcrRecoverySheet(
-        title: 'Analyse de la photo indisponible',
-        message: "Nous n'avons pas pu extraire le texte automatiquement. "
-            'Réessaie avec une photo plus nette ou colle le texte OCR.',
+        title: S.of(context)!.docScanPhotoAnalysisTitle,
+        message: S.of(context)!.docScanPhotoAnalysisMessage,
         imageFile: file,
       );
     } finally {
@@ -539,9 +532,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       final result = _parseByDocumentType(text);
       if (result.fields.isEmpty) {
         await _requestManualOcrText(
-          title: 'Aucun champ reconnu automatiquement',
-          hint:
-              "Ajoute ou corrige le texte OCR pour améliorer l'analyse, puis relance.",
+          title: S.of(context)!.docScanNoFieldRecognized,
+          hint: S.of(context)!.docScanNoFieldHint,
           initialText: text,
         );
         return;
@@ -550,7 +542,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       if (!mounted) return;
       await context.push('/scan/review', extra: result);
     } catch (e) {
-      _showErrorSnack('Parsing impossible pour ce document: $e');
+      _showErrorSnack(S.of(context)!.docScanParsingError(e.toString()));
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
@@ -601,7 +593,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 maxLines: 8,
                 minLines: 5,
                 decoration: InputDecoration(
-                  hintText: 'Colle ici le texte OCR brut…',
+                  hintText: S.of(context)!.docScanOcrPasteHint,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -646,9 +638,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     final localPath = await _resolveLocalPath(file, ext: ext);
     if (localPath == null || localPath.isEmpty) {
       await _showPdfImportFallback(
-        title: 'PDF détecté',
-        message: 'Impossible de lire ce PDF directement sur cet appareil. '
-            'Prends une photo du document ou colle un texte OCR.',
+        title: S.of(context)!.docScanPdfDetected,
+        message: S.of(context)!.docScanPdfCannotRead,
       );
       return;
     }
@@ -661,21 +652,17 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         return;
       }
       await _showPdfImportFallback(
-        title: 'Analyse PDF indisponible',
-        message: parse.errorMessage ??
-            'Le PDF n\'a pas pu être analysé automatiquement. '
-                'Tu peux prendre une photo (recommandé) ou coller un texte OCR.',
+        title: S.of(context)!.docScanPdfAnalysisUnavailable,
+        message: parse.errorMessage ?? S.of(context)!.docScanPdfNotParsed,
       );
       return;
     }
 
     await _showPdfImportFallback(
-      title: 'PDF détecté',
+      title: S.of(context)!.docScanPdfDetected,
       message: _selectedType == DocumentType.lppCertificate
-          ? 'Le parsing PDF n\'est pas disponible dans ce contexte. '
-              'Prends une photo ou colle un texte OCR.'
-          : 'Pour le moment, le parsing PDF automatique est surtout optimisé '
-              'pour les certificats LPP. Prends une photo du document.',
+          ? S.of(context)!.docScanPdfNotAvailable
+          : S.of(context)!.docScanPdfOptimizedLpp,
     );
   }
 
@@ -860,7 +847,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                       _processImageViaVision(imageFile);
                     },
                     icon: const Icon(Icons.auto_awesome_outlined),
-                    label: const Text('Analyser via Vision IA'),
+                    label: Text(S.of(context)!.docScanVisionAnalyze),
                     style: FilledButton.styleFrom(
                       backgroundColor: MintColors.primary,
                       foregroundColor: MintColors.white,
@@ -873,7 +860,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: Text(
-                    'L\'image sera envoyée à ton fournisseur IA via ta clé API.',
+                    S.of(context)!.docScanVisionDisclaimer,
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: MintColors.textMuted,
@@ -1007,7 +994,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       return const _PdfParseResult(
         success: false,
         errorMessage:
-            'Type de document non pris en charge pour le parsing PDF.',
+            S.of(context)!.docScanPdfTypeUnsupported,
       );
     }
 
@@ -1021,15 +1008,11 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       if (extraction.fields.isEmpty) {
         return const _PdfParseResult(
           success: false,
-          errorMessage: 'Aucune donnée utile n’a été extraite depuis ce PDF.',
+          errorMessage: S.of(context)!.docScanPdfNoData,
         );
       }
       if (!mounted) return const _PdfParseResult(success: true);
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => ExtractionReviewScreen(result: extraction),
-        ),
-      );
+      await context.push('/scan/review', extra: extraction);
       return const _PdfParseResult(success: true);
     } on DocumentServiceException catch (e) {
       final lower = e.message.toLowerCase();
@@ -1040,7 +1023,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       return _PdfParseResult(
         success: false,
         requiresAuthentication: requiresAuthentication,
-        errorMessage: 'Erreur backend pendant le parsing PDF: $e',
+        errorMessage: S.of(context)!.docScanPdfBackendError(e.toString()),
       );
     } catch (e) {
       debugPrint('[DocumentScan] Backend PDF parsing unavailable: $e');
@@ -1064,7 +1047,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             DocumentType.lppCertificate.confidenceImpact.toDouble(),
         warnings: upload.warnings,
         disclaimer:
-            "Données extraites automatiquement : vérifie chaque valeur avant confirmation.",
+            S.of(context)!.docScanBackendDisclaimer,
         sources: const ['Extraction backend Docling (LPP)'],
       );
     }
@@ -1092,49 +1075,49 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
     addField(
       fieldName: 'avoir_vieillesse_total',
-      label: 'Avoir LPP total',
+      label: S.of(context)!.docScanLabelLppTotal,
       value: lpp.avoirVieillesseTotal,
       profileField: 'avoirLppTotal',
     );
     addField(
       fieldName: 'avoir_obligatoire',
-      label: 'Part obligatoire',
+      label: S.of(context)!.docScanLabelObligatoire,
       value: lpp.avoirObligatoire,
       profileField: 'lppObligatoire',
     );
     addField(
       fieldName: 'avoir_surobligatoire',
-      label: 'Part surobligatoire',
+      label: S.of(context)!.docScanLabelSurobligatoire,
       value: lpp.avoirSurobligatoire,
       profileField: 'lppSurobligatoire',
     );
     addField(
       fieldName: 'taux_conversion_obligatoire',
-      label: 'Taux de conversion obligatoire',
+      label: S.of(context)!.docScanLabelTauxConvOblig,
       value: lpp.tauxConversionObligatoire,
       profileField: 'tauxConversionOblig',
     );
     addField(
       fieldName: 'taux_conversion_surobligatoire',
-      label: 'Taux de conversion surobligatoire',
+      label: S.of(context)!.docScanLabelTauxConvSuroblig,
       value: lpp.tauxConversionSurobligatoire,
       profileField: 'tauxConversionSuroblig',
     );
     addField(
       fieldName: 'rachat_maximum',
-      label: 'Rachat maximal',
+      label: S.of(context)!.docScanLabelRachatMax,
       value: lpp.rachatMaximum,
       profileField: 'buybackPotential',
     );
     addField(
       fieldName: 'salaire_assure',
-      label: 'Salaire assuré',
+      label: S.of(context)!.docScanLabelSalaireAssure,
       value: lpp.salaireAssure,
       profileField: 'lppInsuredSalary',
     );
     addField(
       fieldName: 'remuneration_rate',
-      label: 'Taux de rémunération',
+      label: S.of(context)!.docScanLabelTauxRemuneration,
       value: lpp.remunerationRate,
       profileField: 'rendementCaisse',
     );
@@ -1146,7 +1129,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       confidenceDelta: DocumentType.lppCertificate.confidenceImpact.toDouble(),
       warnings: upload.warnings,
       disclaimer:
-          "Vérifie les montants avant confirmation. Outil éducatif (LSFin).",
+          S.of(context)!.docScanBackendDisclaimerShort,
       sources: const ['Extraction backend Docling (LPP)'],
     );
   }
@@ -1179,7 +1162,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   Future<void> _processImageViaVision(XFile file) async {
     final byok = context.read<ByokProvider>();
     if (!byok.isConfigured || byok.apiKey == null || byok.provider == null) {
-      _showErrorSnack('Configure une cle API dans les parametres Coach.');
+      _showErrorSnack(S.of(context)!.docScanVisionConfigError);
       return;
     }
 
@@ -1223,9 +1206,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       }).toList();
 
       if (fields.isEmpty) {
-        _showErrorSnack(
-          "L'IA n'a pas pu extraire de champs de ce document.",
-        );
+        _showErrorSnack(S.of(context)!.docScanVisionNoFields);
         return;
       }
 
@@ -1238,20 +1219,15 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         warnings: const [],
         disclaimer: visionResponse.disclaimers.isNotEmpty
             ? visionResponse.disclaimers.first
-            : "Donnees extraites par IA : verifie chaque valeur. "
-                "Outil educatif, ne constitue pas un conseil (LSFin).",
+            : S.of(context)!.docScanVisionDefaultDisclaimer,
         sources: const ['Extraction Vision IA (BYOK)'],
       );
 
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => ExtractionReviewScreen(result: result),
-        ),
-      );
+      await context.push('/scan/review', extra: result);
     } on RagApiException catch (e) {
       _showErrorSnack(e.message);
     } catch (e) {
-      _showErrorSnack("Erreur Vision IA : $e");
+      _showErrorSnack(S.of(context)!.docScanVisionError(e.toString()));
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }

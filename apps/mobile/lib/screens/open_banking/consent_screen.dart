@@ -670,7 +670,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               : MintColors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? MintColors.primary : Colors.transparent,
+            color: isSelected ? MintColors.primary : MintColors.transparent,
           ),
         ),
         child: Row(

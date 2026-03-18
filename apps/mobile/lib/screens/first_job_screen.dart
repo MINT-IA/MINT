@@ -746,7 +746,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
               decoration: BoxDecoration(
                 color: isRecommended
                     ? MintColors.success.withValues(alpha: 0.06)
-                    : Colors.transparent,
+                    : MintColors.transparent,
                 borderRadius: BorderRadius.circular(12),
                 border: isRecommended
                     ? Border.all(

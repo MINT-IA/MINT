@@ -296,7 +296,7 @@ class _DisabilitySelfEmployedScreenState
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: selected ? color.withValues(alpha: 0.08) : Colors.transparent,
+          color: selected ? color.withValues(alpha: 0.08) : MintColors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: selected ? color : MintColors.border,

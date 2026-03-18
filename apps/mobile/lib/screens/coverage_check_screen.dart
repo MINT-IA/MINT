@@ -301,7 +301,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? MintColors.primary : Colors.transparent,
+          color: isSelected ? MintColors.primary : MintColors.transparent,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isSelected ? MintColors.primary : MintColors.border,

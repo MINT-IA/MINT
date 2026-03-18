@@ -791,7 +791,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                         decoration: BoxDecoration(
                           color: isChecked
                               ? MintColors.success
-                              : Colors.transparent,
+                              : MintColors.transparent,
                           borderRadius: BorderRadius.circular(7),
                           border: Border.all(
                             color: isChecked

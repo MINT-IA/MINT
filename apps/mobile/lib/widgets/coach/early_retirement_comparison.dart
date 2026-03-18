@@ -240,7 +240,7 @@ class EarlyRetirementComparison extends StatelessWidget {
   Widget _buildRow(_ComparisonRow r) {
     final bgColor = r.isTarget
         ? MintColors.primary.withValues(alpha: 0.08)
-        : Colors.transparent;
+        : MintColors.transparent;
     final textWeight = r.isTarget ? FontWeight.w700 : FontWeight.w500;
 
     return Container(

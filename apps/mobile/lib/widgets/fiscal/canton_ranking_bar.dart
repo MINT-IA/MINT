@@ -71,7 +71,7 @@ class CantonRankingBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: isHighlighted
             ? MintColors.primary.withValues(alpha: 0.06)
-            : Colors.transparent,
+            : MintColors.transparent,
         borderRadius: BorderRadius.circular(10),
         border: isHighlighted
             ? Border.all(color: MintColors.primary.withValues(alpha: 0.3))

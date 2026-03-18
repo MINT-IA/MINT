@@ -437,7 +437,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       floating: true,
       snap: true,
       backgroundColor: MintColors.background,
-      surfaceTintColor: Colors.transparent,
+      surfaceTintColor: MintColors.transparent,
       elevation: 0,
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
@@ -543,7 +543,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: MintColors.transparent,
       builder: (ctx) => Container(
         constraints: BoxConstraints(
           maxHeight: MediaQuery.of(context).size.height * 0.6,

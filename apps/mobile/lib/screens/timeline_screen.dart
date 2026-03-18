@@ -494,7 +494,7 @@ class TimelineScreen extends StatelessWidget {
 
   Widget _buildEventCard(BuildContext context, _LifeEvent event) {
     return Material(
-      color: Colors.transparent,
+      color: MintColors.transparent,
       child: InkWell(
         onTap: () => context.push(event.route),
         borderRadius: BorderRadius.circular(14),

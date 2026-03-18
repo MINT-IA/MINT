@@ -707,7 +707,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? MintColors.primary : Colors.transparent,
+          color: selected ? MintColors.primary : MintColors.transparent,
           borderRadius: BorderRadius.circular(7),
         ),
         child: Text(

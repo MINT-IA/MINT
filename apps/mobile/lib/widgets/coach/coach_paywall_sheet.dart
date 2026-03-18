@@ -35,7 +35,7 @@ class CoachPaywallSheet extends StatefulWidget {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: MintColors.transparent,
       builder: (_) => ChangeNotifierProvider.value(
         value: context.read<SubscriptionProvider>(),
         child: const CoachPaywallSheet(),
@@ -387,7 +387,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                         : MintColors.border,
                     width: 2,
                   ),
-                  color: isSelected ? MintColors.primary : Colors.transparent,
+                  color: isSelected ? MintColors.primary : MintColors.transparent,
                 ),
                 child: isSelected
                     ? const Icon(Icons.check, color: MintColors.white, size: 14)

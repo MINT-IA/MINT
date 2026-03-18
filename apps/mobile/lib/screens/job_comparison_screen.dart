@@ -810,7 +810,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
               decoration: BoxDecoration(
                 color: isEven
-                    ? Colors.transparent
+                    ? MintColors.transparent
                     : MintColors.surface.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(6),
               ),
@@ -1106,7 +1106,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
         border: Border.all(color: MintColors.border),
       ),
       child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
         child: ExpansionTile(
           tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),

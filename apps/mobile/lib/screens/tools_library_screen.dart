@@ -811,7 +811,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
 
   Widget _buildToolCard(_ToolItem tool) {
     return Material(
-      color: Colors.transparent,
+      color: MintColors.transparent,
       child: InkWell(
         onTap: () => context.push(tool.route),
         borderRadius: BorderRadius.circular(16),

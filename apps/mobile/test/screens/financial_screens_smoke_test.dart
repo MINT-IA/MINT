@@ -25,7 +25,7 @@ import 'package:mint_mobile/screens/lamal_franchise_screen.dart';
 import 'package:mint_mobile/screens/coverage_check_screen.dart';
 
 // Disability gap
-import 'package:mint_mobile/screens/simulator_disability_gap_screen.dart';
+import 'package:mint_mobile/screens/disability/disability_gap_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import '../test_helpers.dart';
@@ -361,7 +361,7 @@ void main() {
   // =========================================================================
 
   group('Disability gap screen', () {
-    testWidgets('SimulatorDisabilityGapScreen renders without error',
+    testWidgets('DisabilityGapScreen renders without error',
         (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
@@ -373,7 +373,7 @@ void main() {
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: S.supportedLocales,
-          home: SimulatorDisabilityGapScreen(),
+          home: DisabilityGapScreen(),
         ),
       );
       await tester.pump();

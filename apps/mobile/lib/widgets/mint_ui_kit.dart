@@ -241,7 +241,7 @@ class MintPremiumButton extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       MintColors.white.withValues(alpha: 0.03),
-                      Colors.transparent,
+                      MintColors.transparent,
                     ],
                     stops: const [0.0, 0.5],
                   ),

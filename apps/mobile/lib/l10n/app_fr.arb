@@ -5664,5 +5664,386 @@
         "type": "String"
       }
     }
+  },
+
+  "decesProcheTitre": "Décès d'un proche",
+  "decesProcheMoisRepudiation": "mois pour accepter ou répudier la succession (CC art.\u00a0567)",
+  "decesProche48hTitre": "Urgences\u00a0: premières 48\u00a0heures",
+  "decesProche48hActe": "Obtenir l'acte de décès auprès de l'état civil",
+  "decesProche48hBanque": "Informer la banque — les comptes sont bloqués dès notification",
+  "decesProche48hAssurance": "Contacter les assurances (vie, LAMal, ménage)",
+  "decesProche48hEmployeur": "Prévenir l'employeur du défunt pour le solde de salaire",
+  "decesProcheSituation": "Ta situation",
+  "decesProcheLienParente": "Lien avec le défunt",
+  "decesProcheLienConjoint": "Conjoint·e",
+  "decesProcheLienParent": "Parent",
+  "decesProcheLienEnfant": "Enfant",
+  "decesProcheFortune": "Fortune estimée du défunt",
+  "decesProcheCanton": "Canton",
+  "decesProchTestament": "Un testament existe",
+  "decesProchTimelineTitre": "Chronologie de la succession",
+  "decesProchTimeline1Titre": "Acte de décès & blocage",
+  "decesProchTimeline1Desc": "L'état civil délivre l'acte. Les comptes bancaires sont gelés.",
+  "decesProchTimeline2Titre": "Inventaire & notaire",
+  "decesProchTimeline2Desc": "Le notaire ouvre la succession et établit l'inventaire des biens.",
+  "decesProchTimeline3Titre": "Délai de répudiation",
+  "decesProchTimeline3Desc": "3 mois pour accepter ou répudier (CC art.\u00a0567). Passé ce délai, la succession est acceptée.",
+  "decesProchTimeline4Titre": "Partage & impôts",
+  "decesProchTimeline4Desc": "Déclaration de succession et paiement de l'impôt cantonal (si applicable).",
+  "decesProchebeneficiairesTitre": "Bénéficiaires LPP & 3a",
+  "decesProchebeneficiairesLpp": "Capital LPP du défunt",
+  "decesProchebeneficiaires3a": "Capital 3a du défunt",
+  "decesProchebeneficiairesNote": "L'ordre des bénéficiaires LPP est fixé par le règlement de la caisse (OPP2 art.\u00a048). Le 3a suit l'OPP3 art.\u00a02.",
+  "decesProchImpactFiscalTitre": "Impact fiscal",
+  "decesProchImpactFiscalExempt": "En {canton}, le conjoint survivant est exonéré de l'impôt de succession.",
+  "@decesProchImpactFiscalExempt": {
+    "placeholders": {
+      "canton": { "type": "String" }
+    }
+  },
+  "decesProchImpactFiscalTaxe": "En {canton}, les héritiers sont soumis à l'impôt cantonal de succession. Le taux varie selon le lien de parenté.",
+  "@decesProchImpactFiscalTaxe": {
+    "placeholders": {
+      "canton": { "type": "String" }
+    }
+  },
+  "decesProchActionsTitre": "Prochaines étapes",
+  "decesProchAction1": "Rassembler les documents\u00a0: acte de décès, testament, certificats LPP et 3a",
+  "decesProchAction2": "Consulter un·e notaire pour l'inventaire successoral",
+  "decesProchAction3": "Vérifier les bénéficiaires LPP et 3a auprès des caisses",
+  "decesProchDisclaimer": "Outil éducatif — ne constitue pas un conseil juridique ou fiscal (LSFin). Chaque succession est unique\u00a0: consulte un·e notaire ou un·e spécialiste. Sources\u00a0: CC art.\u00a0457-640, OPP2 art.\u00a048, OPP3 art.\u00a02.",
+
+  "demenagementTitre": "Déménagement cantonal",
+  "demenagementChiffreChocSousTitre": "économie (ou surcoût) annuel estimé",
+  "demenagementChiffreChocDetail": "En déménageant de {depart} vers {arrivee} (impôts + LAMal)",
+  "@demenagementChiffreChocDetail": {
+    "placeholders": {
+      "depart": { "type": "String" },
+      "arrivee": { "type": "String" }
+    }
+  },
+  "demenagementSituation": "Ta situation",
+  "demenagementCantonDepart": "Canton actuel",
+  "demenagementCantonArrivee": "Canton d'arrivée",
+  "demenagementRevenu": "Revenu brut annuel",
+  "demenagementCelibataire": "Célibataire",
+  "demenagementMarie": "Marié·e",
+  "demenagementFiscalTitre": "Comparaison fiscale",
+  "demenagementEconomieFiscale": "Économie fiscale estimée",
+  "demenagementLamalTitre": "Primes LAMal",
+  "demenagementChecklistTitre": "Checklist déménagement",
+  "demenagementChecklist1": "Annoncer le départ à la commune d'origine (8 jours avant)",
+  "demenagementChecklist2": "S'inscrire à la commune d'arrivée (8 jours après)",
+  "demenagementChecklist3": "Changer de caisse LAMal ou mettre à jour la région de prime",
+  "demenagementChecklist4": "Adapter la déclaration fiscale (imposition au 31.12)",
+  "demenagementChecklist5": "Vérifier les allocations familiales cantonales",
+  "demenagementDisclaimer": "Outil éducatif — ne constitue pas un conseil fiscal (LSFin). Les chiffres sont des estimations basées sur des indices cantonaux simplifiés. Consulte un·e spécialiste pour ta situation. Sources\u00a0: LIFD, LAMal, barèmes cantonaux 2025.",
+
+  "docScanAppBarTitle": "SCANNER UN DOCUMENT",
+  "docScanHeaderTitle": "Améliore la précision de ton profil",
+  "docScanHeaderSubtitle": "Photographie un document financier et on extrait les chiffres pour toi. Tu vérifies ensuite chaque valeur avant confirmation.",
+  "docScanDocumentType": "Type de document",
+  "docScanConfidencePoints": "+{points} points de confiance",
+  "@docScanConfidencePoints": {
+    "placeholders": {
+      "points": { "type": "int" }
+    }
+  },
+  "docScanFromGallery": "Depuis la galerie",
+  "docScanPasteOcrText": "Coller le texte OCR",
+  "docScanUseExample": "Utiliser un exemple de test",
+  "docScanPrivacyNote": "L'image est analysée localement (OCR sur l'appareil). Si tu utilises l'analyse Vision IA, l'image est envoyée à ton fournisseur IA via ta propre clé API. Seules les valeurs confirmées sont conservées dans ton profil.",
+  "docScanCameraError": "Impossible d'ouvrir la caméra. Utilise la galerie.",
+  "docScanEmptyTextFile": "Le fichier texte est vide.",
+  "docScanFileUnreadableTitle": "Fichier non exploitable",
+  "docScanFileUnreadableMessage": "Nous n'avons pas pu lire ce fichier directement depuis ton appareil. Prends une photo du document ou colle un texte OCR.",
+  "docScanImportError": "Impossible d'importer le fichier\u00a0: {error}",
+  "@docScanImportError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "docScanOcrNotDetectedTitle": "Texte non détecté",
+  "docScanOcrNotDetectedMessage": "Nous n'avons pas pu lire suffisamment de texte sur la photo.",
+  "docScanPhotoAnalysisTitle": "Analyse de la photo indisponible",
+  "docScanPhotoAnalysisMessage": "Nous n'avons pas pu extraire le texte automatiquement. Réessaie avec une photo plus nette ou colle le texte OCR.",
+  "docScanNoFieldRecognized": "Aucun champ reconnu automatiquement",
+  "docScanNoFieldHint": "Ajoute ou corrige le texte OCR pour améliorer l'analyse, puis relance.",
+  "docScanParsingError": "Parsing impossible pour ce document\u00a0: {error}",
+  "@docScanParsingError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "docScanOcrPasteHint": "Colle ici le texte OCR brut…",
+  "docScanPdfDetected": "PDF détecté",
+  "docScanPdfCannotRead": "Impossible de lire ce PDF directement sur cet appareil. Prends une photo du document ou colle un texte OCR.",
+  "docScanPdfAnalysisUnavailable": "Analyse PDF indisponible",
+  "docScanPdfNotParsed": "Le PDF n'a pas pu être analysé automatiquement. Tu peux prendre une photo (recommandé) ou coller un texte OCR.",
+  "docScanPdfNotAvailable": "Le parsing PDF n'est pas disponible dans ce contexte. Prends une photo ou colle un texte OCR.",
+  "docScanPdfOptimizedLpp": "Pour le moment, le parsing PDF automatique est surtout optimisé pour les certificats LPP. Prends une photo du document.",
+  "docScanPdfTypeUnsupported": "Type de document non pris en charge pour le parsing PDF.",
+  "docScanPdfNoData": "Aucune donnée utile n'a été extraite depuis ce PDF.",
+  "docScanPdfBackendError": "Erreur backend pendant le parsing PDF\u00a0: {error}",
+  "@docScanPdfBackendError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "docScanBackendDisclaimer": "Données extraites automatiquement\u00a0: vérifie chaque valeur avant confirmation.",
+  "docScanBackendDisclaimerShort": "Vérifie les montants avant confirmation. Outil éducatif (LSFin).",
+  "docScanVisionAnalyze": "Analyser via Vision IA",
+  "docScanVisionDisclaimer": "L'image sera envoyée à ton fournisseur IA via ta clé API.",
+  "docScanVisionNoFields": "L'IA n'a pas pu extraire de champs de ce document.",
+  "docScanVisionDefaultDisclaimer": "Données extraites par IA\u00a0: vérifie chaque valeur. Outil éducatif, ne constitue pas un conseil (LSFin).",
+  "docScanVisionConfigError": "Configure une clé API dans les paramètres Coach.",
+  "docScanVisionError": "Erreur Vision IA\u00a0: {error}",
+  "@docScanVisionError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "docScanLabelLppTotal": "Avoir LPP total",
+  "docScanLabelObligatoire": "Part obligatoire",
+  "docScanLabelSurobligatoire": "Part surobligatoire",
+  "docScanLabelTauxConvOblig": "Taux de conversion obligatoire",
+  "docScanLabelTauxConvSuroblig": "Taux de conversion surobligatoire",
+  "docScanLabelRachatMax": "Rachat maximal",
+  "docScanLabelSalaireAssure": "Salaire assuré",
+  "docScanLabelTauxRemuneration": "Taux de rémunération",
+
+  "docImpactTitle": "Ton profil est plus précis",
+  "docImpactSubtitle": "Les valeurs de ton {docType} ont été intégrées dans tes projections.",
+  "@docImpactSubtitle": {
+    "placeholders": {
+      "docType": { "type": "String" }
+    }
+  },
+  "docImpactConfidenceLabel": "% confiance",
+  "docImpactDeltaPoints": "+{points} points de confiance",
+  "@docImpactDeltaPoints": {
+    "placeholders": {
+      "points": { "type": "int" }
+    }
+  },
+  "docImpactChiffreChocTitle": "Chiffre choc recalculé",
+  "docImpactLppRealAmount": "d'avoir LPP réel (dont {oblig} obligatoire)",
+  "@docImpactLppRealAmount": {
+    "placeholders": {
+      "oblig": { "type": "String" }
+    }
+  },
+  "docImpactRenteOblig": "Rente obligatoire à 6.8%\u00a0: CHF {amount}/an",
+  "@docImpactRenteOblig": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "docImpactSurobligWithRate": "Part surobligatoire (CHF {suroblig}) à {rate}% = CHF {rente}/an",
+  "@docImpactSurobligWithRate": {
+    "placeholders": {
+      "suroblig": { "type": "String" },
+      "rate": { "type": "String" },
+      "rente": { "type": "String" }
+    }
+  },
+  "docImpactSurobligNoRate": "Part surobligatoire (CHF {suroblig}) = taux de conversion libre de la caisse",
+  "@docImpactSurobligNoRate": {
+    "placeholders": {
+      "suroblig": { "type": "String" }
+    }
+  },
+  "docImpactAvsYears": "{years} ans de cotisation",
+  "@docImpactAvsYears": {
+    "placeholders": {
+      "years": { "type": "int" }
+    }
+  },
+  "docImpactAvsCompletion": "sur {maxYears} nécessaires pour une rente AVS complète ({pct}%)",
+  "@docImpactAvsCompletion": {
+    "placeholders": {
+      "maxYears": { "type": "int" },
+      "pct": { "type": "int" }
+    }
+  },
+  "docImpactGenericMessage": "Tes projections sont maintenant basées sur des valeurs réelles.",
+  "docImpactFieldsUpdated": "Champs mis à jour",
+  "docImpactReturnDashboard": "Retour au dashboard",
+  "docImpactDisclaimer": "Outil éducatif — ne constitue pas un conseil en prévoyance. Vérifie toujours avec ton certificat original (LSFin).",
+
+  "extractionReviewAppBar": "VÉRIFICATION",
+  "extractionReviewTitle": "Vérifie les valeurs extraites",
+  "extractionReviewSubtitle": "{count} champs détectés{reviewPart}. Tu peux modifier chaque valeur avant de confirmer.",
+  "@extractionReviewSubtitle": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "reviewPart": { "type": "String" }
+    }
+  },
+  "extractionReviewNeedsReview": " dont {count} à vérifier",
+  "@extractionReviewNeedsReview": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "extractionReviewConfidence": "Confiance extraction\u00a0: {pct}%",
+  "@extractionReviewConfidence": {
+    "placeholders": {
+      "pct": { "type": "int" }
+    }
+  },
+  "extractionReviewSourcePrefix": "Lu\u00a0: \"{text}\"",
+  "@extractionReviewSourcePrefix": {
+    "placeholders": {
+      "text": { "type": "String" }
+    }
+  },
+  "extractionReviewConfirmAll": "Confirmer tout",
+  "extractionReviewEditTitle": "Modifier\u00a0: {label}",
+  "@extractionReviewEditTitle": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "extractionReviewCurrentValue": "Valeur actuelle\u00a0: {value}",
+  "@extractionReviewCurrentValue": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "extractionReviewNewValue": "Nouvelle valeur",
+  "extractionReviewCancel": "Annuler",
+  "extractionReviewValidate": "Valider",
+  "extractionReviewEditTooltip": "Modifier",
+
+  "firstSalaryFilmTitle": "Le film de ton premier salaire",
+  "firstSalaryFilmSubtitle": "CHF {amount} brut — 5 actes pour tout comprendre.",
+  "@firstSalaryFilmSubtitle": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "firstSalaryAct1Label": "1 · Brut→Net",
+  "firstSalaryAct2Label": "2 · Invisible",
+  "firstSalaryAct3Label": "3 · 3a",
+  "firstSalaryAct4Label": "4 · LAMal",
+  "firstSalaryAct5Label": "5 · Action",
+  "firstSalaryAct1Title": "La douche froide",
+  "firstSalaryAct1Quote": "{amount} CHF disparaissent. Mais ce n'est pas perdu — c'est ton futur.",
+  "@firstSalaryAct1Quote": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "firstSalaryGross": "Brut\u00a0: CHF {amount}",
+  "@firstSalaryGross": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "firstSalaryNet": "Net\u00a0: CHF {amount}",
+  "@firstSalaryNet": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "firstSalaryNetPercent": "{pct}% net",
+  "@firstSalaryNetPercent": {
+    "placeholders": {
+      "pct": { "type": "int" }
+    }
+  },
+  "firstSalaryAct2Title": "L'argent invisible",
+  "firstSalaryAct2Quote": "Ton vrai salaire est CHF {amount}. Ton employeur paie bien plus que tu ne crois.",
+  "@firstSalaryAct2Quote": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "firstSalaryVisibleNet": "🌊 Visible\u00a0: ton salaire net",
+  "firstSalaryVisibleNetSub": "Ce que tu touches",
+  "firstSalaryCotisations": "💧 Tes cotisations",
+  "firstSalaryCotisationsSub": "Déduits de ton brut",
+  "firstSalaryEmployerCotisations": "🏔️ Cotisations employeur",
+  "firstSalaryEmployerCotisationsSub": "Invisibles sur ta fiche",
+  "firstSalaryTotalEmployerCost": "Coût total employeur",
+  "firstSalaryAct3Title": "Le cadeau fiscal 3a",
+  "firstSalaryAct3Quote": "CHF {amount}/mois → potentiellement millionnaire. Commence maintenant.",
+  "@firstSalaryAct3Quote": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "firstSalaryAt30": "À 30 ans",
+  "firstSalaryAt40": "À 40 ans",
+  "firstSalaryAt65": "À 65 ans",
+  "firstSalary3aInfo": "💰 Plafond 2026\u00a0: CHF 7'258/an · Déduction fiscale directe · OPP3 art. 7",
+  "firstSalaryAct4Title": "Le piège LAMal",
+  "firstSalaryAct4Quote": "La franchise pas chère peut te coûter cher si tu tombes malade.",
+  "firstSalaryFranchise300Advice": "Conseillé si maladies chroniques",
+  "firstSalaryFranchise1500Advice": "Bon compromis · Recommandé",
+  "firstSalaryFranchise2500Advice": "Économise la prime · Si tu es en bonne santé",
+  "firstSalaryFranchiseLabel": "Franchise {label}",
+  "@firstSalaryFranchiseLabel": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "firstSalaryFranchisePrime": "−CHF {amount}/mois prime",
+  "@firstSalaryFranchisePrime": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "firstSalaryLamalInfo": "💡 LAMal art. 64 — Franchise annuelle choisie, renouvelable chaque année.",
+  "firstSalaryAct5Title": "Ta checklist de démarrage",
+  "firstSalaryAct5Quote": "5 actions. C'est tout. Commence cette semaine.",
+  "firstSalaryWeek1": "Semaine 1",
+  "firstSalaryWeek2": "Semaine 2",
+  "firstSalaryBefore31Dec": "Avant 31.12",
+  "firstSalaryTask1": "Ouvrir un compte 3a (banque ou fintech)",
+  "firstSalaryTask2": "Mettre en place un virement automatique mensuel",
+  "firstSalaryTask3": "Choisir ta franchise LAMal (recommandé\u00a0: CHF 1'500)",
+  "firstSalaryTask4": "Vérifier ta RC privée (env. CHF 100/an)",
+  "firstSalaryTask5": "Verser le maximum 3a avant le 31 décembre",
+  "firstSalaryBadgeTitle": "Premier pas financier",
+  "firstSalaryBadgeSubtitle": "Tu sais maintenant ce que 90% des gens ne savent jamais.",
+  "firstSalaryDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source\u00a0: LAVS art. 3, LPP art. 7, LACI art. 3, OPP3 art. 7 (3a 7'258 CHF/an). Taux cotisations indicatifs 2026. Projection 3a\u00a0: rendement hypothétique 4%/an.",
+
+  "benchmarkAppBarTitle": "Repères cantonaux",
+  "benchmarkOptInTitle": "Activer les repères cantonaux",
+  "benchmarkOptInSubtitle": "Compare ta situation à des ordres de grandeur issus des statistiques fédérales (OFS).",
+  "benchmarkExplanationTitle": "Des repères, pas un classement",
+  "benchmarkExplanationBody": "Active cette fonctionnalité pour situer ta situation financière par rapport à des profils similaires dans ton canton. Ces données sont des ordres de grandeur issus de statistiques fédérales anonymisées (OFS). Aucun classement, aucune comparaison sociale.",
+  "benchmarkNoProfile": "Complète ton profil pour accéder aux repères cantonaux.",
+  "benchmarkNoData": "Pas de données disponibles pour le canton {canton} (tranche {ageGroup}).",
+  "@benchmarkNoData": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "ageGroup": { "type": "String" }
+    }
+  },
+  "benchmarkSimilarProfiles": "Profils similaires\u00a0: {canton}, tranche {ageGroup}",
+  "@benchmarkSimilarProfiles": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "ageGroup": { "type": "String" }
+    }
+  },
+  "benchmarkSourceLabel": "Source\u00a0: {source}",
+  "@benchmarkSourceLabel": {
+    "placeholders": {
+      "source": { "type": "String" }
+    }
+  },
+  "benchmarkWithinRange": "Ta situation se situe dans la fourchette typique.",
+  "benchmarkAboveRange": "Ta situation est au-delà de la fourchette typique.",
+  "benchmarkBelowRange": "Ta situation est en-deçà de la fourchette typique.",
+  "benchmarkTypicalRange": "Fourchette typique\u00a0: {low} – {high}",
+  "@benchmarkTypicalRange": {
+    "placeholders": {
+      "low": { "type": "String" },
+      "high": { "type": "String" }
+    }
   }
 }

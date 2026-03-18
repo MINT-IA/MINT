@@ -1421,7 +1421,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                       decoration: BoxDecoration(
                         color: checked
                             ? MintColors.success
-                            : Colors.transparent,
+                            : MintColors.transparent,
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
                           color: checked

@@ -39,7 +39,7 @@ class MicroActionCard extends StatelessWidget {
         ],
       ),
       child: Material(
-        color: Colors.transparent,
+        color: MintColors.transparent,
         child: InkWell(
           onTap: () => context.push(action.deeplink),
           borderRadius: BorderRadius.circular(16),

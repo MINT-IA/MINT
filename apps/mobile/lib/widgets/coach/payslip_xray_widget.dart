@@ -191,7 +191,7 @@ class _PayslipXRayWidgetState extends State<PayslipXRayWidget> {
         decoration: BoxDecoration(
           color: isExpanded
               ? MintColors.primary.withValues(alpha: 0.04)
-              : Colors.transparent,
+              : MintColors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(

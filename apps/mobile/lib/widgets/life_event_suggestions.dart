@@ -251,7 +251,7 @@ class LifeEventSuggestionsSection extends StatelessWidget {
   Widget _buildSuggestionCard(
       BuildContext context, LifeEventSuggestion suggestion) {
     return Material(
-      color: Colors.transparent,
+      color: MintColors.transparent,
       child: InkWell(
         onTap: () => context.push(suggestion.route),
         borderRadius: BorderRadius.circular(14),

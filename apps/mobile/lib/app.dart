@@ -72,6 +72,8 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/screens/housing_sale_screen.dart';
 import 'package:mint_mobile/screens/donation_screen.dart';
+import 'package:mint_mobile/screens/deces_proche_screen.dart';
+import 'package:mint_mobile/screens/demenagement_cantonal_screen.dart';
 import 'package:mint_mobile/screens/mortgage/affordability_screen.dart';
 import 'package:mint_mobile/screens/mortgage/amortization_screen.dart';
 import 'package:mint_mobile/screens/mortgage/epl_combined_screen.dart';
@@ -111,6 +113,8 @@ import 'package:mint_mobile/services/confidence/enhanced_confidence_service.dart
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
 import 'package:mint_mobile/screens/document_scan/avs_guide_screen.dart';
+import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart';
+import 'package:mint_mobile/screens/document_scan/document_impact_screen.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/providers/household_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
@@ -473,6 +477,25 @@ final _router = GoRouter(
       builder: (context, state) => const AvsGuideScreen(),
     ),
     GoRoute(path: '/document-scan/avs-guide', redirect: (_, __) => '/scan/avs-guide'),
+    GoRoute(
+      path: '/scan/review',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final result = state.extra as ExtractionResult;
+        return ExtractionReviewScreen(result: result);
+      },
+    ),
+    GoRoute(
+      path: '/scan/impact',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>;
+        return DocumentImpactScreen(
+          result: extra['result'] as ExtractionResult,
+          previousConfidence: extra['previousConfidence'] as int,
+        );
+      },
+    ),
 
     GoRoute(
       path: '/documents',
@@ -576,6 +599,16 @@ final _router = GoRouter(
       path: '/life-event/donation',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DonationScreen(),
+    ),
+    GoRoute(
+      path: '/life-event/deces-proche',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DecesProcheScreen(),
+    ),
+    GoRoute(
+      path: '/life-event/demenagement-cantonal',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DemenagementCantonalScreen(),
     ),
 
     // ── EDUCATION ────────────────────────────────────────────

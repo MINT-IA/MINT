@@ -157,7 +157,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: selected ? MintColors.primary : Colors.transparent,
+                color: selected ? MintColors.primary : MintColors.transparent,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: selected ? MintColors.primary : MintColors.lightBorder,

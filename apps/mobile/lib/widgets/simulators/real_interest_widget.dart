@@ -173,7 +173,7 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
-          color: isMain ? color.withValues(alpha: 0.1) : Colors.transparent,
+          color: isMain ? color.withValues(alpha: 0.1) : MintColors.transparent,
           border: Border.all(color: isMain ? color : MintColors.border),
           borderRadius: BorderRadius.circular(12),
         ),

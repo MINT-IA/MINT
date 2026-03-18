@@ -254,7 +254,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: !_isChild ? MintColors.white : Colors.transparent,
+                  color: !_isChild ? MintColors.white : MintColors.transparent,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: !_isChild
                       ? [
@@ -290,7 +290,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: _isChild ? MintColors.white : Colors.transparent,
+                  color: _isChild ? MintColors.white : MintColors.transparent,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: _isChild
                       ? [

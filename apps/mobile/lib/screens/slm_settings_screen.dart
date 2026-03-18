@@ -151,7 +151,7 @@ class SlmSettingsScreen extends StatelessWidget {
         : MintColors.border;
     final bgColor = isActive
         ? MintColors.primary.withValues(alpha: 0.06)
-        : Colors.transparent;
+        : MintColors.transparent;
 
     return GestureDetector(
       onTap: isDisabled ? null : onTap,

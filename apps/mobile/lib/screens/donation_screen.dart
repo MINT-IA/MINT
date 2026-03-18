@@ -1042,7 +1042,7 @@ class _DonationScreenState extends State<DonationScreen> {
         border: Border.all(color: MintColors.border),
       ),
       child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
         child: ExpansionTile(
           tilePadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 4),

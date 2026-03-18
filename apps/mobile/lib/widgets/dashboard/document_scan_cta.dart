@@ -54,7 +54,7 @@ class DocumentScanCta extends StatelessWidget {
         ],
       ),
       child: Material(
-        color: Colors.transparent,
+        color: MintColors.transparent,
         child: InkWell(
           onTap: () => context.push('/scan'),
           borderRadius: BorderRadius.circular(20),
