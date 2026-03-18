@@ -56,6 +56,14 @@ class DailyEngagementService {
     if (dates.contains(today)) return; // Already recorded today
 
     dates.add(today);
+
+    // Prune dates older than 400 days to prevent unbounded growth
+    if (dates.length > 400) {
+      final cutoff = (now ?? DateTime.now()).subtract(const Duration(days: 400));
+      final cutoffKey = _dateKey(cutoff);
+      dates.removeWhere((d) => d.compareTo(cutoffKey) < 0);
+    }
+
     await sp.setStringList(_key, dates.toList());
 
     // Update longest streak if needed
@@ -159,16 +167,13 @@ class DailyEngagementService {
     if (dates.isEmpty) return 0;
 
     final todayKey = _dateKey(today);
-    final yesterdayKey = _dateKey(today.subtract(const Duration(days: 1)));
 
-    // Must have engaged today or yesterday to have an active streak.
-    if (!dates.contains(todayKey) && !dates.contains(yesterdayKey)) {
-      return 0;
-    }
-
-    // Bug fix: if user hasn't engaged TODAY but engaged YESTERDAY,
-    // start scanning from yesterday (i=1) so the freeze is NOT consumed
-    // by today's "pending" state. This preserves the freeze for real gaps.
+    // If engaged today, scan from today (i=0).
+    // If NOT engaged today, scan from yesterday (i=1) — today is still
+    // in progress so it shouldn't count as a miss or consume the freeze.
+    // The scan's freeze logic handles the rest: if yesterday is also a
+    // miss, the freeze covers it; if two consecutive days are missed,
+    // the streak breaks naturally.
     final startDay = dates.contains(todayKey) ? 0 : 1;
 
     int streak = 0;

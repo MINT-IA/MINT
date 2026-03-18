@@ -7,6 +7,7 @@ import 'package:mint_mobile/services/daily_engagement_service.dart';
 import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/services/milestone_detection_service.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
 //  ACHIEVEMENTS SCREEN — S55 / Daily Streaks + Achievements
@@ -72,6 +73,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final profileProvider = context.watch<CoachProfileProvider>();
     final profile = profileProvider.profile;
 
@@ -80,13 +82,13 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       return Scaffold(
         appBar: AppBar(
           title: Text(
-            'Mes accomplissements', // TODO: i18n
+            s.achievementsTitle,
             style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
           ),
         ),
         body: Center(
           child: Text(
-            'Complète ton profil pour débloquer les accomplissements.', // TODO: i18n
+            s.achievementsEmptyProfile,
             style: GoogleFonts.inter(color: MintColors.textSecondary),
             textAlign: TextAlign.center,
           ),
@@ -106,7 +108,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Mes accomplissements', // TODO: i18n
+                s.achievementsTitle,
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700,
                   fontSize: 18,
@@ -143,19 +145,19 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                   )
                 else ...[
                   // Section 1: Daily Streak Hero
-                  _buildDailyStreakHero(),
+                  _buildDailyStreakHero(s),
                   const SizedBox(height: 28),
 
                   // Section 2: Badges
-                  _buildBadgesSection(streakResult),
+                  _buildBadgesSection(s, streakResult),
                   const SizedBox(height: 28),
 
                   // Section 3: Milestones
-                  _buildMilestonesSection(milestones),
+                  _buildMilestonesSection(s, milestones),
                   const SizedBox(height: 28),
 
                   // Footer: Disclaimer
-                  _buildDisclaimer(),
+                  _buildDisclaimer(s),
                   const SizedBox(height: 20),
                 ],
               ]),
@@ -170,7 +172,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   //  SECTION 1: Daily Streak Hero
   // ════════════════════════════════════════════════════════════
 
-  Widget _buildDailyStreakHero() {
+  Widget _buildDailyStreakHero(S s) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -216,8 +218,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
               const SizedBox(width: 8),
               Text(
                 _dailyStreak == 1
-                    ? 'jour' // TODO: i18n
-                    : 'jours\u00a0!', // TODO: i18n
+                    ? s.achievementsDaysSingular
+                    : s.achievementsDaysPlural,
                 style: GoogleFonts.inter(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -234,19 +236,19 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             children: [
               _buildStatChip(
                 Icons.emoji_events_outlined,
-                'Record\u00a0: $_longestStreak jours', // TODO: i18n
+                s.achievementsRecord(_longestStreak),
               ),
               const SizedBox(width: 16),
               _buildStatChip(
                 Icons.calendar_today_outlined,
-                '$_totalDays jours au total', // TODO: i18n
+                s.achievementsTotalDays(_totalDays),
               ),
             ],
           ),
           const SizedBox(height: 20),
 
           // Weekly calendar dots (last 7 days)
-          _buildWeeklyCalendar(),
+          _buildWeeklyCalendar(s),
           const SizedBox(height: 16),
 
           // "Engage today" CTA
@@ -271,7 +273,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Fais une action aujourd\'hui pour maintenir ta série\u00a0!', // TODO: i18n
+                      s.achievementsEngageCta,
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -293,7 +295,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Engagement enregistré aujourd\'hui', // TODO: i18n
+                  s.achievementsEngagedToday,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -332,9 +334,17 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     );
   }
 
-  Widget _buildWeeklyCalendar() {
+  Widget _buildWeeklyCalendar(S s) {
     final now = DateTime.now();
-    final dayLabels = ['L', 'M', 'M', 'J', 'V', 'S', 'D']; // TODO: i18n
+    final dayLabels = [
+      s.achievementsDayMon,
+      s.achievementsDayTue,
+      s.achievementsDayWed,
+      s.achievementsDayThu,
+      s.achievementsDayFri,
+      s.achievementsDaySat,
+      s.achievementsDaySun,
+    ];
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -364,7 +374,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                     ? MintColors.warning
                     : isToday
                         ? MintColors.surface
-                        : Colors.transparent,
+                        : MintColors.transparent,
                 shape: BoxShape.circle,
                 border: isToday && !isEngaged
                     ? Border.all(
@@ -400,34 +410,33 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   //  SECTION 2: Badges (from StreakService)
   // ════════════════════════════════════════════════════════════
 
-  Widget _buildBadgesSection(StreakResult streakResult) {
-    // All 4 badges from StreakService
-    const allBadges = [
+  Widget _buildBadgesSection(S s, StreakResult streakResult) {
+    final allBadges = [
       _BadgeInfo(
         id: 'first_step',
-        label: 'Premier pas',
-        description: 'Tu as fait ton premier check-in.',
+        label: s.achievementsBadgeFirstStepLabel,
+        description: s.achievementsBadgeFirstStepDesc,
         icon: Icons.emoji_events_outlined,
         requiredStreak: 1,
       ),
       _BadgeInfo(
         id: 'regulier',
-        label: 'Régulier\u00b7e',
-        description: '3 mois consécutifs de check-in.',
+        label: s.achievementsBadgeRegulierLabel,
+        description: s.achievementsBadgeRegulierDesc,
         icon: Icons.local_fire_department,
         requiredStreak: 3,
       ),
       _BadgeInfo(
         id: 'constant',
-        label: 'Constant\u00b7e',
-        description: '6 mois sans interruption.',
+        label: s.achievementsBadgeConstantLabel,
+        description: s.achievementsBadgeConstantDesc,
         icon: Icons.whatshot,
         requiredStreak: 6,
       ),
       _BadgeInfo(
         id: 'discipline',
-        label: 'Discipline\u00b7e',
-        description: '12 mois consecutifs — une annee complete.',
+        label: s.achievementsBadgeDisciplineLabel,
+        description: s.achievementsBadgeDisciplineDesc,
         icon: Icons.military_tech,
         requiredStreak: 12,
       ),
@@ -440,7 +449,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Badges', // TODO: i18n
+          s.achievementsBadgesTitle,
           style: GoogleFonts.montserrat(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -449,7 +458,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Regularite de tes check-ins mensuels', // TODO: i18n
+          s.achievementsBadgesSubtitle,
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textSecondary,
@@ -465,14 +474,14 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
           physics: const NeverScrollableScrollPhysics(),
           children: allBadges.map((badge) {
             final isEarned = earnedIds.contains(badge.id);
-            return _buildBadgeCard(badge, isEarned);
+            return _buildBadgeCard(s, badge, isEarned);
           }).toList(),
         ),
       ],
     );
   }
 
-  Widget _buildBadgeCard(_BadgeInfo badge, bool isEarned) {
+  Widget _buildBadgeCard(S s, _BadgeInfo badge, bool isEarned) {
     return GestureDetector(
       onTap: isEarned
           ? () => _showBadgeDetail(badge)
@@ -539,7 +548,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             ),
             const SizedBox(height: 2),
             Text(
-              '${badge.requiredStreak} mois', // TODO: i18n
+              s.achievementsBadgeMonths(badge.requiredStreak),
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: MintColors.textMuted,
@@ -602,11 +611,11 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   //  SECTION 3: Milestones
   // ════════════════════════════════════════════════════════════
 
-  Widget _buildMilestonesSection(List<MintMilestone> milestones) {
+  Widget _buildMilestonesSection(S s, List<MintMilestone> milestones) {
     // Group milestones by category
     final categories = <_MilestoneCategory>[
       _MilestoneCategory(
-        title: 'Patrimoine', // TODO: i18n
+        title: s.achievementsCatPatrimoine,
         icon: Icons.account_balance_wallet,
         color: MintColors.success,
         milestones: milestones
@@ -614,7 +623,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             .toList(),
       ),
       _MilestoneCategory(
-        title: 'Prevoyance', // TODO: i18n
+        title: s.achievementsCatPrevoyance,
         icon: Icons.savings,
         color: MintColors.indigo,
         milestones: milestones
@@ -622,7 +631,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             .toList(),
       ),
       _MilestoneCategory(
-        title: 'Securite', // TODO: i18n
+        title: s.achievementsCatSecurite,
         icon: Icons.shield,
         color: MintColors.teal,
         milestones: milestones
@@ -631,51 +640,54 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       ),
     ];
 
-    // Add milestone types from MilestoneType enum that aren't in
-    // StreakService.computeMilestones (score, engagement, arbitrage)
-    // These are shown as static placeholders based on MilestoneType
-    const additionalCategories = <_MilestoneCategory>[
+    // Additional categories from MilestoneType enum
+    final additionalCategories = <_MilestoneCategory>[
       _MilestoneCategory(
-        title: 'Score FRI', // TODO: i18n
+        title: s.achievementsCatScoreFri,
         icon: Icons.trending_up,
         color: MintColors.info,
         milestoneTypes: [
           _MilestoneTypeInfo(
             type: MilestoneType.friAbove50,
-            label: 'Score FRI 50+',
-            description: 'Atteindre un score de solidite de 50/100',
+            label: s.achievementsFriAbove50Label,
+            description: s.achievementsFriAbove50Desc,
           ),
           _MilestoneTypeInfo(
             type: MilestoneType.friAbove70,
-            label: 'Score FRI 70+',
-            description: 'Atteindre un score de solidite de 70/100',
+            label: s.achievementsFriAbove70Label,
+            description: s.achievementsFriAbove70Desc,
           ),
           _MilestoneTypeInfo(
             type: MilestoneType.friAbove85,
-            label: 'Score FRI 85+',
-            description: 'Zone d\'excellence — 85/100',
+            label: s.achievementsFriAbove85Label,
+            description: s.achievementsFriAbove85Desc,
+          ),
+          _MilestoneTypeInfo(
+            type: MilestoneType.friImproved10Points,
+            label: s.achievementsFriImproved10Label,
+            description: s.achievementsFriImproved10Desc,
           ),
         ],
       ),
       _MilestoneCategory(
-        title: 'Engagement', // TODO: i18n
+        title: s.achievementsCatEngagement,
         icon: Icons.local_fire_department,
         color: MintColors.warning,
         milestoneTypes: [
           _MilestoneTypeInfo(
             type: MilestoneType.checkInStreak6Months,
-            label: 'Serie 6 mois',
-            description: '6 mois consecutifs de check-in',
+            label: s.achievementsStreak6MonthsLabel,
+            description: s.achievementsStreak6MonthsDesc,
           ),
           _MilestoneTypeInfo(
             type: MilestoneType.checkInStreak12Months,
-            label: 'Serie 12 mois',
-            description: '12 mois consecutifs — une annee complete',
+            label: s.achievementsStreak12MonthsLabel,
+            description: s.achievementsStreak12MonthsDesc,
           ),
           _MilestoneTypeInfo(
             type: MilestoneType.firstArbitrageCompleted,
-            label: 'Premier arbitrage',
-            description: 'Completer ta premiere simulation d\'arbitrage',
+            label: s.achievementsFirstArbitrageLabel,
+            description: s.achievementsFirstArbitrageDesc,
           ),
         ],
       ),
@@ -685,7 +697,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Milestones', // TODO: i18n
+          s.achievementsMilestonesTitle,
           style: GoogleFonts.montserrat(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -694,7 +706,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Tes jalons financiers', // TODO: i18n
+          s.achievementsMilestonesSubtitle,
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textSecondary,
@@ -841,9 +853,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   Widget _buildMilestoneTypeRow(_MilestoneTypeInfo info) {
-    // For now, milestone types from the enum are shown as unachieved
-    // (detecting achievement requires snapshot comparison which happens
-    // in MilestoneDetectionService.detect/detectNew during check-ins)
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -893,7 +902,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   //  FOOTER: Disclaimer
   // ════════════════════════════════════════════════════════════
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -911,7 +920,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Tes accomplissements sont personnels — MINT ne les compare jamais a d\'autres.', // TODO: i18n
+              s.achievementsDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textMuted,

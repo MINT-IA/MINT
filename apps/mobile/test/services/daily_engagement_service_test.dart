@@ -270,5 +270,45 @@ void main() {
       // 18 engaged, 17 miss (freeze), 16 miss (no freeze) → break
       expect(streak, equals(1)); // Only day 18
     });
+    // ── 17. Freeze protects yesterday when today not yet engaged ─────
+    test('freeze protects yesterday gap when today not yet engaged', () async {
+      // Engaged 15, 16, skip 17, NOT engaged 18 (today)
+      await recordOn(DateTime(2026, 3, 15));
+      await recordOn(DateTime(2026, 3, 16));
+      // Skip 17 (should be covered by freeze)
+      // NOT engaged on 18
+
+      final streak = await DailyEngagementService.currentStreak(
+          prefs: prefs, now: DateTime(2026, 3, 18));
+      // Freeze bridges 17, streak = 2 (15 + 16)
+      expect(streak, equals(2));
+    });
+
+    // ── 18. Two missed days (yesterday + day before) = streak 0 ───
+    test('two consecutive missed days before today = streak 0', () async {
+      // Engaged 14, 15, skip 16 AND 17, NOT engaged 18
+      await recordOn(DateTime(2026, 3, 14));
+      await recordOn(DateTime(2026, 3, 15));
+      // Skip 16 AND 17
+      // NOT engaged on 18
+
+      final streak = await DailyEngagementService.currentStreak(
+          prefs: prefs, now: DateTime(2026, 3, 18));
+      // Scan from i=1 (17): miss → freeze, i=2 (16): miss → no freeze → break
+      expect(streak, equals(0));
+    });
+
+    // ── 19. Freeze + engaged 2 days ago = streak 1 ────────────────
+    test('freeze covers yesterday, single engaged day 2 days ago', () async {
+      // Engaged 16 only, skip 17, NOT engaged 18
+      await recordOn(DateTime(2026, 3, 16));
+      // Skip 17 (freeze)
+      // NOT engaged on 18
+
+      final streak = await DailyEngagementService.currentStreak(
+          prefs: prefs, now: DateTime(2026, 3, 18));
+      // Scan from i=1 (17): miss → freeze, i=2 (16): engaged → streak=1
+      expect(streak, equals(1));
+    });
   });
 }
