@@ -17,6 +17,7 @@ import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
 import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
+import 'package:mint_mobile/services/coach/context_injector_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
@@ -265,12 +266,29 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     _controller.clear();
     _scrollToBottom();
 
+    // Build enriched context for AI memory injection (S58).
+    // Timeout + try/catch: if SharedPreferences or any dependency fails/hangs,
+    // the chat still works without memory enrichment (graceful degradation).
+    String? memoryBlock;
+    try {
+      final enrichedContext = await ContextInjectorService.buildContext(
+        profile: _profile,
+        now: DateTime.now(),
+      ).timeout(const Duration(seconds: 2));
+      if (enrichedContext.memoryBlock.isNotEmpty) {
+        memoryBlock = enrichedContext.memoryBlock;
+      }
+    } catch (_) {
+      // Graceful degradation: chat works without memory block.
+    }
+
     // Try SLM streaming first.
     final ctx = _buildCoachContext(_profile!);
     final stream = CoachOrchestrator.streamChat(
       userMessage: text.trim(),
       history: _messages,
       ctx: ctx,
+      memoryBlock: memoryBlock,
     );
 
     if (stream != null) {
@@ -279,7 +297,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
 
     // Fallback to standard (BYOK → fallback chain).
-    await _handleStandardResponse(text.trim());
+    await _handleStandardResponse(text.trim(), memoryBlock: memoryBlock);
   }
 
   /// Handle SLM streaming response (token-by-token).
@@ -398,7 +416,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   /// Handle standard (non-streaming) response via orchestrator.
-  Future<void> _handleStandardResponse(String text) async {
+  Future<void> _handleStandardResponse(String text, {String? memoryBlock}) async {
     try {
       final config = _buildConfig();
       final response = await CoachLlmService.chat(
@@ -406,6 +424,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         profile: _profile!,
         history: _messages,
         config: config,
+        memoryBlock: memoryBlock,
       );
 
       final tier = config.hasApiKey ? ChatTier.byok : ChatTier.fallback;
