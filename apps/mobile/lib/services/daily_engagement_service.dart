@@ -33,6 +33,18 @@ class DailyEngagementService {
   /// SharedPreferences key for longest streak ever.
   static const _longestKey = '_daily_engagement_longest';
 
+  /// Maximum streak length before auto-freeze.
+  ///
+  /// Design rationale: Unlike Duolingo (infinite streaks), MINT caps
+  /// at 30 days to prevent anxiety-driven engagement. Research shows
+  /// that streaks beyond 30 days shift from motivation to obligation
+  /// (Hamari et al., 2014). The cap lets users "reset" without guilt.
+  ///
+  /// After 30 days: streak freezes, user gets a "30-day milestone"
+  /// badge, and a new cycle begins. This aligns with the MINT ethos
+  /// of education over addiction.
+  static const int maxStreakDays = 30;
+
   /// Record today as an engaged day.
   ///
   /// Call this when user performs a meaningful action:
@@ -186,6 +198,7 @@ class DailyEngagementService {
 
       if (dates.contains(key)) {
         streak++;
+        if (streak >= maxStreakDays) return maxStreakDays;
         daysSinceLastFreeze++;
       } else {
         // Reset freeze counter every 7 engaged/frozen days.

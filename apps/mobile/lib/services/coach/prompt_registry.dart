@@ -187,8 +187,8 @@ Termine par une question ouverte.
 $baseSystemPrompt
 
 CONTEXTE UTILISATEUR :
-- Prenom : ${ctx.firstName}
-- Age : ${ctx.age} ans
+- Prénom : ${ctx.firstName}
+- Âge : ${ctx.age} ans
 - Canton : ${ctx.canton}
 - Archetype : ${ctx.archetype}
 - Score de confiance : ${ctx.confidenceScore.toStringAsFixed(0)}%
@@ -196,65 +196,65 @@ CONTEXTE UTILISATEUR :
 
 ${_enrichmentBlockContext(ctx, blockType)}
 
-TACHE : Guide l'utilisateur pour completer le bloc "$blockType".
-- Pose UNE question simple et precise.
-- Explique brievement pourquoi cette donnee est importante.
-- Si l'utilisateur ne sait pas, propose une estimation realiste.
+TÂCHE : Guide l'utilisateur pour compléter le bloc "$blockType".
+- Pose UNE question simple et précise.
+- Explique brièvement pourquoi cette donnée est importante.
+- Si l'utilisateur ne sait pas, propose une estimation réaliste.
 - Max 150 mots. Utilise le conditionnel.
 ''';
 
   static String _enrichmentBlockContext(CoachContext ctx, String blockType) {
     return switch (blockType) {
-      'lpp' => 'DONNEES CONNUES :\n'
+      'lpp' => 'DONNÉES CONNUES :\n'
           '- Salaire brut : ${ctx.knownValues['salaire_brut'] != null ? '${_toRange(ctx.knownValues['salaire_brut'])} CHF/an' : 'inconnu'}\n'
           '- Avoir LPP actuel : ${ctx.knownValues['avoir_lpp'] != null ? '${_toRange(ctx.knownValues['avoir_lpp'])} CHF' : 'estimation'}\n'
-          '- Source : ${ctx.dataReliability['avoirLpp'] ?? 'estime'}\n'
+          '- Source : ${ctx.dataReliability['avoirLpp'] ?? 'estimé'}\n'
           '\n'
-          'OBJECTIF : Obtenir l\'avoir LPP reel (certificat de prevoyance).\n'
+          'OBJECTIF : Obtenir l\'avoir LPP réel (certificat de prévoyance).\n'
           'Un certificat donne : avoir obligatoire/surobligatoire, taux de conversion,\n'
-          'rachat possible, salaire assure. Impact sur confiance : +18 pts.',
-      'avs' => 'DONNEES CONNUES :\n'
-          '- Annees cotisees estimees : ${ctx.knownValues['annees_cotisees'] ?? 'inconnu'}\n'
-          '- Archetype : ${ctx.archetype}\n'
+          'rachat possible, salaire assuré. Impact sur confiance : +18 pts.',
+      'avs' => 'DONNÉES CONNUES :\n'
+          '- Années cotisées estimées : ${ctx.knownValues['annees_cotisees'] ?? 'inconnu'}\n'
+          '- Archétype : ${ctx.archetype}\n'
           '\n'
-          'OBJECTIF : Confirmer les annees de cotisation AVS reelles.\n'
-          'Un extrait CI (compte individuel) revele les lacunes.\n'
+          'OBJECTIF : Confirmer les années de cotisation AVS réelles.\n'
+          'Un extrait CI (compte individuel) révèle les lacunes.\n'
           'Impact sur confiance : +10 pts.',
-      '3a' => 'DONNEES CONNUES :\n'
+      '3a' => 'DONNÉES CONNUES :\n'
           '- Nombre de comptes 3a : ${ctx.knownValues['nombre_3a']?.toInt() ?? 0}\n'
-          '- Total epargne 3a : ${ctx.knownValues['epargne_3a'] != null ? '${_toRange(ctx.knownValues['epargne_3a'])} CHF' : '0 CHF'}\n'
+          '- Total épargne 3a : ${ctx.knownValues['epargne_3a'] != null ? '${_toRange(ctx.knownValues['epargne_3a'])} CHF' : '0 CHF'}\n'
           '- Plafond applicable : ${ctx.knownValues['plafond_3a'] ?? pilier3aPlafondAvecLpp} CHF/an\n'
           '\n'
-          'OBJECTIF : Connaitre le solde exact et le provider de chaque compte 3a.\n'
-          'Un versement 3a est deductible des impots. Impact sur confiance : +8 pts.',
-      'patrimoine' => 'DONNEES CONNUES :\n'
-          '- Epargne liquide : ${ctx.knownValues['epargne_liquide'] != null ? '${_toRange(ctx.knownValues['epargne_liquide'])} CHF' : 'inconnu'}\n'
+          'OBJECTIF : Connaître le solde exact et le provider de chaque compte 3a.\n'
+          'Un versement 3a est déductible des impôts. Impact sur confiance : +8 pts.',
+      'patrimoine' => 'DONNÉES CONNUES :\n'
+          '- Épargne liquide : ${ctx.knownValues['epargne_liquide'] != null ? '${_toRange(ctx.knownValues['epargne_liquide'])} CHF' : 'inconnu'}\n'
           '- Investissements : ${ctx.knownValues['investissements'] != null ? '${_toRange(ctx.knownValues['investissements'])} CHF' : 'inconnu'}\n'
           '\n'
-          'OBJECTIF : Cartographier le patrimoine (epargne, placements, immobilier).\n'
+          'OBJECTIF : Cartographier le patrimoine (épargne, placements, immobilier).\n'
           'Permet de calculer le Financial Resilience Index. Impact sur confiance : +7 pts.',
-      'fiscalite' => 'DONNEES CONNUES :\n'
+      'fiscalite' => 'DONNÉES CONNUES :\n'
           '- Canton : ${ctx.canton}\n'
           '- Commune : ${ctx.knownValues['commune'] ?? 'inconnue'}\n'
           '\n'
           'OBJECTIF : Obtenir la commune (coefficient 60%-130%), le revenu imposable\n'
-          'reel et la fortune imposable. Impact sur confiance : +15 pts.',
-      'objectifRetraite' => 'DONNEES CONNUES :\n'
-          '- Age actuel : ${ctx.age} ans\n'
-          '- Age retraite cible : ${ctx.knownValues['target_retirement_age']?.toInt() ?? 65} ans\n'
+          'réel et la fortune imposable. Impact sur confiance : +15 pts.',
+      'objectifRetraite' => 'DONNÉES CONNUES :\n'
+          '- Âge actuel : ${ctx.age} ans\n'
+          '- Âge retraite cible : ${ctx.knownValues['target_retirement_age']?.toInt() ?? 65} ans\n'
           '\n'
-          'OBJECTIF : Definir un age de retraite souhaite (58-70 ans).\n'
+          'OBJECTIF : Définir un âge de retraite souhaité (58-70 ans).\n'
           'Avant 63 ans : seule la LPP est disponible (pas d\'AVS).\n'
           'Impact sur confiance : +10 pts.',
-      'compositionMenage' => 'DONNEES CONNUES :\n'
-          '- Etat civil : ${ctx.knownValues['etat_civil'] ?? 'celibataire'}\n'
+      'compositionMenage' => 'DONNÉES CONNUES :\n'
+          '- État civil : ${ctx.knownValues['etat_civil'] ?? 'célibataire'}\n'
           '- Enfants : ${ctx.knownValues['nombre_enfants']?.toInt() ?? 0}\n'
           '\n'
-          'OBJECTIF : Savoir si en couple (marie/concubin) et les donnees du conjoint.\n'
-          'Impact : AVS plafonnee a 150% pour les maries (LAVS art. 35).\n'
+          'OBJECTIF : Savoir si en couple (marié/concubin) et les données du conjoint.\n'
+          'Impact : AVS plafonnée à 150% pour les mariés (LAVS art. 35).\n'
           'Impact sur confiance : +15 pts.',
       _ => 'Score de confiance : ${ctx.confidenceScore.toStringAsFixed(0)}%\n'
-          'Objectif : completer les donnees manquantes.',
+          'Objectif : compléter les données manquantes.',
     };
   }
 
