@@ -64,6 +64,11 @@ class ComplianceGuard {
     'nous te conseillons',
     'il est optimal',
     'la solution idéale',
+    // Product recommendation terms (GAP #3: named products/ISINs)
+    'idéal',
+    'idéale',
+    // Superlative form of "meilleur" (GAP #4: "le mieux" bypass)
+    'le mieux',
   ];
 
   static const Map<String, String> termReplacements = {
@@ -104,6 +109,11 @@ class ComplianceGuard {
     'nous te conseillons': 'une approche envisageable serait',
     'il est optimal': 'il pourrait être pertinent',
     'la solution idéale': 'une approche adaptée',
+    // Product recommendation terms
+    'idéal': 'adapté',
+    'idéale': 'adaptée',
+    // Superlative form
+    'le mieux': 'une option pertinente',
   };
 
   // ═══════════════════════════════════════════════════════════════
@@ -117,7 +127,9 @@ class ComplianceGuard {
     RegExp(r'vends\b', caseSensitive: false),
     RegExp(r'choisis\s+la\s+rente', caseSensitive: false),
     RegExp(r'prends?\s+le\s+capital', caseSensitive: false),
-    RegExp(r'investis?\s+dans', caseSensitive: false),
+    RegExp(r'investis?\s+(?:dans|\d)', caseSensitive: false),
+    RegExp(r'place\s+ton\s+argent', caseSensitive: false),
+    RegExp(r'(?:je|on)\s+(?:te|vous)\s+recommande', caseSensitive: false),
     RegExp(r'priorit[ée]\s+absolue', caseSensitive: false),
     RegExp("c['\u2018\u2019]est\\s+plus\\s+important\\s+que", caseSensitive: false),
     RegExp(r'souscris\b', caseSensitive: false),
@@ -126,9 +138,14 @@ class ComplianceGuard {
     // Social comparison patterns (GAP #2: ranking users against others)
     RegExp(r'top\s+\d+\s*%', caseSensitive: false),
     RegExp(r'meilleur\s+que\s+\d+\s*%', caseSensitive: false),
+    RegExp(r'mieux\s+que\s+\d+\s*%', caseSensitive: false),
     RegExp(r'devant\s+\d+\s*%\s+des', caseSensitive: false),
     RegExp(r'parmi\s+les\s+meilleurs', caseSensitive: false),
     RegExp(r'au-dessus\s+de\s+la\s+moyenne', caseSensitive: false),
+    // Product recommendation patterns (GAP #3: ISIN codes, tickers)
+    RegExp(r'ISIN\s+[A-Z]{2}\d', caseSensitive: false),
+    RegExp(r'\b[A-Z]{2}\d{10,12}\b'), // ISIN code pattern
+    RegExp(r'(?:le|ce)\s+(?:fonds|produit|ETF)\s+\w+\s+(?:est|a)\b', caseSensitive: false),
   ];
 
   // Fuzzy banned pattern for "sans ... risque" variants
