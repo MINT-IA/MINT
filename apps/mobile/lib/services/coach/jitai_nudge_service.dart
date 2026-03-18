@@ -1,0 +1,547 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/coach/goal_tracker_service.dart';
+import 'package:mint_mobile/services/daily_engagement_service.dart';
+
+// ────────────────────────────────────────────────────────────
+//  JITAI NUDGE SERVICE — S61 / Proactive Nudges
+// ────────────────────────────────────────────────────────────
+//
+// JITAI = Just-In-Time Adaptive Interventions.
+//
+// Pure service that detects when a nudge should be shown on
+// the Pulse dashboard. NEVER interrupts user mid-task (no
+// popups during simulations).
+//
+// Nudges use positive framing ("As-tu pensé à..." not
+// "Tu n'as pas encore..."), informal French "tu", and
+// conditional language.
+//
+// Max 3 nudges shown at once, sorted by priority.
+// Cooldown: once dismissed, not re-triggered for X days.
+// ────────────────────────────────────────────────────────────
+
+/// Nudge trigger types.
+enum NudgeType {
+  salaryDay,
+  taxDeadline,
+  threeADeadline,
+  birthdayMilestone,
+  contractAnniversary,
+  lppBonificationChange,
+  weeklyCheckIn,
+  streakAtRisk,
+  goalDeadlineApproaching,
+  fhsDropped,
+}
+
+/// Priority level for nudge ordering.
+enum NudgePriority { high, medium, low }
+
+/// A single JITAI nudge to display.
+class JitaiNudge {
+  /// Trigger type.
+  final NudgeType type;
+
+  /// Short headline (French, accented).
+  final String title;
+
+  /// 1-2 sentence educational message (positive framing).
+  final String message;
+
+  /// GoRouter route to navigate to on CTA tap (nullable).
+  final String? actionRoute;
+
+  /// CTA button label (nullable).
+  final String? actionLabel;
+
+  /// When this nudge was triggered.
+  final DateTime triggeredAt;
+
+  /// Priority for display ordering.
+  final NudgePriority priority;
+
+  const JitaiNudge({
+    required this.type,
+    required this.title,
+    required this.message,
+    this.actionRoute,
+    this.actionLabel,
+    required this.triggeredAt,
+    required this.priority,
+  });
+}
+
+/// Service that evaluates and manages JITAI nudges.
+class JitaiNudgeService {
+  JitaiNudgeService._();
+
+  /// SharedPreferences prefix for cooldown tracking.
+  static const _dismissPrefix = '_jitai_dismissed_';
+
+  /// SharedPreferences key for last FHS score.
+  static const _lastFhsKey = '_jitai_last_fhs';
+
+  /// Maximum nudges returned by [evaluateNudges].
+  static const maxNudges = 3;
+
+  // ── Public API ──────────────────────────────────────────────
+
+  /// Evaluate all nudge triggers and return applicable nudges
+  /// sorted by priority (high first), capped at [maxNudges].
+  ///
+  /// **Important**: Callers MUST call [recordFhsScore] after each FHS
+  /// computation so that [_checkFhsDropped] can detect score changes.
+  /// This method does NOT auto-record FHS scores.
+  ///
+  /// [profile] — current user profile.
+  /// [now] — override for testing (defaults to DateTime.now()).
+  /// [prefs] — injectable SharedPreferences for testing.
+  /// [currentStreak] — current engagement streak (injectable for testing).
+  /// [engagedYesterday] — whether user engaged yesterday (injectable).
+  /// [fhsScore] — current FHS score (0-100), nullable.
+  /// [goals] — active goals list (injectable for testing).
+  static Future<List<JitaiNudge>> evaluateNudges({
+    required CoachProfile profile,
+    DateTime? now,
+    SharedPreferences? prefs,
+    int? currentStreak,
+    bool? engagedYesterday,
+    double? fhsScore,
+    List<UserGoal>? goals,
+  }) async {
+    final sp = prefs ?? await SharedPreferences.getInstance();
+    final today = now ?? DateTime.now();
+
+    final nudges = <JitaiNudge>[];
+
+    // Evaluate each trigger
+    _checkSalaryDay(nudges, profile, today);
+    _checkTaxDeadline(nudges, today);
+    _checkThreeADeadline(nudges, today, profile);
+    _checkBirthdayMilestone(nudges, profile, today);
+    _checkContractAnniversary(nudges, profile, today);
+    _checkLppBonificationChange(nudges, profile, today);
+    await _checkWeeklyCheckIn(nudges, today, sp);
+    _checkStreakAtRisk(nudges, currentStreak, engagedYesterday, today);
+    _checkGoalDeadlineApproaching(nudges, goals, today);
+    _checkFhsDropped(nudges, fhsScore, sp, today);
+
+    // Filter out dismissed (in cooldown) nudges
+    final filtered = <JitaiNudge>[];
+    for (final nudge in nudges) {
+      if (!_isDismissed(nudge.type, sp, today)) {
+        filtered.add(nudge);
+      }
+    }
+
+    // Sort by priority (high=0, medium=1, low=2)
+    filtered.sort((a, b) => a.priority.index.compareTo(b.priority.index));
+
+    // Cap at max
+    return filtered.take(maxNudges).toList();
+  }
+
+  /// Dismiss a nudge (starts cooldown).
+  ///
+  /// [type] — nudge type to dismiss.
+  /// [prefs] — injectable SharedPreferences for testing.
+  /// [now] — override for testing.
+  static Future<void> dismissNudge({
+    required NudgeType type,
+    SharedPreferences? prefs,
+    DateTime? now,
+  }) async {
+    final sp = prefs ?? await SharedPreferences.getInstance();
+    final today = now ?? DateTime.now();
+    await sp.setString(
+      '$_dismissPrefix${type.name}',
+      today.toIso8601String(),
+    );
+  }
+
+  /// Store current FHS score for delta detection.
+  ///
+  /// Call this after each FHS computation so the next evaluation
+  /// can detect drops.
+  static Future<void> recordFhsScore({
+    required double score,
+    SharedPreferences? prefs,
+  }) async {
+    final sp = prefs ?? await SharedPreferences.getInstance();
+    await sp.setDouble(_lastFhsKey, score);
+  }
+
+  // ── Cooldown logic ──────────────────────────────────────────
+
+  /// Cooldown in days per nudge type.
+  static int _cooldownDays(NudgeType type) {
+    switch (type) {
+      case NudgeType.salaryDay:
+        return 25;
+      case NudgeType.taxDeadline:
+        return 7;
+      case NudgeType.threeADeadline:
+        return 7;
+      case NudgeType.birthdayMilestone:
+        return 360;
+      case NudgeType.contractAnniversary:
+        return 360;
+      case NudgeType.lppBonificationChange:
+        return 360;
+      case NudgeType.weeklyCheckIn:
+        return 5;
+      case NudgeType.streakAtRisk:
+        return 2;
+      case NudgeType.goalDeadlineApproaching:
+        return 7;
+      case NudgeType.fhsDropped:
+        return 7;
+    }
+  }
+
+  /// Check if a nudge type is currently in cooldown.
+  static bool _isDismissed(NudgeType type, SharedPreferences sp, DateTime now) {
+    final raw = sp.getString('$_dismissPrefix${type.name}');
+    if (raw == null) return false;
+    try {
+      final dismissedAt = DateTime.parse(raw);
+      final cooldown = _cooldownDays(type);
+      return now.difference(dismissedAt).inDays < cooldown;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // ── Trigger checks ──────────────────────────────────────────
+
+  /// Salary day: 25th of the month → remind 3a transfer.
+  static void _checkSalaryDay(
+    List<JitaiNudge> nudges,
+    CoachProfile profile,
+    DateTime now,
+  ) {
+    if (now.day == 25) {
+      nudges.add(JitaiNudge(
+        type: NudgeType.salaryDay,
+        title: 'Jour de salaire\u00a0!',
+        message: 'As-tu pensé à ton virement 3a ce mois-ci\u00a0? '
+            'Chaque mois compte pour ta prévoyance.',
+        actionRoute: '/tools/3a',
+        actionLabel: 'Voir mon 3a',
+        triggeredAt: now,
+        priority: NudgePriority.medium,
+      ));
+    }
+  }
+
+  /// Tax filing deadline: Feb-March → remind to file.
+  /// M4: Canton-specific dates vary — generic reminder without hardcoded date.
+  static void _checkTaxDeadline(List<JitaiNudge> nudges, DateTime now) {
+    if (now.month >= 2 && now.month <= 3) {
+      nudges.add(JitaiNudge(
+        type: NudgeType.taxDeadline,
+        title: 'Déclaration fiscale',
+        message: 'Vérifie la date limite de déclaration fiscale dans ton canton. '
+            'As-tu pensé à vérifier tes déductions 3a et LPP\u00a0?',
+        actionRoute: '/tools/tax',
+        actionLabel: 'Simuler mes impôts',
+        triggeredAt: now,
+        priority: NudgePriority.high,
+      ));
+    }
+  }
+
+  /// 3a contribution deadline: Dec 1-31 → remind to max out.
+  static void _checkThreeADeadline(
+    List<JitaiNudge> nudges,
+    DateTime now,
+    CoachProfile profile,
+  ) {
+    if (now.month == 12) {
+      final daysLeft = 31 - now.day;
+      // M2: Dec 31 edge case
+      if (daysLeft == 0) {
+        nudges.add(JitaiNudge(
+          type: NudgeType.threeADeadline,
+          title: 'Dernière ligne droite pour ton 3a',
+          message: 'C\'est le dernier jour pour verser sur ton 3a\u00a0!',
+          actionRoute: '/tools/3a',
+          actionLabel: 'Calculer mon économie',
+          triggeredAt: now,
+          priority: NudgePriority.high,
+        ));
+        return;
+      }
+      // H5: Correct 3a limit based on archetype
+      final isIndependentNoLpp =
+          profile.archetype == FinancialArchetype.independentNoLpp;
+      final plafondStr = isIndependentNoLpp ? '36\'288' : '7\'258';
+      nudges.add(JitaiNudge(
+        type: NudgeType.threeADeadline,
+        title: 'Dernière ligne droite pour ton 3a',
+        message: 'Il reste $daysLeft\u00a0jour${daysLeft > 1 ? 's' : ''} '
+            'pour verser jusqu\'à $plafondStr\u00a0CHF '
+            'et réduire tes impôts ${now.year}.',
+        actionRoute: '/tools/3a',
+        actionLabel: 'Calculer mon économie',
+        triggeredAt: now,
+        priority: NudgePriority.high,
+      ));
+    }
+  }
+
+  /// Birthday milestone: user's birthday → age-relevant tip.
+  static void _checkBirthdayMilestone(
+    List<JitaiNudge> nudges,
+    CoachProfile profile,
+    DateTime now,
+  ) {
+    // We only know birthYear, not exact date. Trigger on Jan 1 of a new age year.
+    // This is a simplification — if exact birth date were available, we'd use it.
+    final currentAge = now.year - profile.birthYear;
+    final isNewYear = now.month == 1 && now.day <= 7;
+
+    if (!isNewYear) return;
+
+    // Only trigger for milestone ages
+    final milestoneMessage = _birthdayMessage(currentAge);
+    if (milestoneMessage == null) return;
+
+    nudges.add(JitaiNudge(
+      type: NudgeType.birthdayMilestone,
+      title: 'Tu as $currentAge\u00a0ans cette année\u00a0!',
+      message: milestoneMessage,
+      actionRoute: '/pulse',
+      actionLabel: 'Voir mon tableau de bord',
+      triggeredAt: now,
+      priority: NudgePriority.low,
+    ));
+  }
+
+  /// Contract anniversary: 1 year since profile creation.
+  static void _checkContractAnniversary(
+    List<JitaiNudge> nudges,
+    CoachProfile profile,
+    DateTime now,
+  ) {
+    final daysSinceCreation = now.difference(profile.createdAt).inDays;
+
+    // Trigger around 365 days (±3 days window)
+    if (daysSinceCreation >= 362 && daysSinceCreation <= 368) {
+      nudges.add(JitaiNudge(
+        type: NudgeType.contractAnniversary,
+        title: 'Déjà 1\u00a0an ensemble\u00a0!',
+        message: 'Tu utilises MINT depuis un an. '
+            'C\'est le moment idéal pour actualiser ton profil '
+            'et mesurer tes progrès.',
+        actionRoute: '/profile',
+        actionLabel: 'Actualiser mon profil',
+        triggeredAt: now,
+        priority: NudgePriority.low,
+      ));
+    }
+  }
+
+  /// LPP bonification change: user crosses age bracket.
+  static void _checkLppBonificationChange(
+    List<JitaiNudge> nudges,
+    CoachProfile profile,
+    DateTime now,
+  ) {
+    final currentAge = now.year - profile.birthYear;
+
+    // LPP brackets: 25, 35, 45, 55 (from social_insurance.dart)
+    // Trigger in Jan of the year they cross a bracket
+    if (now.month == 1 && now.day <= 14) {
+      final bracketAges = [25, 35, 45, 55];
+      if (bracketAges.contains(currentAge)) {
+        final rate = getLppBonificationRate(currentAge);
+        final ratePct = (rate * 100).toInt();
+        // M3: At 25, contributions START — different message
+        final message = currentAge == 25
+            ? 'Tes cotisations LPP de vieillesse commencent cette année '
+                '($ratePct\u00a0%). C\'est le début de ta prévoyance professionnelle.'
+            : 'À $currentAge\u00a0ans, ta bonification de vieillesse '
+                'passe à $ratePct\u00a0%. Cela pourrait être le bon moment '
+                'pour envisager un rachat LPP.';
+        nudges.add(JitaiNudge(
+          type: NudgeType.lppBonificationChange,
+          title: currentAge == 25
+              ? 'Début des cotisations LPP'
+              : 'Changement de tranche LPP',
+          message: message,
+          actionRoute: '/tools/lpp',
+          actionLabel: 'Explorer le rachat',
+          triggeredAt: now,
+          priority: NudgePriority.medium,
+        ));
+      }
+    }
+  }
+
+  /// Weekly check-in: 7+ days since last engagement.
+  static Future<void> _checkWeeklyCheckIn(
+    List<JitaiNudge> nudges,
+    DateTime now,
+    SharedPreferences sp,
+  ) async {
+    final recentDates = await DailyEngagementService.recentDates(
+      days: 7,
+      prefs: sp,
+      now: now,
+    );
+
+    if (recentDates.isEmpty) {
+      nudges.add(JitaiNudge(
+        type: NudgeType.weeklyCheckIn,
+        title: 'Ça fait un moment\u00a0!',
+        message: 'Ta situation financière évolue chaque semaine. '
+            'Prends 2\u00a0minutes pour vérifier ton tableau de bord.',
+        actionRoute: '/pulse',
+        actionLabel: 'Voir mon Pulse',
+        triggeredAt: now,
+        priority: NudgePriority.medium,
+      ));
+    }
+  }
+
+  /// Streak at risk: yesterday missed, streak > 3.
+  static void _checkStreakAtRisk(
+    List<JitaiNudge> nudges,
+    int? currentStreak,
+    bool? engagedYesterday,
+    DateTime now,
+  ) {
+    if (currentStreak == null || engagedYesterday == null) return;
+    if (currentStreak > 3 && !engagedYesterday) {
+      nudges.add(JitaiNudge(
+        type: NudgeType.streakAtRisk,
+        title: 'Ta série est en danger\u00a0!',
+        message: 'Tu as une série de $currentStreak\u00a0jours. '
+            'Une petite action aujourd\'hui suffit pour la maintenir.',
+        actionRoute: '/mint',
+        actionLabel: 'Continuer ma série',
+        triggeredAt: now,
+        priority: NudgePriority.high,
+      ));
+    }
+  }
+
+  /// Goal deadline approaching: target date within 30 days.
+  static void _checkGoalDeadlineApproaching(
+    List<JitaiNudge> nudges,
+    List<UserGoal>? goals,
+    DateTime now,
+  ) {
+    if (goals == null || goals.isEmpty) return;
+
+    for (final goal in goals) {
+      if (goal.targetDate == null || goal.isCompleted) continue;
+
+      final daysLeft = goal.targetDate!.difference(now).inDays;
+      if (daysLeft > 0 && daysLeft <= 30) {
+        // Sanitize description
+        final desc = goal.description.length > 50
+            ? '${goal.description.substring(0, 50)}…'
+            : goal.description;
+
+        nudges.add(JitaiNudge(
+          type: NudgeType.goalDeadlineApproaching,
+          title: 'Ton objectif approche',
+          message: '«\u00a0$desc\u00a0» — '
+              'il reste $daysLeft\u00a0jour${daysLeft > 1 ? 's' : ''}. '
+              'As-tu avancé sur ce sujet\u00a0?',
+          actionRoute: '/mint',
+          actionLabel: 'En parler au coach',
+          triggeredAt: now,
+          priority: NudgePriority.medium,
+        ));
+        // Only one goal nudge at a time
+        break;
+      }
+    }
+  }
+
+  /// FHS dropped > 5 points since last recorded score.
+  static void _checkFhsDropped(
+    List<JitaiNudge> nudges,
+    double? fhsScore,
+    SharedPreferences sp,
+    DateTime now,
+  ) {
+    if (fhsScore == null) return;
+
+    final lastFhs = sp.getDouble(_lastFhsKey);
+    if (lastFhs == null) return;
+
+    final drop = lastFhs - fhsScore;
+    if (drop > 5) {
+      nudges.add(JitaiNudge(
+        type: NudgeType.fhsDropped,
+        title: 'Ton score santé a baissé',
+        message: 'Ton Financial Health Score a perdu '
+            '${drop.round()}\u00a0points. '
+            'Voyons ensemble ce qui pourrait expliquer ce changement.',
+        actionRoute: '/pulse',
+        actionLabel: 'Comprendre la baisse',
+        triggeredAt: now,
+        priority: NudgePriority.high,
+      ));
+    }
+  }
+
+  // ── Birthday message helpers ────────────────────────────────
+
+  /// Returns an age-relevant message for milestone birthdays, or null.
+  static String? _birthdayMessage(int age) {
+    if (age == 25) {
+      return 'C\'est l\'année où tes cotisations LPP commencent\u00a0! '
+          'Un bon moment pour comprendre ta prévoyance.';
+    }
+    if (age == 30) {
+      return 'À 30\u00a0ans, le 3e pilier devient un allié fiscal puissant. '
+          'As-tu maximisé tes versements\u00a0?';
+    }
+    if (age == 35) {
+      return 'Ta bonification LPP passe à 10\u00a0%. '
+          'C\'est le moment d\'envisager un rachat si tu as des lacunes.';
+    }
+    if (age == 40) {
+      return 'À mi-parcours professionnel, ton 2e pilier accélère. '
+          'Vérifie que ta caisse travaille bien pour toi.';
+    }
+    if (age == 45) {
+      return 'Ta bonification LPP passe à 15\u00a0%. '
+          'Un rachat maintenant pourrait réduire significativement tes impôts.';
+    }
+    if (age == 50) {
+      return 'La retraite se dessine dans 15\u00a0ans. '
+          'C\'est le moment idéal pour une simulation complète.';
+    }
+    if (age == 55) {
+      return 'Ta bonification LPP atteint 18\u00a0% — le maximum\u00a0! '
+          'La question rente vs capital devient concrète.';
+    }
+    if (age == 58) {
+      return 'Certaines caisses permettent la retraite anticipée dès 58\u00a0ans. '
+          'As-tu simulé les différents scénarios\u00a0?';
+    }
+    if (age == 60) {
+      return 'Plus que 5\u00a0ans avant l\'âge de référence. '
+          'C\'est le bon moment pour finaliser ta stratégie de retrait.';
+    }
+    if (age == 63) {
+      return 'Tu peux anticiper ta rente AVS dès cette année (LAVS art.\u00a040). '
+          'Attention\u00a0: chaque année d\'anticipation réduit ta rente '
+          'd\'environ 6 à 7\u00a0%, selon le barème en vigueur (LAVS art.\u00a040).';
+    }
+    if (age == 65) {
+      return 'C\'est l\'année de référence AVS\u00a0! '
+          'Vérifie que ta demande de rente est en cours.';
+    }
+    return null;
+  }
+}
