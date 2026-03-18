@@ -383,10 +383,13 @@ class MultiLlmService {
         _recordFailure(config.provider, 'Timeout');
       } catch (e) {
         stopwatch.stop();
+        // PRIVACY: Only log error type, never full message (may contain
+        // API keys in URL, PII in request body, etc. — LPD art. 6).
+        final errorType = e.runtimeType.toString();
         debugPrint(
-          '[MultiLLM] ${config.provider.name} error (attempt ${attempt + 1}): $e',
+          '[MultiLLM] ${config.provider.name} error (attempt ${attempt + 1}): $errorType',
         );
-        _recordFailure(config.provider, e.toString());
+        _recordFailure(config.provider, errorType);
       }
     }
 
@@ -451,20 +454,36 @@ class MultiLlmService {
       userMessage: userMessage,
     );
 
+    // COMPLIANCE: Run ComplianceGuard on local fallback too — same pipeline
+    // as cloud providers. Templates are pre-validated but defense-in-depth
+    // requires no bypass (LSFin art. 3/8, FINMA circular 2008/21).
+    final compliance = ComplianceGuard.validate(fallbackText);
+
+    final text = compliance.useFallback
+        ? _emergencyFallback
+        : (compliance.sanitizedText.isNotEmpty
+            ? compliance.sanitizedText
+            : fallbackText);
+
+    final quality = _computeQuality(text);
+
     return LlmResponse(
-      content: fallbackText,
+      content: text,
       provider: LlmProvider.localFallback,
       latency: Duration.zero,
       tokensUsed: 0,
-      passedCompliance: true,
-      quality: const QualityScore(
-        relevance: 0.6,
-        compliance: 1.0,
-        frenchQuality: 1.0,
-        overall: 0.84,
-      ),
+      passedCompliance: compliance.isCompliant,
+      quality: quality,
     );
   }
+
+  /// Last-resort emergency fallback when even local templates fail compliance.
+  /// This text is statically validated — no banned terms, educational tone.
+  static const String _emergencyFallback =
+      'Je ne suis pas en mesure de répondre pour le moment. '
+      'Explore les simulateurs (3a, LPP, retraite) dans l\u2019app '
+      'pour des estimations chiffrées.\n\n'
+      '_${ComplianceGuard.standardDisclaimer}_';
 
   // ══════════════════════════════════════════════════════════════
   //  INTERNAL — health tracking

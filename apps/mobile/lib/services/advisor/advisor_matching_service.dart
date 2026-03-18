@@ -15,6 +15,7 @@
 library;
 
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/subscription_service.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  ENUMS
@@ -39,13 +40,15 @@ enum AdvisorSpecialization {
 ///
 /// [displayName] uses title form only ("Me Dupont", "Dr Weber")
 /// — no full names for privacy.
+///
+/// NOTE: No rating/score field — advisors are shown side-by-side,
+/// never ranked (MINT No-Ranking rule).
 class AdvisorProfile {
   final String id;
   final String displayName;
   final List<AdvisorSpecialization> specializations;
   final List<String> languages;
   final List<String> cantons;
-  final double rating;
   final bool isAvailable;
   final String? nextAvailableSlot;
 
@@ -55,7 +58,6 @@ class AdvisorProfile {
     required this.specializations,
     required this.languages,
     required this.cantons,
-    required this.rating,
     required this.isAvailable,
     this.nextAvailableSlot,
   });
@@ -83,11 +85,40 @@ class AdvisorDossier {
 //  SERVICE
 // ════════════════════════════════════════════════════════════════
 
+/// Exception thrown when a user without Expert tier attempts advisor matching.
+class ExpertTierRequiredException implements Exception {
+  const ExpertTierRequiredException();
+
+  @override
+  String toString() =>
+      'ExpertTierRequiredException: '
+      'L\'accès aux spécialistes nécessite l\'abonnement Expert.';
+}
+
+/// Tiers that grant access to advisor matching.
+///
+/// Currently: premium and couplePlus (which includes all premium features).
+/// When a dedicated `expert` tier is added to [SubscriptionTier], add it here.
+const Set<SubscriptionTier> _expertEligibleTiers = {
+  SubscriptionTier.premium,
+  SubscriptionTier.couplePlus,
+};
+
 /// Matches users with advisors and prepares consultation dossiers.
 ///
 /// All methods are static and pure. No network calls.
+/// **Tier gate**: all public methods require [SubscriptionTier] >= premium.
 class AdvisorMatchingService {
   AdvisorMatchingService._();
+
+  /// Verify the user holds an Expert-eligible tier.
+  ///
+  /// Throws [ExpertTierRequiredException] if tier is insufficient.
+  static void _requireExpertTier(SubscriptionTier tier) {
+    if (!_expertEligibleTiers.contains(tier)) {
+      throw const ExpertTierRequiredException();
+    }
+  }
 
   /// Compliance disclaimer included in every dossier.
   static const String _disclaimer =
@@ -108,7 +139,7 @@ class AdvisorMatchingService {
       ],
       languages: ['fr', 'de'],
       cantons: ['VD', 'GE', 'VS'],
-      rating: 4.5,
+
       isAvailable: true,
     ),
     AdvisorProfile(
@@ -120,7 +151,7 @@ class AdvisorMatchingService {
       ],
       languages: ['de', 'fr', 'en'],
       cantons: ['ZH', 'BE', 'AG'],
-      rating: 4.8,
+
       isAvailable: true,
     ),
     AdvisorProfile(
@@ -132,7 +163,7 @@ class AdvisorMatchingService {
       ],
       languages: ['fr', 'it', 'en'],
       cantons: ['TI', 'GE', 'VD'],
-      rating: 4.3,
+
       isAvailable: false,
       nextAvailableSlot: '2026-04-15',
     ),
@@ -145,7 +176,7 @@ class AdvisorMatchingService {
       ],
       languages: ['fr'],
       cantons: ['VS', 'VD', 'FR'],
-      rating: 4.6,
+
       isAvailable: true,
     ),
     AdvisorProfile(
@@ -157,7 +188,7 @@ class AdvisorMatchingService {
       ],
       languages: ['de', 'en'],
       cantons: ['ZH', 'LU', 'SG'],
-      rating: 4.4,
+
       isAvailable: true,
     ),
     AdvisorProfile(
@@ -169,7 +200,7 @@ class AdvisorMatchingService {
       ],
       languages: ['fr', 'de'],
       cantons: ['VS', 'BE', 'FR'],
-      rating: 4.7,
+
       isAvailable: true,
     ),
   ];
@@ -180,12 +211,16 @@ class AdvisorMatchingService {
   ///
   /// Results are sorted **alphabetically** by [displayName] — never ranked.
   /// Returns an empty list if no match found.
+  ///
+  /// Throws [ExpertTierRequiredException] if [tier] is insufficient.
   static List<AdvisorProfile> findMatches({
     required CoachProfile profile,
     required AdvisorSpecialization need,
+    required SubscriptionTier tier,
     String? preferredLanguage,
     List<AdvisorProfile>? advisorPool,
   }) {
+    _requireExpertTier(tier);
     final pool = advisorPool ?? _advisorPool;
 
     var matches = pool.where((a) => a.specializations.contains(need)).toList();
@@ -223,11 +258,15 @@ class AdvisorMatchingService {
   ///
   /// The dossier uses income/patrimoine RANGES (not exact values),
   /// and NEVER includes IBAN, SSN, employer name, or exact salary.
+  ///
+  /// Throws [ExpertTierRequiredException] if [tier] is insufficient.
   static Future<AdvisorDossier> prepareDossier({
     required CoachProfile profile,
     required AdvisorSpecialization topic,
+    required SubscriptionTier tier,
     DateTime? now,
   }) async {
+    _requireExpertTier(tier);
     final effectiveNow = now ?? DateTime.now();
     final age = effectiveNow.year - profile.birthYear;
 

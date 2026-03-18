@@ -447,5 +447,633 @@ void main() {
         );
       }
     });
+
+    // ════════════════════════════════════════════════════════════
+    //  ADDITIONAL TESTS — autoresearch-test-generation audit
+    // ════════════════════════════════════════════════════════════
+
+    // ── Test 21: all 8 archetypes receive at least 5 challenges ──
+    test('every archetype receives at least 5 eligible challenges', () {
+      const archetypeNames = [
+        'swissNative',
+        'expatEu',
+        'expatNonEu',
+        'expatUs',
+        'independentWithLpp',
+        'independentNoLpp',
+        'crossBorder',
+        'returningSwiss',
+      ];
+
+      for (final archName in archetypeNames) {
+        final eligible = AdaptiveChallengeService.challengePool.where((c) {
+          if (c.targetArchetypes.isEmpty) return true; // universal
+          return c.targetArchetypes.contains(archName);
+        }).toList();
+
+        expect(
+          eligible.length,
+          greaterThanOrEqualTo(5),
+          reason: 'Archetype $archName should have >= 5 eligible challenges, '
+              'got ${eligible.length}',
+        );
+      }
+    });
+
+    // ── Test 22: swiss_native archetype gets challenge ──
+    test('swiss_native archetype gets a weekly challenge', () async {
+      final profile = _makeProfile(birthYear: 1990);
+      expect(profile.archetype, FinancialArchetype.swissNative);
+      final lifecycle = _lifecycle(profile, now: testDate);
+
+      final challenge = await AdaptiveChallengeService.getWeeklyChallenge(
+        profile: profile,
+        lifecycle: lifecycle,
+        now: testDate,
+        prefs: prefs,
+      );
+      expect(challenge, isNotNull);
+    });
+
+    // ── Test 23: expat_eu archetype gets challenge ──
+    test('expat_eu archetype gets a weekly challenge', () async {
+      final profile = _makeProfile(birthYear: 1990, nationality: 'FR');
+      expect(profile.archetype, FinancialArchetype.expatEu);
+      final lifecycle = _lifecycle(profile, now: testDate);
+
+      final challenge = await AdaptiveChallengeService.getWeeklyChallenge(
+        profile: profile,
+        lifecycle: lifecycle,
+        now: testDate,
+        prefs: prefs,
+      );
+      expect(challenge, isNotNull);
+    });
+
+    // ── Test 24: expat_non_eu archetype gets challenge ──
+    test('expat_non_eu archetype gets a weekly challenge', () async {
+      final profile = _makeProfile(birthYear: 1990, nationality: 'BR');
+      expect(profile.archetype, FinancialArchetype.expatNonEu);
+      final lifecycle = _lifecycle(profile, now: testDate);
+
+      final challenge = await AdaptiveChallengeService.getWeeklyChallenge(
+        profile: profile,
+        lifecycle: lifecycle,
+        now: testDate,
+        prefs: prefs,
+      );
+      expect(challenge, isNotNull);
+    });
+
+    // ── Test 25: expat_us archetype gets challenge ──
+    test('expat_us archetype gets a weekly challenge', () async {
+      final profile = _makeProfile(birthYear: 1990, nationality: 'US');
+      expect(profile.archetype, FinancialArchetype.expatUs);
+      final lifecycle = _lifecycle(profile, now: testDate);
+
+      final challenge = await AdaptiveChallengeService.getWeeklyChallenge(
+        profile: profile,
+        lifecycle: lifecycle,
+        now: testDate,
+        prefs: prefs,
+      );
+      expect(challenge, isNotNull);
+    });
+
+    // ── Test 26: independent_with_lpp archetype gets challenge ──
+    test('independent_with_lpp archetype gets a weekly challenge', () async {
+      final profile = _makeProfile(
+        birthYear: 1990,
+        employmentStatus: 'independant',
+        prevoyance: const PrevoyanceProfile(avoirLppTotal: 50000),
+      );
+      expect(profile.archetype, FinancialArchetype.independentWithLpp);
+      final lifecycle = _lifecycle(profile, now: testDate);
+
+      final challenge = await AdaptiveChallengeService.getWeeklyChallenge(
+        profile: profile,
+        lifecycle: lifecycle,
+        now: testDate,
+        prefs: prefs,
+      );
+      expect(challenge, isNotNull);
+    });
+
+    // ── Test 27: independent_no_lpp archetype gets challenge ──
+    test('independent_no_lpp archetype gets a weekly challenge', () async {
+      final profile = _makeProfile(
+        birthYear: 1990,
+        employmentStatus: 'independant',
+      );
+      expect(profile.archetype, FinancialArchetype.independentNoLpp);
+      final lifecycle = _lifecycle(profile, now: testDate);
+
+      final challenge = await AdaptiveChallengeService.getWeeklyChallenge(
+        profile: profile,
+        lifecycle: lifecycle,
+        now: testDate,
+        prefs: prefs,
+      );
+      expect(challenge, isNotNull);
+    });
+
+    // ── Test 28: cross_border archetype gets challenge ──
+    test('cross_border archetype gets a weekly challenge', () async {
+      final profile = _makeProfile(
+        birthYear: 1990,
+        nationality: 'FR',
+        residencePermit: 'G',
+      );
+      expect(profile.archetype, FinancialArchetype.crossBorder);
+      final lifecycle = _lifecycle(profile, now: testDate);
+
+      final challenge = await AdaptiveChallengeService.getWeeklyChallenge(
+        profile: profile,
+        lifecycle: lifecycle,
+        now: testDate,
+        prefs: prefs,
+      );
+      expect(challenge, isNotNull);
+    });
+
+    // ── Test 29: returning_swiss archetype gets challenge ──
+    test('returning_swiss archetype gets a weekly challenge', () async {
+      final profile = _makeProfile(
+        birthYear: 1990,
+        nationality: 'CH',
+        arrivalAge: 30,
+      );
+      expect(profile.archetype, FinancialArchetype.returningSwiss);
+      final lifecycle = _lifecycle(profile, now: testDate);
+
+      final challenge = await AdaptiveChallengeService.getWeeklyChallenge(
+        profile: profile,
+        lifecycle: lifecycle,
+        now: testDate,
+        prefs: prefs,
+      );
+      expect(challenge, isNotNull);
+    });
+
+    // ── Test 30: golden profile Julien (swiss_native, 49yo, 122'207 CHF) ──
+    test('golden profile Julien gets consolidation-phase challenge', () async {
+      final julien = CoachProfile(
+        birthYear: 1977,
+        canton: 'VS',
+        nationality: 'CH',
+        etatCivil: CoachCivilStatus.marie,
+        nombreEnfants: 0,
+        salaireBrutMensuel: 10184, // 122'207 / 12
+        nombreDeMois: 12,
+        employmentStatus: 'salarie',
+        depenses: const DepensesProfile(),
+        prevoyance: const PrevoyanceProfile(avoirLppTotal: 70377),
+        patrimoine: const PatrimoineProfile(),
+        dettes: const DetteProfile(),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2042, 1, 1),
+          label: 'Retraite',
+        ),
+      );
+      expect(julien.archetype, FinancialArchetype.swissNative);
+
+      final lifecycle = _lifecycle(julien, now: testDate);
+      // Julien is 49 → consolidation (45-55)
+      expect(lifecycle.phase, LifecyclePhase.consolidation);
+
+      final challenge = await AdaptiveChallengeService.getWeeklyChallenge(
+        profile: julien,
+        lifecycle: lifecycle,
+        now: testDate,
+        prefs: prefs,
+      );
+      expect(challenge, isNotNull);
+      // Challenge must be compatible with consolidation phase
+      if (challenge!.targetPhases.isNotEmpty) {
+        expect(challenge.targetPhases, contains(LifecyclePhase.consolidation));
+      }
+    });
+
+    // ── Test 31: golden profile Lauren (expat_us, 43yo, 67'000 CHF) ──
+    test('golden profile Lauren gets acceleration-phase challenge', () async {
+      final lauren = CoachProfile(
+        birthYear: 1982,
+        canton: 'VS',
+        nationality: 'US',
+        etatCivil: CoachCivilStatus.marie,
+        nombreEnfants: 0,
+        salaireBrutMensuel: 5583, // 67'000 / 12
+        nombreDeMois: 12,
+        employmentStatus: 'salarie',
+        depenses: const DepensesProfile(),
+        prevoyance: const PrevoyanceProfile(avoirLppTotal: 19620),
+        patrimoine: const PatrimoineProfile(),
+        dettes: const DetteProfile(),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2047, 1, 1),
+          label: 'Retraite',
+        ),
+      );
+      expect(lauren.archetype, FinancialArchetype.expatUs);
+
+      final lifecycle = _lifecycle(lauren, now: testDate);
+      // Lauren is 43 → acceleration (35-45)
+      expect(lifecycle.phase, LifecyclePhase.acceleration);
+
+      final challenge = await AdaptiveChallengeService.getWeeklyChallenge(
+        profile: lauren,
+        lifecycle: lifecycle,
+        now: testDate,
+        prefs: prefs,
+      );
+      expect(challenge, isNotNull);
+    });
+
+    // ── Test 32: age extreme — young (22yo, demarrage phase) ──
+    test('age extreme: 22yo gets demarrage phase challenge', () async {
+      final profile = _makeProfile(birthYear: 2004); // age ~22
+      final lifecycle = _lifecycle(profile, now: testDate);
+      expect(lifecycle.phase, LifecyclePhase.demarrage);
+
+      final challenge = await AdaptiveChallengeService.getWeeklyChallenge(
+        profile: profile,
+        lifecycle: lifecycle,
+        now: testDate,
+        prefs: prefs,
+      );
+      expect(challenge, isNotNull);
+      if (challenge!.targetPhases.isNotEmpty) {
+        expect(challenge.targetPhases, contains(LifecyclePhase.demarrage));
+      }
+    });
+
+    // ── Test 33: age extreme — 65yo (transition/retraite) ──
+    test('age extreme: 65yo gets challenge', () async {
+      final profile = _makeProfile(birthYear: 1961); // age ~65
+      final lifecycle = _lifecycle(profile, now: testDate);
+      // 65 could be transition or retraite depending on exact detection
+      expect(
+        {LifecyclePhase.transition, LifecyclePhase.retraite},
+        contains(lifecycle.phase),
+      );
+
+      final challenge = await AdaptiveChallengeService.getWeeklyChallenge(
+        profile: profile,
+        lifecycle: lifecycle,
+        now: testDate,
+        prefs: prefs,
+      );
+      expect(challenge, isNotNull);
+    });
+
+    // ── Test 34: age extreme — 80yo (retraite/transmission) ──
+    test('age extreme: 80yo gets challenge', () async {
+      final profile = _makeProfile(birthYear: 1946); // age ~80
+      final lifecycle = _lifecycle(profile, now: testDate);
+      expect(
+        {LifecyclePhase.retraite, LifecyclePhase.transmission},
+        contains(lifecycle.phase),
+      );
+
+      final challenge = await AdaptiveChallengeService.getWeeklyChallenge(
+        profile: profile,
+        lifecycle: lifecycle,
+        now: testDate,
+        prefs: prefs,
+      );
+      // May be null if no challenges target these late phases, but should not crash
+      // At minimum, universal challenges (targetPhases empty) should match
+      expect(challenge, isNotNull);
+    });
+
+    // ── Test 35: difficulty progression easy → medium → hard ──
+    test('full difficulty progression: easy → medium → hard', () async {
+      // Start: easy
+      expect(
+        await AdaptiveChallengeService.currentDifficulty(prefs: prefs),
+        ChallengeDifficulty.easy,
+      );
+
+      // 3 completions → medium
+      for (var i = 0; i < 3; i++) {
+        await AdaptiveChallengeService.completeChallenge(
+          challengeId: 'prog_$i',
+          prefs: prefs,
+          now: testDate,
+        );
+      }
+      expect(
+        await AdaptiveChallengeService.currentDifficulty(prefs: prefs),
+        ChallengeDifficulty.medium,
+      );
+
+      // 3 more completions → hard
+      for (var i = 3; i < 6; i++) {
+        await AdaptiveChallengeService.completeChallenge(
+          challengeId: 'prog_$i',
+          prefs: prefs,
+          now: testDate,
+        );
+      }
+      expect(
+        await AdaptiveChallengeService.currentDifficulty(prefs: prefs),
+        ChallengeDifficulty.hard,
+      );
+
+      // More completions stay at hard (ceiling)
+      for (var i = 6; i < 9; i++) {
+        await AdaptiveChallengeService.completeChallenge(
+          challengeId: 'prog_$i',
+          prefs: prefs,
+          now: testDate,
+        );
+      }
+      expect(
+        await AdaptiveChallengeService.currentDifficulty(prefs: prefs),
+        ChallengeDifficulty.hard,
+      );
+    });
+
+    // ── Test 36: difficulty cannot go below easy ──
+    test('difficulty cannot go below easy after skips', () async {
+      // Skip many times at easy level
+      for (var i = 0; i < 5; i++) {
+        await AdaptiveChallengeService.skipChallenge(
+          challengeId: 'skip_$i',
+          prefs: prefs,
+          now: testDate,
+        );
+      }
+      expect(
+        await AdaptiveChallengeService.currentDifficulty(prefs: prefs),
+        ChallengeDifficulty.easy,
+      );
+    });
+
+    // ── Test 37: no duplicate challenge IDs across categories ──
+    test('no duplicate challenge IDs across different categories', () {
+      final idCategoryMap = <String, ChallengeCategory>{};
+      for (final c in AdaptiveChallengeService.challengePool) {
+        if (idCategoryMap.containsKey(c.id)) {
+          fail('Duplicate challenge ID "${c.id}" found in '
+              '${idCategoryMap[c.id]!.name} and ${c.category.name}');
+        }
+        idCategoryMap[c.id] = c.category;
+      }
+    });
+
+    // ── Test 38: challenge pool covers all 6 categories ──
+    test('challenge pool covers all 6 categories', () {
+      final categories = AdaptiveChallengeService.challengePool
+          .map((c) => c.category)
+          .toSet();
+      expect(categories, containsAll(ChallengeCategory.values));
+    });
+
+    // ── Test 39: challenge pool covers all 3 difficulties ──
+    test('challenge pool covers all 3 difficulties', () {
+      final difficulties = AdaptiveChallengeService.challengePool
+          .map((c) => c.difficulty)
+          .toSet();
+      expect(difficulties, containsAll(ChallengeDifficulty.values));
+    });
+
+    // ── Test 40: different weeks can produce different challenges ──
+    test('different ISO weeks select from pool deterministically', () async {
+      final profile = _makeProfile(birthYear: 1990);
+      final lifecycle = _lifecycle(profile, now: testDate);
+
+      // Test across 8 weeks — with 50-challenge pool, highly likely
+      // to get at least 2 distinct challenges
+      final ids = <String?>{};
+      for (var w = 0; w < 8; w++) {
+        final weekDate = DateTime(2026, 3, 16).add(Duration(days: 7 * w));
+        SharedPreferences.setMockInitialValues({});
+        final weekPrefs = await SharedPreferences.getInstance();
+        final c = await AdaptiveChallengeService.getWeeklyChallenge(
+          profile: profile,
+          lifecycle: lifecycle,
+          now: weekDate,
+          prefs: weekPrefs,
+        );
+        ids.add(c?.id);
+      }
+
+      // At least 2 distinct challenges over 8 weeks
+      expect(ids.length, greaterThanOrEqualTo(2),
+          reason: 'Over 8 weeks, should see variety from the pool');
+    });
+
+    // ── Test 41: MicroChallenge.toJson includes all required fields ──
+    test('MicroChallenge.toJson includes required fields', () {
+      final challenge = AdaptiveChallengeService.challengePool.first;
+      final json = challenge.toJson();
+      expect(json, containsPair('id', isNotEmpty));
+      expect(json, containsPair('title', isNotEmpty));
+      expect(json, containsPair('description', isNotEmpty));
+      expect(json, containsPair('actionRoute', isNotEmpty));
+      expect(json, containsPair('category', isNotEmpty));
+      expect(json, containsPair('difficulty', isNotEmpty));
+      expect(json, containsPair('fhsRewardPoints', isA<int>()));
+    });
+
+    // ── Test 42: history accumulates multiple records ──
+    test('history accumulates multiple records', () async {
+      await AdaptiveChallengeService.completeChallenge(
+        challengeId: 'budget_01',
+        prefs: prefs,
+        now: testDate,
+      );
+      await AdaptiveChallengeService.skipChallenge(
+        challengeId: 'budget_02',
+        prefs: prefs,
+        now: testDate,
+      );
+      await AdaptiveChallengeService.completeChallenge(
+        challengeId: 'budget_04',
+        prefs: prefs,
+        now: testDate,
+      );
+
+      final history = await AdaptiveChallengeService.getHistory(prefs: prefs);
+      expect(history, hasLength(3));
+      expect(history[0].completed, isTrue);
+      expect(history[1].completed, isFalse);
+      expect(history[2].completed, isTrue);
+    });
+
+    // ── Test 43: empty history returns empty list ──
+    test('getHistory returns empty list on fresh prefs', () async {
+      final history = await AdaptiveChallengeService.getHistory(prefs: prefs);
+      expect(history, isEmpty);
+    });
+
+    // ── Test 44: cross_border-only challenge not given to swiss_native ──
+    test('crossBorder-only challenge is not eligible for swiss_native', () {
+      final crossBorderOnly = AdaptiveChallengeService.challengePool
+          .where((c) => c.targetArchetypes.contains('crossBorder'))
+          .toList();
+      expect(crossBorderOnly, isNotEmpty);
+
+      for (final c in crossBorderOnly) {
+        expect(
+          c.targetArchetypes.contains('swissNative'),
+          isFalse,
+          reason: '${c.id} targets crossBorder but should not match swissNative',
+        );
+      }
+    });
+
+    // ── Test 45: challenge text contains no "conseiller" (banned term) ──
+    test('no challenge uses "conseiller" — must use "spécialiste"', () {
+      for (final c in AdaptiveChallengeService.challengePool) {
+        final text = '${c.title} ${c.description}'.toLowerCase();
+        expect(text.contains('conseiller'), isFalse,
+            reason: '${c.id} uses banned term "conseiller"');
+      }
+    });
+
+    // ── Test 46: upgrade then downgrade then re-upgrade ──
+    test('difficulty oscillation: up → down → up', () async {
+      // 3 completions → medium
+      for (var i = 0; i < 3; i++) {
+        await AdaptiveChallengeService.completeChallenge(
+          challengeId: 'osc_c$i',
+          prefs: prefs,
+          now: testDate,
+        );
+      }
+      expect(
+        await AdaptiveChallengeService.currentDifficulty(prefs: prefs),
+        ChallengeDifficulty.medium,
+      );
+
+      // 2 skips → back to easy
+      await AdaptiveChallengeService.skipChallenge(
+        challengeId: 'osc_s1',
+        prefs: prefs,
+        now: testDate,
+      );
+      await AdaptiveChallengeService.skipChallenge(
+        challengeId: 'osc_s2',
+        prefs: prefs,
+        now: testDate,
+      );
+      expect(
+        await AdaptiveChallengeService.currentDifficulty(prefs: prefs),
+        ChallengeDifficulty.easy,
+      );
+
+      // 3 more completions → medium again
+      for (var i = 0; i < 3; i++) {
+        await AdaptiveChallengeService.completeChallenge(
+          challengeId: 'osc_r$i',
+          prefs: prefs,
+          now: testDate,
+        );
+      }
+      expect(
+        await AdaptiveChallengeService.currentDifficulty(prefs: prefs),
+        ChallengeDifficulty.medium,
+      );
+    });
+
+    // ── Test 47: skip then complete resets consecutive skip counter ──
+    test('one completion between skips resets skip counter', () async {
+      // Upgrade to medium first
+      for (var i = 0; i < 3; i++) {
+        await AdaptiveChallengeService.completeChallenge(
+          challengeId: 'reset_c$i',
+          prefs: prefs,
+          now: testDate,
+        );
+      }
+      expect(
+        await AdaptiveChallengeService.currentDifficulty(prefs: prefs),
+        ChallengeDifficulty.medium,
+      );
+
+      // 1 skip, then 1 completion, then 1 skip — should NOT downgrade
+      await AdaptiveChallengeService.skipChallenge(
+        challengeId: 'reset_s1',
+        prefs: prefs,
+        now: testDate,
+      );
+      await AdaptiveChallengeService.completeChallenge(
+        challengeId: 'reset_c3',
+        prefs: prefs,
+        now: testDate,
+      );
+      await AdaptiveChallengeService.skipChallenge(
+        challengeId: 'reset_s2',
+        prefs: prefs,
+        now: testDate,
+      );
+
+      // Still medium (skips were not consecutive)
+      expect(
+        await AdaptiveChallengeService.currentDifficulty(prefs: prefs),
+        ChallengeDifficulty.medium,
+      );
+    });
+
+    // ── Test 48: each category has at least 3 challenges per difficulty ──
+    test('each category has challenges across difficulties', () {
+      for (final cat in ChallengeCategory.values) {
+        final inCategory = AdaptiveChallengeService.challengePool
+            .where((c) => c.category == cat)
+            .toList();
+        expect(
+          inCategory.length,
+          greaterThanOrEqualTo(3),
+          reason: 'Category ${cat.name} should have >= 3 challenges',
+        );
+      }
+    });
+
+    // ── Test 49: fallback to other difficulty when primary exhausted ──
+    test('fallback to other difficulty when primary is exhausted', () async {
+      final profile = _makeProfile(birthYear: 1990);
+      final lifecycle = _lifecycle(profile, now: testDate);
+
+      // Complete all easy challenges
+      final easyChallenges = AdaptiveChallengeService.challengePool
+          .where((c) => c.difficulty == ChallengeDifficulty.easy)
+          .toList();
+      for (final c in easyChallenges) {
+        await AdaptiveChallengeService.completeChallenge(
+          challengeId: c.id,
+          prefs: prefs,
+          now: testDate,
+        );
+      }
+
+      // Difficulty is now medium (after 3+ completions), but even if
+      // we force re-check, fallback should give us something
+      // Use a new week so it picks a new challenge
+      final futureWeek = testDate.add(const Duration(days: 70));
+      final challenge = await AdaptiveChallengeService.getWeeklyChallenge(
+        profile: profile,
+        lifecycle: lifecycle,
+        now: futureWeek,
+        prefs: prefs,
+      );
+
+      // Should get a non-easy challenge from fallback
+      expect(challenge, isNotNull);
+    });
+
+    // ── Test 50: challenge descriptions contain educational content ──
+    test('every challenge has non-trivial description (>= 30 chars)', () {
+      for (final c in AdaptiveChallengeService.challengePool) {
+        expect(
+          c.description.length,
+          greaterThanOrEqualTo(30),
+          reason: '${c.id} description too short: "${c.description}"',
+        );
+      }
+    });
   });
 }

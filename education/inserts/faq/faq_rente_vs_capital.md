@@ -14,7 +14,7 @@ L'utilisateur hésite entre prendre sa retraite en rente, en capital, ou un mix 
 Avec un avoir LPP de CHF 500'000, la rente à 6.8 % donne CHF 2'833/mois à vie. Le capital, placé à 3 % avec un retrait de 4 %/an, dure environ 30 ans — mais tu gardes la flexibilité.
 
 ## Niveau 0
-Imagine deux options pour ta retraite : un salaire mensuel garanti à vie (la rente), ou une grosse somme d'argent que tu gères toi-même (le capital). La rente, c'est la sécurité — tu reçois un montant fixe chaque mois, même si tu vis jusqu'à 100 ans. Le capital, c'est la liberté — tu peux investir, transmettre à tes héritiers, mais tu dois gérer le risque de vivre plus longtemps que ton argent.
+Imagine deux options pour ta retraite : un versement mensuel à vie (la rente), ou une grosse somme d'argent que tu gères toi-même (le capital). La rente, c'est la sécurité — tu reçois un montant fixe chaque mois, même si tu vis jusqu'à 100 ans. Le capital, c'est la liberté — tu peux investir, transmettre à tes héritiers, mais tu dois gérer le risque de vivre plus longtemps que ton argent.
 
 Il n'y a pas de « bonne réponse universelle » — cela dépend de ta situation, de ta santé, de tes projets.
 

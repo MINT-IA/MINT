@@ -526,7 +526,7 @@ class JitaiNudgeService {
           'La question rente vs capital devient concrète.';
     }
     if (age == 58) {
-      return 'Certaines caisses permettent la retraite anticipée dès 58\u00a0ans. '
+      return 'Des caisses de pension permettent la retraite anticipée dès 58\u00a0ans. '
           'As-tu simulé les différents scénarios\u00a0?';
     }
     if (age == 60) {

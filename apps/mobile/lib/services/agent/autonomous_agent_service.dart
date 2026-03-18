@@ -156,8 +156,52 @@ class SafetyResult {
   const SafetyResult({required this.passed, this.violations = const []});
 }
 
+/// Immutable audit log entry for every agent action.
+class AgentAuditEntry {
+  final DateTime timestamp;
+  final String taskId;
+  final String action; // 'generated', 'validated', 'rejected', 'blocked', 'expired'
+  final List<String> details;
+
+  const AgentAuditEntry({
+    required this.timestamp,
+    required this.taskId,
+    required this.action,
+    this.details = const [],
+  });
+
+  Map<String, dynamic> toJson() => {
+        'timestamp': timestamp.toIso8601String(),
+        'taskId': taskId,
+        'action': action,
+        'details': details,
+      };
+
+  factory AgentAuditEntry.fromJson(Map<String, dynamic> json) {
+    return AgentAuditEntry(
+      timestamp: DateTime.parse(json['timestamp'] as String),
+      taskId: json['taskId'] as String,
+      action: json['action'] as String,
+      details: List<String>.from(json['details'] as List? ?? []),
+    );
+  }
+}
+
 /// Safety gate that validates every agent output before it reaches the user.
 /// NON-NEGOTIABLE: every task must pass all checks.
+///
+/// Checks (11 rules):
+///   1. Status must be pendingValidation
+///   2. Disclaimer present and non-empty
+///   3. No PII (IBAN, SSN/AVS, email, phone)
+///   4. validationPrompt present
+///   5. fieldsNeedingReview non-empty
+///   6. Legal sources present
+///   7. No banned terms (MINT compliance: "garanti", "optimal", etc.)
+///   8. No money movement / write operation keywords
+///   9. No prompt injection patterns
+///  10. Disclaimer must reference educational nature
+///  11. Safe mode: block optimization tasks when toxic debt detected
 class AgentSafetyGate {
   AgentSafetyGate._();
 
@@ -171,17 +215,65 @@ class AgentSafetyGate {
   static final RegExp _emailPattern = RegExp(
     r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}',
   );
+  static final RegExp _phonePattern = RegExp(
+    r'(?:\+41|0041|0)\s?\d{2}\s?\d{3}\s?\d{2}\s?\d{2}',
+  );
+
+  /// Banned terms — absolute promises forbidden by MINT compliance.
+  static const List<String> _bannedTerms = [
+    'garanti',
+    'certain',
+    'assuré',
+    'sans risque',
+    'optimal',
+    'meilleur',
+    'parfait',
+    'conseiller',
+    'garantie',
+    'assurée',
+    'optimale',
+    'meilleure',
+    'parfaite',
+    'conseillère',
+  ];
+
+  /// Write-operation / money-movement keywords that MUST NEVER appear.
+  static const List<String> _bannedActions = [
+    'virement',
+    'transfert bancaire',
+    'paiement',
+    'débiter',
+    'créditer',
+    'exécuter le transfert',
+    'soumettre automatiquement',
+    'envoyer automatiquement',
+    'acheter',
+    'vendre',
+    'ordre de bourse',
+    'ISIN',
+    'ticker',
+  ];
+
+  /// Prompt injection patterns — attempts to override agent behavior.
+  static final List<RegExp> _injectionPatterns = [
+    RegExp(r'ignore\s+(previous|all|above)\s+instructions', caseSensitive: false),
+    RegExp(r'you\s+are\s+now\s+', caseSensitive: false),
+    RegExp(r'system\s*:\s*', caseSensitive: false),
+    RegExp(r'<\s*system\s*>', caseSensitive: false),
+    RegExp(r'override\s+(safety|compliance|rules)', caseSensitive: false),
+    RegExp(r'disregard\s+(safety|compliance|rules)', caseSensitive: false),
+    RegExp(r'jailbreak', caseSensitive: false),
+    RegExp(r'DAN\s+mode', caseSensitive: false),
+  ];
+
+  /// Task types that are blocked in safe mode (toxic debt detected).
+  static const List<AgentTaskType> _safeModeBlockedTypes = [
+    AgentTaskType.threeAFormPreFill,
+    AgentTaskType.fiscalDossierPrep,
+  ];
 
   /// Validate an agent task against all safety rules.
-  ///
-  /// Checks:
-  /// 1. Status is pendingValidation (never auto-submitted)
-  /// 2. Disclaimer is present and non-empty
-  /// 3. No exact PII in preFilledFields
-  /// 4. validationPrompt is present and non-empty
-  /// 5. fieldsNeedingReview is non-empty
-  /// 6. No unauthorized status (task only generates, never submits)
-  static SafetyResult validate(AgentTask task) {
+  static SafetyResult validate(AgentTask task, {bool isSafeMode = false}) {
     final violations = <String>[];
 
     // 1. Status check — must be pendingValidation
@@ -196,6 +288,16 @@ class AgentSafetyGate {
       violations.add('Disclaimer is missing or empty');
     }
 
+    // Collect all text for scanning
+    final allText = [
+      task.title,
+      task.description,
+      task.disclaimer,
+      task.validationPrompt,
+      ...task.preFilledFields.values,
+      if (task.generatedDocument != null) task.generatedDocument!,
+    ].join(' ');
+
     // 3. PII check in pre-filled fields
     for (final entry in task.preFilledFields.entries) {
       final value = entry.value;
@@ -207,6 +309,9 @@ class AgentSafetyGate {
       }
       if (_emailPattern.hasMatch(value)) {
         violations.add('PII detected (email) in field "${entry.key}"');
+      }
+      if (_phonePattern.hasMatch(value)) {
+        violations.add('PII detected (phone) in field "${entry.key}"');
       }
     }
 
@@ -221,6 +326,9 @@ class AgentSafetyGate {
       }
       if (_emailPattern.hasMatch(doc)) {
         violations.add('PII detected (email) in generated document');
+      }
+      if (_phonePattern.hasMatch(doc)) {
+        violations.add('PII detected (phone) in generated document');
       }
     }
 
@@ -237,6 +345,46 @@ class AgentSafetyGate {
     // 6. Sources check
     if (task.sources.isEmpty) {
       violations.add('Legal sources must be provided');
+    }
+
+    // 7. Banned terms check (MINT compliance)
+    final lowerText = allText.toLowerCase();
+    for (final banned in _bannedTerms) {
+      final pattern = RegExp('\\b${RegExp.escape(banned)}\\b');
+      if (pattern.hasMatch(lowerText)) {
+        violations.add('Banned term "$banned" detected in task output');
+      }
+    }
+
+    // 8. Write-operation / money-movement check
+    for (final action in _bannedActions) {
+      final pattern = RegExp('\\b${RegExp.escape(action)}\\b',
+          caseSensitive: false);
+      if (pattern.hasMatch(lowerText)) {
+        violations.add('Banned action "$action" detected — read-only violation');
+      }
+    }
+
+    // 9. Prompt injection check
+    for (final injectionRe in _injectionPatterns) {
+      if (injectionRe.hasMatch(allText)) {
+        violations.add(
+            'Prompt injection pattern detected: ${injectionRe.pattern}');
+      }
+    }
+
+    // 10. Disclaimer must reference educational nature
+    if (task.disclaimer.isNotEmpty &&
+        !task.disclaimer.contains('éducatif') &&
+        !task.disclaimer.contains('educatif')) {
+      violations.add('Disclaimer must reference educational nature');
+    }
+
+    // 11. Safe mode check — block optimization tasks when toxic debt detected
+    if (isSafeMode && _safeModeBlockedTypes.contains(task.type)) {
+      violations.add(
+          'Task type ${task.type.name} blocked in safe mode '
+          '(toxic debt detected — priority is debt reduction)');
     }
 
     return SafetyResult(
@@ -258,6 +406,7 @@ class AutonomousAgentService {
   AutonomousAgentService._();
 
   static const String _storageKey = 'agent_task_history';
+  static const String _auditKey = 'agent_audit_log';
 
   /// Duration after which unvalidated tasks expire.
   static const Duration expirationDuration = Duration(days: 30);
@@ -277,11 +426,15 @@ class AutonomousAgentService {
   // ─────────────────────────────────────────────────────────────
 
   /// Generate a task. ALWAYS returns in [pendingValidation] status.
+  ///
+  /// If [isSafeMode] is true, optimization tasks (3a, fiscal dossier)
+  /// are blocked — priority is debt reduction.
   static Future<AgentTask> generateTask({
     required AgentTaskType type,
     required CoachProfile profile,
     DateTime? now,
     SharedPreferences? prefs,
+    bool isSafeMode = false,
   }) async {
     final effectiveNow = now ?? DateTime.now();
     final id =
@@ -302,14 +455,44 @@ class AutonomousAgentService {
         _generateLppCertificateRequest(id, profile, effectiveNow),
     };
 
+    // Safety gate — block if violations detected
+    final safety = AgentSafetyGate.validate(task, isSafeMode: isSafeMode);
+    if (!safety.passed) {
+      final effectivePrefs = prefs ?? await SharedPreferences.getInstance();
+      await _appendAudit(
+        AgentAuditEntry(
+          timestamp: effectiveNow,
+          taskId: id,
+          action: 'blocked',
+          details: safety.violations,
+        ),
+        effectivePrefs,
+      );
+      throw StateError(
+        'SafetyGate blocked task $id: ${safety.violations.join('; ')}',
+      );
+    }
+
     // Persist
     final effectivePrefs = prefs ?? await SharedPreferences.getInstance();
     await _persistTask(task, effectivePrefs);
+
+    // Audit trail
+    await _appendAudit(
+      AgentAuditEntry(
+        timestamp: effectiveNow,
+        taskId: id,
+        action: 'generated',
+        details: ['type=${type.name}'],
+      ),
+      effectivePrefs,
+    );
 
     return task;
   }
 
   /// User validates (approve or reject) a task.
+  /// Audit entry is logged for every validation action.
   static Future<AgentTask> validateTask({
     required String taskId,
     required bool approved,
@@ -334,6 +517,16 @@ class AutonomousAgentService {
     history[index] = updated;
     await _saveHistory(history, effectivePrefs);
 
+    // Audit trail
+    await _appendAudit(
+      AgentAuditEntry(
+        timestamp: effectiveNow,
+        taskId: taskId,
+        action: approved ? 'validated' : 'rejected',
+      ),
+      effectivePrefs,
+    );
+
     return updated;
   }
 
@@ -354,6 +547,14 @@ class AutonomousAgentService {
               expirationDuration) {
         history[i] = history[i].copyWith(status: AgentTaskStatus.expired);
         changed = true;
+        await _appendAudit(
+          AgentAuditEntry(
+            timestamp: effectiveNow,
+            taskId: history[i].id,
+            action: 'expired',
+          ),
+          effectivePrefs,
+        );
       }
     }
     if (changed) {
@@ -361,6 +562,14 @@ class AutonomousAgentService {
     }
 
     return history;
+  }
+
+  /// Retrieve the full audit log. Every agent action is recorded.
+  static Future<List<AgentAuditEntry>> getAuditLog({
+    SharedPreferences? prefs,
+  }) async {
+    final effectivePrefs = prefs ?? await SharedPreferences.getInstance();
+    return _loadAuditLog(effectivePrefs);
   }
 
   /// SAFETY: check if task requires validation. ALWAYS true.
@@ -838,5 +1047,30 @@ Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
   ) async {
     final json = jsonEncode(history.map((t) => t.toJson()).toList());
     await prefs.setString(_storageKey, json);
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  //  AUDIT LOG PERSISTENCE
+  // ─────────────────────────────────────────────────────────────
+
+  static Future<void> _appendAudit(
+    AgentAuditEntry entry,
+    SharedPreferences prefs,
+  ) async {
+    final log = await _loadAuditLog(prefs);
+    log.add(entry);
+    final json = jsonEncode(log.map((e) => e.toJson()).toList());
+    await prefs.setString(_auditKey, json);
+  }
+
+  static Future<List<AgentAuditEntry>> _loadAuditLog(
+    SharedPreferences prefs,
+  ) async {
+    final raw = prefs.getString(_auditKey);
+    if (raw == null || raw.isEmpty) return [];
+    final list = jsonDecode(raw) as List;
+    return list
+        .map((e) => AgentAuditEntry.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 }

@@ -142,10 +142,13 @@ class ContextInjectorService {
 
     parts.add('--- MÉMOIRE MINT ---');
 
-    // Privacy reminder at TOP of memory block (LLM primacy effect)
+    // Privacy + compliance reminders at TOP of memory block (LLM primacy effect)
     parts.add('RAPPEL\u00a0: Ne jamais mentionner de données personnelles '
         '(salaire exact, IBAN, nom, employeur). Utilise des approximations '
         'et des fourchettes.');
+    parts.add('Tu es un outil éducatif\u00a0: ne constitue pas un conseil financier '
+        '(LSFin). Propose toujours des actions concrètes et des étapes '
+        'que l\'utilisateur peut entreprendre.');
 
     // Lifecycle context
     if (lifecycleBlock.isNotEmpty) {

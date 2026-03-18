@@ -12,7 +12,7 @@ import 'package:mint_mobile/services/lifecycle_phase_service.dart';
 // Selects and manages weekly micro-challenges adapted to the
 // user's lifecycle phase, archetype, and financial literacy.
 //
-// 50 challenges across 6 categories, 7 phases, 8 archetypes.
+// 53 challenges across 6 categories, 7 phases, 8 archetypes.
 // Difficulty adapts: starts easy, upgrades after 3 completions,
 // downgrades after 2 consecutive skips.
 //
@@ -374,7 +374,7 @@ class AdaptiveChallengeService {
   }
 
   // ────────────────────────────────────────────
-  //  CHALLENGE POOL (50 challenges)
+  //  CHALLENGE POOL (53 challenges)
   // ────────────────────────────────────────────
 
   /// All phases shorthand for convenience.
@@ -416,14 +416,14 @@ class AdaptiveChallengeService {
     LifecyclePhase.transition,
   };
 
-  /// The 50 micro-challenges pool.
+  /// The 53 micro-challenges pool.
   static const List<MicroChallenge> challengePool = [
     // ── BUDGET (8 challenges) ──────────────────────────────
     MicroChallenge(
       id: 'budget_01',
       title: 'Vérifie tes 3 plus grosses dépenses de la semaine',
       description:
-          'Identifie où part ton argent\u00a0: ouvre ton budget et repère les 3 postes les plus élevés cette semaine.',
+          'Imagine savoir exactement où part chaque franc\u00a0: ouvre ton budget et repère les 3 postes les plus élevés cette semaine. Tu pourrais être surpris·e.',
       actionRoute: '/budget',
       category: ChallengeCategory.budget,
       difficulty: ChallengeDifficulty.easy,
@@ -490,7 +490,7 @@ class AdaptiveChallengeService {
       id: 'budget_07',
       title: 'Évalue ton matelas de sécurité en mois',
       description:
-          'Combien de mois pourrais-tu tenir sans revenu\u00a0? L\u2019idéal est 3 à 6 mois de charges. Vérifie le tien.',
+          'Combien de mois pourrais-tu tenir sans revenu\u00a0? C\u2019est une question importante pour ta tranquillité d\u2019esprit. L\u2019idéal est 3 à 6 mois de charges.',
       actionRoute: '/budget',
       category: ChallengeCategory.budget,
       difficulty: ChallengeDifficulty.easy,
@@ -657,7 +657,7 @@ class AdaptiveChallengeService {
       id: 'prevoyance_04',
       title: 'Consulte ta projection retraite',
       description:
-          'Regarde ta projection de retraite complète\u00a0: AVS + LPP + 3a. Vérifie si tu es sur la bonne trajectoire.',
+          'Imagine ta vie à la retraite\u00a0: AVS + LPP + 3a, combien auras-tu réellement\u00a0? Vérifie si tu es sur la bonne trajectoire. Chaque année compte.',
       actionRoute: '/retraite',
       category: ChallengeCategory.prevoyance,
       difficulty: ChallengeDifficulty.easy,
@@ -680,7 +680,7 @@ class AdaptiveChallengeService {
       id: 'prevoyance_06',
       title: 'Vérifie tes lacunes AVS',
       description:
-          'Chaque année sans cotisation AVS réduit ta rente. Vérifie si tu as des lacunes à combler.',
+          'Chaque année sans cotisation AVS réduit ta rente\u00a0: l\u2019impact peut être important sur le long terme. Vérifie si tu as des lacunes à combler.',
       actionRoute: '/scan/avs-guide',
       category: ChallengeCategory.prevoyance,
       difficulty: ChallengeDifficulty.medium,
@@ -704,7 +704,7 @@ class AdaptiveChallengeService {
       id: 'prevoyance_08',
       title: 'Vérifie ta couverture en cas de chômage',
       description:
-          'En cas de perte d\u2019emploi, combien toucherais-tu et pendant combien de temps\u00a0? Simule ta situation.',
+          'Perdre son emploi, c\u2019est stressant. Savoir combien tu toucherais et pendant combien de temps peut te rassurer. Simule ta situation.',
       actionRoute: '/unemployment',
       category: ChallengeCategory.prevoyance,
       difficulty: ChallengeDifficulty.medium,
@@ -873,7 +873,7 @@ class AdaptiveChallengeService {
       id: 'patrimoine_05',
       title: 'Consulte ton bilan patrimonial complet',
       description:
-          'Actifs, passifs, patrimoine net\u00a0: fais le point sur ta situation financière globale.',
+          'Actifs, passifs, patrimoine net\u00a0: fais le point sur ta situation financière globale. C\u2019est un moment important pour prendre du recul.',
       actionRoute: '/profile/bilan',
       category: ChallengeCategory.patrimoine,
       difficulty: ChallengeDifficulty.easy,
@@ -882,9 +882,9 @@ class AdaptiveChallengeService {
     ),
     MicroChallenge(
       id: 'patrimoine_06',
-      title: 'Vérifie ton allocation annuelle optimale',
+      title: 'Vérifie ton allocation annuelle d\u2019épargne',
       description:
-          'Entre 3a, rachat LPP et amortissement hypothécaire, comment répartir ton épargne cette année\u00a0?',
+          'Entre 3a, rachat LPP et amortissement hypothécaire, comment répartir ton épargne cette année\u00a0? Chaque choix a un impact fiscal différent.',
       actionRoute: '/arbitrage/allocation-annuelle',
       category: ChallengeCategory.patrimoine,
       difficulty: ChallengeDifficulty.hard,
@@ -1007,6 +1007,47 @@ class AdaptiveChallengeService {
       difficulty: ChallengeDifficulty.medium,
       targetPhases: _allPhases,
       fhsRewardPoints: 3,
+    ),
+
+    // ── ARCHETYPE-SPECIFIC (3 challenges) ────────────────────
+    MicroChallenge(
+      id: 'archetype_eu_01',
+      title: 'Vérifie tes années de cotisation EU pour l\u2019AVS',
+      description:
+          'Grâce aux accords bilatéraux, tes années cotisées dans l\u2019UE comptent pour ta rente AVS suisse. Demande une attestation E205 pour vérifier la totalisation.',
+      actionRoute: '/scan/avs-guide',
+      category: ChallengeCategory.prevoyance,
+      difficulty: ChallengeDifficulty.medium,
+      targetPhases: _accelerationPlus,
+      targetArchetypes: {'expatEu'},
+      fhsRewardPoints: 3,
+      legalReference: 'ALCP annexe\u00a0II',
+    ),
+    MicroChallenge(
+      id: 'archetype_noneu_01',
+      title: 'Vérifie si une convention de sécurité sociale couvre ton pays',
+      description:
+          'Sans convention bilatérale, tes cotisations étrangères ne comptent pas pour l\u2019AVS. Vérifie si ton pays d\u2019origine a un accord avec la Suisse.',
+      actionRoute: '/expatriation',
+      category: ChallengeCategory.prevoyance,
+      difficulty: ChallengeDifficulty.medium,
+      targetPhases: _allPhases,
+      targetArchetypes: {'expatNonEu'},
+      fhsRewardPoints: 3,
+      legalReference: 'LAVS art.\u00a018',
+    ),
+    MicroChallenge(
+      id: 'archetype_returning_01',
+      title: 'Vérifie ton potentiel de rachat LPP après ton retour en Suisse',
+      description:
+          'De retour en Suisse après un séjour à l\u2019étranger\u00a0? Tu pourrais avoir un potentiel de rachat LPP important, déductible fiscalement. Simule le montant.',
+      actionRoute: '/rachat-lpp',
+      category: ChallengeCategory.prevoyance,
+      difficulty: ChallengeDifficulty.hard,
+      targetPhases: _constructionPlus,
+      targetArchetypes: {'returningSwiss'},
+      fhsRewardPoints: 5,
+      legalReference: 'LPP art.\u00a079b',
     ),
   ];
 }

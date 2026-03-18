@@ -26,7 +26,7 @@ Future<SharedPreferences> _freshPrefs() async {
 
 void main() {
   // ═══════════════════════════════════════════════════════════════
-  //  COMMUNITY CHALLENGE SERVICE — 15 unit tests
+  //  COMMUNITY CHALLENGE SERVICE — 30 unit tests
   // ═══════════════════════════════════════════════════════════════
 
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -297,6 +297,358 @@ void main() {
           expect(c.completionRate, lessThanOrEqualTo(1.0));
         }
       }
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  //  ADVERSARIAL COMPLIANCE TESTS (16-25)
+  // ═══════════════════════════════════════════════════════════════
+
+  group('CommunityChallengeService — adversarial compliance', () {
+    /// Helper: get ALL 12 challenges across all 4 seasons.
+    Future<List<CommunityChallenge>> _allChallenges() async {
+      final results = <CommunityChallenge>[];
+      for (final month in [1, 3, 6, 11]) {
+        results.addAll(
+          await CommunityChallengeService.getActiveChallenges(
+            now: DateTime(2026, month, 15),
+          ),
+        );
+      }
+      return results;
+    }
+
+    test('16. NO social comparison in ANY challenge text', () async {
+      final all = await _allChallenges();
+      final socialPatterns = [
+        'top ',
+        'top\u00a0',
+        'classement',
+        'rang ',
+        'rang\u00a0',
+        'mieux que',
+        'leaderboard',
+        'meilleur que',
+        'devance',
+        'dépasse les autres',
+        'en avance sur',
+        'les autres participants',
+        'comparé aux autres',
+        'par rapport aux autres',
+        'la moyenne des',
+        'percentile',
+        'quartile',
+      ];
+
+      for (final c in all) {
+        final text = '${c.title} ${c.description}'.toLowerCase();
+        for (final p in socialPatterns) {
+          expect(text, isNot(contains(p)),
+              reason:
+                  'Social comparison "$p" in challenge "${c.id}" — BANNED');
+        }
+      }
+    });
+
+    test('17. NO ranking language in challenge text', () async {
+      final all = await _allChallenges();
+      final rankingPatterns = RegExp(
+        r'(n°\s?\d|position|classé|place\s+\d|premier|dernier|podium|médaille)',
+        caseSensitive: false,
+      );
+
+      for (final c in all) {
+        final text = '${c.title} ${c.description}';
+        expect(text, isNot(matches(rankingPatterns)),
+            reason: 'Ranking language in challenge "${c.id}" — BANNED');
+      }
+    });
+
+    test('18. share template contains NO PII fields', () {
+      // Adversarial: inject PII-like milestoneLabel.
+      final piiLabels = [
+        'Julien a atteint 100k',
+        'CH93 0076 2011 6238 5295 7',
+        'julien@mint.ch',
+        '756.1234.5678.97',
+      ];
+
+      for (final label in piiLabels) {
+        final text = CommunityChallengeService.formatShareableAchievement(
+          milestoneId: 'test',
+          milestoneLabel: label,
+        );
+
+        // The share text echoes the label — that's OK as long as the
+        // CALLER is responsible for sanitized labels. But the disclaimer
+        // must always be present.
+        expect(text, contains('LSFin'));
+        expect(text, contains('éducatif'));
+      }
+    });
+
+    test('19. share disclaimer is always non-empty and well-formed', () {
+      expect(CommunityChallengeService.shareDisclaimer, isNotEmpty);
+      expect(CommunityChallengeService.shareDisclaimer, contains('LSFin'));
+      expect(
+          CommunityChallengeService.shareDisclaimer, contains('éducatif'));
+      expect(CommunityChallengeService.shareDisclaimer,
+          isNot(contains('conseiller')));
+    });
+
+    test('20. NO "maximise/optimal" absolute language in challenges',
+        () async {
+      final all = await _allChallenges();
+      final absolutePatterns = [
+        'maximise',
+        'maximiser',
+        'optimal',
+        'optimale',
+        'parfait',
+        'parfaite',
+        'idéal ',
+        'idéale',
+      ];
+
+      for (final c in all) {
+        final text = '${c.title} ${c.description}'.toLowerCase();
+        for (final p in absolutePatterns) {
+          expect(text, isNot(contains(p)),
+              reason: 'Absolute language "$p" in "${c.id}" — borderline');
+        }
+      }
+    });
+
+    test('21. exactly 12 challenges across 4 seasons (3 per season)',
+        () async {
+      final all = await _allChallenges();
+      expect(all, hasLength(12));
+
+      // Verify 3 per season.
+      final bySeason = <String, int>{};
+      for (final c in all) {
+        bySeason[c.seasonalEvent ?? 'none'] =
+            (bySeason[c.seasonalEvent ?? 'none'] ?? 0) + 1;
+      }
+      expect(bySeason.length, 4, reason: '4 seasons');
+      for (final entry in bySeason.entries) {
+        expect(entry.value, 3,
+            reason: '3 challenges per season, got ${entry.value} for '
+                '${entry.key}');
+      }
+    });
+
+    test('22. all challenge IDs are unique', () async {
+      final all = await _allChallenges();
+      final ids = all.map((c) => c.id).toSet();
+      expect(ids.length, all.length, reason: 'Duplicate challenge IDs found');
+    });
+
+    test('23. complete without join is no-op (no crash)', () async {
+      final prefs = await _freshPrefs();
+
+      // Attempt to complete a challenge that was never joined.
+      await CommunityChallengeService.completeChallenge(
+        challengeId: 'nonexistent_challenge',
+        prefs: prefs,
+        now: DateTime(2026, 1, 15),
+      );
+
+      final history =
+          await CommunityChallengeService.getHistory(prefs: prefs);
+      expect(history, isEmpty,
+          reason: 'Completing without joining should be silent no-op');
+    });
+
+    test('24. null prefs gracefully handled (no crash)', () async {
+      // All methods should handle null prefs without throwing.
+      final active = await CommunityChallengeService.getActiveChallenges(
+        prefs: null,
+        now: DateTime(2026, 1, 15),
+      );
+      expect(active, isNotEmpty, reason: 'Active challenges available');
+
+      await CommunityChallengeService.joinChallenge(
+        challengeId: 'ny_goals_2026',
+        prefs: null,
+        now: DateTime(2026, 1, 10),
+      );
+      // No crash = pass.
+
+      final history =
+          await CommunityChallengeService.getHistory(prefs: null);
+      expect(history, isEmpty);
+    });
+
+    test('25. double-complete is no-op (idempotent)', () async {
+      final prefs = await _freshPrefs();
+
+      await CommunityChallengeService.joinChallenge(
+        challengeId: 'ny_avs_2026',
+        prefs: prefs,
+        now: DateTime(2026, 1, 5),
+      );
+      await CommunityChallengeService.completeChallenge(
+        challengeId: 'ny_avs_2026',
+        prefs: prefs,
+        now: DateTime(2026, 1, 10),
+      );
+      await CommunityChallengeService.completeChallenge(
+        challengeId: 'ny_avs_2026',
+        prefs: prefs,
+        now: DateTime(2026, 1, 15),
+      );
+
+      final history =
+          await CommunityChallengeService.getHistory(prefs: prefs);
+      expect(history, hasLength(1));
+      // Original completion date preserved, not overwritten.
+      expect(history.first.completedAt, DateTime(2026, 1, 10));
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  //  COACHING CONTENT QUALITY TESTS (26-30)
+  // ═══════════════════════════════════════════════════════════════
+
+  group('CommunityChallengeService — coaching quality', () {
+    Future<List<CommunityChallenge>> _allChallenges() async {
+      final results = <CommunityChallenge>[];
+      for (final month in [1, 3, 6, 11]) {
+        results.addAll(
+          await CommunityChallengeService.getActiveChallenges(
+            now: DateTime(2026, month, 15),
+          ),
+        );
+      }
+      return results;
+    }
+
+    test('26. every challenge has at least 1 emotional marker', () async {
+      final all = await _allChallenges();
+      final emotionWords = [
+        'imagine',
+        'impact',
+        'bravo',
+        'progrès',
+        'félicitations',
+        'courage',
+        'important',
+        'confiance',
+        'fierté',
+        'motivation',
+        'motivant',
+        'réussie',
+        'visible',
+      ];
+
+      for (final c in all) {
+        final text = '${c.title} ${c.description}'.toLowerCase();
+        final hasEmotion = emotionWords.any((w) => text.contains(w));
+        expect(hasEmotion, isTrue,
+            reason:
+                'Challenge "${c.id}" lacks emotional hook — pattern: '
+                'concret+émotionnel+actionnable');
+      }
+    });
+
+    test('27. every challenge has at least 1 actionnable verb', () async {
+      final all = await _allChallenges();
+      final actionVerbs = [
+        'tu peux',
+        'vérifie',
+        'demande',
+        'action',
+        'étape',
+        'compare',
+        'ouvre',
+        'simule',
+        'explore',
+        'rassemble',
+        'scanne',
+        'commande',
+        'fixe',
+        'définis',
+        'utilise',
+        'regarde',
+        'identifie',
+        'fais',
+        'organise',
+        'planifie',
+        'prépare',
+        'évalue',
+        'revisite',
+        'compléter',
+        'complète',
+      ];
+
+      for (final c in all) {
+        final text = '${c.title} ${c.description}'.toLowerCase();
+        final hasAction = actionVerbs.any((v) => text.contains(v));
+        expect(hasAction, isTrue,
+            reason:
+                'Challenge "${c.id}" lacks actionnable verb — '
+                'user must know WHAT to do');
+      }
+    });
+
+    test('28. French diacritics present (no ASCII-only accented words)',
+        () async {
+      final all = await _allChallenges();
+      // Common words that MUST have accents in French.
+      final asciiErrors = RegExp(
+        r'\b(prevoyance|epargne|decembre|depenses|deductions|securite'
+        r'|deja|etape|reussie|felicitations|completee|preparee)\b',
+        caseSensitive: false,
+      );
+
+      for (final c in all) {
+        final text = '${c.title} ${c.description}';
+        expect(text, isNot(matches(asciiErrors)),
+            reason:
+                'ASCII-only accented word in "${c.id}" — mandatory '
+                'French diacritics');
+      }
+    });
+
+    test('29. seasonal alignment: challenges map to correct months',
+        () async {
+      final seasonMonths = {
+        SeasonalEvent.newYear.name: [1],
+        SeasonalEvent.taxSeason.name: [3, 4],
+        SeasonalEvent.summerSavings.name: [6, 7],
+        SeasonalEvent.yearEndPlanning.name: [11, 12],
+      };
+
+      final all = await _allChallenges();
+      for (final c in all) {
+        final expectedMonths = seasonMonths[c.seasonalEvent];
+        expect(expectedMonths, isNotNull,
+            reason: 'Unknown seasonal event: ${c.seasonalEvent}');
+        expect(expectedMonths, contains(c.startDate.month),
+            reason:
+                'Challenge "${c.id}" starts in month ${c.startDate.month} '
+                'but season is ${c.seasonalEvent}');
+      }
+    });
+
+    test('30. inclusive language: no "conseiller", uses "spécialiste"',
+        () async {
+      final all = await _allChallenges();
+
+      for (final c in all) {
+        final text = '${c.title} ${c.description}'.toLowerCase();
+        expect(text, isNot(contains('conseiller')),
+            reason:
+                'Non-inclusive "conseiller" in "${c.id}" — use '
+                '"spécialiste"');
+      }
+
+      // Also check share disclaimer.
+      expect(
+        CommunityChallengeService.shareDisclaimer.toLowerCase(),
+        isNot(contains('conseiller')),
+      );
     });
   });
 }

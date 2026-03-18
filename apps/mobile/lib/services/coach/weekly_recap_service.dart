@@ -297,7 +297,7 @@ class WeeklyRecapService {
           title: 'Budget',
           detail:
               'Tes dépenses semblent élevées par rapport à tes revenus — '
-              'tu pourrais envisager de revoir certains postes.',
+              'tu pourrais envisager de revoir quelques postes.',
         ));
       case RecapBudgetStatus.underBudget:
         highlights.add(const RecapHighlight(
@@ -413,26 +413,31 @@ class WeeklyRecapService {
     required RecapBudgetStatus budgetStatus,
   }) {
     if (engagementDays == 0) {
-      return 'Prends 2${_nbsp}minutes pour vérifier ton budget '
-          '— c\'est un bon début de semaine.';
+      return 'Concrètement, tu peux prendre 2${_nbsp}minutes pour '
+          'vérifier ton budget — c\'est une étape concrète pour bien '
+          'démarrer la semaine.';
     }
 
     if (budgetStatus == RecapBudgetStatus.overBudget) {
-      return 'Tu pourrais envisager de lister tes 3 plus grosses '
-          'dépenses du mois pour identifier des pistes d\'économie.';
+      return 'En pratique, tu peux lister tes 3 plus grosses '
+          'dépenses du mois — imagine l\'impact si tu réduis '
+          'un seul poste de 10${_nbsp}%.';
     }
 
     if (activeGoalCount == 0) {
-      return 'Définir un premier objectif financier pourrait '
-          't\'aider à structurer tes prochaines décisions.';
+      return 'Tu peux définir un premier objectif financier — '
+          'concrètement, cela t\'aide à structurer tes prochaines '
+          'décisions et à mesurer ton progrès.';
     }
 
     if (engagementDays >= 5) {
-      return 'Continue sur cette lancée$_nbsp! '
-          'La régularité est la clé de la progression financière.';
+      return 'Bravo pour ta régularité$_nbsp! En pratique, '
+          'continue sur cette lancée — chaque semaine active '
+          'fait une vraie différence sur le long terme.';
     }
 
-    return 'Chaque action compte — même 5${_nbsp}minutes par semaine '
-        'peuvent faire la différence sur le long terme.';
+    return 'Chaque action compte — concrètement, même '
+        '5${_nbsp}minutes par semaine peuvent faire la différence '
+        'sur le long terme.';
   }
 }

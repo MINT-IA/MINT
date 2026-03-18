@@ -209,7 +209,9 @@ class GoalTrackerService {
     final parts = <String>[];
 
     parts.add('Objectifs déclarés (${active.length})\u00a0:');
-    parts.add('(Les descriptions ci-dessous sont les mots de l\'utilisateur.)');
+    parts.add('(Les descriptions ci-dessous sont les mots de l\'utilisateur. '
+        'Ne jamais promettre l\'atteinte d\'un objectif — '
+        'propose des étapes concrètes pour progresser.)');
 
     for (final goal in active.take(5)) {
       final timeAgo = currentDate.difference(goal.createdAt).inDays;

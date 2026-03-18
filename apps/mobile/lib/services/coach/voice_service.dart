@@ -152,9 +152,18 @@ class VoiceService {
   /// Observable voice state.
   final ValueNotifier<VoiceState> state = ValueNotifier(VoiceState.idle);
 
+  /// Whether [dispose] has been called. Prevents setting state on a disposed
+  /// notifier (e.g. from the error-recovery timer).
+  bool _disposed = false;
+
   /// Create a VoiceService with the given [backend].
   VoiceService({VoiceBackend? backend})
       : _backend = backend ?? StubVoiceBackend();
+
+  /// Safely set state, guarding against use-after-dispose.
+  void _setState(VoiceState newState) {
+    if (!_disposed) state.value = newState;
+  }
 
   // ── STT ──────────────────────────────────────────────────
 
@@ -181,22 +190,22 @@ class VoiceService {
       throw StateError('Écoute déjà en cours');
     }
 
-    state.value = VoiceState.listening;
+    _setState(VoiceState.listening);
     try {
       final result = await _backend.listen(
         maxDuration: maxDuration ?? const Duration(seconds: 30),
         silenceTimeout: config.silenceTimeout,
         locale: locale,
       );
-      state.value = VoiceState.processing;
+      _setState(VoiceState.processing);
       // In a real implementation, post-processing (punctuation, etc.) goes here.
-      state.value = VoiceState.idle;
+      _setState(VoiceState.idle);
       return result;
     } catch (e) {
-      state.value = VoiceState.error;
+      _setState(VoiceState.error);
       // Auto-recover to idle so next call works.
       Future.delayed(
-          const Duration(milliseconds: 500), () => state.value = VoiceState.idle);
+          const Duration(milliseconds: 500), () => _setState(VoiceState.idle));
       rethrow;
     }
   }
@@ -205,7 +214,7 @@ class VoiceService {
   Future<void> stopListening() async {
     if (state.value == VoiceState.listening) {
       await _backend.cancelListening();
-      state.value = VoiceState.idle;
+      _setState(VoiceState.idle);
     }
   }
 
@@ -222,7 +231,7 @@ class VoiceService {
           'Impossible de parler pendant l\'écoute');
     }
 
-    state.value = VoiceState.speaking;
+    _setState(VoiceState.speaking);
     try {
       await _backend.speak(
         text,
@@ -230,11 +239,11 @@ class VoiceService {
         rate: config.speechRate,
         pitch: config.pitch,
       );
-      state.value = VoiceState.idle;
+      _setState(VoiceState.idle);
     } catch (e) {
-      state.value = VoiceState.error;
+      _setState(VoiceState.error);
       Future.delayed(
-          const Duration(milliseconds: 500), () => state.value = VoiceState.idle);
+          const Duration(milliseconds: 500), () => _setState(VoiceState.idle));
       rethrow;
     }
   }
@@ -243,12 +252,13 @@ class VoiceService {
   Future<void> stopSpeaking() async {
     if (state.value == VoiceState.speaking) {
       await _backend.stopSpeaking();
-      state.value = VoiceState.idle;
+      _setState(VoiceState.idle);
     }
   }
 
   /// Dispose resources.
   void dispose() {
+    _disposed = true;
     state.dispose();
   }
 }

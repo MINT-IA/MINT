@@ -36,6 +36,8 @@ enum ChallengeCategory { pillar3a, avs, budget, lpp, tax, patrimoine }
 ///
 /// [participantCount] and [completionRate] are anonymized aggregates.
 /// They NEVER identify individual users.
+/// COMPLIANCE: UI must NOT display completionRate as "X% ont terminé"
+/// (implicit social comparison). Use it only for internal analytics.
 class CommunityChallenge {
   final String id;
   final String title;
@@ -159,7 +161,8 @@ class CommunityChallengeService {
           id: 'ny_goals_$year',
           title: 'Fixe tes 3 objectifs financiers $year',
           description:
-              'Définis tes priorités pour l\'année\u00a0: épargne, prévoyance, projets.',
+              'Imagine ton année réussie\u00a0: définis tes priorités '
+              '(épargne, prévoyance, projets). Chaque progrès compte\u00a0!',
           startDate: DateTime(year, 1, 1),
           endDate: DateTime(year, 1, 31),
           category: ChallengeCategory.budget,
@@ -172,8 +175,9 @@ class CommunityChallengeService {
           id: 'ny_avs_$year',
           title: 'Vérifie ton extrait AVS',
           description:
-              'Commande ton extrait de compte individuel sur '
-              'inforegister.admin.ch et vérifie tes années de cotisation.',
+              'C\'est important pour ta retraite\u00a0: commande ton extrait de '
+              'compte individuel sur inforegister.admin.ch et vérifie tes '
+              'années de cotisation.',
           startDate: DateTime(year, 1, 1),
           endDate: DateTime(year, 1, 31),
           category: ChallengeCategory.avs,
@@ -186,8 +190,9 @@ class CommunityChallengeService {
           id: 'ny_budget_$year',
           title: 'Simule ton budget annuel',
           description:
-              'Utilise le simulateur MINT pour projeter '
-              'tes revenus et dépenses sur 12\u00a0mois.',
+              'Tu peux avoir une vision claire\u00a0: utilise le simulateur '
+              'MINT pour projeter tes revenus et dépenses sur 12\u00a0mois. '
+              'Courage, c\'est une étape importante\u00a0!',
           startDate: DateTime(year, 1, 1),
           endDate: DateTime(year, 1, 31),
           category: ChallengeCategory.budget,
@@ -200,10 +205,10 @@ class CommunityChallengeService {
         // ── Tax Season (March-April) ──
         CommunityChallenge(
           id: 'tax_deductions_$year',
-          title: 'Maximise tes déductions fiscales',
+          title: 'Explore tes déductions fiscales',
           description:
-              'Explore les déductions possibles\u00a0: 3a, frais professionnels, '
-              'formation continue.',
+              'L\'impact peut être significatif\u00a0: explore les déductions '
+              'possibles (3a, frais professionnels, formation continue).',
           startDate: DateTime(year, 3, 1),
           endDate: DateTime(year, 4, 30),
           category: ChallengeCategory.tax,
@@ -216,7 +221,8 @@ class CommunityChallengeService {
           id: 'tax_3a_$year',
           title: 'Prépare ton dossier 3a',
           description:
-              'Rassemble tes attestations 3a pour la déclaration d\'impôts.',
+              'Bravo si tu y penses tôt\u00a0! Rassemble tes attestations '
+              '3a pour la déclaration d\'impôts.',
           startDate: DateTime(year, 3, 1),
           endDate: DateTime(year, 4, 30),
           category: ChallengeCategory.pillar3a,
@@ -227,10 +233,10 @@ class CommunityChallengeService {
         ),
         CommunityChallenge(
           id: 'tax_compare_$year',
-          title: 'Compare tes charges par rapport à l\'année dernière',
+          title: 'Compare tes charges avec l\'année dernière',
           description:
-              'Regarde l\'évolution de tes charges fixes et identifie les postes '
-              'qui ont le plus bougé.',
+              'Chaque progrès est motivant\u00a0: regarde l\'évolution de tes '
+              'charges fixes et identifie les postes qui ont le plus bougé.',
           startDate: DateTime(year, 3, 1),
           endDate: DateTime(year, 4, 30),
           category: ChallengeCategory.budget,
@@ -245,8 +251,8 @@ class CommunityChallengeService {
           id: 'sum_security_$year',
           title: 'Évalue ton matelas de sécurité',
           description:
-              'Vérifie que tu as au moins 3 à 6\u00a0mois de dépenses '
-              'en épargne liquide.',
+              'C\'est important pour ta confiance\u00a0: vérifie que tu '
+              'as au moins 3 à 6\u00a0mois de dépenses en épargne liquide.',
           startDate: DateTime(year, 6, 1),
           endDate: DateTime(year, 7, 31),
           category: ChallengeCategory.patrimoine,
@@ -259,8 +265,8 @@ class CommunityChallengeService {
           id: 'sum_housing_$year',
           title: 'Revisite ta stratégie immobilière',
           description:
-              'Simule les scénarios propriétaire vs locataire '
-              'avec les taux actuels.',
+              'Imagine l\'impact sur 20\u00a0ans\u00a0: simule les '
+              'scénarios propriétaire vs locataire avec les taux actuels.',
           startDate: DateTime(year, 6, 1),
           endDate: DateTime(year, 7, 31),
           category: ChallengeCategory.patrimoine,
@@ -273,8 +279,8 @@ class CommunityChallengeService {
           id: 'sum_lpp_$year',
           title: 'Fais le point sur ta LPP',
           description:
-              'Scanne ton certificat de prévoyance et compare '
-              'avec les projections MINT.',
+              'Ton progrès est visible\u00a0: scanne ton certificat de '
+              'prévoyance et compare avec les projections MINT.',
           startDate: DateTime(year, 6, 1),
           endDate: DateTime(year, 7, 31),
           category: ChallengeCategory.lpp,
@@ -289,8 +295,8 @@ class CommunityChallengeService {
           id: 'ye_3a_$year',
           title: 'Dernière ligne droite pour ton 3a',
           description:
-              'Il reste quelques semaines pour maximiser ton versement 3a '
-              'avant le 31\u00a0décembre.',
+              'Courage, c\'est le moment\u00a0! Il reste quelques semaines '
+              'pour compléter ton versement 3a avant le 31\u00a0décembre.',
           startDate: DateTime(year, 11, 1),
           endDate: DateTime(year, 12, 31),
           category: ChallengeCategory.pillar3a,
@@ -303,8 +309,9 @@ class CommunityChallengeService {
           id: 'ye_bilan_$year',
           title: 'Bilan patrimonial annuel',
           description:
-              'Fais le bilan de ton patrimoine\u00a0: épargne, prévoyance, '
-              'dettes, investissements.',
+              'Félicitations pour cette année de progrès\u00a0! Fais le bilan '
+              'de ton patrimoine\u00a0: épargne, prévoyance, dettes, '
+              'investissements.',
           startDate: DateTime(year, 11, 1),
           endDate: DateTime(year, 12, 31),
           category: ChallengeCategory.patrimoine,
@@ -317,8 +324,8 @@ class CommunityChallengeService {
           id: 'ye_december_$year',
           title: 'Planifie tes versements de décembre',
           description:
-              'Organise tes versements 3a et rachats LPP '
-              'avant la fin de l\'année fiscale.',
+              'L\'impact fiscal peut être important\u00a0: organise tes '
+              'versements 3a et rachats LPP avant la fin de l\'année fiscale.',
           startDate: DateTime(year, 11, 1),
           endDate: DateTime(year, 12, 31),
           category: ChallengeCategory.pillar3a,
