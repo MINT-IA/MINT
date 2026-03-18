@@ -167,17 +167,20 @@ class CoachLlmService {
     required CoachProfile profile,
     required List<ChatMessage> history,
     required LlmConfig config,
+    String? memoryBlock,
   }) async {
     final coachCtx = _buildCoachContext(profile);
 
     // Delegate to CoachOrchestrator (SLM → BYOK → fallback chain).
     // If SLM is available, it will be tried first (zero-network, privacy-first).
     // BYOK is passed when config.hasApiKey, otherwise skipped.
+    // memoryBlock (S58) provides lifecycle, goals, and conversation history context.
     final orchestratorResponse = await CoachOrchestrator.generateChat(
       userMessage: userMessage,
       history: history,
       ctx: coachCtx,
       byokConfig: config.hasApiKey ? config : null,
+      memoryBlock: memoryBlock,
     );
 
     // If orchestrator returned a non-fallback response (SLM or BYOK succeeded),
@@ -506,9 +509,13 @@ class CoachLlmService {
     buffer.writeln(
         '- Si pertinent, liste les options avec leur impact en CHF.');
     buffer.writeln(
+        '- Propose 1-3 actions concretes et prioritaires que l\'utilisateur peut faire cette semaine.');
+    buffer.writeln(
         '- Mentionne les risques et points d\'attention.');
     buffer.writeln(
         '- Cite tes sources legales (LPP art. X, LIFD art. Y, etc.).');
+    buffer.writeln(
+        '- Termine par un disclaimer : "Ceci est un outil educatif, ne constitue pas un conseil financier."');
     buffer.writeln();
     buffer.writeln('CONTEXTE UTILISATEUR :');
     buffer.writeln(
