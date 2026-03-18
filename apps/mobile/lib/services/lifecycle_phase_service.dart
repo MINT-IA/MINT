@@ -114,6 +114,12 @@ class LifecyclePhaseService {
     DateTime? now,
   }) {
     final currentDate = now ?? DateTime.now();
+    // NOTE: CoachProfile only has birthYear (int), not a full birthDate.
+    // This means age = currentDate.year - birthYear, which may overestimate
+    // by up to 11 months (e.g. born June 1982, in March 2026 → computed 44,
+    // actual 43). This is a known limitation — see CoachProfile model.
+    // Phase boundaries use wide bands (10+ years), so the ±1 year error
+    // does not cause phase misclassification in practice.
     final age = currentDate.year - profile.birthYear;
     final targetRetirement = profile.targetRetirementAge ?? avsAgeReferenceHomme;
     final yearsToRetirement = targetRetirement - age;
@@ -283,6 +289,9 @@ class LifecyclePhaseService {
     // Situational boosts
     _addSituationalPriorities(priorities, profile, age);
 
+    // Archetype-specific priorities
+    _addArchetypePriorities(priorities, profile);
+
     // Sort by weight descending, take top priorities
     priorities.sort((a, b) => b.weight.compareTo(a.weight));
 
@@ -345,6 +354,58 @@ class LifecyclePhaseService {
         weight: 1.1, // Always top priority (safe mode)
         relatedLifeEvent: 'debtCrisis',
       ));
+    }
+  }
+
+  /// Add archetype-specific priorities.
+  ///
+  /// "Every projection MUST account for archetype. NEVER assume Swiss native."
+  /// See ADR-20260223-archetype-driven-retirement.md.
+  static void _addArchetypePriorities(
+    List<LifecyclePriority> priorities,
+    CoachProfile profile,
+  ) {
+    switch (profile.archetype) {
+      case FinancialArchetype.expatUs:
+        // FATCA compliance is always relevant for US citizens
+        priorities.add(const LifecyclePriority(
+          key: 'fatca_compliance',
+          weight: 1.05, // Near-top priority — legal obligation
+        ));
+
+      case FinancialArchetype.expatEu:
+      case FinancialArchetype.expatNonEu:
+        // AVS gap analysis — totalisation of contribution periods
+        priorities.add(const LifecyclePriority(
+          key: 'avs_gap_analysis',
+          weight: 0.9,
+        ));
+
+      case FinancialArchetype.independentNoLpp:
+        // 3a max is 36'288 (not 7'258) — boost max_3a priority
+        priorities.add(const LifecyclePriority(
+          key: 'max_3a',
+          weight: 1.0, // Top priority — only pension vehicle
+        ));
+
+      case FinancialArchetype.crossBorder:
+        // Source tax optimization for frontaliers (permis G)
+        priorities.add(const LifecyclePriority(
+          key: 'source_tax_optimization',
+          weight: 0.9,
+        ));
+
+      case FinancialArchetype.returningSwiss:
+        // LPP buyback boost — returning Swiss often have large gaps
+        priorities.add(const LifecyclePriority(
+          key: 'lpp_buyback',
+          weight: 1.0, // Rachat avantageux after return
+        ));
+
+      case FinancialArchetype.swissNative:
+      case FinancialArchetype.independentWithLpp:
+        // Default priorities already cover these archetypes
+        break;
     }
   }
 }

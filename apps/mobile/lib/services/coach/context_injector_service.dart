@@ -142,8 +142,14 @@ class ContextInjectorService {
 
     parts.add('--- MÉMOIRE MINT ---');
 
+    // Privacy reminder at TOP of memory block (LLM primacy effect)
+    parts.add('RAPPEL\u00a0: Ne jamais mentionner de données personnelles '
+        '(salaire exact, IBAN, nom, employeur). Utilise des approximations '
+        'et des fourchettes.');
+
     // Lifecycle context
     if (lifecycleBlock.isNotEmpty) {
+      parts.add('');
       parts.add(lifecycleBlock);
     }
 
@@ -161,12 +167,6 @@ class ContextInjectorService {
     }
 
     parts.add('--- FIN MÉMOIRE ---');
-
-    // Privacy reminder
-    parts.add('');
-    parts.add('RAPPEL\u00a0: Ne jamais mentionner de données personnelles '
-        '(salaire exact, IBAN, nom, employeur). Utilise des approximations '
-        'et des fourchettes.');
 
     return parts.join('\n');
   }

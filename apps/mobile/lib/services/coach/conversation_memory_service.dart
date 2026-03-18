@@ -137,7 +137,8 @@ class ConversationMemoryService {
   }) {
     final parts = <String>[];
 
-    parts.add('${conversations.length} conversations passées '
+    final convCount = conversations.length;
+    parts.add('$convCount ${convCount == 1 ? 'conversation passée' : 'conversations passées'} '
         '($totalMessages messages au total).');
 
     if (frequentTopics.isNotEmpty) {

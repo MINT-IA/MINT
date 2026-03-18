@@ -57,7 +57,7 @@ void main() {
       expect(memory.frequentTopics, contains('lpp'));
       expect(memory.frequentTopics, contains('rachat'));
       expect(memory.recentTitles, equals(['Rachat LPP']));
-      expect(memory.summary, contains('1 conversations passées'));
+      expect(memory.summary, contains('1 conversation passée'));
       expect(memory.summary, contains('Rachat LPP'));
     });
 
@@ -331,7 +331,7 @@ void main() {
 
       expect(summary, contains('échéance dans'));
       // Exact day count depends on time-of-day diff; just verify presence
-      expect(summary, matches(RegExp(r'échéance dans \d+ jours')));
+      expect(summary, matches(RegExp(r'échéance dans \d+ jours?')));
     });
 
     test('goals persist across sessions (SharedPreferences)', () async {

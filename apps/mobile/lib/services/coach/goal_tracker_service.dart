@@ -137,6 +137,7 @@ class GoalTrackerService {
   static Future<void> addGoal(
     UserGoal goal, {
     SharedPreferences? prefs,
+    DateTime? now,
   }) async {
     final sp = prefs ?? await SharedPreferences.getInstance();
     final goals = _loadGoals(sp);
@@ -155,7 +156,7 @@ class GoalTrackerService {
       final index = goals.indexOf(oldest);
       goals[index] = oldest.copyWith(
         isCompleted: true,
-        completedAt: DateTime.now(),
+        completedAt: now ?? DateTime.now(),
       );
     }
 
@@ -208,20 +209,30 @@ class GoalTrackerService {
     final parts = <String>[];
 
     parts.add('Objectifs déclarés (${active.length})\u00a0:');
+    parts.add('(Les descriptions ci-dessous sont les mots de l\'utilisateur.)');
 
     for (final goal in active.take(5)) {
       final timeAgo = currentDate.difference(goal.createdAt).inDays;
+      final weeks = (timeAgo / 7).round();
       final ageText = timeAgo == 0
           ? "aujourd'hui"
           : timeAgo < 7
-              ? 'il y a $timeAgo jours'
-              : 'il y a ${(timeAgo / 7).round()} semaines';
+              ? 'il y a $timeAgo ${timeAgo == 1 ? 'jour' : 'jours'}'
+              : 'il y a $weeks ${weeks == 1 ? 'semaine' : 'semaines'}';
 
-      String line = '- ${goal.description} (fixé $ageText';
+      // Sanitize user-provided description: truncate, strip control chars
+      final sanitized = goal.description
+          .replaceAll(RegExp(r'[\n\r\t\x00-\x1F]'), ' ')
+          .trim();
+      final truncated = sanitized.length > 100
+          ? '${sanitized.substring(0, 100)}…'
+          : sanitized;
+
+      String line = '- "$truncated" (fixé $ageText';
       if (goal.targetDate != null) {
         final daysLeft = goal.targetDate!.difference(currentDate).inDays;
         if (daysLeft > 0) {
-          line += ', échéance dans $daysLeft jours';
+          line += ', échéance dans $daysLeft ${daysLeft == 1 ? 'jour' : 'jours'}';
         }
       }
       line += ')';

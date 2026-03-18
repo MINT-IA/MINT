@@ -248,12 +248,12 @@ class ContentAdapterService {
     final years = result.yearsToRetirement;
     final priorityKeys = result.priorities.take(3).map((p) => p.key).join(', ');
 
-    return 'LIFECYCLE CONTEXT: '
-        'User is $age years old, in phase "$phase" '
-        '($years years to retirement). '
-        'Top priorities: $priorityKeys. '
+    return 'CONTEXTE CYCLE DE VIE\u00a0: '
+        'L\'utilisateur a $age ans, en phase "$phase" '
+        '($years ans avant la retraite). '
+        'Priorités principales\u00a0: $priorityKeys. '
         '${_buildToneDirective(result)} '
-        'IMPORTANT: Never mention the user\'s phase name directly. '
-        'Adapt content naturally without labeling.';
+        'IMPORTANT\u00a0: Ne jamais mentionner le nom de la phase directement. '
+        'Adapter le contenu naturellement sans étiqueter.';
   }
 }
