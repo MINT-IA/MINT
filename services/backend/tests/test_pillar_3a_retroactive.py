@@ -172,3 +172,54 @@ class TestRetroactive3aGoldenProfiles:
         assert result.gap_years == 3
         assert result.total_retroactive > 100_000  # Grand 3a limits
         assert result.total_current_year == 36_288.0
+
+
+class TestRetroactive3aParityFixes:
+    """Parity fixes with Flutter — income cap + taux clamping (635c3c0)."""
+
+    def test_sans_lpp_income_cap_applied(self):
+        """Sans LPP with revenu_net_annuel applies 20% income cap."""
+        result = calculate_retroactive_3a(
+            gap_years=3, taux_marginal=0.30, has_lpp=False,
+            revenu_net_annuel=80_000,
+        )
+        # 20% of 80K = 16K per year, well below grand limit (~34-36K)
+        for entry in result.breakdown:
+            assert abs(entry.limit - 16_000) < 1.0
+        assert abs(result.total_retroactive - 48_000) < 10.0
+
+    def test_sans_lpp_income_cap_current_year(self):
+        """Sans LPP current year also respects 20% income cap."""
+        result = calculate_retroactive_3a(
+            gap_years=1, taux_marginal=0.25, has_lpp=False,
+            revenu_net_annuel=80_000,
+        )
+        assert result.total_current_year == 16_000.0
+
+    def test_sans_lpp_high_income_uses_grand_limit(self):
+        """Sans LPP with very high income: capped at grand limit, not 20%."""
+        result = calculate_retroactive_3a(
+            gap_years=1, taux_marginal=0.25, has_lpp=False,
+            revenu_net_annuel=500_000,  # 20% = 100K > grand limit ~36K
+        )
+        assert result.total_current_year == 36_288.0
+
+    def test_sans_lpp_zero_income(self):
+        """Sans LPP with zero income → zero limit."""
+        result = calculate_retroactive_3a(
+            gap_years=1, taux_marginal=0.25, has_lpp=False,
+            revenu_net_annuel=0,
+        )
+        assert result.total_retroactive == 0.0
+        assert result.total_current_year == 0.0
+
+    def test_taux_marginal_clamped_to_60_percent(self):
+        """Taux marginal > 0.60 clamped to 0.60 (prevent absurd results)."""
+        result = calculate_retroactive_3a(gap_years=5, taux_marginal=1.50)
+        # Should be clamped to 0.60, not produce savings > total
+        assert result.economies_fiscales <= result.total_retroactive * 0.61
+
+    def test_negative_taux_marginal_clamped_to_zero(self):
+        """Negative taux marginal clamped to 0."""
+        result = calculate_retroactive_3a(gap_years=5, taux_marginal=-0.50)
+        assert result.economies_fiscales == 0.0

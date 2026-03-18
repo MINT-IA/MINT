@@ -14,7 +14,7 @@ Sprint S52 — 3a Retroactif.
 """
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional
 
 from app.constants.social_insurance import (
     PILIER_3A_PLAFOND_AVEC_LPP,
@@ -78,6 +78,7 @@ def calculate_retroactive_3a(
     gap_years: int,
     taux_marginal: float,
     has_lpp: bool = True,
+    revenu_net_annuel: Optional[float] = None,
     reference_year: int = 2026,
 ) -> Retroactive3aResult:
     """Calculate retroactive 3a catch-up contribution impact.
@@ -86,15 +87,20 @@ def calculate_retroactive_3a(
         gap_years: Number of years to catch up (1-10).
         taux_marginal: Marginal tax rate (0.0-1.0).
         has_lpp: Whether the user is affiliated with LPP (affects limits).
+        revenu_net_annuel: Only used when has_lpp is False (20% income cap).
         reference_year: Year of retroactive contribution (default 2026).
 
     Returns:
         Retroactive3aResult with full breakdown and chiffre choc.
     """
     effective_gap = max(1, min(gap_years, MAX_RETROACTIVE_YEARS))
+    # Clamp taux marginal to valid range to prevent absurd results.
+    effective_taux = max(0.0, min(taux_marginal, 0.60))
 
     breakdown: list[YearlyRetroactiveEntry] = []
     total_retroactive = 0.0
+
+    taux_revenu_sans_lpp = 0.20  # 20% of net income (OPP3)
 
     for i in range(1, effective_gap + 1):
         year = reference_year - i
@@ -103,21 +109,36 @@ def calculate_retroactive_3a(
         if has_lpp:
             limit = base_limit
         else:
-            # Scale proportionally for "grand 3a" (sans LPP)
+            # Grand 3a (sans LPP): scale to grand equivalent for that year.
             ratio = PILIER_3A_PLAFOND_SANS_LPP / PILIER_3A_PLAFOND_AVEC_LPP
-            limit = base_limit * ratio
+            grand_limit_for_year = base_limit * ratio
+            if revenu_net_annuel is not None:
+                # Apply the 20% income rule: min(20% income, grand limit).
+                limit = min(
+                    max(0.0, revenu_net_annuel * taux_revenu_sans_lpp),
+                    grand_limit_for_year,
+                )
+            else:
+                # No income provided — use the max grand limit (conservative).
+                limit = grand_limit_for_year
 
         total_retroactive += limit
         breakdown.append(YearlyRetroactiveEntry(year=year, limit=limit))
 
     # Current year contribution (separate from retroactive)
-    current_year_limit = (
-        PILIER_3A_PLAFOND_AVEC_LPP if has_lpp else PILIER_3A_PLAFOND_SANS_LPP
-    )
+    if has_lpp:
+        current_year_limit = PILIER_3A_PLAFOND_AVEC_LPP
+    elif revenu_net_annuel is not None:
+        current_year_limit = min(
+            max(0.0, revenu_net_annuel * taux_revenu_sans_lpp),
+            PILIER_3A_PLAFOND_SANS_LPP,
+        )
+    else:
+        current_year_limit = PILIER_3A_PLAFOND_SANS_LPP
     total_contribution = total_retroactive + current_year_limit
 
     # Tax savings: all retroactive amounts deductible in reference year
-    economies_fiscales = total_retroactive * taux_marginal
+    economies_fiscales = total_retroactive * effective_taux
 
     # Chiffre choc
     savings_formatted = _format_chf(economies_fiscales)
