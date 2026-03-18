@@ -36,7 +36,7 @@ La stratégie multi-comptes 3a est une optimisation fiscale légale reconnue par
 - Coordination avec les retraits LPP/libre passage sur des années différentes.
 
 **Choix des institutions** :
-- Banques : comptes 3a épargne (taux garanti) ou 3a fonds de placement.
+- Banques : comptes 3a épargne (taux fixe) ou 3a fonds de placement.
 - Assurances : polices 3a (attention : moins flexibles, pénalités de rachat anticipé).
 - Fintechs : solutions 3a digitales avec frais réduits et allocation personnalisée.
 - Tu peux mixer : 2 comptes bancaires + 1 fonds + 2 assurances.

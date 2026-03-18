@@ -22,7 +22,7 @@ Il n'y a pas de "meilleur" choix — tout dépend de ta situation : ta santé, t
 Le choix capital vs rente est régi par LPP art. 37 :
 
 **Option rente** :
-- Rente viagère garantie à vie (taux de conversion ≥ 6.8 % sur l'obligatoire).
+- Rente viagère versée à vie (taux de conversion ≥ 6.8 % sur l'obligatoire, fixé par la loi).
 - Rente de conjoint·e survivant·e : 60 % de la rente (LPP art. 19).
 - Imposée comme revenu annuel (LIFD art. 22).
 - Avantage : sécurité, pas de risque de marché, couverture du conjoint·e.

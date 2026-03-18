@@ -12,7 +12,7 @@ L'utilisateur envisage une retraite anticipée et veut comprendre l'impact sur s
 Partir à 60 ans au lieu de 65 ans peut réduire ta rente LPP de 30 à 40 %. C'est un triple effet : 5 ans de cotisations en moins, 5 ans d'intérêts en moins, et un taux de conversion réduit. Sur une rente de CHF 2'000/mois, cela peut représenter CHF 600-800/mois en moins — à vie.
 
 ## Niveau 0
-Partir en retraite anticipée, c'est quitter la fête avant la fin. Le buffet (tes cotisations LPP) n'est pas encore plein, le gâteau (les intérêts composés) n'a pas fini de lever, et la part qu'on te sert (le taux de conversion) est plus petite parce que tu devras manger plus longtemps.
+Partir en retraite anticipée, c'est un peu comme quitter la fête avant la fin. Le buffet (tes cotisations LPP) n'est pas encore plein, le gâteau (les intérêts composés) n'a pas fini de lever, et la part qu'on te sert (le taux de conversion) est plus petite parce que tu devras manger plus longtemps.
 
 Résultat : moins d'argent accumulé × un taux plus bas = une rente sensiblement réduite. C'est un effet ciseau particulièrement douloureux.
 

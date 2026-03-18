@@ -12,7 +12,7 @@ L'utilisateur découvre que sa caisse a une part surobligatoire, ou s'interroge 
 En moyenne, 60 % des avoirs LPP en Suisse se trouvent dans la part surobligatoire — où les caisses sont libres de fixer le taux d'intérêt et le taux de conversion. Le taux de conversion surobligatoire moyen est tombé à ~5.0 % en 2025, contre 6.8 % pour l'obligatoire.
 
 ## Niveau 0
-La LPP a deux couches, comme un gâteau à deux étages. L'étage du bas (l'obligatoire) est protégé par la loi : taux d'intérêt minimum, taux de conversion garanti à 6.8 %. L'étage du haut (le surobligatoire) est plus libre : ta caisse peut y appliquer des conditions moins favorables.
+La LPP a deux couches, comme un gâteau à deux étages. L'étage du bas (l'obligatoire) est protégé par la loi : taux d'intérêt minimum, taux de conversion fixé par la loi à 6.8 %. L'étage du haut (le surobligatoire) est plus libre : ta caisse peut y appliquer des conditions moins favorables.
 
 Si ta caisse est généreuse, le surobligatoire peut être un formidable accélérateur de capital. Mais si elle réduit les taux, tu pourrais avoir des surprises à la retraite. C'est un peu comme une chambre d'hôtel : le standard (obligatoire) est réglementé, mais le surclassement (surobligatoire) dépend de l'hôtel.
 

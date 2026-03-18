@@ -2,14 +2,14 @@
 id: fiscal_optimisation_legale
 title: Optimisation fiscale légale — piliers, timing et stratégie
 trigger: optimiser impôts, réduire impôts légalement, stratégie fiscale, timing retrait, planification fiscale
-tags: [fiscal, optimisation, legale, strategie, timing, piliers, prevoyance]
+tags: [fiscal, optimisation, legale, strategie, timing, piliers, prévoyance]
 ---
 
 ## Trigger
 L'utilisateur cherche à réduire sa charge fiscale de manière légale, ou planifie le timing de ses retraits de prévoyance avant la retraite.
 
 ## Chiffre Choc
-Une planification fiscale optimale (rachats LPP échelonnés + multi-comptes 3a + retrait étalé + coordination couple) peut faire économiser CHF 50'000 à 150'000 d'impôts sur les 10-15 dernières années avant la retraite. C'est de l'argent que tu gardes — en toute légalité.
+Une planification fiscale stratégique (rachats LPP échelonnés + multi-comptes 3a + retrait étalé + coordination couple) peut faire économiser CHF 50'000 à 150'000 d'impôts sur les 10-15 dernières années avant la retraite. C'est de l'argent que tu gardes — en toute légalité.
 
 ## Niveau 0
 L'optimisation fiscale légale, c'est comme remplir ta valise intelligemment : tu mets le maximum dedans sans dépasser les limites. Chaque franc que tu verses en prévoyance (3a, rachat LPP) est un franc de moins que le fisc peut taxer. Et quand tu retires, tu étales pour rester dans les tranches basses.

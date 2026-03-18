@@ -29,7 +29,7 @@ Le transfert de l'avoir LPP lors d'un changement d'employeur est régi par la LF
 **Ce qui est transféré** :
 - L'intégralité de la prestation de libre passage (obligatoire + surobligatoire).
 - Les rachats volontaires effectués.
-- Minimum garanti : somme des cotisations personnelles + intérêts au taux LPP (LFLP art. 17).
+- Prestation minimale légale : somme des cotisations personnelles + intérêts au taux LPP (LFLP art. 17).
 
 **Ce qui peut changer** :
 | Élément | Peut varier |
@@ -42,7 +42,7 @@ Le transfert de l'avoir LPP lors d'un changement d'employeur est régi par la LF
 
 **Points de vigilance** :
 - Demande le règlement de prévoyance de la nouvelle caisse AVANT de signer ton contrat.
-- Compare le taux de conversion enveloppant (pas juste le taux obligatoire).
+- Compare le taux de conversion enveloppant (pas juste le taux obligatoire de 6.8 %).
 - Vérifie si la nouvelle caisse a un plan 1e (hauts revenus — choix d'investissement).
 - Un écart de taux de conversion de 1 % sur un capital de CHF 500'000 = CHF 5'000/an de rente en plus ou en moins.
 

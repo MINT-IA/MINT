@@ -9,7 +9,7 @@ tags: [avs, ajournement, majoration, report, lavs]
 L'utilisateur envisage de continuer à travailler après l'âge de référence (65 ans) et souhaite comprendre l'avantage de reporter sa rente AVS.
 
 ## Chiffre Choc
-En ajournant ta rente AVS de 5 ans (maximum), ta rente augmente de 31.5 % — à vie. Sur une rente maximale, cela représente CHF 794/mois de plus, soit CHF 9'526/an supplémentaires, chaque année jusqu'à ton décès.
+En ajournant ta rente AVS de 5 ans (maximum), ta rente augmente de 31.5 % — à vie. Sur une rente maximale de CHF 2'520/mois (CHF 30'240/an), cela représente CHF 794/mois de plus, soit CHF 9'526/an supplémentaires, chaque année jusqu'à ton décès.
 
 ## Niveau 0
 C'est l'inverse de la retraite anticipée. Si tu attends pour toucher ta rente AVS — comme si tu laissais ton argent "pousser" un peu plus longtemps — l'AVS te récompense avec un bonus permanent. Plus tu attends (jusqu'à 5 ans maximum), plus le bonus est grand.

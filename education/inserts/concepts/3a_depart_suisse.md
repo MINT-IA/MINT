@@ -12,7 +12,7 @@ L'utilisateur quitte la Suisse ou envisage de s'expatrier et veut savoir ce qui 
 L'impôt sur le retrait 3a en cas de départ varie de ~5 % (Schwyz) à ~12 % (Genève) selon le canton de dernier domicile. En transférant ton 3a dans un canton à faible imposition avant de partir, tu pourrais économiser des milliers de francs. Certains cantons appliquent même un taux réduit pour les non-résidents.
 
 ## Niveau 0
-Quand tu quittes la Suisse définitivement, tu peux retirer ton pilier 3a. C'est l'une des exceptions qui permettent un retrait anticipé. L'argent te sera versé après déduction d'un impôt à la source (puisque tu ne seras plus contribuable en Suisse).
+Quand tu quittes la Suisse définitivement, tu peux retirer ton pilier 3a. C'est un peu comme fermer un coffre-fort avant de déménager : tu récupères tout, mais le fisc prend sa part au passage. Concrètement, l'argent te sera versé après déduction d'un impôt à la source (puisque tu ne seras plus contribuable en Suisse).
 
 Mais attention : si tu pars dans un pays de l'UE/AELE, la partie obligatoire de ton 2e pilier reste bloquée en Suisse (sur un compte de libre passage). Pour le 3a, par contre, tu peux tout retirer, où que tu ailles.
 

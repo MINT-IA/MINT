@@ -2,7 +2,7 @@
 id: fiscal_deductions_courantes
 title: Déductions fiscales courantes en Suisse
 trigger: déduction fiscale, réduire impôts, quoi déduire, déclaration impôt, économiser impôts
-tags: [fiscal, deduction, impot, declaration, optimisation, lifd]
+tags: [fiscal, deduction, impôt, declaration, optimisation, lifd]
 ---
 
 ## Trigger

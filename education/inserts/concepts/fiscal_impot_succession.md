@@ -56,8 +56,9 @@ L'impôt sur les successions et donations est régi par les lois fiscales canton
 
 ## Sources
 - LHID art. 2 al. 1 let. d (compétence cantonale en matière de succession)
+- LIFD (pas d'impôt fédéral sur les successions — compétence cantonale exclusive)
 - Lois cantonales sur les droits de succession et de donation
 - CC art. 457-466 (ordre des héritier·ère·s légaux)
 
 ## Disclaimer
-Information à caractère éducatif — ne constitue pas un conseil juridique ou fiscal. Les droits de succession varient considérablement entre cantons. Consulte un·e notaire et un·e fiscaliste pour ta planification successorale.
+Information à caractère éducatif — ne constitue pas un conseil juridique ou fiscal au sens de la LSFin. Les droits de succession varient considérablement entre cantons. Consulte un·e spécialiste (notaire ou fiscaliste) pour ta planification successorale.

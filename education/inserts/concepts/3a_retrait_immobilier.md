@@ -12,7 +12,7 @@ L'utilisateur envisage d'acheter un bien immobilier et veut utiliser son pilier 
 Le retrait 3a pour l'achat immobilier n'a pas de montant minimum (contrairement au retrait EPL LPP qui exige CHF 20'000 minimum). Tu peux retirer la totalité de tes avoirs 3a — et contrairement à la LPP, le remboursement n'est pas obligatoire.
 
 ## Niveau 0
-Tu peux utiliser ton pilier 3a pour acheter ta résidence principale. C'est l'une des exceptions qui te permettent de retirer ton 3a avant la retraite. L'argent sort du compte, passe par le notaire, et sert de fonds propres pour ton achat.
+Tu peux utiliser ton pilier 3a pour acheter ta résidence principale. C'est un peu comme casser ta tirelire de retraite pour construire ta maison — l'argent sort du compte, passe par le notaire, et sert de fonds propres pour ton achat.
 
 Avantage par rapport à la LPP : tu ne réduis pas ta rente de retraite (le 3a n'en verse pas), et il n'y a pas de montant minimum. Inconvénient : tu perds la déduction fiscale future sur ces versements, et tu paies un impôt sur le retrait.
 

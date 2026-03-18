@@ -12,7 +12,7 @@ L'utilisateur veut comprendre comment son capital LPP se transforme en rente men
 Avec un taux de conversion de 6.8 %, un capital de CHF 500'000 te donne une rente de CHF 34'000/an (CHF 2'833/mois). Mais si ta caisse applique 5.0 % sur le surobligatoire, ce même capital ne te donnerait que ~CHF 29'000/an — CHF 417/mois de moins, à vie.
 
 ## Niveau 0
-Le taux de conversion, c'est le "robinet" qui transforme ton capital LPP en rente mensuelle. Plus le taux est élevé, plus ta rente coule fort. La loi fixe ce robinet à 6.8 % minimum pour la partie obligatoire de ton 2e pilier.
+Imagine un robinet : le taux de conversion, c'est ce qui transforme ton capital LPP en rente mensuelle. Plus le taux est élevé, plus ta rente coule fort. La loi fixe ce robinet à 6.8 % minimum pour la partie obligatoire de ton 2e pilier.
 
 Mais beaucoup de caisses de pension ont une partie "surobligatoire" (l'argent au-delà du minimum légal), et là, elles sont libres de fixer un taux plus bas — souvent entre 4.5 % et 5.5 %. C'est pourquoi ta rente réelle pourrait être inférieure à ce que tu calcules avec 6.8 %.
 

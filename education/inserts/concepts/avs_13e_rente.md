@@ -12,7 +12,7 @@ L'utilisateur mentionne la 13e rente AVS, la votation de mars 2024, ou se demand
 Dès 2026, chaque retraité·e recevra un 13e versement de rente AVS. Pour une personne touchant la rente maximale, cela représente CHF 2'520 de plus par an — soit environ CHF 210/mois en plus si lissé sur l'année.
 
 ## Niveau 0
-Tu connais le 13e salaire ? C'est pareil, mais pour ta rente AVS. Le peuple suisse a voté en mars 2024 pour que chaque retraité·e reçoive un mois de rente en plus chaque année. Si tu touches CHF 2'000/mois de rente AVS, tu recevras un versement supplémentaire de CHF 2'000 dans l'année.
+Tu connais le 13e salaire ? C'est un peu comme ça, mais pour ta rente AVS. Le peuple suisse a voté en mars 2024 pour que chaque retraité·e reçoive un mois de rente en plus chaque année. Si tu touches CHF 2'000/mois de rente AVS, tu recevras un versement supplémentaire de CHF 2'000 dans l'année.
 
 C'est automatique — tu n'as rien à faire pour en bénéficier. Le Conseil fédéral détermine les modalités de versement (en une fois ou réparti sur les 12 mensualités).
 

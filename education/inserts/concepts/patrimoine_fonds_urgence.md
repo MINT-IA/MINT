@@ -12,7 +12,7 @@ L'utilisateur n'a pas de réserve de trésorerie, vient de subir un imprévu fin
 37 % des ménages suisses ne pourraient pas faire face à une dépense imprévue de CHF 2'500 sans emprunter. Un fonds d'urgence de 3 à 6 mois de dépenses (CHF 15'000 à 30'000 pour un ménage moyen) est la première fondation d'une santé financière solide.
 
 ## Niveau 0
-Ton fonds d'urgence, c'est ton matelas de sécurité. Il est là pour absorber les chocs de la vie sans que tu doives toucher à ton 3e pilier, vendre des investissements, ou prendre un crédit.
+Imagine un airbag financier : ton fonds d'urgence, c'est ton matelas de sécurité. Il est là pour absorber les chocs de la vie sans que tu doives toucher à ton 3e pilier, vendre des investissements, ou prendre un crédit.
 
 Perte d'emploi, panne de voiture, facture dentaire imprévue, machine à laver en panne — la vie lance toujours des surprises. Le fonds d'urgence transforme une crise potentielle en simple inconvénient.
 

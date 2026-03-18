@@ -47,7 +47,7 @@ Les subsides de l'assurance maladie sont régis par LAMal art. 65-66a :
 - Augmenter la franchise (de CHF 300 à CHF 2'500 max) si tu es en bonne santé.
 - Franchise CHF 2'500 vs CHF 300 : économie de ~CHF 1'500/an de prime, mais tu paies plus en cas de soins.
 
-**Franchise optimale** :
+**Franchise à évaluer** :
 - Si frais médicaux < CHF 1'500/an : franchise CHF 2'500 souvent avantageuse.
 - Si frais médicaux > CHF 4'000/an : franchise CHF 300 préférable.
 - Zone grise entre les deux : faire le calcul (prime économisée vs franchise payée).

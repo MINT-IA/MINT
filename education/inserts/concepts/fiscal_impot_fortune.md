@@ -52,6 +52,7 @@ L'impôt sur la fortune est un impôt **cantonal et communal** (pas d'impôt fé
 ## Sources
 - LHID art. 13 (objet de l'impôt sur la fortune)
 - LHID art. 14 (évaluation de la fortune)
+- LIFD art. 13 (pas d'impôt fédéral sur la fortune — compétence cantonale exclusive)
 - Lois fiscales cantonales (barèmes spécifiques)
 
 ## Disclaimer

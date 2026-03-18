@@ -42,7 +42,7 @@ L'extrait de compte individuel est régi par LAVS art. 30ter :
 - Contacter immédiatement la caisse de compensation avec les justificatifs (fiches de salaire, attestations d'employeur).
 - Le délai de prescription de 5 ans s'applique (LAVS art. 16).
 
-**Conseil pratique** : commande ton premier extrait dès 40 ans, puis tous les 5 ans jusqu'à la retraite. C'est le meilleur moyen d'éviter les mauvaises surprises.
+**Conseil pratique** : commande ton premier extrait dès 40 ans, puis tous les 5 ans jusqu'à la retraite. C'est un bon moyen d'éviter les mauvaises surprises.
 
 ## Sources
 - LAVS art. 30ter (droit à l'extrait de compte individuel)

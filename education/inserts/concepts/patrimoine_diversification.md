@@ -12,7 +12,7 @@ L'utilisateur a tout son patrimoine dans un seul type d'actif (immobilier, compt
 Un portefeuille diversifié (actions + obligations + immobilier) a historiquement perdu au maximum ~30 % en période de crise (2008), contre ~55 % pour un portefeuille 100 % actions. Mais sur 20 ans, le portefeuille diversifié a quand même généré 5-6 %/an en moyenne — en dormant beaucoup mieux la nuit.
 
 ## Niveau 0
-"Ne mets pas tous tes œufs dans le même panier." C'est le principe de la diversification. Si tu mets tout ton argent dans un seul type de placement et que ce placement baisse, tu perds tout. Si tu répartis entre plusieurs types, quand l'un baisse, un autre pourrait monter — et le choc est amorti.
+"Ne mets pas tous tes œufs dans le même panier." Concrètement, c'est le principe de la diversification. Si tu mets tout ton argent dans un seul type de placement et que ce placement baisse, tu perds tout. Si tu répartis entre plusieurs types, quand l'un baisse, un autre pourrait monter — et le choc est amorti.
 
 Les grandes "familles" de placements :
 - **Liquidités** : ton compte en banque (sûr, mais ça ne rapporte rien).

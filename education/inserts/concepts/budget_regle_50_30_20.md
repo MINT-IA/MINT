@@ -12,7 +12,7 @@ L'utilisateur cherche à structurer son budget, ne sait pas combien épargner, o
 Le ménage suisse moyen consacre environ 30 % de son revenu brut aux impôts et cotisations obligatoires (AVS, LPP, LAMal). Il reste donc ~70 % de revenu disponible. Sur ce solde, les ménages les plus sains financièrement épargnent 15 à 20 % — soit environ 10-14 % du revenu brut.
 
 ## Niveau 0
-La règle 50/30/20 est un cadre simple pour ton budget :
+Imagine ton revenu comme un gâteau à découper en trois parts. La règle 50/30/20 est un cadre simple pour ton budget :
 - **50 %** de ton revenu net → besoins essentiels (loyer, nourriture, assurances, transports).
 - **30 %** → envies et confort (sorties, vacances, loisirs, abonnements).
 - **20 %** → épargne et remboursement de dettes (3a, épargne d'urgence, amortissement).

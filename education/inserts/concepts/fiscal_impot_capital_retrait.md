@@ -2,7 +2,7 @@
 id: fiscal_impot_capital_retrait
 title: Impôt sur le retrait de capital de prévoyance — taux progressifs
 trigger: impôt retrait capital, taxe capital LPP, impôt 3a retrait, LIFD art 38, progressivité
-tags: [fiscal, impot, capital, retrait, progressif, lifd, prevoyance]
+tags: [fiscal, impôt, capital, retrait, progressif, lifd, prévoyance]
 ---
 
 ## Trigger

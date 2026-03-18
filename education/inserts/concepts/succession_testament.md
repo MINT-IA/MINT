@@ -12,7 +12,7 @@ L'utilisateur veut protéger ses proches, se demande qui hérite sans testament,
 Sans testament, le droit suisse donne automatiquement 50 % de ta succession à tes enfants et 50 % à ton ou ta conjoint·e. Ton ou ta concubin·e ne reçoit RIEN — même après 30 ans de vie commune. Un testament simple (même manuscrit) suffit pour changer cela.
 
 ## Niveau 0
-Qui hérite de quoi quand tu décèdes ? Sans testament, c'est la loi suisse qui décide — et elle favorise la famille au sens légal : conjoint·e marié·e, enfants, parents. Les concubin·e·s, ami·e·s proches, associations qui te tiennent à cœur ? Ils sont invisibles aux yeux de la loi.
+Qui hérite de quoi quand tu décèdes ? C'est un peu comme un jeu de cartes distribué d'avance : sans testament, c'est la loi suisse qui décide — et elle favorise la famille au sens légal : conjoint·e marié·e, enfants, parents. Les concubin·e·s, ami·e·s proches, associations qui te tiennent à cœur ? Ils sont invisibles aux yeux de la loi.
 
 Un testament te permet de reprendre le contrôle — dans certaines limites. Tu ne peux pas tout donner à qui tu veux : certains héritier·ère·s (enfants, conjoint·e) ont une "réserve" que tu ne peux pas leur retirer. Mais la partie restante — la "quotité disponible" — est à ta disposition.
 
@@ -69,4 +69,4 @@ Le droit successoral suisse est régi par le CC art. 457-640 :
 - CC art. 512-515 (pacte successoral)
 
 ## Disclaimer
-Information à caractère éducatif — ne constitue pas un conseil juridique. La planification successorale est un domaine complexe qui touche au droit civil, fiscal et à la prévoyance. Consulte un·e notaire pour rédiger un testament adapté à ta situation.
+Information à caractère éducatif — ne constitue pas un conseil juridique au sens de la LSFin. La planification successorale est un domaine complexe qui touche au droit civil, fiscal et à la prévoyance. Consulte un·e spécialiste (notaire) pour rédiger un testament adapté à ta situation.

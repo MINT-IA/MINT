@@ -12,7 +12,7 @@ L'utilisateur est indépendant·e ou envisage de le devenir, et veut comprendre 
 Un·e indépendant·e paie entre 5.371 % et 10.60 % de son revenu net en cotisations AVS/AI/APG — contre un taux fixe de 5.30 % pour un·e salarié·e (l'employeur payant les 5.30 % restants). En dessous de CHF 9'800/an de revenu, tu bénéficies du barème dégressif.
 
 ## Niveau 0
-Quand tu es salarié·e, ton employeur paie la moitié de tes cotisations AVS — tu ne vois que "ta part" sur ta fiche de paie. Quand tu es indépendant·e, tu paies le tout toi-même : la part employé ET la part employeur.
+Imagine que tes cotisations AVS sont une facture partagée en deux. Quand tu es salarié·e, ton employeur paie la moitié — tu ne vois que "ta part" sur ta fiche de paie. Quand tu es indépendant·e, tu paies le tout toi-même : la part employé ET la part employeur.
 
 Mais il y a une petite compensation : si tes revenus sont modestes (en dessous d'environ CHF 58'800/an), le taux diminue progressivement. C'est le "barème dégressif" — une sorte de rabais pour les petits revenus d'indépendant·e·s.
 

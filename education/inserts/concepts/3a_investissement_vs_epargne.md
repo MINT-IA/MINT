@@ -23,7 +23,7 @@ Les deux formes de pilier 3a :
 
 **3a épargne (compte bancaire)** :
 - Taux d'intérêt fixé par la banque (en 2025 : ~0.5-1.5 %).
-- Capital garanti (dans les limites de la garantie des dépôts).
+- Capital protégé (dans les limites de la garantie des dépôts).
 - Pas de frais de gestion.
 - Adapté si : horizon court (< 5 ans avant la retraite), aversion au risque élevée.
 
