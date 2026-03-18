@@ -290,6 +290,9 @@ class CoachingService {
   //  Enrichment helpers (private)
   // ──────────────────────────────────────────────────────────
 
+  // Prompt constructed here — see prompt_registry.dart for base prompts.
+  // This prompt uses CoachingTip + CoachingProfile which differ from
+  // PromptRegistry's CoachContext model.
   static String _buildEnrichmentPrompt(
     CoachingTip tip,
     CoachingProfile profile,

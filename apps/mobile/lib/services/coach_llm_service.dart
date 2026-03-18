@@ -483,6 +483,10 @@ class CoachLlmService {
 
   /// Construit le system prompt avec le contexte utilisateur.
   ///
+  /// Prompt constructed here — see prompt_registry.dart for base prompts.
+  /// This prompt uses CoachProfile + FinancialFitnessService + ForecasterService
+  /// which differ from PromptRegistry's CoachContext model.
+  ///
   /// CRIT #6: wrapped in try-catch to prevent crash on incomplete profiles.
   static String buildSystemPrompt(CoachProfile profile) {
     final firstName = profile.firstName ?? 'utilisateur';

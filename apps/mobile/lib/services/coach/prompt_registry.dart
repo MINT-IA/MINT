@@ -2,6 +2,21 @@
 ///
 /// Contains ALL system prompts for coach LLM interactions.
 /// Every prompt is versioned, stored in code, never generated dynamically.
+///
+/// TOKEN BUDGET (approximate):
+/// baseSystemPrompt: ~314 tokens
+/// chatSystemPrompt: ~574 tokens (includes base rules)
+/// chatSimulationPrompt: ~356 tokens + base
+/// chatSafeModePrompt: ~302 tokens + base
+/// memoryBlock (S58): ~200-500 tokens (dynamic)
+/// Total per chat turn: ~800-1200 tokens system prompt
+///
+/// NOTE: Three other files construct LLM prompts outside this registry
+/// because they depend on different model types (CoachProfile, CoachingTip):
+///   - lib/services/coach_llm_service.dart — buildSystemPrompt()
+///   - lib/services/coaching_service.dart — _buildEnrichmentPrompt()
+///   - lib/services/coach_narrative_service.dart — _buildSystemPrompt()
+/// See each file for a cross-reference comment.
 library;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
