@@ -481,7 +481,12 @@ final _router = GoRouter(
       path: '/scan/review',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
-        final result = state.extra as ExtractionResult;
+        final result = state.extra as ExtractionResult?;
+        if (result == null) {
+          return const Scaffold(
+            body: Center(child: Text('Document non disponible')),
+          );
+        }
         return ExtractionReviewScreen(result: result);
       },
     ),
@@ -489,7 +494,14 @@ final _router = GoRouter(
       path: '/scan/impact',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>;
+        final extra = state.extra as Map<String, dynamic>?;
+        if (extra == null ||
+            extra['result'] is! ExtractionResult ||
+            extra['previousConfidence'] is! int) {
+          return const Scaffold(
+            body: Center(child: Text('Document non disponible')),
+          );
+        }
         return DocumentImpactScreen(
           result: extra['result'] as ExtractionResult,
           previousConfidence: extra['previousConfidence'] as int,
@@ -667,15 +679,10 @@ final _router = GoRouter(
       builder: (context, state) => const AchievementsScreen(),
     ),
 
-    // ── WEEKLY RECAP ───────────────────────────────────────────
+    // ── WEEKLY RECAP (S52 — redirect until implemented) ─────────
     GoRoute(
       path: '/weekly-recap',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const Scaffold(
-        body: Center(
-          child: Text('Weekly Recap — coming soon'),
-        ),
-      ),
+      redirect: (_, __) => '/home',
     ),
 
     // ── CANTONAL BENCHMARKS ──────────────────────────────────
