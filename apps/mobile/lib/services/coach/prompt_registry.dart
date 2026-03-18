@@ -11,7 +11,65 @@ import 'coach_models.dart';
 class PromptRegistry {
   PromptRegistry._();
 
-  static const String version = '1.1.0';
+  static const String version = '1.2.0';
+
+  /// Privacy-safe financial keys that should be ranged when sent to LLM.
+  static const _financialKeys = {
+    'salaire_brut',
+    'avoir_lpp',
+    'epargne_3a',
+    'epargne_liquide',
+    'investissements',
+    'patrimoine_total',
+    'dettes_total',
+    'loyer',
+    'assurance_maladie',
+    'capital_final',
+  };
+
+  /// Converts an exact CHF amount to a privacy-safe range string.
+  ///
+  /// CoachContext MUST NEVER contain exact salary, savings, debts, NPA,
+  /// or employer (CLAUDE.md § 6).
+  static String _toRange(dynamic value) {
+    if (value == null) return '0';
+    final numVal = (value is num) ? value : 0;
+    if (numVal <= 0) return '0';
+    final abs = numVal.toDouble().abs();
+    final int rounded;
+    if (abs < 1000) {
+      rounded = ((abs / 500).round() * 500).clamp(500, 999).toInt();
+    } else if (abs < 10000) {
+      rounded = (abs / 1000).round() * 1000;
+    } else if (abs < 100000) {
+      rounded = (abs / 5000).round() * 5000;
+    } else if (abs < 1000000) {
+      rounded = (abs / 25000).round() * 25000;
+    } else {
+      rounded = (abs / 100000).round() * 100000;
+    }
+    final str = rounded.toString();
+    final buf = StringBuffer();
+    for (var i = 0; i < str.length; i++) {
+      if (i > 0 && (str.length - i) % 3 == 0) buf.write("'");
+      buf.write(str[i]);
+    }
+    return '~$buf';
+  }
+
+  /// Returns a privacy-safe version of knownValues for LLM prompts.
+  ///
+  /// Financial amounts are replaced with ranges; non-financial values
+  /// (scores, ages, labels) pass through unchanged.
+  static Map<String, dynamic> _sanitizeKnownValues(
+      Map<String, dynamic> values) {
+    return values.map((key, value) {
+      if (_financialKeys.contains(key) && value is num && value > 0) {
+        return MapEntry(key, '${_toRange(value)} CHF');
+      }
+      return MapEntry(key, value);
+    });
+  }
 
   /// Base system prompt embedded in ALL coach interactions.
   static const String baseSystemPrompt = '''
@@ -113,7 +171,7 @@ $baseSystemPrompt
 CONTEXTE UTILISATEUR :
 - Prénom : ${ctx.firstName}
 - Scénario simulé : ${ctx.primaryFocus}
-- Valeurs connues : ${ctx.knownValues}
+- Valeurs connues : ${_sanitizeKnownValues(ctx.knownValues)}
 
 TÂCHE : Narre le résultat de la simulation en 3-5 phrases (max 150 mots).
 Compare les options SANS les classer. Utilise "dans ce scénario".
@@ -148,8 +206,8 @@ TACHE : Guide l'utilisateur pour completer le bloc "$blockType".
   static String _enrichmentBlockContext(CoachContext ctx, String blockType) {
     return switch (blockType) {
       'lpp' => 'DONNEES CONNUES :\n'
-          '- Salaire brut : ${ctx.knownValues['salaire_brut'] ?? 'inconnu'} CHF/an\n'
-          '- Avoir LPP actuel : ${ctx.knownValues['avoir_lpp'] ?? 'estimation'}\n'
+          '- Salaire brut : ${ctx.knownValues['salaire_brut'] != null ? '${_toRange(ctx.knownValues['salaire_brut'])} CHF/an' : 'inconnu'}\n'
+          '- Avoir LPP actuel : ${ctx.knownValues['avoir_lpp'] != null ? '${_toRange(ctx.knownValues['avoir_lpp'])} CHF' : 'estimation'}\n'
           '- Source : ${ctx.dataReliability['avoirLpp'] ?? 'estime'}\n'
           '\n'
           'OBJECTIF : Obtenir l\'avoir LPP reel (certificat de prevoyance).\n'
@@ -164,14 +222,14 @@ TACHE : Guide l'utilisateur pour completer le bloc "$blockType".
           'Impact sur confiance : +10 pts.',
       '3a' => 'DONNEES CONNUES :\n'
           '- Nombre de comptes 3a : ${ctx.knownValues['nombre_3a']?.toInt() ?? 0}\n'
-          '- Total epargne 3a : ${ctx.knownValues['epargne_3a'] ?? 0} CHF\n'
+          '- Total epargne 3a : ${ctx.knownValues['epargne_3a'] != null ? '${_toRange(ctx.knownValues['epargne_3a'])} CHF' : '0 CHF'}\n'
           '- Plafond applicable : ${ctx.knownValues['plafond_3a'] ?? pilier3aPlafondAvecLpp} CHF/an\n'
           '\n'
           'OBJECTIF : Connaitre le solde exact et le provider de chaque compte 3a.\n'
           'Un versement 3a est deductible des impots. Impact sur confiance : +8 pts.',
       'patrimoine' => 'DONNEES CONNUES :\n'
-          '- Epargne liquide : ${ctx.knownValues['epargne_liquide'] ?? 'inconnu'} CHF\n'
-          '- Investissements : ${ctx.knownValues['investissements'] ?? 'inconnu'} CHF\n'
+          '- Epargne liquide : ${ctx.knownValues['epargne_liquide'] != null ? '${_toRange(ctx.knownValues['epargne_liquide'])} CHF' : 'inconnu'}\n'
+          '- Investissements : ${ctx.knownValues['investissements'] != null ? '${_toRange(ctx.knownValues['investissements'])} CHF' : 'inconnu'}\n'
           '\n'
           'OBJECTIF : Cartographier le patrimoine (epargne, placements, immobilier).\n'
           'Permet de calculer le Financial Resilience Index. Impact sur confiance : +7 pts.',
@@ -331,7 +389,7 @@ PROFIL :
 - Archétype : ${_archetypeLabel(ctx.archetype)}
 - Score FRI : ${ctx.friTotal.toStringAsFixed(0)}/100
 - Confiance données : ${ctx.confidenceScore.toStringAsFixed(0)}%
-- Valeurs connues : ${ctx.knownValues}
+- Valeurs connues : ${_sanitizeKnownValues(ctx.knownValues)}
 
 RÈGLES DE SIMULATION :
 1. Présente TOUJOURS 3 scénarios :

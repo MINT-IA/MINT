@@ -181,7 +181,8 @@ void main() {
       final prompt = PromptRegistry.scenarioNarration(ctx);
 
       expect(prompt, contains('rente_vs_capital'));
-      expect(prompt, contains('500000'));
+      // PII fix: exact values are now ranged for privacy
+      expect(prompt, contains('~500\'000 CHF'));
     });
 
     // ═══════════════════════════════════════════════════════════
@@ -196,7 +197,8 @@ void main() {
       final prompt = PromptRegistry.enrichmentGuide(ctx, 'lpp');
 
       expect(prompt, contains('lpp'));
-      expect(prompt, contains('122207'));
+      // PII fix: exact salary is now ranged (~125'000 for 122207)
+      expect(prompt, contains('~125\'000'));
       expect(prompt, contains('estimated'));
     });
 
@@ -211,8 +213,9 @@ void main() {
       final ctx = _ctx(knownValues: {'epargne_3a': 15000});
       final prompt = PromptRegistry.enrichmentGuide(ctx, '3a');
 
-      expect(prompt, contains('15000'));
-      // Should contain the pillar 3a ceiling
+      // PII fix: exact 3a value is now ranged (~15'000 for 15000)
+      expect(prompt, contains('~15\'000'));
+      // Should contain the pillar 3a ceiling (not PII, it's a legal constant)
       expect(prompt, contains('7258'));
     });
 
