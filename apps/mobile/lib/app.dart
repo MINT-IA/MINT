@@ -117,6 +117,7 @@ import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/household/household_screen.dart';
 import 'package:mint_mobile/screens/household/accept_invitation_screen.dart';
 import 'package:mint_mobile/screens/achievements_screen.dart';
+import 'package:mint_mobile/screens/cantonal_benchmark_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -631,6 +632,24 @@ final _router = GoRouter(
       path: '/achievements',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AchievementsScreen(),
+    ),
+
+    // ── WEEKLY RECAP ───────────────────────────────────────────
+    GoRoute(
+      path: '/weekly-recap',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const Scaffold(
+        body: Center(
+          child: Text('Weekly Recap — coming soon'),
+        ),
+      ),
+    ),
+
+    // ── CANTONAL BENCHMARKS ──────────────────────────────────
+    GoRoute(
+      path: '/cantonal-benchmark',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CantonalBenchmarkScreen(),
     ),
 
     // ── OUTILS & DIVERS ─────────────────────────────────────
