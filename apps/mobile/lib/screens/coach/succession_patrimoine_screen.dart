@@ -8,9 +8,10 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
 import 'package:mint_mobile/widgets/coach/testament_invisible_widget.dart';
 import 'package:mint_mobile/widgets/coach/avancement_hoirie_widget.dart';
@@ -21,63 +22,47 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
+
     return Scaffold(
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.white,
       body: CustomScrollView(
         slivers: [
-          // ── AppBar gradient ──────────────────────────────────
+          // ── AppBar white standard ──────────────────────────────
           SliverAppBar(
-            expandedHeight: 140,
+            expandedHeight: 100,
             pinned: true,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: MintColors.white),
-              onPressed: () => context.pop(),
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding:
-                  const EdgeInsets.only(left: 56, bottom: 16, right: 24),
-              title: Text(
-                'Succession & transmission',
-                style: GoogleFonts.montserrat(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
-                  color: MintColors.white,
-                  height: 1.25,
-                ),
-                maxLines: 2,
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [MintColors.successionDark, MintColors.slateDark],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-              ),
+            backgroundColor: MintColors.white,
+            surfaceTintColor: MintColors.white,
+            foregroundColor: MintColors.textPrimary,
+            title: Text(
+              l.successionTitle,
+              style: MintTextStyles.headlineMedium(),
             ),
           ),
 
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            padding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.lg,
+              vertical: MintSpacing.lg,
+            ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── Chiffre choc ─────────────────────────────
-                const _AlertCard(
+                _AlertCard(
                   icon: Icons.warning_amber_outlined,
-                  title: 'Sans testament, ton concubin·e hérite de RIEN',
-                  body:
-                      'Le droit successoral suisse (CC art. 457 ss) protège d\'abord les descendants, puis les parents et le conjoint·e légal·e. Sans lien légal et sans testament, un·e concubin·e est exclu·e de la succession — quelle que soit la durée de la vie commune.',
+                  title: l.successionAlertTitle,
+                  body: l.successionAlertBody,
                   color: MintColors.urgentOrange,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // ── P8-A : Testament invisible ───────────────
                 const TestamentInvisibleWidget(
                   patrimoine: 500000,
                   initialStatus: FamilyStatus.concubin,
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: MintSpacing.lg),
 
                 // ── P8-E : Avancement d'hoirie ────────────────
                 const AvancementHoirieWidget(
@@ -85,74 +70,69 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                   donationAmount: 50000,
                   donationRecipientIndex: 0,
                   children: [
-                    HoirieChild(name: 'Enfant 1', emoji: '👦'),
-                    HoirieChild(name: 'Enfant 2', emoji: '👧'),
+                    HoirieChild(name: 'Enfant 1', emoji: ''),
+                    HoirieChild(name: 'Enfant 2', emoji: ''),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // ── Concepts clés ────────────────────────────
-                const EduSectionTitle(text: 'Les notions clés'),
-                const SizedBox(height: 12),
+                EduSectionTitle(text: l.successionNotionsCles),
+                const SizedBox(height: MintSpacing.sm + 4),
 
-                const _ConceptCard(
+                _ConceptCard(
                   icon: Icons.shield_outlined,
-                  title: 'Réserves héréditaires',
-                  subtitle: 'CC art. 470–471',
-                  body:
-                      'Une part de ta succession est réservée par la loi à tes descendants (1/2 de leur part légale) et à ton conjoint·e (1/2 de sa part légale). Cette part ne peut pas être écartée par testament, sauf révocation pour cause ingratitude.',
-                  color: MintColors.blueDark,
+                  title: l.successionReservesTitle,
+                  subtitle: l.successionReservesSubtitle,
+                  body: l.successionReservesBody,
+                  color: MintColors.info,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: MintSpacing.sm + 2),
 
-                const _ConceptCard(
+                _ConceptCard(
                   icon: Icons.pie_chart_outline,
-                  title: 'Quotité disponible',
-                  subtitle: 'CC art. 470 al. 2',
-                  body:
-                      'Ce qui reste après les réserves héréditaires est ta "quotité disponible" — la part que tu peux léguer librement à qui tu veux : conjoint·e non marié·e, amis, associations. Si tu as des enfants, ta quotité disponible est 1/2 de ta succession.',
-                  color: MintColors.purpleDark,
+                  title: l.successionQuotiteTitle,
+                  subtitle: l.successionQuotiteSubtitle,
+                  body: l.successionQuotiteBody,
+                  color: MintColors.purple,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: MintSpacing.sm + 2),
 
-                const _ConceptCard(
+                _ConceptCard(
                   icon: Icons.description_outlined,
-                  title: 'Testament',
-                  subtitle: 'CC art. 498–504',
-                  body:
-                      'Deux formes valides :\n• Olographe : entièrement manuscrit, daté et signé — pas de témoin requis.\n• Notarié : devant notaire avec 2 témoins — recommandé pour les situations complexes.\nPas de testament = succession légale par défaut.',
+                  title: l.successionTestamentTitle,
+                  subtitle: l.successionTestamentSubtitle,
+                  body: l.successionTestamentBody,
                   color: MintColors.withdrawalOptim,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: MintSpacing.sm + 2),
 
-                const _ConceptCard(
+                _ConceptCard(
                   icon: Icons.card_giftcard_outlined,
-                  title: 'Donation du vivant',
-                  subtitle: 'CO art. 239 ss',
-                  body:
-                      'Transmettre de ton vivant permet d\'anticiper la succession et de réduire potentiellement l\'impôt successoral (variable par canton). Attention : les donations sont rapportables à la succession si tu as des héritiers réservataires. Les 5 années précédant le décès sont particulièrement scrutées.',
+                  title: l.successionDonationTitle,
+                  subtitle: l.successionDonationSubtitle,
+                  body: l.successionDonationBody,
                   color: MintColors.successionDark,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: MintSpacing.sm + 2),
 
-                const _ConceptCard(
+                _ConceptCard(
                   icon: Icons.how_to_reg_outlined,
-                  title: 'Bénéficiaires LPP et 3a',
-                  subtitle: 'LPP art. 20 · OPP3 art. 2',
-                  body:
-                      'Le capital LPP non converti en rente et le solde 3a ne font PAS partie de ta succession ordinaire — ils sont versés aux bénéficiaires désignés. Si tu ne désignes personne, l\'ordre légal s\'applique : conjoint·e marié·e ou partenaire enregistré·e, puis descendants, puis parents. Un·e concubin·e doit être explicitement désigné·e.',
+                  title: l.successionBeneficiairesTitle,
+                  subtitle: l.successionBeneficiairesSubtitle,
+                  body: l.successionBeneficiairesBody,
                   color: MintColors.urgentOrange,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // ── P14-A : Guide de première urgence ────────────
-                const EduSectionTitle(text: 'En cas de décès d\'un proche'),
-                const SizedBox(height: 12),
+                EduSectionTitle(text: l.successionDecesProche),
+                const SizedBox(height: MintSpacing.sm + 4),
                 const DeathUrgencyGuideWidget(
                   phases: [
                     UrgencyPhase(
                       timeframe: 'J+1 à J+7',
-                      emoji: '🆘',
+                      emoji: '',
                       title: 'Urgence immédiate',
                       color: MintColors.urgentOrange,
                       actions: [
@@ -164,7 +144,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                     ),
                     UrgencyPhase(
                       timeframe: 'J+8 à J+30',
-                      emoji: '📋',
+                      emoji: '',
                       title: 'Démarches administratives',
                       color: MintColors.orangeDarkDeep,
                       actions: [
@@ -177,7 +157,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                     ),
                     UrgencyPhase(
                       timeframe: 'J+31 à J+365',
-                      emoji: '⚖️',
+                      emoji: '',
                       title: 'Succession légale',
                       color: MintColors.successDeep,
                       actions: [
@@ -189,47 +169,38 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // ── Checklist pratique ────────────────────────
-                const EduSectionTitle(text: 'Checklist protection patrimoine'),
-                const SizedBox(height: 12),
-                const _ChecklistCard(
+                EduSectionTitle(text: l.successionChecklistTitle),
+                const SizedBox(height: MintSpacing.sm + 4),
+                _ChecklistCard(
                   items: [
-                    'Vérifier la désignation des bénéficiaires sur chaque compte 3a',
-                    'Vérifier la désignation de bénéficiaire LPP auprès de ta caisse',
-                    'Rédiger ou mettre à jour ton testament',
-                    'Vérifier ton régime matrimonial si marié·e (CC art. 181 ss)',
-                    'Informer tes proches de l\'emplacement de ton testament',
+                    l.successionCheck1,
+                    l.successionCheck2,
+                    l.successionCheck3,
+                    l.successionCheck4,
+                    l.successionCheck5,
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // ── CTA spécialiste ───────────────────────────
-                const EduSpecialistCta(
+                EduSpecialistCta(
                   icon: Icons.gavel_outlined,
                   color: MintColors.successionDark,
-                  title: 'Consulter un·e notaire ou spécialiste',
-                  body: 'Un·e notaire ou spécialiste en droit successoral peut rédiger ou réviser ton testament et t\'orienter sur l\'organisation successorale adaptée à ta situation.',
+                  title: l.successionSpecialisteTitle,
+                  body: l.successionSpecialisteBody,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // ── Sources légales ───────────────────────────
-                const EduLegalSources(
-                  sources: '• CC art. 457–640 — Droit des successions\n'
-                      '• CC art. 470–471 — Réserves héréditaires\n'
-                      '• CC art. 498–504 — Formes du testament\n'
-                      '• LPP art. 20 — Bénéficiaires du capital LPP\n'
-                      '• OPP3 art. 2 — Bénéficiaires du pilier 3a',
-                ),
-                const SizedBox(height: 16),
+                EduLegalSources(sources: l.successionSources),
+                const SizedBox(height: MintSpacing.md),
 
                 // ── Disclaimer LSFin ──────────────────────────
-                const EduDisclaimer(
-                  text:
-                      'Information à caractère éducatif, ne constitue pas un conseil juridique ou patrimonial au sens de la LSFin ou du CC. Les règles successorales varient selon la situation familiale, le régime matrimonial et le canton. Consulte un·e notaire ou un·e spécialiste en droit successoral pour ta situation personnelle.',
-                ),
-                const SizedBox(height: 32),
+                EduDisclaimer(text: l.successionDisclaimer),
+                const SizedBox(height: MintSpacing.xl),
               ]),
             ),
           ),
@@ -247,51 +218,46 @@ class _AlertCard extends StatelessWidget {
   final String body;
   final Color color;
 
-  const _AlertCard(
-      {required this.icon,
-      required this.title,
-      required this.body,
-      required this.color});
+  const _AlertCard({
+    required this.icon,
+    required this.title,
+    required this.body,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: color.withAlpha(12),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withAlpha(60)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: color, size: 22),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  title,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                    height: 1.3,
+    return Semantics(
+      container: true,
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        decoration: BoxDecoration(
+          color: color.withAlpha(12),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withAlpha(60)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: color, size: 22),
+                const SizedBox(width: MintSpacing.sm + 2),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: MintTextStyles.titleMedium().copyWith(fontSize: 14, height: 1.3),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            body,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.5,
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: MintSpacing.sm + 4),
+            Text(
+              body,
+              style: MintTextStyles.bodyMedium().copyWith(fontSize: 13, height: 1.5),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -314,63 +280,45 @@ class _ConceptCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: MintColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: color.withAlpha(20),
-                  borderRadius: BorderRadius.circular(9),
+    return Semantics(
+      container: true,
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        decoration: BoxDecoration(
+          color: MintColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: MintColors.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: color.withAlpha(20),
+                    borderRadius: BorderRadius.circular(9),
+                  ),
+                  child: Icon(icon, color: color, size: 18),
                 ),
-                child: Icon(icon, color: color, size: 18),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.textPrimary,
-                      ),
-                    ),
-                    Text(
-                      subtitle,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: color,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
+                const SizedBox(width: MintSpacing.sm + 2),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
+                      Text(subtitle, style: MintTextStyles.labelSmall(color: color).copyWith(fontWeight: FontWeight.w500)),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            body,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.5,
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: MintSpacing.sm + 2),
+            Text(body, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, height: 1.5)),
+          ],
+        ),
       ),
     );
   }
@@ -383,7 +331,7 @@ class _ChecklistCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.surface,
         borderRadius: BorderRadius.circular(14),
@@ -399,15 +347,11 @@ class _ChecklistCard extends StatelessWidget {
                   children: [
                     const Icon(Icons.check_circle_outline,
                         color: MintColors.primary, size: 18),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: MintSpacing.sm + 2),
                     Expanded(
                       child: Text(
                         item,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: MintColors.textPrimary,
-                          height: 1.4,
-                        ),
+                        style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
                       ),
                     ),
                   ],
