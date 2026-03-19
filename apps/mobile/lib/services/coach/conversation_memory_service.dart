@@ -186,7 +186,7 @@ class ConversationMemoryService {
     ]) {
       s = s.replaceAll(RegExp(RegExp.escape(marker), caseSensitive: false), '');
     }
-    s = s.replaceAll(RegExp(r'-{3,}'), '');
+    s = s.replaceAll(RegExp(r'(?<=\s|^)-{3,}(?=\s|$)'), '');
     s = s.replaceAll(RegExp(r'\s{3,}'), '  ').trim();
     return s.length > 100 ? '${s.substring(0, 97)}...' : s;
   }

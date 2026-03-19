@@ -779,8 +779,9 @@ class CoachOrchestrator {
     ]) {
       s = s.replaceAll(RegExp(RegExp.escape(marker), caseSensitive: false), '');
     }
-    // Strip triple-dash delimiters
-    s = s.replaceAll(RegExp(r'-{3,}'), '');
+    // Strip triple-dash delimiters only when surrounded by whitespace/BOL/EOL
+    // (avoids mangling legitimate text like "45---65")
+    s = s.replaceAll(RegExp(r'(?<=\s|^)-{3,}(?=\s|$)'), '');
     // Collapse excessive whitespace
     s = s.replaceAll(RegExp(r'\s{3,}'), '  ');
     return s.trim();

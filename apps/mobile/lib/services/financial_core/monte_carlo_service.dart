@@ -12,7 +12,7 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 //  MONTE CARLO PROJECTION SERVICE
 // ────────────────────────────────────────────────────────────
 //
-// Simule N trajectoires de retraite (defaut: 500) avec des hypotheses
+// Simule N trajectoires de retraite (defaut: 1000) avec des hypotheses
 // stochastiques (rendements, inflation, longevite, croissance salariale)
 // pour produire des bandes de percentiles (P10, P25, P50, P75, P90).
 //

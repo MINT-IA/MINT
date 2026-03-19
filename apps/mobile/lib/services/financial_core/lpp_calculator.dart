@@ -145,6 +145,7 @@ class LppCalculator {
     required String canton,
     bool isMarried = false,
     int? horizonYears,
+    int retirementAge = 65,
   }) {
     if (lppCapitalPct <= 0 || annualRente <= 0) return annualRente / 12;
 
@@ -165,7 +166,10 @@ class LppCalculator {
         capitalBrut, effectiveBaseRate);
     final capitalNet = capitalBrut - tax;
     final swr = horizonYears != null
-        ? adjustedSwr(retirementAge: 65, lifeExpectancy: 65 + horizonYears)
+        ? adjustedSwr(
+            retirementAge: retirementAge,
+            lifeExpectancy: retirementAge + horizonYears,
+          )
         : safeWithdrawalRate;
     final capitalMonthly = capitalNet * swr / 12;
 

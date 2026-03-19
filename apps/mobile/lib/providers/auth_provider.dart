@@ -88,12 +88,12 @@ class AuthProvider extends ChangeNotifier {
       _displayName = response['display_name'] as String?;
       _error = null;
       _isLoading = false;
-      notifyListeners();
 
       if (_isLoggedIn) {
         await _migrateLocalDataIfNeeded();
       }
 
+      notifyListeners();
       return true;
     } catch (e) {
       _error = _toUserFriendlyAuthError(e);
@@ -133,10 +133,10 @@ class AuthProvider extends ChangeNotifier {
       _requiresEmailVerification = false;
       _error = null;
       _isLoading = false;
-      notifyListeners();
 
       await _migrateLocalDataIfNeeded();
 
+      notifyListeners();
       return true;
     } catch (e) {
       _error = _toUserFriendlyAuthError(e);
@@ -256,18 +256,39 @@ class AuthProvider extends ChangeNotifier {
   /// Called after a successful login or register to ensure any data
   /// created before authentication (wizard answers, preferences, etc.)
   /// is associated with the new user account for future cloud sync.
+  ///
+  /// Safety: captures userId at call-time to avoid race conditions
+  /// if the user logs out/in rapidly. Refuses to overwrite ownership
+  /// if local data already belongs to a different account.
   Future<void> _migrateLocalDataIfNeeded() async {
+    final currentUserId = _userId;
+    if (currentUserId == null || currentUserId.isEmpty) return;
+
     try {
       final prefs = await SharedPreferences.getInstance();
-      final alreadyMigrated = prefs.getBool('local_data_migrated_$_userId') ?? false;
-      if (alreadyMigrated || _userId == null) return;
+      final alreadyMigrated =
+          prefs.getBool('local_data_migrated_$currentUserId') ?? false;
+      if (alreadyMigrated) return;
+
+      // Check if local data already belongs to a different user.
+      final existingOwner = prefs.getString('local_data_owner');
+      if (existingOwner != null &&
+          existingOwner.isNotEmpty &&
+          existingOwner != currentUserId) {
+        // Different user's data — do NOT overwrite ownership.
+        debugPrint(
+          '[AuthProvider] Local data belongs to $existingOwner, '
+          'skipping migration for $currentUserId.',
+        );
+        return;
+      }
 
       // Mark migration as complete — actual cloud sync will happen
       // when the sync service is implemented (post-V1).
       // For now we just tag local data with the user ID so it can
       // be associated later.
-      await prefs.setString('local_data_owner', _userId!);
-      await prefs.setBool('local_data_migrated_$_userId', true);
+      await prefs.setString('local_data_owner', currentUserId);
+      await prefs.setBool('local_data_migrated_$currentUserId', true);
     } catch (e) {
       // Migration is best-effort — never block auth flow
       debugPrint('[AuthProvider] Local data migration failed: $e');

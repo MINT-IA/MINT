@@ -230,15 +230,14 @@ void main() {
       expect(score.overall, closeTo(1.0, 0.01));
     });
 
-    test('quality score penalizes low axes via geometric mean', () {
+    test('quality score is zero when any axis is zero', () {
       final score = QualityScore.compute(
         relevance: 1.0,
         compliance: 0.0,
         frenchQuality: 1.0,
       );
-      // Axes floored at 0.1 → geometric mean ≈ 0.464, not 0.0
-      expect(score.overall, greaterThan(0.0));
-      expect(score.overall, lessThan(0.5));
+      // Any axis at exactly 0 → hard fail, overall = 0
+      expect(score.overall, equals(0.0));
     });
 
     test('scoreResponse returns valid quality for local fallback', () async {
@@ -1202,15 +1201,14 @@ void main() {
       expect(quality.compliance, lessThan(1.0));
     });
 
-    test('geometric mean of [1.0, 0.0, 1.0] is floored (not zero)', () {
+    test('geometric mean of [1.0, 0.0, 1.0] is zero (hard fail)', () {
       final score = QualityScore.compute(
         relevance: 1.0,
         compliance: 0.0,
         frenchQuality: 1.0,
       );
-      // Axes floored at 0.1 → geometric mean ≈ 0.464
-      expect(score.overall, greaterThan(0.0));
-      expect(score.overall, lessThan(0.5));
+      // Any axis at 0 → overall must be 0 (hard fail)
+      expect(score.overall, equals(0.0));
     });
 
     test('geometric mean of [0.5, 0.5, 0.5] = 0.5', () {
