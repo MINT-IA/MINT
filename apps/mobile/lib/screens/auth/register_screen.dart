@@ -1,8 +1,10 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -23,6 +25,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   int? _birthYear;
+  bool _acceptedCgu = false;
+  bool _confirmed18Plus = false;
+  bool _consentNotifications = false;
+  bool _consentAnalytics = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordController.addListener(() => setState(() {}));
+  }
 
   @override
   void dispose() {
@@ -56,8 +68,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
         await ReportPersistenceService.saveAnswers(answers);
       }
 
+      // Persist consent preferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('consent_notifications', _consentNotifications);
+      await prefs.setBool('consent_analytics', _consentAnalytics);
+      await prefs.setBool('accepted_cgu_v1', true);
+      await prefs.setString('cgu_accepted_at', DateTime.now().toIso8601String());
+
       if (!mounted) return;
-      if (authProvider.requiresEmailVerification) {
+      final redirect = GoRouterState.of(context).uri.queryParameters['redirect'];
+      if (redirect != null && redirect.startsWith('/')) {
+        context.go(Uri.decodeComponent(redirect));
+      } else if (authProvider.requiresEmailVerification) {
         context.go('/auth/verify-email');
       } else {
         context.go('/home');
@@ -288,8 +310,129 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return null;
                   },
                 ),
+                const SizedBox(height: 16),
+                // Password strength indicator
+                _PasswordStrengthIndicator(
+                  password: _passwordController.text,
+                ),
                 const SizedBox(height: 24),
-                // Password requirements
+                // ── CGU & Consent checkboxes ──
+                // CGU checkbox (required, non-pre-checked)
+                CheckboxListTile(
+                  value: _acceptedCgu,
+                  onChanged: (v) => setState(() => _acceptedCgu = v ?? false),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: RichText(
+                    text: TextSpan(
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: MintColors.textSecondary,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: S.of(context)!.authCguAccept,
+                        ),
+                        TextSpan(
+                          text: S.of(context)!.authCguLink,
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: MintColors.primary,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => context.go('/profile/consent'),
+                        ),
+                        TextSpan(
+                          text: S.of(context)!.authCguAndPrivacy,
+                        ),
+                        TextSpan(
+                          text: 'politique de confidentialité',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: MintColors.primary,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => context.go('/profile/consent'),
+                        ),
+                        const TextSpan(text: ' *'),
+                      ],
+                    ),
+                  ),
+                ),
+                // 18+ checkbox (required, non-pre-checked)
+                CheckboxListTile(
+                  value: _confirmed18Plus,
+                  onChanged: (v) =>
+                      setState(() => _confirmed18Plus = v ?? false),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: Text(
+                    S.of(context)!.authConfirm18,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // "Consentements optionnels" divider
+                Row(
+                  children: [
+                    const Expanded(child: Divider()),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        S.of(context)!.authConsentSection,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: MintColors.textMuted,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const Expanded(child: Divider()),
+                  ],
+                ),
+                // Notifications checkbox (optional)
+                CheckboxListTile(
+                  value: _consentNotifications,
+                  onChanged: (v) =>
+                      setState(() => _consentNotifications = v ?? false),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: Text(
+                    S.of(context)!.authConsentNotifications,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                ),
+                // Analytics checkbox (optional)
+                CheckboxListTile(
+                  value: _consentAnalytics,
+                  onChanged: (v) =>
+                      setState(() => _consentAnalytics = v ?? false),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: Text(
+                    S.of(context)!.authConsentAnalytics,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Privacy reassurance text
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -299,14 +442,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Row(
                     children: [
                       const Icon(
-                        Icons.info_outline,
-                        color: MintColors.info,
+                        Icons.shield_outlined,
+                        color: MintColors.primary,
                         size: 20,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Utilise au moins 8 caractères pour sécuriser ton compte',
+                          S.of(context)!.authPrivacyReassurance,
                           style: GoogleFonts.inter(
                             color: MintColors.textSecondary,
                             fontSize: 13,
@@ -348,7 +491,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 if (authProvider.error != null) const SizedBox(height: 24),
                 // Register button
                 FilledButton(
-                  onPressed: authProvider.isLoading ? null : _handleRegister,
+                  onPressed: (_acceptedCgu && _confirmed18Plus && !authProvider.isLoading) ? _handleRegister : null,
                   child: authProvider.isLoading
                       ? const SizedBox(
                           height: 20,
@@ -430,6 +573,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _PasswordStrengthIndicator extends StatelessWidget {
+  final String password;
+
+  const _PasswordStrengthIndicator({required this.password});
+
+  int _computeStrength() {
+    if (password.isEmpty) return 0;
+    int score = 0;
+    if (password.length >= 8) score++;
+    if (password.contains(RegExp(r'[A-Z]'))) score++;
+    if (password.contains(RegExp(r'[0-9]'))) score++;
+    if (password.contains(RegExp(r'[^A-Za-z0-9]'))) score++;
+    return score;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final strength = _computeStrength();
+    const colors = [
+      MintColors.error,
+      MintColors.scoreAttention,
+      MintColors.warning,
+      MintColors.success,
+    ];
+
+    return Row(
+      children: List.generate(4, (i) {
+        final isActive = i < strength;
+        return Expanded(
+          child: Container(
+            height: 4,
+            margin: EdgeInsets.only(right: i < 3 ? 4 : 0),
+            decoration: BoxDecoration(
+              color: isActive
+                  ? colors[strength - 1]
+                  : MintColors.border,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+        );
+      }),
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/disability_cliff_widget.dart';
 import 'package:mint_mobile/widgets/coach/disability_countdown_widget.dart';
@@ -316,7 +317,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    '1 personne sur 5',
+                    S.of(context)!.disabilityStatLine1,
                     style: GoogleFonts.montserrat(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -325,7 +326,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                     ),
                   ),
                   Text(
-                    'sera touchée avant 65 ans',
+                    S.of(context)!.disabilityStatLine2,
                     style: GoogleFonts.montserrat(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
@@ -339,7 +340,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
         ),
       ),
       title: Text(
-        'Si je ne peux plus travailler',
+        S.of(context)!.disabilityAppBarTitle,
         style: GoogleFonts.montserrat(
           fontSize: 16,
           fontWeight: FontWeight.w700,
@@ -361,7 +362,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ta situation',
+            S.of(context)!.disabilityYourSituation,
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -370,7 +371,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
           ),
           const SizedBox(height: 16),
           _buildSliderRow(
-            label: 'Salaire brut mensuel',
+            label: S.of(context)!.disabilityGrossMonthly,
             value: _grossMonthly,
             min: 2000,
             max: 25000,
@@ -380,7 +381,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
           ),
           const SizedBox(height: 12),
           _buildSliderRow(
-            label: 'Ton âge',
+            label: S.of(context)!.disabilityYourAge,
             value: _age.toDouble(),
             min: 18,
             max: 64,
@@ -390,7 +391,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
           ),
           const SizedBox(height: 12),
           _buildSliderRow(
-            label: 'Épargne disponible',
+            label: S.of(context)!.disabilityAvailableSavings,
             value: _savings,
             min: 0,
             max: 200000,
@@ -404,7 +405,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
             children: [
               Flexible(
                 child: Text(
-                  'J\'ai une assurance IJM via mon employeur',
+                  S.of(context)!.disabilityHasIjm,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textPrimary,
@@ -427,20 +428,20 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Explorer aussi',
+        Text(S.of(context)!.disabilityExploreAlso,
           style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
         const SizedBox(height: 12),
         CollapsibleSection(
-          title: 'Couverture assurance',
-          subtitle: 'IJM, AI, LPP — ton bulletin de notes',
+          title: S.of(context)!.disabilityCoverageInsurance,
+          subtitle: S.of(context)!.disabilityCoverageSubtitle,
           icon: Icons.shield_outlined,
-          child: _buildSectionCta('Évaluer', '/disability/insurance'),
+          child: _buildSectionCta(S.of(context)!.disabilityCtaEvaluate, '/disability/insurance'),
         ),
         CollapsibleSection(
-          title: 'Indépendant',
-          subtitle: 'Risques spécifiques sans LPP',
+          title: S.of(context)!.disabilitySelfEmployed,
+          subtitle: S.of(context)!.disabilitySelfEmployedSubtitle,
           icon: Icons.rocket_launch,
-          child: _buildSectionCta('Analyser', '/disability/self-employed'),
+          child: _buildSectionCta(S.of(context)!.disabilityCtaAnalyze, '/disability/self-employed'),
         ),
       ],
     );
