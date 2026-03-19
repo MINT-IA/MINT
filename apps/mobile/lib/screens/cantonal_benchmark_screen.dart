@@ -23,6 +23,8 @@ class CantonalBenchmarkScreen extends StatefulWidget {
 
 class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
   bool _optedIn = false;
+  bool _loading = true;
+  bool _hasError = false;
 
   @override
   void initState() {
@@ -31,11 +33,21 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
   }
 
   Future<void> _loadOptIn() async {
-    final value = await CantonalBenchmarkService.getOptedIn();
-    if (mounted) {
-      setState(() {
-        _optedIn = value;
-      });
+    try {
+      final value = await CantonalBenchmarkService.getOptedIn();
+      if (mounted) {
+        setState(() {
+          _optedIn = value;
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+          _loading = false;
+        });
+      }
     }
   }
 
@@ -86,22 +98,48 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ── Opt-in toggle ──────────────────────────────
-                  _buildOptInCard(),
-                  const SizedBox(height: 20),
+              child: _loading
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 60),
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
+                  : _hasError
+                      ? Container(
+                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            color: MintColors.error.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.error_outline, color: MintColors.error, size: 20),
+                              const SizedBox(width: 12),
+                              Expanded(child: Text(
+                                'Une erreur est survenue. Réessaie plus tard.',
+                                style: GoogleFonts.inter(fontSize: 13, color: MintColors.error),
+                              )),
+                            ],
+                          ),
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // ── Opt-in toggle ──────────────────────────────
+                            _buildOptInCard(),
+                            const SizedBox(height: 20),
 
-                  if (!_optedIn) ...[
-                    _buildExplanationCard(),
-                  ] else if (profile == null || age == null) ...[
-                    _buildNoProfileCard(),
-                  ] else ...[
-                    _buildBenchmarkContent(profile, age),
-                  ],
-                ],
-              ),
+                            if (!_optedIn) ...[
+                              _buildExplanationCard(),
+                            ] else if (profile == null || age == null) ...[
+                              _buildNoProfileCard(),
+                            ] else ...[
+                              _buildBenchmarkContent(profile, age),
+                            ],
+                          ],
+                        ),
             ),
           ),
         ],

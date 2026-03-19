@@ -23,7 +23,7 @@ class BudgetContainerScreen extends StatelessWidget {
 
   Widget _buildEmptyState(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(S.of(context)?.budgetTitle ?? 'Budget')),
+      appBar: AppBar(title: Text(S.of(context)!.budgetTitle)),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
@@ -41,7 +41,7 @@ class BudgetContainerScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                S.of(context)?.budgetEmptyTitle ?? 'Ton budget se construit automatiquement',
+                S.of(context)!.budgetEmptyTitle,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
@@ -51,8 +51,7 @@ class BudgetContainerScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                S.of(context)?.budgetEmptyBody ?? 'Complète ton diagnostic pour débloquer ton plan mensuel '
-                'avec tes vrais revenus et charges.',
+                S.of(context)!.budgetEmptyBody,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
                   fontSize: 14,
@@ -64,7 +63,7 @@ class BudgetContainerScreen extends StatelessWidget {
               FilledButton.icon(
                 onPressed: () => context.push('/advisor/wizard?section=budget'),
                 icon: const Icon(Icons.play_arrow_rounded),
-                label: Text(S.of(context)?.budgetEmptyAction ?? 'Faire mon diagnostic'),
+                label: Text(S.of(context)!.budgetEmptyAction),
                 style: FilledButton.styleFrom(
                   backgroundColor: MintColors.primary,
                   padding: const EdgeInsets.symmetric(
