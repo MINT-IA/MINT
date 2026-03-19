@@ -79,7 +79,7 @@ class _DataBlockEnrichmentScreenState
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
-        backgroundColor: MintColors.background,
+        backgroundColor: MintColors.white,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),

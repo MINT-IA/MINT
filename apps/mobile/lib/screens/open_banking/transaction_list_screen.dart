@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/open_banking_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -137,13 +139,8 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
         onPressed: () => context.pop(),
       ),
       title: Text(
-        'TRANSACTIONS',
-        style: GoogleFonts.montserrat(
-          fontWeight: FontWeight.w800,
-          fontSize: 13,
-          letterSpacing: 1.5,
-          color: MintColors.textMuted,
-        ),
+        S.of(context)!.openBankingTransactions,
+        style: MintTextStyles.headlineMedium(),
       ),
     );
   }
@@ -169,11 +166,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
               children: [
                 Text(
                   'Fonctionnalite en preparation',
-                  style: GoogleFonts.outfit(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.amberDark,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.amberDark).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -348,11 +341,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
               children: [
                 Text(
                   tx.merchant,
-                  style: GoogleFonts.outfit(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium().copyWith(fontSize: 14),
                 ),
                 const SizedBox(height: 2),
                 Row(
@@ -442,11 +431,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           const SizedBox(height: 16),
           Text(
             'Aucune transaction',
-            style: GoogleFonts.outfit(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.textMuted),
           ),
         ],
       ),
@@ -477,11 +462,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
         children: [
           Text(
             'Synthese du mois',
-            style: GoogleFonts.outfit(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium(),
           ),
           const SizedBox(height: 16),
           _buildSummaryRow(

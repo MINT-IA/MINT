@@ -270,7 +270,7 @@ class _PulseScreenState extends State<PulseScreen> {
     if (hero != null) {
       return _buildMinimalActionCard(
         title: hero.ctaLabel,
-        subtitle: 'Action recommandée',
+        subtitle: 'Le prochain levier',
         icon: Icons.arrow_forward_rounded,
         onTap: () => context.push(hero.ctaRoute),
       );
@@ -279,7 +279,7 @@ class _PulseScreenState extends State<PulseScreen> {
     // Last resort: go to coach
     return _buildMinimalActionCard(
       title: S.of(context)!.pulseEmptyCtaStart,
-      subtitle: 'Commence avec le coach',
+      subtitle: 'On peut commencer ici',
       icon: Icons.arrow_forward_rounded,
       onTap: () => NavigationShellState.switchTab(1),
     );
@@ -403,9 +403,8 @@ class _PulseScreenState extends State<PulseScreen> {
   SliverAppBar _buildAppBar(BuildContext context, CoachProfile profile) {
     final l = S.of(context)!;
     final firstName = profile.firstName ?? '';
-    final greeting = firstName.isNotEmpty
-        ? l.pulseGreeting(firstName)
-        : l.tabToday;
+    final greeting =
+        firstName.isNotEmpty ? l.pulseGreeting(firstName) : l.tabToday;
 
     return SliverAppBar(
       floating: false,

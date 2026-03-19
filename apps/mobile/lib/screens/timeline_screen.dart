@@ -322,14 +322,14 @@ class TimelineScreen extends StatelessWidget {
   Widget _buildAppBar() {
     return SliverAppBar(
       floating: true,
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.white,
+      elevation: 0,
       title: Text(
-        'MON PARCOURS',
+        'Mon parcours',
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w700,
-          letterSpacing: 2.0,
-          fontSize: 14,
-          color: MintColors.primary,
+          fontSize: 18,
+          color: MintColors.textPrimary,
         ),
       ),
     );

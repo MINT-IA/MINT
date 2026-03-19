@@ -54,9 +54,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
     return Scaffold(
       backgroundColor: MintColors.surface,
       appBar: AppBar(
-        title: const Text('Ton Plan Mint'),
-        backgroundColor: MintColors.primary,
-        foregroundColor: MintColors.white,
+        title: Text('Ton Plan Mint', style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, fontSize: 18, color: MintColors.textPrimary)),
+        backgroundColor: MintColors.white,
+        foregroundColor: MintColors.textPrimary,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () => context.go('/home'),

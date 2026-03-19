@@ -79,29 +79,20 @@ class _ConversationHistoryScreenState extends State<ConversationHistoryScreen> {
         slivers: [
           // ── App Bar ──
           SliverAppBar(
-            expandedHeight: 100,
             pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                l10n.conversationHistoryTitle, // TODO: add to ARB files
-                style: GoogleFonts.montserrat(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.white,
-                ),
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [MintColors.primary, MintColors.primaryLight],
-                  ),
-                ),
+            backgroundColor: MintColors.white,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            title: Text(
+              l10n.conversationHistoryTitle,
+              style: GoogleFonts.montserrat(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textPrimary,
               ),
             ),
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: MintColors.white),
+              icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
               onPressed: () => context.pop(),
             ),
           ),

@@ -66,13 +66,14 @@ class _AskMintScreenState extends State<AskMintScreen> {
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
-        backgroundColor: MintColors.background,
+        backgroundColor: MintColors.white,
+        elevation: 0,
         title: Text(
           s?.askMintTitle ?? 'Ask MINT',
           style: GoogleFonts.montserrat(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: MintColors.textPrimary,
           ),
         ),
         actions: [
@@ -117,7 +118,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
             const SizedBox(height: 24),
             Text(
               s?.askMintConfigureTitle ?? 'Configure ton IA',
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.montserrat(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
                 color: MintColors.textPrimary,

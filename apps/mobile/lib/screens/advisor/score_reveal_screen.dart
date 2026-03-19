@@ -348,7 +348,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
             Text(
               S.of(context)!.scoreRevealTitle,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.montserrat(
                 fontSize: 34,
                 fontWeight: FontWeight.w700,
                 color: MintColors.white,

@@ -287,32 +287,21 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
 
   SliverAppBar _buildAppBar() {
     return SliverAppBar(
-      expandedHeight: 120,
       pinned: true,
-      backgroundColor: MintColors.primary,
+      backgroundColor: MintColors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
         onPressed: () => context.pop(),
       ),
-      flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [MintColors.primary, MintColors.charcoal],
-            ),
-          ),
+      title: Text(
+        'Check-up annuel',
+        style: GoogleFonts.montserrat(
+          fontWeight: FontWeight.w700,
+          fontSize: 18,
+          color: MintColors.textPrimary,
         ),
-        title: Text(
-          'Check-up annuel',
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-            color: MintColors.white,
-          ),
-        ),
-        centerTitle: false,
       ),
     );
   }

@@ -16,14 +16,13 @@ class ComprendreHubScreen extends StatelessWidget {
         title: Text(
           S.of(context)!.eduHubTitle,
           style: GoogleFonts.montserrat(
-            fontSize: 14,
+            fontSize: 18,
             fontWeight: FontWeight.w700,
-            letterSpacing: 1.5,
             color: MintColors.textPrimary,
           ),
         ),
-        centerTitle: true,
-        backgroundColor: MintColors.background,
+        centerTitle: false,
+        backgroundColor: MintColors.white,
         elevation: 0,
         leading: const BackButton(color: MintColors.textPrimary),
       ),

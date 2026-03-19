@@ -18,12 +18,12 @@ class PortfolioScreen extends StatelessWidget {
       backgroundColor: MintColors.background,
       appBar: AppBar(
         title: Text(
-          'Mon Patrimoine',
-          style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, fontSize: 16, letterSpacing: 1),
+          'Mon patrimoine',
+          style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, fontSize: 18, color: MintColors.textPrimary),
         ),
-        centerTitle: true,
+        centerTitle: false,
         elevation: 0,
-        backgroundColor: MintColors.background,
+        backgroundColor: MintColors.white,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -169,12 +169,11 @@ class PortfolioScreen extends StatelessWidget {
 
   Widget _buildSectionHeader(String title) {
     return Text(
-      title.toUpperCase(),
-      style: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w700,
-        color: MintColors.textMuted,
-        letterSpacing: 1.2,
+      title,
+      style: GoogleFonts.montserrat(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: MintColors.textPrimary,
       ),
     );
   }

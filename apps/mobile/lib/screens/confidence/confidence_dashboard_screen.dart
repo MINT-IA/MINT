@@ -141,12 +141,11 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
         onPressed: () => context.pop(),
       ),
       title: Text(
-        'PRECISION DE TON PROFIL',
+        'Précision de ton profil',
         style: GoogleFonts.montserrat(
-          fontWeight: FontWeight.w800,
-          fontSize: 13,
-          letterSpacing: 1.5,
-          color: MintColors.textMuted,
+          fontWeight: FontWeight.w700,
+          fontSize: 18,
+          color: MintColors.textPrimary,
         ),
       ),
     );

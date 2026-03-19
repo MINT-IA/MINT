@@ -63,7 +63,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
                   // Header
                   Text(
                     s?.bankImportTitle ?? 'Importer mes releves',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.montserrat(
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
                       letterSpacing: -0.5,
@@ -150,13 +150,15 @@ class _BankImportScreenState extends State<BankImportScreen> {
 
   Widget _buildAppBar(S? s) {
     return SliverAppBar(
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       title: Text(
-        s?.bankImportTitle ?? 'Importer mes releves',
+        s?.bankImportTitle ?? 'Importer mes relevés',
         style: GoogleFonts.montserrat(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.5,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: MintColors.textPrimary,
         ),
       ),
     );
@@ -206,7 +208,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
                 child: Text(
                   s?.bankImportUploadTitle ??
                       'Importe ton releve bancaire',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.montserrat(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: MintColors.white,
@@ -768,7 +770,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
         children: [
           Text(
             s?.bankImportBudgetPreview ?? 'Ton budget estime',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: MintColors.textPrimary,

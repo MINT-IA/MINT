@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -491,33 +492,19 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
   SliverAppBar _buildAppBar() {
     return SliverAppBar(
       pinned: true,
-      expandedHeight: 80,
-      backgroundColor: MintColors.primary,
+      backgroundColor: MintColors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
         onPressed: () => context.pop(),
       ),
-      flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                MintColors.primary,
-                MintColors.primary.withValues(alpha: 0.85),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-        titlePadding: const EdgeInsets.only(left: 56, bottom: 14),
-        title: Text(
-          'Cockpit d\u00e9taill\u00e9',
-          style: GoogleFonts.montserrat(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: MintColors.white,
-          ),
+      title: Text(
+        S.of(context)!.cockpitDetailTitle,
+        style: GoogleFonts.montserrat(
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: MintColors.textPrimary,
         ),
       ),
     );

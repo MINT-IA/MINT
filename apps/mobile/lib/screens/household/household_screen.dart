@@ -49,10 +49,11 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
       appBar: AppBar(
         title: Text(
           S.of(context)!.householdTitle,
-          style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
+          style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, color: MintColors.textPrimary),
         ),
-        backgroundColor: MintColors.primary,
-        foregroundColor: MintColors.white,
+        backgroundColor: MintColors.white,
+        foregroundColor: MintColors.textPrimary,
+        elevation: 0,
       ),
       body: !auth.isLoggedIn
           ? _buildLoginPrompt(context)

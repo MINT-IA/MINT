@@ -44,11 +44,12 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Rejoindre un menage',
-          style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
+          'Rejoindre un ménage',
+          style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, color: MintColors.textPrimary),
         ),
-        backgroundColor: MintColors.primary,
-        foregroundColor: MintColors.white,
+        backgroundColor: MintColors.white,
+        foregroundColor: MintColors.textPrimary,
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(24),

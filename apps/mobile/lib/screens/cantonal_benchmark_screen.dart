@@ -69,31 +69,20 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 120,
             pinned: true,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
+              icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
               onPressed: () => context.canPop() ? context.pop() : context.go('/home'),
             ),
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                S.of(context)!.benchmarkAppBarTitle,
-                style: GoogleFonts.montserrat(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 18,
-                  color: MintColors.white,
-                ),
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [MintColors.primary, MintColors.primaryLight],
-                  ),
-                ),
+            title: Text(
+              S.of(context)!.benchmarkAppBarTitle,
+              style: GoogleFonts.montserrat(
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+                color: MintColors.textPrimary,
               ),
             ),
+            backgroundColor: MintColors.white,
           ),
           SliverToBoxAdapter(
             child: Padding(

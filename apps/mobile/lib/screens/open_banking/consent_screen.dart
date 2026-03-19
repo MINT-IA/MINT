@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/open_banking_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -124,7 +126,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
   Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
       pinned: true,
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.white,
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: IconButton(
@@ -138,13 +140,8 @@ class _ConsentScreenState extends State<ConsentScreen> {
         },
       ),
       title: Text(
-        'CONSENTEMENTS',
-        style: GoogleFonts.montserrat(
-          fontWeight: FontWeight.w800,
-          fontSize: 13,
-          letterSpacing: 1.5,
-          color: MintColors.textMuted,
-        ),
+        S.of(context)!.openBankingConsents,
+        style: MintTextStyles.headlineMedium(),
       ),
     );
   }
@@ -170,11 +167,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               children: [
                 Text(
                   'Fonctionnalite en preparation',
-                  style: GoogleFonts.outfit(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.amberDark,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.amberDark).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -269,11 +262,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               Expanded(
                 child: Text(
                   consent.bankName,
-                  style: GoogleFonts.outfit(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(),
                 ),
               ),
               Container(
@@ -432,11 +421,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               const SizedBox(width: 10),
               Text(
                 'Tes droits (nLPD)',
-                style: GoogleFonts.outfit(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.tealDark,
-                ),
+                style: MintTextStyles.titleMedium(color: MintColors.tealDark).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
               ),
             ],
           ),
