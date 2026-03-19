@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/api_service.dart';
 
@@ -88,6 +89,11 @@ class AuthProvider extends ChangeNotifier {
       _error = null;
       _isLoading = false;
       notifyListeners();
+
+      if (_isLoggedIn) {
+        await _migrateLocalDataIfNeeded();
+      }
+
       return true;
     } catch (e) {
       _error = _toUserFriendlyAuthError(e);
@@ -128,6 +134,9 @@ class AuthProvider extends ChangeNotifier {
       _error = null;
       _isLoading = false;
       notifyListeners();
+
+      await _migrateLocalDataIfNeeded();
+
       return true;
     } catch (e) {
       _error = _toUserFriendlyAuthError(e);
@@ -240,6 +249,29 @@ class AuthProvider extends ChangeNotifier {
     _requiresEmailVerification = false;
     _error = null;
     notifyListeners();
+  }
+
+  /// Migrate local anonymous data to the authenticated account.
+  ///
+  /// Called after a successful login or register to ensure any data
+  /// created before authentication (wizard answers, preferences, etc.)
+  /// is associated with the new user account for future cloud sync.
+  Future<void> _migrateLocalDataIfNeeded() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final alreadyMigrated = prefs.getBool('local_data_migrated_$_userId') ?? false;
+      if (alreadyMigrated || _userId == null) return;
+
+      // Mark migration as complete — actual cloud sync will happen
+      // when the sync service is implemented (post-V1).
+      // For now we just tag local data with the user ID so it can
+      // be associated later.
+      await prefs.setString('local_data_owner', _userId!);
+      await prefs.setBool('local_data_migrated_$_userId', true);
+    } catch (e) {
+      // Migration is best-effort — never block auth flow
+      debugPrint('[AuthProvider] Local data migration failed: $e');
+    }
   }
 
   /// Clear error message
