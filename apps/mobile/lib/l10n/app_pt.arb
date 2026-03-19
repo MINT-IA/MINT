@@ -7091,4 +7091,7 @@
   "capKindSecure": "Proteger",
   "capKindPrepare": "Preparar",
   "proofSheetSources": "Fontes"
+,
+  "pulseFeedbackRecalculated": "Impacto recalculado",
+  "pulseFeedbackAddedRecently": "Adicionado recentemente"
 }

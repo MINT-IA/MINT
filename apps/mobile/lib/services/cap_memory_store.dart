@@ -39,6 +39,10 @@ class CapMemory {
   /// E.g. "budget_stress", "flow_abandoned", "hesitation_lpp".
   final String? recentFrictionContext;
 
+  /// When the last action was completed (distinct from lastCapDate).
+  /// Used by feedback pill to show "Impact recalculé" accurately.
+  final DateTime? lastCompletedDate;
+
   const CapMemory({
     this.lastCapServed,
     this.lastCapDate,
@@ -47,6 +51,7 @@ class CapMemory {
     this.preferredCtaMode,
     this.declaredGoals = const [],
     this.recentFrictionContext,
+    this.lastCompletedDate,
   });
 
   /// Copy with explicit null clearing support.
@@ -61,6 +66,7 @@ class CapMemory {
     Object? preferredCtaMode = _undefined,
     List<String>? declaredGoals,
     Object? recentFrictionContext = _undefined,
+    Object? lastCompletedDate = _undefined,
   }) {
     return CapMemory(
       lastCapServed: lastCapServed == _undefined
@@ -78,6 +84,9 @@ class CapMemory {
       recentFrictionContext: recentFrictionContext == _undefined
           ? this.recentFrictionContext
           : recentFrictionContext as String?,
+      lastCompletedDate: lastCompletedDate == _undefined
+          ? this.lastCompletedDate
+          : lastCompletedDate as DateTime?,
     );
   }
 
@@ -91,6 +100,8 @@ class CapMemory {
         'declaredGoals': declaredGoals,
         if (recentFrictionContext != null)
           'recentFrictionContext': recentFrictionContext,
+        if (lastCompletedDate != null)
+          'lastCompletedDate': lastCompletedDate!.toIso8601String(),
       };
 
   factory CapMemory.fromJson(Map<String, dynamic> json) => CapMemory(
@@ -109,6 +120,9 @@ class CapMemory {
             (json['declaredGoals'] as List<dynamic>?)?.cast<String>() ??
                 const [],
         recentFrictionContext: json['recentFrictionContext'] as String?,
+        lastCompletedDate: json['lastCompletedDate'] != null
+            ? DateTime.tryParse(json['lastCompletedDate'] as String)
+            : null,
       );
 }
 
@@ -166,6 +180,8 @@ class CapMemoryStore {
       completedActions: trimmed,
       // Clear friction context on success.
       recentFrictionContext: null,
+      // Stamp completion time (distinct from lastCapDate).
+      lastCompletedDate: DateTime.now(),
     );
     await save(updated);
     return updated;

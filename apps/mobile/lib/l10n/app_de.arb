@@ -7433,4 +7433,7 @@
   "capKindSecure": "Absichern",
   "capKindPrepare": "Vorbereiten",
   "proofSheetSources": "Quellen"
+,
+  "pulseFeedbackRecalculated": "Auswirkung neu berechnet",
+  "pulseFeedbackAddedRecently": "Kürzlich hinzugefügt"
 }

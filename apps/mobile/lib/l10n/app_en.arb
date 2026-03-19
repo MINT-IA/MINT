@@ -7463,4 +7463,7 @@
   "capKindSecure": "Secure",
   "capKindPrepare": "Prepare",
   "proofSheetSources": "Sources"
+,
+  "pulseFeedbackRecalculated": "Impact recalculated",
+  "pulseFeedbackAddedRecently": "Added recently"
 }

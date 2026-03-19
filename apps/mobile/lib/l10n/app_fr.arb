@@ -7712,4 +7712,7 @@
   "capKindSecure": "Sécuriser",
   "capKindPrepare": "Préparer",
   "proofSheetSources": "Sources"
+,
+  "pulseFeedbackRecalculated": "Impact recalculé",
+  "pulseFeedbackAddedRecently": "Ajouté récemment"
 }

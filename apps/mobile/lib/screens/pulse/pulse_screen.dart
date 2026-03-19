@@ -66,6 +66,10 @@ class _PulseScreenState extends State<PulseScreen> {
         _cachedProjection = null;
         _cachedFri = null;
         _cachedCap = null;
+        // H1 fix: reset CapMemory on profile disappearance
+        // so a new profile doesn't inherit stale cap history.
+        _capMemory = const CapMemory();
+        _capMemoryLoaded = false;
       }
       return;
     }
@@ -112,9 +116,9 @@ class _PulseScreenState extends State<PulseScreen> {
       );
       _cachedCap = cap;
 
-      // Mark served (async, fire-and-forget)
+      // Mark served — setState so feedback pill reflects updated memory.
       CapMemoryStore.markServed(_capMemory, cap.id).then((updated) {
-        if (mounted) _capMemory = updated;
+        if (mounted) setState(() => _capMemory = updated);
       });
     } catch (_) {
       _cachedCap = null;
@@ -285,12 +289,14 @@ class _PulseScreenState extends State<PulseScreen> {
 
     String prefix(String msg) => hasName ? '$firstName, $msg' : msg;
 
-    // Cap headline as narrative source (plan-first)
+    // Cap whyNow as narrative source (plan-first).
+    // headline is shown in CapCard below — using whyNow here avoids
+    // duplicating the same text above the fold (M3 fix).
     if (cap != null) {
-      final h = cap.headline;
+      final w = cap.whyNow;
       return hasName
-          ? '$firstName, ${h[0].toLowerCase()}${h.substring(1)}'
-          : h;
+          ? '$firstName, ${w[0].toLowerCase()}${w.substring(1)}'
+          : w;
     }
 
     // Fallback: time-based narrative
@@ -371,14 +377,19 @@ class _PulseScreenState extends State<PulseScreen> {
 
   String? _recentActionLabel() {
     if (_capMemory.completedActions.isEmpty) return null;
-    if (_capMemory.lastCapDate == null) return null;
+    // H2 fix: use lastCompletedDate (stamped on actual action completion),
+    // not lastCapDate (stamped on cap served).
+    if (_capMemory.lastCompletedDate == null) return null;
 
     final hoursSince =
-        DateTime.now().difference(_capMemory.lastCapDate!).inHours;
+        DateTime.now().difference(_capMemory.lastCompletedDate!).inHours;
     if (hoursSince > 48) return null;
 
-    // Show a simple feedback
-    return hoursSince < 24 ? 'Impact recalculé' : 'Ajouté récemment';
+    // M4 fix: use l10n keys instead of hardcoded FR strings.
+    final l = S.of(context)!;
+    return hoursSince < 24
+        ? l.pulseFeedbackRecalculated
+        : l.pulseFeedbackAddedRecently;
   }
 
   // ── SECONDARY SIGNALS (max 2) ──
