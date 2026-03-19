@@ -510,7 +510,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         child: FilledButton.icon(
           onPressed: () {
             // Navigate back to root dashboard via GoRouter
-            context.go('/');
+            context.go('/home');
           },
           icon: const Icon(Icons.dashboard_outlined, size: 22),
           label: Text(

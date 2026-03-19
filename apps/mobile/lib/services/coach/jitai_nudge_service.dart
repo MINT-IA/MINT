@@ -162,6 +162,39 @@ class JitaiNudgeService {
     );
   }
 
+  /// Returns a map of nudge types to their cooldown expiry dates.
+  ///
+  /// Useful for UI to show "dismissed until..." or "available in X days".
+  /// Returns only nudges that are currently in cooldown.
+  ///
+  /// [prefs] — injectable for testing.
+  /// [now] — override for testing.
+  static Future<Map<NudgeType, DateTime>> activeCooldowns({
+    SharedPreferences? prefs,
+    DateTime? now,
+  }) async {
+    final sp = prefs ?? await SharedPreferences.getInstance();
+    final today = now ?? DateTime.now();
+    final result = <NudgeType, DateTime>{};
+
+    for (final type in NudgeType.values) {
+      final raw = sp.getString('$_dismissPrefix${type.name}');
+      if (raw == null) continue;
+      try {
+        final dismissedAt = DateTime.parse(raw);
+        final cooldown = _cooldownDays(type);
+        final expiresAt = dismissedAt.add(Duration(days: cooldown));
+        if (expiresAt.isAfter(today)) {
+          result[type] = expiresAt;
+        }
+      } catch (_) {
+        // Invalid date format — skip
+      }
+    }
+
+    return result;
+  }
+
   /// Store current FHS score for delta detection.
   ///
   /// Call this after each FHS computation so the next evaluation
@@ -229,7 +262,7 @@ class JitaiNudgeService {
         title: 'Jour de salaire\u00a0!',
         message: 'As-tu pensé à ton virement 3a ce mois-ci\u00a0? '
             'Chaque mois compte pour ta prévoyance.',
-        actionRoute: '/tools/3a',
+        actionRoute: '/pilier-3a',
         actionLabel: 'Voir mon 3a',
         triggeredAt: now,
         priority: NudgePriority.medium,
@@ -246,7 +279,7 @@ class JitaiNudgeService {
         title: 'Déclaration fiscale',
         message: 'Vérifie la date limite de déclaration fiscale dans ton canton. '
             'As-tu pensé à vérifier tes déductions 3a et LPP\u00a0?',
-        actionRoute: '/tools/tax',
+        actionRoute: '/fiscal',
         actionLabel: 'Simuler mes impôts',
         triggeredAt: now,
         priority: NudgePriority.high,
@@ -268,7 +301,7 @@ class JitaiNudgeService {
           type: NudgeType.threeADeadline,
           title: 'Dernière ligne droite pour ton 3a',
           message: 'C\'est le dernier jour pour verser sur ton 3a\u00a0!',
-          actionRoute: '/tools/3a',
+          actionRoute: '/pilier-3a',
           actionLabel: 'Calculer mon économie',
           triggeredAt: now,
           priority: NudgePriority.high,
@@ -285,7 +318,7 @@ class JitaiNudgeService {
         message: 'Il reste $daysLeft\u00a0jour${daysLeft > 1 ? 's' : ''} '
             'pour verser jusqu\'à $plafondStr\u00a0CHF '
             'et réduire tes impôts ${now.year}.',
-        actionRoute: '/tools/3a',
+        actionRoute: '/pilier-3a',
         actionLabel: 'Calculer mon économie',
         triggeredAt: now,
         priority: NudgePriority.high,
@@ -373,7 +406,7 @@ class JitaiNudgeService {
               ? 'Début des cotisations LPP'
               : 'Changement de tranche LPP',
           message: message,
-          actionRoute: '/tools/lpp',
+          actionRoute: '/rachat-lpp',
           actionLabel: 'Explorer le rachat',
           triggeredAt: now,
           priority: NudgePriority.medium,

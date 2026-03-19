@@ -180,21 +180,21 @@ class _MainNavigationShellState extends State<MainNavigationShell>
                 index: 0,
                 icon: Icons.show_chart_outlined,
                 activeIcon: Icons.show_chart,
-                label: 'Pulse',
+                label: S.of(context)!.tabPulse,
                 isCompact: isCompact,
               ),
               _buildNavItem(
                 index: 1,
                 icon: Icons.chat_bubble_outline,
                 activeIcon: Icons.chat_bubble,
-                label: 'Mint',
+                label: S.of(context)!.tabMint,
                 isCompact: isCompact,
               ),
               _buildNavItem(
                 index: 2,
                 icon: Icons.person_outline,
                 activeIcon: Icons.person,
-                label: 'Moi',
+                label: S.of(context)!.tabMoi,
                 isCompact: isCompact,
               ),
             ],
@@ -214,7 +214,10 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     final isActive = _currentIndex == index;
 
     return Expanded(
-      child: InkWell(
+      child: Semantics(
+        label: label,
+        button: true,
+        child: InkWell(
         onTap: () {
           if (_currentIndex != index) {
             _analytics.trackTabSwitch(
@@ -269,6 +272,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
             ],
           ),
         ),
+      ),
       ),
     );
   }

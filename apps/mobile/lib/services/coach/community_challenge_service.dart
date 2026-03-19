@@ -147,6 +147,31 @@ class CommunityChallengeService {
   /// SharedPreferences key for joined challenge records.
   static const _recordsKey = '_community_challenge_records';
 
+  /// Known valid routes for challenge deep links.
+  ///
+  /// Any route used in a challenge CTA must be in this set.
+  /// This prevents broken deep links when routes are renamed.
+  static const _validRoutes = {
+    '/pilier-3a',
+    '/rachat-lpp',
+    '/fiscal',
+    '/retraite',
+    '/budget',
+    '/hypotheque',
+    '/pulse',
+    '/pulse/fhs',
+    '/pulse/achievements',
+    '/mint',
+    '/profile',
+  };
+
+  /// Validate that a route exists in the known routes set.
+  ///
+  /// Returns the route if valid, or '/pulse' as safe fallback.
+  static String validateRoute(String route) {
+    return _validRoutes.contains(route) ? route : '/pulse';
+  }
+
   /// Compliance disclaimer for shared achievements.
   static const String shareDisclaimer =
       'MINT est un outil éducatif. '
