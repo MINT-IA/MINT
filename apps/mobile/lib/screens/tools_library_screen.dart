@@ -535,7 +535,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
               onPressed: () => Navigator.of(context).pop(),
             ),
             title: Text(
-              S.of(context)?.toolsAllTools ?? 'Tous les outils',
+              S.of(context)!.toolsAllTools,
               style: GoogleFonts.montserrat(
                 fontWeight: FontWeight.w700,
                 fontSize: 18,
@@ -566,7 +566,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      S.of(context)?.toolsToolCount(_totalToolCount.toString()) ?? '$_totalToolCount outils',
+                      S.of(context)!.toolsToolCount(_totalToolCount.toString()),
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -583,7 +583,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      S.of(context)?.toolsCategoryCount(_effectiveCategories.length.toString()) ?? '${_effectiveCategories.length} catégories',
+                      S.of(context)!.toolsCategoryCount(_effectiveCategories.length.toString()),
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -599,7 +599,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                         setState(() => _searchQuery = '');
                       },
                       child: Text(
-                        S.of(context)?.toolsClear ?? 'Effacer',
+                        S.of(context)!.toolsClear,
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -657,7 +657,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
           color: MintColors.textPrimary,
         ),
         decoration: InputDecoration(
-          hintText: S.of(context)?.toolsSearchHint ?? 'Chercher un outil...',
+          hintText: S.of(context)!.toolsSearchHint,
           hintStyle: GoogleFonts.inter(
             fontSize: 15,
             color: MintColors.textMuted,
@@ -693,7 +693,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
           const Icon(Icons.search_off, size: 48, color: MintColors.textMuted),
           const SizedBox(height: 16),
           Text(
-            S.of(context)?.toolsNoResults ?? 'Aucun outil trouvé',
+            S.of(context)!.toolsNoResults,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -702,7 +702,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            S.of(context)?.toolsNoResultsHint ?? 'Essaie avec d\'autres mots-clés',
+            S.of(context)!.toolsNoResultsHint,
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.textMuted,
@@ -723,17 +723,20 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Category header
-          InkWell(
-            onTap: () {
-              setState(() {
-                if (isCollapsed) {
-                  _collapsedCategories.remove(globalIndex);
-                } else {
-                  _collapsedCategories.add(globalIndex);
-                }
-              });
-            },
-            borderRadius: BorderRadius.circular(12),
+          Semantics(
+            label: '${category.title} - ${isCollapsed ? "déplier" : "replier"}',
+            button: true,
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  if (isCollapsed) {
+                    _collapsedCategories.remove(globalIndex);
+                  } else {
+                    _collapsedCategories.add(globalIndex);
+                  }
+                });
+              },
+              borderRadius: BorderRadius.circular(12),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Row(
@@ -785,6 +788,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
               ),
             ),
           ),
+          ),
 
           // Tool cards
           AnimatedCrossFade(
@@ -810,13 +814,16 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
   }
 
   Widget _buildToolCard(_ToolItem tool) {
-    return Material(
-      color: MintColors.transparent,
-      child: InkWell(
-        onTap: () => context.push(tool.route),
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(14),
+    return Semantics(
+      label: tool.title,
+      button: true,
+      child: Material(
+        color: MintColors.transparent,
+        child: InkWell(
+          onTap: () => context.push(tool.route),
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: MintColors.card,
             borderRadius: BorderRadius.circular(16),
@@ -874,6 +881,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 }
