@@ -66,7 +66,10 @@ class _ExpandButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Semantics(
+      label: 'interactive element',
+      button: true,
+      child: GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(6),
@@ -81,7 +84,7 @@ class _ExpandButton extends StatelessWidget {
           color: MintColors.textSecondary,
         ),
       ),
-    );
+    ),);
   }
 }
 

@@ -57,7 +57,10 @@ class AuthGate extends StatelessWidget {
       return child;
     }
 
-    return GestureDetector(
+    return Semantics(
+      label: 'interactive element',
+      button: true,
+      child: GestureDetector(
       onTap: () => _showRegistrationSheet(context),
       child: AbsorbPointer(
         child: Opacity(
@@ -65,7 +68,7 @@ class AuthGate extends StatelessWidget {
           child: child,
         ),
       ),
-    );
+    ),);
   }
 
   void _showRegistrationSheet(BuildContext context) {

@@ -36,7 +36,10 @@ class EnrichmentSuggestionCard extends StatelessWidget {
     return Material(
       color: MintColors.card,
       borderRadius: BorderRadius.circular(12),
-      child: InkWell(
+      child: Semantics(
+        label: 'interactive element',
+        button: true,
+        child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Container(
@@ -71,7 +74,7 @@ class EnrichmentSuggestionCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
+      ),),
     );
   }
 }

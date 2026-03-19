@@ -122,7 +122,10 @@ class ConfidenceBanner extends StatelessWidget {
     final impactPct = (prompt.evi * 100).round().clamp(1, 20);
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
-      child: InkWell(
+      child: Semantics(
+        label: 'interactive element',
+        button: true,
+        child: InkWell(
         onTap: () {
           // Placeholder — enrichment action to be connected later
         },
@@ -186,14 +189,17 @@ class ConfidenceBanner extends StatelessWidget {
             ],
           ),
         ),
-      ),
+      ),),
     );
   }
 
   Widget _buildPromptChip(EnrichmentPrompt prompt) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
-      child: InkWell(
+      child: Semantics(
+        label: 'interactive element',
+        button: true,
+        child: InkWell(
         onTap: () {
           // Placeholder — enrichment action to be connected later
         },
@@ -255,7 +261,7 @@ class ConfidenceBanner extends StatelessWidget {
             ],
           ),
         ),
-      ),
+      ),),
     );
   }
 

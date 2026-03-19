@@ -64,7 +64,10 @@ class TemporalStrip extends StatelessWidget {
   Widget _buildChip(BuildContext context, TemporalItem item) {
     final color = _colorForUrgency(item.urgency);
 
-    return GestureDetector(
+    return Semantics(
+      label: 'interactive element',
+      button: true,
+      child: GestureDetector(
       onTap: () => context.push(item.deeplink),
       child: Container(
         width: 160,
@@ -129,7 +132,7 @@ class TemporalStrip extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),);
   }
 
   Color _colorForUrgency(TemporalUrgency urgency) {

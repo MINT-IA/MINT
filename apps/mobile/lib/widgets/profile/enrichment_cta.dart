@@ -18,7 +18,10 @@ class EnrichmentCta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context)!;
-    return InkWell(
+    return Semantics(
+      label: 'interactive element',
+      button: true,
+      child: InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: Container(
@@ -69,6 +72,6 @@ class EnrichmentCta extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),);
   }
 }

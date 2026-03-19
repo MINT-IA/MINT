@@ -102,7 +102,10 @@ class _LanguageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return Semantics(
+      label: 'interactive element',
+      button: true,
+      child: InkWell(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -125,6 +128,6 @@ class _LanguageTile extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),);
   }
 }
