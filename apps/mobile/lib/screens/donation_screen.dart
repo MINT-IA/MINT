@@ -360,9 +360,13 @@ class _DonationScreenState extends State<DonationScreen> {
           runSpacing: 8,
           children: _liensParente.map((lien) {
             final selected = _lienParente == lien;
-            return GestureDetector(
-              onTap: () => setState(() => _lienParente = lien),
-              child: Container(
+            return Semantics(
+              label: DonationService.lienParenteLabels[lien] ?? lien,
+              button: true,
+              selected: selected,
+              child: GestureDetector(
+                onTap: () => setState(() => _lienParente = lien),
+                child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
@@ -388,6 +392,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   ),
                 ),
               ),
+            ),
             );
           }).toList(),
         ),
@@ -413,9 +418,13 @@ class _DonationScreenState extends State<DonationScreen> {
           runSpacing: 8,
           children: _typesDonation.map((type) {
             final selected = _typeDonation == type;
-            return GestureDetector(
-              onTap: () => setState(() => _typeDonation = type),
-              child: Container(
+            return Semantics(
+              label: _typesDonationLabels[type] ?? type,
+              button: true,
+              selected: selected,
+              child: GestureDetector(
+                onTap: () => setState(() => _typeDonation = type),
+                child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
@@ -441,6 +450,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   ),
                 ),
               ),
+            ),
             );
           }).toList(),
         ),
@@ -468,9 +478,13 @@ class _DonationScreenState extends State<DonationScreen> {
           runSpacing: 8,
           children: regimes.map((regime) {
             final selected = _regimeMatrimonial == regime;
-            return GestureDetector(
-              onTap: () => setState(() => _regimeMatrimonial = regime),
-              child: Container(
+            return Semantics(
+              label: _regimesLabels[regime] ?? regime,
+              button: true,
+              selected: selected,
+              child: GestureDetector(
+                onTap: () => setState(() => _regimeMatrimonial = regime),
+                child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
@@ -496,6 +510,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   ),
                 ),
               ),
+            ),
             );
           }).toList(),
         ),
@@ -940,59 +955,64 @@ class _DonationScreenState extends State<DonationScreen> {
         children: List.generate(r.checklist.length, (index) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: InkWell(
-              onTap: () {
-                setState(() {
-                  _checklistState[index] = !_checklistState[index];
-                });
-              },
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: _checklistState[index]
-                      ? MintColors.success.withValues(alpha: 0.06)
-                      : MintColors.surface,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: _checklistState[index]
-                        ? MintColors.success.withValues(alpha: 0.3)
-                        : MintColors.border,
+            child: Semantics(
+              label: r.checklist[index],
+              button: true,
+              toggled: _checklistState[index],
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    _checklistState[index] = !_checklistState[index];
+                  });
+                },
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
                   ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      _checklistState[index]
-                          ? Icons.check_box
-                          : Icons.check_box_outline_blank,
-                      size: 20,
+                  decoration: BoxDecoration(
+                    color: _checklistState[index]
+                        ? MintColors.success.withValues(alpha: 0.06)
+                        : MintColors.surface,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
                       color: _checklistState[index]
-                          ? MintColors.success
-                          : MintColors.textMuted,
+                          ? MintColors.success.withValues(alpha: 0.3)
+                          : MintColors.border,
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        r.checklist[index],
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: _checklistState[index]
-                              ? MintColors.textSecondary
-                              : MintColors.textPrimary,
-                          decoration: _checklistState[index]
-                              ? TextDecoration.lineThrough
-                              : null,
-                          height: 1.4,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        _checklistState[index]
+                            ? Icons.check_box
+                            : Icons.check_box_outline_blank,
+                        size: 20,
+                        color: _checklistState[index]
+                            ? MintColors.success
+                            : MintColors.textMuted,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          r.checklist[index],
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: _checklistState[index]
+                                ? MintColors.textSecondary
+                                : MintColors.textPrimary,
+                            decoration: _checklistState[index]
+                                ? TextDecoration.lineThrough
+                                : null,
+                            height: 1.4,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
               ),
+            ),
             ),
           );
         }),
