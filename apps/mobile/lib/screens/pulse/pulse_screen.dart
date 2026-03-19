@@ -337,68 +337,71 @@ class _PulseScreenState extends State<PulseScreen> {
             ? l.pulseReadinessProgress
             : l.pulseReadinessWeak;
 
-    return GestureDetector(
-      onTap: () => context.push('/coach/cockpit'),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            // Circular score indicator
-            SizedBox(
-              width: 48,
-              height: 48,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  CircularProgressIndicator(
-                    value: score / 100,
-                    strokeWidth: 4,
-                    backgroundColor: color.withValues(alpha: 0.15),
-                    valueColor: AlwaysStoppedAnimation<Color>(color),
-                  ),
-                  Text(
-                    '${score.round()}',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: color,
+    return Semantics(
+      label: l.pulseReadinessTitle,
+      button: true,
+      child: GestureDetector(
+        onTap: () => context.push('/coach/cockpit'),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: MintColors.surface,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 48,
+                height: 48,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      value: score / 100,
+                      strokeWidth: 4,
+                      backgroundColor: color.withValues(alpha: 0.15),
+                      valueColor: AlwaysStoppedAnimation<Color>(color),
                     ),
-                  ),
-                ],
+                    Text(
+                      '${score.round()}',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: color,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l.pulseReadinessTitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l.pulseReadinessTitle,
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: MintColors.textPrimary,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '$label · ${_readinessDetail(profile)}',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                      height: 1.3,
+                    const SizedBox(height: 2),
+                    Text(
+                      '$label · ${_readinessDetail(profile)}',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: MintColors.textSecondary,
+                        height: 1.3,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const Icon(Icons.arrow_forward_ios_rounded,
-                size: 14, color: MintColors.textMuted),
-          ],
+              const Icon(Icons.arrow_forward_ios_rounded,
+                  size: 14, color: MintColors.textMuted),
+            ],
+          ),
         ),
       ),
     );
@@ -432,56 +435,59 @@ class _PulseScreenState extends State<PulseScreen> {
 
     if (urgentCount == 0) return const SizedBox.shrink();
 
-    return GestureDetector(
-      onTap: () {
-        // Navigate to Agir tab (index 1) via shell
-        NavigationShellState.switchTab(1);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: MintColors.error.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: MintColors.error.withValues(alpha: 0.15),
+    return Semantics(
+      label: 'Urgent actions: $urgentCount',
+      button: true,
+      child: GestureDetector(
+        onTap: () {
+          NavigationShellState.switchTab(1);
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: MintColors.error.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: MintColors.error.withValues(alpha: 0.15),
+            ),
           ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 24,
-              height: 24,
-              decoration: const BoxDecoration(
-                color: MintColors.error,
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  '$urgentCount',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.white,
+          child: Row(
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: const BoxDecoration(
+                  color: MintColors.error,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    '$urgentCount',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: MintColors.white,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                urgentCount == 1
-                    ? S.of(context)!.pulseActionSignalSingular
-                    : S.of(context)!.pulseActionSignalPlural('$urgentCount'),
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  urgentCount == 1
+                      ? S.of(context)!.pulseActionSignalSingular
+                      : S.of(context)!.pulseActionSignalPlural('$urgentCount'),
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: MintColors.textPrimary,
+                  ),
                 ),
               ),
-            ),
-            const Icon(Icons.arrow_forward_rounded,
-                size: 18, color: MintColors.error),
-          ],
+              const Icon(Icons.arrow_forward_rounded,
+                  size: 18, color: MintColors.error),
+            ],
+          ),
         ),
       ),
     );
@@ -730,31 +736,35 @@ class _HeroCard extends StatelessWidget {
               Icon(hero.icon,
                   size: 22, color: MintColors.white.withValues(alpha: 0.9)),
               const Spacer(),
-              GestureDetector(
-                onTap: onChangeFocus,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: MintColors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.tune_rounded,
-                          size: 14,
-                          color: MintColors.white.withValues(alpha: 0.9)),
-                      const SizedBox(width: 4),
-                      Text(
-                        S.of(context)!.pulseHeroChangeBtn,
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: MintColors.white.withValues(alpha: 0.9),
-                          fontWeight: FontWeight.w500,
+              Semantics(
+                label: S.of(context)!.pulseHeroChangeBtn,
+                button: true,
+                child: GestureDetector(
+                  onTap: onChangeFocus,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: MintColors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.tune_rounded,
+                            size: 14,
+                            color: MintColors.white.withValues(alpha: 0.9)),
+                        const SizedBox(width: 4),
+                        Text(
+                          S.of(context)!.pulseHeroChangeBtn,
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            color: MintColors.white.withValues(alpha: 0.9),
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -791,21 +801,25 @@ class _HeroCard extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 16),
-          GestureDetector(
-            onTap: () => context.push(hero.ctaRoute),
-            child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-              decoration: BoxDecoration(
-                color: MintColors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                hero.ctaLabel,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: hero.color,
+          Semantics(
+            label: hero.ctaLabel,
+            button: true,
+            child: GestureDetector(
+              onTap: () => context.push(hero.ctaRoute),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                decoration: BoxDecoration(
+                  color: MintColors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  hero.ctaLabel,
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: hero.color,
+                  ),
                 ),
               ),
             ),
@@ -839,14 +853,17 @@ class _PastilleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
+    return Semantics(
+      label: label,
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: MintColors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
           boxShadow: [
             BoxShadow(
               color: MintColors.black.withValues(alpha: 0.03),
@@ -896,6 +913,7 @@ class _PastilleCard extends StatelessWidget {
           ],
         ),
       ),
+      ),
     );
   }
 }
@@ -912,35 +930,41 @@ class _CoupleSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onToggle,
-      child: Container(
-        margin: const EdgeInsets.only(right: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: MintColors.white.withValues(alpha: 0.18),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              isCouple
-                  ? S.of(context)!.coupleSwitchDuo
-                  : S.of(context)!.coupleSwitchSolo,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+    return Semantics(
+      label: isCouple
+          ? S.of(context)!.coupleSwitchDuo
+          : S.of(context)!.coupleSwitchSolo,
+      toggled: isCouple,
+      child: GestureDetector(
+        onTap: onToggle,
+        child: Container(
+          margin: const EdgeInsets.only(right: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: MintColors.white.withValues(alpha: 0.18),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                isCouple
+                    ? S.of(context)!.coupleSwitchDuo
+                    : S.of(context)!.coupleSwitchSolo,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: MintColors.white,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(
+                isCouple ? Icons.people : Icons.person,
+                size: 16,
                 color: MintColors.white,
               ),
-            ),
-            const SizedBox(width: 4),
-            Icon(
-              isCouple ? Icons.people : Icons.person,
-              size: 16,
-              color: MintColors.white,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
