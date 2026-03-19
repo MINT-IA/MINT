@@ -108,39 +108,26 @@ class _PulseScreenState extends State<PulseScreen> {
               children: [
                 const SizedBox(height: 20),
 
-                // Hero card OR FocusSelector
-                if (hero != null)
-                  _HeroCard(
-                    hero: hero,
-                    onChangeFocus: () => _showFocusPicker(context, profile),
-                  )
-                else
-                  FocusSelector(
-                    profile: profile,
-                    onFocusSelected: (focus) => _setFocus(context, focus),
-                  ),
+                // ── HERO ZONE: adaptive hero + FHS ring integrated ──
+                _buildAdaptiveHeroWithScore(profile, hero),
                 const SizedBox(height: 20),
 
-                // Priority #1 contextual card
+                // ── SINGLE PRIORITY ACTION ──
                 _buildPriorityCard(profile),
 
-                // 3 pastilles
+                // ── 3 PASTILLES (retraite, budget, patrimoine) ──
                 _buildPastilles(profile),
-                const SizedBox(height: 20),
-
-                // Score de préparation (FRI compact)
-                _buildReadinessScore(profile),
                 const SizedBox(height: 16),
 
-                // Action signal → Coach
+                // ── ACTION SIGNAL → Coach ──
                 _buildActionSignal(profile),
                 const SizedBox(height: 16),
 
-                // Enrichir — scan CTA + confidence nudge
+                // ── ENRICHIR — scan CTA + confidence nudge ──
                 _buildEnrichirSection(profile, coachProvider),
                 const SizedBox(height: 20),
 
-                // Disclaimer (1 line)
+                // Disclaimer
                 const PulseDisclaimer(),
                 const SizedBox(height: 80), // FAB clearance
               ],
@@ -148,6 +135,175 @@ class _PulseScreenState extends State<PulseScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  // ────────────────────────────────────────────────────────
+  //  ADAPTIVE HERO + FHS RING (age-aware, not retirement-fixed)
+  // ────────────────────────────────────────────────────────
+
+  Widget _buildAdaptiveHeroWithScore(CoachProfile profile, PulseHero? hero) {
+    final fri = _cachedFri;
+
+    if (hero == null) {
+      return FocusSelector(
+        profile: profile,
+        onFocusSelected: (focus) => _setFocus(context, focus),
+      );
+    }
+
+    // FHS score
+    final score = fri?.global ?? 0.0;
+    final scoreColor = score >= 70
+        ? MintColors.success
+        : score >= 40
+            ? MintColors.warning
+            : MintColors.error;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [hero.color, hero.color.withValues(alpha: 0.85)],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: hero.color.withValues(alpha: 0.2),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Top row: FHS ring + readiness detail + change focus
+          Row(
+            children: [
+              // FHS ring (compact)
+              if (fri != null)
+                SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CircularProgressIndicator(
+                        value: score / 100,
+                        strokeWidth: 3,
+                        backgroundColor: MintColors.white.withValues(alpha: 0.2),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          scoreColor == MintColors.success
+                              ? MintColors.white
+                              : scoreColor,
+                        ),
+                      ),
+                      Text(
+                        '${score.round()}',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: MintColors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              if (fri != null) const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  _readinessDetail(profile),
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: MintColors.white.withValues(alpha: 0.8),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              // Change focus button
+              Semantics(
+                label: S.of(context)!.pulseHeroChangeBtn,
+                button: true,
+                child: GestureDetector(
+                  onTap: () => _showFocusPicker(context, profile),
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: MintColors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Icon(Icons.tune_rounded,
+                        size: 14,
+                        color: MintColors.white.withValues(alpha: 0.9)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Hero title (adaptive from PulseHeroEngine)
+          Text(
+            hero.title,
+            style: GoogleFonts.outfit(
+              fontSize: 26,
+              fontWeight: FontWeight.w800,
+              color: MintColors.white,
+              height: 1.1,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            hero.subtitle,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: MintColors.white.withValues(alpha: 0.9),
+              height: 1.3,
+            ),
+          ),
+          if (hero.detail != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              hero.detail!,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: MintColors.white.withValues(alpha: 0.7),
+                height: 1.3,
+              ),
+            ),
+          ],
+          const SizedBox(height: 16),
+
+          // CTA button
+          Semantics(
+            label: hero.ctaLabel,
+            button: true,
+            child: GestureDetector(
+              onTap: () => context.push(hero.ctaRoute),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: MintColors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  hero.ctaLabel,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: hero.color,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -328,96 +484,7 @@ class _PulseScreenState extends State<PulseScreen> {
     );
   }
 
-  // ────────────────────────────────────────────────────────
-  //  SCORE DE PRÉPARATION (FRI compact)
-  // ────────────────────────────────────────────────────────
-
-  Widget _buildReadinessScore(CoachProfile profile) {
-    final fri = _cachedFri;
-    if (fri == null) return const SizedBox.shrink();
-
-    final score = fri.global;
-    final color = score >= 70
-        ? MintColors.success
-        : score >= 40
-            ? MintColors.warning
-            : MintColors.error;
-    final l = S.of(context)!;
-    final label = score >= 70
-        ? l.pulseReadinessGood
-        : score >= 40
-            ? l.pulseReadinessProgress
-            : l.pulseReadinessWeak;
-
-    return Semantics(
-      label: l.pulseReadinessTitle,
-      button: true,
-      child: GestureDetector(
-        onTap: () => context.push('/coach/cockpit'),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: MintColors.surface,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 48,
-                height: 48,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CircularProgressIndicator(
-                      value: score / 100,
-                      strokeWidth: 4,
-                      backgroundColor: color.withValues(alpha: 0.15),
-                      valueColor: AlwaysStoppedAnimation<Color>(color),
-                    ),
-                    Text(
-                      '${score.round()}',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: color,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l.pulseReadinessTitle,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '$label · ${_readinessDetail(profile)}',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textSecondary,
-                        height: 1.3,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(Icons.arrow_forward_ios_rounded,
-                  size: 14, color: MintColors.textMuted),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  // _buildReadinessScore removed — FHS ring now integrated in adaptive hero
 
   String _readinessDetail(CoachProfile profile) {
     final l = S.of(context)!;
@@ -714,134 +781,7 @@ class _PulseScreenState extends State<PulseScreen> {
 
 // ────────────────────────────────────────────────────────
 //  HERO CARD — Adaptive, focus-driven
-// ────────────────────────────────────────────────────────
-
-class _HeroCard extends StatelessWidget {
-  final PulseHero hero;
-  final VoidCallback onChangeFocus;
-
-  const _HeroCard({required this.hero, required this.onChangeFocus});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [hero.color, hero.color.withValues(alpha: 0.85)],
-        ),
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: hero.color.withValues(alpha: 0.25),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(hero.icon,
-                  size: 22, color: MintColors.white.withValues(alpha: 0.9)),
-              const Spacer(),
-              Semantics(
-                label: S.of(context)!.pulseHeroChangeBtn,
-                button: true,
-                child: GestureDetector(
-                  onTap: onChangeFocus,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: MintColors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.tune_rounded,
-                            size: 14,
-                            color: MintColors.white.withValues(alpha: 0.9)),
-                        const SizedBox(width: 4),
-                        Text(
-                          S.of(context)!.pulseHeroChangeBtn,
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            color: MintColors.white.withValues(alpha: 0.9),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Text(
-            hero.title,
-            style: GoogleFonts.outfit(
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              color: MintColors.white,
-              height: 1.1,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            hero.subtitle,
-            style: GoogleFonts.inter(
-              fontSize: 15,
-              color: MintColors.white.withValues(alpha: 0.9),
-              height: 1.3,
-            ),
-          ),
-          if (hero.detail != null) ...[
-            const SizedBox(height: 8),
-            Text(
-              hero.detail!,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.white.withValues(alpha: 0.7),
-                height: 1.3,
-              ),
-            ),
-          ],
-          const SizedBox(height: 16),
-          Semantics(
-            label: hero.ctaLabel,
-            button: true,
-            child: GestureDetector(
-              onTap: () => context.push(hero.ctaRoute),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                decoration: BoxDecoration(
-                  color: MintColors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  hero.ctaLabel,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: hero.color,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// _HeroCard removed — replaced by _buildAdaptiveHeroWithScore (inline method)
 
 // ────────────────────────────────────────────────────────
 //  PASTILLE CARD (compact key figure)
