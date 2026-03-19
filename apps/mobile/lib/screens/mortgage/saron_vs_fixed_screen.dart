@@ -1,8 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 
@@ -31,109 +33,87 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final result = _result;
 
     return Scaffold(
       backgroundColor: MintColors.surface,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 100,
-            pinned: true,
-            backgroundColor: MintColors.primary,
-            foregroundColor: MintColors.white,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'SARON VS FIXE',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ),
+      appBar: AppBar(
+        backgroundColor: MintColors.white,
+        foregroundColor: MintColors.textPrimary,
+        elevation: 0,
+        title: Text(
+          s.saronVsFixedAppBarTitle,
+          style: MintTextStyles.headlineMedium(),
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        children: [
+          // Chiffre choc
+          _buildChiffreChocCard(result),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Graphique
+          _buildChartSection(s, result),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Sliders
+          _buildSlidersSection(s),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Detail couts
+          _buildCostComparisonSection(s, result),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Disclaimer
+          _buildDisclaimer(result.disclaimer),
+          const SizedBox(height: MintSpacing.sm),
+
+          // Source legale
+          Text(
+            s.saronVsFixedSource,
+            style: MintTextStyles.micro(),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // Chiffre choc
-                _buildChiffreChocCard(result),
-                const SizedBox(height: 24),
-
-                // Graphique
-                _buildChartSection(result),
-                const SizedBox(height: 24),
-
-                // Sliders
-                _buildSlidersSection(),
-                const SizedBox(height: 24),
-
-                // Detail couts
-                _buildCostComparisonSection(result),
-                const SizedBox(height: 24),
-
-                // Disclaimer
-                _buildDisclaimer(result.disclaimer),
-                const SizedBox(height: 12),
-
-                // Source legale
-                const Text(
-                  'Source : taux indicatifs marche suisse 2026. Ne constitue pas un conseil hypothecaire.',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontStyle: FontStyle.italic,
-                    color: MintColors.textMuted,
-                  ),
-                ),
-                const SizedBox(height: 40),
-              ]),
-            ),
-          ),
+          const SizedBox(height: MintSpacing.xl),
         ],
       ),
     );
   }
 
   Widget _buildChiffreChocCard(SaronVsFixedResult result) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.info.withValues(alpha: 0.3), width: 2),
-      ),
-      child: Column(
-        children: [
-          const Icon(Icons.compare_arrows, color: MintColors.info, size: 40),
-          const SizedBox(height: 12),
-          Text(
-            'CHF ${formatChf(result.economieSaronStable.abs())}',
-            style: GoogleFonts.montserrat(
-              fontSize: 32,
-              fontWeight: FontWeight.w800,
-              color: MintColors.info,
+    return Semantics(
+      label: 'CHF ${formatChf(result.economieSaronStable.abs())}',
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: MintColors.info.withValues(alpha: 0.3), width: 2),
+        ),
+        child: Column(
+          children: [
+            const Icon(Icons.compare_arrows, color: MintColors.info, size: 40),
+            const SizedBox(height: MintSpacing.sm + 4),
+            Text(
+              'CHF ${formatChf(result.economieSaronStable.abs())}',
+              style: MintTextStyles.displayMedium(color: MintColors.info),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            result.chiffreChocTexte,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-              height: 1.4,
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              result.chiffreChocTexte,
+              textAlign: TextAlign.center,
+              style: MintTextStyles.bodyMedium(),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildChartSection(SaronVsFixedResult result) {
+  Widget _buildChartSection(S s, SaronVsFixedResult result) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -143,15 +123,10 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'COUT CUMULE SUR $_dureeAns ANS',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            s.saronVsFixedCumulativeCost(_dureeAns),
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           SizedBox(
             height: 220,
             child: CustomPaint(
@@ -164,16 +139,16 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           // Legende
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegendItem(MintColors.primary, 'Fixe'),
-              const SizedBox(width: 16),
-              _buildLegendItem(MintColors.success, 'SARON stable'),
-              const SizedBox(width: 16),
-              _buildLegendItem(MintColors.error, 'SARON hausse'),
+              _buildLegendItem(MintColors.primary, s.saronVsFixedLegendFixed),
+              const SizedBox(width: MintSpacing.md),
+              _buildLegendItem(MintColors.success, s.saronVsFixedLegendSaronStable),
+              const SizedBox(width: MintSpacing.md),
+              _buildLegendItem(MintColors.error, s.saronVsFixedLegendSaronRise),
             ],
           ),
         ],
@@ -192,18 +167,18 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        const SizedBox(width: 4),
+        const SizedBox(width: MintSpacing.xs),
         Text(
           label,
-          style: const TextStyle(fontSize: 11, color: MintColors.textMuted),
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted),
         ),
       ],
     );
   }
 
-  Widget _buildSlidersSection() {
+  Widget _buildSlidersSection(S s) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -213,19 +188,14 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAMETRES',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            s.saronVsFixedParameters,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Montant hypothecaire
           _buildSliderRow(
-            label: 'Montant hypothecaire',
+            label: s.saronVsFixedMortgageAmount,
             value: _montantHypothecaire,
             min: 200000,
             max: 2000000,
@@ -233,43 +203,42 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
             format: 'CHF ${formatChf(_montantHypothecaire)}',
             onChanged: (v) => setState(() => _montantHypothecaire = v),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Duree
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Duree',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textPrimary,
+          Semantics(
+            label: s.saronVsFixedDuration,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  s.saronVsFixedDuration,
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: MintColors.border),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<int>(
-                    value: _dureeAns,
-                    items: _dureesDisponibles
-                        .map((d) => DropdownMenuItem(
-                              value: d,
-                              child: Text('$d ans',
-                                  style: const TextStyle(fontSize: 13)),
-                            ))
-                        .toList(),
-                    onChanged: (v) {
-                      if (v != null) setState(() => _dureeAns = v);
-                    },
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm + 4),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: MintColors.border),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<int>(
+                      value: _dureeAns,
+                      items: _dureesDisponibles
+                          .map((d) => DropdownMenuItem(
+                                value: d,
+                                child: Text(s.saronVsFixedYears(d),
+                                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
+                              ))
+                          .toList(),
+                      onChanged: (v) {
+                        if (v != null) setState(() => _dureeAns = v);
+                      },
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -285,45 +254,40 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
     required String format,
     required ValueChanged<double> onChanged,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textPrimary,
+    return Semantics(
+      label: '$label: $format',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                label,
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
               ),
-            ),
-            Text(
-              format,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
+              Text(
+                format,
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
               ),
-            ),
-          ],
-        ),
-        Slider(
-          value: value,
-          min: min,
-          max: max,
-          divisions: divisions,
-          activeColor: MintColors.primary,
-          onChanged: onChanged,
-        ),
-      ],
+            ],
+          ),
+          Slider(
+            value: value,
+            min: min,
+            max: max,
+            divisions: divisions,
+            activeColor: MintColors.primary,
+            onChanged: onChanged,
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildCostComparisonSection(SaronVsFixedResult result) {
+  Widget _buildCostComparisonSection(S s, SaronVsFixedResult result) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -333,58 +297,46 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'COMPARAISON DES COUTS',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            s.saronVsFixedCostComparison,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildCostRow(
             label: result.fixe.label,
-            taux: '${(result.fixe.tauxInitial * 100).toStringAsFixed(2)}%',
+            taux: s.saronVsFixedRate('${(result.fixe.tauxInitial * 100).toStringAsFixed(2)}%'),
             total: 'CHF ${formatChf(result.fixe.coutTotal)}',
             color: MintColors.textPrimary,
           ),
-          const Divider(height: 20),
+          const Divider(height: MintSpacing.md + 4),
           _buildCostRow(
             label: result.saronStable.label,
-            taux:
-                '${(result.saronStable.tauxInitial * 100).toStringAsFixed(2)}%',
+            taux: s.saronVsFixedRate('${(result.saronStable.tauxInitial * 100).toStringAsFixed(2)}%'),
             total: 'CHF ${formatChf(result.saronStable.coutTotal)}',
             color: MintColors.success,
           ),
-          const Divider(height: 20),
+          const Divider(height: MintSpacing.md + 4),
           _buildCostRow(
             label: result.saronHausse.label,
-            taux:
-                '${(result.saronHausse.tauxInitial * 100).toStringAsFixed(2)}% initial',
+            taux: s.saronVsFixedRate('${(result.saronHausse.tauxInitial * 100).toStringAsFixed(2)}% initial'),
             total: 'CHF ${formatChf(result.saronHausse.coutTotal)}',
             color: MintColors.error,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(MintSpacing.sm + 4),
             decoration: BoxDecoration(
-              color: MintColors.appleSurface,
+              color: MintColors.surface,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.lightbulb_outline,
+                const Icon(Icons.lightbulb_outline,
                     color: MintColors.textMuted, size: 18),
-                SizedBox(width: 8),
+                const SizedBox(width: MintSpacing.sm),
                 Expanded(
                   child: Text(
-                    'Le SARON hausse simule +0.25%/an les 3 premieres annees. '
-                    'En realite, l\'evolution depend de la politique monetaire de la BNS.',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: MintColors.textSecondary,
-                      height: 1.4,
-                    ),
+                    s.saronVsFixedInsightText,
+                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                   ),
                 ),
               ],
@@ -411,36 +363,25 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: MintSpacing.sm + 4),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: color,
-                ),
+                style: MintTextStyles.bodySmall(color: color),
               ),
               Text(
-                'Taux : $taux',
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: MintColors.textMuted,
-                ),
+                taux,
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               ),
             ],
           ),
         ),
         Text(
           total,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: color,
-          ),
+          style: MintTextStyles.bodyMedium(color: color),
         ),
       ],
     );
@@ -448,26 +389,21 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
 
   Widget _buildDisclaimer(String disclaimer) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.warningBg,
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.orangeRetroWarm),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
               disclaimer,
-              style: const TextStyle(
-                fontSize: 11,
-                fontStyle: FontStyle.italic,
-                color: MintColors.deepOrange,
-                height: 1.4,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textSecondary),
             ),
           ),
         ],
@@ -520,7 +456,7 @@ class _MortgageChartPainter extends CustomPainter {
 
     // Grid lines
     final gridPaint = Paint()
-      ..color = MintColors.lightBorder
+      ..color = MintColors.border
       ..strokeWidth = 1;
 
     const gridSteps = 4;

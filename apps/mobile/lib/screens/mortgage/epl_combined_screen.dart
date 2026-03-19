@@ -1,8 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 
@@ -35,143 +37,116 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final result = _result;
 
     return Scaffold(
       backgroundColor: MintColors.surface,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 100,
-            pinned: true,
-            backgroundColor: MintColors.primary,
-            foregroundColor: MintColors.white,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'EPL MULTI-SOURCES',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ),
+      appBar: AppBar(
+        backgroundColor: MintColors.white,
+        foregroundColor: MintColors.textPrimary,
+        elevation: 0,
+        title: Text(
+          s.eplCombinedAppBarTitle,
+          style: MintTextStyles.headlineMedium(),
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        children: [
+          // Chiffre choc
+          _buildChiffreChocCard(s, result),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Pie chart
+          _buildPieChartSection(s, result),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Sliders
+          _buildSlidersSection(s),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Sources detail
+          _buildSourcesDetail(s, result),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Ordre recommande
+          _buildOrdreRecommande(s),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Alertes
+          if (result.alertes.isNotEmpty) ...[
+            _buildAlertesSection(s, result.alertes),
+            const SizedBox(height: MintSpacing.lg),
+          ],
+
+          // Disclaimer
+          _buildDisclaimer(result.disclaimer),
+          const SizedBox(height: MintSpacing.sm),
+
+          // Source legale
+          Text(
+            s.eplCombinedSource,
+            style: MintTextStyles.micro(),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // Chiffre choc
-                _buildChiffreChocCard(result),
-                const SizedBox(height: 24),
-
-                // Pie chart
-                _buildPieChartSection(result),
-                const SizedBox(height: 24),
-
-                // Sliders
-                _buildSlidersSection(),
-                const SizedBox(height: 24),
-
-                // Sources detail
-                _buildSourcesDetail(result),
-                const SizedBox(height: 24),
-
-                // Ordre recommande
-                _buildOrdreRecommande(),
-                const SizedBox(height: 24),
-
-                // Alertes
-                if (result.alertes.isNotEmpty) ...[
-                  _buildAlertesSection(result.alertes),
-                  const SizedBox(height: 24),
-                ],
-
-                // Disclaimer
-                _buildDisclaimer(result.disclaimer),
-                const SizedBox(height: 12),
-
-                // Source legale
-                const Text(
-                  'Source : LPP art. 30c (EPL), OPP3, LIFD art. 38. '
-                  'Taux cantonaux estimes a titre pedagogique.',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontStyle: FontStyle.italic,
-                    color: MintColors.textMuted,
-                  ),
-                ),
-                const SizedBox(height: 40),
-              ]),
-            ),
-          ),
+          const SizedBox(height: MintSpacing.xl),
         ],
       ),
     );
   }
 
-  Widget _buildChiffreChocCard(EplCombinedResult result) {
+  Widget _buildChiffreChocCard(S s, EplCombinedResult result) {
     final color = result.chiffreChocPositif
         ? MintColors.success
         : MintColors.warning;
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            result.objectifAtteint ? Icons.home_outlined : Icons.warning_amber_rounded,
-            color: color,
-            size: 40,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            '${result.pourcentageCouvert.toStringAsFixed(1)}%',
-            style: GoogleFonts.montserrat(
-              fontSize: 48,
-              fontWeight: FontWeight.w800,
+    return Semantics(
+      label: '${result.pourcentageCouvert.toStringAsFixed(1)}%',
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              result.objectifAtteint ? Icons.home_outlined : Icons.warning_amber_rounded,
               color: color,
+              size: 40,
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            result.chiffreChocTexte,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-              height: 1.4,
+            const SizedBox(height: MintSpacing.sm + 4),
+            Text(
+              '${result.pourcentageCouvert.toStringAsFixed(1)}%',
+              style: MintTextStyles.displayLarge(color: color),
             ),
-          ),
-          if (!result.objectifAtteint) ...[
-            const SizedBox(height: 8),
-            const Text(
-              'Minimum requis : 20%',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: MintColors.error,
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              result.chiffreChocTexte,
+              textAlign: TextAlign.center,
+              style: MintTextStyles.bodyMedium(),
+            ),
+            if (!result.objectifAtteint) ...[
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                s.eplCombinedMinRequired,
+                style: MintTextStyles.labelSmall(color: MintColors.error),
               ),
-            ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildPieChartSection(EplCombinedResult result) {
+  Widget _buildPieChartSection(S s, EplCombinedResult result) {
     if (result.sources.isEmpty) {
       return const SizedBox.shrink();
     }
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -181,15 +156,10 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'REPARTITION DES FONDS PROPRES',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            s.eplCombinedFundsBreakdown,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md + 4),
           Center(
             child: SizedBox(
               height: 180,
@@ -203,7 +173,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md + 4),
           // Legende
           for (int i = 0; i < result.sources.length; i++)
             _buildPieLegendItem(
@@ -211,7 +181,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
               label: result.sources[i].label,
               amount: 'CHF ${formatChf(result.sources[i].montant)}',
               percentage:
-                  '${result.sources[i].pourcentageDuPrix.toStringAsFixed(1)}% du prix',
+                  '${result.sources[i].pourcentageDuPrix.toStringAsFixed(1)}% ${s.eplCombinedPriceOfProperty}',
             ),
         ],
       ),
@@ -219,9 +189,9 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
   }
 
   static const _pieColors = [
-    MintColors.primary, // Cash — anthracite
-    MintColors.info, // 3a — blue
-    MintColors.warning, // LPP — orange
+    MintColors.primary, // Cash
+    MintColors.info, // 3a
+    MintColors.warning, // LPP
   ];
 
   Widget _buildPieLegendItem({
@@ -231,7 +201,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
     required String percentage,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs + 2),
       child: Row(
         children: [
           Container(
@@ -242,14 +212,11 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
               borderRadius: BorderRadius.circular(3),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: MintSpacing.sm + 2),
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
           ),
           Column(
@@ -257,17 +224,11 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
             children: [
               Text(
                 amount,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
               ),
               Text(
                 percentage,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               ),
             ],
           ),
@@ -276,9 +237,9 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
     );
   }
 
-  Widget _buildSlidersSection() {
+  Widget _buildSlidersSection(S s) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -288,57 +249,51 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAMETRES',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            s.eplCombinedParameters,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Canton
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Canton',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textPrimary,
+          Semantics(
+            label: s.eplCombinedCanton,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  s.eplCombinedCanton,
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: MintColors.border),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _canton,
-                    items: EplCombinedCalculator.cantons
-                        .map((c) => DropdownMenuItem(
-                              value: c,
-                              child: Text(c,
-                                  style: const TextStyle(fontSize: 13)),
-                            ))
-                        .toList(),
-                    onChanged: (v) {
-                      if (v != null) setState(() => _canton = v);
-                    },
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm + 4),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: MintColors.border),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _canton,
+                      items: EplCombinedCalculator.cantons
+                          .map((c) => DropdownMenuItem(
+                                value: c,
+                                child: Text(c,
+                                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
+                              ))
+                          .toList(),
+                      onChanged: (v) {
+                        if (v != null) setState(() => _canton = v);
+                      },
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Prix cible
           _buildSliderRow(
-            label: 'Prix d\'achat cible',
+            label: s.eplCombinedTargetPrice,
             value: _prixCible,
             min: 200000,
             max: 3000000,
@@ -346,11 +301,11 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
             format: 'CHF ${formatChf(_prixCible)}',
             onChanged: (v) => setState(() => _prixCible = v),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
 
           // Epargne cash
           _buildSliderRow(
-            label: 'Epargne cash',
+            label: s.eplCombinedCashSavings,
             value: _epargneCash,
             min: 0,
             max: 500000,
@@ -358,11 +313,11 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
             format: 'CHF ${formatChf(_epargneCash)}',
             onChanged: (v) => setState(() => _epargneCash = v),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
 
           // Avoir 3a
           _buildSliderRow(
-            label: 'Avoir 3a',
+            label: s.eplCombinedAvoir3a,
             value: _avoir3a,
             min: 0,
             max: 300000,
@@ -370,11 +325,11 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
             format: 'CHF ${formatChf(_avoir3a)}',
             onChanged: (v) => setState(() => _avoir3a = v),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
 
           // Avoir LPP
           _buildSliderRow(
-            label: 'Avoir LPP',
+            label: s.eplCombinedAvoirLpp,
             value: _avoirLpp,
             min: 0,
             max: 500000,
@@ -396,47 +351,42 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
     required String format,
     required ValueChanged<double> onChanged,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textPrimary,
+    return Semantics(
+      label: '$label: $format',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                 ),
               ),
-            ),
-            Text(
-              format,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
+              Text(
+                format,
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
               ),
-            ),
-          ],
-        ),
-        Slider(
-          value: value,
-          min: min,
-          max: max,
-          divisions: divisions,
-          activeColor: MintColors.primary,
-          onChanged: onChanged,
-        ),
-      ],
+            ],
+          ),
+          Slider(
+            value: value,
+            min: min,
+            max: max,
+            divisions: divisions,
+            activeColor: MintColors.primary,
+            onChanged: onChanged,
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildSourcesDetail(EplCombinedResult result) {
+  Widget _buildSourcesDetail(S s, EplCombinedResult result) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -446,34 +396,29 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'DETAIL DES SOURCES',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            s.eplCombinedSourcesDetail,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           for (final source in result.sources) ...[
-            _buildSourceRow(source),
-            const Divider(height: 16),
+            _buildSourceRow(s, source),
+            const Divider(height: MintSpacing.md),
           ],
 
           // Totaux
           _buildInfoRow(
-            'Total fonds propres',
+            s.eplCombinedTotalEquity,
             'CHF ${formatChf(result.fondsPropresTotal)}',
             isBold: true,
           ),
           _buildInfoRow(
-            'Impots estimes (3a + LPP)',
+            s.eplCombinedEstimatedTaxes,
             '-CHF ${formatChf(result.totalImpots)}',
             color: MintColors.error,
           ),
           _buildInfoRow(
-            'Montant net total',
+            s.eplCombinedNetTotal,
             'CHF ${formatChf(result.montantNetTotal)}',
             isBold: true,
             color: result.objectifAtteint
@@ -481,7 +426,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
                 : MintColors.error,
           ),
           _buildInfoRow(
-            'Fonds propres requis (20%)',
+            s.eplCombinedRequiredEquity,
             'CHF ${formatChf(result.fondsPropresRequis)}',
           ),
         ],
@@ -489,7 +434,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
     );
   }
 
-  Widget _buildSourceRow(FundingSource source) {
+  Widget _buildSourceRow(S s, FundingSource source) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -498,56 +443,39 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
           children: [
             Text(
               source.label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
             Text(
               'CHF ${formatChf(source.montant)}',
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
           ],
         ),
         if (source.impotEstime > 0) ...[
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Impot estime',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: MintColors.error,
-                ),
+              Text(
+                s.eplCombinedEstimatedTax,
+                style: MintTextStyles.labelSmall(color: MintColors.error),
               ),
               Text(
                 '-CHF ${formatChf(source.impotEstime)}',
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.error,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.error),
               ),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Net',
-                style: TextStyle(fontSize: 11, color: MintColors.textMuted),
+              Text(
+                s.eplCombinedNet,
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               ),
               Text(
                 'CHF ${formatChf(source.montantNet)}',
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
               ),
             ],
           ),
@@ -556,13 +484,13 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
     );
   }
 
-  Widget _buildOrdreRecommande() {
+  Widget _buildOrdreRecommande(S s) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
-        color: MintColors.appleSurface,
+        color: MintColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
+        border: Border.all(color: MintColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -571,39 +499,32 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
             children: [
               const Icon(Icons.lightbulb_outline,
                   color: MintColors.primary, size: 20),
-              const SizedBox(width: 8),
+              const SizedBox(width: MintSpacing.sm),
               Text(
-                'ORDRE RECOMMANDE',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                s.eplCombinedRecommendedOrder,
+                style: MintTextStyles.bodySmall(color: MintColors.textMuted),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildOrderItem(
             number: '1',
-            title: 'Epargne cash',
-            reason: 'Aucun impot, pas d\'impact sur la prevoyance',
+            title: s.eplCombinedOrderCashTitle,
+            reason: s.eplCombinedOrderCashReason,
             color: MintColors.success,
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: MintSpacing.sm + 2),
           _buildOrderItem(
             number: '2',
-            title: 'Retrait 3a',
-            reason:
-                'Impot reduit sur le retrait, impact limite sur la prevoyance vieillesse',
+            title: s.eplCombinedOrder3aTitle,
+            reason: s.eplCombinedOrder3aReason,
             color: MintColors.info,
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: MintSpacing.sm + 2),
           _buildOrderItem(
             number: '3',
-            title: 'Retrait LPP (EPL)',
-            reason:
-                'Impact direct sur les prestations de risque (invalidite, deces). A utiliser en dernier recours.',
+            title: s.eplCombinedOrderLppTitle,
+            reason: s.eplCombinedOrderLppReason,
             color: MintColors.warning,
           ),
         ],
@@ -630,33 +551,22 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
           alignment: Alignment.center,
           child: Text(
             number,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.white,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.white),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: MintSpacing.sm + 4),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
               ),
               const SizedBox(height: 2),
               Text(
                 reason,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: MintColors.textSecondary,
-                  height: 1.3,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
               ),
             ],
           ),
@@ -665,43 +575,34 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
     );
   }
 
-  Widget _buildAlertesSection(List<String> alertes) {
+  Widget _buildAlertesSection(S s, List<String> alertes) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'POINTS D\'ATTENTION',
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
-            letterSpacing: 1,
-          ),
+          s.eplCombinedAttentionPoints,
+          style: MintTextStyles.bodySmall(color: MintColors.textMuted),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm + 4),
         for (final alerte in alertes)
           Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            padding: const EdgeInsets.all(14),
+            margin: const EdgeInsets.only(bottom: MintSpacing.sm + 2),
+            padding: const EdgeInsets.all(MintSpacing.md - 2),
             decoration: BoxDecoration(
-              color: MintColors.disclaimerBg,
+              color: MintColors.warning.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: MintColors.yellowGold),
+              border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Icon(Icons.warning_amber_rounded,
-                    color: MintColors.warningText, size: 20),
-                const SizedBox(width: 10),
+                    color: MintColors.warning, size: 20),
+                const SizedBox(width: MintSpacing.sm + 2),
                 Expanded(
                   child: Text(
                     alerte,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: MintColors.amberDark,
-                      height: 1.4,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                   ),
                 ),
               ],
@@ -714,26 +615,23 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
   Widget _buildInfoRow(String label, String value,
       {Color? color, bool isBold = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-              ),
+              style: isBold
+                  ? MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                  : MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
           Text(
             value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-              color: color ?? MintColors.textPrimary,
-            ),
+            style: isBold
+                ? MintTextStyles.bodySmall(color: color ?? MintColors.textPrimary)
+                : MintTextStyles.labelSmall(color: color ?? MintColors.textPrimary),
           ),
         ],
       ),
@@ -742,26 +640,21 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
 
   Widget _buildDisclaimer(String disclaimer) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.warningBg,
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.orangeRetroWarm),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
               disclaimer,
-              style: const TextStyle(
-                fontSize: 11,
-                fontStyle: FontStyle.italic,
-                color: MintColors.deepOrange,
-                height: 1.4,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textSecondary),
             ),
           ),
         ],
@@ -779,9 +672,9 @@ class _PieChartPainter extends CustomPainter {
   final double total;
 
   static const _colors = [
-    MintColors.primary, // Cash — anthracite
-    MintColors.info, // 3a — blue
-    MintColors.warning, // LPP — orange
+    MintColors.primary, // Cash
+    MintColors.info, // 3a
+    MintColors.warning, // LPP
   ];
 
   _PieChartPainter({
