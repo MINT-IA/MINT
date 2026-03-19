@@ -223,9 +223,301 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     );
   }
 
+  bool _showDetails = false;
+
   Widget _buildSlidersSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── Paramètres essentiels (toujours visibles) ──
+        Row(
+          children: [
+            Expanded(
+              child: _buildValueCard(
+                label: 'Revenu net',
+                value: _revenusMensuels,
+                prefix: 'CHF',
+                step: 500,
+                min: 2000,
+                max: 20000,
+                icon: Icons.account_balance_wallet_outlined,
+                onChanged: (v) => setState(() => _revenusMensuels = v),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildValueCard(
+                label: 'Charges dette',
+                value: _chargesDetteMensuelles,
+                prefix: 'CHF',
+                step: 100,
+                min: 0,
+                max: 10000,
+                icon: Icons.credit_card_outlined,
+                accentColor: _chargesDetteMensuelles > _revenusMensuels * 0.3
+                    ? MintColors.error
+                    : null,
+                onChanged: (v) =>
+                    setState(() => _chargesDetteMensuelles = v),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // ── Affiner le diagnostic ──
+        GestureDetector(
+          onTap: () => setState(() => _showDetails = !_showDetails),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: MintColors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: MintColors.border),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  _showDetails
+                      ? Icons.tune
+                      : Icons.tune,
+                  color: MintColors.primary,
+                  size: 18,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Affiner le diagnostic',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                ),
+                Text(
+                  _showDetails ? '' : 'Loyer, situation, enfants',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: MintColors.textMuted,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                AnimatedRotation(
+                  turns: _showDetails ? 0.5 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  child: const Icon(
+                    Icons.keyboard_arrow_down,
+                    color: MintColors.textMuted,
+                    size: 20,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // ── Détails (expandable) ──
+        AnimatedCrossFade(
+          firstChild: const SizedBox.shrink(),
+          secondChild: Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildValueCard(
+                        label: 'Loyer',
+                        value: _loyer,
+                        prefix: 'CHF',
+                        step: 100,
+                        min: 0,
+                        max: 5000,
+                        icon: Icons.home_outlined,
+                        onChanged: (v) => setState(() => _loyer = v),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildValueCard(
+                        label: 'Autres charges',
+                        value: _autresCharges,
+                        prefix: 'CHF',
+                        step: 50,
+                        min: 0,
+                        max: 3000,
+                        icon: Icons.receipt_long_outlined,
+                        onChanged: (v) => setState(() => _autresCharges = v),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildToggleCard(
+                        label: 'Situation',
+                        options: const ['Seul·e', 'En couple'],
+                        selectedIndex: _estCelibataire ? 0 : 1,
+                        onChanged: (i) =>
+                            setState(() => _estCelibataire = i == 0),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildPillSelector(
+                        label: 'Enfants',
+                        value: _nombreEnfants,
+                        options: const [0, 1, 2, 3, 4],
+                        onChanged: (v) =>
+                            setState(() => _nombreEnfants = v),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          crossFadeState: _showDetails
+              ? CrossFadeState.showSecond
+              : CrossFadeState.showFirst,
+          duration: const Duration(milliseconds: 250),
+        ),
+      ],
+    );
+  }
+
+  /// Carte de valeur avec stepper -/+ et tap pour saisie clavier.
+  Widget _buildValueCard({
+    required String label,
+    required double value,
+    required String prefix,
+    required double step,
+    required double min,
+    required double max,
+    required IconData icon,
+    required ValueChanged<double> onChanged,
+    Color? accentColor,
+  }) {
+    final color = accentColor ?? MintColors.primary;
+
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: accentColor != null
+              ? accentColor.withValues(alpha: 0.3)
+              : MintColors.border,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 16),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: color,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          // Tappable value — opens keyboard input
+          GestureDetector(
+            onTap: () => _showValueEditor(
+              label: label,
+              currentValue: value,
+              min: min,
+              max: max,
+              step: step,
+              prefix: prefix,
+              onChanged: onChanged,
+            ),
+            child: Center(
+              child: Text(
+                '$prefix\u00a0${formatChf(value)}',
+                style: GoogleFonts.montserrat(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          // Stepper buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildStepperButton(
+                icon: Icons.remove,
+                enabled: value > min,
+                onTap: () {
+                  final newVal = (value - step).clamp(min, max);
+                  onChanged(newVal);
+                },
+              ),
+              const SizedBox(width: 24),
+              _buildStepperButton(
+                icon: Icons.add,
+                enabled: value < max,
+                onTap: () {
+                  final newVal = (value + step).clamp(min, max);
+                  onChanged(newVal);
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStepperButton({
+    required IconData icon,
+    required bool enabled,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: enabled ? MintColors.surface : MintColors.lightBorder,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          size: 18,
+          color: enabled ? MintColors.primary : MintColors.border,
+        ),
+      ),
+    );
+  }
+
+  /// Toggle entre 2 options (célibataire / en couple).
+  Widget _buildToggleCard({
+    required String label,
+    required List<String> options,
+    required int selectedIndex,
+    required ValueChanged<int> onChanged,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -235,141 +527,243 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAMETRES',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: MintColors.primary,
+              letterSpacing: 0.3,
             ),
           ),
-          const SizedBox(height: 16),
-
-          // Revenu mensuel
-          _buildSliderRow(
-            label: 'Revenu mensuel net',
-            value: _revenusMensuels,
-            min: 2000,
-            max: 20000,
-            divisions: 36,
-            format: 'CHF ${formatChf(_revenusMensuels)}',
-            onChanged: (v) => setState(() => _revenusMensuels = v),
-          ),
-          const SizedBox(height: 12),
-
-          // Charges dette
-          _buildSliderRow(
-            label: 'Charges de dette mensuelles',
-            value: _chargesDetteMensuelles,
-            min: 0,
-            max: 10000,
-            divisions: 100,
-            format: 'CHF ${formatChf(_chargesDetteMensuelles)}',
-            onChanged: (v) =>
-                setState(() => _chargesDetteMensuelles = v),
-          ),
-          const SizedBox(height: 12),
-
-          // Loyer
-          _buildSliderRow(
-            label: 'Loyer',
-            value: _loyer,
-            min: 0,
-            max: 5000,
-            divisions: 50,
-            format: 'CHF ${formatChf(_loyer)}',
-            onChanged: (v) => setState(() => _loyer = v),
-          ),
-          const SizedBox(height: 12),
-
-          // Autres charges
-          _buildSliderRow(
-            label: 'Autres charges fixes',
-            value: _autresCharges,
-            min: 0,
-            max: 3000,
-            divisions: 30,
-            format: 'CHF ${formatChf(_autresCharges)}',
-            onChanged: (v) => setState(() => _autresCharges = v),
-          ),
-          const SizedBox(height: 16),
-
-          // Situation personnelle
-          Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Celibataire',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
+          const SizedBox(height: 10),
+          Container(
+            decoration: BoxDecoration(
+              color: MintColors.surface,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: List.generate(options.length, (i) {
+                final isSelected = i == selectedIndex;
+                return Expanded(
+                  child: GestureDetector(
+                    onTap: () => onChanged(i),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? MintColors.primary
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        options[i],
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: isSelected
+                              ? MintColors.white
+                              : MintColors.textMuted,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              Switch(
-                value: _estCelibataire,
-                activeTrackColor: MintColors.primary,
-                onChanged: (v) => setState(() => _estCelibataire = v),
-              ),
-            ],
-          ),
-
-          _buildSliderRow(
-            label: 'Nombre d\'enfants',
-            value: _nombreEnfants.toDouble(),
-            min: 0,
-            max: 6,
-            divisions: 6,
-            format: '$_nombreEnfants',
-            onChanged: (v) => setState(() => _nombreEnfants = v.round()),
+                );
+              }),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSliderRow({
+  /// Pills pour sélection rapide (nombre d'enfants).
+  Widget _buildPillSelector({
     required String label,
-    required double value,
+    required int value,
+    required List<int> options,
+    required ValueChanged<int> onChanged,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: MintColors.primary,
+              letterSpacing: 0.3,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: options.map((opt) {
+              final isSelected = opt == value;
+              final display = opt >= 4 ? '4+' : '$opt';
+              return GestureDetector(
+                onTap: () => onChanged(opt),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? MintColors.primary
+                        : MintColors.surface,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    display,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: isSelected
+                          ? MintColors.white
+                          : MintColors.textMuted,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Bottom sheet pour saisie précise au clavier.
+  void _showValueEditor({
+    required String label,
+    required double currentValue,
     required double min,
     required double max,
-    required int divisions,
-    required String format,
+    required double step,
+    required String prefix,
     required ValueChanged<double> onChanged,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textPrimary,
-              ),
-            ),
-            Text(
-              format,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
-            ),
-          ],
+    final controller = TextEditingController(
+      text: currentValue.toInt().toString(),
+    );
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(ctx).viewInsets.bottom,
         ),
-        Slider(
-          value: value,
-          min: min,
-          max: max,
-          divisions: divisions,
-          activeColor: MintColors.primary,
-          onChanged: onChanged,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: const BoxDecoration(
+            color: MintColors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: MintColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                label,
+                style: GoogleFonts.montserrat(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: MintColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '$prefix ',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w600,
+                      color: MintColors.textMuted,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 150,
+                    child: TextField(
+                      controller: controller,
+                      keyboardType: TextInputType.number,
+                      autofocus: true,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w700,
+                        color: MintColors.textPrimary,
+                      ),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Min ${formatChf(min)} · Max ${formatChf(max)}',
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: MintColors.textMuted,
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () {
+                    final parsed = double.tryParse(
+                      controller.text.replaceAll(RegExp(r"[^0-9.]"), ''),
+                    );
+                    if (parsed != null) {
+                      onChanged(parsed.clamp(min, max));
+                    }
+                    Navigator.pop(ctx);
+                  },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MintColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Valider',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
-      ],
+      ),
     );
   }
 
