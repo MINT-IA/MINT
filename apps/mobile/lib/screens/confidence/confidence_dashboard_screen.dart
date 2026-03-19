@@ -370,7 +370,10 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
   Widget _buildEnrichmentCard(EnrichmentPrompt prompt) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Material(
+      child: Semantics(
+        label: prompt.action,
+        button: true,
+        child: Material(
         color: MintColors.card,
         borderRadius: BorderRadius.circular(14),
         child: InkWell(
@@ -435,6 +438,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
             ),
           ),
         ),
+      ),
       ),
     );
   }

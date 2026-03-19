@@ -290,7 +290,10 @@ class _DisabilitySelfEmployedScreenState
 
   Widget _buildToggleChip(String label, bool selected, VoidCallback onTap,
       {required Color color}) {
-    return GestureDetector(
+    return Semantics(
+      label: label,
+      button: true,
+      child: GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -313,6 +316,7 @@ class _DisabilitySelfEmployedScreenState
             ),
           ),
         ),
+      ),
       ),
     );
   }

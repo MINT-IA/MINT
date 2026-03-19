@@ -226,7 +226,10 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
 
   Widget _buildChoiceButton(String label, bool choice, bool isSelected, VoidCallback onSelected) {
     return Expanded(
-      child: InkWell(
+      child: Semantics(
+        label: label,
+        button: true,
+        child: InkWell(
         onTap: onSelected,
         borderRadius: BorderRadius.circular(12),
         child: Container(
@@ -245,6 +248,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

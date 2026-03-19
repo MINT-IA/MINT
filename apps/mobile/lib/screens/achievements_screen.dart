@@ -44,6 +44,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   int _totalDays = 0;
   Set<String> _recentDates = {};
   bool _loading = true;
+  bool _hasError = false;
 
   @override
   void initState() {
@@ -52,23 +53,31 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   Future<void> _loadData() async {
-    final results = await Future.wait([
-      DailyEngagementService.currentStreak(),
-      DailyEngagementService.longestStreak(),
-      DailyEngagementService.hasEngagedToday(),
-      DailyEngagementService.totalDays(),
-      DailyEngagementService.recentDates(),
-    ]);
+    try {
+      final results = await Future.wait([
+        DailyEngagementService.currentStreak(),
+        DailyEngagementService.longestStreak(),
+        DailyEngagementService.hasEngagedToday(),
+        DailyEngagementService.totalDays(),
+        DailyEngagementService.recentDates(),
+      ]);
 
-    if (!mounted) return;
-    setState(() {
-      _dailyStreak = results[0] as int;
-      _longestStreak = results[1] as int;
-      _engagedToday = results[2] as bool;
-      _totalDays = results[3] as int;
-      _recentDates = results[4] as Set<String>;
-      _loading = false;
-    });
+      if (!mounted) return;
+      setState(() {
+        _dailyStreak = results[0] as int;
+        _longestStreak = results[1] as int;
+        _engagedToday = results[2] as bool;
+        _totalDays = results[3] as int;
+        _recentDates = results[4] as Set<String>;
+        _loading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _hasError = true;
+        _loading = false;
+      });
+    }
   }
 
   @override
@@ -141,6 +150,25 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                     child: Padding(
                       padding: EdgeInsets.all(40),
                       child: CircularProgressIndicator(),
+                    ),
+                  )
+                else if (_hasError)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: MintColors.error.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline, color: MintColors.error, size: 20),
+                        const SizedBox(width: 12),
+                        Expanded(child: Text(
+                          'Une erreur est survenue. Réessaie plus tard.',
+                          style: GoogleFonts.inter(fontSize: 13, color: MintColors.error),
+                        )),
+                      ],
                     ),
                   )
                 else ...[
@@ -482,7 +510,10 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   Widget _buildBadgeCard(S s, _BadgeInfo badge, bool isEarned) {
-    return GestureDetector(
+    return Semantics(
+      label: badge.label,
+      button: true,
+      child: GestureDetector(
       onTap: isEarned
           ? () => _showBadgeDetail(badge)
           : null,
@@ -556,6 +587,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

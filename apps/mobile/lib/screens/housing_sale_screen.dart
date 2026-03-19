@@ -806,7 +806,10 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
         children: List.generate(r.checklist.length, (index) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: InkWell(
+            child: Semantics(
+              label: r.checklist[index],
+              button: true,
+              child: InkWell(
               onTap: () {
                 setState(() {
                   _checklistState[index] = !_checklistState[index];
@@ -859,6 +862,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
                   ],
                 ),
               ),
+            ),
             ),
           );
         }),

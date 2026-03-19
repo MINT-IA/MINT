@@ -33,6 +33,7 @@ class _BudgetScreenState extends State<BudgetScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _staggerController;
   late Animation<double> _staggerAnimation;
+  bool _hasError = false;
 
   @override
   void initState() {
@@ -48,8 +49,12 @@ class _BudgetScreenState extends State<BudgetScreen>
     );
     // Au chargement, on initialise le provider avec les inputs passés
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<BudgetProvider>().setInputs(widget.inputs);
-      _staggerController.forward();
+      try {
+        context.read<BudgetProvider>().setInputs(widget.inputs);
+        _staggerController.forward();
+      } catch (_) {
+        if (mounted) setState(() => _hasError = true);
+      }
     });
   }
 
@@ -87,6 +92,29 @@ class _BudgetScreenState extends State<BudgetScreen>
       ),
       body: Consumer<BudgetProvider>(
         builder: (context, provider, child) {
+          if (_hasError) {
+            return Center(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                margin: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: MintColors.error.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.error_outline, color: MintColors.error, size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(child: Text(
+                      'Une erreur est survenue. Réessaie plus tard.',
+                      style: GoogleFonts.inter(fontSize: 13, color: MintColors.error),
+                    )),
+                  ],
+                ),
+              ),
+            );
+          }
+
           final plan = provider.plan;
 
           if (plan == null) {
@@ -428,7 +456,10 @@ class _BudgetScreenState extends State<BudgetScreen>
     final message = hasMissing
         ? 'Certaines charges sont encore manquantes. Complète ton diagnostic pour fiabiliser ce budget.'
         : 'Ce budget inclut des estimations (impôts/LAMal). Renseigne tes montants réels pour une projection plus fiable.';
-    return GestureDetector(
+    return Semantics(
+      label: 'Compléter mes données',
+      button: true,
+      child: GestureDetector(
       onTap: () => context.push('/profile/bilan'),
       child: Container(
         padding: const EdgeInsets.all(12),
@@ -470,6 +501,7 @@ class _BudgetScreenState extends State<BudgetScreen>
             ),
           ],
         ),
+      ),
       ),
     );
   }

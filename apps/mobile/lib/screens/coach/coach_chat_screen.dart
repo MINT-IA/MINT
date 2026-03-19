@@ -1130,7 +1130,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           for (final source in sources)
             Padding(
               padding: const EdgeInsets.only(bottom: 3),
-              child: InkWell(
+              child: Semantics(
+                label: source.title,
+                button: true,
+                child: InkWell(
                 onTap: () => _navigateToSource(source),
                 child: Row(
                   children: [
@@ -1151,6 +1154,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                     ),
                   ],
                 ),
+              ),
               ),
             ),
         ],
