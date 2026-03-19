@@ -244,7 +244,10 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
       child: Row(
         children: [
           Expanded(
-            child: GestureDetector(
+            child: Semantics(
+              label: 'Sélectionner adulte',
+              button: true,
+              child: GestureDetector(
               onTap: () {
                 if (_isChild) {
                   _isChild = false;
@@ -278,9 +281,13 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                 ),
               ),
             ),
+            ),
           ),
           Expanded(
-            child: GestureDetector(
+            child: Semantics(
+              label: 'Sélectionner enfant',
+              button: true,
+              child: GestureDetector(
               onTap: () {
                 if (!_isChild) {
                   _isChild = true;
@@ -313,6 +320,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                   ),
                 ),
               ),
+            ),
             ),
           ),
         ],
