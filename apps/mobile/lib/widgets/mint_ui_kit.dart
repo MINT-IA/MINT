@@ -3,7 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
-/// Carte avec effet de verre dépoli (Glassmorphism)
+/// Carte avec effet de verre dépoli (Glassmorphism).
+///
+/// **DEPRECATED** — Use a standard Container with MintColors.white/surface background,
+/// optional MintColors.border, and radiusLg (16px) instead.
+/// See docs/DESIGN_SYSTEM.md §4.1 for the replacement pattern.
+@Deprecated('Use standard Card pattern from DESIGN_SYSTEM.md §4.1. Will be removed in S55.')
 class MintGlassCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
@@ -59,7 +64,11 @@ class MintGlassCard extends StatelessWidget {
   }
 }
 
-/// Header typographique premium
+/// Header typographique premium.
+///
+/// **DEPRECATED** — Uses Outfit font and UPPERCASE subtitles, both banned by DESIGN_SYSTEM.md.
+/// Replace with Montserrat headings via MintTextStyles and sentence case.
+@Deprecated('Uses Outfit + UPPERCASE. Migrate to MintTextStyles. Will be removed in S55.')
 class MintHeader extends StatelessWidget {
   final String title;
   final String? subtitle;
@@ -181,7 +190,11 @@ class _MintAnimateFadeUpState extends State<MintAnimateFadeUp>
   }
 }
 
-/// Bouton Premium "Glossy" style Apple OS26
+/// Bouton Premium "Glossy" style Apple OS26.
+///
+/// **DEPRECATED** — Use FilledButton with MintColors.primary background instead.
+/// See docs/DESIGN_SYSTEM.md §4.2 for button patterns.
+@Deprecated('Use FilledButton + MintColors.primary. Will be removed in S55.')
 class MintPremiumButton extends StatelessWidget {
   final String title;
   final String? subtitle;

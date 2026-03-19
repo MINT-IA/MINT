@@ -12,11 +12,10 @@ import 'package:mint_mobile/screens/pulse/pulse_screen.dart' show NavigationShel
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Quick Start — single-screen onboarding that gets the user to the dashboard
-/// in under 20 seconds.
+/// in under 30 seconds.
 ///
-/// Collects 3 fields: firstName, age, canton.
-/// Salary is collected later in the profile enrichment flow (behind AuthGate).
-/// Shows a live retirement preview using the Swiss median salary as default.
+/// Collects 4 fields: firstName (optional), age, revenu brut annuel, canton.
+/// Shows a live retirement preview based on the user's actual inputs.
 /// Saves via [CoachProfileProvider.updateFromSmartFlow] and navigates to /home.
 class QuickStartScreen extends StatefulWidget {
   /// Optional section to highlight when navigating from profile edit buttons.
@@ -33,13 +32,9 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
   final _analytics = AnalyticsService();
   final _nameController = TextEditingController();
   double _age = 45;
+  double _salary = 85000;
   String _canton = 'VD';
   bool _saving = false;
-
-  /// Default salary used for the preview estimation (Swiss median).
-  /// Actual salary is collected later in the profile enrichment flow
-  /// (behind AuthGate, since it is sensitive financial data).
-  static const double _defaultSalary = 85000;
 
   /// Maps section parameter to a user-friendly label for the guidance snackbar.
   static const _sectionLabels = {
@@ -79,6 +74,9 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
       if (profile.canton.isNotEmpty) {
         _canton = profile.canton;
       }
+      if (profile.revenuBrutAnnuel != null && profile.revenuBrutAnnuel! > 0) {
+        _salary = profile.revenuBrutAnnuel!.toDouble().clamp(20000, 300000);
+      }
     });
   }
 
@@ -117,19 +115,20 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
 
   Map<String, double> _estimate() {
     final age = _age.round();
-    final avs = AvsCalculator.renteFromRAMD(_defaultSalary);
-    final lppBalance = _estimateLppBalance(age, _defaultSalary);
+    final gross = _salary;
+    final avs = AvsCalculator.renteFromRAMD(gross);
+    final lppBalance = _estimateLppBalance(age, gross);
     final lppAnnual = LppCalculator.projectToRetirement(
       currentBalance: lppBalance,
       currentAge: age,
       retirementAge: 65,
-      grossAnnualSalary: _defaultSalary,
+      grossAnnualSalary: gross,
       caisseReturn: 0.01,
       conversionRate: lppTauxConversionMinDecimal,
     );
     final lppMonthly = lppAnnual / 12;
     final total = avs + lppMonthly;
-    final current = _defaultSalary / 12;
+    final current = gross / 12;
     final ratio = current > 0 ? total / current : 0.0;
     return {'total': total, 'current': current, 'ratio': ratio};
   }
@@ -141,7 +140,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     final provider = context.read<CoachProfileProvider>();
     provider.updateFromSmartFlow(
       age: _age.round(),
-      grossSalary: _defaultSalary,
+      grossSalary: _salary,
       canton: _canton,
       firstName: _nameController.text.trim().isNotEmpty
           ? _nameController.text.trim()
@@ -203,7 +202,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
 
                     // ── Prenom ──
                     Text(
-                      'Ton prenom',
+                      'Ton prénom',
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -238,7 +237,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                     const SizedBox(height: 22),
 
                     // ── Age slider ──
-                    _buildSliderLabel('Ton age', '${_age.round()} ans'),
+                    _buildSliderLabel('Ton âge', '${_age.round()} ans'),
                     SliderTheme(
                       data: _sliderTheme(),
                       child: Slider(
@@ -247,6 +246,23 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                         max: 67,
                         divisions: 45,
                         onChanged: (v) => setState(() => _age = v),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // ── Revenu brut annuel slider ──
+                    _buildSliderLabel(
+                      'Ton revenu brut annuel',
+                      '${formatChfWithPrefix(_salary)}/an',
+                    ),
+                    SliderTheme(
+                      data: _sliderTheme(),
+                      child: Slider(
+                        value: _salary,
+                        min: 20000,
+                        max: 300000,
+                        divisions: 56,
+                        onChanged: (v) => setState(() => _salary = v),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -351,10 +367,10 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
       verdict = 'Bonne posture';
     } else if (ratio >= 0.5) {
       accentColor = MintColors.warning;
-      verdict = 'A surveiller';
+      verdict = 'À surveiller';
     } else {
       accentColor = MintColors.scoreAttention;
-      verdict = 'Ecart significatif';
+      verdict = 'Écart significatif';
     }
 
     return Container(
@@ -372,7 +388,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
               Icon(Icons.show_chart, size: 18, color: accentColor),
               const SizedBox(width: 8),
               Text(
-                'Apercu retraite',
+                'Aperçu retraite',
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -417,7 +433,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
               ),
               Expanded(
                 child: _buildAmountColumn(
-                  'A la retraite',
+                  'À la retraite',
                   total,
                   accentColor,
                 ),

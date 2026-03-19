@@ -4,36 +4,36 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pulse_hero_engine.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
-import 'package:mint_mobile/widgets/pulse/focus_selector.dart';
 import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
 import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
+
 // ────────────────────────────────────────────────────────
-//  PULSE SCREEN — V3 "Le Thermomètre"
+//  AUJOURD'HUI — V4 "Radical Simplicity"
 // ────────────────────────────────────────────────────────
 //
-//  1 hero adaptatif + 3 pastilles + 1 score de préparation
-//  + 1 signal action
+//  Contrat UX (NAVIGATION_GRAAL_V10.md) :
+//  - 1 phrase personnalisée
+//  - 1 chiffre dominant (displayLarge)
+//  - 1 action prioritaire
+//  - 2 signaux secondaires max
+//  - Rien d'autre au-dessus du fold
 //
-//  Propriété exclusive de Pulse :
-//  - Le hero adaptatif (PulseHeroEngine)
-//  - Le delta temporel (vs dernier check-in)
-//  - Les 3 pastilles (retraite, budget, patrimoine)
-//  - Le score de préparation (FRI compact)
-//
-//  Tout le reste vit ailleurs :
-//  - Actions → Agir tab
-//  - Enrichment/Data quality → Profil tab
-//  - Coach insight → Agir tab
-//  - Couple détail → Profil tab
+//  Removed from V3:
+//  - FocusSelector 2×2 grid (pattern interdit)
+//  - CircularProgressIndicator (pattern interdit)
+//  - Enrichir section (moved to Dossier)
+//  - Heavy gradient hero card
+//  - Action signal badge
 // ────────────────────────────────────────────────────────
 
 class PulseScreen extends StatefulWidget {
@@ -47,7 +47,6 @@ class _PulseScreenState extends State<PulseScreen> {
   ProjectionResult? _cachedProjection;
   FinancialFitnessScore? _cachedFri;
   CoachProfile? _lastProfile;
-  bool _showCoupleView = false;
 
   @override
   void didChangeDependencies() {
@@ -82,9 +81,7 @@ class _PulseScreenState extends State<PulseScreen> {
     }
   }
 
-  // ────────────────────────────────────────────────────────
-  //  BUILD
-  // ────────────────────────────────────────────────────────
+  // ── BUILD ──
 
   @override
   Widget build(BuildContext context) {
@@ -96,40 +93,69 @@ class _PulseScreenState extends State<PulseScreen> {
 
     final profile = coachProvider.profile!;
     final hero = PulseHeroEngine.compute(profile);
+    final l = S.of(context)!;
+
+    // Compute the dominant number
+    final dominantNumber = _computeDominantNumber(profile);
+    final dominantLabel = _computeDominantLabel(profile, l);
+    final dominantColor = _computeDominantColor(dominantNumber);
+    final narrativePhrase = _computeNarrative(profile, hero, l);
 
     return CustomScrollView(
       slivers: [
+        // ── AppBar (Pulse exception: gradient) ──
         _buildAppBar(context, profile),
+
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 20),
+                const SizedBox(height: MintSpacing.xxl),
 
-                // ── HERO ZONE: adaptive hero + FHS ring integrated ──
-                _buildAdaptiveHeroWithScore(profile, hero),
-                const SizedBox(height: 20),
+                // ── 1. PHRASE PERSONNALISÉE ──
+                Text(
+                  narrativePhrase,
+                  style: MintTextStyles.bodyLarge(
+                    color: MintColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: MintSpacing.lg),
 
-                // ── SINGLE PRIORITY ACTION ──
-                _buildPriorityCard(profile),
+                // ── 2. CHIFFRE DOMINANT ──
+                TweenAnimationBuilder<double>(
+                  tween: Tween(end: dominantNumber.value),
+                  duration: const Duration(milliseconds: 600),
+                  curve: Curves.easeOutCubic,
+                  builder: (_, value, __) => Text(
+                    dominantNumber.format(value),
+                    style: MintTextStyles.displayLarge(
+                      color: dominantColor,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: MintSpacing.xs),
+                Text(
+                  dominantLabel,
+                  style: MintTextStyles.bodySmall(),
+                ),
 
-                // ── 3 PASTILLES (retraite, budget, patrimoine) ──
-                _buildPastilles(profile),
-                const SizedBox(height: 16),
+                const SizedBox(height: MintSpacing.xxl),
 
-                // ── ACTION SIGNAL → Coach ──
-                _buildActionSignal(profile),
-                const SizedBox(height: 16),
+                // ── 3. ACTION PRIORITAIRE ──
+                _buildPriorityAction(profile, hero),
 
-                // ── ENRICHIR — scan CTA + confidence nudge ──
-                _buildEnrichirSection(profile, coachProvider),
-                const SizedBox(height: 20),
+                const SizedBox(height: MintSpacing.xl),
 
-                // Disclaimer
+                // ── 4. DEUX SIGNAUX SECONDAIRES ──
+                _buildSecondarySignals(profile, l),
+
+                const SizedBox(height: MintSpacing.xxl),
+
+                // ── Disclaimer ──
                 const PulseDisclaimer(),
-                const SizedBox(height: 80), // FAB clearance
+                const SizedBox(height: MintSpacing.xl),
               ],
             ),
           ),
@@ -138,546 +164,238 @@ class _PulseScreenState extends State<PulseScreen> {
     );
   }
 
-  // ────────────────────────────────────────────────────────
-  //  ADAPTIVE HERO + FHS RING (age-aware, not retirement-fixed)
-  // ────────────────────────────────────────────────────────
+  // ── DOMINANT NUMBER ──
 
-  Widget _buildAdaptiveHeroWithScore(CoachProfile profile, PulseHero? hero) {
-    final fri = _cachedFri;
-
-    if (hero == null) {
-      return FocusSelector(
-        profile: profile,
-        onFocusSelected: (focus) => _setFocus(context, focus),
-      );
-    }
-
-    // FHS score
-    final score = fri?.global ?? 0.0;
-    final scoreColor = score >= 70
-        ? MintColors.success
-        : score >= 40
-            ? MintColors.warning
-            : MintColors.error;
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [hero.color, hero.color.withValues(alpha: 0.85)],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: hero.color.withValues(alpha: 0.2),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Top row: FHS ring + readiness detail + change focus
-          Row(
-            children: [
-              // FHS ring (compact)
-              if (fri != null)
-                SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      CircularProgressIndicator(
-                        value: score / 100,
-                        strokeWidth: 3,
-                        backgroundColor: MintColors.white.withValues(alpha: 0.2),
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          scoreColor == MintColors.success
-                              ? MintColors.white
-                              : scoreColor,
-                        ),
-                      ),
-                      Text(
-                        '${score.round()}',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          color: MintColors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              if (fri != null) const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  _readinessDetail(profile),
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.white.withValues(alpha: 0.8),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              // Change focus button
-              Semantics(
-                label: S.of(context)!.pulseHeroChangeBtn,
-                button: true,
-                child: GestureDetector(
-                  onTap: () => _showFocusPicker(context, profile),
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: MintColors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Icon(Icons.tune_rounded,
-                        size: 14,
-                        color: MintColors.white.withValues(alpha: 0.9)),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Hero title (adaptive from PulseHeroEngine)
-          Text(
-            hero.title,
-            style: GoogleFonts.outfit(
-              fontSize: 26,
-              fontWeight: FontWeight.w800,
-              color: MintColors.white,
-              height: 1.1,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            hero.subtitle,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.white.withValues(alpha: 0.9),
-              height: 1.3,
-            ),
-          ),
-          if (hero.detail != null) ...[
-            const SizedBox(height: 6),
-            Text(
-              hero.detail!,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.white.withValues(alpha: 0.7),
-                height: 1.3,
-              ),
-            ),
-          ],
-          const SizedBox(height: 16),
-
-          // CTA button
-          Semantics(
-            label: hero.ctaLabel,
-            button: true,
-            child: GestureDetector(
-              onTap: () => context.push(hero.ctaRoute),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                decoration: BoxDecoration(
-                  color: MintColors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  hero.ctaLabel,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: hero.color,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ────────────────────────────────────────────────────────
-  //  PRIORITY #1 — Contextual action card
-  // ────────────────────────────────────────────────────────
-
-  Widget _buildPriorityCard(CoachProfile profile) {
-    final cards = ResponseCardService.generateForPulse(profile, limit: 1);
-    if (cards.isEmpty) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: ResponseCardWidget(card: cards.first),
-    );
-  }
-
-  // ────────────────────────────────────────────────────────
-  //  ENRICHIR — Confidence nudge + scan CTA
-  // ────────────────────────────────────────────────────────
-
-  Widget _buildEnrichirSection(
-      CoachProfile profile, CoachProfileProvider coachProvider) {
-    final confidence =
-        (coachProvider.profileCompleteness * 100).round().clamp(0, 100);
-
-    // Don't show if confidence is already high
-    if (confidence >= 85) return const SizedBox.shrink();
-
-    final l = S.of(context)!;
-    final gainEstimate = (85 - confidence).clamp(5, 30);
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.info.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.document_scanner_outlined,
-                  size: 20, color: MintColors.info),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  l.pulseEnrichirTitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l.pulseEnrichirSubtitle('$gainEstimate'),
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => context.push('/scan'),
-              icon: const Icon(Icons.camera_alt_outlined, size: 16),
-              label: Text(l.pulseEnrichirCta),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: MintColors.info,
-                side: BorderSide(color: MintColors.info.withValues(alpha: 0.4)),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ────────────────────────────────────────────────────────
-  //  3 PILIERS — Horizontal carousel (age-adaptive)
-  // ────────────────────────────────────────────────────────
-
-  Widget _buildPastilles(CoachProfile profile) {
-    final l = S.of(context)!;
-    final conjoint = profile.conjoint;
-    final isCoupleView = _showCoupleView && conjoint != null;
-
-    // Retirement
-    double? retraiteEstimee;
-    double? tauxRemplacement;
+  _DominantNumber _computeDominantNumber(CoachProfile profile) {
+    // Priority: replacement rate > FHS score > retirement estimate
     if (_cachedProjection != null) {
-      retraiteEstimee = _cachedProjection!.base.revenuAnnuelRetraite / 12;
-      final revenuActuel = _computeRevenuNet(profile) +
-          (isCoupleView ? _computeConjointRevenuNet(conjoint) : 0);
-      if (revenuActuel > 0) {
-        tauxRemplacement = (retraiteEstimee / revenuActuel * 100);
+      final retraite = _cachedProjection!.base.revenuAnnuelRetraite / 12;
+      final revenuNet = _computeRevenuNet(profile);
+      if (revenuNet > 0) {
+        final taux = (retraite / revenuNet * 100);
+        return _DominantNumber(
+          value: taux,
+          format: (v) => '${v.round()}%',
+          type: _NumberType.percentage,
+        );
+      }
+      if (retraite > 0) {
+        return _DominantNumber(
+          value: retraite,
+          format: (v) => '${formatChf(v)} CHF',
+          type: _NumberType.chf,
+        );
       }
     }
-
-    // Budget libre (household if couple view)
-    final revenuNet = _computeRevenuNet(profile) +
-        (isCoupleView ? _computeConjointRevenuNet(conjoint) : 0);
-    final depMensuelles = profile.totalDepensesMensuelles;
-    final budgetLibre = revenuNet - depMensuelles;
-
-    // Patrimoine total (household if couple view)
-    double patrimoine = profile.patrimoine.totalPatrimoine +
-        (profile.prevoyance.avoirLppTotal ?? 0) +
-        profile.prevoyance.totalEpargne3a;
-    if (isCoupleView) {
-      patrimoine += (conjoint.prevoyance?.avoirLppTotal ?? 0) +
-          (conjoint.prevoyance?.totalEpargne3a ?? 0);
+    final fri = _cachedFri;
+    if (fri != null) {
+      return _DominantNumber(
+        value: fri.global.toDouble(),
+        format: (v) => '${v.round()}/100',
+        type: _NumberType.score,
+      );
     }
-
-    final hasRetraite = retraiteEstimee != null && retraiteEstimee > 0;
-    final hasBudget = revenuNet > 0;
-    final hasPatrimoine = patrimoine > 0;
-
-    // Build pillar cards — order adapts by age
-    final cards = <Widget>[
-      _PillarCard(
-        accentColor: MintColors.primary,
-        icon: Icons.beach_access_outlined,
-        label: l.pulseKeyFigRetraite,
-        value: hasRetraite
-            ? formatChfWithPrefix(retraiteEstimee)
-            : '\u2014',
-        subtitle: hasRetraite && tauxRemplacement != null
-            ? l.pulseKeyFigRetraitePct('${tauxRemplacement.round()}')
-            : l.pulseCompleteProfile,
-        onTap: () => context.push(
-            hasRetraite ? '/retraite' : '/onboarding/quick?section=income'),
-      ),
-      _PillarCard(
-        accentColor: hasBudget
-            ? (budgetLibre >= 0 ? MintColors.success : MintColors.warning)
-            : MintColors.textMuted,
-        icon: Icons.account_balance_wallet_outlined,
-        label: l.pulseKeyFigBudgetLibre,
-        value: hasBudget
-            ? (budgetLibre > 0
-                ? '+${formatChfWithPrefix(budgetLibre)}'
-                : formatChfWithPrefix(budgetLibre))
-            : '\u2014',
-        subtitle: hasBudget ? null : l.pulseCompleteProfile,
-        onTap: () => context.push(
-            hasBudget ? '/budget' : '/onboarding/quick?section=income'),
-      ),
-      _PillarCard(
-        accentColor: hasPatrimoine ? MintColors.info : MintColors.textMuted,
-        icon: Icons.trending_up_outlined,
-        label: l.pulseKeyFigPatrimoine,
-        value: hasPatrimoine
-            ? formatChfCompact(patrimoine)
-            : '\u2014',
-        subtitle: hasPatrimoine ? null : l.pulseCompleteProfile,
-        onTap: () => context.push(
-            hasPatrimoine ? '/profile/bilan' : '/onboarding/quick?section=pension'),
-      ),
-    ];
-
-    return SizedBox(
-      height: 110,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: cards.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
-        itemBuilder: (_, i) => cards[i],
-      ),
+    return _DominantNumber(
+      value: 0,
+      format: (_) => '—',
+      type: _NumberType.score,
     );
   }
 
-  // _buildReadinessScore removed — FHS ring now integrated in adaptive hero
-
-  String _readinessDetail(CoachProfile profile) {
-    final l = S.of(context)!;
-    final age = profile.age;
-    final yearsToRetire = profile.effectiveRetirementAge - age;
-    if (yearsToRetire <= 0) return l.pulseReadinessRetired;
-    if (yearsToRetire <= 5) return l.pulseReadinessRetireIn(yearsToRetire);
-    if (yearsToRetire <= 15) return l.pulseReadinessYearsToAct(yearsToRetire);
-    return l.pulseReadinessActNow;
+  String _computeDominantLabel(CoachProfile profile, S l) {
+    if (_cachedProjection != null) {
+      final revenuNet = _computeRevenuNet(profile);
+      if (revenuNet > 0) {
+        return 'Taux de remplacement à la retraite';
+      }
+      return 'Revenu estimé à la retraite';
+    }
+    return 'Score de préparation financière';
   }
 
-  // ────────────────────────────────────────────────────────
-  //  ACTION SIGNAL → Agir tab
-  // ────────────────────────────────────────────────────────
+  Color _computeDominantColor(_DominantNumber n) {
+    if (n.type == _NumberType.percentage) {
+      if (n.value >= 70) return MintColors.success;
+      if (n.value >= 50) return MintColors.warning;
+      return MintColors.error;
+    }
+    if (n.type == _NumberType.score) {
+      if (n.value >= 70) return MintColors.success;
+      if (n.value >= 40) return MintColors.warning;
+      return MintColors.error;
+    }
+    return MintColors.textPrimary;
+  }
 
-  Widget _buildActionSignal(CoachProfile profile) {
-    int urgentCount;
-    try {
-      final tips = CoachingService.generateTips(
-        profile: profile.toCoachingProfile(),
-      );
-      urgentCount = tips
-          .where((t) => t.priority == CoachingPriority.haute)
-          .length;
-    } catch (_) {
-      urgentCount = 0;
+  String _computeNarrative(CoachProfile profile, PulseHero? hero, S l) {
+    final firstName = profile.firstName;
+    final yearsToRetire = profile.effectiveRetirementAge - profile.age;
+    final hasName = firstName != null && firstName.trim().isNotEmpty;
+
+    // Prefix with name if available
+    String prefix(String msg) => hasName ? '$firstName, $msg' : msg;
+
+    if (hero != null && hero.subtitle.isNotEmpty) {
+      return hasName
+          ? '$firstName, ${hero.subtitle[0].toLowerCase()}${hero.subtitle.substring(1)}'
+          : hero.subtitle;
+    }
+    if (yearsToRetire <= 5) {
+      return prefix('ta retraite approche. Voici où tu en es.');
+    }
+    if (yearsToRetire <= 15) {
+      return prefix('tu as $yearsToRetire ans pour agir. Chaque année compte.');
+    }
+    if (yearsToRetire <= 25) {
+      return prefix('tu as le temps de construire. Voici ta situation.');
+    }
+    return prefix('voici ta situation financière.');
+  }
+
+  // ── PRIORITY ACTION ──
+
+  Widget _buildPriorityAction(CoachProfile profile, PulseHero? hero) {
+    // Try response card first (most contextual)
+    final cards = ResponseCardService.generateForPulse(profile, limit: 1);
+    if (cards.isNotEmpty) {
+      return ResponseCardWidget(card: cards.first);
     }
 
-    if (urgentCount == 0) return const SizedBox.shrink();
-
-    return Semantics(
-      label: 'Urgent actions: $urgentCount',
-      button: true,
-      child: GestureDetector(
-        onTap: () {
-          NavigationShellState.switchTab(1);
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: MintColors.error.withValues(alpha: 0.06),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: MintColors.error.withValues(alpha: 0.15),
+    // Fallback to hero CTA
+    if (hero != null) {
+      return SizedBox(
+        width: double.infinity,
+        height: 52,
+        child: FilledButton(
+          onPressed: () => context.push(hero.ctaRoute),
+          style: FilledButton.styleFrom(
+            backgroundColor: MintColors.primary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
-          child: Row(
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: const BoxDecoration(
-                  color: MintColors.error,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    '$urgentCount',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.white,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  urgentCount == 1
-                      ? S.of(context)!.pulseActionSignalSingular
-                      : S.of(context)!.pulseActionSignalPlural('$urgentCount'),
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
-                ),
-              ),
-              const Icon(Icons.arrow_forward_rounded,
-                  size: 18, color: MintColors.error),
-            ],
+          child: Text(
+            hero.ctaLabel,
+            style: GoogleFonts.inter(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Last resort: go to coach
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: FilledButton(
+        onPressed: () => NavigationShellState.switchTab(1),
+        style: FilledButton.styleFrom(
+          backgroundColor: MintColors.primary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: Text(
+          S.of(context)!.pulseEmptyCtaStart,
+          style: GoogleFonts.inter(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
     );
   }
 
-  // ────────────────────────────────────────────────────────
-  //  HELPERS
-  // ────────────────────────────────────────────────────────
+  // ── SECONDARY SIGNALS (max 2) ──
 
-  double _computeRevenuNet(CoachProfile profile) {
-    if (profile.salaireBrutMensuel <= 0) return 0.0;
-    return NetIncomeBreakdown.compute(
-      grossSalary: profile.salaireBrutMensuel * 12,
-      canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-      age: profile.age,
-    ).monthlyNetPayslip;
-  }
+  Widget _buildSecondarySignals(CoachProfile profile, S l) {
+    final signals = <Widget>[];
 
-  double _computeConjointRevenuNet(ConjointProfile conjoint) {
-    final brut = conjoint.salaireBrutMensuel;
-    final age = conjoint.age;
-    if (brut == null || brut <= 0 || age == null) return 0.0;
-    return NetIncomeBreakdown.compute(
-      grossSalary: brut * 12,
-      canton: _lastProfile?.canton ?? 'ZH',
-      age: age,
-    ).monthlyNetPayslip;
-  }
+    // Signal 1: Budget libre
+    final revenuNet = _computeRevenuNet(profile);
+    if (revenuNet > 0) {
+      final dep = profile.totalDepensesMensuelles;
+      final libre = revenuNet - dep;
+      signals.add(_SignalRow(
+        label: l.pulseKeyFigBudgetLibre,
+        value: libre >= 0
+            ? '+${formatChfWithPrefix(libre)}/mois'
+            : '${formatChfWithPrefix(libre)}/mois',
+        color: libre >= 0 ? MintColors.success : MintColors.warning,
+        onTap: () => context.push('/budget'),
+      ));
+    }
 
-  // ────────────────────────────────────────────────────────
-  //  FOCUS PICKER
-  // ────────────────────────────────────────────────────────
+    // Signal 2: Patrimoine
+    final patrimoine = profile.patrimoine.totalPatrimoine +
+        (profile.prevoyance.avoirLppTotal ?? 0) +
+        profile.prevoyance.totalEpargne3a;
+    if (patrimoine > 0) {
+      signals.add(_SignalRow(
+        label: l.pulseKeyFigPatrimoine,
+        value: formatChfCompact(patrimoine),
+        color: MintColors.textPrimary,
+        onTap: () => context.push('/profile/bilan'),
+      ));
+    }
 
-  void _showFocusPicker(BuildContext context, CoachProfile profile) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: MintColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.7,
-          minChildSize: 0.4,
-          maxChildSize: 0.85,
-          expand: false,
-          builder: (_, scrollController) {
-            return SingleChildScrollView(
-              controller: scrollController,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 16, bottom: 32),
-                child: FocusSelector(
-                  profile: profile,
-                  onFocusSelected: (focus) {
-                    Navigator.of(ctx).pop();
-                    _setFocus(context, focus);
-                  },
-                ),
-              ),
-            );
-          },
-        );
-      },
+    if (signals.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      children: [
+        for (int i = 0; i < signals.length && i < 2; i++) ...[
+          signals[i],
+          if (i < signals.length - 1 && i < 1)
+            Divider(
+              color: MintColors.border.withValues(alpha: 0.5),
+              height: 1,
+            ),
+        ],
+      ],
     );
   }
 
-  void _setFocus(BuildContext context, String focus) {
-    context.read<CoachProfileProvider>().updatePrimaryFocus(focus);
-  }
-
-  // ────────────────────────────────────────────────────────
-  //  APP BAR
-  // ────────────────────────────────────────────────────────
+  // ── APP BAR (Pulse exception: gradient) ──
 
   SliverAppBar _buildAppBar(BuildContext context, CoachProfile profile) {
     final l = S.of(context)!;
-    final firstName = profile.firstName ?? 'toi';
-    final greeting = profile.isCouple && profile.conjoint?.firstName != null
-        ? l.pulseGreetingCouple(firstName, profile.conjoint!.firstName!)
-        : l.pulseGreeting(firstName);
+    final firstName = profile.firstName ?? '';
+    final greeting = firstName.isNotEmpty
+        ? l.pulseGreeting(firstName)
+        : l.tabToday;
 
     return SliverAppBar(
-      expandedHeight: 100,
       floating: false,
       pinned: true,
       backgroundColor: MintColors.primary,
+      surfaceTintColor: MintColors.primary,
+      title: Text(
+        greeting,
+        style: GoogleFonts.montserrat(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: MintColors.white,
+        ),
+      ),
+      centerTitle: false,
       actions: [
-        // Couple switcher (Solo / Duo) — only visible for couples
+        // Couple switcher
         if (profile.isCouple)
-          _CoupleSwitch(
-            isCouple: _showCoupleView,
-            onToggle: () => setState(() => _showCoupleView = !_showCoupleView),
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Semantics(
+              label: 'Solo / Duo',
+              button: true,
+              child: IconButton(
+                icon: const Icon(Icons.people_outline, color: MintColors.white),
+                onPressed: () => context.push('/couple'),
+              ),
+            ),
           ),
-        const SizedBox(width: 8),
       ],
       flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 20, bottom: 14),
-        title: Text(
-          greeting,
-          style: GoogleFonts.montserrat(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: MintColors.white,
-          ),
-        ),
         background: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -691,254 +409,132 @@ class _PulseScreenState extends State<PulseScreen> {
     );
   }
 
-  // ────────────────────────────────────────────────────────
-  //  EMPTY STATE
-  // ────────────────────────────────────────────────────────
+  // ── EMPTY STATE ──
 
   Widget _buildEmptyState(BuildContext context) {
     final l = S.of(context)!;
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          expandedHeight: 100,
-          floating: false,
-          pinned: true,
-          backgroundColor: MintColors.primary,
-          flexibleSpace: FlexibleSpaceBar(
-            titlePadding: const EdgeInsets.only(left: 20, bottom: 14),
-            title: Text(
-              l.pulseWelcome,
-              style: GoogleFonts.outfit(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: MintColors.white,
+    return Scaffold(
+      backgroundColor: MintColors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(MintSpacing.lg),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Spacer(flex: 2),
+              Icon(
+                Icons.visibility_outlined,
+                size: 56,
+                color: MintColors.textMuted.withValues(alpha: 0.3),
               ),
-            ),
-            background: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [MintColors.primary, MintColors.primaryLight],
+              const SizedBox(height: MintSpacing.lg),
+              Text(
+                l.pulseEmptyTitle,
+                style: MintTextStyles.headlineLarge(),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                l.pulseEmptySubtitle,
+                style: MintTextStyles.bodyMedium(),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: MintSpacing.xl),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: FilledButton(
+                  onPressed: () => context.push('/onboarding/quick'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MintColors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    l.pulseEmptyCtaStart,
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ),
-            ),
+              const Spacer(flex: 3),
+              const PulseDisclaimer(),
+            ],
           ),
         ),
-        SliverFillRemaining(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(40),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.visibility_outlined,
-                    size: 64,
-                    color: MintColors.textMuted.withValues(alpha: 0.4),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    l.pulseEmptyTitle,
-                    style: GoogleFonts.outfit(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    l.pulseEmptySubtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: MintColors.textSecondary,
-                      height: 1.5,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 28),
-                  FilledButton.icon(
-                    onPressed: () => context.push('/onboarding/quick'),
-                    icon: const Icon(Icons.arrow_forward),
-                    label: Text(l.pulseEmptyCtaStart),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: MintColors.primary,
-                      foregroundColor: MintColors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 28, vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  const PulseDisclaimer(),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
+  }
+
+  // ── HELPERS ──
+
+  double _computeRevenuNet(CoachProfile profile) {
+    if (profile.salaireBrutMensuel <= 0) return 0.0;
+    return NetIncomeBreakdown.compute(
+      grossSalary: profile.salaireBrutMensuel * 12,
+      canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+      age: profile.age,
+    ).monthlyNetPayslip;
   }
 }
 
-// ────────────────────────────────────────────────────────
-//  HERO CARD — Adaptive, focus-driven
-// _HeroCard removed — replaced by _buildAdaptiveHeroWithScore (inline method)
+// ── SIGNAL ROW ──
 
-// ────────────────────────────────────────────────────────
-//  PILLAR CARD — Carousel item (wider, accent bar on top)
-// ────────────────────────────────────────────────────────
-
-class _PillarCard extends StatelessWidget {
-  final Color accentColor;
-  final IconData icon;
+class _SignalRow extends StatelessWidget {
   final String label;
   final String value;
-  final String? subtitle;
+  final Color color;
   final VoidCallback? onTap;
 
-  const _PillarCard({
-    required this.accentColor,
-    required this.icon,
+  const _SignalRow({
     required this.label,
     required this.value,
-    this.subtitle,
+    required this.color,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: label,
-      button: true,
-      child: GestureDetector(
+      label: '$label: $value',
+      button: onTap != null,
+      child: InkWell(
         onTap: onTap,
-        child: Container(
-          width: 150,
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: MintColors.card,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: MintColors.lightBorder),
-            boxShadow: [
-              BoxShadow(
-                color: MintColors.black.withValues(alpha: 0.03),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Accent bar + icon
-              Row(
-                children: [
-                  Container(
-                    width: 4,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: accentColor,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(icon, size: 16, color: accentColor),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      label,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: MintColors.textSecondary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              // Value
-              Text(
-                value,
-                style: GoogleFonts.montserrat(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                  letterSpacing: -0.3,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (subtitle != null) ...[
-                const SizedBox(height: 4),
-                Text(
-                  subtitle!,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: accentColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ────────────────────────────────────────────────────────
-//  COUPLE SWITCH — Solo / Duo toggle in AppBar
-// ────────────────────────────────────────────────────────
-
-class _CoupleSwitch extends StatelessWidget {
-  final bool isCouple;
-  final VoidCallback onToggle;
-
-  const _CoupleSwitch({required this.isCouple, required this.onToggle});
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      label: isCouple
-          ? S.of(context)!.coupleSwitchDuo
-          : S.of(context)!.coupleSwitchSolo,
-      toggled: isCouple,
-      child: GestureDetector(
-        onTap: onToggle,
-        child: Container(
-          margin: const EdgeInsets.only(right: 4),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: MintColors.white.withValues(alpha: 0.18),
-            borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: MintSpacing.md,
           ),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                isCouple
-                    ? S.of(context)!.coupleSwitchDuo
-                    : S.of(context)!.coupleSwitchSolo,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.white,
-                ),
+                label,
+                style: MintTextStyles.bodyMedium(),
               ),
-              const SizedBox(width: 4),
-              Icon(
-                isCouple ? Icons.people : Icons.person,
-                size: 16,
-                color: MintColors.white,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    value,
+                    style: GoogleFonts.montserrat(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: color,
+                    ),
+                  ),
+                  if (onTap != null) ...[
+                    const SizedBox(width: 4),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      size: 16,
+                      color: MintColors.textMuted,
+                    ),
+                  ],
+                ],
               ),
             ],
           ),
@@ -948,28 +544,36 @@ class _CoupleSwitch extends StatelessWidget {
   }
 }
 
-// ────────────────────────────────────────────────────────
-//  NAVIGATION SHELL STATE (for tab switching)
-// ────────────────────────────────────────────────────────
+// ── DOMINANT NUMBER MODEL ──
 
-/// Mixin interface for the MainNavigationShell to allow child
-/// tabs to programmatically switch tabs via ancestor lookup.
-/// Callback for tab switching — set by MainNavigationShell.
+enum _NumberType { percentage, chf, score }
+
+class _DominantNumber {
+  final double value;
+  final String Function(double) format;
+  final _NumberType type;
+
+  const _DominantNumber({
+    required this.value,
+    required this.format,
+    required this.type,
+  });
+}
+
+// ── NAVIGATION SHELL STATE (kept here for import compatibility) ──
+
 class NavigationShellState {
   NavigationShellState._();
   static void Function(int index)? _switchTab;
 
-  /// Register the tab switcher (called by MainNavigationShell).
   static void register(void Function(int index) callback) {
     _switchTab = callback;
   }
 
-  /// Unregister the callback (called in MainNavigationShell.dispose).
   static void unregister() {
     _switchTab = null;
   }
 
-  /// Switch to a specific tab index.
   static void switchTab(int index) {
     _switchTab?.call(index);
   }

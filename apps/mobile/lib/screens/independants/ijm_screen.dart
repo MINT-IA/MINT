@@ -425,7 +425,7 @@ class _IjmScreenState extends State<IjmScreen> {
                 Text(
                   'Les primes IJM augmentent fortement avec l\'âge. '
                   'Après 50 ans, le coût peut être 3 à 4 fois supérieur '
-                  'à celui d\'un\u00B7e assuré\u00B7e de 30 ans. '
+                  'à celui d\'une personne de 30 ans. '
                   'Considère un délai de carence plus long pour réduire la prime.',
                   style: GoogleFonts.inter(
                     fontSize: 13,

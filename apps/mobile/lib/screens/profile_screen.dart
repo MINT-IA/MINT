@@ -772,11 +772,10 @@ class ProfileScreen extends StatelessWidget {
     final success = await authProvider.deleteAccount();
     if (!context.mounted) return;
 
-    final s = S.of(context);
+    final l = S.of(context)!;
     final message = success
-        ? (s?.profileDeleteAccountSuccess ?? 'Compte supprimé avec succès.')
-        : (authProvider.error ??
-            (s?.profileDeleteAccountError ?? 'Suppression impossible pour le moment. Réessaie plus tard.'));
+        ? l.profileDeleteAccountSuccess
+        : (authProvider.error ?? l.profileDeleteAccountError);
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
     if (success) {
@@ -797,7 +796,7 @@ class ProfileScreen extends StatelessWidget {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
         Semantics(
-          label: '${S.of(context)?.profileChangeLanguage ?? 'Changer la langue'}: $name',
+          label: '${S.of(context)!.profileChangeLanguage}: $name',
           button: true,
           child: InkWell(
             borderRadius: BorderRadius.circular(16),
@@ -898,7 +897,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Future<bool?> _showStrongResetDialog(BuildContext context) async {
-    final s = S.of(context);
+    final l = S.of(context)!;
     final controller = TextEditingController();
     bool valid = false;
     const expected = 'RESET';
@@ -909,21 +908,15 @@ class ProfileScreen extends StatelessWidget {
         return StatefulBuilder(
           builder: (ctx, setState) {
             return AlertDialog(
-              title: Text(
-                s?.profileResetDialogTitle ?? 'Réinitialiser ma situation ?',
-              ),
+              title: Text(l.profileResetDialogTitle),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    s?.profileResetDialogBody ??
-                        'Cette action supprime ton diagnostic, tes check-ins, ton score et ton budget local.',
-                  ),
+                  Text(l.profileResetDialogBody),
                   const SizedBox(height: 12),
                   Text(
-                    s?.profileResetDialogConfirmLabel ??
-                        'Tape RESET pour confirmer :',
+                    l.profileResetDialogConfirmLabel,
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
@@ -940,7 +933,7 @@ class ProfileScreen extends StatelessWidget {
                       isDense: true,
                       errorText: controller.text.isEmpty || valid
                           ? null
-                          : s?.profileResetDialogInvalid ?? 'Mot-clé invalide.',
+                          : l.profileResetDialogInvalid,
                     ),
                   ),
                 ],
@@ -948,12 +941,12 @@ class ProfileScreen extends StatelessWidget {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx, false),
-                  child: Text(s?.commonCancel ?? 'Annuler'),
+                  child: Text(l.commonCancel),
                 ),
                 TextButton(
                   onPressed: valid ? () => Navigator.pop(ctx, true) : null,
                   style: TextButton.styleFrom(foregroundColor: MintColors.error),
-                  child: Text(s?.profileResetDialogAction ?? 'Réinitialiser'),
+                  child: Text(l.profileResetDialogAction),
                 ),
               ],
             );

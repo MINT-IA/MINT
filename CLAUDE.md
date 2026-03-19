@@ -211,12 +211,14 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 ## 7. UX RULES
 
 ### Design System (Flutter)
-- **Fonts**: Montserrat (headings), Inter (body) via GoogleFonts
-- **Colors**: `MintColors.*` from `lib/theme/colors.dart` — NEVER hardcode hex
+- **Full spec**: `docs/DESIGN_SYSTEM.md` — tokens, components, screen categories, checklist
+- **Fonts**: Montserrat (headings), Inter (body) via GoogleFonts. Outfit is deprecated.
+- **Colors**: `MintColors.*` from `lib/theme/colors.dart` — NEVER hardcode hex. Core palette = 12 tokens (see DESIGN_SYSTEM.md §3.2).
 - **Navigation**: GoRouter — no `Navigator.push`
 - **State**: Provider — no raw StatefulWidget for shared data
 - **Material 3**, responsive layout, CustomPainter for charts
-- **AppBar**: SliverAppBar with gradient from MintColors.primary
+- **AppBar**: White background standard. Exception: Pulse only uses gradient primary.
+- **Deprecated**: `MintGlassCard`, `MintPremiumButton`, `Outfit` font — do not use in new code.
 
 ### i18n (NON-NEGOTIABLE)
 - **6 languages**: fr (template), en, de, es, it, pt — ARB files in `lib/l10n/`
@@ -225,11 +227,21 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 - **Run `flutter gen-l10n`** after modifying ARB files
 - **French diacritics mandatory**: é, è, ê, ô, ù, ç, à — ASCII "e" for accented = bug
 
+### Navigation Architecture (target — S52+)
+- **Full spec**: `docs/NAVIGATION_GRAAL_V10.md`
+- **Philosophy**: Coach-first, UI-assisted. AI-as-layer, NOT chatbot-first.
+- **Shell**: 4 tabs — Aujourd'hui | Coach | Explorer | Dossier
+- **Capture**: Contextual bottom sheet (scan, import, add data) — NOT a global FAB
+- **Explorer**: 7 hubs (Retraite, Famille, Travail & Statut, Logement, Fiscalité, Patrimoine & Succession, Santé & Protection)
+- **Screen types**: Destination (user mental map), Flow (triggered by intent), Tool (opened contextually), Alias (legacy compat)
+- **Internal taxonomies** (`arbitrage`, `lpp-deep`, `3a-deep`, `segments`) are NOT visible in user navigation
+- **All 67 canonical routes remain as deep links** — restructuring is UX surface, not route deletion
+
 ### UX Principles (from `rules.md`)
 - Progressive disclosure — no bank connection upfront
 - 1 screen = 1 intention
 - Each recommendation → 1-3 concrete next actions
-- Onboarding minimal: 3 questions max before first chiffre choc
+- Onboarding minimal: 3 questions + revenu before first chiffre choc
 - Precision progressive: ask data when it matters, not during onboarding
 - Score FRI: never "bon/mauvais", always "progression personnelle"
 
@@ -354,6 +366,8 @@ If code contradicts 1-8: fix the code OR write an ADR.
 | `docs/CICD_ARCHITECTURE.md` | Full CI/CD pipeline reference |
 | `docs/ONBOARDING_ARBITRAGE_ENGINE.md` | Onboarding + arbitrage specs |
 | `docs/DATA_ACQUISITION_STRATEGY.md` | OCR, guided entry, Open Banking |
+| `docs/DESIGN_SYSTEM.md` | Visual direction + tokens + components + screen categories + checklist |
+| `docs/NAVIGATION_GRAAL_V10.md` | Target IA: 4 tabs + 7 hubs + Capture + migration plan |
 | `docs/UX_WIDGET_REDESIGN_MASTERPLAN.md` | UX 7 laws + 75 creative proposals |
 | `visions/MINT_Analyse_Strategique_Benchmark.md` | 40+ app benchmark + academic research |
 | `visions/MINT_Autoresearch_Dev_Agents.md` | 10 dev agents (build) — sprint execution method |

@@ -108,6 +108,8 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 // Comparaison strategies
                 if (result != null) ...[
                   _buildComparisonSection(result),
+                  const SizedBox(height: 12),
+                  _buildStrategyNote(),
                   const SizedBox(height: 24),
 
                   // Timeline
@@ -135,8 +137,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       DebtRiskLevel.rouge => MintColors.error,
     };
 
-    final meilleur = result.avalanche.interetsTotaux <=
-            result.bouleDeNeige.interetsTotaux
+    // Show the shorter duration between both strategies (no ranking)
+    final strategiePrioritaire = result.avalanche.moisJusquaLiberation <=
+            result.bouleDeNeige.moisJusquaLiberation
         ? result.avalanche
         : result.bouleDeNeige;
 
@@ -161,7 +164,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            '${meilleur.moisJusquaLiberation} mois',
+            '${strategiePrioritaire.moisJusquaLiberation} mois',
             style: GoogleFonts.montserrat(
               fontSize: 36,
               fontWeight: FontWeight.w800,
@@ -171,7 +174,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           const SizedBox(height: 4),
           if (result.economieInterets > 0)
             Text(
-              'CHF ${formatChf(result.economieInterets)} d\'interets economises avec avalanche',
+              'Différence entre les deux stratégies\u00a0: CHF ${formatChf(result.economieInterets)}',
               style: TextStyle(
                 fontSize: 12,
                 color: color,
@@ -483,10 +486,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
               child: _buildStrategyCard(
                 title: 'AVALANCHE',
                 subtitle: 'Taux haut d\'abord',
+                pro: 'Moins d\'intérêts payés',
                 mois: result.avalanche.moisJusquaLiberation,
                 interets: result.avalanche.interetsTotaux,
-                isWinner: result.avalanche.interetsTotaux <=
-                    result.bouleDeNeige.interetsTotaux,
                 icon: Icons.trending_down,
               ),
             ),
@@ -495,10 +497,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
               child: _buildStrategyCard(
                 title: 'BOULE DE NEIGE',
                 subtitle: 'Petit solde d\'abord',
+                pro: 'Motivation par petites victoires',
                 mois: result.bouleDeNeige.moisJusquaLiberation,
                 interets: result.bouleDeNeige.interetsTotaux,
-                isWinner: result.bouleDeNeige.interetsTotaux <
-                    result.avalanche.interetsTotaux,
                 icon: Icons.ac_unit,
               ),
             ),
@@ -545,9 +546,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   Widget _buildStrategyCard({
     required String title,
     required String subtitle,
+    required String pro,
     required int mois,
     required double interets,
-    required bool isWinner,
     required IconData icon,
   }) {
     return Container(
@@ -556,8 +557,8 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isWinner ? MintColors.success : MintColors.border,
-          width: isWinner ? 2 : 1,
+          color: MintColors.border,
+          width: 1,
         ),
       ),
       child: Column(
@@ -592,15 +593,23 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 22,
               fontWeight: FontWeight.w800,
-              color: isWinner ? MintColors.success : MintColors.textPrimary,
+              color: MintColors.textPrimary,
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            'CHF ${formatChf(interets)} interets',
+            'CHF ${formatChf(interets)} intérêts',
             style: const TextStyle(
               fontSize: 11,
               color: MintColors.redDeep,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '✓ $pro',
+            style: const TextStyle(
+              fontSize: 10,
+              color: MintColors.textSecondary,
             ),
           ),
         ],
@@ -637,8 +646,28 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     );
   }
 
+  Widget _buildStrategyNote() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.appleSurface,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        'Le choix dépend de ta personnalité financière, pas seulement du coût.',
+        style: GoogleFonts.inter(
+          fontSize: 12,
+          color: MintColors.textSecondary,
+          fontStyle: FontStyle.italic,
+          height: 1.4,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
   Widget _buildTimelineSection(RepaymentComparisonResult result) {
-    // Show avalanche timeline (generally better)
+    // Show avalanche timeline as example
     final timeline = result.avalanche.timeline;
     if (timeline.isEmpty) return const SizedBox.shrink();
 

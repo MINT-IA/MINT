@@ -504,7 +504,7 @@ void main() {
       final prompts = ResponseCardService.suggestedPrompts(profile);
 
       expect(prompts, isNotEmpty);
-      expect(prompts.first, contains('impots'));
+      expect(prompts.first, contains('imp\u00f4ts'));
     });
 
     test('independant sees prevoyance prompt', () {
@@ -518,7 +518,7 @@ void main() {
       );
       final prompts = ResponseCardService.suggestedPrompts(profile);
 
-      expect(prompts.any((p) => p.contains('independant')), isTrue);
+      expect(prompts.any((p) => p.contains('ind\u00e9pendant')), isTrue);
     });
 
     test('couple sees coordination prompt', () {

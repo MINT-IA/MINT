@@ -16,7 +16,7 @@
   "landingResumeDiagnostic": "Resume my diagnostic",
   "startDiagnostic": "Start my diagnostic",
   "tabNow": "NOW",
-  "tabExplore": "EXPLORE",
+  "tabExplore": "Explore",
   "tabTrack": "TRACK",
   "budgetTitle": "Master my Budget",
   "simulatorsTitle": "Journey Simulators",
@@ -6089,5 +6089,7 @@
     "placeholders": {
       "count": {"type": "int"}
     }
-  }
+  },
+  "tabToday": "Today",
+  "tabDossier": "File"
 }

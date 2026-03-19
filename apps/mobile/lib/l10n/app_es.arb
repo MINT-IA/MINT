@@ -16,7 +16,7 @@
   "landingResumeDiagnostic": "Retomar mi diagnostico",
   "startDiagnostic": "Iniciar mi diagnostico",
   "tabNow": "AHORA",
-  "tabExplore": "EXPLORAR",
+  "tabExplore": "Explorar",
   "tabTrack": "SEGUIR",
   "budgetTitle": "Dominar mi Presupuesto",
   "simulatorsTitle": "Simuladores de Viaje",
@@ -6046,5 +6046,7 @@
     "placeholders": {
       "count": {"type": "int"}
     }
-  }
+  },
+  "tabToday": "Hoy",
+  "tabDossier": "Expediente"
 }

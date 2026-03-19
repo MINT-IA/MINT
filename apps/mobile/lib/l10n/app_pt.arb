@@ -16,7 +16,7 @@
   "landingResumeDiagnostic": "Retomar o meu diagnostico",
   "startDiagnostic": "Iniciar o meu diagnostico",
   "tabNow": "AGORA",
-  "tabExplore": "EXPLORAR",
+  "tabExplore": "Explorar",
   "tabTrack": "SEGUIR",
   "budgetTitle": "Dominar o meu Orcamento",
   "simulatorsTitle": "Simuladores de Viagem",
@@ -6046,5 +6046,7 @@
     "placeholders": {
       "count": {"type": "int"}
     }
-  }
+  },
+  "tabToday": "Hoje",
+  "tabDossier": "Dossiê"
 }

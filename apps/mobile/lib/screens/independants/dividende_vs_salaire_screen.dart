@@ -80,6 +80,8 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
                 _buildDisclaimer(),
                 const SizedBox(height: 16),
                 _buildCantonalDisclaimer(),
+                const SizedBox(height: 16),
+                _buildComplianceFooter(),
                 const SizedBox(height: 100),
               ]),
             ),
@@ -592,7 +594,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           'AVS uniquement sur le salaire',
           'Les cotisations AVS (environ 12.5% au total) ne s\'appliquent '
           'qu\'à la part salaire. Le dividende échappe aux charges sociales, '
-          'd\'où l\'intérêt d\'optimiser le split.',
+          'd\'où l\'intérêt d\'ajuster le split.',
         ),
         _buildEduCard(
           Icons.gavel_outlined,
@@ -697,14 +699,47 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        'L\'optimisation fiscale dépend de la pratique cantonale. '
-        'Les seuils de requalification varient d\'un canton a l\'autre.',
+        'L\'impact fiscal dépend de la pratique cantonale. '
+        'Les seuils de requalification varient d\'un canton à l\'autre.',
         style: GoogleFonts.inter(
           fontSize: 11,
           color: MintColors.textMuted,
           height: 1.4,
         ),
         textAlign: TextAlign.center,
+      ),
+    );
+  }
+  // ── Compliance Footer ─────────────────────────────────────
+
+  Widget _buildComplianceFooter() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.appleSurface,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Outil éducatif — ne constitue pas un conseil financier (LSFin).',
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              color: MintColors.textMuted,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Sources\u00a0: LIFD art.\u00a018, 20, 33\u00a0; CO art.\u00a0660',
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              color: MintColors.textMuted,
+              height: 1.4,
+            ),
+          ),
+        ],
       ),
     );
   }
