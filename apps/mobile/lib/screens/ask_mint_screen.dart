@@ -408,7 +408,10 @@ class _AskMintScreenState extends State<AskMintScreen> {
   Widget _buildSuggestedChip(String text) {
     return SizedBox(
       width: double.infinity,
-      child: InkWell(
+      child: Semantics(
+        label: text,
+        button: true,
+        child: InkWell(
         onTap: () => _sendMessage(text),
         borderRadius: BorderRadius.circular(16),
         child: Container(
@@ -434,6 +437,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }
@@ -571,7 +575,10 @@ class _AskMintScreenState extends State<AskMintScreen> {
           for (final source in sources)
             Padding(
               padding: const EdgeInsets.only(bottom: 4),
-              child: InkWell(
+              child: Semantics(
+                label: 'Source : ${source.title}',
+                button: true,
+                child: InkWell(
                 onTap: () => _navigateToSource(source),
                 child: Row(
                   children: [
@@ -591,6 +598,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
                     ),
                   ],
                 ),
+              ),
               ),
             ),
         ],
@@ -936,8 +944,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
     } catch (e) {
       setState(() {
         _messages.add(_ChatMessage(
-          text: S.of(context)?.askMintErrorGeneric ??
-              'Une erreur est survenue. V\u00e9rifie ta connexion et r\u00e9essaie.',
+          text: S.of(context)!.askMintErrorGeneric,
           isUser: false,
           disclaimers: [],
         ));
