@@ -2,37 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/cap_engine.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
-import 'package:mint_mobile/services/pulse_hero_engine.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/widgets/pulse/cap_card.dart';
 import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
-import 'package:mint_mobile/services/response_card_service.dart';
 
 // ────────────────────────────────────────────────────────
-//  AUJOURD'HUI — V4 "Radical Simplicity"
+//  AUJOURD'HUI — V5 "Plan-first"
 // ────────────────────────────────────────────────────────
 //
-//  Contrat UX (NAVIGATION_GRAAL_V10.md) :
-//  - 1 phrase personnalisée
+//  Contrat UX (MINT_UX_GRAAL_MASTERPLAN.md §10 + §12):
+//  - 1 phrase personnalisée (from Cap headline or narrative)
 //  - 1 chiffre dominant (displayLarge)
-//  - 1 action prioritaire
+//  - 1 Cap du jour (CapCard — the single priority)
 //  - 2 signaux secondaires max
 //  - Rien d'autre au-dessus du fold
 //
-//  Removed from V3:
-//  - FocusSelector 2×2 grid (pattern interdit)
-//  - CircularProgressIndicator (pattern interdit)
-//  - Enrichir section (moved to Dossier)
-//  - Heavy gradient hero card
-//  - Action signal badge
+//  V5 changes from V4:
+//  - CapEngine replaces ResponseCardService + PulseHeroEngine glue
+//  - CapCard replaces _buildMinimalActionCard
+//  - CapMemory loaded async, markServed on display
+//  - Narrative can come from Cap.headline (fallback: legacy)
+//  - PulseHeroEngine kept only as narrative fallback
 // ────────────────────────────────────────────────────────
 
 class PulseScreen extends StatefulWidget {
@@ -47,6 +49,13 @@ class _PulseScreenState extends State<PulseScreen> {
   FinancialFitnessScore? _cachedFri;
   CoachProfile? _lastProfile;
 
+  /// CapEngine memory — loaded async on first build.
+  CapMemory _capMemory = const CapMemory();
+  bool _capMemoryLoaded = false;
+
+  /// The current cap decision. Recomputed when profile changes.
+  CapDecision? _cachedCap;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -56,6 +65,7 @@ class _PulseScreenState extends State<PulseScreen> {
         _lastProfile = null;
         _cachedProjection = null;
         _cachedFri = null;
+        _cachedCap = null;
       }
       return;
     }
@@ -63,6 +73,17 @@ class _PulseScreenState extends State<PulseScreen> {
     final profile = provider.profile!;
     if (_lastProfile == profile) return;
     _lastProfile = profile;
+
+    // Load CapMemory once
+    if (!_capMemoryLoaded) {
+      _capMemoryLoaded = true;
+      CapMemoryStore.load().then((mem) {
+        if (mounted) {
+          setState(() => _capMemory = mem);
+          _recomputeCap(profile);
+        }
+      });
+    }
 
     try {
       _cachedProjection = ForecasterService.project(profile: profile);
@@ -78,6 +99,26 @@ class _PulseScreenState extends State<PulseScreen> {
     } catch (_) {
       _cachedFri = null;
     }
+
+    _recomputeCap(profile);
+  }
+
+  void _recomputeCap(CoachProfile profile) {
+    try {
+      final cap = CapEngine.compute(
+        profile: profile,
+        now: DateTime.now(),
+        memory: _capMemory,
+      );
+      _cachedCap = cap;
+
+      // Mark served (async, fire-and-forget)
+      CapMemoryStore.markServed(_capMemory, cap.id).then((updated) {
+        if (mounted) _capMemory = updated;
+      });
+    } catch (_) {
+      _cachedCap = null;
+    }
   }
 
   // ── BUILD ──
@@ -91,14 +132,17 @@ class _PulseScreenState extends State<PulseScreen> {
     }
 
     final profile = coachProvider.profile!;
-    final hero = PulseHeroEngine.compute(profile);
+    final cap = _cachedCap;
     final l = S.of(context)!;
 
     // Compute the dominant number
     final dominantNumber = _computeDominantNumber(profile);
     final dominantLabel = _computeDominantLabel(profile, l);
     final dominantColor = _computeDominantColor(dominantNumber);
-    final narrativePhrase = _computeNarrative(profile, hero, l);
+    final narrativePhrase = _computeNarrative(profile, cap, l);
+
+    // Recent action feedback
+    final recentAction = _recentActionLabel();
 
     return CustomScrollView(
       slivers: [
@@ -142,8 +186,14 @@ class _PulseScreenState extends State<PulseScreen> {
 
                 const SizedBox(height: MintSpacing.xxl),
 
-                // ── 3. ACTION PRIORITAIRE ──
-                _buildPriorityAction(profile, hero),
+                // ── 3. CAP DU JOUR ──
+                if (cap != null)
+                  CapCard(
+                    cap: cap,
+                    recentActionLabel: recentAction,
+                  )
+                else
+                  _buildFallbackAction(context),
 
                 const SizedBox(height: MintSpacing.xl),
 
@@ -166,7 +216,6 @@ class _PulseScreenState extends State<PulseScreen> {
   // ── DOMINANT NUMBER ──
 
   _DominantNumber _computeDominantNumber(CoachProfile profile) {
-    // Priority: replacement rate > FHS score > retirement estimate
     if (_cachedProjection != null) {
       final retraite = _cachedProjection!.base.revenuAnnuelRetraite / 12;
       final revenuNet = _computeRevenuNet(profile);
@@ -226,19 +275,25 @@ class _PulseScreenState extends State<PulseScreen> {
     return MintColors.textPrimary;
   }
 
-  String _computeNarrative(CoachProfile profile, PulseHero? hero, S l) {
+  // ── NARRATIVE ──
+
+  String _computeNarrative(
+      CoachProfile profile, CapDecision? cap, S l) {
     final firstName = profile.firstName;
     final yearsToRetire = profile.effectiveRetirementAge - profile.age;
     final hasName = firstName != null && firstName.trim().isNotEmpty;
 
-    // Prefix with name if available
     String prefix(String msg) => hasName ? '$firstName, $msg' : msg;
 
-    if (hero != null && hero.subtitle.isNotEmpty) {
+    // Cap headline as narrative source (plan-first)
+    if (cap != null) {
+      final h = cap.headline;
       return hasName
-          ? '$firstName, ${hero.subtitle[0].toLowerCase()}${hero.subtitle.substring(1)}'
-          : hero.subtitle;
+          ? '$firstName, ${h[0].toLowerCase()}${h.substring(1)}'
+          : h;
     }
+
+    // Fallback: time-based narrative
     if (yearsToRetire <= 5) {
       return prefix(l.pulseNarrativeRetirementClose);
     }
@@ -251,48 +306,11 @@ class _PulseScreenState extends State<PulseScreen> {
     return prefix(l.pulseNarrativeDefault);
   }
 
-  // ── PRIORITY ACTION ──
+  // ── FALLBACK ACTION (no cap) ──
 
-  Widget _buildPriorityAction(CoachProfile profile, PulseHero? hero) {
-    // Try response card first (most contextual) — render as minimal action card
-    final cards = ResponseCardService.generateForPulse(profile, limit: 1);
-    if (cards.isNotEmpty) {
-      final card = cards.first;
-      return _buildMinimalActionCard(
-        title: card.title,
-        subtitle: card.subtitle,
-        icon: Icons.arrow_forward_rounded,
-        onTap: () => context.push(card.cta.route),
-      );
-    }
-
-    // Fallback to hero CTA
-    if (hero != null) {
-      return _buildMinimalActionCard(
-        title: hero.ctaLabel,
-        subtitle: 'Le prochain levier',
-        icon: Icons.arrow_forward_rounded,
-        onTap: () => context.push(hero.ctaRoute),
-      );
-    }
-
-    // Last resort: go to coach
-    return _buildMinimalActionCard(
-      title: S.of(context)!.pulseEmptyCtaStart,
-      subtitle: 'On peut commencer ici',
-      icon: Icons.arrow_forward_rounded,
-      onTap: () => NavigationShellState.switchTab(1),
-    );
-  }
-
-  Widget _buildMinimalActionCard({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildFallbackAction(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () => NavigationShellState.switchTab(1),
       child: Container(
         padding: const EdgeInsets.all(MintSpacing.lg),
         decoration: BoxDecoration(
@@ -311,8 +329,8 @@ class _PulseScreenState extends State<PulseScreen> {
                 color: MintColors.primary.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(
-                icon,
+              child: const Icon(
+                Icons.arrow_forward_rounded,
                 color: MintColors.primary,
                 size: 20,
               ),
@@ -323,13 +341,13 @@ class _PulseScreenState extends State<PulseScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
+                    S.of(context)!.pulseEmptyCtaStart,
                     style: MintTextStyles.titleMedium(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    subtitle,
+                    S.of(context)!.pulseNarrativeDefault,
                     style: MintTextStyles.bodySmall(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -347,6 +365,20 @@ class _PulseScreenState extends State<PulseScreen> {
         ),
       ),
     );
+  }
+
+  // ── RECENT ACTION FEEDBACK ──
+
+  String? _recentActionLabel() {
+    if (_capMemory.completedActions.isEmpty) return null;
+    if (_capMemory.lastCapDate == null) return null;
+
+    final hoursSince =
+        DateTime.now().difference(_capMemory.lastCapDate!).inHours;
+    if (hoursSince > 48) return null;
+
+    // Show a simple feedback
+    return hoursSince < 24 ? 'Impact recalculé' : 'Ajouté récemment';
   }
 
   // ── SECONDARY SIGNALS (max 2) ──
@@ -421,7 +453,6 @@ class _PulseScreenState extends State<PulseScreen> {
       ),
       centerTitle: false,
       actions: [
-        // Couple switcher
         if (profile.isCouple)
           Padding(
             padding: const EdgeInsets.only(right: 8),
