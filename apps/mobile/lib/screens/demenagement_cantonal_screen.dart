@@ -24,10 +24,7 @@ class _DemenagementCantonalScreenState
   String _cantonDepart = 'GE';
   String _cantonArrivee = 'VS';
   double _revenuBrut = 120000;
-  double _fortune = 300000;
-  double _capitalLpp = 200000;
   String _situationFamiliale = 'marie';
-  int _nbEnfants = 2;
 
   // Simplified cantonal tax burden index (relative, GE=100)
   static const _indiceFiscal = {

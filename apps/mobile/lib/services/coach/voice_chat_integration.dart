@@ -14,7 +14,6 @@ library;
 
 import 'dart:async';
 
-import 'coach_models.dart'; // ComplianceResult
 import 'compliance_guard.dart';
 import 'voice_config.dart';
 import 'voice_service.dart';

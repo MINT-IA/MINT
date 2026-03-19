@@ -20,13 +20,10 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
   // ── Input state ──
   String _lienParente = 'conjoint';
   String _canton = 'VD';
-  String _regimeMatrimonial = 'participation_acquets';
   double _fortuneDefunt = 500000;
   double _lppDefunt = 200000;
   double _pilier3aDefunt = 50000;
-  int _nbHeritiers = 2;
   bool _testamentExiste = false;
-  bool _defuntMarie = true;
 
   @override
   Widget build(BuildContext context) {

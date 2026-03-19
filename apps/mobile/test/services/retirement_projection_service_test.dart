@@ -199,7 +199,6 @@ void main() {
         profile: buildProfile(),
         lppCapitalPct: 1.0,
       );
-      final lppSource = result.budgetGap;
       // With full capital, LPP source should be capital-based
       expect(result.revenuMensuelAt65, greaterThan(0));
     });

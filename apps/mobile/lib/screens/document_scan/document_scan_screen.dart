@@ -10,7 +10,6 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart';
 import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
