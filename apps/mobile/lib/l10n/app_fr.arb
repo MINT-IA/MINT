@@ -3349,21 +3349,21 @@
   "scoreRevealCtaDashboard": "Voir mon dashboard",
   "scoreRevealCtaReport": "Voir le rapport détaillé",
   "scoreRevealDisclaimer": "Outil éducatif — ne constitue pas un conseil financier (LSFin).",
-  "affordabilityTitle": "CAPACITÉ D'ACHAT",
-  "affordabilitySource": "Source : directive ASB sur le crédit hypothécaire, pratique bancaire suisse.",
-  "affordabilityIndicators": "INDICATEURS",
+  "affordabilityTitle": "Capacité d'achat",
+  "affordabilitySource": "Source\u00a0: directive ASB sur le crédit hypothécaire, pratique bancaire suisse.",
+  "affordabilityIndicators": "Indicateurs",
   "affordabilityChargesRatio": "Ratio charges / revenus",
   "affordabilityEquityRatio": "Fonds propres / prix",
   "affordabilityOk": "OK",
-  "affordabilityExceeded": "DÉPASSÉ",
-  "affordabilityParameters": "PARAMÈTRES",
+  "affordabilityExceeded": "Dépassé",
+  "affordabilityParameters": "Tes hypothèses",
   "affordabilityCanton": "Canton",
   "affordabilityGrossIncome": "Revenu brut annuel",
   "affordabilityTargetPrice": "Prix d'achat visé",
   "affordabilityAvailableSavings": "Épargne disponible",
   "affordabilityPillar3a": "Avoir 3a",
   "affordabilityPillarLpp": "Avoir LPP",
-  "affordabilityCalculationDetail": "DÉTAIL DU CALCUL",
+  "affordabilityCalculationDetail": "Détail du calcul",
   "affordabilityEquityRequired": "Fonds propres requis (20%)",
   "affordabilitySavingsLabel": "Épargne",
   "affordabilityLppMax10": "Avoir LPP (max 10% du prix)",
@@ -6725,5 +6725,107 @@
   "successionSpecialisteTitle": "Consulter un·e notaire ou spécialiste",
   "successionSpecialisteBody": "Un·e notaire ou spécialiste en droit successoral peut rédiger ou réviser ton testament.",
   "successionSources": "• CC art. 457–640 — Droit des successions\n• CC art. 470–471 — Réserves héréditaires\n• CC art. 498–504 — Formes du testament\n• LPP art. 20 — Bénéficiaires du capital LPP\n• OPP3 art. 2 — Bénéficiaires du pilier 3a",
-  "successionDisclaimer": "Information à caractère éducatif, ne constitue pas un conseil juridique (LSFin/CC). Consulte un·e spécialiste pour ta situation."
+  "successionDisclaimer": "Information à caractère éducatif, ne constitue pas un conseil juridique (LSFin/CC). Consulte un·e spécialiste pour ta situation.",
+  "naissanceAllocForCanton": "Allocations familiales à {canton} pour {count} enfant{plural}",
+  "@naissanceAllocForCanton": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "count": { "type": "int" },
+      "plural": { "type": "String" }
+    }
+  },
+  "naissanceAllocContextNote": "({canton}, {count} enfant{plural})",
+  "@naissanceAllocContextNote": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "count": { "type": "int" },
+      "plural": { "type": "String" }
+    }
+  },
+  "affordabilityEmotionalPositif": "Tu peux te l'offrir",
+  "affordabilityEmotionalNegatif": "Il te manque un bout du puzzle",
+  "affordabilityExploreAlso": "Explorer aussi",
+  "affordabilityRelatedAmortTitle": "Amortissement direct vs indirect",
+  "affordabilityRelatedAmortSubtitle": "Impact fiscal de chaque stratégie",
+  "affordabilityRelatedSaronTitle": "SARON vs taux fixe",
+  "affordabilityRelatedSaronSubtitle": "Comparer les types d'hypothèque",
+  "affordabilityRelatedValeurTitle": "Valeur locative",
+  "affordabilityRelatedValeurSubtitle": "Comprendre l'imposition du logement",
+  "affordabilityRelatedEplTitle": "EPL — Utiliser mon 2e pilier",
+  "affordabilityRelatedEplSubtitle": "Retrait anticipé pour l'achat",
+  "affordabilityRelatedSimulate": "Simuler",
+  "affordabilityRelatedCompare": "Comparer",
+  "affordabilityRelatedCalculate": "Calculer",
+  "affordabilityAdvancedParams": "Plus d'hypothèses",
+  "demenagementTitreV2": "Déménager, ça rapporte combien\u00a0?",
+  "demenagementCtaOptimal": "Trouver le canton adapté",
+  "demenagementInsightPositif": "Ce déménagement te fait gagner du pouvoir d'achat. L'économie couvre environ {mois} mois de loyer moyen.",
+  "@demenagementInsightPositif": {
+    "placeholders": {
+      "mois": { "type": "String" }
+    }
+  },
+  "demenagementInsightNegatif": "Ce déménagement te coûte. Vérifie que le cadre de vie compense la différence.",
+  "demenagementBilanTotal": "Bilan total (impôts + LAMal)",
+  "divorceTransfertAmount": "Transfert de {amount} ({direction})",
+  "@divorceTransfertAmount": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "direction": { "type": "String" }
+    }
+  },
+  "divorceFiscalDelta": "Différence\u00a0: {sign}{amount}/an",
+  "@divorceFiscalDelta": {
+    "placeholders": {
+      "sign": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "divorcePensionMois": "{amount}/mois",
+  "@divorcePensionMois": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "divorcePensionAnnuel": "soit {amount}/an",
+  "@divorcePensionAnnuel": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "divorceConjoint1Label": "Conjoint 1",
+  "divorceConjoint2Label": "Conjoint 2",
+  "divorceSplitC1": "C1",
+  "divorceSplitC2": "C2",
+  "unemploymentVague1Label": "Vague 1 · L'urgence administrative",
+  "unemploymentVague1Text": "Inscription ORP dans les 5 premiers jours. Sinon\u00a0: perte d'indemnités. Chaque jour de retard = indemnité perdue.",
+  "unemploymentVague2Label": "Vague 2 · Le budget à ajuster",
+  "unemploymentVague2Text": "Chute immédiate de revenus. L'AC ne couvre ni les jours fériés ni le délai de carence (5–20 jours). Revois ton budget dès J+1.",
+  "unemploymentVague3Label": "Vague 3 · Les décisions cachées",
+  "unemploymentVague3Text": "Dans les 30 jours\u00a0: transférer ton LPP (sinon institution supplétive). Avant le mois suivant\u00a0: suspendre le 3a, revoir LAMal.",
+  "unemploymentBudgetLoyer": "Loyer",
+  "unemploymentBudgetLamal": "LAMal",
+  "unemploymentBudgetTransport": "Transport",
+  "unemploymentBudgetLoisirs": "Loisirs",
+  "unemploymentBudgetEpargne3a": "Épargne 3a",
+  "unemploymentGainMin": "CHF\u00a00",
+  "unemploymentGainMax": "CHF\u00a012'350",
+  "unemploymentBracket1": "12–17 mois cotis.",
+  "unemploymentBracket1Value": "200 indemnités",
+  "unemploymentBracket2": "18–21 mois cotis.",
+  "unemploymentBracket2Value": "260 indemnités",
+  "unemploymentBracket3": ">= 22 mois, < {age} ans",
+  "@unemploymentBracket3": {
+    "placeholders": {
+      "age": { "type": "int" }
+    }
+  },
+  "unemploymentBracket3Value": "400 indemnités",
+  "unemploymentBracket4": ">= 22 mois, >= {age} ans",
+  "@unemploymentBracket4": {
+    "placeholders": {
+      "age": { "type": "int" }
+    }
+  },
+  "unemploymentBracket4Value": "520 indemnités"
 }

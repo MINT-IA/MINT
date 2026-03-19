@@ -3349,21 +3349,21 @@
   "scoreRevealCtaDashboard": "Ver o meu painel",
   "scoreRevealCtaReport": "Ver relatório detalhado",
   "scoreRevealDisclaimer": "Ferramenta educativa — não constitui aconselhamento financeiro (LSFin).",
-  "affordabilityTitle": "CAPACIDADE DE COMPRA",
+  "affordabilityTitle": "Capacidade de compra",
   "affordabilitySource": "Fonte: diretiva ASB sobre crédito hipotecário, prática bancária suíça.",
-  "affordabilityIndicators": "INDICADORES",
+  "affordabilityIndicators": "Indicadores",
   "affordabilityChargesRatio": "Rácio encargos / rendimento",
   "affordabilityEquityRatio": "Capitais próprios / preço",
   "affordabilityOk": "OK",
-  "affordabilityExceeded": "EXCEDIDO",
-  "affordabilityParameters": "PARÂMETROS",
+  "affordabilityExceeded": "Excedido",
+  "affordabilityParameters": "As tuas hipóteses",
   "affordabilityCanton": "Cantão",
   "affordabilityGrossIncome": "Rendimento bruto anual",
   "affordabilityTargetPrice": "Preço de compra alvo",
   "affordabilityAvailableSavings": "Poupança disponível",
   "affordabilityPillar3a": "Ativos pilar 3a",
   "affordabilityPillarLpp": "Ativos LPP",
-  "affordabilityCalculationDetail": "DETALHE DO CÁLCULO",
+  "affordabilityCalculationDetail": "Detalhe do cálculo",
   "affordabilityEquityRequired": "Capitais próprios requeridos (20%)",
   "affordabilitySavingsLabel": "Poupança",
   "affordabilityLppMax10": "Ativos LPP (máx 10% do preço)",
@@ -6444,5 +6444,107 @@
   "successionSpecialisteTitle": "Consultar um/a notário/a ou especialista",
   "successionSpecialisteBody": "Um/a notário/a pode redigir ou rever o teu testamento.",
   "successionSources": "• CC art. 457–640 — Direito das sucessões\n• CC art. 470–471 — Reservas hereditárias\n• CC art. 498–504 — Formas de testamento\n• LPP art. 20 — Beneficiários LPP\n• OPP3 art. 2 — Beneficiários 3a",
-  "successionDisclaimer": "Informação educativa, não aconselhamento jurídico (LSFin/CC)."
+  "successionDisclaimer": "Informação educativa, não aconselhamento jurídico (LSFin/CC).",
+  "naissanceAllocForCanton": "Abonos de família em {canton} para {count} filho{plural}",
+  "@naissanceAllocForCanton": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "count": { "type": "int" },
+      "plural": { "type": "String" }
+    }
+  },
+  "naissanceAllocContextNote": "({canton}, {count} filho{plural})",
+  "@naissanceAllocContextNote": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "count": { "type": "int" },
+      "plural": { "type": "String" }
+    }
+  },
+  "affordabilityEmotionalPositif": "Podes pagar isto",
+  "affordabilityEmotionalNegatif": "Falta uma peça do puzzle",
+  "affordabilityExploreAlso": "Explorar mais",
+  "affordabilityRelatedAmortTitle": "Amortização direta vs indireta",
+  "affordabilityRelatedAmortSubtitle": "Impacto fiscal de cada estratégia",
+  "affordabilityRelatedSaronTitle": "SARON vs taxa fixa",
+  "affordabilityRelatedSaronSubtitle": "Comparar tipos de hipoteca",
+  "affordabilityRelatedValeurTitle": "Valor locativo",
+  "affordabilityRelatedValeurSubtitle": "Compreender a tributação da habitação",
+  "affordabilityRelatedEplTitle": "EPL — Usar o meu 2o pilar",
+  "affordabilityRelatedEplSubtitle": "Levantamento antecipado para compra",
+  "affordabilityRelatedSimulate": "Simular",
+  "affordabilityRelatedCompare": "Comparar",
+  "affordabilityRelatedCalculate": "Calcular",
+  "affordabilityAdvancedParams": "Mais hipóteses",
+  "demenagementTitreV2": "Mudar de cantão, quanto poupas?",
+  "demenagementCtaOptimal": "Encontrar o cantão adequado",
+  "demenagementInsightPositif": "Esta mudança aumenta o teu poder de compra. A poupança cobre cerca de {mois} meses de renda média.",
+  "@demenagementInsightPositif": {
+    "placeholders": {
+      "mois": { "type": "String" }
+    }
+  },
+  "demenagementInsightNegatif": "Esta mudança custa mais. Verifica se a qualidade de vida compensa a diferença.",
+  "demenagementBilanTotal": "Balanço total (impostos + seguro de saúde)",
+  "divorceTransfertAmount": "Transferência de {amount} ({direction})",
+  "@divorceTransfertAmount": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "direction": { "type": "String" }
+    }
+  },
+  "divorceFiscalDelta": "Diferença: {sign}{amount}/ano",
+  "@divorceFiscalDelta": {
+    "placeholders": {
+      "sign": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "divorcePensionMois": "{amount}/mês",
+  "@divorcePensionMois": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "divorcePensionAnnuel": "ou seja {amount}/ano",
+  "@divorcePensionAnnuel": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "divorceConjoint1Label": "Cônjuge 1",
+  "divorceConjoint2Label": "Cônjuge 2",
+  "divorceSplitC1": "C1",
+  "divorceSplitC2": "C2",
+  "unemploymentVague1Label": "Onda 1 — Urgência administrativa",
+  "unemploymentVague1Text": "Inscrição no ORP nos primeiros 5 dias. Caso contrário: perda de subsídios. Cada dia de atraso = subsídio perdido.",
+  "unemploymentVague2Label": "Onda 2 — Orçamento a ajustar",
+  "unemploymentVague2Text": "Queda imediata de rendimentos. O seguro-desemprego não cobre feriados nem o período de espera (5–20 dias). Revê o teu orçamento desde o dia 1.",
+  "unemploymentVague3Label": "Onda 3 — Decisões escondidas",
+  "unemploymentVague3Text": "Nos 30 dias seguintes: transferir o LPP (senão instituição supletiva). Antes do mês seguinte: suspender o 3a, rever o seguro de saúde.",
+  "unemploymentBudgetLoyer": "Renda",
+  "unemploymentBudgetLamal": "Seguro de saúde",
+  "unemploymentBudgetTransport": "Transportes",
+  "unemploymentBudgetLoisirs": "Lazer",
+  "unemploymentBudgetEpargne3a": "Poupança 3a",
+  "unemploymentGainMin": "CHF 0",
+  "unemploymentGainMax": "CHF 12'350",
+  "unemploymentBracket1": "12–17 meses contrib.",
+  "unemploymentBracket1Value": "200 subsídios",
+  "unemploymentBracket2": "18–21 meses contrib.",
+  "unemploymentBracket2Value": "260 subsídios",
+  "unemploymentBracket3": ">= 22 meses, < {age} anos",
+  "@unemploymentBracket3": {
+    "placeholders": {
+      "age": { "type": "int" }
+    }
+  },
+  "unemploymentBracket3Value": "400 subsídios",
+  "unemploymentBracket4": ">= 22 meses, >= {age} anos",
+  "@unemploymentBracket4": {
+    "placeholders": {
+      "age": { "type": "int" }
+    }
+  },
+  "unemploymentBracket4Value": "520 subsídios"
 }

@@ -3349,21 +3349,21 @@
   "scoreRevealCtaDashboard": "View my dashboard",
   "scoreRevealCtaReport": "View detailed report",
   "scoreRevealDisclaimer": "Educational tool — does not constitute financial advice (FinSA).",
-  "affordabilityTitle": "BUYING CAPACITY",
+  "affordabilityTitle": "Buying capacity",
   "affordabilitySource": "Source: SBA directive on mortgage credit, Swiss banking practice.",
-  "affordabilityIndicators": "INDICATORS",
+  "affordabilityIndicators": "Indicators",
   "affordabilityChargesRatio": "Charges / income ratio",
   "affordabilityEquityRatio": "Equity / price",
   "affordabilityOk": "OK",
-  "affordabilityExceeded": "EXCEEDED",
-  "affordabilityParameters": "PARAMETERS",
+  "affordabilityExceeded": "Exceeded",
+  "affordabilityParameters": "Your assumptions",
   "affordabilityCanton": "Canton",
   "affordabilityGrossIncome": "Gross annual income",
   "affordabilityTargetPrice": "Target purchase price",
   "affordabilityAvailableSavings": "Available savings",
   "affordabilityPillar3a": "Pillar 3a assets",
   "affordabilityPillarLpp": "LPP assets",
-  "affordabilityCalculationDetail": "CALCULATION DETAILS",
+  "affordabilityCalculationDetail": "Calculation details",
   "affordabilityEquityRequired": "Equity required (20%)",
   "affordabilitySavingsLabel": "Savings",
   "affordabilityLppMax10": "LPP assets (max 10% of price)",
@@ -6487,5 +6487,107 @@
   "successionSpecialisteTitle": "Consult a notary or specialist",
   "successionSpecialisteBody": "A notary or succession law specialist can draft or review your will.",
   "successionSources": "• CC art. 457–640 — Law of succession\n• CC art. 470–471 — Statutory portions\n• CC art. 498–504 — Forms of will\n• LPP art. 20 — LPP beneficiaries\n• OPP3 art. 2 — Pillar 3a beneficiaries",
-  "successionDisclaimer": "Educational information, not legal advice (FinSA/CC). Consult a specialist for your situation."
+  "successionDisclaimer": "Educational information, not legal advice (FinSA/CC). Consult a specialist for your situation.",
+  "naissanceAllocForCanton": "Family allowances in {canton} for {count} child{plural}",
+  "@naissanceAllocForCanton": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "count": { "type": "int" },
+      "plural": { "type": "String" }
+    }
+  },
+  "naissanceAllocContextNote": "({canton}, {count} child{plural})",
+  "@naissanceAllocContextNote": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "count": { "type": "int" },
+      "plural": { "type": "String" }
+    }
+  },
+  "affordabilityEmotionalPositif": "You can afford this",
+  "affordabilityEmotionalNegatif": "A piece of the puzzle is missing",
+  "affordabilityExploreAlso": "Explore more",
+  "affordabilityRelatedAmortTitle": "Direct vs indirect amortization",
+  "affordabilityRelatedAmortSubtitle": "Tax impact of each strategy",
+  "affordabilityRelatedSaronTitle": "SARON vs fixed rate",
+  "affordabilityRelatedSaronSubtitle": "Compare mortgage types",
+  "affordabilityRelatedValeurTitle": "Imputed rental value",
+  "affordabilityRelatedValeurSubtitle": "Understand housing taxation",
+  "affordabilityRelatedEplTitle": "EPL — Use my 2nd pillar",
+  "affordabilityRelatedEplSubtitle": "Early withdrawal for purchase",
+  "affordabilityRelatedSimulate": "Simulate",
+  "affordabilityRelatedCompare": "Compare",
+  "affordabilityRelatedCalculate": "Calculate",
+  "affordabilityAdvancedParams": "More assumptions",
+  "demenagementTitreV2": "Moving cantons — how much do you save?",
+  "demenagementCtaOptimal": "Find the best canton for you",
+  "demenagementInsightPositif": "This move boosts your purchasing power. The savings cover about {mois} months of average rent.",
+  "@demenagementInsightPositif": {
+    "placeholders": {
+      "mois": { "type": "String" }
+    }
+  },
+  "demenagementInsightNegatif": "This move costs more. Check if the quality of life offsets the difference.",
+  "demenagementBilanTotal": "Total balance (taxes + health insurance)",
+  "divorceTransfertAmount": "Transfer of {amount} ({direction})",
+  "@divorceTransfertAmount": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "direction": { "type": "String" }
+    }
+  },
+  "divorceFiscalDelta": "Difference: {sign}{amount}/year",
+  "@divorceFiscalDelta": {
+    "placeholders": {
+      "sign": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "divorcePensionMois": "{amount}/month",
+  "@divorcePensionMois": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "divorcePensionAnnuel": "i.e. {amount}/year",
+  "@divorcePensionAnnuel": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "divorceConjoint1Label": "Spouse 1",
+  "divorceConjoint2Label": "Spouse 2",
+  "divorceSplitC1": "S1",
+  "divorceSplitC2": "S2",
+  "unemploymentVague1Label": "Wave 1 — Administrative urgency",
+  "unemploymentVague1Text": "Register with the ORP within the first 5 days. Otherwise: lost benefits. Every day of delay = a lost benefit.",
+  "unemploymentVague2Label": "Wave 2 — Budget to adjust",
+  "unemploymentVague2Text": "Immediate income drop. Unemployment insurance does not cover public holidays or the waiting period (5–20 days). Review your budget from day 1.",
+  "unemploymentVague3Label": "Wave 3 — Hidden decisions",
+  "unemploymentVague3Text": "Within 30 days: transfer your LPP (otherwise substitute institution). Before the following month: pause 3a, review health insurance.",
+  "unemploymentBudgetLoyer": "Rent",
+  "unemploymentBudgetLamal": "Health insurance",
+  "unemploymentBudgetTransport": "Transport",
+  "unemploymentBudgetLoisirs": "Leisure",
+  "unemploymentBudgetEpargne3a": "3a savings",
+  "unemploymentGainMin": "CHF 0",
+  "unemploymentGainMax": "CHF 12,350",
+  "unemploymentBracket1": "12–17 months contrib.",
+  "unemploymentBracket1Value": "200 benefits",
+  "unemploymentBracket2": "18–21 months contrib.",
+  "unemploymentBracket2Value": "260 benefits",
+  "unemploymentBracket3": ">= 22 months, < {age} yrs",
+  "@unemploymentBracket3": {
+    "placeholders": {
+      "age": { "type": "int" }
+    }
+  },
+  "unemploymentBracket3Value": "400 benefits",
+  "unemploymentBracket4": ">= 22 months, >= {age} yrs",
+  "@unemploymentBracket4": {
+    "placeholders": {
+      "age": { "type": "int" }
+    }
+  },
+  "unemploymentBracket4Value": "520 benefits"
 }

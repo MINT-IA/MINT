@@ -2,8 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -11,7 +12,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/widgets/coach/mortgage_journey_widget.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
 
-/// Ecran de capacite d'achat immobilier.
+/// Ecran de capacite d'achat immobilier (Cat B — Simulator).
 ///
 /// Affiche le prix max accessible, la jauge fonds propres et le ratio charges.
 /// Base legale : directive ASB sur le credit hypothecaire.
@@ -35,6 +36,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
   double _avoir3a = 50000;
   double _avoirLpp = 200000;
   String _canton = 'VD';
+  bool _showAdvancedParams = false;
 
   static const _cantons = [
     'AG', 'AI', 'AR', 'BE', 'BL', 'BS', 'FR', 'GE', 'GL', 'GR',
@@ -54,74 +56,70 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
   @override
   Widget build(BuildContext context) {
     final result = _result;
+    final l = S.of(context)!;
 
     return Scaffold(
       backgroundColor: MintColors.surface,
       body: CustomScrollView(
         slivers: [
+          // ── White standard AppBar (Design System §4.5) ──
           SliverAppBar(
             expandedHeight: 100,
             pinned: true,
-            backgroundColor: MintColors.primary,
-            foregroundColor: MintColors.white,
+            backgroundColor: MintColors.white,
+            foregroundColor: MintColors.textPrimary,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                S.of(context)!.affordabilityTitle,
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
-                  letterSpacing: 0.5,
-                ),
+                l.affordabilityTitle,
+                style: MintTextStyles.headlineMedium(),
               ),
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // Chiffre choc
-                _buildChiffreChocCard(result),
-                const SizedBox(height: 24),
+                // ── Chiffre choc with emotional framing ──
+                _buildChiffreChocCard(result, l),
+                const SizedBox(height: MintSpacing.lg),
 
-                // Jauges
-                _buildGaugesSection(result),
-                const SizedBox(height: 16),
+                // ── Jauges ──
+                _buildGaugesSection(result, l),
+                const SizedBox(height: MintSpacing.md),
 
-                // Insight pedagogique
-                _buildInsightCard(result),
-                const SizedBox(height: 24),
+                // ── Insight pedagogique ──
+                _buildInsightCard(result, l),
+                const SizedBox(height: MintSpacing.lg),
 
-                // Sliders
-                _buildSlidersSection(),
-                const SizedBox(height: 24),
+                // ── Sliders (progressive disclosure: 3 visible + expandable) ──
+                _buildSlidersSection(l),
+                const SizedBox(height: MintSpacing.lg),
 
-                // Detail resultats
-                _buildDetailSection(result),
-                const SizedBox(height: 24),
+                // ── Detail resultats ──
+                _buildDetailSection(result, l),
+                const SizedBox(height: MintSpacing.lg),
 
                 // ── Related sections (hub) ──
-                _buildRelatedSections(),
-                const SizedBox(height: 24),
+                _buildRelatedSections(l),
+                const SizedBox(height: MintSpacing.lg),
 
-                // Disclaimer
+                // ── Disclaimer ──
                 _buildDisclaimer(result.disclaimer),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
-                // ── P3-E : Parcours achat immobilier ────────────
+                // ── P3-E : Parcours achat immobilier ──
                 const MortgageJourneyWidget(),
-                const SizedBox(height: 12),
+                const SizedBox(height: MintSpacing.sm),
 
-                // Source legale
-                Text(
-                  S.of(context)!.affordabilitySource,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontStyle: FontStyle.italic,
-                    color: MintColors.textMuted,
+                // ── Source legale ──
+                Semantics(
+                  label: l.affordabilitySource,
+                  child: Text(
+                    l.affordabilitySource,
+                    style: MintTextStyles.micro(),
                   ),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: MintSpacing.xl),
               ]),
             ),
           ),
@@ -130,56 +128,63 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
     );
   }
 
-  Widget _buildChiffreChocCard(AffordabilityResult result) {
+  Widget _buildChiffreChocCard(AffordabilityResult result, S l) {
     final color = result.chiffreChocPositif
         ? MintColors.success
         : MintColors.error;
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            result.chiffreChocPositif
-                ? Icons.check_circle_outline
-                : Icons.warning_amber_rounded,
-            color: color,
-            size: 40,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            result.chiffreChocPositif
-                ? 'CHF ${formatChf(result.prixMaxAccessible)}'
-                : 'CHF ${formatChf(result.manqueFondsPropres)}',
-            style: GoogleFonts.montserrat(
-              fontSize: 32,
-              fontWeight: FontWeight.w800,
+    // Emotional framing per VOICE_SYSTEM §5
+    final emotionalLabel = result.chiffreChocPositif
+        ? l.affordabilityEmotionalPositif
+        : l.affordabilityEmotionalNegatif;
+
+    return Semantics(
+      label: emotionalLabel,
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
+        ),
+        child: Column(
+          children: [
+            // Emotional framing line
+            Text(
+              emotionalLabel,
+              style: MintTextStyles.bodySmall(color: color),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            Icon(
+              result.chiffreChocPositif
+                  ? Icons.check_circle_outline
+                  : Icons.warning_amber_rounded,
               color: color,
+              size: 40,
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            result.chiffreChocTexte,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-              height: 1.4,
+            const SizedBox(height: MintSpacing.sm),
+            // displayMedium for Simulator (Cat B)
+            Text(
+              result.chiffreChocPositif
+                  ? 'CHF ${formatChf(result.prixMaxAccessible)}'
+                  : 'CHF ${formatChf(result.manqueFondsPropres)}',
+              style: MintTextStyles.displayMedium(color: color),
             ),
-          ),
-        ],
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              result.chiffreChocTexte,
+              textAlign: TextAlign.center,
+              style: MintTextStyles.bodyMedium(),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildGaugesSection(AffordabilityResult result) {
+  Widget _buildGaugesSection(AffordabilityResult result, S l) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + MintSpacing.xs),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -189,19 +194,14 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            S.of(context)!.affordabilityIndicators,
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            l.affordabilityIndicators,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md + MintSpacing.xs),
 
           // Ratio charges
           _buildGaugeRow(
-            label: S.of(context)!.affordabilityChargesRatio,
+            label: l.affordabilityChargesRatio,
             value: result.ratioCharges,
             maxValue: 0.50,
             threshold: 0.33,
@@ -209,11 +209,11 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
             thresholdLabel: 'Max 33%',
             isOk: result.capaciteOk,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: MintSpacing.lg),
 
           // Fonds propres
           _buildGaugeRow(
-            label: S.of(context)!.affordabilityEquityRatio,
+            label: l.affordabilityEquityRatio,
             value: result.fondsPropresTotal / max(result.fondsPropresRequis, 1),
             maxValue: 1.5,
             threshold: 1.0,
@@ -227,8 +227,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
     );
   }
 
-  Widget _buildInsightCard(AffordabilityResult result) {
-    final l = S.of(context)!;
+  Widget _buildInsightCard(AffordabilityResult result, S l) {
     final lppNonUtilise = _avoirLpp - result.lppUtilise;
 
     // Determine insight content based on binding constraint
@@ -255,56 +254,47 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       body = l.affordabilityInsightOkBody;
     }
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.primaryLight.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.primary.withValues(alpha: 0.25)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: MintColors.primary, size: 20),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  title,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.primary,
+    return Semantics(
+      label: title,
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        decoration: BoxDecoration(
+          color: MintColors.info.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: MintColors.info, size: 20),
+                const SizedBox(width: MintSpacing.sm),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: MintTextStyles.bodySmall(color: MintColors.info),
                   ),
                 ),
+              ],
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              body,
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+            ),
+            if (lppNonUtilise > 0) ...[
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                l.affordabilityInsightLppCap(
+                  formatChf(result.lppUtilise),
+                  formatChf(_avoirLpp),
+                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
               ),
             ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            body,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.5,
-            ),
-          ),
-          if (lppNonUtilise > 0) ...[
-            const SizedBox(height: 8),
-            Text(
-              l.affordabilityInsightLppCap(
-                formatChf(result.lppUtilise),
-                formatChf(_avoirLpp),
-              ),
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
-            ),
           ],
-        ],
+        ),
       ),
     );
   }
@@ -321,101 +311,93 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
     final progress = (value / maxValue).clamp(0.0, 1.0);
     final thresholdPos = (threshold / maxValue).clamp(0.0, 1.0);
     final color = isOk ? MintColors.success : MintColors.error;
+    final l = S.of(context)!;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textPrimary,
+    return Semantics(
+      label: '$label: $displayValue',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                label,
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                isOk ? S.of(context)!.affordabilityOk : S.of(context)!.affordabilityExceeded,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: color,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: MintSpacing.sm,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  isOk ? l.affordabilityOk : l.affordabilityExceeded,
+                  style: MintTextStyles.labelSmall(color: color),
                 ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Stack(
-          children: [
-            // Background
-            Container(
-              height: 12,
-              decoration: BoxDecoration(
-                color: MintColors.lightBorder,
-                borderRadius: BorderRadius.circular(6),
-              ),
-            ),
-            // Progress
-            FractionallySizedBox(
-              widthFactor: progress,
-              child: Container(
+            ],
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          Stack(
+            children: [
+              // Background
+              Container(
                 height: 12,
                 decoration: BoxDecoration(
-                  color: color,
+                  color: MintColors.lightBorder,
                   borderRadius: BorderRadius.circular(6),
                 ),
               ),
-            ),
-            // Threshold marker
-            Positioned(
-              left: thresholdPos *
-                  (MediaQuery.of(context).size.width - 72 - 2),
-              top: 0,
-              bottom: 0,
-              child: Container(
-                width: 2,
-                color: MintColors.textPrimary,
+              // Progress
+              FractionallySizedBox(
+                widthFactor: progress,
+                child: Container(
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              displayValue,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: color,
+              // Threshold marker
+              Positioned(
+                left: thresholdPos *
+                    (MediaQuery.of(context).size.width - 72 - 2),
+                top: 0,
+                bottom: 0,
+                child: Container(
+                  width: 2,
+                  color: MintColors.textPrimary,
+                ),
               ),
-            ),
-            Text(
-              thresholdLabel,
-              style: const TextStyle(
-                fontSize: 11,
-                color: MintColors.textMuted,
+            ],
+          ),
+          const SizedBox(height: MintSpacing.xs),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                displayValue,
+                style: MintTextStyles.labelSmall(color: color),
               ),
-            ),
-          ],
-        ),
-      ],
+              Text(
+                thresholdLabel,
+                style: MintTextStyles.labelSmall(),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildSlidersSection() {
+  Widget _buildSlidersSection(S l) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + MintSpacing.xs),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -425,57 +407,52 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            S.of(context)!.affordabilityParameters,
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            l.affordabilityParameters,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
-          // Canton
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                S.of(context)!.affordabilityCanton,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textPrimary,
+          // ── Canton ──
+          Semantics(
+            label: l.affordabilityCanton,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  l.affordabilityCanton,
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: MintColors.border),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _canton,
-                    items: _cantons
-                        .map((c) => DropdownMenuItem(
-                              value: c,
-                              child: Text(c,
-                                  style: const TextStyle(fontSize: 13)),
-                            ))
-                        .toList(),
-                    onChanged: (v) {
-                      if (v != null) setState(() => _canton = v);
-                    },
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm + MintSpacing.xs),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: MintColors.border),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _canton,
+                      items: _cantons
+                          .map((c) => DropdownMenuItem(
+                                value: c,
+                                child: Text(c,
+                                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
+                              ))
+                          .toList(),
+                      onChanged: (v) {
+                        if (v != null) setState(() => _canton = v);
+                      },
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
+          // ── Primary sliders (max 3 visible — Design System §2B) ──
           // Revenu brut annuel
           _buildSliderRow(
-            label: S.of(context)!.affordabilityGrossIncome,
+            label: l.affordabilityGrossIncome,
             value: _revenuBrut,
             min: 50000,
             max: 300000,
@@ -483,11 +460,11 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
             format: 'CHF ${formatChf(_revenuBrut)}',
             onChanged: (v) => setState(() => _revenuBrut = v),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
 
           // Prix d'achat
           _buildSliderRow(
-            label: S.of(context)!.affordabilityTargetPrice,
+            label: l.affordabilityTargetPrice,
             value: _prixAchat,
             min: 200000,
             max: 3000000,
@@ -495,11 +472,11 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
             format: 'CHF ${formatChf(_prixAchat)}',
             onChanged: (v) => setState(() => _prixAchat = v),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
 
           // Epargne disponible
           _buildSliderRow(
-            label: S.of(context)!.affordabilityAvailableSavings,
+            label: l.affordabilityAvailableSavings,
             value: _epargneDispo,
             min: 0,
             max: 500000,
@@ -507,30 +484,57 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
             format: 'CHF ${formatChf(_epargneDispo)}',
             onChanged: (v) => setState(() => _epargneDispo = v),
           ),
-          const SizedBox(height: 12),
 
-          // Avoir 3a
-          _buildSliderRow(
-            label: S.of(context)!.affordabilityPillar3a,
-            value: _avoir3a,
-            min: 0,
-            max: 300000,
-            divisions: 60,
-            format: 'CHF ${formatChf(_avoir3a)}',
-            onChanged: (v) => setState(() => _avoir3a = v),
+          // ── Progressive disclosure: 3a + LPP behind toggle ──
+          const SizedBox(height: MintSpacing.md),
+          Semantics(
+            button: true,
+            label: l.affordabilityAdvancedParams,
+            child: GestureDetector(
+              onTap: () => setState(() => _showAdvancedParams = !_showAdvancedParams),
+              child: Row(
+                children: [
+                  Icon(
+                    _showAdvancedParams
+                        ? Icons.expand_less
+                        : Icons.expand_more,
+                    color: MintColors.info,
+                    size: 20,
+                  ),
+                  const SizedBox(width: MintSpacing.xs),
+                  Text(
+                    l.affordabilityAdvancedParams,
+                    style: MintTextStyles.bodySmall(color: MintColors.info),
+                  ),
+                ],
+              ),
+            ),
           ),
-          const SizedBox(height: 12),
+          if (_showAdvancedParams) ...[
+            const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
+            // Avoir 3a
+            _buildSliderRow(
+              label: l.affordabilityPillar3a,
+              value: _avoir3a,
+              min: 0,
+              max: 300000,
+              divisions: 60,
+              format: 'CHF ${formatChf(_avoir3a)}',
+              onChanged: (v) => setState(() => _avoir3a = v),
+            ),
+            const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
 
-          // Avoir LPP
-          _buildSliderRow(
-            label: S.of(context)!.affordabilityPillarLpp,
-            value: _avoirLpp,
-            min: 0,
-            max: 500000,
-            divisions: 100,
-            format: 'CHF ${formatChf(_avoirLpp)}',
-            onChanged: (v) => setState(() => _avoirLpp = v),
-          ),
+            // Avoir LPP
+            _buildSliderRow(
+              label: l.affordabilityPillarLpp,
+              value: _avoirLpp,
+              min: 0,
+              max: 500000,
+              divisions: 100,
+              format: 'CHF ${formatChf(_avoirLpp)}',
+              onChanged: (v) => setState(() => _avoirLpp = v),
+            ),
+          ],
         ],
       ),
     );
@@ -545,57 +549,52 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
     required String format,
     required ValueChanged<double> onChanged,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Text(
-                label,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textPrimary,
+    return Semantics(
+      label: '$label: $format',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Text(
+                  label,
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                 ),
               ),
-            ),
-            Text(
-              format,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
+              Text(
+                format,
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
               ),
+            ],
+          ),
+          const SizedBox(height: MintSpacing.xs),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: MintColors.primary,
+              inactiveTrackColor: MintColors.border,
+              thumbColor: MintColors.primary,
+              overlayColor: MintColors.primary.withValues(alpha: 0.1),
+              trackHeight: 4,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
             ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            activeTrackColor: MintColors.primary,
-            inactiveTrackColor: MintColors.border,
-            thumbColor: MintColors.primary,
-            overlayColor: MintColors.primary.withValues(alpha: 0.1),
-            trackHeight: 4,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+            child: Slider(
+              value: value,
+              min: min,
+              max: max,
+              divisions: divisions,
+              onChanged: onChanged,
+            ),
           ),
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions,
-            onChanged: onChanged,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildDetailSection(AffordabilityResult result) {
+  Widget _buildDetailSection(AffordabilityResult result, S l) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + MintSpacing.xs),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -605,60 +604,51 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            S.of(context)!.affordabilityCalculationDetail,
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            l.affordabilityCalculationDetail,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
-          _buildInfoRow(S.of(context)!.affordabilityTargetPrice,
+          const SizedBox(height: MintSpacing.md),
+          _buildInfoRow(l.affordabilityTargetPrice,
               'CHF ${formatChf(_prixAchat)}'),
-          _buildInfoRow(S.of(context)!.affordabilityEquityRequired,
+          _buildInfoRow(l.affordabilityEquityRequired,
               'CHF ${formatChf(result.fondsPropresRequis)}'),
-          const Divider(height: 20),
-          _buildInfoRow(S.of(context)!.affordabilitySavingsLabel,
+          const Divider(height: MintSpacing.md + MintSpacing.xs),
+          _buildInfoRow(l.affordabilitySavingsLabel,
               'CHF ${formatChf(_epargneDispo)}'),
-          _buildInfoRow(S.of(context)!.affordabilityPillar3a,
+          _buildInfoRow(l.affordabilityPillar3a,
               'CHF ${formatChf(_avoir3a)}'),
           _buildInfoRow(
-              S.of(context)!.affordabilityLppMax10,
+              l.affordabilityLppMax10,
               'CHF ${formatChf(min(_avoirLpp, _prixAchat * 0.10))}'),
-          _buildInfoRow(S.of(context)!.affordabilityTotalEquity,
+          _buildInfoRow(l.affordabilityTotalEquity,
               'CHF ${formatChf(result.fondsPropresTotal)}',
               isBold: true,
               color: result.fondsPropresOk
                   ? MintColors.success
                   : MintColors.error),
-          const Divider(height: 20),
+          const Divider(height: MintSpacing.md + MintSpacing.xs),
           () {
             final hypothequeReelle = max(0.0, _prixAchat - result.fondsPropresTotal);
             final ltvPct = _prixAchat > 0 ? (hypothequeReelle / _prixAchat * 100).toStringAsFixed(0) : '0';
             return _buildInfoRow(
-              S.of(context)!.affordabilityMortgagePercent(ltvPct),
+              l.affordabilityMortgagePercent(ltvPct),
               'CHF ${formatChf(hypothequeReelle)}',
             );
           }(),
-          _buildInfoRow(S.of(context)!.affordabilityMonthlyCharges,
+          _buildInfoRow(l.affordabilityMonthlyCharges,
               'CHF ${formatChf(result.chargesTheoriquesMensuelles)}'),
           _buildInfoRow(
-            S.of(context)!.affordabilityChargesRatio,
+            l.affordabilityChargesRatio,
             '${(result.ratioCharges * 100).toStringAsFixed(1)}%',
             isBold: true,
             color: result.capaciteOk
                 ? MintColors.success
                 : MintColors.error,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
           Text(
-            S.of(context)!.affordabilityCalculationNote,
-            style: const TextStyle(
-              fontSize: 11,
-              color: MintColors.textMuted,
-              height: 1.4,
-            ),
+            l.affordabilityCalculationNote,
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted),
           ),
         ],
       ),
@@ -668,24 +658,21 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
   Widget _buildInfoRow(String label, String value,
       {Color? color, bool isBold = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-              ),
+              style: isBold
+                  ? MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                  : MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
           Text(
             value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
+            style: MintTextStyles.bodySmall(
               color: color ?? MintColors.textPrimary,
             ),
           ),
@@ -694,37 +681,39 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
     );
   }
 
-  Widget _buildRelatedSections() {
+  Widget _buildRelatedSections(S l) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 24),
-        Text('Explorer aussi',
-          style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.lg),
+        Text(
+          l.affordabilityExploreAlso,
+          style: MintTextStyles.titleMedium(),
+        ),
+        const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
         CollapsibleSection(
-          title: 'Amortissement direct vs indirect',
-          subtitle: 'Impact fiscal de chaque stratégie',
+          title: l.affordabilityRelatedAmortTitle,
+          subtitle: l.affordabilityRelatedAmortSubtitle,
           icon: Icons.compare_arrows,
-          child: _buildSectionCta('Simuler', '/mortgage/amortization'),
+          child: _buildSectionCta(l.affordabilityRelatedSimulate, '/mortgage/amortization'),
         ),
         CollapsibleSection(
-          title: 'SARON vs taux fixe',
-          subtitle: 'Comparer les types d\'hypothèque',
+          title: l.affordabilityRelatedSaronTitle,
+          subtitle: l.affordabilityRelatedSaronSubtitle,
           icon: Icons.swap_horiz,
-          child: _buildSectionCta('Comparer', '/mortgage/saron-vs-fixed'),
+          child: _buildSectionCta(l.affordabilityRelatedCompare, '/mortgage/saron-vs-fixed'),
         ),
         CollapsibleSection(
-          title: 'Valeur locative',
-          subtitle: 'Comprendre l\'imposition du logement',
+          title: l.affordabilityRelatedValeurTitle,
+          subtitle: l.affordabilityRelatedValeurSubtitle,
           icon: Icons.home_work_outlined,
-          child: _buildSectionCta('Calculer', '/mortgage/imputed-rental'),
+          child: _buildSectionCta(l.affordabilityRelatedCalculate, '/mortgage/imputed-rental'),
         ),
         CollapsibleSection(
-          title: 'EPL — Utiliser mon 2e pilier',
-          subtitle: 'Retrait anticipé pour l\'achat',
+          title: l.affordabilityRelatedEplTitle,
+          subtitle: l.affordabilityRelatedEplSubtitle,
           icon: Icons.account_balance_outlined,
-          child: _buildSectionCta('Simuler', '/mortgage/epl-combined'),
+          child: _buildSectionCta(l.affordabilityRelatedSimulate, '/mortgage/epl-combined'),
         ),
       ],
     );
@@ -742,26 +731,21 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
 
   Widget _buildDisclaimer(String disclaimer) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.warningBg,
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.orangeRetroWarm),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + MintSpacing.xs),
           Expanded(
             child: Text(
               disclaimer,
-              style: const TextStyle(
-                fontSize: 11,
-                fontStyle: FontStyle.italic,
-                color: MintColors.deepOrange,
-                height: 1.4,
-              ),
+              style: MintTextStyles.micro(),
             ),
           ),
         ],

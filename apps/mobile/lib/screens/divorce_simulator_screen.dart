@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/life_events_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/divorce_film_widget.dart';
 import 'package:mint_mobile/widgets/coach/prix_du_silence_widget.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
@@ -108,58 +109,67 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
-        title: Text(S.of(context)!.divorceAppBarTitle),
+        backgroundColor: MintColors.white,
+        surfaceTintColor: MintColors.white,
+        foregroundColor: MintColors.textPrimary,
+        title: Text(
+          S.of(context)!.divorceAppBarTitle,
+          style: MintTextStyles.headlineMedium(),
+        ),
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: MintSpacing.lg,
+          vertical: MintSpacing.sm + 4,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildHeader(),
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
             _buildIntroCard(),
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
             _buildSituationFamilialeSection(),
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.sm + 4),
             _buildRevenusSection(),
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.sm + 4),
             _buildPrevoyanceSection(),
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.sm + 4),
             _buildPatrimoineSection(),
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
             _buildSimulateButton(),
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
             if (_result != null) ...[
               Container(key: _resultsKey),
               _buildLppSplitCard(),
-              const SizedBox(height: 24),
+              const SizedBox(height: MintSpacing.lg),
               _buildTaxImpactCard(),
-              const SizedBox(height: 24),
+              const SizedBox(height: MintSpacing.lg),
               _buildPatrimoineSplitCard(),
-              const SizedBox(height: 24),
+              const SizedBox(height: MintSpacing.lg),
               _buildPensionAlimentaireCard(),
-              const SizedBox(height: 24),
+              const SizedBox(height: MintSpacing.lg),
               if (_result!.alerts.isNotEmpty) ...[
                 _buildAlertsSection(),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
               ],
               _buildChecklistSection(),
-              const SizedBox(height: 24),
+              const SizedBox(height: MintSpacing.lg),
             ],
             _buildEducationalFooter(),
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
             _buildMintDivorceSection(),
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
             // ── P8-B : Prix du silence — concubin vs marié·e ──
             PrixDuSilenceWidget(
               patrimoine: _fortuneCommune > 0 ? _fortuneCommune : 200000,
               marriedTaxRate: 0,
               concubinTaxRate: 24,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
             _buildDisclaimer(),
-            const SizedBox(height: 40),
+            const SizedBox(height: MintSpacing.xl + MintSpacing.sm),
           ],
         ),
       ),
@@ -168,48 +178,48 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
 
   // --- Header ---
   Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: MintColors.purple.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+    return Semantics(
+      header: true,
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.md + 4),
+        decoration: BoxDecoration(
+          color: MintColors.surface,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: MintColors.purple.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.family_restroom,
+                  color: MintColors.purple, size: 24),
             ),
-            child: const Icon(Icons.family_restroom,
-                color: MintColors.purple, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  S.of(context)!.divorceHeaderTitle,
-                  style: GoogleFonts.outfit(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
+            const SizedBox(width: MintSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    S.of(context)!.divorceHeaderTitle,
+                    style: MintTextStyles.titleMedium(
+                      color: MintColors.textPrimary,
+                    ).copyWith(fontSize: 20, fontWeight: FontWeight.w700),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  S.of(context)!.divorceHeaderSubtitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
+                  const SizedBox(height: MintSpacing.xs / 2),
+                  Text(
+                    S.of(context)!.divorceHeaderSubtitle,
+                    style: MintTextStyles.bodySmall(
+                      color: MintColors.textSecondary,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -217,7 +227,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   // --- Intro Card ---
   Widget _buildIntroCard() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.purple.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
@@ -230,15 +240,13 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
         children: [
           Icon(Icons.lightbulb_outline,
               size: 20, color: MintColors.purple.withValues(alpha: 0.8)),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
               S.of(context)!.divorceIntroText,
-              style: GoogleFonts.inter(
-                fontSize: 13,
+              style: MintTextStyles.bodySmall(
                 color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              ).copyWith(height: 1.5),
             ),
           ),
         ],
@@ -264,7 +272,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             format: (v) => S.of(context)!.divorceYears(v.toInt()),
             onChanged: (v) => setState(() => _marriageDuration = v.toInt()),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildSlider(
             label: S.of(context)!.divorceNbEnfants,
             value: _numberOfChildren.toDouble(),
@@ -275,7 +283,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             onChanged: (v) =>
                 setState(() => _numberOfChildren = v.toInt()),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildRegimeChips(),
         ],
       ),
@@ -298,20 +306,20 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       children: [
         Text(
           S.of(context)!.divorceRegimeMatrimonial,
-          style: GoogleFonts.inter(
-            fontSize: 13,
+          style: MintTextStyles.bodySmall(
             color: MintColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: MintSpacing.sm),
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: MintSpacing.sm,
+          runSpacing: MintSpacing.sm,
           children: options.map((opt) {
             final selected = _regime == opt.key;
             return Semantics(
-              label: 'Régime matrimonial : ${opt.value}',
+              label: '${S.of(context)!.divorceRegimeMatrimonial}\u00a0: ${opt.value}',
               button: true,
+              selected: selected,
               child: GestureDetector(
               onTap: () => setState(() => _regime = opt.key),
               child: Container(
@@ -331,12 +339,13 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                 ),
                 child: Text(
                   opt.value,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                  style: MintTextStyles.labelSmall(
                     color: selected
                         ? MintColors.purple
                         : MintColors.textSecondary,
+                  ).copyWith(
+                    fontSize: 12,
+                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                   ),
                 ),
               ),
@@ -366,7 +375,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             format: (v) => _chfFmt(v),
             onChanged: (v) => setState(() => _incomeConjoint1 = v),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildSlider(
             label: S.of(context)!.divorceConjoint2Revenu,
             value: _incomeConjoint2,
@@ -399,7 +408,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             format: (v) => _chfFmt(v),
             onChanged: (v) => setState(() => _lppConjoint1 = v),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildSlider(
             label: S.of(context)!.divorceLppConjoint2,
             value: _lppConjoint2,
@@ -409,7 +418,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             format: (v) => _chfFmt(v),
             onChanged: (v) => setState(() => _lppConjoint2 = v),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildSlider(
             label: S.of(context)!.divorce3aConjoint1,
             value: _pillar3aConjoint1,
@@ -419,7 +428,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             format: (v) => _chfFmt(v),
             onChanged: (v) => setState(() => _pillar3aConjoint1 = v),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildSlider(
             label: S.of(context)!.divorce3aConjoint2,
             value: _pillar3aConjoint2,
@@ -452,7 +461,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             format: (v) => _chfFmt(v),
             onChanged: (v) => setState(() => _fortuneCommune = v),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildSlider(
             label: S.of(context)!.divorceDettes,
             value: _dettesCommunes,
@@ -471,22 +480,23 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   Widget _buildSimulateButton() {
     return SizedBox(
       width: double.infinity,
-      child: FilledButton.icon(
-        onPressed: _simulate,
-        icon: const Icon(Icons.calculate_outlined, size: 20),
-        label: Text(
-          S.of(context)!.divorceSimuler,
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+      child: Semantics(
+        button: true,
+        label: S.of(context)!.divorceSimuler,
+        child: FilledButton.icon(
+          onPressed: _simulate,
+          icon: const Icon(Icons.calculate_outlined, size: 20),
+          label: Text(
+            S.of(context)!.divorceSimuler,
+            style: MintTextStyles.titleMedium(color: MintColors.white),
           ),
-        ),
-        style: FilledButton.styleFrom(
-          backgroundColor: MintColors.primary,
-          foregroundColor: MintColors.white,
-          padding: const EdgeInsets.symmetric(vertical: 18),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+          style: FilledButton.styleFrom(
+            backgroundColor: MintColors.primary,
+            foregroundColor: MintColors.white,
+            padding: const EdgeInsets.symmetric(vertical: 18),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
           ),
         ),
       ),
@@ -497,7 +507,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   Widget _buildLppSplitCard() {
     final r = _result!;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.info.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
@@ -509,30 +519,27 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           Row(
             children: [
               const Icon(Icons.swap_horiz, color: MintColors.info, size: 18),
-              const SizedBox(width: 8),
+              const SizedBox(width: MintSpacing.sm),
               Text(
                 S.of(context)!.divorcePartageLpp,
-                style: GoogleFonts.montserrat(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                style: MintTextStyles.labelSmall(
                   color: MintColors.info,
-                  letterSpacing: 1,
-                ),
+                ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildResultRow(S.of(context)!.divorceTotalLpp,
               _chfFmt(r.lppSplit.totalLpp)),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           _buildResultRow(
               S.of(context)!.divorcePartConjoint1, _chfFmt(r.lppSplit.shareConjoint1)),
           _buildResultRow(
               S.of(context)!.divorcePartConjoint2, _chfFmt(r.lppSplit.shareConjoint2)),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           if (r.lppSplit.transferAmount > 0) ...[
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(MintSpacing.sm + 4),
               decoration: BoxDecoration(
                 color: MintColors.info.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
@@ -541,15 +548,21 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                 children: [
                   const Icon(Icons.arrow_forward,
                       size: 16, color: MintColors.info),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: MintSpacing.sm),
                   Expanded(
-                    child: Text(
-                      'Transfert de ${_chfFmt(r.lppSplit.transferAmount)} '
-                      '(${r.lppSplit.transferDirection})',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.info,
+                    child: Semantics(
+                      label: S.of(context)!.divorceTransfertAmount(
+                        _chfFmt(r.lppSplit.transferAmount),
+                        r.lppSplit.transferDirection,
+                      ),
+                      child: Text(
+                        S.of(context)!.divorceTransfertAmount(
+                          _chfFmt(r.lppSplit.transferAmount),
+                          r.lppSplit.transferDirection,
+                        ),
+                        style: MintTextStyles.bodyMedium(
+                          color: MintColors.info,
+                        ).copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
@@ -566,15 +579,14 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   Widget _buildTaxImpactCard() {
     final r = _result!;
     final isIncrease = r.taxImpact.delta > 0;
+    final accentColor = isIncrease ? MintColors.warning : MintColors.success;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
-        color: (isIncrease ? MintColors.warning : MintColors.success)
-            .withValues(alpha: 0.06),
+        color: accentColor.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: (isIncrease ? MintColors.warning : MintColors.success)
-              .withValues(alpha: 0.15),
+          color: accentColor.withValues(alpha: 0.15),
         ),
       ),
       child: Column(
@@ -582,38 +594,31 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.receipt_long,
-                  color: isIncrease ? MintColors.warning : MintColors.success,
-                  size: 18),
-              const SizedBox(width: 8),
+              Icon(Icons.receipt_long, color: accentColor, size: 18),
+              const SizedBox(width: MintSpacing.sm),
               Text(
                 S.of(context)!.divorceImpactFiscal,
-                style: GoogleFonts.montserrat(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color:
-                      isIncrease ? MintColors.warning : MintColors.success,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(
+                  color: accentColor,
+                ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildResultRow(S.of(context)!.divorceImpotMarie,
               _chfFmt(r.taxImpact.estimatedTaxMarried)),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           _buildResultRow(S.of(context)!.divorceImpotConjoint1,
               _chfFmt(r.taxImpact.estimatedTaxConjoint1)),
           _buildResultRow(S.of(context)!.divorceImpotConjoint2,
               _chfFmt(r.taxImpact.estimatedTaxConjoint2)),
           _buildResultRow(
               S.of(context)!.divorceTotalApresDivorce, _chfFmt(r.taxImpact.totalTaxAfter)),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(MintSpacing.sm + 4),
             decoration: BoxDecoration(
-              color: (isIncrease ? MintColors.warning : MintColors.success)
-                  .withValues(alpha: 0.08),
+              color: accentColor.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -621,19 +626,23 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                 Icon(
                   isIncrease ? Icons.trending_up : Icons.trending_down,
                   size: 16,
-                  color:
-                      isIncrease ? MintColors.warning : MintColors.success,
+                  color: accentColor,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: MintSpacing.sm),
                 Expanded(
-                  child: Text(
-                    'Différence : ${isIncrease ? '+' : ''}${_chfFmt(r.taxImpact.delta)}/an',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: isIncrease
-                          ? MintColors.warning
-                          : MintColors.success,
+                  child: Semantics(
+                    label: S.of(context)!.divorceFiscalDelta(
+                      isIncrease ? '+' : '',
+                      _chfFmt(r.taxImpact.delta),
+                    ),
+                    child: Text(
+                      S.of(context)!.divorceFiscalDelta(
+                        isIncrease ? '+' : '',
+                        _chfFmt(r.taxImpact.delta),
+                      ),
+                      style: MintTextStyles.bodyMedium(
+                        color: accentColor,
+                      ).copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
@@ -649,7 +658,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   Widget _buildPatrimoineSplitCard() {
     final r = _result!;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.purple.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
@@ -664,32 +673,32 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             children: [
               const Icon(Icons.pie_chart_outline,
                   color: MintColors.purple, size: 18),
-              const SizedBox(width: 8),
+              const SizedBox(width: MintSpacing.sm),
               Text(
                 S.of(context)!.divorcePartagePatrimoine,
-                style: GoogleFonts.montserrat(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                style: MintTextStyles.labelSmall(
                   color: MintColors.purple,
-                  letterSpacing: 1,
-                ),
+                ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildResultRow(S.of(context)!.divorceFortuneNette,
               _chfFmt(r.patrimoineSplit.fortuneNette)),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           // Visual bar for split
-          _buildSplitBar(
-            r.patrimoineSplit.shareConjoint1,
-            r.patrimoineSplit.shareConjoint2,
+          Semantics(
+            label: S.of(context)!.divorcePartagePatrimoine,
+            child: _buildSplitBar(
+              r.patrimoineSplit.shareConjoint1,
+              r.patrimoineSplit.shareConjoint2,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           _buildResultRow(
-              'Conjoint 1', _chfFmt(r.patrimoineSplit.shareConjoint1)),
+              S.of(context)!.divorceConjoint1Label, _chfFmt(r.patrimoineSplit.shareConjoint1)),
           _buildResultRow(
-              'Conjoint 2', _chfFmt(r.patrimoineSplit.shareConjoint2)),
+              S.of(context)!.divorceConjoint2Label, _chfFmt(r.patrimoineSplit.shareConjoint2)),
         ],
       ),
     );
@@ -712,30 +721,26 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             Flexible(
               flex: (pct1 * 100).toInt().clamp(1, 99),
               child: Container(
-                color: MintColors.purpleApple,
+                color: MintColors.purple,
                 alignment: Alignment.center,
                 child: Text(
-                  'C1',
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
+                  S.of(context)!.divorceSplitC1,
+                  style: MintTextStyles.labelSmall(
                     color: MintColors.white,
-                  ),
+                  ).copyWith(fontSize: 10, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
             Flexible(
               flex: ((1 - pct1) * 100).toInt().clamp(1, 99),
               child: Container(
-                color: MintColors.successionBg,
+                color: MintColors.purple.withValues(alpha: 0.15),
                 alignment: Alignment.center,
                 child: Text(
-                  'C2',
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.purpleDark,
-                  ),
+                  S.of(context)!.divorceSplitC2,
+                  style: MintTextStyles.labelSmall(
+                    color: MintColors.purple,
+                  ).copyWith(fontSize: 10, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -752,7 +757,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       return const SizedBox.shrink();
     }
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
@@ -764,43 +769,44 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           Row(
             children: [
               const Icon(Icons.child_care, color: MintColors.warning, size: 18),
-              const SizedBox(width: 8),
+              const SizedBox(width: MintSpacing.sm),
               Text(
                 S.of(context)!.divorcePensionAlimentaire,
-                style: GoogleFonts.montserrat(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                style: MintTextStyles.labelSmall(
                   color: MintColors.warning,
-                  letterSpacing: 1,
-                ),
+                ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            '${_chfFmt(r.pensionAlimentaireMonthly)}/mois',
-            style: GoogleFonts.outfit(
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
+          const SizedBox(height: MintSpacing.md),
+          Semantics(
+            label: S.of(context)!.divorcePensionMois(
+              _chfFmt(r.pensionAlimentaireMonthly),
+            ),
+            child: Text(
+              S.of(context)!.divorcePensionMois(
+                _chfFmt(r.pensionAlimentaireMonthly),
+              ),
+              style: MintTextStyles.displayMedium(
+                color: MintColors.textPrimary,
+              ).copyWith(fontSize: 28),
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Text(
-            'soit ${_chfFmt(r.pensionAlimentaireMonthly * 12)}/an',
-            style: GoogleFonts.inter(
-              fontSize: 14,
+            S.of(context)!.divorcePensionAnnuel(
+              _chfFmt(r.pensionAlimentaireMonthly * 12),
+            ),
+            style: MintTextStyles.bodyMedium(
               color: MintColors.textSecondary,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           Text(
             S.of(context)!.divorcePensionDescription,
-            style: GoogleFonts.inter(
-              fontSize: 12,
+            style: MintTextStyles.labelSmall(
               color: MintColors.textMuted,
-              height: 1.5,
-            ),
+            ).copyWith(fontSize: 12, height: 1.5),
           ),
         ],
       ),
@@ -815,16 +821,13 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       children: [
         Text(
           S.of(context)!.divorcePointsAttention,
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
+          style: MintTextStyles.labelSmall(
             color: MintColors.textMuted,
-            letterSpacing: 1,
-          ),
+          ).copyWith(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm + 4),
         ...r.alerts.map((alert) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(bottom: MintSpacing.sm),
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
@@ -843,11 +846,9 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                     Expanded(
                       child: Text(
                         alert,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
+                        style: MintTextStyles.bodySmall(
                           color: MintColors.textSecondary,
-                          height: 1.4,
-                        ),
+                        ).copyWith(height: 1.4),
                       ),
                     ),
                   ],
@@ -869,10 +870,10 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       child: Column(
         children: List.generate(r.checklist.length, (index) {
           return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.only(bottom: MintSpacing.sm),
             child: Semantics(
-              label: 'Checklist item',
-              button: true,
+              label: r.checklist[index],
+              toggled: _checklistState[index],
               child: InkWell(
               onTap: () {
                 setState(() {
@@ -882,7 +883,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
               borderRadius: BorderRadius.circular(10),
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
+                  horizontal: MintSpacing.sm + 4,
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
@@ -907,15 +908,15 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                           ? MintColors.success
                           : MintColors.textMuted,
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: MintSpacing.sm + 4),
                     Expanded(
                       child: Text(
                         r.checklist[index],
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
+                        style: MintTextStyles.bodySmall(
                           color: _checklistState[index]
                               ? MintColors.textSecondary
                               : MintColors.textPrimary,
+                        ).copyWith(
                           decoration: _checklistState[index]
                               ? TextDecoration.lineThrough
                               : null,
@@ -941,19 +942,16 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       children: [
         Text(
           S.of(context)!.divorceComprendre,
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
+          style: MintTextStyles.labelSmall(
             color: MintColors.textMuted,
-            letterSpacing: 1,
-          ),
+          ).copyWith(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm + 4),
         _buildExpandableTile(
           S.of(context)!.divorceEduParticipationTitle,
           S.of(context)!.divorceEduParticipationContent,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: MintSpacing.sm),
         _buildExpandableTile(
           S.of(context)!.divorceEduLppTitle,
           S.of(context)!.divorceEduLppContent,
@@ -974,24 +972,20 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
         data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
         child: ExpansionTile(
           tilePadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              const EdgeInsets.symmetric(horizontal: MintSpacing.md, vertical: MintSpacing.xs),
+          childrenPadding: const EdgeInsets.fromLTRB(MintSpacing.md, 0, MintSpacing.md, MintSpacing.md),
           title: Text(
             title,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+            style: MintTextStyles.bodyMedium(
               color: MintColors.textPrimary,
-            ),
+            ).copyWith(fontWeight: FontWeight.w500),
           ),
           children: [
             Text(
               content,
-              style: GoogleFonts.inter(
-                fontSize: 13,
+              style: MintTextStyles.bodySmall(
                 color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              ).copyWith(height: 1.5),
             ),
           ],
         ),
@@ -1001,29 +995,30 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
 
   // --- Disclaimer ---
   Widget _buildDisclaimer() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.warningBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.orangeRetroWarm),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.info_outline, size: 18, color: MintColors.warning),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              S.of(context)!.divorceDisclaimer,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.deepOrange,
-                height: 1.5,
+    return Semantics(
+      label: S.of(context)!.divorceDisclaimer,
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        decoration: BoxDecoration(
+          color: MintColors.warning.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.info_outline, size: 18, color: MintColors.warning),
+            const SizedBox(width: MintSpacing.sm + 4),
+            Expanded(
+              child: Text(
+                S.of(context)!.divorceDisclaimer,
+                style: MintTextStyles.micro(
+                  color: MintColors.textMuted,
+                ).copyWith(fontSize: 11),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1038,19 +1033,16 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           Flexible(
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
+              style: MintTextStyles.bodySmall(
                 color: MintColors.textSecondary,
               ),
             ),
           ),
           Text(
             value,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
+            style: MintTextStyles.bodySmall(
               color: MintColors.textPrimary,
-            ),
+            ).copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -1095,42 +1087,44 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             Flexible(
               child: Text(
                 label,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
+                style: MintTextStyles.bodySmall(
                   color: MintColors.textPrimary,
                 ),
               ),
             ),
             Text(
               format(value),
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
+              style: MintTextStyles.bodySmall(
                 color: MintColors.primary,
-              ),
+              ).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),
         const SizedBox(height: 6),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 4,
-            thumbShape:
-                const RoundSliderThumbShape(enabledThumbRadius: 8),
-            activeTrackColor: MintColors.primary,
-            inactiveTrackColor: MintColors.border,
-            thumbColor: MintColors.primary,
-          ),
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions,
-            onChanged: (v) {
-              setState(() {
-                onChanged(v);
-              });
-            },
+        Semantics(
+          label: label,
+          value: format(value),
+          slider: true,
+          child: SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              trackHeight: 4,
+              thumbShape:
+                  const RoundSliderThumbShape(enabledThumbRadius: 8),
+              activeTrackColor: MintColors.primary,
+              inactiveTrackColor: MintColors.border,
+              thumbColor: MintColors.primary,
+            ),
+            child: Slider(
+              value: value,
+              min: min,
+              max: max,
+              divisions: divisions,
+              onChanged: (v) {
+                setState(() {
+                  onChanged(v);
+                });
+              },
+            ),
           ),
         ),
       ],

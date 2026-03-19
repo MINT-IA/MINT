@@ -3349,21 +3349,21 @@
   "scoreRevealCtaDashboard": "Mein Dashboard ansehen",
   "scoreRevealCtaReport": "Detaillierten Bericht ansehen",
   "scoreRevealDisclaimer": "Bildungstool — stellt keine Finanzberatung dar (FIDLEG).",
-  "affordabilityTitle": "KAUFKAPAZITÄT",
+  "affordabilityTitle": "Kaufkapazität",
   "affordabilitySource": "Quelle: SBVg-Richtlinie zum Hypothekarkredit, Schweizer Bankpraxis.",
-  "affordabilityIndicators": "INDIKATOREN",
+  "affordabilityIndicators": "Indikatoren",
   "affordabilityChargesRatio": "Belastung / Einkommen",
   "affordabilityEquityRatio": "Eigenmittel / Preis",
   "affordabilityOk": "OK",
-  "affordabilityExceeded": "ÜBERSCHRITTEN",
-  "affordabilityParameters": "PARAMETER",
+  "affordabilityExceeded": "Überschritten",
+  "affordabilityParameters": "Deine Annahmen",
   "affordabilityCanton": "Kanton",
   "affordabilityGrossIncome": "Brutto-Jahreseinkommen",
   "affordabilityTargetPrice": "Angestrebter Kaufpreis",
   "affordabilityAvailableSavings": "Verfügbare Ersparnisse",
   "affordabilityPillar3a": "Säule 3a Guthaben",
   "affordabilityPillarLpp": "BVG-Guthaben",
-  "affordabilityCalculationDetail": "BERECHNUNGSDETAILS",
+  "affordabilityCalculationDetail": "Berechnungsdetails",
   "affordabilityEquityRequired": "Erforderliche Eigenmittel (20%)",
   "affordabilitySavingsLabel": "Ersparnisse",
   "affordabilityLppMax10": "BVG-Guthaben (max 10% des Preises)",
@@ -6458,5 +6458,107 @@
   "successionSpecialisteTitle": "Notar·in oder Fachperson konsultieren",
   "successionSpecialisteBody": "Ein·e Notar·in kann dein Testament verfassen oder prüfen.",
   "successionSources": "• ZGB Art. 457–640 — Erbrecht\n• ZGB Art. 470–471 — Pflichtteile\n• ZGB Art. 498–504 — Testamentsformen\n• BVG Art. 20 — BVG-Begünstigte\n• BVV3 Art. 2 — 3a-Begünstigte",
-  "successionDisclaimer": "Bildungsinformation, keine Rechtsberatung (FIDLEG/ZGB)."
+  "successionDisclaimer": "Bildungsinformation, keine Rechtsberatung (FIDLEG/ZGB).",
+  "naissanceAllocForCanton": "Familienzulagen in {canton} für {count} Kind{plural}",
+  "@naissanceAllocForCanton": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "count": { "type": "int" },
+      "plural": { "type": "String" }
+    }
+  },
+  "naissanceAllocContextNote": "({canton}, {count} Kind{plural})",
+  "@naissanceAllocContextNote": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "count": { "type": "int" },
+      "plural": { "type": "String" }
+    }
+  },
+  "affordabilityEmotionalPositif": "Du kannst dir das leisten",
+  "affordabilityEmotionalNegatif": "Es fehlt noch ein Puzzleteil",
+  "affordabilityExploreAlso": "Mehr entdecken",
+  "affordabilityRelatedAmortTitle": "Direkte vs indirekte Amortisation",
+  "affordabilityRelatedAmortSubtitle": "Steuerliche Auswirkung jeder Strategie",
+  "affordabilityRelatedSaronTitle": "SARON vs Festhypothek",
+  "affordabilityRelatedSaronSubtitle": "Hypothekenarten vergleichen",
+  "affordabilityRelatedValeurTitle": "Eigenmietwert",
+  "affordabilityRelatedValeurSubtitle": "Wohnungsbesteuerung verstehen",
+  "affordabilityRelatedEplTitle": "WEF — Meine 2. Säule nutzen",
+  "affordabilityRelatedEplSubtitle": "Vorbezug für den Kauf",
+  "affordabilityRelatedSimulate": "Simulieren",
+  "affordabilityRelatedCompare": "Vergleichen",
+  "affordabilityRelatedCalculate": "Berechnen",
+  "affordabilityAdvancedParams": "Weitere Annahmen",
+  "demenagementTitreV2": "Umzug — wie viel sparst du?",
+  "demenagementCtaOptimal": "Den passenden Kanton finden",
+  "demenagementInsightPositif": "Dieser Umzug steigert deine Kaufkraft. Die Ersparnis deckt etwa {mois} Monatsmieten.",
+  "@demenagementInsightPositif": {
+    "placeholders": {
+      "mois": { "type": "String" }
+    }
+  },
+  "demenagementInsightNegatif": "Dieser Umzug kostet mehr. Prüfe, ob die Lebensqualität den Unterschied ausgleicht.",
+  "demenagementBilanTotal": "Gesamtbilanz (Steuern + Krankenkasse)",
+  "divorceTransfertAmount": "Übertragung von {amount} ({direction})",
+  "@divorceTransfertAmount": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "direction": { "type": "String" }
+    }
+  },
+  "divorceFiscalDelta": "Differenz: {sign}{amount}/Jahr",
+  "@divorceFiscalDelta": {
+    "placeholders": {
+      "sign": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "divorcePensionMois": "{amount}/Monat",
+  "@divorcePensionMois": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "divorcePensionAnnuel": "d.h. {amount}/Jahr",
+  "@divorcePensionAnnuel": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "divorceConjoint1Label": "Ehepartner 1",
+  "divorceConjoint2Label": "Ehepartner 2",
+  "divorceSplitC1": "E1",
+  "divorceSplitC2": "E2",
+  "unemploymentVague1Label": "Welle 1 — Administrative Dringlichkeit",
+  "unemploymentVague1Text": "Innerhalb der ersten 5 Tage beim RAV anmelden. Sonst: Verlust von Taggeldern. Jeder Tag Verzögerung = verlorenes Taggeld.",
+  "unemploymentVague2Label": "Welle 2 — Budget anpassen",
+  "unemploymentVague2Text": "Sofortiger Einkommensrückgang. Die ALV deckt weder Feiertage noch die Wartezeit (5–20 Tage). Überprüfe dein Budget ab Tag 1.",
+  "unemploymentVague3Label": "Welle 3 — Versteckte Entscheidungen",
+  "unemploymentVague3Text": "Innerhalb von 30 Tagen: BVG-Guthaben übertragen (sonst Auffangeinrichtung). Vor dem Folgemonat: 3a sistieren, Krankenkasse prüfen.",
+  "unemploymentBudgetLoyer": "Miete",
+  "unemploymentBudgetLamal": "Krankenkasse",
+  "unemploymentBudgetTransport": "Transport",
+  "unemploymentBudgetLoisirs": "Freizeit",
+  "unemploymentBudgetEpargne3a": "3a-Sparen",
+  "unemploymentGainMin": "CHF 0",
+  "unemploymentGainMax": "CHF 12'350",
+  "unemploymentBracket1": "12–17 Monate Beitrag",
+  "unemploymentBracket1Value": "200 Taggelder",
+  "unemploymentBracket2": "18–21 Monate Beitrag",
+  "unemploymentBracket2Value": "260 Taggelder",
+  "unemploymentBracket3": ">= 22 Monate, < {age} J.",
+  "@unemploymentBracket3": {
+    "placeholders": {
+      "age": { "type": "int" }
+    }
+  },
+  "unemploymentBracket3Value": "400 Taggelder",
+  "unemploymentBracket4": ">= 22 Monate, >= {age} J.",
+  "@unemploymentBracket4": {
+    "placeholders": {
+      "age": { "type": "int" }
+    }
+  },
+  "unemploymentBracket4Value": "520 Taggelder"
 }
