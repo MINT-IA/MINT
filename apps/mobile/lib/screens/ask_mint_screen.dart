@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -70,11 +71,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
         elevation: 0,
         title: Text(
           s?.askMintTitle ?? 'Ask MINT',
-          style: GoogleFonts.montserrat(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
         ),
         actions: [
           if (byok.isConfigured)
@@ -118,13 +115,9 @@ class _AskMintScreenState extends State<AskMintScreen> {
             const SizedBox(height: 24),
             Text(
               s?.askMintConfigureTitle ?? 'Configure ton IA',
-              style: GoogleFonts.montserrat(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.headlineLarge(),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.sm),
             Text(
               s?.askMintConfigureBody ??
                   'Pour poser des questions sur la finance suisse, '
@@ -137,7 +130,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
                 height: 1.5,
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: MintSpacing.xl),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
@@ -326,14 +319,9 @@ class _AskMintScreenState extends State<AskMintScreen> {
           Text(
             s?.askMintEmptyTitle ?? 'Pose-moi ta question',
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-              height: 1.2,
-            ),
+            style: MintTextStyles.headlineLarge(),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             s?.askMintEmptyBody ??
             'Finance suisse, d\u00e9cryptage des lois, simulateurs \u2014 '
@@ -396,12 +384,8 @@ class _AskMintScreenState extends State<AskMintScreen> {
       alignment: Alignment.centerLeft,
       child: Text(
         label,
-        style: GoogleFonts.montserrat(
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-          color: MintColors.textMuted,
-          letterSpacing: 1,
-        ),
+        style: MintTextStyles.labelSmall()
+            .copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
       ),
     );
   }
@@ -502,12 +486,8 @@ class _AskMintScreenState extends State<AskMintScreen> {
                 const SizedBox(width: 6),
                 Text(
                   'MINT',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textMuted,
-                    letterSpacing: 0.5,
-                  ),
+                  style: MintTextStyles.micro(color: MintColors.textMuted)
+                      .copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5),
                 ),
               ],
             ),
@@ -658,18 +638,14 @@ class _AskMintScreenState extends State<AskMintScreen> {
                 const SizedBox(width: 6),
                 Text(
                   'MINT',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textMuted,
-                    letterSpacing: 0.5,
-                  ),
+                  style: MintTextStyles.micro(color: MintColors.textMuted)
+                      .copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5),
                 ),
               ],
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: MintSpacing.md),
             decoration: BoxDecoration(
               color: MintColors.surface,
               borderRadius: const BorderRadius.only(
@@ -690,8 +666,8 @@ class _AskMintScreenState extends State<AskMintScreen> {
   Widget _buildInputArea(S? s, ByokProvider byok) {
     return Container(
       padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
+        left: MintSpacing.md,
+        right: MintSpacing.md,
         top: 12,
         bottom: MediaQuery.of(context).padding.bottom + 12,
       ),

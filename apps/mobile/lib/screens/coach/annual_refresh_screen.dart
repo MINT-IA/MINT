@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 
@@ -237,17 +238,14 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
         slivers: [
           _buildAppBar(),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md, vertical: MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 Text(
                   'Quelques questions rapides pour mettre ton profil à jour.',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodyMedium(),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
                 Form(
                   key: _formKey,
                   child: Column(
@@ -297,12 +295,9 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
       ),
       title: Text(
         'Check-up annuel',
-        style: GoogleFonts.montserrat(
-          fontWeight: FontWeight.w700,
-          fontSize: 18,
-          color: MintColors.textPrimary,
-        ),
+        style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
       ),
+      surfaceTintColor: MintColors.white,
     );
   }
 
@@ -318,11 +313,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
         children: [
           Text(
             '${_salaireBrutMensuel.toInt()} CHF / mois',
-            style: GoogleFonts.montserrat(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: MintColors.coachAccent,
-            ),
+            style: MintTextStyles.displayMedium(color: MintColors.coachAccent).copyWith(fontSize: 24),
           ),
           const SizedBox(height: 12),
           Slider(
@@ -338,12 +329,8 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('0 CHF',
-                  style: GoogleFonts.inter(
-                      fontSize: 11, color: MintColors.textMuted)),
-              Text('30\'000 CHF',
-                  style: GoogleFonts.inter(
-                      fontSize: 11, color: MintColors.textMuted)),
+              Text('0 CHF', style: MintTextStyles.labelSmall()),
+              Text('30\'000 CHF', style: MintTextStyles.labelSmall()),
             ],
           ),
         ],
@@ -372,13 +359,11 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
             onSelected: (_) => setState(() => _employmentStatus = opt),
             selectedColor: MintColors.coachAccent.withAlpha(30),
             checkmarkColor: MintColors.coachAccent,
-            labelStyle: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            labelStyle: MintTextStyles.bodySmall(
               color: isSelected
                   ? MintColors.coachAccent
                   : MintColors.textSecondary,
-            ),
+            ).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
               side: BorderSide(
@@ -410,8 +395,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
         inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
         decoration: InputDecoration(
           suffixText: 'CHF',
-          suffixStyle: GoogleFonts.inter(
-              fontSize: 14, color: MintColors.textSecondary),
+          suffixStyle: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: MintColors.border),
@@ -424,7 +408,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
-        style: GoogleFonts.inter(fontSize: 16, color: MintColors.textPrimary),
+        style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
         validator: (v) {
           final val = _parseChf(v ?? '');
           if (val < 0) return 'Le montant doit être positif';
@@ -450,8 +434,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
         inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
         decoration: InputDecoration(
           suffixText: 'CHF',
-          suffixStyle: GoogleFonts.inter(
-              fontSize: 14, color: MintColors.textSecondary),
+          suffixStyle: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: MintColors.border),
@@ -464,7 +447,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
-        style: GoogleFonts.inter(fontSize: 16, color: MintColors.textPrimary),
+        style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
         validator: (v) {
           final val = _parseChf(v ?? '');
           if (val < 0) return 'Le montant doit être positif';
@@ -495,13 +478,11 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
             onSelected: (_) => setState(() => _realEstateProject = opt),
             selectedColor: MintColors.coachAccent.withAlpha(30),
             checkmarkColor: MintColors.coachAccent,
-            labelStyle: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            labelStyle: MintTextStyles.bodySmall(
               color: isSelected
                   ? MintColors.coachAccent
                   : MintColors.textSecondary,
-            ),
+            ).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
               side: BorderSide(
@@ -537,13 +518,11 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
             onSelected: (_) => setState(() => _familyChange = opt),
             selectedColor: MintColors.coachAccent.withAlpha(30),
             checkmarkColor: MintColors.coachAccent,
-            labelStyle: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            labelStyle: MintTextStyles.bodySmall(
               color: isSelected
                   ? MintColors.coachAccent
                   : MintColors.textSecondary,
-            ),
+            ).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
               side: BorderSide(
@@ -608,14 +587,11 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                     Text(
                       _riskLabel(opt),
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight:
-                            isSelected ? FontWeight.w600 : FontWeight.w400,
+                      style: MintTextStyles.labelSmall(
                         color: isSelected
                             ? MintColors.coachAccent
                             : MintColors.textSecondary,
-                      ),
+                      ).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
                     ),
                   ],
                 ),
@@ -657,10 +633,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
               )
             : Text(
                 'Mettre à jour mon profil',
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: MintTextStyles.titleMedium(color: MintColors.white),
               ),
       ),
     );
@@ -678,11 +651,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
         'au sens de la LSFin. Consulte un\u00b7e spécialiste pour des conseils '
         'personnalisés.',
         textAlign: TextAlign.center,
-        style: GoogleFonts.inter(
-          fontSize: 11,
-          color: MintColors.textMuted,
-          height: 1.5,
-        ),
+        style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(height: 1.5),
       ),
     );
   }
@@ -739,11 +708,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                 Text(
                   'Profil mis à jour !',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.headlineMedium(),
                 ),
                 const SizedBox(height: 24),
                 // Score comparison card
@@ -789,31 +754,19 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                         Text(
                           'Ton score a augmenté de $delta points !',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.inter(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: MintColors.success,
-                          ),
+                          style: MintTextStyles.bodyLarge(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
                         )
                       else if (dropped)
                         Text(
                           'Ton score a baissé de ${delta.abs()} points — vérifions ensemble',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.inter(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: MintColors.warning,
-                          ),
+                          style: MintTextStyles.bodyLarge(color: MintColors.warning).copyWith(fontWeight: FontWeight.w600),
                         )
                       else
                         Text(
                           'Ton score est stable — continue comme ça !',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.inter(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: MintColors.coachAccent,
-                          ),
+                          style: MintTextStyles.bodyLarge(color: MintColors.coachAccent).copyWith(fontWeight: FontWeight.w600),
                         ),
                     ],
                   ),
@@ -835,10 +788,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                     ),
                     child: Text(
                       'Retour au dashboard',
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: MintTextStyles.titleMedium(color: MintColors.white),
                     ),
                   ),
                 ),
@@ -857,26 +807,16 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.bodySmall(),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: MintSpacing.sm),
         Text(
           '$score',
-          style: GoogleFonts.montserrat(
-            fontSize: 36,
-            fontWeight: FontWeight.w800,
-            color: color,
-          ),
+          style: MintTextStyles.displayMedium(color: color).copyWith(fontSize: 36),
         ),
         Text(
           '/ 100',
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.labelSmall(),
         ),
       ],
     );
@@ -921,11 +861,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                 child: Center(
                   child: Text(
                     '$number',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.coachAccent,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.coachAccent).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
@@ -933,11 +869,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
               Expanded(
                 child: Text(
                   title,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
             ],
@@ -950,11 +882,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                 Expanded(
                   child: Text(
                     helpText,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textMuted,
-                      fontStyle: FontStyle.italic,
-                    ),
+                    style: MintTextStyles.labelSmall().copyWith(fontStyle: FontStyle.italic),
                   ),
                 ),
               ],

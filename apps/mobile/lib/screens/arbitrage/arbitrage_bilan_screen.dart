@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/arbitrage_summary_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -42,10 +43,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
                 Text(
                   'Complete ton profil pour voir tes pistes d\'arbitrage',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    fontSize: 15,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodyLarge(),
                 ),
                 const SizedBox(height: 20),
                 FilledButton(
@@ -90,20 +88,13 @@ class ArbitrageBilanScreen extends StatelessWidget {
                       children: [
                         Text(
                           'Tes leviers d\'action',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                            color: MintColors.white,
-                          ),
+                          style: MintTextStyles.headlineMedium(color: MintColors.white),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: MintSpacing.xs),
                         if (summary.items.isNotEmpty)
                           Text(
                             '${formatChfWithPrefix(summary.aggregateMonthlyImpact)}/mois de potentiel identifie',
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              color: MintColors.white.withValues(alpha: 0.85),
-                            ),
+                            style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.85)),
                           ),
                       ],
                     ),
@@ -112,10 +103,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
               ),
               title: Text(
                 'Bilan d\'arbitrage',
-                style: GoogleFonts.montserrat(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
-                ),
+                style: MintTextStyles.titleMedium(),
               ),
             ),
           ),
@@ -140,11 +128,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     'Debloque d\'autres pistes',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 10),
                   ...summary.lockedItems.map((locked) => Padding(
@@ -162,11 +146,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
                 Text(
                   'Outil educatif — ne constitue pas un conseil financier (LSFin). '
                   'Sources : LPP art. 14, 79b / LIFD art. 22, 33, 38 / OPP3 art. 7.',
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    color: MintColors.textMuted,
-                    fontStyle: FontStyle.italic,
-                  ),
+                  style: MintTextStyles.micro(),
                 ),
                 const SizedBox(height: 32),
               ]),
@@ -196,11 +176,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
               child: Text(
                 'Ces pistes ne s\'additionnent pas forcement — '
                 'certaines sont liees entre elles.',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.bodySmall(),
               ),
             ),
           ],
@@ -248,11 +224,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   'Liens entre ces pistes',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -262,17 +234,11 @@ class ArbitrageBilanScreen extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('• ',
-                          style: GoogleFonts.inter(
-                              fontSize: 12, color: MintColors.textSecondary)),
+                      Text('• ', style: MintTextStyles.bodySmall()),
                       Expanded(
                         child: Text(
                           note,
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: MintColors.textSecondary,
-                            height: 1.4,
-                          ),
+                          style: MintTextStyles.bodySmall(),
                         ),
                       ),
                     ],
@@ -354,11 +320,7 @@ class _ArbitrageItemCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     item.title,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
                 // Confidence
@@ -372,11 +334,7 @@ class _ArbitrageItemCard extends StatelessWidget {
                   ),
                   child: Text(
                     '${item.confidenceScore.round()}%',
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: _confidenceColor(item.confidenceScore),
-                    ),
+                    style: MintTextStyles.micro(color: _confidenceColor(item.confidenceScore)).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -389,34 +347,21 @@ class _ArbitrageItemCard extends StatelessWidget {
             // Verdict
             Text(
               item.verdict,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: color,
-                height: 1.4,
-              ),
+              style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
 
             // Key insight
             Text(
               item.keyInsight,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textSecondary,
-                height: 1.4,
-              ),
+              style: MintTextStyles.bodySmall(),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: MintSpacing.xs),
 
             // Disclaimer line
             Text(
               'Dans ce scenario simule — a explorer en detail',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.micro(),
             ),
           ],
         ),
@@ -475,19 +420,12 @@ class _LockedItemCard extends StatelessWidget {
                 children: [
                   Text(
                     locked.title,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textMuted,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: MintSpacing.xs),
                   Text(
                     locked.missingDataPrompt,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textMuted,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textMuted),
                   ),
                 ],
               ),

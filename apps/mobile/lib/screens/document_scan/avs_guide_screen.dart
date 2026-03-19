@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
@@ -98,11 +99,9 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       ),
       title: Text(
         l.avsGuideAppBarTitle,
-        style: GoogleFonts.montserrat(
+        style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
           fontWeight: FontWeight.w800,
-          fontSize: 13,
           letterSpacing: 1.5,
-          color: MintColors.textMuted,
         ),
       ),
     );
@@ -116,21 +115,12 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       children: [
         Text(
           l.avsGuideHeaderTitle,
-          style: GoogleFonts.montserrat(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-            height: 1.3,
-          ),
+          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(height: 1.3),
         ),
         const SizedBox(height: 8),
         Text(
           l.avsGuideHeaderSubtitle,
-          style: GoogleFonts.inter(
-            fontSize: 15,
-            color: MintColors.textSecondary,
-            height: 1.5,
-          ),
+          style: MintTextStyles.bodyLarge(color: MintColors.textSecondary).copyWith(fontSize: 15, height: 1.5),
         ),
       ],
     );
@@ -166,19 +156,15 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
               children: [
                 Text(
                   l.avsGuideConfidencePoints(DocumentType.avsExtract.confidenceImpact),
-                  style: GoogleFonts.montserrat(
+                  style: MintTextStyles.bodyLarge(color: MintColors.info).copyWith(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: MintColors.info,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   l.avsGuideConfidenceSubtitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -219,13 +205,9 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       children: [
         Text(
           l.avsGuideStepsTitle,
-          style: GoogleFonts.montserrat(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: MintSpacing.md),
         ...steps.map((step) => _buildStepCard(step)),
       ],
     );
@@ -248,11 +230,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
             child: Center(
               child: Text(
                 '${step.number}',
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.white,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
               ),
             ),
           ),
@@ -264,21 +242,16 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
               children: [
                 Text(
                   step.title,
-                  style: GoogleFonts.inter(
+                  style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
                     height: 1.3,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   step.subtitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
                 ),
               ],
             ),
@@ -299,10 +272,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
         icon: const Icon(Icons.open_in_new, size: 20),
         label: Text(
           l.avsGuideOpenAhvButton,
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          style: MintTextStyles.titleMedium(color: MintColors.white),
         ),
         style: FilledButton.styleFrom(
           backgroundColor: MintColors.primary,
@@ -326,10 +296,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
         icon: const Icon(Icons.document_scanner_outlined, size: 22),
         label: Text(
           l.avsGuideScanButton,
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          style: MintTextStyles.titleMedium(),
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: MintColors.textPrimary,
@@ -357,22 +324,16 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
         children: [
           Text(
             l.avsGuideTestMode,
-            style: GoogleFonts.montserrat(
-              fontSize: 10,
+            style: MintTextStyles.micro(color: MintColors.purple).copyWith(
               fontWeight: FontWeight.w700,
               letterSpacing: 1.5,
-              color: MintColors.purple,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             l.avsGuideTestDescription,
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
           const SizedBox(height: 12),
           SizedBox(
@@ -394,7 +355,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
                     icon: const Icon(Icons.science_outlined, size: 20),
                     label: Text(
                       l.avsGuideTestButton,
-                      style: GoogleFonts.inter(
+                      style: MintTextStyles.bodyLarge(color: MintColors.white).copyWith(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
@@ -433,11 +394,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
           Expanded(
             child: Text(
               l.avsGuideFreeNote,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textPrimary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.5),
             ),
           ),
         ],
@@ -463,11 +420,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
           Expanded(
             child: Text(
               l.avsGuidePrivacyNote,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textMuted,
-                height: 1.5,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.5),
             ),
           ),
         ],
@@ -488,7 +441,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
         SnackBar(
           content: Text(
             l.avsGuideSnackbarError(_ahvUrl),
-            style: GoogleFonts.inter(fontSize: 14),
+            style: MintTextStyles.bodyMedium(),
           ),
           backgroundColor: MintColors.warning,
           behavior: SnackBarBehavior.floating,

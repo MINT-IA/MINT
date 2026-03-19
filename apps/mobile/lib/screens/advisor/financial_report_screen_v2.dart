@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
@@ -54,7 +55,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
     return Scaffold(
       backgroundColor: MintColors.surface,
       appBar: AppBar(
-        title: Text('Ton Plan Mint', style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, fontSize: 18, color: MintColors.textPrimary)),
+        title: Text('Ton Plan Mint', style: MintTextStyles.titleMedium(color: MintColors.textPrimary)),
         backgroundColor: MintColors.white,
         foregroundColor: MintColors.textPrimary,
         elevation: 0,
@@ -85,12 +86,12 @@ class FinancialReportScreenV2 extends StatelessWidget {
             // Header personnalisé (greeting + status summary)
             _buildHeader(report.profile, report.healthScore),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
 
             // ── Debt alert banner (conditional) ──
             if (hasDebt)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
                 child: DebtAlertBanner(
                   totalBalance: (wizardAnswers['q_debt_total_balance'] as num?)
                       ?.toDouble(),
@@ -103,13 +104,13 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
             // ── Budget thematic card ──
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
               child: _buildBudgetSection(context, wizardAnswers),
             ),
 
             // ── Protection thematic card ──
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
               child: _buildProtectionSection(
                   context, wizardAnswers, report.healthScore),
             ),
@@ -117,18 +118,18 @@ class FinancialReportScreenV2 extends StatelessWidget {
             // ── Retirement thematic card ──
             if (report.retirementProjection != null)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
                 child: _buildRetirementThematicSection(
                     context, report, wizardAnswers),
               ),
 
             // ── Tax thematic card ──
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
               child: _buildTaxThematicSection(context, report),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
 
             // ── Top 3 Priorities ──
             SafeModeGate(
@@ -141,23 +142,20 @@ class FinancialReportScreenV2 extends StatelessWidget {
               child: _buildTopPriorities(context, report.priorityActions),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
 
             // ── Comparateur 3a (si applicable) ──
             if (report.pillar3aAnalysis != null) ...[
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
                 child: Text(
                   'Optimise ton 3a',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: MintTextStyles.headlineMedium(),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: MintSpacing.md),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
                 child: SafeModeGate(
                   hasDebt: hasDebt,
                   lockedTitle: 'Priorit\u00e9 au d\u00e9sendettement',
@@ -172,7 +170,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: MintSpacing.lg),
             ],
 
             // ── Strat\u00e9gie rachat LPP ──
@@ -187,7 +185,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 child: _buildLppBuybackSection(report.lppBuybackStrategy!, report.profile),
               ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
 
             // ── Life event suggestions based on profile ──
             LifeEventSuggestionsSection(
@@ -201,17 +199,17 @@ class FinancialReportScreenV2 extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: MintSpacing.xl),
 
             // ── SoA Compliance Section ──
             _buildSoaComplianceSection(report),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
 
             // ── Disclaimer Footer ──
             _buildDisclaimerFooter(),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: MintSpacing.xxl),
           ],
         ),
       ),
@@ -225,7 +223,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
   Widget _buildHeader(UserProfile profile, FinancialHealthScore healthScore) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -243,16 +241,12 @@ class FinancialReportScreenV2 extends StatelessWidget {
           children: [
             Text(
               'Bonjour ${profile.firstName ?? ""}!',
-              style: const TextStyle(
-                color: MintColors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: MintTextStyles.headlineLarge(color: MintColors.white),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             Text(
               '${profile.age} ans \u2022 ${profile.canton} \u2022 ${profile.civilStatus}',
-              style: const TextStyle(color: MintColors.white70, fontSize: 14),
+              style: MintTextStyles.bodyMedium(color: MintColors.white70),
             ),
             const SizedBox(height: 20),
             // Contextual status phrase (replaces XX/100 score)
@@ -279,11 +273,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
     }
     return Text(
       '$emoji $message',
-      style: GoogleFonts.inter(
-        fontSize: 15,
-        fontWeight: FontWeight.w600,
-        color: MintColors.white,
-      ),
+      style: MintTextStyles.bodyLarge(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
       textAlign: TextAlign.center,
     );
   }
@@ -603,8 +593,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.inter(
-                  fontSize: 12, color: MintColors.textPrimary, height: 1.4),
+              style: MintTextStyles.labelSmall(color: MintColors.textPrimary),
             ),
           ),
         ],
@@ -618,19 +607,14 @@ class FinancialReportScreenV2 extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
+          style: MintTextStyles.bodySmall(
             color: isBold ? MintColors.textPrimary : MintColors.textSecondary,
-          ),
+          ).copyWith(fontWeight: isBold ? FontWeight.w700 : FontWeight.w400),
         ),
         Text(
           value,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+              .copyWith(fontWeight: isBold ? FontWeight.w700 : FontWeight.w500),
         ),
       ],
     );
@@ -644,18 +628,15 @@ class FinancialReportScreenV2 extends StatelessWidget {
     if (actions.isEmpty) return const SizedBox.shrink();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             '\ud83c\udfaf Tes 3 Actions Prioritaires',
-            style: GoogleFonts.montserrat(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: MintTextStyles.headlineMedium(),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           ...actions.map((action) => _buildActionCard(context, action)),
         ],
       ),
@@ -682,8 +663,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
     }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: MintSpacing.md),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -704,10 +685,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
               Expanded(
                 child: Text(
                   action.title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: MintTextStyles.titleMedium(),
                 ),
               ),
               if (action.potentialGainChf != null)
@@ -729,10 +707,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             action.description,
-            style: const TextStyle(fontSize: 13, color: MintColors.textMuted),
+            style: MintTextStyles.bodySmall(),
           ),
           const SizedBox(height: 12),
           ...action.steps.take(3).map((step) => Padding(
@@ -744,7 +722,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                     Expanded(
                       child: Text(
                         step,
-                        style: const TextStyle(fontSize: 12),
+                        style: MintTextStyles.labelSmall(),
                       ),
                     ),
                   ],
@@ -785,7 +763,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           ).clamp(0.10, 0.50)
         : 0.30; // Fallback conservateur si canton inconnu
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -800,21 +778,15 @@ class FinancialReportScreenV2 extends StatelessWidget {
           children: [
             Text(
               '\ud83d\udcb0 Strat\u00e9gie Rachat LPP',
-              style: GoogleFonts.montserrat(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: MintTextStyles.headlineMedium(),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             Text(
               '\u00c9conomie fiscale totale : CHF ${strategy.totalTaxSavings.toStringAsFixed(0)}',
-              style: const TextStyle(
-                fontSize: 14,
-                color: MintColors.greenDark,
-                fontWeight: FontWeight.bold,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.greenDark)
+                  .copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
             ...strategy.yearlyPlan.map((buyback) => Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(12),
@@ -830,12 +802,12 @@ class FinancialReportScreenV2 extends StatelessWidget {
                         children: [
                           Text(
                             'Ann\u00e9e ${buyback.year}',
-                            style: const TextStyle(
-                                fontSize: 13, fontWeight: FontWeight.bold),
+                            style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                                .copyWith(fontWeight: FontWeight.bold),
                           ),
                           Text(
                             'Rachat: CHF ${buyback.amount.toStringAsFixed(0)}',
-                            style: const TextStyle(fontSize: 12),
+                            style: MintTextStyles.labelSmall(),
                           ),
                         ],
                       ),
@@ -848,11 +820,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
                         ),
                         child: Text(
                           '\u00c9conomie: CHF ${buyback.estimatedTaxSavings.toStringAsFixed(0)}',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: MintColors.greenDark,
-                          ),
+                          style: MintTextStyles.labelSmall(color: MintColors.greenDark)
+                              .copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -882,7 +851,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
   Widget _buildSoaComplianceSection(FinancialReport report) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -899,11 +868,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   'Transparence et conformit\u00e9',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.headlineMedium(),
                 ),
               ],
             ),
@@ -970,20 +935,14 @@ class FinancialReportScreenV2 extends StatelessWidget {
           width: 140,
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary)
+                .copyWith(fontWeight: FontWeight.w600),
           ),
         ),
         Expanded(
           child: Text(
             value,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textPrimary),
           ),
         ),
       ],
@@ -1011,11 +970,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 title,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                    .copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -1028,19 +984,12 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 children: [
                   Text(
                     '\u2022 ',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      color: MintColors.textMuted,
-                    ),
+                    style: MintTextStyles.labelSmall(),
                   ),
                   Expanded(
                     child: Text(
                       item,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: MintColors.textSecondary,
-                        height: 1.4,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                     ),
                   ),
                 ],
@@ -1058,10 +1007,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
   Widget _buildDisclaimerFooter() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(MintSpacing.md),
         decoration: BoxDecoration(
           color: MintColors.surface,
           borderRadius: BorderRadius.circular(12),
@@ -1079,11 +1028,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   'Mention legale',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.labelSmall().copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -1091,12 +1036,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             Text(
               'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier au sens de la LSFin. '
               'Les montants sont des estimations bas\u00e9es sur les donn\u00e9es d\u00e9clar\u00e9es.',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-                height: 1.5,
-              ),
+              style: MintTextStyles.micro(),
             ),
           ],
         ),

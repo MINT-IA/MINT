@@ -2,9 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -461,7 +462,7 @@ Reponds uniquement avec le texte final.
         slivers: [
           _buildAppBar(),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+            padding: const EdgeInsets.fromLTRB(MintSpacing.lg, 0, MintSpacing.lg, 40),
             sliver: SliverList(
               delegate: SliverChildListDelegate(
                 _isSubmitted ? _buildSuccessContent() : _buildFormContent(),
@@ -488,11 +489,8 @@ Reponds uniquement avec le texte final.
       title: Text(
         (s?.checkinTitle(_currentMonthLabel) ?? 'CHECK-IN $_currentMonthLabel')
             .toUpperCase(),
-        style: GoogleFonts.montserrat(
-          fontWeight: FontWeight.w700,
-          fontSize: 14,
+        style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
           letterSpacing: 1.5,
-          color: MintColors.textMuted,
         ),
       ),
     );
@@ -505,10 +503,10 @@ Reponds uniquement avec le texte final.
   List<Widget> _buildFormContent() {
     final s = S.of(context);
     return [
-      const SizedBox(height: 8),
+      const SizedBox(height: MintSpacing.sm),
       // Header
       _buildFormHeader(),
-      const SizedBox(height: 24),
+      const SizedBox(height: MintSpacing.lg),
 
       // Form
       Form(
@@ -586,19 +584,12 @@ Reponds uniquement avec le texte final.
               Text(
                 s?.checkinHeader(_currentMonthLabel) ??
                     'Check-in $_currentMonthLabel',
-                style: GoogleFonts.montserrat(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.headlineMedium(),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: MintSpacing.xs),
               Text(
                 s?.checkinSubtitle ?? 'Confirme tes versements du mois',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodyMedium(),
               ),
             ],
           ),
@@ -610,11 +601,7 @@ Reponds uniquement avec le texte final.
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.montserrat(
-        fontSize: 16,
-        fontWeight: FontWeight.w700,
-        color: MintColors.textPrimary,
-      ),
+      style: MintTextStyles.titleMedium(),
     );
   }
 
@@ -664,11 +651,7 @@ Reponds uniquement avec le texte final.
             const SizedBox(width: 8),
             Text(
               s?.checkinAddContribution ?? 'Ajouter un versement',
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: MintColors.coachAccent,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.coachAccent).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -757,22 +740,14 @@ Reponds uniquement avec le texte final.
                   const SizedBox(height: 20),
                   Text(
                     s?.checkinAddContribution ?? 'Ajouter un versement',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
                   ),
                   const SizedBox(height: 20),
 
                   // Category chips
                   Text(
                     s?.checkinCategoryLabel ?? 'Catégorie',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textSecondary,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -812,14 +787,14 @@ Reponds uniquement avec le texte final.
                               const SizedBox(width: 6),
                               Text(
                                 cat.$2,
-                                style: GoogleFonts.inter(
-                                  fontSize: 13,
-                                  fontWeight: isSelected
-                                      ? FontWeight.w600
-                                      : FontWeight.w400,
+                                style: MintTextStyles.bodySmall(
                                   color: isSelected
                                       ? cat.$4
                                       : MintColors.textSecondary,
+                                ).copyWith(
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
                                 ),
                               ),
                             ],
@@ -834,22 +809,16 @@ Reponds uniquement avec le texte final.
                   // Label
                   Text(
                     s?.checkinLabelField ?? 'Nom',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textSecondary,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: MintSpacing.sm),
                   TextFormField(
                     controller: labelController,
-                    style: GoogleFonts.inter(
-                        fontSize: 14, color: MintColors.textPrimary),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                     decoration: InputDecoration(
                       hintText: s?.checkinLabelHint ??
                           'Ex: 3a VIAC, Epargne vacances...',
-                      hintStyle: GoogleFonts.inter(
-                          fontSize: 13, color: MintColors.textMuted),
+                      hintStyle: MintTextStyles.bodySmall(color: MintColors.textMuted),
                       filled: true,
                       fillColor: MintColors.surface,
                       border: OutlineInputBorder(
@@ -874,27 +843,20 @@ Reponds uniquement avec le texte final.
                   // Amount
                   Text(
                     s?.checkinAmountField ?? 'Montant mensuel',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textSecondary,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: MintSpacing.sm),
                   TextFormField(
                     controller: amountController,
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
                     onTapOutside: (_) => FocusScope.of(context).unfocus(),
-                    style: GoogleFonts.inter(
-                        fontSize: 14, color: MintColors.textPrimary),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                     decoration: InputDecoration(
                       prefixText: 'CHF ',
-                      prefixStyle: GoogleFonts.inter(
-                          fontSize: 13, color: MintColors.textMuted),
+                      prefixStyle: MintTextStyles.bodySmall(color: MintColors.textMuted),
                       hintText: '0.00',
-                      hintStyle: GoogleFonts.inter(
-                          fontSize: 13, color: MintColors.textMuted),
+                      hintStyle: MintTextStyles.bodySmall(color: MintColors.textMuted),
                       filled: true,
                       fillColor: MintColors.surface,
                       border: OutlineInputBorder(
@@ -921,10 +883,7 @@ Reponds uniquement avec le texte final.
                     children: [
                       Text(
                         s?.checkinAutoToggle ?? 'Ordre permanent (automatique)',
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: MintColors.textSecondary,
-                        ),
+                        style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                       ),
                       const Spacer(),
                       Switch.adaptive(
@@ -969,10 +928,7 @@ Reponds uniquement avec le texte final.
                       ),
                       child: Text(
                         s?.checkinAddConfirm ?? 'Ajouter',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        style: MintTextStyles.titleMedium(color: MintColors.white),
                       ),
                     ),
                   ),
@@ -1024,11 +980,7 @@ Reponds uniquement avec le texte final.
               const SizedBox(width: 8),
               Text(
                 label,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -1037,21 +989,12 @@ Reponds uniquement avec le texte final.
             controller: controller,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             onTapOutside: (_) => FocusScope.of(context).unfocus(),
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: GoogleFonts.inter(
-                fontSize: 14,
-                color: MintColors.textMuted,
-              ),
+              hintStyle: MintTextStyles.bodyMedium(color: MintColors.textMuted),
               prefixText: 'CHF ',
-              prefixStyle: GoogleFonts.inter(
-                fontSize: 14,
-                color: MintColors.textSecondary,
-              ),
+              prefixStyle: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
               filled: true,
               fillColor: MintColors.background,
               border: OutlineInputBorder(
@@ -1084,17 +1027,11 @@ Reponds uniquement avec le texte final.
     return TextFormField(
       controller: _noteController,
       maxLines: 3,
-      style: GoogleFonts.inter(
-        fontSize: 14,
-        color: MintColors.textPrimary,
-      ),
+      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
       decoration: InputDecoration(
         hintText: s?.checkinNoteHint ??
             'Ex: Mois compliqué, dépense imprévue pour la voiture...',
-        hintStyle: GoogleFonts.inter(
-          fontSize: 14,
-          color: MintColors.textMuted,
-        ),
+        hintStyle: MintTextStyles.bodyMedium(color: MintColors.textMuted),
         filled: true,
         fillColor: MintColors.surface,
         border: OutlineInputBorder(
@@ -1133,10 +1070,7 @@ Reponds uniquement avec le texte final.
         ),
         child: Text(
           s?.checkinSubmit ?? 'Valider le check-in',
-          style: GoogleFonts.montserrat(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
+          style: MintTextStyles.titleMedium(color: MintColors.white),
         ),
       ),
     );
@@ -1183,14 +1117,10 @@ Reponds uniquement avec le texte final.
           s?.checkinSuccessTitle(_currentMonthLabel) ??
               'Bravo ! Check-in $_currentMonthLabel complété',
           textAlign: TextAlign.center,
-          style: GoogleFonts.montserrat(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.headlineMedium(),
         ),
       ),
-      const SizedBox(height: 32),
+      const SizedBox(height: MintSpacing.xl),
 
       // Score delta card
       if (_scoreAfter != _scoreBefore) _buildScoreDeltaCard(),
@@ -1238,10 +1168,7 @@ Reponds uniquement avec le texte final.
           ),
           child: Text(
             s?.checkinSeeTrajectory ?? 'Voir ma trajectoire mise à jour',
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.white),
           ),
         ),
       ),
@@ -1288,39 +1215,24 @@ Reponds uniquement avec le texte final.
               children: [
                 Text(
                   S.of(context)!.checkinScoreTitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
                   '$_scoreBefore $arrow $_scoreAfter / 100',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: color,
-                  ),
+                  style: MintTextStyles.headlineMedium(color: color),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   isPositive
                       ? S.of(context)!.checkinScorePositive(delta.toString())
                       : S.of(context)!.checkinScoreNegative(delta.toString()),
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: MintSpacing.sm - 2),
                 Text(
                   _scoreDeltaReason,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.35,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(height: 1.35),
                 ),
               ],
             ),
@@ -1368,29 +1280,18 @@ Reponds uniquement avec le texte final.
               children: [
                 Text(
                   s?.checkinImpactLabel ?? 'Impact sur ta trajectoire',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
                   impactLabel,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.success,
-                  ),
+                  style: MintTextStyles.headlineMedium(color: MintColors.success).copyWith(fontSize: 18),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   s?.checkinImpactTotal(totalFormatted) ??
                       'Total versements : $totalFormatted',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -1432,21 +1333,13 @@ Reponds uniquement avec le texte final.
               children: [
                 Text(
                   s?.checkinStreakLabel ?? 'Série en cours',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
                   s?.checkinStreakCount(_streak.toString()) ??
                       '$_streak mois consécutifs on-track !',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.warning,
-                  ),
+                  style: MintTextStyles.headlineMedium(color: MintColors.warning).copyWith(fontSize: 18),
                 ),
               ],
             ),
@@ -1489,20 +1382,12 @@ Reponds uniquement avec le texte final.
               children: [
                 Text(
                   s?.checkinCoachTip ?? 'Tip du coach',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.coachAccent,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.coachAccent).copyWith(fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: MintSpacing.sm - 2),
                 Text(
                   _coachTip,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -1542,11 +1427,7 @@ Reponds uniquement avec le texte final.
               const SizedBox(width: 8),
               Text(
                 'Ton evolution',
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               const Spacer(),
               Container(
@@ -1558,11 +1439,7 @@ Reponds uniquement avec le texte final.
                 ),
                 child: Text(
                   briefing.trendLabel,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: trendColor,
-                  ),
+                  style: MintTextStyles.labelSmall(color: trendColor).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
             ],
@@ -1573,11 +1450,7 @@ Reponds uniquement avec le texte final.
               padding: const EdgeInsets.only(bottom: 4),
               child: Text(
                 insight,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: MintColors.textPrimary,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
               ),
             ),
         ],
@@ -1610,11 +1483,7 @@ Reponds uniquement avec le texte final.
                   'Outil éducatif — ne constitue pas un conseil financier personnalisé. '
                       'Les projections sont basées sur des hypothèses et peuvent varier. '
                       'Consulte un·e spécialiste pour un accompagnement adapté. LSFin.',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.textMuted,
-                height: 1.5,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(height: 1.5),
             ),
           ),
         ],
@@ -1680,11 +1549,7 @@ class _ContributionRow extends StatelessWidget {
                   children: [
                     Text(
                       contribution.label,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 4),
                     Container(
@@ -1702,13 +1567,11 @@ class _ContributionRow extends StatelessWidget {
                         contribution.isAutomatic
                             ? (s?.checkinAuto ?? 'Auto')
                             : (s?.checkinManuel ?? 'Manuel'),
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
+                        style: MintTextStyles.labelSmall(
                           color: contribution.isAutomatic
                               ? MintColors.success
                               : MintColors.textMuted,
-                        ),
+                        ).copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
@@ -1724,17 +1587,10 @@ class _ContributionRow extends StatelessWidget {
                       const TextInputType.numberWithOptions(decimal: true),
                   onTapOutside: (_) => FocusScope.of(context).unfocus(),
                   textAlign: TextAlign.right,
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                   decoration: InputDecoration(
                     prefixText: 'CHF ',
-                    prefixStyle: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textMuted,
-                    ),
+                    prefixStyle: MintTextStyles.labelSmall(color: MintColors.textMuted),
                     filled: true,
                     fillColor: MintColors.surface,
                     border: OutlineInputBorder(

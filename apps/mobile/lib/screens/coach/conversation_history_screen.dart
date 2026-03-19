@@ -6,10 +6,11 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/coach/conversation_tile.dart';
 
 class ConversationHistoryScreen extends StatefulWidget {
@@ -81,15 +82,12 @@ class _ConversationHistoryScreenState extends State<ConversationHistoryScreen> {
           SliverAppBar(
             pinned: true,
             backgroundColor: MintColors.white,
+            surfaceTintColor: MintColors.white,
             elevation: 0,
             scrolledUnderElevation: 0,
             title: Text(
               l10n.conversationHistoryTitle,
-              style: GoogleFonts.montserrat(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.titleMedium(),
             ),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
@@ -119,7 +117,7 @@ class _ConversationHistoryScreenState extends State<ConversationHistoryScreen> {
             )
           else
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+              padding: const EdgeInsets.fromLTRB(MintSpacing.md, MintSpacing.md, MintSpacing.md, 100),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
@@ -149,7 +147,7 @@ class _ConversationHistoryScreenState extends State<ConversationHistoryScreen> {
               icon: const Icon(Icons.add),
               label: Text(
                 l10n.conversationNew, // TODO: add to ARB files
-                style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
               ),
             )
           : null,
@@ -180,39 +178,30 @@ class _EmptyState extends StatelessWidget {
               size: 64,
               color: MintColors.textMuted.withValues(alpha: 0.5),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
             Text(
               l10n.conversationEmptyTitle, // TODO: add to ARB files
-              style: GoogleFonts.montserrat(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.titleMedium(),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             Text(
               l10n.conversationEmptySubtitle, // TODO: add to ARB files
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: MintColors.textSecondary,
-                height: 1.4,
-              ),
+              style: MintTextStyles.bodyMedium(),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
             FilledButton.icon(
               onPressed: onNewConversation,
               icon: const Icon(Icons.add),
               label: Text(
                 l10n.conversationStartFirst, // TODO: add to ARB files
-                style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
               ),
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.primary,
                 foregroundColor: MintColors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -249,34 +238,27 @@ class _ErrorState extends StatelessWidget {
               size: 48,
               color: MintColors.error.withValues(alpha: 0.7),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
             Text(
               l10n.conversationErrorTitle, // TODO: add to ARB files
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.titleMedium(),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             Text(
               message,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
               textAlign: TextAlign.center,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
             OutlinedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
               label: Text(
                 l10n.conversationRetry, // TODO: add to ARB files
-                style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w500),
               ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: MintColors.primary,

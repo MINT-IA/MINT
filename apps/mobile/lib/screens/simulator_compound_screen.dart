@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/info_tooltip.dart';
 
 class SimulatorCompoundScreen extends StatefulWidget {
@@ -54,31 +56,33 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
-        title: const Text('Intérêts Composés'),
+        backgroundColor: MintColors.white,
+        surfaceTintColor: MintColors.white,
+        title: Text('Intérêts Composés', style: MintTextStyles.headlineMedium()),
         actions: [
           IconButton(
             icon: const Icon(Icons.picture_as_pdf_outlined),
             onPressed: _exportPdf,
             tooltip: 'Exporter mon bilan',
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: MintSpacing.sm),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildCoachSection(),
-            const SizedBox(height: 32),
+            const SizedBox(height: MintSpacing.xl),
             _buildInputSection(),
-            const SizedBox(height: 32),
+            const SizedBox(height: MintSpacing.xl),
             if (_result != null) _buildResultSection(),
-            const SizedBox(height: 32),
+            const SizedBox(height: MintSpacing.xl),
             _buildLessonSection(),
-            const SizedBox(height: 48),
+            const SizedBox(height: MintSpacing.xxl),
             _buildDisclaimer(),
-            const SizedBox(height: 40),
+            const SizedBox(height: MintSpacing.xl),
           ],
         ),
       ),
@@ -87,7 +91,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
 
   Widget _buildCoachSection() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.surface,
         borderRadius: BorderRadius.circular(20),
@@ -95,17 +99,17 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
-              SizedBox(width: 12),
-              Text('L\'avis du Mentor', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+              const Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
+              const SizedBox(width: MintSpacing.sm),
+              Text('L\'avis du Mentor', style: MintTextStyles.titleMedium()),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           RichText(
-            text: const TextSpan(
-              style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
+            text: TextSpan(
+              style: MintTextStyles.bodyMedium(),
               children: [
                 TextSpan(text: 'Comprendre l\''),
                 WidgetSpan(child: InfoTooltip(term: 'intérêt composé')),
@@ -123,7 +127,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Configuration'),
-        const SizedBox(height: 24),
+        const SizedBox(height: MintSpacing.lg),
         _buildSlider(
           label: 'Capital de départ',
           value: _principal,
@@ -136,7 +140,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
             _calculate();
           },
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.md),
         _buildSlider(
           label: 'Épargne mensuelle',
           value: _monthlyContribution,
@@ -149,7 +153,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
             _calculate();
           },
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.md),
         _buildSlider(
           label: 'Taux (Rendement annuel)',
           value: _annualRate,
@@ -162,7 +166,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
             _calculate();
           },
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.md),
         _buildSlider(
           label: 'Horizon de temps',
           value: _years.toDouble(),
@@ -182,11 +186,9 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
   Widget _buildSectionHeader(String title) {
     return Text(
       title.toUpperCase(),
-      style: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w700,
-        color: MintColors.textMuted,
+      style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
         letterSpacing: 1.2,
+        fontWeight: FontWeight.w700,
       ),
     );
   }
@@ -206,14 +208,14 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: const TextStyle(fontSize: 14, color: MintColors.textPrimary)),
+            Text(label, style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)),
             Text(
               format(value),
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: MintColors.primary),
+              style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: MintSpacing.sm),
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
             trackHeight: 4,
@@ -240,7 +242,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
     final gainPercentage = (gains / finalValue * 100);
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.appleSurface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(24),
@@ -248,13 +250,13 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
       ),
       child: Column(
         children: [
-          const Text('Valeur Finale Potentielle', style: TextStyle(fontSize: 14, color: MintColors.textSecondary)),
-          const SizedBox(height: 8),
+          Text('Valeur Finale Potentielle', style: MintTextStyles.bodyMedium()),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             _currencyFormat.format(finalValue),
-            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: MintColors.textPrimary),
+            style: MintTextStyles.displayMedium(),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: MintSpacing.lg),
           Row(
             children: [
               Expanded(
@@ -271,7 +273,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
           const SizedBox(height: 12),
           Text(
             '${gainPercentage.toStringAsFixed(0)}% de ce montant provient uniquement de tes gains de placement.',
-            style: const TextStyle(fontSize: 13, color: MintColors.success, fontWeight: FontWeight.w600),
+            style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
           ),
         ],
@@ -284,7 +286,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Leçons Méditées'),
-        const SizedBox(height: 24),
+        const SizedBox(height: MintSpacing.lg),
         _buildLessonItem(Icons.timer_outlined, 'Le temps est roi', 'Attendre 5 ans avant de commencer peut te faire perdre la moitié de ton capital final.'),
         _buildLessonItem(Icons.auto_graph_outlined, 'L\'effet de levier', 'Une fois lancé, ton capital génère ses propres intérêts, qui en génèrent d\'autres à leur tour.'),
         _buildLessonItem(Icons.psychology_outlined, 'Discipline', 'La regularite des versements mensuels est souvent plus efficace que la recherche du moment ideal pour investir.'),
@@ -294,7 +296,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
 
   Widget _buildLessonItem(IconData icon, String title, String subtitle) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: MintSpacing.lg),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -306,14 +308,14 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
             ),
             child: Icon(icon, color: MintColors.primary, size: 20),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: MintSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                const SizedBox(height: 4),
-                Text(subtitle, style: const TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.4)),
+                Text(title, style: MintTextStyles.titleMedium()),
+                const SizedBox(height: MintSpacing.xs),
+                Text(subtitle, style: MintTextStyles.bodyMedium()),
               ],
             ),
           ),
@@ -323,12 +325,12 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
   }
 
   Widget _buildDisclaimer() {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
         child: Text(
           'Calcul théorique basé sur un rendement constant. Les performances passées ne garantissent pas les résultats futurs.',
-          style: TextStyle(color: MintColors.textMuted, fontSize: 11),
+          style: MintTextStyles.micro(),
           textAlign: TextAlign.center,
         ),
       ),

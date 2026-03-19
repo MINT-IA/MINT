@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/household_provider.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/services/subscription_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:provider/provider.dart';
 
 /// Household management screen — Couple+ tier.
@@ -49,11 +50,13 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
       appBar: AppBar(
         title: Text(
           S.of(context)!.householdTitle,
-          style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, color: MintColors.textPrimary),
+          style: MintTextStyles.titleMedium(),
         ),
         backgroundColor: MintColors.white,
+        surfaceTintColor: MintColors.white,
         foregroundColor: MintColors.textPrimary,
         elevation: 0,
+        scrolledUnderElevation: 0,
       ),
       body: !auth.isLoggedIn
           ? _buildLoginPrompt(context)
@@ -76,16 +79,13 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             const SizedBox(height: 16),
             Text(
               'Couple+',
-              style: GoogleFonts.montserrat(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-              ),
+              style: MintTextStyles.headlineMedium(),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             Text(
               S.of(context)!.householdUpsellDescription,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(fontSize: 14, color: MintColors.textSecondary),
+              style: MintTextStyles.bodyMedium(),
             ),
             const SizedBox(height: 24),
             FilledButton(
@@ -112,7 +112,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             const SizedBox(height: 16),
             Text(
               S.of(context)!.householdLoginPrompt,
-              style: GoogleFonts.inter(fontSize: 16, color: MintColors.textSecondary),
+              style: MintTextStyles.bodyLarge(),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -134,7 +134,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
     return RefreshIndicator(
       onRefresh: () => household.loadHousehold(),
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(MintSpacing.md),
         children: [
           if (!household.hasHousehold) ...[
             _buildEmptyState(context, household),
@@ -169,7 +169,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             Text(
               household.error!,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(color: MintColors.redDeep),
+              style: MintTextStyles.bodyMedium(color: MintColors.redDeep),
             ),
             const SizedBox(height: 16),
             OutlinedButton(
@@ -195,16 +195,13 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             const SizedBox(height: 16),
             Text(
               'Couple+',
-              style: GoogleFonts.montserrat(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-              ),
+              style: MintTextStyles.headlineMedium(),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             Text(
               S.of(context)!.householdEmptyDescription,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(fontSize: 14, color: MintColors.textSecondary),
+              style: MintTextStyles.bodyMedium(),
             ),
             const SizedBox(height: 20),
             FilledButton.icon(
@@ -241,17 +238,11 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
                 children: [
                   Text(
                     S.of(context)!.householdHeaderTitle,
-                    style: GoogleFonts.montserrat(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
+                    style: MintTextStyles.titleMedium(),
                   ),
                   Text(
                     S.of(context)!.householdMemberCount(household.activeMemberCount),
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MintColors.textSecondary,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                   ),
                 ],
               ),
@@ -260,7 +251,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
               Chip(
                 label: Text(
                   S.of(context)!.householdOwnerBadge,
-                  style: GoogleFonts.inter(fontSize: 11, color: MintColors.white),
+                  style: MintTextStyles.labelSmall(color: MintColors.white),
                 ),
                 backgroundColor: MintColors.primary,
                 side: BorderSide.none,
@@ -284,10 +275,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
           children: [
             Text(
               S.of(context)!.householdMembersTitle,
-              style: GoogleFonts.montserrat(
-                fontWeight: FontWeight.w600,
-                fontSize: 15,
-              ),
+              style: MintTextStyles.titleMedium(),
             ),
             const SizedBox(height: 12),
             ...activeMembers.map((member) => _buildMemberTile(
@@ -321,12 +309,11 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
       ),
       title: Text(
         displayName as String,
-        style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
       ),
       subtitle: Text(
         isPending ? S.of(context)!.householdPendingStatus : S.of(context)!.householdActiveStatus,
-        style: GoogleFonts.inter(
-          fontSize: 12,
+        style: MintTextStyles.labelSmall(
           color: isPending ? MintColors.warning : MintColors.categoryGreen,
         ),
       ),
@@ -351,7 +338,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
         title: Text(S.of(context)!.householdRemoveMemberTitle),
         content: Text(
           S.of(context)!.householdRemoveMemberContent,
-          style: GoogleFonts.inter(fontSize: 14),
+          style: MintTextStyles.bodyMedium(),
         ),
         actions: [
           TextButton(
@@ -384,15 +371,12 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
           children: [
             Text(
               S.of(context)!.householdInviteSectionTitle,
-              style: GoogleFonts.montserrat(
-                fontWeight: FontWeight.w600,
-                fontSize: 15,
-              ),
+              style: MintTextStyles.titleMedium(),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             Text(
               S.of(context)!.householdInviteInfo,
-              style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
             const SizedBox(height: 12),
             _buildInviteForm(context, household),
@@ -458,11 +442,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             const SizedBox(height: 8),
             Text(
               S.of(context)!.householdInviteSentTitle,
-              style: GoogleFonts.montserrat(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-                color: MintColors.greenDark,
-              ),
+              style: MintTextStyles.titleMedium(color: MintColors.greenDark),
             ),
             const SizedBox(height: 8),
             Container(
@@ -474,11 +454,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
               ),
               child: Text(
                 household.pendingInviteCode!,
-                style: GoogleFonts.montserrat(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 4,
-                ),
+                style: MintTextStyles.displayMedium(),
               ),
             ),
             const SizedBox(height: 12),
@@ -514,10 +490,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             const SizedBox(height: 8),
             Text(
               S.of(context)!.householdValidFor,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.greyMedium,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.greyMedium),
             ),
           ],
         ),

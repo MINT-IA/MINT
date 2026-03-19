@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/independants_service.dart';
 
@@ -124,11 +124,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
               'volontairement à une caisse de pension (LPP). Les '
               'cotisations sont entièrement déductibles de ton revenu '
               'imposable, et tu construis ton 2e pilier retraite.',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
         ],
@@ -215,19 +211,11 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
             children: [
               Text(
                 title,
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(),
               ),
               Text(
                 valueLabel,
-                style: GoogleFonts.montserrat(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.primary,
-                ),
+                style: MintTextStyles.headlineMedium(color: MintColors.primary),
               ),
             ],
           ),
@@ -251,8 +239,8 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(minLabel, style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
-              Text(maxLabel, style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
+              Text(minLabel, style: MintTextStyles.micro(color: MintColors.textMuted)),
+              Text(maxLabel, style: MintTextStyles.micro(color: MintColors.textMuted)),
             ],
           ),
         ],
@@ -274,22 +262,14 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
         children: [
           Text(
             IndependantsService.formatChf(r.capitalisationAnnuelle),
-            style: GoogleFonts.montserrat(
-              fontSize: 36,
-              fontWeight: FontWeight.w800,
-              color: MintColors.white,
-            ),
+            style: MintTextStyles.displayMedium(color: MintColors.white),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             'Sans LPP volontaire, tu perds '
             '${IndependantsService.formatChf(r.capitalisationAnnuelle)}/an '
             'de capitalisation retraite',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.white.withValues(alpha: 0.9),
-              height: 1.5,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.9)),
             textAlign: TextAlign.center,
           ),
         ],
@@ -377,19 +357,12 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
           const SizedBox(height: 8),
           Text(
             value,
-            style: GoogleFonts.montserrat(
-              fontSize: small ? 14 : 18,
-              fontWeight: FontWeight.w700,
-              color: valueColor ?? MintColors.textPrimary,
-            ),
+            style: (small ? MintTextStyles.bodyMedium(color: valueColor ?? MintColors.textPrimary) : MintTextStyles.headlineMedium(color: valueColor ?? MintColors.textPrimary)).copyWith(fontWeight: FontWeight.w700),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
         ],
       ),
@@ -427,12 +400,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
               const SizedBox(width: 8),
               Text(
                 'PROJECTION RETRAITE ANNUELLE',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(letterSpacing: 1, fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -472,11 +440,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
                     'La LPP volontaire pourrait ajouter '
                     '${IndependantsService.formatChf(gap)}/an '
                     'à ta rente de retraite',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.success,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -502,16 +466,12 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
             Expanded(
               child: Text(
                 label,
-                style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
               ),
             ),
             Text(
               '${IndependantsService.formatChf(value)}/an',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -555,12 +515,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
               const SizedBox(width: 8),
               Text(
                 'TAUX DE BONIFICATION PAR ÂGE',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(letterSpacing: 1, fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -597,30 +552,18 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
                   ),
                   child: Text(
                     'TOI',
-                    style: GoogleFonts.inter(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.white,
-                    ),
+                    style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               Text(
                 age,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w400,
-                  color: isCurrent ? MintColors.textPrimary : MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodyMedium(color: isCurrent ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w400),
               ),
             ],
           ),
           Text(
             taux,
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: isCurrent ? MintColors.primary : MintColors.textSecondary,
-            ),
+            style: MintTextStyles.titleMedium(color: isCurrent ? MintColors.primary : MintColors.textSecondary),
           ),
         ],
       ),
@@ -639,12 +582,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
             const SizedBox(width: 8),
             Text(
               'BON À SAVOIR',
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textMuted,
-                letterSpacing: 1,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(letterSpacing: 1, fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -701,20 +639,12 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: MintSpacing.xs),
                   Text(
                     body,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MintColors.textSecondary,
-                      height: 1.5,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                   ),
                 ],
               ),
@@ -747,11 +677,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
               'de 6.8%. Les prestations réelles dépendent de la caisse '
               'de pension choisie et de l\'évolution des marchés. '
               'Consulte un\u00B7e spécialiste en prévoyance.',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.deepOrange,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.deepOrange),
             ),
           ),
         ],

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/debt_repayment_widget.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 
@@ -58,29 +60,31 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
-        title: const Text('Crédit à la Consommation'),
+        backgroundColor: MintColors.white,
+        surfaceTintColor: MintColors.white,
+        title: Text('Crédit à la Consommation', style: MintTextStyles.headlineMedium()),
         actions: [
           IconButton(
             icon: const Icon(Icons.picture_as_pdf_outlined),
             onPressed: _exportPdf,
             tooltip: 'Exporter mon bilan',
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: MintSpacing.sm),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildCoachSection(),
-            const SizedBox(height: 32),
+            const SizedBox(height: MintSpacing.xl),
             _buildInputSection(),
-            const SizedBox(height: 32),
+            const SizedBox(height: MintSpacing.xl),
             if (_result != null) _buildResultSection(),
-            const SizedBox(height: 32),
+            const SizedBox(height: MintSpacing.xl),
             _buildGuidanceSection(),
-            const SizedBox(height: 32),
+            const SizedBox(height: MintSpacing.xl),
             // ── P10-B : Avalanche vs Boule de neige ──────────────
             const DebtRepaymentWidget(
               debts: [
@@ -108,11 +112,11 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
               ],
               extraMonthly: 150,
             ),
-            const SizedBox(height: 48),
+            const SizedBox(height: MintSpacing.xxl),
             _buildDisclaimer(),
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
             const DebtToolsNav(currentRoute: '/simulator/credit'),
-            const SizedBox(height: 40),
+            const SizedBox(height: MintSpacing.xl),
           ],
         ),
       ),
@@ -121,30 +125,30 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
 
   Widget _buildCoachSection() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.surface,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.warning_amber_rounded, color: MintColors.warning, size: 24),
-              SizedBox(width: 12),
+              const Icon(Icons.warning_amber_rounded, color: MintColors.warning, size: 24),
+              const SizedBox(width: MintSpacing.sm),
               Expanded(
                 child: Text(
                   'Points d\'attention du Mentor',
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                  style: MintTextStyles.titleMedium(),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             'En Suisse, un crédit coûte entre 4% et 10%. Cet argent "perdu" en intérêts pourrait être investi pour ton avenir.',
-            style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
+            style: MintTextStyles.bodyMedium(),
           ),
         ],
       ),
@@ -156,7 +160,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Paramètres'),
-        const SizedBox(height: 24),
+        const SizedBox(height: MintSpacing.lg),
         _buildSlider(
           label: 'Montant à emprunter',
           value: _amount,
@@ -169,7 +173,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
             _calculate();
           },
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.md),
         _buildSlider(
           label: 'Durée du remboursement',
           value: _durationMonths.toDouble(),
@@ -182,7 +186,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
             _calculate();
           },
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.md),
         _buildSlider(
           label: 'Taux annuel effectif',
           value: _annualRate,
@@ -203,11 +207,9 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
   Widget _buildSectionHeader(String title) {
     return Text(
       title.toUpperCase(),
-      style: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w700,
-        color: MintColors.textMuted,
+      style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
         letterSpacing: 1.2,
+        fontWeight: FontWeight.w700,
       ),
     );
   }
@@ -228,18 +230,16 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: const TextStyle(fontSize: 14, color: MintColors.textPrimary)),
+            Text(label, style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)),
             Text(
               format(value),
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
+              style: MintTextStyles.bodyMedium(
                 color: isWarning ? MintColors.error : MintColors.primary,
-              ),
+              ).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: MintSpacing.sm),
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
             trackHeight: 4,
@@ -267,7 +267,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
     final rateWarning = _result!['rateWarning'] as bool;
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: rateWarning ? MintColors.error.withValues(alpha: 0.05) : MintColors.appleSurface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(24),
@@ -277,41 +277,41 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
       ),
       child: Column(
         children: [
-          const Text('Ta Mensualité', style: TextStyle(fontSize: 14, color: MintColors.textSecondary)),
-          const SizedBox(height: 8),
+          Text('Ta Mensualité', style: MintTextStyles.bodyMedium()),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             _currencyFormat.format(monthlyPayment),
-            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: MintColors.textPrimary),
+            style: MintTextStyles.displayMedium(),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: MintSpacing.lg),
           const Divider(color: MintColors.border),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Coût des intérêts :', style: TextStyle(fontSize: 14, color: MintColors.textSecondary)),
+              Text('Coût des intérêts :', style: MintTextStyles.bodyMedium()),
               Text(
                 _currencyFormat.format(totalInterest),
-                style: const TextStyle(fontWeight: FontWeight.w600, color: MintColors.error),
+                style: MintTextStyles.bodyMedium(color: MintColors.error).copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),
           if (rateWarning) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(MintSpacing.sm),
               decoration: BoxDecoration(
                 color: MintColors.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.error_outline, color: MintColors.error, size: 20),
-                  SizedBox(width: 12),
+                  const Icon(Icons.error_outline, color: MintColors.error, size: 20),
+                  const SizedBox(width: MintSpacing.sm),
                   Expanded(
                     child: Text(
                       'Attention : Ce taux dépasse le max légal suisse de 10%.',
-                      style: TextStyle(color: MintColors.error, fontSize: 12, fontWeight: FontWeight.w600),
+                      style: MintTextStyles.bodySmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -328,7 +328,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Conseils du Mentor'),
-        const SizedBox(height: 24),
+        const SizedBox(height: MintSpacing.lg),
         _buildGuidanceItem(Icons.savings_outlined, 'Épargner d\'abord', 'En économisant pendant 12 mois au lieu d\'emprunter, tu gardes ${_currencyFormat.format(_result!['totalInterest'])} dans ta poche.'),
         _buildGuidanceItem(Icons.family_restroom_outlined, 'Cercle de confiance', 'Un prêt familial peut souvent être obtenu à 0% d\'intérêt.'),
         _buildGuidanceItem(Icons.help_outline_rounded, 'Dettes Conseils Suisse', 'Contacte-les AVANT de signer si ta situation est fragile.'),
@@ -338,7 +338,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
 
   Widget _buildGuidanceItem(IconData icon, String title, String subtitle) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: MintSpacing.lg),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -350,14 +350,14 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
             ),
             child: Icon(icon, color: MintColors.primary, size: 20),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: MintSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                const SizedBox(height: 4),
-                Text(subtitle, style: const TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.4)),
+                Text(title, style: MintTextStyles.titleMedium()),
+                const SizedBox(height: MintSpacing.xs),
+                Text(subtitle, style: MintTextStyles.bodyMedium()),
               ],
             ),
           ),
@@ -367,13 +367,13 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
   }
 
   Widget _buildDisclaimer() {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
         child: Text(
           'Information à but préventif. Ne constitue pas un conseil juridique ou financier. '
           'Loi suisse sur le crédit à la consommation (LCC) appliquée.',
-          style: TextStyle(color: MintColors.textMuted, fontSize: 11),
+          style: MintTextStyles.micro(),
           textAlign: TextAlign.center,
         ),
       ),

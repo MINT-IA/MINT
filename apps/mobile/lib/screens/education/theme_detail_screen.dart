@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/data/educational_themes.dart';
 import 'package:mint_mobile/data/education_content.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/mint_ui_kit.dart';
 
 class ThemeDetailScreen extends StatefulWidget {
@@ -96,11 +97,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                     const SizedBox(width: 4),
                     Text(
                       '${theme.estimatedMinutes} min',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.white,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.white),
                     ),
                   ],
                 ),
@@ -141,20 +138,13 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                             const SizedBox(height: 12),
                             Text(
                               theme.title,
-                              style: GoogleFonts.montserrat(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w700,
-                                color: MintColors.white,
-                                height: 1.2,
-                              ),
+                              style: MintTextStyles.headlineLarge(color: MintColors.white),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: MintSpacing.xs),
                             Text(
                               theme.question,
-                              style: GoogleFonts.inter(
-                                fontSize: 14,
+                              style: MintTextStyles.bodyMedium(
                                 color: MintColors.white.withValues(alpha: 0.85),
-                                height: 1.4,
                               ),
                             ),
                           ],
@@ -199,11 +189,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                       const SizedBox(height: 24),
                       Text(
                         theme.question,
-                        style: GoogleFonts.montserrat(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.headlineMedium(),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 32),
@@ -225,8 +211,8 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
   // ─── Chiffre Choc ───
   Widget _buildChiffreChoc(EducationTopicContent content, EducationalTheme theme) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 0),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -261,19 +247,12 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
               children: [
                 Text(
                   content.chiffreChoc,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 48,
-                    fontWeight: FontWeight.w800,
-                    color: theme.color,
-                    height: 1,
-                  ),
+                  style: MintTextStyles.displayLarge(color: theme.color),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: MintSpacing.sm),
                 Text(
                   content.chiffreChocUnit,
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                  style: MintTextStyles.titleMedium(
                     color: theme.color.withValues(alpha: 0.7),
                   ),
                 ),
@@ -283,11 +262,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
           const SizedBox(height: 12),
           Text(
             content.chiffreChocLabel,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.bodyMedium(),
             textAlign: TextAlign.center,
           ),
         ],
@@ -298,14 +273,10 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
   // ─── Introduction ───
   Widget _buildIntro(EducationTopicContent content) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+      padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 0),
       child: Text(
         content.intro,
-        style: GoogleFonts.inter(
-          fontSize: 15,
-          color: MintColors.textPrimary,
-          height: 1.6,
-        ),
+        style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
       ),
     );
   }
@@ -344,11 +315,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
               const SizedBox(width: 10),
               Text(
                 'L\'essentiel en 60 secondes',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(),
               ),
             ],
           ),
@@ -385,11 +352,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                       child: Center(
                         child: Text(
                           '${index + 1}',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: theme.color,
-                          ),
+                          style: MintTextStyles.labelSmall(color: theme.color),
                         ),
                       ),
                     ),
@@ -397,11 +360,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                     Expanded(
                       child: Text(
                         fact,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          color: MintColors.textPrimary,
-                          height: 1.5,
-                        ),
+                        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                       ),
                     ),
                   ],
@@ -448,23 +407,14 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
               const SizedBox(width: 10),
               Text(
                 'Teste tes connaissances',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(),
               ),
             ],
           ),
           const SizedBox(height: 16),
           Text(
             quiz.question,
-            style: GoogleFonts.inter(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
           ),
           const SizedBox(height: 16),
           ...quiz.options.asMap().entries.map((entry) {
@@ -535,9 +485,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                           child: Center(
                             child: Text(
                               String.fromCharCode(65 + idx), // A, B, C, D
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
+                              style: MintTextStyles.bodySmall(
                                 color: showResult && isCorrect
                                     ? MintColors.success
                                     : showResult && isSelected && !isCorrect
@@ -551,13 +499,8 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                         Expanded(
                           child: Text(
                             option,
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight:
-                                  showResult && isCorrect
-                                      ? FontWeight.w700
-                                      : FontWeight.w500,
-                              color: textColor,
+                            style: MintTextStyles.bodyMedium(color: textColor).copyWith(
+                              fontWeight: showResult && isCorrect ? FontWeight.w700 : FontWeight.w500,
                             ),
                           ),
                         ),
@@ -611,26 +554,20 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                         const SizedBox(width: 8),
                         Text(
                           _selectedQuizAnswer == quiz.correctIndex
-                              ? 'Bravo !'
-                              : 'Pas tout a fait...',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
+                              ? 'Bravo\u00a0!'
+                              : 'Pas tout à fait...',
+                          style: MintTextStyles.bodyMedium(
                             color: _selectedQuizAnswer == quiz.correctIndex
                                 ? MintColors.success
                                 : MintColors.warning,
-                          ),
+                          ).copyWith(fontWeight: FontWeight.w700),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Text(
                       quiz.explanation,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: MintColors.textPrimary,
-                        height: 1.5,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                     ),
                   ],
                 ),
@@ -668,22 +605,15 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
               ),
               const SizedBox(width: 10),
               Text(
-                'Le savais-tu ?',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                'Le savais-tu\u00a0?',
+                style: MintTextStyles.titleMedium(),
               ),
             ],
           ),
           const SizedBox(height: 12),
           Text(
             content.funFact,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textPrimary,
-              height: 1.6,
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(
               fontStyle: FontStyle.italic,
             ),
           ),
@@ -713,12 +643,8 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
         leading: const Icon(Icons.gavel_outlined,
             size: 18, color: MintColors.textMuted),
         title: Text(
-          'Sources legales',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textSecondary,
-          ),
+          'Sources légales',
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
         ),
         children: content.sources
             .map((source) => Padding(
@@ -735,11 +661,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                       Expanded(
                         child: Text(
                           source,
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: MintColors.textMuted,
-                            height: 1.4,
-                          ),
+                          style: MintTextStyles.labelSmall(),
                         ),
                       ),
                     ],
@@ -790,21 +712,12 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
               children: [
                 Text(
                   'Rappel',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textMuted,
-                    letterSpacing: 0.5,
-                  ),
+                  style: MintTextStyles.labelSmall(),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   theme.reminderText,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textPrimary,
-                    height: 1.3,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                 ),
               ],
             ),
@@ -834,12 +747,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
           Expanded(
             child: Text(
               EducationTopicContent.disclaimer,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-                height: 1.4,
-              ),
+              style: MintTextStyles.micro(),
             ),
           ),
         ],

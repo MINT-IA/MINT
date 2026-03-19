@@ -1,13 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Bank statement import screen with a 3-step flow:
 /// 1. Upload CSV/PDF
@@ -56,31 +57,22 @@ class _BankImportScreenState extends State<BankImportScreen> {
           _buildAppBar(s),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(MintSpacing.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Header
                   Text(
-                    s?.bankImportTitle ?? 'Importer mes releves',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.5,
-                      color: MintColors.textPrimary,
-                    ),
+                    s?.bankImportTitle ?? 'Importer mes relevés',
+                    style: MintTextStyles.headlineLarge(),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: MintSpacing.sm),
                   Text(
                     s?.bankImportSubtitle ??
                         'Analyse automatique de tes transactions',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      color: MintColors.textSecondary,
-                      height: 1.5,
-                    ),
+                    style: MintTextStyles.bodyLarge(),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: MintSpacing.lg),
 
                   // Step 1: Upload
                   _buildUploadCard(s),
@@ -151,15 +143,12 @@ class _BankImportScreenState extends State<BankImportScreen> {
   Widget _buildAppBar(S? s) {
     return SliverAppBar(
       backgroundColor: MintColors.white,
+      surfaceTintColor: MintColors.white,
       elevation: 0,
       scrolledUnderElevation: 0,
       title: Text(
         s?.bankImportTitle ?? 'Importer mes relevés',
-        style: GoogleFonts.montserrat(
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-          color: MintColors.textPrimary,
-        ),
+        style: MintTextStyles.titleMedium(),
       ),
     );
   }
@@ -170,7 +159,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
 
   Widget _buildUploadCard(S? s) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -207,12 +196,8 @@ class _BankImportScreenState extends State<BankImportScreen> {
               Expanded(
                 child: Text(
                   s?.bankImportUploadTitle ??
-                      'Importe ton releve bancaire',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.white,
-                  ),
+                      'Importe ton relevé bancaire',
+                  style: MintTextStyles.titleMedium(color: MintColors.white),
                 ),
               ),
             ],
@@ -379,13 +364,8 @@ class _BankImportScreenState extends State<BankImportScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'RESUME',
-            style: GoogleFonts.montserrat(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            'RÉSUMÉ',
+            style: MintTextStyles.labelSmall(),
           ),
           const SizedBox(height: 16),
           _buildSummaryRow(
@@ -468,13 +448,8 @@ class _BankImportScreenState extends State<BankImportScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            s?.bankImportCategories ?? 'Repartition par categorie',
-            style: GoogleFonts.montserrat(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            s?.bankImportCategories ?? 'Répartition par catégorie',
+            style: MintTextStyles.labelSmall(),
           ),
           const SizedBox(height: 16),
           for (final entry in sortedCategories) ...[
@@ -552,13 +527,8 @@ class _BankImportScreenState extends State<BankImportScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            s?.bankImportRecurring ?? 'Charges recurrentes detectees',
-            style: GoogleFonts.montserrat(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            s?.bankImportRecurring ?? 'Charges récurrentes détectées',
+            style: MintTextStyles.labelSmall(),
           ),
           const SizedBox(height: 16),
           for (final tx in result.recurringMonthly) ...[
@@ -640,24 +610,14 @@ class _BankImportScreenState extends State<BankImportScreen> {
         children: [
           Text(
             'TRANSACTIONS',
-            style: GoogleFonts.montserrat(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            style: MintTextStyles.labelSmall(),
           ),
           const SizedBox(height: 16),
           for (final dateKey in sortedDates) ...[
             if (itemCount < maxItems) ...[
               Text(
                 dateKey,
-                style: GoogleFonts.montserrat(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textMuted,
-                  letterSpacing: 0.5,
-                ),
+                style: MintTextStyles.labelSmall(),
               ),
               const SizedBox(height: 8),
               for (final tx in grouped[dateKey]!)
@@ -752,7 +712,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
     final variableExpenses = preview.estimatedMonthlyExpenses - recurringTotal;
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
@@ -769,12 +729,8 @@ class _BankImportScreenState extends State<BankImportScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            s?.bankImportBudgetPreview ?? 'Ton budget estime',
-            style: GoogleFonts.montserrat(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            s?.bankImportBudgetPreview ?? 'Ton budget estimé',
+            style: MintTextStyles.titleMedium(),
           ),
           const SizedBox(height: 20),
           _buildBudgetRow(

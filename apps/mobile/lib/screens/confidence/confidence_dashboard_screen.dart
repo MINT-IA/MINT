@@ -1,9 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/confidence/enhanced_confidence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/confidence/confidence_breakdown_chart.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -19,7 +20,7 @@ import 'package:mint_mobile/widgets/confidence/confidence_breakdown_chart.dart';
 //    6. Disclaimer
 //
 //  Receives a ConfidenceResult as input.
-//  Uses MintColors, GoogleFonts (Montserrat + Inter), Material 3.
+//  Uses MintColors, MintTextStyles, MintSpacing, Material 3.
 // ────────────────────────────────────────────────────────────
 
 class ConfidenceDashboardScreen extends StatefulWidget {
@@ -102,7 +103,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
         slivers: [
           _buildAppBar(context),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+            padding: const EdgeInsets.fromLTRB(MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 24),
@@ -133,7 +134,8 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
   Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
       pinned: true,
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.white,
+      surfaceTintColor: MintColors.white,
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: IconButton(
@@ -142,11 +144,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
       ),
       title: Text(
         'Précision de ton profil',
-        style: GoogleFonts.montserrat(
-          fontWeight: FontWeight.w700,
-          fontSize: 18,
-          color: MintColors.textPrimary,
-        ),
+        style: MintTextStyles.titleMedium(),
       ),
     );
   }
@@ -188,21 +186,12 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
                     children: [
                       Text(
                         '$displayScore',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 48,
-                          fontWeight: FontWeight.w800,
-                          color: MintColors.textPrimary,
-                          height: 1.0,
-                        ),
+                        style: MintTextStyles.displayLarge(),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         '/100',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: MintColors.textMuted,
-                        ),
+                        style: MintTextStyles.bodyMedium(color: MintColors.textMuted),
                       ),
                     ],
                   ),
@@ -222,11 +211,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
               ),
               child: Text(
                 _levelLabel(overall),
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: scoreColor,
-                ),
+                style: MintTextStyles.bodySmall(color: scoreColor),
               ),
             ),
           ],
@@ -244,12 +229,8 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Detail par axe',
-          style: GoogleFonts.montserrat(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          'Détail par axe',
+          style: MintTextStyles.headlineMedium(),
         ),
         const SizedBox(height: 16),
         ConfidenceBreakdownChart(
@@ -270,12 +251,8 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Fonctionnalites debloquees',
-          style: GoogleFonts.montserrat(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          'Fonctionnalités débloquées',
+          style: MintTextStyles.headlineMedium(),
         ),
         const SizedBox(height: 12),
         ...widget.result.featureGates.map(_buildFeatureGateRow),
@@ -311,12 +288,8 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
           Expanded(
             child: Text(
               gate.gateName,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: gate.unlocked
-                    ? MintColors.textPrimary
-                    : MintColors.textMuted,
+              style: MintTextStyles.bodyMedium(
+                color: gate.unlocked ? MintColors.textPrimary : MintColors.textMuted,
               ),
             ),
           ),
@@ -330,11 +303,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
               ),
               child: Text(
                 '${gate.minConfidence.round()} % requis',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.labelSmall(),
               ),
             ),
         ],
@@ -353,12 +322,8 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Ameliore ta precision',
-          style: GoogleFonts.montserrat(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          'Améliore ta précision',
+          style: MintTextStyles.headlineMedium(),
         ),
         const SizedBox(height: 12),
         ...topPrompts.map(_buildEnrichmentCard),
@@ -407,12 +372,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
                 Expanded(
                   child: Text(
                     prompt.action,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: MintColors.textPrimary,
-                      height: 1.35,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -426,11 +386,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
                   ),
                   child: Text(
                     '+${prompt.impactPoints} pts',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.success,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.success),
                   ),
                 ),
               ],
@@ -457,12 +413,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
       child: Text(
         widget.result.disclaimer,
         textAlign: TextAlign.center,
-        style: GoogleFonts.inter(
-          fontSize: 11,
-          color: MintColors.textMuted,
-          fontStyle: FontStyle.italic,
-          height: 1.4,
-        ),
+        style: MintTextStyles.micro(),
       ),
     );
   }
@@ -477,23 +428,15 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
       children: [
         Text(
           'Sources',
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
-            letterSpacing: 0.5,
-          ),
+          style: MintTextStyles.labelSmall(),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: MintSpacing.sm - 2),
         ...widget.result.sources.map(
           (s) => Padding(
             padding: const EdgeInsets.only(bottom: 2),
             child: Text(
               '- $s',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.labelSmall(),
             ),
           ),
         ),

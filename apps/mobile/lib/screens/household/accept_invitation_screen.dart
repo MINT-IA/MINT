@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/providers/household_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:provider/provider.dart';
 
 /// Screen for accepting a household invitation code.
@@ -45,14 +46,15 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
       appBar: AppBar(
         title: Text(
           'Rejoindre un ménage',
-          style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, color: MintColors.textPrimary),
+          style: MintTextStyles.titleMedium(),
         ),
         backgroundColor: MintColors.white,
+        surfaceTintColor: MintColors.white,
         foregroundColor: MintColors.textPrimary,
         elevation: 0,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(MintSpacing.lg),
         child: _accepted
             ? _buildSuccess(context)
             : _buildForm(context, household),
@@ -70,37 +72,26 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
         Text(
           'Entre le code recu de ton/ta partenaire',
           textAlign: TextAlign.center,
-          style: GoogleFonts.montserrat(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
+          style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: MintSpacing.sm),
         Text(
           'Le code est valable 72 heures apres l\'envoi.',
           textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodyMedium(),
         ),
         const SizedBox(height: 32),
         TextField(
           controller: _codeController,
           textAlign: TextAlign.center,
           textCapitalization: TextCapitalization.characters,
-          style: GoogleFonts.montserrat(
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 6,
-          ),
+          style: MintTextStyles.headlineLarge().copyWith(fontSize: 28, letterSpacing: 6),
           decoration: InputDecoration(
             hintText: 'CODE',
-            hintStyle: GoogleFonts.montserrat(
+            hintStyle: MintTextStyles.headlineLarge(color: MintColors.greyBorder).copyWith(
               fontSize: 28,
               fontWeight: FontWeight.w300,
               letterSpacing: 6,
-              color: MintColors.greyBorder,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
@@ -116,10 +107,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
           Text(
             household.error!,
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.redDeep,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.redDeep),
           ),
         ],
         const SizedBox(height: 24),
@@ -149,10 +137,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
                 )
               : Text(
                   'Rejoindre le menage',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.white),
                 ),
         ),
       ],
@@ -179,20 +164,14 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
           const SizedBox(height: 24),
           Text(
             'Bienvenue dans le menage !',
-            style: GoogleFonts.montserrat(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-            ),
+            style: MintTextStyles.headlineMedium(),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.md),
           Text(
             'Tu as rejoint le menage Couple+. Tes projections '
             'de retraite sont desormais liees.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodyMedium(),
           ),
           const SizedBox(height: 32),
           FilledButton(

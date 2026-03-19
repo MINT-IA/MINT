@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/housing_sale_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -228,10 +228,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
                 const SizedBox(height: 2),
                 Text(
                   S.of(context)!.housingSaleHeaderSubtitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -261,11 +258,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           Expanded(
             child: Text(
               S.of(context)!.housingSaleIntroText,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
             ),
           ),
         ],
@@ -441,10 +434,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
         icon: const Icon(Icons.calculate_outlined, size: 20),
         label: Text(
           S.of(context)!.housingSaleCalculer,
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          style: MintTextStyles.titleMedium(color: MintColors.white),
         ),
         style: FilledButton.styleFrom(
           backgroundColor: MintColors.primary,
@@ -486,12 +476,9 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.housingSalePlusValueTitle,
-                style: GoogleFonts.montserrat(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                style: MintTextStyles.labelSmall(
                   color: isGain ? MintColors.success : MintColors.error,
-                  letterSpacing: 1,
-                ),
+                ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
               ),
             ],
           ),
@@ -529,12 +516,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.housingSaleImpotGainsCanton(_canton),
-                style: GoogleFonts.montserrat(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.warningText,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.warningText).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
               ),
             ],
           ),
@@ -583,12 +565,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.housingSaleReportTitle,
-                style: GoogleFonts.montserrat(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.success,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
               ),
             ],
           ),
@@ -600,19 +577,12 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           const SizedBox(height: 4),
           Text(
             S.of(context)!.housingSaleReportDesc,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.md),
           Text(
             S.of(context)!.housingSaleReportNote,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textMuted,
-              height: 1.5,
-            ),
+            style: MintTextStyles.labelSmall().copyWith(height: 1.5),
           ),
         ],
       ),
@@ -639,12 +609,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.housingSaleEplRepaymentTitle,
-                style: GoogleFonts.montserrat(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.warning,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.warning).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
               ),
             ],
           ),
@@ -664,11 +629,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           const SizedBox(height: 12),
           Text(
             S.of(context)!.housingSaleEplNote,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textMuted,
-              height: 1.5,
-            ),
+            style: MintTextStyles.labelSmall().copyWith(height: 1.5),
           ),
         ],
       ),
@@ -694,12 +655,9 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
         children: [
           Text(
             S.of(context)!.housingSaleProduitNetTitle,
-            style: GoogleFonts.montserrat(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
+            style: MintTextStyles.labelSmall(
               color: isPositive ? MintColors.primary : MintColors.error,
-              letterSpacing: 1,
-            ),
+            ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
           ),
           const SizedBox(height: 12),
           Text(
@@ -740,10 +698,8 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       children: [
         Text(
           S.of(context)!.lifeEventPointsAttention,
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
             fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
             letterSpacing: 1,
           ),
         ),
@@ -768,11 +724,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
                     Expanded(
                       child: Text(
                         alert,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: MintColors.textSecondary,
-                          height: 1.4,
-                        ),
+                        style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
                       ),
                     ),
                   ],
@@ -836,11 +788,11 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
                     Expanded(
                       child: Text(
                         r.checklist[index],
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
+                        style: MintTextStyles.bodySmall(
                           color: _checklistState[index]
                               ? MintColors.textSecondary
                               : MintColors.textPrimary,
+                        ).copyWith(
                           decoration: _checklistState[index]
                               ? TextDecoration.lineThrough
                               : null,
@@ -866,10 +818,8 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       children: [
         Text(
           S.of(context)!.lifeEventComprendre,
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
             fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
             letterSpacing: 1,
           ),
         ),
@@ -908,20 +858,12 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           title: Text(
             title,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
           ),
           children: [
             Text(
               content,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
             ),
           ],
         ),
@@ -950,11 +892,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
                       'ne constitue pas un conseil fiscal, juridique ou immobilier '
                       'personnalisé au sens de la LSFin. Consulte un·e spécialiste '
                       'pour ta situation personnelle.',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.deepOrange,
-                height: 1.5,
-              ),
+              style: MintTextStyles.micro(color: MintColors.deepOrange).copyWith(height: 1.5),
             ),
           ),
         ],
@@ -969,10 +907,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       children: [
         Text(
           S.of(context)!.housingSaleCanton,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
         ),
         const SizedBox(height: 8),
         Container(
@@ -986,10 +921,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
             child: DropdownButton<String>(
               value: _canton,
               isExpanded: true,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
               dropdownColor: MintColors.white,
               items: _cantons.map((c) {
                 return DropdownMenuItem(
@@ -1017,19 +949,12 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           Flexible(
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
           Text(
             value,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -1048,10 +973,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
         Flexible(
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
           ),
         ),
         Switch(
@@ -1082,19 +1004,12 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
             Flexible(
               child: Text(
                 label,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
               ),
             ),
             Text(
               format(value),
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-                color: MintColors.primary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),

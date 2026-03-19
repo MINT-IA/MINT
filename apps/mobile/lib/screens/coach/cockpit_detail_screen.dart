@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -313,7 +314,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
         slivers: [
           _buildAppBar(),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── Confidence Bar ──────────────────────────
@@ -501,11 +502,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
       ),
       title: Text(
         S.of(context)!.cockpitDetailTitle,
-        style: GoogleFonts.montserrat(
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-          color: MintColors.textPrimary,
-        ),
+        style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
       ),
     );
   }
@@ -523,7 +520,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
           SliverFillRemaining(
             child: Center(
               child: Padding(
-                padding: const EdgeInsets.all(32),
+                padding: const EdgeInsets.all(MintSpacing.xl),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -532,15 +529,11 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                       size: 48,
                       color: MintColors.textMuted,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: MintSpacing.md),
                     Text(
                       'Compl\u00e8te ton profil pour acc\u00e9der au cockpit d\u00e9taill\u00e9.',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        color: MintColors.textSecondary,
-                        height: 1.5,
-                      ),
+                      style: MintTextStyles.bodyMedium(),
                     ),
                     const SizedBox(height: 20),
                     FilledButton.icon(
@@ -548,7 +541,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                       icon: const Icon(Icons.edit_outlined, size: 18),
                       label: Text(
                         'Enrichir mon profil',
-                        style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                        style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
                       ),
                       style: FilledButton.styleFrom(
                         backgroundColor: MintColors.primary,
@@ -573,11 +566,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
       'Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin). '
       'Sources\u00a0: LAVS art. 21-29, LPP art. 14, OPP3 art. 7.',
       textAlign: TextAlign.center,
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textMuted,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(),
     );
   }
 }

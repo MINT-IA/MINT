@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/leasing_cost_widget.dart';
 
 class SimulatorLeasingScreen extends StatefulWidget {
@@ -52,27 +54,29 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
-        title: const Text('Analyse Anti-Leasing'),
+        backgroundColor: MintColors.white,
+        surfaceTintColor: MintColors.white,
+        title: Text('Analyse Anti-Leasing', style: MintTextStyles.headlineMedium()),
         actions: [
           IconButton(
             icon: const Icon(Icons.picture_as_pdf_outlined),
             onPressed: _exportPdf,
             tooltip: 'Exporter mon bilan',
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: MintSpacing.sm),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildCoachSection(),
-            const SizedBox(height: 32),
+            const SizedBox(height: MintSpacing.xl),
             _buildInputSection(),
-            const SizedBox(height: 32),
+            const SizedBox(height: MintSpacing.xl),
             if (_result != null) _buildResultSection(),
-            const SizedBox(height: 32),
+            const SizedBox(height: MintSpacing.xl),
             // ── P10-D : Le vrai coût du leasing ─────────────────
             LeasingCostWidget(
               vehiclePrice: _monthlyPayment * _durationMonths / 0.55,
@@ -80,11 +84,11 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
               leasingDurationMonths: _durationMonths,
               annualReturnRate: _alternativeRate / 100,
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: MintSpacing.xl),
             _buildAlternativesSection(),
-            const SizedBox(height: 48),
+            const SizedBox(height: MintSpacing.xxl),
             _buildDisclaimer(),
-            const SizedBox(height: 40),
+            const SizedBox(height: MintSpacing.xl),
           ],
         ),
       ),
@@ -93,25 +97,25 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
 
   Widget _buildCoachSection() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.surface,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
-              SizedBox(width: 12),
-              Text('Réflexion du Mentor', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+              const Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
+              const SizedBox(width: MintSpacing.sm),
+              Text('Réflexion du Mentor', style: MintTextStyles.titleMedium()),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             'Le leasing est souvent une "fuite" de capital. Cet argent pourrait servir à construire ton patrimoine plutôt qu\'à financer la dépréciation d\'un véhicule.',
-            style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
+            style: MintTextStyles.bodyMedium(),
           ),
         ],
       ),
@@ -123,7 +127,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Données du Contrat'),
-        const SizedBox(height: 24),
+        const SizedBox(height: MintSpacing.lg),
         _buildSlider(
           label: 'Mensualité prévue',
           value: _monthlyPayment,
@@ -136,7 +140,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
             _calculate();
           },
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.md),
         _buildSlider(
           label: 'Durée du leasing',
           value: _durationMonths.toDouble(),
@@ -149,7 +153,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
             _calculate();
           },
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.md),
         _buildSlider(
           label: 'Rendement alternatif espéré',
           value: _alternativeRate,
@@ -169,11 +173,9 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
   Widget _buildSectionHeader(String title) {
     return Text(
       title.toUpperCase(),
-      style: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w700,
-        color: MintColors.textMuted,
+      style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
         letterSpacing: 1.2,
+        fontWeight: FontWeight.w700,
       ),
     );
   }
@@ -193,14 +195,14 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: const TextStyle(fontSize: 14, color: MintColors.textPrimary)),
+            Text(label, style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)),
             Text(
               format(value),
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: MintColors.primary),
+              style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: MintSpacing.sm),
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
             trackHeight: 4,
@@ -225,7 +227,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
     final opportunityCost20 = _result!['opportunityCost']['20y'] as double;
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.error.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(24),
@@ -233,21 +235,21 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
       ),
       child: Column(
         children: [
-          const Text('Coût d\'opportunité sur 20 ans', style: TextStyle(fontSize: 14, color: MintColors.textSecondary)),
-          const SizedBox(height: 8),
+          Text('Coût d\'opportunité sur 20 ans', style: MintTextStyles.bodyMedium()),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             _currencyFormat.format(opportunityCost20),
-            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: MintColors.error),
+            style: MintTextStyles.displayMedium(color: MintColors.error),
           ),
-          const SizedBox(height: 24),
-          const Text(
+          const SizedBox(height: MintSpacing.lg),
+          Text(
             'Si tu investissais cette mensualité au lieu de payer un leasing, voilà le capital que tu aurais construit.',
-            style: TextStyle(fontSize: 13, color: MintColors.textSecondary, height: 1.4),
+            style: MintTextStyles.bodySmall(),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(MintSpacing.sm),
             decoration: BoxDecoration(
               color: MintColors.error.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
@@ -255,11 +257,11 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
             child: Row(
               children: [
                 const Icon(Icons.home_work_outlined, color: MintColors.error, size: 20),
-                const SizedBox(width: 12),
+                const SizedBox(width: MintSpacing.sm),
                 Expanded(
                   child: Text(
                     'C\'est environ ${_currencyFormat.format(opportunityCost20 * 0.2)} de fonds propres pour un achat immobilier.',
-                    style: const TextStyle(color: MintColors.error, fontSize: 12, fontWeight: FontWeight.w600),
+                    style: MintTextStyles.bodySmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -275,7 +277,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('S\'écarter du Trou Noir'),
-        const SizedBox(height: 24),
+        const SizedBox(height: MintSpacing.lg),
         _buildAltItem(Icons.directions_car_outlined, 'Occasion de Qualité', 'Acheter cash une voiture de 3-4 ans réduit drastiquement la perte de valeur.'),
         _buildAltItem(Icons.train_outlined, 'Abo Général / Transports', 'Le confort du train en Suisse est souvent plus rentable et serein.'),
         _buildAltItem(Icons.share_outlined, 'Mobility / Partage', 'Ne paie que quand tu roules. Pas d\'assurance, pas d\'entretien, pas de leasing.'),
@@ -285,7 +287,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
 
   Widget _buildAltItem(IconData icon, String title, String subtitle) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: MintSpacing.lg),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -297,14 +299,14 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
             ),
             child: Icon(icon, color: MintColors.primary, size: 20),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: MintSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                const SizedBox(height: 4),
-                Text(subtitle, style: const TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.4)),
+                Text(title, style: MintTextStyles.titleMedium()),
+                const SizedBox(height: MintSpacing.xs),
+                Text(subtitle, style: MintTextStyles.bodyMedium()),
               ],
             ),
           ),
@@ -314,12 +316,12 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
   }
 
   Widget _buildDisclaimer() {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
         child: Text(
           'Le leasing reste une option pour certains professionnels. Cette analyse vise à sensibiliser le particulier sur le coût à long terme.',
-          style: TextStyle(color: MintColors.textMuted, fontSize: 11),
+          style: MintTextStyles.micro(),
           textAlign: TextAlign.center,
         ),
       ),

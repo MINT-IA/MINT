@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -95,18 +95,11 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
         children: [
           Text(
             '$delaiRepudiation',
-            style: GoogleFonts.montserrat(
-              fontSize: 48,
-              fontWeight: FontWeight.w800,
-              color: MintColors.white,
-            ),
+            style: MintTextStyles.displayLarge(color: MintColors.white),
           ),
           Text(
             s.decesProcheMoisRepudiation,
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              color: MintColors.white70,
-            ),
+            style: MintTextStyles.bodyLarge(color: MintColors.white70),
             textAlign: TextAlign.center,
           ),
         ],
@@ -133,11 +126,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
         children: [
           Text(
             s.decesProche48hTitre,
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: MintColors.error,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.error).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
           ...urgences.asMap().entries.map(
@@ -156,21 +145,14 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
                         ),
                         child: Text(
                           '${e.key + 1}',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: MintColors.white,
-                          ),
+                          style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           e.value,
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            color: MintColors.textPrimary,
-                          ),
+                          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                         ),
                       ),
                     ],
@@ -188,17 +170,13 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
       children: [
         Text(
           s.decesProcheSituation,
-          style: GoogleFonts.montserrat(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: MintSpacing.md),
 
         // Lien de parenté
         Text(s.decesProcheLienParente,
-            style: GoogleFonts.inter(fontSize: 14, color: MintColors.textSecondary)),
+            style: MintTextStyles.bodyMedium(color: MintColors.textSecondary)),
         const SizedBox(height: 8),
         SegmentedButton<String>(
           segments: [
@@ -213,7 +191,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
 
         // Fortune du défunt
         Text(s.decesProcheFortune,
-            style: GoogleFonts.inter(fontSize: 14, color: MintColors.textSecondary)),
+            style: MintTextStyles.bodyMedium(color: MintColors.textSecondary)),
         Slider(
           value: _fortuneDefunt,
           min: 0,
@@ -224,17 +202,14 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
           onChanged: (v) => setState(() => _fortuneDefunt = v),
         ),
         Text(formatChfWithPrefix(_fortuneDefunt),
-            style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary)),
+            style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600)),
         const SizedBox(height: 16),
 
         // Canton
         Row(
           children: [
             Text(s.decesProcheCanton,
-                style: GoogleFonts.inter(fontSize: 14, color: MintColors.textSecondary)),
+                style: MintTextStyles.bodyMedium(color: MintColors.textSecondary)),
             const SizedBox(width: 12),
             DropdownButton<String>(
               value: _canton,
@@ -250,7 +225,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
         // Testament
         SwitchListTile(
           title: Text(s.decesProchTestament,
-              style: GoogleFonts.inter(fontSize: 14)),
+              style: MintTextStyles.bodyMedium()),
           value: _testamentExiste,
           activeColor: MintColors.primary,
           onChanged: (v) => setState(() => _testamentExiste = v),
@@ -271,13 +246,9 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
       children: [
         Text(
           s.decesProchTimelineTitre,
-          style: GoogleFonts.montserrat(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: MintSpacing.md),
         ...etapes.map(
           (e) => Padding(
             padding: const EdgeInsets.only(bottom: 16),
@@ -292,10 +263,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(e.$3,
-                      style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.textSecondary),
+                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                       textAlign: TextAlign.center),
                 ),
                 const SizedBox(width: 12),
@@ -304,15 +272,10 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(e.$1,
-                          style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: MintColors.textPrimary)),
+                          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600)),
                       const SizedBox(height: 4),
                       Text(e.$2,
-                          style: GoogleFonts.inter(
-                              fontSize: 13,
-                              color: MintColors.textSecondary)),
+                          style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
                     ],
                   ),
                 ),
@@ -336,11 +299,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
         children: [
           Text(
             s.decesProchebeneficiairesTitre,
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
           _infoRow(s.decesProchebeneficiairesLpp,
@@ -351,11 +310,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
           const SizedBox(height: 12),
           Text(
             s.decesProchebeneficiairesNote,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontStyle: FontStyle.italic,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.italic),
           ),
         ],
       ),
@@ -367,13 +322,9 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label,
-            style: GoogleFonts.inter(
-                fontSize: 14, color: MintColors.textSecondary)),
+            style: MintTextStyles.bodyMedium(color: MintColors.textSecondary)),
         Text(value,
-            style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary)),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600)),
       ],
     );
   }
@@ -392,21 +343,14 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
         children: [
           Text(
             s.decesProchImpactFiscalTitre,
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             estExempt
                 ? s.decesProchImpactFiscalExempt(_canton)
                 : s.decesProchImpactFiscalTaxe(_canton),
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
           ),
         ],
       ),
@@ -424,11 +368,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
       children: [
         Text(
           s.decesProchActionsTitre,
-          style: GoogleFonts.montserrat(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
         ),
         const SizedBox(height: 12),
         ...actions.map(
@@ -446,8 +386,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(a,
-                      style: GoogleFonts.inter(
-                          fontSize: 14, color: MintColors.textPrimary)),
+                      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)),
                 ),
               ],
             ),
@@ -466,11 +405,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
       ),
       child: Text(
         s.decesProchDisclaimer,
-        style: GoogleFonts.inter(
-          fontSize: 11,
-          fontStyle: FontStyle.italic,
-          color: MintColors.textMuted,
-        ),
+        style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.italic),
       ),
     );
   }

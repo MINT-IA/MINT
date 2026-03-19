@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/data/educational_themes.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 class ComprendreHubScreen extends StatelessWidget {
   const ComprendreHubScreen({super.key});
@@ -15,37 +16,31 @@ class ComprendreHubScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           S.of(context)!.eduHubTitle,
-          style: GoogleFonts.montserrat(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.titleMedium(),
         ),
         centerTitle: false,
         backgroundColor: MintColors.white,
+        surfaceTintColor: MintColors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: const BackButton(color: MintColors.textPrimary),
       ),
       body: ListView.builder(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(MintSpacing.lg),
         itemCount: EducationData.themes.length + 1, // +1 for header
         itemBuilder: (context, index) {
           if (index == 0) {
             return Padding(
-              padding: const EdgeInsets.only(bottom: 24.0),
+              padding: const EdgeInsets.only(bottom: MintSpacing.lg),
               child: Text(
                 S.of(context)!.eduHubSubtitle,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: MintColors.textMuted,
-                  height: 1.5,
-                ),
+                style: MintTextStyles.bodyLarge(color: MintColors.textMuted),
               ),
             );
           }
           final theme = EducationData.themes[index - 1].localized(S.of(context));
           return Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
+            padding: const EdgeInsets.only(bottom: MintSpacing.md),
             child: _ThemeCard(theme: theme),
           );
         },
@@ -114,19 +109,12 @@ class _ThemeCard extends StatelessWidget {
                         children: [
                           Text(
                             theme.title,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: MintColors.textPrimary,
-                            ),
+                            style: MintTextStyles.titleMedium(),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: MintSpacing.xs),
                           Text(
                             S.of(context)!.eduHubReadQuiz,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: MintColors.textMuted,
-                            ),
+                            style: MintTextStyles.labelSmall(),
                           ),
                         ],
                       ),
