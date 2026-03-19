@@ -771,8 +771,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 icon: const Icon(Icons.history, color: MintColors.white),
                 tooltip: s.coachTooltipHistory,
                 onPressed: () async {
+                  final router = GoRouter.of(context);
                   await _autoSaveConversation();
-                  if (mounted) context.push('/coach/history');
+                  if (mounted) router.push('/coach/history');
                 },
               ),
               if (_messages.any((m) => m.isUser))

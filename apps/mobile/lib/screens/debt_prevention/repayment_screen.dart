@@ -509,7 +509,10 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 child: FilledButton(
                   onPressed: () {
                     final parsed = double.tryParse(
-                      controller.text.replaceAll(RegExp(r"[^0-9.]"), ''),
+                      controller.text
+                          .replaceAll("'", '')
+                          .replaceAll(',', '.')
+                          .replaceAll(RegExp(r"[^0-9.]"), ''),
                     );
                     if (parsed != null) {
                       onChanged(parsed.clamp(min, max));

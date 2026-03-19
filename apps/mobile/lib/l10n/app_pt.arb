@@ -1781,20 +1781,20 @@
   "soaDisclaimer1": "Ceci est un outil éducatif, ne constitue pas un conseil financier (LSFin).",
   "soaDisclaimer2": "Les montants sont basés sur les informations déclarées.",
   "soaDisclaimer3": "'Disponible' = Revenus - Logement - Dettes - Impôts - LAMal - Charges fixes.",
-  "commonCancel": "Annuler",
+  "commonCancel": "Cancelar",
   "profileCompleteBanner": "Perfil completo! O teu coach tem todos os dados para conselhos fiáveis.",
   "profileAnnualRefreshTitle": "Atualização anual",
   "profileAnnualRefreshBody": "Os teus dados têm mais de 10 meses. Um check-up rápido (2 min) melhora o teu plano.",
   "profileAnnualRefreshCta": "Iniciar check-up",
-  "profileDangerZoneTitle": "Zone sensible",
-  "profileDangerZoneSubtitle": "Réinitialise ton historique financier local sans supprimer ton compte.",
-  "profileResetDialogTitle": "Réinitialiser ma situation ?",
-  "profileResetDialogBody": "Cette action supprime ton diagnostic, tes check-ins, ton score et ton budget local.",
-  "profileResetDialogConfirmLabel": "Tape RESET pour confirmer :",
-  "profileResetDialogInvalid": "Mot-clé invalide.",
-  "profileResetDialogAction": "Réinitialiser",
-  "profileResetSuccess": "Historique financier local réinitialisé.",
-  "profileResetScopeNote": "Conserve la connexion et la clé BYOK. Les documents backend ne sont pas supprimés.",
+  "profileDangerZoneTitle": "Zona de perigo",
+  "profileDangerZoneSubtitle": "Repõe o teu histórico financeiro local sem eliminar a tua conta.",
+  "profileResetDialogTitle": "Repor a minha situação?",
+  "profileResetDialogBody": "Esta ação elimina o teu diagnóstico, os teus check-ins, a tua pontuação e o teu orçamento local.",
+  "profileResetDialogConfirmLabel": "Escreve RESET para confirmar:",
+  "profileResetDialogInvalid": "Palavra-chave inválida.",
+  "profileResetDialogAction": "Repor",
+  "profileResetSuccess": "Histórico financeiro local reposto.",
+  "profileResetScopeNote": "Conserva a ligação e a chave BYOK. Os documentos do backend não são eliminados.",
   "coachPulseTitle": "Coach Pulse",
   "coachIaBadge": "Coach IA",
   "agirCoachPulseDone": "Tu es à jour ce mois-ci. Priorise maintenant l'action la plus impactante.",
@@ -6546,5 +6546,239 @@
       "age": { "type": "int" }
     }
   },
-  "unemploymentBracket4Value": "520 subsídios"
+  "unemploymentBracket4Value": "520 subsídios",
+
+  "allocAnnuelleTitle": "Onde colocar os teus CHF?",
+  "allocAnnuelleBudgetTitle": "O teu orçamento anual",
+  "allocAnnuelleMontantLabel": "Montante disponível por ano (CHF)",
+  "allocAnnuelleTauxMarginal": "Taxa marginal de imposto estimada",
+  "allocAnnuelleAnneesRetraite": "Anos até à reforma",
+  "allocAnnuelleAnneesValue": "{years} anos",
+  "@allocAnnuelleAnneesValue": {
+    "placeholders": {
+      "years": { "type": "int" }
+    }
+  },
+  "allocAnnuelle3aMaxed": "3a já no máximo",
+  "allocAnnuelleRachatLpp": "Potencial de resgate LPP",
+  "allocAnnuelleRachatMontant": "Montante de resgate possível (CHF)",
+  "allocAnnuelleProprietaire": "Proprietário de imóvel",
+  "allocAnnuelleComparer": "Comparar estratégias",
+  "allocAnnuelleTrajectoires": "Trajetórias comparadas",
+  "allocAnnuelleGraphHint": "Toca no gráfico para ver os valores de cada ano.",
+  "allocAnnuelleValeurTerminale": "Valor terminal estimado",
+  "allocAnnuelleApresAnnees": "Após {years} anos",
+  "@allocAnnuelleApresAnnees": {
+    "placeholders": {
+      "years": { "type": "int" }
+    }
+  },
+  "allocAnnuelleHypotheses": "Hipóteses utilizadas",
+  "allocAnnuelleRendementMarche": "Rendimento do mercado",
+  "allocAnnuelleRendementLpp": "Rendimento LPP",
+  "allocAnnuelleRendement3a": "Rendimento 3a",
+  "allocAnnuelleAvertissement": "Aviso",
+  "allocAnnuelleSources": "Fontes: {sources}",
+  "@allocAnnuelleSources": {
+    "placeholders": {
+      "sources": { "type": "String" }
+    }
+  },
+  "allocAnnuellePreRempli": "Valores pré-preenchidos do teu perfil",
+  "allocAnnuelleEncouragement": "Cada franco bem investido trabalha para ti. Compara as opções e escolhe com conhecimento.",
+
+  "expatTab2EduInsert": "A Suíça não aplica um imposto de saída (exit tax) — ao contrário dos EUA ou da França. Os teus ganhos de capital latentes não são tributados na saída. É uma grande vantagem para expatriados.",
+  "expatTimelineToday": "Hoje",
+  "expatTimelineTodayDesc": "Começa a planear",
+  "expatTimelineTodayTiming": "Agora",
+  "expatTimeline2to3Months": "2-3 meses antes",
+  "expatTimeline2to3MonthsDesc": "Notificar a comuna, cancelar LAMal",
+  "expatTimeline2to3MonthsTiming": "Em ~{months} meses",
+  "@expatTimeline2to3MonthsTiming": {
+    "placeholders": {
+      "months": { "type": "int" }
+    }
+  },
+  "expatTimeline1Month": "1 mês antes",
+  "expatTimeline1MonthDesc": "Retirar 3a, transferir LPP",
+  "expatTimeline1MonthTiming": "Em ~{months} meses",
+  "@expatTimeline1MonthTiming": {
+    "placeholders": {
+      "months": { "type": "int" }
+    }
+  },
+  "expatTimelineDDay": "Dia D",
+  "expatTimelineDDayDesc": "Partida efetiva",
+  "expatTimelineDDayTiming": "Em {days} dias",
+  "@expatTimelineDDayTiming": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "expatTimeline30After": "30 dias depois",
+  "expatTimeline30AfterDesc": "Declarar impostos pro rata temporis",
+  "expatTimeline30AfterTiming": "Após a partida",
+  "expatTimelineUrgent": "Urgente!",
+  "expatTimelinePassed": "Passado",
+  "expatSavingsBadge": "Poupança: {amount} (-{percent}%)",
+  "@expatSavingsBadge": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "percent": { "type": "String" }
+    }
+  },
+  "expatForfaitMoreCostly": "Forfait mais caro: +{amount}",
+  "@expatForfaitMoreCostly": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "expatForfaitBase": "Base: {amount}",
+  "@expatForfaitBase": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "expatAvsReductionExplain": "Cada ano em falta reduz a tua pensão em cerca de {percent}%. A redução é definitiva e aplica-se para toda a vida.",
+  "@expatAvsReductionExplain": {
+    "placeholders": {
+      "percent": { "type": "String" }
+    }
+  },
+  "expatAvsChiffreChoc": "-{amount}/ano na tua pensão AVS",
+  "@expatAvsChiffreChoc": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "expatDepartChiffreChoc": "{amount} de capital a garantir antes da partida",
+  "@expatDepartChiffreChoc": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+
+  "independantCoveredLabel": "Coberto",
+  "independantCriticalLabel": "Sem cobertura — crítico",
+  "independantHighLabel": "Sem cobertura",
+  "independantLowLabel": "Sem cobertura",
+
+  "fiscalIncomeInfoLabel": "Rendimento: {income} | {status}{children}",
+  "@fiscalIncomeInfoLabel": {
+    "placeholders": {
+      "income": { "type": "String" },
+      "status": { "type": "String" },
+      "children": { "type": "String" }
+    }
+  },
+  "fiscalStatusMarried": "Casado/a",
+  "fiscalStatusSingle": "Solteiro/a",
+  "fiscalChildrenSuffix": " + {count} filho(s)",
+  "@fiscalChildrenSuffix": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "fiscalPerMonth": "/mês",
+
+  "sim3aTitle": "O teu 3.º pilar",
+  "sim3aExportTooltip": "Exportar o meu relatório",
+  "sim3aCoachTitle": "O conselho do Mentor",
+  "sim3aCoachBody": "O 3a é uma das ferramentas de otimização mais eficazes na Suíça. A poupança fiscal imediata é uma vantagem concreta.",
+  "sim3aParamsHeader": "Os teus parâmetros",
+  "sim3aAnnualContribution": "Contribuição anual",
+  "sim3aAnnualContributionIndep": "Contribuição anual (independente sem LPP)",
+  "sim3aMarginalRate": "Taxa marginal de imposição",
+  "sim3aYearsToRetirement": "Anos até à reforma",
+  "sim3aExpectedReturn": "Rendimento anual esperado",
+  "sim3aYearsSuffix": "{count} anos",
+  "@sim3aYearsSuffix": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "sim3aAnnualTaxSaved": "Poupança fiscal anual",
+  "sim3aFinalCapital": "Capital no vencimento",
+  "sim3aCumulativeTaxSaved": "Poupança fiscal acumulada",
+  "sim3aStrategyHeader": "Estratégia vencedora",
+  "sim3aStratBankTitle": "Banco > Seguro",
+  "sim3aStratBankBody": "Evita contratos de seguro vinculados. Mantém-te flexível com um 3a bancário investido.",
+  "sim3aStrat5AccountsTitle": "A regra dos 5 contas",
+  "sim3aStrat5AccountsBody": "Abre várias contas para levantar de forma escalonada e reduzir a progressão fiscal.",
+  "sim3aStrat100ActionsTitle": "100\u00a0% Ações",
+  "sim3aStrat100ActionsBody": "Se a reforma está a mais de 15 anos, uma estratégia de ações poderá maximizar o teu capital.",
+  "sim3aExploreAlso": "Explorar também",
+  "sim3aProviderComparator": "Comparador de prestadores",
+  "sim3aProviderComparatorSub": "VIAC, Finpension, frankly...",
+  "sim3aRealReturn": "Rendimento real",
+  "sim3aRealReturnSub": "Após custos, inflação e fiscal",
+  "sim3aStaggeredWithdrawal": "Levantamento escalonado",
+  "sim3aStaggeredWithdrawalSub": "Distribuir levantamentos para reduzir impostos",
+  "sim3aCtaCompare": "Comparar",
+  "sim3aCtaCalculate": "Calcular",
+  "sim3aCtaPlan": "Planear",
+  "sim3aDisclaimer": "Estimativa educativa. As poupanças reais dependem do local de residência e da situação familiar. Não constitui aconselhamento financeiro (LSFin).",
+  "sim3aDebtLockedTitle": "Prioridade ao desendividamento",
+  "sim3aDebtLockedMessage": "Em modo de proteção, as recomendações de ação 3a estão desativadas. A prioridade é estabilizar a tua situação financeira.",
+  "sim3aDebtStrategyTitle": "Estratégia bloqueada",
+  "sim3aDebtStrategyMessage": "As estratégias de investimento 3a estão desativadas enquanto tiveres dívidas ativas. Pagar as dívidas tem um rendimento superior a qualquer investimento.",
+
+  "realReturnTitle": "Rendimento real 3a",
+  "realReturnChiffreChocLabel": "Taxa equivalente sobre esforço líquido",
+  "realReturnVsNominal": "vs {rate}\u00a0% taxa líquida 3a (bruto − custos)",
+  "@realReturnVsNominal": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "realReturnEffortNet": "Esforço líquido: {amount}/ano | Prémio fiscal implícito: +{pts} pts",
+  "@realReturnEffortNet": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "pts": { "type": "String" }
+    }
+  },
+  "realReturnParams": "Parâmetros",
+  "realReturnAnnualPayment": "Contribuição anual",
+  "realReturnMarginalRate": "Taxa marginal",
+  "realReturnGrossReturn": "Rendimento bruto",
+  "realReturnMgmtFees": "Custos de gestão",
+  "realReturnDuration": "Duração do investimento",
+  "realReturnYearsSuffix": "{count} anos",
+  "@realReturnYearsSuffix": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "realReturnCompared": "Rendimentos comparados",
+  "realReturnNominal3a": "Rendimento nominal 3a",
+  "realReturnRealWithFiscal": "Rendimento real (com fiscal)",
+  "realReturnEquivNote": "Esta taxa é equivalente: não representa um rendimento de mercado esperado.",
+  "realReturnSavingsAccount": "Rendimento conta poupança",
+  "realReturnFinalCapital": "Capital final após {years} anos",
+  "@realReturnFinalCapital": {
+    "placeholders": {
+      "years": { "type": "int" }
+    }
+  },
+  "realReturn3aFintech": "3a Fintech + fiscal",
+  "realReturnSavings15": "Conta poupança 1,5\u00a0%",
+  "realReturnGainVsSavings": "Ganho vs poupança: CHF {amount}",
+  "@realReturnGainVsSavings": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "realReturnFiscalDetail": "Detalhe poupança fiscal",
+  "realReturnTotalPayments": "Total contribuições",
+  "realReturnFinalCapital3a": "Capital final 3a (sem fiscal)",
+  "realReturnCumulativeFiscal": "Poupança fiscal acumulada",
+  "realReturnTotalWithFiscal": "Total com vantagem fiscal",
+  "realReturnAhaMoment": "O teu esforço real: {netAmount}/ano. O fisco financia a diferença — uma alavanca rara na Suíça.",
+  "@realReturnAhaMoment": {
+    "placeholders": {
+      "netAmount": { "type": "String" }
+    }
+  },
+  "realReturnPerYear": "/ ano"
 }
