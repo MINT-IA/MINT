@@ -458,34 +458,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                   ),
                 ),
               ),
-              const SizedBox(height: MintSpacing.sm),
-
-              // ── Secondary: enrich profile (Ghost / TextButton) ──
-              Semantics(
-                button: true,
-                label: l10n.chiffreChocEnrich,
-                child: TextButton(
-                  onPressed: () {
-                    AnalyticsService().trackCTAClick(
-                      'chiffre_choc_enrich',
-                      screenName: 'chiffre_choc',
-                      data: {'choc_type': choc.type.name},
-                    );
-                    context.push('/profile/bilan');
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: MintColors.info,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                  ),
-                  child: Text(
-                    l10n.chiffreChocEnrich,
-                    style: MintTextStyles.bodyMedium(
-                      color: MintColors.info,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: MintSpacing.sm),
+              const SizedBox(height: MintSpacing.md),
 
               // ── Disclaimer (micro pattern) ──
               Text(

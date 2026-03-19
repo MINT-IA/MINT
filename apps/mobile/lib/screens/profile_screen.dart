@@ -96,7 +96,7 @@ class ProfileScreen extends StatelessWidget {
                   // Couple / Family
                   _buildFactFindSection(
                     title: l.profileFamilySection,
-                    status: 'Couple+',
+                    status: (coachProfile?.isCouple ?? false) ? l.profileFamilyCouple : l.profileFamilySingle,
                     isComplete: false,
                     icon: Icons.people_outline,
                     onTap: () => context.push('/couple'),

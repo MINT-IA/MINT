@@ -6300,5 +6300,65 @@
   },
   "chiffreChocBack": "Back",
   "chiffreChocShowComparison": "Show comparison",
-  "chiffreChocHideComparison": "Hide comparison"
+  "chiffreChocHideComparison": "Hide comparison",
+  "dashboardNextActionsTitle": "Your next actions",
+  "dashboardExploreAlsoTitle": "Explore more",
+  "dashboardImproveAccuracyTitle": "Improve your accuracy",
+  "dashboardCurrentConfidence": "Current confidence: {score}%",
+  "@dashboardCurrentConfidence": {
+    "placeholders": {
+      "score": { "type": "int" }
+    }
+  },
+  "dashboardPrecisionPtsGain": "+{pts} accuracy points",
+  "@dashboardPrecisionPtsGain": {
+    "placeholders": {
+      "pts": { "type": "int" }
+    }
+  },
+  "dashboardOnboardingHeroTitle": "Your retirement at a glance",
+  "dashboardOnboardingCta": "Get started — 2 min",
+  "dashboardOnboardingConsent": "No data stored without your consent.",
+  "dashboardEducationTitle": "How does retirement work in Switzerland?",
+  "dashboardEducationSubtitle": "AVS, LPP, 3a — the basics in 5 minutes",
+  "dashboardCockpitTitle": "Detailed cockpit",
+  "dashboardCockpitSubtitle": "Breakdown by pillar",
+  "dashboardCockpitCta": "Open",
+  "dashboardRenteVsCapitalTitle": "Annuity vs Lump sum",
+  "dashboardRenteVsCapitalSubtitle": "Explore the break-even point",
+  "dashboardRenteVsCapitalCta": "Simulate",
+  "dashboardRachatLppTitle": "LPP buyback",
+  "dashboardRachatLppSubtitle": "Simulate the tax impact",
+  "dashboardRachatLppCta": "Calculate",
+  "dashboardPrecisionGainPercent": "Accuracy +{percent}%",
+  "@dashboardPrecisionGainPercent": {
+    "placeholders": {
+      "percent": { "type": "int" }
+    }
+  },
+  "dashboardImpactChf": "+CHF {amount}",
+  "@dashboardImpactChf": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "dashboardDeadlineDays": "D-{days}",
+  "@dashboardDeadlineDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "dashboardBannerDeadline": "{title} — D-{days}",
+  "@dashboardBannerDeadline": {
+    "placeholders": {
+      "title": { "type": "String" },
+      "days": { "type": "int" }
+    }
+  },
+  "dashboardOneLinerGoodTrack": "You're on track to maintain your standard of living.",
+  "dashboardOneLinerLevers": "There are levers to improve your projection.",
+  "dashboardOneLinerEveryAction": "Every action counts — explore the available options.",
+  "profileFamilyCouple": "In a couple",
+  "profileFamilySingle": "Single",
+  "renteVsCapitalErrorRetry": "The calculation failed. Please try again later."
 }

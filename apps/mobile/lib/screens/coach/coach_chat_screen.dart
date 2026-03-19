@@ -445,6 +445,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       });
       _scrollToBottom();
     } on RagApiException catch (e) {
+      if (!mounted) return;
       final s = S.of(context)!;
       final String errorMsg;
       switch (e.code) {
@@ -466,6 +467,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _messages.add(ChatMessage(
           role: 'system',
