@@ -205,25 +205,17 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
               Expanded(
                 child: Text(
                   _selectedType.label,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             _selectedType.description,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.5,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Row(
             children: [
               const Icon(Icons.trending_up,
@@ -231,11 +223,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
               const SizedBox(width: 6),
               Text(
                 S.of(context)!.docScanConfidencePoints(_selectedType.confidenceImpact),
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.success,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -262,10 +250,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   : kIsWeb
                       ? S.of(context)!.documentScanImportFile
                       : S.of(context)!.documentScanTakePhoto,
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+              style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w600),
             ),
             style: FilledButton.styleFrom(
               backgroundColor: MintColors.primary,
@@ -285,10 +270,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             icon: const Icon(Icons.photo_library_outlined, size: 22),
             label: Text(
               S.of(context)!.docScanFromGallery,
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+              style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w600),
             ),
             style: OutlinedButton.styleFrom(
               foregroundColor: MintColors.textPrimary,
@@ -312,10 +294,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         icon: const Icon(Icons.text_snippet_outlined, size: 20),
         label: Text(
           S.of(context)!.docScanPasteOcrText,
-          style: GoogleFonts.inter(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-          ),
+          style: MintTextStyles.bodyLarge().copyWith(fontWeight: FontWeight.w600),
         ),
         style: TextButton.styleFrom(
           foregroundColor: MintColors.info,
@@ -338,7 +317,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         icon: const Icon(Icons.science_outlined, size: 20),
         label: Text(
           S.of(context)!.docScanUseExample,
-          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+          style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: MintColors.purple,
@@ -367,11 +346,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           Expanded(
             child: Text(
               S.of(context)!.docScanPrivacyNote,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textMuted,
-                height: 1.5,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.5),
             ),
           ),
         ],
@@ -550,20 +525,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             children: [
               Text(
                 title,
-                style: GoogleFonts.montserrat(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: MintSpacing.sm),
               Text(
                 hint,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: MintColors.textSecondary,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
               ),
               const SizedBox(height: 12),
               TextField(
@@ -665,20 +632,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             children: [
               Text(
                 title,
-                style: GoogleFonts.montserrat(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: MintSpacing.sm),
               Text(
                 message,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: MintColors.textSecondary,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
               ),
               const SizedBox(height: 14),
               SizedBox(
@@ -732,20 +691,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             children: [
               Text(
                 S.of(context)!.documentScanPdfAuthTitle,
-                style: GoogleFonts.montserrat(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: MintSpacing.sm),
               Text(
                 S.of(context)!.documentScanPdfAuthContent,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: MintColors.textSecondary,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
               ),
               const SizedBox(height: 14),
               SizedBox(
@@ -800,20 +751,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             children: [
               Text(
                 title,
-                style: GoogleFonts.montserrat(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: MintSpacing.sm),
               Text(
                 message,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: MintColors.textSecondary,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
               ),
               if (showVision) ...[
                 const SizedBox(height: 14),
@@ -839,11 +782,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   padding: const EdgeInsets.only(top: 4),
                   child: Text(
                     S.of(context)!.docScanVisionDisclaimer,
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      color: MintColors.textMuted,
-                      height: 1.4,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.4),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -1215,7 +1154,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: GoogleFonts.inter(fontSize: 13)),
+        content: Text(message, style: MintTextStyles.bodySmall()),
         backgroundColor: MintColors.error,
       ),
     );

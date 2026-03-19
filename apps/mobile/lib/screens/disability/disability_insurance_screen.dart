@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -234,18 +234,11 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
                 children: [
                   Text(
                     'Ma couverture invalidité',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: MintColors.white,
-                    ),
+                    style: MintTextStyles.headlineMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
                   ),
                   Text(
                     'Bulletin scolaire · Franchise LAMal · AI/APG',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.white70,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.white70),
                   ),
                 ],
               ),
@@ -255,11 +248,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
       ),
       title: Text(
         'Ma couverture',
-        style: GoogleFonts.montserrat(
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-          color: MintColors.white,
-        ),
+        style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
       ),
     );
   }
@@ -277,11 +266,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
         children: [
           Text(
             'Affine ta situation',
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 16),
           _buildSliderRow(
@@ -337,16 +322,11 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
           children: [
             Flexible(
               child: Text(label,
-                  style: GoogleFonts.inter(
-                      fontSize: 12, color: MintColors.textSecondary)),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
             ),
             Text(
               format(value),
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: MintColors.primary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -380,8 +360,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
       children: [
         Flexible(
           child: Text(label,
-              style: GoogleFonts.inter(
-                  fontSize: 13, color: MintColors.textPrimary)),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
         ),
         Switch(
           value: value,

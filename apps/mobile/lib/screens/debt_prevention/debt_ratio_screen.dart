@@ -1,8 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/debt_prevention_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:go_router/go_router.dart';
@@ -49,69 +50,61 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
   Widget build(BuildContext context) {
     final result = _result;
 
-    final isSafeMode = result.niveau == DebtRiskLevel.rouge;
-    final appBarColor = isSafeMode ? MintColors.warning : MintColors.primary;
-
     return Scaffold(
-      backgroundColor: MintColors.surface,
+      backgroundColor: MintColors.white,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 100,
             pinned: true,
-            backgroundColor: appBarColor,
-            foregroundColor: MintColors.white,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'DIAGNOSTIC DETTE',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
-                  letterSpacing: 0.5,
-                ),
-              ),
+            backgroundColor: MintColors.white,
+            surfaceTintColor: MintColors.white,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            foregroundColor: MintColors.textPrimary,
+            title: Text(
+              'Diagnostic dette', // TODO: i18n
+              style: MintTextStyles.titleMedium(),
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Chiffre choc gauge
                 _buildGaugeSection(result),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Sliders
                 _buildSlidersSection(),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Minimum vital
                 _buildMinimumVitalCard(result),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Recommandations
                 _buildRecommandationsSection(result),
-                const SizedBox(height: 16),
+                const SizedBox(height: MintSpacing.md),
 
                 // CTA contextuel → Plan de remboursement
                 if (result.niveau != DebtRiskLevel.vert)
                   _buildRepaymentCta(result),
                 if (result.niveau != DebtRiskLevel.vert)
-                  const SizedBox(height: 24),
+                  const SizedBox(height: MintSpacing.lg),
 
                 // Aide professionnelle
                 if (result.niveau == DebtRiskLevel.rouge) ...[
                   _buildAideProfessionnelleSection(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: MintSpacing.lg),
                 ],
 
                 // Disclaimer
                 _buildDisclaimer(result.disclaimer),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Navigation croisée dette
                 const DebtToolsNav(currentRoute: '/debt/ratio'),
-                const SizedBox(height: 40),
+                const SizedBox(height: MintSpacing.xxl),
               ]),
             ),
           ),
@@ -134,7 +127,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     };
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -153,48 +146,38 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             '${result.ratio.toStringAsFixed(1)}%',
-            style: GoogleFonts.montserrat(
-              fontSize: 36,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
+            style: MintTextStyles.displayMedium(color: color),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm + 4, vertical: MintSpacing.xs),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: color,
-              ),
+              style: MintTextStyles.bodySmall(color: color)
+                  .copyWith(fontWeight: FontWeight.w700),
             ),
           ),
-          const SizedBox(height: 8),
-          const Text(
-            'Ratio dette / revenus',
-            style: TextStyle(
-              fontSize: 12,
-              color: MintColors.textMuted,
-            ),
+          const SizedBox(height: MintSpacing.sm),
+          Text(
+            'Ratio dette / revenus', // TODO: i18n
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           // Legende
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _buildLegendDot(MintColors.success, '< 15%'),
-              const SizedBox(width: 16),
+              const SizedBox(width: MintSpacing.md),
               _buildLegendDot(MintColors.warning, '15-30%'),
-              const SizedBox(width: 16),
+              const SizedBox(width: MintSpacing.md),
               _buildLegendDot(MintColors.error, '> 30%'),
             ],
           ),
@@ -214,10 +197,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
             shape: BoxShape.circle,
           ),
         ),
-        const SizedBox(width: 4),
+        const SizedBox(width: MintSpacing.xs),
         Text(
           label,
-          style: const TextStyle(fontSize: 11, color: MintColors.textMuted),
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted),
         ),
       ],
     );
@@ -287,12 +270,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Affiner le diagnostic',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: MintColors.textSecondary,
-                    ),
+                    'Affiner le diagnostic', // TODO: i18n
+                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                   ),
                 ),
                 Text(
@@ -449,11 +428,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
             child: Center(
               child: Text(
                 '$prefix\u00a0${formatChf(value)}',
-                style: GoogleFonts.montserrat(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.headlineMedium(color: MintColors.textPrimary)
+                    .copyWith(fontSize: 20),
               ),
             ),
           ),
@@ -684,23 +660,17 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               const SizedBox(height: 20),
               Text(
                 label,
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textSecondary)
+                    .copyWith(fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: MintSpacing.md),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     '$prefix ',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textMuted,
-                    ),
+                    style: MintTextStyles.headlineMedium(color: MintColors.textMuted)
+                        .copyWith(fontSize: 28),
                   ),
                   SizedBox(
                     width: 150,
@@ -709,11 +679,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                       keyboardType: TextInputType.number,
                       autofocus: true,
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.displayMedium(color: MintColors.textPrimary),
                       decoration: const InputDecoration(
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.zero,
@@ -787,13 +753,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'MINIMUM VITAL (LP ART. 93)',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
+            'Minimum vital (LP art.\u00a093)', // TODO: i18n
+            style: MintTextStyles.bodySmall(
               color: isMenace ? MintColors.redMedium : MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            ).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 16),
           _buildInfoRow(
@@ -845,24 +808,20 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
   Widget _buildInfoRow(String label, String value,
       {Color? color, bool isBold = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            ),
+            style: isBold
+                ? MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                : MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
           Text(
             value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-              color: color ?? MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodySmall(color: color ?? MintColors.textPrimary)
+                .copyWith(fontWeight: isBold ? FontWeight.bold : FontWeight.w600),
           ),
         ],
       ),
@@ -881,31 +840,23 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'RECOMMANDATIONS',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            'Recommandations', // TODO: i18n
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           for (final reco in result.recommandations)
             Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Icon(Icons.arrow_forward,
                       color: MintColors.primary, size: 16),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: MintSpacing.sm + 2),
                   Expanded(
                     child: Text(
                       reco,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        height: 1.4,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                     ),
                   ),
                 ],
@@ -951,13 +902,11 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                   children: [
                     Text(
                       isRouge
-                          ? 'Crée ton plan de remboursement'
-                          : 'Optimise tes remboursements',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
+                          ? 'Cr\u00e9e ton plan de remboursement' // TODO: i18n
+                          : 'Optimise tes remboursements', // TODO: i18n
+                      style: MintTextStyles.bodyMedium(
                         color: isRouge ? MintColors.redDark : MintColors.deepOrange,
-                      ),
+                      ).copyWith(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -1001,12 +950,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               const Icon(Icons.support_agent, color: MintColors.redMedium, size: 24),
               const SizedBox(width: 12),
               Text(
-                'AIDE PROFESSIONNELLE',
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.redDark,
-                ),
+                'Aide professionnelle', // TODO: i18n
+                style: MintTextStyles.bodyMedium(color: MintColors.redDark)
+                    .copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -1060,28 +1006,20 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                 children: [
                   Text(
                     nom,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                        .copyWith(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     description,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                   ),
                   if (telephone != null) ...[
-                    const SizedBox(height: 4),
+                    const SizedBox(height: MintSpacing.xs),
                     Text(
                       telephone,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: MintColors.info,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.info)
+                          .copyWith(fontWeight: FontWeight.w600),
                     ),
                   ],
                 ],
@@ -1098,25 +1036,21 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
 
   Widget _buildDisclaimer(String disclaimer) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.warningBg,
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.orangeRetroWarm),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
               disclaimer,
-              style: const TextStyle(
-                fontSize: 11,
-                color: MintColors.deepOrange,
-                height: 1.4,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ),
         ],

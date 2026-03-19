@@ -365,18 +365,14 @@ class _EplScreenState extends State<EplScreen> {
         children: [
           Text(
             label,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            ),
+            style: isBold
+                ? MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                : MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
           Text(
             value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-              color: color ?? MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodySmall(color: color ?? MintColors.textPrimary)
+                .copyWith(fontWeight: isBold ? FontWeight.bold : FontWeight.w600),
           ),
         ],
       ),

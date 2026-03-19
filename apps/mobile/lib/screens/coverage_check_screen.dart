@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/assurances_service.dart';
 
@@ -153,12 +153,8 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         ),
         child: Text(
           S.of(context)!.coverageCheckDemoMode,
-          style: GoogleFonts.montserrat(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            color: MintColors.blueDark,
-            letterSpacing: 1,
-          ),
+          style: MintTextStyles.micro(color: MintColors.blueDark)
+              .copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
         ),
       ),
     );
@@ -193,10 +189,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
               const SizedBox(height: 4),
               Text(
                 S.of(context)!.coverageCheckSubtitle,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
               ),
             ],
           ),
@@ -235,7 +228,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
           // Statut professionnel
           Text(
             S.of(context)!.coverageCheckStatut,
-            style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 8),
           _buildStatutChips(),
@@ -302,11 +295,9 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         ),
         child: Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+          style: MintTextStyles.bodySmall(
             color: isSelected ? MintColors.white : MintColors.textSecondary,
-          ),
+          ).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
         ),
       ),
       ),
@@ -321,7 +312,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         children: [
           Text(
             label,
-            style: GoogleFonts.inter(fontSize: 14, color: MintColors.textPrimary),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
           ),
           Switch.adaptive(
             value: value,
@@ -401,7 +392,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
           Expanded(
             child: Text(
               label,
-              style: GoogleFonts.inter(fontSize: 13, color: MintColors.textPrimary),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
           ),
           Switch.adaptive(
@@ -475,10 +466,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
                     ),
                     Text(
                       '/ 100',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textMuted,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                     ),
                   ],
                 ),
@@ -507,21 +495,15 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
                     ),
                     child: Text(
                       '${result.lacunesCritiques}',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.white,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.white)
+                          .copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: MintSpacing.sm),
                   Text(
-                    'lacune${result.lacunesCritiques > 1 ? 's' : ''} critique${result.lacunesCritiques > 1 ? 's' : ''}',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.error,
-                    ),
+                    'lacune${result.lacunesCritiques > 1 ? 's' : ''} critique${result.lacunesCritiques > 1 ? 's' : ''}', // TODO: i18n
+                    style: MintTextStyles.bodySmall(color: MintColors.error)
+                        .copyWith(fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -544,12 +526,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             const SizedBox(width: 8),
             Text(
               S.of(context)!.coverageCheckAnalyseTitle,
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textMuted,
-                letterSpacing: 1,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textMuted),
             ),
           ],
         ),
@@ -594,31 +571,21 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
 
           Text(
             item.description,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
 
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 item.estimatedCostRange,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               ),
               Text(
                 item.source,
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.micro(color: MintColors.textMuted)
+                    .copyWith(fontStyle: FontStyle.normal),
               ),
             ],
           ),
@@ -658,11 +625,8 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
       ),
       child: Text(
         label,
-        style: GoogleFonts.montserrat(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          color: color,
-        ),
+        style: MintTextStyles.micro(color: color)
+            .copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
       ),
     );
   }
@@ -680,11 +644,8 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         const SizedBox(width: 6),
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: color,
-          ),
+          style: MintTextStyles.labelSmall(color: color)
+              .copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -705,12 +666,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             const SizedBox(width: 8),
             Text(
               S.of(context)!.coverageCheckRecommandationsTitle,
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textMuted,
-                letterSpacing: 1,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textMuted),
             ),
           ],
         ),
@@ -726,11 +682,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             ),
             child: Text(
               rec,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
         )),
@@ -742,25 +694,21 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
 
   Widget _buildDisclaimer() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.warningBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.orangeRetroWarm),
+        color: MintColors.warning.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
               S.of(context)!.coverageCheckDisclaimer,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.deepOrange,
-                height: 1.5,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ),
         ],
@@ -776,20 +724,14 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
       children: [
         Text(
           S.of(context)!.coverageCheckSources,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted)
+              .copyWith(fontWeight: FontWeight.w600),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: MintSpacing.xs + 2),
         Text(
           S.of(context)!.coverageCheckSourcesBody,
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            color: MintColors.textMuted,
-            height: 1.5,
-          ),
+          style: MintTextStyles.micro(color: MintColors.textMuted)
+              .copyWith(fontStyle: FontStyle.normal),
         ),
       ],
     );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/family_service.dart';
@@ -16,7 +16,7 @@ import 'package:mint_mobile/widgets/visualizations/concubinage_decision_matrix.d
 //   Tab 2: "Checklist"   — Essential protections for concubins
 //
 // All text in French (informal "tu").
-// Material 3, MintColors theme, GoogleFonts.
+// Material 3, MintColors theme, MintTextStyles.
 // Ne constitue pas un conseil juridique ou fiscal (LSFin).
 // ────────────────────────────────────────────────────────────
 
@@ -225,15 +225,11 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.concubinageCanton,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
                 decoration: BoxDecoration(
                   color: MintColors.appleSurface,
                   borderRadius: BorderRadius.circular(10),
@@ -241,10 +237,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _canton,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                     items: sortedCodes.map((code) {
                       return DropdownMenuItem(
                         value: code,
@@ -331,28 +324,17 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               children: [
                 Text(
                   '$scoreMariage',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 36,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.white,
-                  ),
+                  style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(fontSize: 36, fontWeight: FontWeight.w800),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
                   S.of(context)!.concubinageAvantages,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.white60,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.white60),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   S.of(context)!.concubinageMariage,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.white,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -367,28 +349,17 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               children: [
                 Text(
                   '$scoreConcubinage',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 36,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.white,
-                  ),
+                  style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(fontSize: 36, fontWeight: FontWeight.w800),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
                   S.of(context)!.concubinageAvantages,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.white60,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.white60),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   S.of(context)!.concubinageConcubinage,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.white,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -423,12 +394,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.concubinageDetailFiscal,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
               ),
             ],
           ),
@@ -450,19 +416,11 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             children: [
               Text(
                 isPenalite ? S.of(context)!.concubinagePenaliteMariage : S.of(context)!.concubinageBonusMariage,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               Text(
                 '${isPenalite ? "+" : "-"}${FamilyService.formatChf(difference.abs())}',
-                style: GoogleFonts.montserrat(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: isPenalite ? MintColors.error : MintColors.success,
-                ),
+                style: MintTextStyles.titleMedium(color: isPenalite ? MintColors.error : MintColors.success).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -496,12 +454,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.concubinageImpotSuccession,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
               ),
             ],
           ),
@@ -545,11 +498,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                 Expanded(
                   child: Text(
                     S.of(context)!.concubinageWarningSuccession(FamilyService.formatChf(impot), FamilyService.formatChf(_patrimoine)),
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MintColors.textPrimary,
-                      height: 1.4,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
                   ),
                 ),
               ],
@@ -585,20 +534,12 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               children: [
                 Text(
                   S.of(context)!.concubinageNeutralTitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
                   S.of(context)!.concubinageNeutralDesc,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
                 ),
               ],
             ),
@@ -636,11 +577,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.concubinageChecklistIntro,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
                 ),
               ),
             ],
@@ -663,21 +600,11 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                 children: [
                   Text(
                     S.of(context)!.concubinageProtectionsCount(nbChecked, items.length),
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                   ),
                   Text(
                     '${(nbChecked / items.length * 100).toStringAsFixed(0)}%',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: nbChecked == items.length
-                          ? MintColors.success
-                          : MintColors.primary,
-                    ),
+                    style: MintTextStyles.titleMedium(color: nbChecked == items.length ? MintColors.success : MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ],
               ),
@@ -801,14 +728,9 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                     Expanded(
                       child: Text(
                         title,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
+                        style: MintTextStyles.bodyMedium(color: isChecked ? MintColors.textMuted : MintColors.textPrimary).copyWith(
                           fontWeight: FontWeight.w600,
-                          color: isChecked
-                              ? MintColors.textMuted
-                              : MintColors.textPrimary,
-                          decoration:
-                              isChecked ? TextDecoration.lineThrough : null,
+                          decoration: isChecked ? TextDecoration.lineThrough : null,
                         ),
                       ),
                     ),
@@ -834,11 +756,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                 padding: const EdgeInsets.fromLTRB(52, 0, 16, 16),
                 child: Text(
                   description,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
                 ),
               ),
               crossFadeState: isExpanded
@@ -914,20 +832,12 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             Expanded(
               child: Text(
                 label,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
               ),
             ),
             Text(
               FamilyService.formatChf(value),
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: MintColors.primary,
-              ),
+              style: MintTextStyles.titleMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -963,19 +873,12 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         Expanded(
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
           ),
         ),
         Text(
           value,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -997,11 +900,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           Expanded(
             child: Text(
               S.of(context)!.concubinageDisclaimer,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.deepOrange,
-                height: 1.5,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.deepOrange).copyWith(height: 1.5),
             ),
           ),
         ],

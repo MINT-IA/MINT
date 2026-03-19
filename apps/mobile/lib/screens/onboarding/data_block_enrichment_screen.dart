@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -87,11 +88,7 @@ class _DataBlockEnrichmentScreenState
         ),
         title: Text(
           meta.title,
-          style: GoogleFonts.montserrat(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
         ),
       ),
       body: SafeArea(
@@ -126,11 +123,7 @@ class _DataBlockEnrichmentScreenState
               ...[
                 Text(
                   meta.description,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(height: 1.5),
                 ),
                 const SizedBox(height: 24),
               ],
@@ -170,10 +163,7 @@ class _DataBlockEnrichmentScreenState
                   ),
                   child: Text(
                     meta.ctaLabel,
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -182,11 +172,7 @@ class _DataBlockEnrichmentScreenState
               // ── Disclaimer ───────────────────────────────────────
               Text(
                 S.of(context)!.dataBlockDisclaimer,
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  color: MintColors.textMuted,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(height: 1.4),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
@@ -221,11 +207,7 @@ class _DataBlockEnrichmentScreenState
               Expanded(
                 child: Text(
                   S.of(context)!.dataBlockIncomplete,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: MintColors.textPrimary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
                 ),
               ),
             ],
@@ -246,10 +228,7 @@ class _DataBlockEnrichmentScreenState
             Expanded(
               child: Text(
                 S.of(context)!.dataBlockComplete,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: MintColors.success,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.success),
               ),
             ),
           ],
@@ -280,11 +259,7 @@ class _DataBlockEnrichmentScreenState
                   child: Center(
                     child: Text(
                       '+${prompt.impact}',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.primary,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),
                 ),
@@ -295,19 +270,12 @@ class _DataBlockEnrichmentScreenState
                     children: [
                       Text(
                         prompt.label,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: MintSpacing.xs),
                       Text(
                         prompt.action,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: MintColors.textSecondary,
-                        ),
+                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                       ),
                     ],
                   ),
@@ -360,11 +328,7 @@ class _DataBlockEnrichmentScreenState
                       Expanded(
                         child: Text(
                           alert.message,
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            color: MintColors.textPrimary,
-                            height: 1.4,
-                          ),
+                          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
                         ),
                       ),
                     ],
@@ -375,11 +339,7 @@ class _DataBlockEnrichmentScreenState
                       padding: const EdgeInsets.only(left: 32),
                       child: Text(
                         alert.suggestion!,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: MintColors.textSecondary,
-                          height: 1.4,
-                        ),
+                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(height: 1.4),
                       ),
                     ),
                   ],
@@ -607,11 +567,7 @@ class _BlockScoreBar extends StatelessWidget {
           children: [
             Text(
               '${bloc.score.round()} / ${bloc.maxScore.round()} pts',
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: color,
-              ),
+              style: MintTextStyles.titleMedium(color: color).copyWith(fontWeight: FontWeight.w700),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -625,11 +581,7 @@ class _BlockScoreBar extends StatelessWidget {
                   'partial' => S.of(context)!.dataBlockStatusPartial,
                   _ => S.of(context)!.dataBlockStatusMissing,
                 },
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: color,
-                ),
+                style: MintTextStyles.labelSmall(color: color).copyWith(fontWeight: FontWeight.w600),
               ),
             ),
           ],
@@ -740,11 +692,7 @@ class _ModeChip extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 label,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  color: color,
-                ),
+                style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500),
               ),
             ],
           ),

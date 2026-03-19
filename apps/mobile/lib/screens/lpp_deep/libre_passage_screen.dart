@@ -201,11 +201,9 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
     return ChoiceChip(
       label: Text(
         label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+        style: MintTextStyles.labelSmall(
           color: selected ? MintColors.white : MintColors.textPrimary,
-        ),
+        ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
       ),
       selected: selected,
       selectedColor: MintColors.primary,
@@ -415,7 +413,8 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
       ),
       child: Text(
         label,
-        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: _urgencyColor(urgency)),
+        style: MintTextStyles.micro(color: _urgencyColor(urgency))
+            .copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
       ),
     );
   }
