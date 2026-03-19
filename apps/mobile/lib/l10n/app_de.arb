@@ -6560,5 +6560,239 @@
       "age": { "type": "int" }
     }
   },
-  "unemploymentBracket4Value": "520 Taggelder"
+  "unemploymentBracket4Value": "520 Taggelder",
+
+  "allocAnnuelleTitle": "Wohin mit deinen CHF?",
+  "allocAnnuelleBudgetTitle": "Dein Jahresbudget",
+  "allocAnnuelleMontantLabel": "Verfügbarer Betrag pro Jahr (CHF)",
+  "allocAnnuelleTauxMarginal": "Geschätzter Grenzsteuersatz",
+  "allocAnnuelleAnneesRetraite": "Jahre bis zur Pensionierung",
+  "allocAnnuelleAnneesValue": "{years} Jahre",
+  "@allocAnnuelleAnneesValue": {
+    "placeholders": {
+      "years": { "type": "int" }
+    }
+  },
+  "allocAnnuelle3aMaxed": "3a bereits ausgeschöpft",
+  "allocAnnuelleRachatLpp": "BVG-Einkaufspotenzial",
+  "allocAnnuelleRachatMontant": "Möglicher Einkaufsbetrag (CHF)",
+  "allocAnnuelleProprietaire": "Immobilienbesitzer",
+  "allocAnnuelleComparer": "Strategien vergleichen",
+  "allocAnnuelleTrajectoires": "Verglichene Verläufe",
+  "allocAnnuelleGraphHint": "Tippe auf die Grafik, um die Werte pro Jahr zu sehen.",
+  "allocAnnuelleValeurTerminale": "Geschätzter Endwert",
+  "allocAnnuelleApresAnnees": "Nach {years} Jahren",
+  "@allocAnnuelleApresAnnees": {
+    "placeholders": {
+      "years": { "type": "int" }
+    }
+  },
+  "allocAnnuelleHypotheses": "Verwendete Annahmen",
+  "allocAnnuelleRendementMarche": "Marktrendite",
+  "allocAnnuelleRendementLpp": "BVG-Rendite",
+  "allocAnnuelleRendement3a": "Säule-3a-Rendite",
+  "allocAnnuelleAvertissement": "Hinweis",
+  "allocAnnuelleSources": "Quellen: {sources}",
+  "@allocAnnuelleSources": {
+    "placeholders": {
+      "sources": { "type": "String" }
+    }
+  },
+  "allocAnnuellePreRempli": "Werte aus deinem Profil vorausgefüllt",
+  "allocAnnuelleEncouragement": "Jeder klug investierte Franken arbeitet für dich. Vergleiche die Optionen und entscheide informiert.",
+
+  "expatTab2EduInsert": "Die Schweiz erhebt keine Wegzugssteuer (Exit Tax) — anders als die USA oder Frankreich. Deine latenten Kapitalgewinne werden beim Wegzug nicht besteuert. Das ist ein grosser Vorteil für Expats.",
+  "expatTimelineToday": "Heute",
+  "expatTimelineTodayDesc": "Beginne mit der Planung",
+  "expatTimelineTodayTiming": "Jetzt",
+  "expatTimeline2to3Months": "2-3 Monate vorher",
+  "expatTimeline2to3MonthsDesc": "Gemeinde informieren, KVG kündigen",
+  "expatTimeline2to3MonthsTiming": "In ~{months} Monaten",
+  "@expatTimeline2to3MonthsTiming": {
+    "placeholders": {
+      "months": { "type": "int" }
+    }
+  },
+  "expatTimeline1Month": "1 Monat vorher",
+  "expatTimeline1MonthDesc": "3a beziehen, BVG übertragen",
+  "expatTimeline1MonthTiming": "In ~{months} Monaten",
+  "@expatTimeline1MonthTiming": {
+    "placeholders": {
+      "months": { "type": "int" }
+    }
+  },
+  "expatTimelineDDay": "Tag X",
+  "expatTimelineDDayDesc": "Effektiver Wegzug",
+  "expatTimelineDDayTiming": "In {days} Tagen",
+  "@expatTimelineDDayTiming": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "expatTimeline30After": "30 Tage danach",
+  "expatTimeline30AfterDesc": "Steuererklärung pro rata temporis",
+  "expatTimeline30AfterTiming": "Nach dem Wegzug",
+  "expatTimelineUrgent": "Dringend!",
+  "expatTimelinePassed": "Vorbei",
+  "expatSavingsBadge": "Ersparnis: {amount} (-{percent}%)",
+  "@expatSavingsBadge": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "percent": { "type": "String" }
+    }
+  },
+  "expatForfaitMoreCostly": "Pauschalsteuer teurer: +{amount}",
+  "@expatForfaitMoreCostly": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "expatForfaitBase": "Basis: {amount}",
+  "@expatForfaitBase": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "expatAvsReductionExplain": "Jedes fehlende Jahr reduziert deine Rente um ca. {percent}%. Die Kürzung ist definitiv und gilt lebenslang.",
+  "@expatAvsReductionExplain": {
+    "placeholders": {
+      "percent": { "type": "String" }
+    }
+  },
+  "expatAvsChiffreChoc": "-{amount}/Jahr auf deine AHV-Rente",
+  "@expatAvsChiffreChoc": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "expatDepartChiffreChoc": "{amount} Kapital vor dem Wegzug sichern",
+  "@expatDepartChiffreChoc": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+
+  "independantCoveredLabel": "Gedeckt",
+  "independantCriticalLabel": "Nicht gedeckt — kritisch",
+  "independantHighLabel": "Nicht gedeckt",
+  "independantLowLabel": "Nicht gedeckt",
+
+  "fiscalIncomeInfoLabel": "Einkommen: {income} | {status}{children}",
+  "@fiscalIncomeInfoLabel": {
+    "placeholders": {
+      "income": { "type": "String" },
+      "status": { "type": "String" },
+      "children": { "type": "String" }
+    }
+  },
+  "fiscalStatusMarried": "Verheiratet",
+  "fiscalStatusSingle": "Ledig",
+  "fiscalChildrenSuffix": " + {count} Kind(er)",
+  "@fiscalChildrenSuffix": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "fiscalPerMonth": "/Monat",
+
+  "sim3aTitle": "Deine 3. Säule",
+  "sim3aExportTooltip": "Bericht exportieren",
+  "sim3aCoachTitle": "Der Mentor-Tipp",
+  "sim3aCoachBody": "Die Säule 3a ist eines der effektivsten Steueroptimierungs-Instrumente in der Schweiz. Die sofortige Steuerersparnis ist ein konkreter Vorteil.",
+  "sim3aParamsHeader": "Deine Parameter",
+  "sim3aAnnualContribution": "Jährlicher Beitrag",
+  "sim3aAnnualContributionIndep": "Jährlicher Beitrag (Selbstständig ohne BVG)",
+  "sim3aMarginalRate": "Grenzsteuersatz",
+  "sim3aYearsToRetirement": "Jahre bis zur Pensionierung",
+  "sim3aExpectedReturn": "Erwartete Jahresrendite",
+  "sim3aYearsSuffix": "{count} Jahre",
+  "@sim3aYearsSuffix": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "sim3aAnnualTaxSaved": "Jährliche Steuerersparnis",
+  "sim3aFinalCapital": "Kapital am Ende",
+  "sim3aCumulativeTaxSaved": "Kumulierte Steuerersparnis",
+  "sim3aStrategyHeader": "Gewinnstrategie",
+  "sim3aStratBankTitle": "Bank > Versicherung",
+  "sim3aStratBankBody": "Vermeide gebundene Versicherungsverträge. Bleibe flexibel mit einer investierten Bank-3a.",
+  "sim3aStrat5AccountsTitle": "Die 5-Konten-Regel",
+  "sim3aStrat5AccountsBody": "Eröffne mehrere Konten für gestaffelte Bezüge und reduziere die Steuerprogression.",
+  "sim3aStrat100ActionsTitle": "100\u00a0% Aktien",
+  "sim3aStrat100ActionsBody": "Falls die Pensionierung mehr als 15 Jahre entfernt ist, könnte eine Aktienstrategie dein Kapital maximieren.",
+  "sim3aExploreAlso": "Auch entdecken",
+  "sim3aProviderComparator": "Anbietervergleich",
+  "sim3aProviderComparatorSub": "VIAC, Finpension, frankly...",
+  "sim3aRealReturn": "Reale Rendite",
+  "sim3aRealReturnSub": "Nach Gebühren, Inflation und Steuern",
+  "sim3aStaggeredWithdrawal": "Gestaffelter Bezug",
+  "sim3aStaggeredWithdrawalSub": "Bezüge verteilen zur Steuerreduktion",
+  "sim3aCtaCompare": "Vergleichen",
+  "sim3aCtaCalculate": "Berechnen",
+  "sim3aCtaPlan": "Planen",
+  "sim3aDisclaimer": "Bildungsschätzung. Die tatsächlichen Einsparungen hängen von deinem Wohnort und deiner Familiensituation ab. Keine Finanzberatung (FIDLEG).",
+  "sim3aDebtLockedTitle": "Entschuldung hat Vorrang",
+  "sim3aDebtLockedMessage": "Im Schutzmodus sind 3a-Empfehlungen deaktiviert. Priorität ist die Stabilisierung deiner Finanzen vor Einzahlungen in die 3a.",
+  "sim3aDebtStrategyTitle": "Strategie gesperrt",
+  "sim3aDebtStrategyMessage": "3a-Anlagestrategien sind gesperrt, solange du aktive Schulden hast. Schuldenrückzahlung bringt eine höhere Rendite als jede Anlage.",
+
+  "realReturnTitle": "Reale Rendite 3a",
+  "realReturnChiffreChocLabel": "Äquivalenter Satz auf Nettoaufwand",
+  "realReturnVsNominal": "vs {rate}\u00a0% Netto-3a-Satz (brutto − Gebühren)",
+  "@realReturnVsNominal": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "realReturnEffortNet": "Nettoaufwand: {amount}/Jahr | Implizite Steuerprämie: +{pts} Pkt",
+  "@realReturnEffortNet": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "pts": { "type": "String" }
+    }
+  },
+  "realReturnParams": "Parameter",
+  "realReturnAnnualPayment": "Jährliche Einzahlung",
+  "realReturnMarginalRate": "Grenzsteuersatz",
+  "realReturnGrossReturn": "Bruttorendite",
+  "realReturnMgmtFees": "Verwaltungsgebühren",
+  "realReturnDuration": "Anlagedauer",
+  "realReturnYearsSuffix": "{count} Jahre",
+  "@realReturnYearsSuffix": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "realReturnCompared": "Vergleich der Renditen",
+  "realReturnNominal3a": "Nominale 3a-Rendite",
+  "realReturnRealWithFiscal": "Reale Rendite (inkl. Steuervorteil)",
+  "realReturnEquivNote": "Dies ist ein Äquivalentsatz: Er stellt keine erwartete Marktrendite dar.",
+  "realReturnSavingsAccount": "Sparkonto-Rendite",
+  "realReturnFinalCapital": "Endkapital nach {years} Jahren",
+  "@realReturnFinalCapital": {
+    "placeholders": {
+      "years": { "type": "int" }
+    }
+  },
+  "realReturn3aFintech": "3a Fintech + Steuervorteil",
+  "realReturnSavings15": "Sparkonto 1,5\u00a0%",
+  "realReturnGainVsSavings": "Gewinn vs Sparkonto: CHF {amount}",
+  "@realReturnGainVsSavings": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "realReturnFiscalDetail": "Details Steuerersparnis",
+  "realReturnTotalPayments": "Einzahlungen total",
+  "realReturnFinalCapital3a": "Endkapital 3a (ohne Steuer)",
+  "realReturnCumulativeFiscal": "Kumulierte Steuerersparnis",
+  "realReturnTotalWithFiscal": "Total mit Steuervorteil",
+  "realReturnAhaMoment": "Dein realer Aufwand: {netAmount}/Jahr. Das Steueramt finanziert den Rest — ein seltener Hebel in der Schweiz.",
+  "@realReturnAhaMoment": {
+    "placeholders": {
+      "netAmount": { "type": "String" }
+    }
+  },
+  "realReturnPerYear": "/ Jahr"
 }

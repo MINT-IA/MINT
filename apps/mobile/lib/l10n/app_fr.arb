@@ -6827,5 +6827,239 @@
       "age": { "type": "int" }
     }
   },
-  "unemploymentBracket4Value": "520 indemnités"
+  "unemploymentBracket4Value": "520 indemnités",
+
+  "allocAnnuelleTitle": "Où placer tes CHF\u00a0?",
+  "allocAnnuelleBudgetTitle": "Ton budget annuel",
+  "allocAnnuelleMontantLabel": "Montant disponible par an (CHF)",
+  "allocAnnuelleTauxMarginal": "Taux marginal d'imposition estimé",
+  "allocAnnuelleAnneesRetraite": "Années avant la retraite",
+  "allocAnnuelleAnneesValue": "{years} ans",
+  "@allocAnnuelleAnneesValue": {
+    "placeholders": {
+      "years": { "type": "int" }
+    }
+  },
+  "allocAnnuelle3aMaxed": "3a déjà au maximum",
+  "allocAnnuelleRachatLpp": "Potentiel de rachat LPP",
+  "allocAnnuelleRachatMontant": "Montant de rachat possible (CHF)",
+  "allocAnnuelleProprietaire": "Propriétaire immobilier",
+  "allocAnnuelleComparer": "Comparer les stratégies",
+  "allocAnnuelleTrajectoires": "Trajectoires comparées",
+  "allocAnnuelleGraphHint": "Touche le graphique pour voir les valeurs à chaque année.",
+  "allocAnnuelleValeurTerminale": "Valeur terminale estimée",
+  "allocAnnuelleApresAnnees": "Après {years} ans",
+  "@allocAnnuelleApresAnnees": {
+    "placeholders": {
+      "years": { "type": "int" }
+    }
+  },
+  "allocAnnuelleHypotheses": "Hypothèses utilisées",
+  "allocAnnuelleRendementMarche": "Rendement marché",
+  "allocAnnuelleRendementLpp": "Rendement LPP",
+  "allocAnnuelleRendement3a": "Rendement 3a",
+  "allocAnnuelleAvertissement": "Avertissement",
+  "allocAnnuelleSources": "Sources\u00a0: {sources}",
+  "@allocAnnuelleSources": {
+    "placeholders": {
+      "sources": { "type": "String" }
+    }
+  },
+  "allocAnnuellePreRempli": "Valeurs pré-remplies depuis ton profil",
+  "allocAnnuelleEncouragement": "Chaque franc placé intelligemment travaille pour toi. Compare les options et choisis en connaissance de cause.",
+
+  "expatTab2EduInsert": "La Suisse ne prélève pas de taxe de sortie (exit tax) — contrairement aux États-Unis ou à la France. Tes gains en capital latents ne sont pas imposés au moment du départ. C'est un avantage majeur pour les expatriés.",
+  "expatTimelineToday": "Aujourd'hui",
+  "expatTimelineTodayDesc": "Commence à planifier",
+  "expatTimelineTodayTiming": "Maintenant",
+  "expatTimeline2to3Months": "2-3 mois avant",
+  "expatTimeline2to3MonthsDesc": "Annoncer à la commune, résilier LAMal",
+  "expatTimeline2to3MonthsTiming": "Dans ~{months} mois",
+  "@expatTimeline2to3MonthsTiming": {
+    "placeholders": {
+      "months": { "type": "int" }
+    }
+  },
+  "expatTimeline1Month": "1 mois avant",
+  "expatTimeline1MonthDesc": "Retirer 3a, transférer LPP",
+  "expatTimeline1MonthTiming": "Dans ~{months} mois",
+  "@expatTimeline1MonthTiming": {
+    "placeholders": {
+      "months": { "type": "int" }
+    }
+  },
+  "expatTimelineDDay": "Jour J",
+  "expatTimelineDDayDesc": "Départ effectif",
+  "expatTimelineDDayTiming": "Dans {days} jours",
+  "@expatTimelineDDayTiming": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "expatTimeline30After": "30 jours après",
+  "expatTimeline30AfterDesc": "Déclarer impôts prorata temporis",
+  "expatTimeline30AfterTiming": "Après le départ",
+  "expatTimelineUrgent": "Urgent\u00a0!",
+  "expatTimelinePassed": "Passé",
+  "expatSavingsBadge": "Économie\u00a0: {amount} (-{percent}%)",
+  "@expatSavingsBadge": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "percent": { "type": "String" }
+    }
+  },
+  "expatForfaitMoreCostly": "Forfait plus coûteux\u00a0: +{amount}",
+  "@expatForfaitMoreCostly": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "expatForfaitBase": "Base\u00a0: {amount}",
+  "@expatForfaitBase": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "expatAvsReductionExplain": "Chaque année manquante réduit ta rente d'environ {percent}%. La réduction est définitive et s'applique à vie.",
+  "@expatAvsReductionExplain": {
+    "placeholders": {
+      "percent": { "type": "String" }
+    }
+  },
+  "expatAvsChiffreChoc": "-{amount}/an sur ta rente AVS",
+  "@expatAvsChiffreChoc": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "expatDepartChiffreChoc": "{amount} de capital à sécuriser avant ton départ",
+  "@expatDepartChiffreChoc": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+
+  "independantCoveredLabel": "Couvert",
+  "independantCriticalLabel": "Non couvert — critique",
+  "independantHighLabel": "Non couvert",
+  "independantLowLabel": "Non couvert",
+
+  "fiscalIncomeInfoLabel": "Revenu\u00a0: {income} | {status}{children}",
+  "@fiscalIncomeInfoLabel": {
+    "placeholders": {
+      "income": { "type": "String" },
+      "status": { "type": "String" },
+      "children": { "type": "String" }
+    }
+  },
+  "fiscalStatusMarried": "Marié·e",
+  "fiscalStatusSingle": "Célibataire",
+  "fiscalChildrenSuffix": " + {count} enfant(s)",
+  "@fiscalChildrenSuffix": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "fiscalPerMonth": "/mois",
+
+  "sim3aTitle": "Ton 3e pilier",
+  "sim3aExportTooltip": "Exporter mon bilan",
+  "sim3aCoachTitle": "Le conseil du Mentor",
+  "sim3aCoachBody": "Le 3a est l'un des outils les plus efficaces d'optimisation en Suisse. L'économie fiscale immédiate est un avantage concret.",
+  "sim3aParamsHeader": "Tes paramètres",
+  "sim3aAnnualContribution": "Versement annuel",
+  "sim3aAnnualContributionIndep": "Versement annuel (indép. sans LPP)",
+  "sim3aMarginalRate": "Taux marginal d'imposition",
+  "sim3aYearsToRetirement": "Années jusqu'à la retraite",
+  "sim3aExpectedReturn": "Rendement annuel espéré",
+  "sim3aYearsSuffix": "{count} ans",
+  "@sim3aYearsSuffix": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "sim3aAnnualTaxSaved": "Gain fiscal annuel",
+  "sim3aFinalCapital": "Capital au terme",
+  "sim3aCumulativeTaxSaved": "Économie fiscale cumulée",
+  "sim3aStrategyHeader": "Stratégie gagnante",
+  "sim3aStratBankTitle": "Bancaire > Assurance",
+  "sim3aStratBankBody": "Évite les contrats d'assurance liés. Reste flexible avec un 3a bancaire investi.",
+  "sim3aStrat5AccountsTitle": "La règle des 5 comptes",
+  "sim3aStrat5AccountsBody": "Ouvre plusieurs comptes pour retirer de manière échelonnée et réduire la progression fiscale au retrait.",
+  "sim3aStrat100ActionsTitle": "100\u00a0% Actions",
+  "sim3aStrat100ActionsBody": "Si ta retraite est dans plus de 15 ans, une stratégie actions pourrait maximiser ton capital.",
+  "sim3aExploreAlso": "Explorer aussi",
+  "sim3aProviderComparator": "Comparateur prestataires",
+  "sim3aProviderComparatorSub": "VIAC, Finpension, frankly...",
+  "sim3aRealReturn": "Rendement réel",
+  "sim3aRealReturnSub": "Après frais, inflation et fiscal",
+  "sim3aStaggeredWithdrawal": "Retrait échelonné",
+  "sim3aStaggeredWithdrawalSub": "Étaler les retraits pour réduire l'impôt",
+  "sim3aCtaCompare": "Comparer",
+  "sim3aCtaCalculate": "Calculer",
+  "sim3aCtaPlan": "Planifier",
+  "sim3aDisclaimer": "Estimation éducative. Les économies réelles dépendent de ton lieu de résidence et de ta situation familiale. Ne constitue pas un conseil financier (LSFin).",
+  "sim3aDebtLockedTitle": "Priorité au désendettement",
+  "sim3aDebtLockedMessage": "En mode protection, les recommandations d'action 3a sont désactivées. La priorité est de stabiliser ta situation financière avant de verser dans le 3a.",
+  "sim3aDebtStrategyTitle": "Stratégie bloquée",
+  "sim3aDebtStrategyMessage": "Les stratégies d'investissement 3a sont désactivées tant que tu as des dettes actives. Rembourser tes dettes est un rendement plus élevé que tout placement.",
+
+  "realReturnTitle": "Rendement réel 3a",
+  "realReturnChiffreChocLabel": "Taux équivalent sur effort net",
+  "realReturnVsNominal": "vs {rate}\u00a0% taux net 3a (brut − frais)",
+  "@realReturnVsNominal": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "realReturnEffortNet": "Effort net\u00a0: {amount}/an | Prime fiscale implicite\u00a0: +{pts} pts",
+  "@realReturnEffortNet": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "pts": { "type": "String" }
+    }
+  },
+  "realReturnParams": "Paramètres",
+  "realReturnAnnualPayment": "Versement annuel",
+  "realReturnMarginalRate": "Taux marginal",
+  "realReturnGrossReturn": "Rendement brut",
+  "realReturnMgmtFees": "Frais de gestion",
+  "realReturnDuration": "Durée de placement",
+  "realReturnYearsSuffix": "{count} ans",
+  "@realReturnYearsSuffix": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "realReturnCompared": "Rendements comparés",
+  "realReturnNominal3a": "Rendement nominal 3a",
+  "realReturnRealWithFiscal": "Rendement réel (avec fiscal)",
+  "realReturnEquivNote": "Ce taux est un taux équivalent\u00a0: il ne représente pas un rendement de marché attendu.",
+  "realReturnSavingsAccount": "Rendement compte épargne",
+  "realReturnFinalCapital": "Capital final après {years} ans",
+  "@realReturnFinalCapital": {
+    "placeholders": {
+      "years": { "type": "int" }
+    }
+  },
+  "realReturn3aFintech": "3a Fintech + fiscal",
+  "realReturnSavings15": "Compte épargne 1,5\u00a0%",
+  "realReturnGainVsSavings": "Gain vs épargne classique\u00a0: CHF {amount}",
+  "@realReturnGainVsSavings": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "realReturnFiscalDetail": "Détail économie fiscale",
+  "realReturnTotalPayments": "Total versements",
+  "realReturnFinalCapital3a": "Capital final 3a (hors fiscal)",
+  "realReturnCumulativeFiscal": "Économie fiscale cumulée",
+  "realReturnTotalWithFiscal": "Total avec avantage fiscal",
+  "realReturnAhaMoment": "Ton effort réel\u00a0: {netAmount}/an. Le fisc finance la différence — c'est un levier rare en Suisse.",
+  "@realReturnAhaMoment": {
+    "placeholders": {
+      "netAmount": { "type": "String" }
+    }
+  },
+  "realReturnPerYear": "/ an"
 }

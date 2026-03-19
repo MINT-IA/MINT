@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
@@ -16,6 +17,7 @@ import 'package:mint_mobile/widgets/coach/lpp_rescue_widget.dart';
 //  INDEPENDANT SCREEN — Sprint S12 / Chantier 6
 // ────────────────────────────────────────────────────────────
 //
+// Design System: Category C — Life Event.
 // Coverage gap analysis for self-employed workers.
 // Visual indicators for LPP/IJM/LAA/3a coverage.
 // Protection cost calculator with monthly breakdown.
@@ -67,57 +69,58 @@ class _IndependantScreenState extends State<IndependantScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.white,
       body: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+            padding: const EdgeInsets.fromLTRB(
+                MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildHeader(),
-                const SizedBox(height: 20),
+                const SizedBox(height: MintSpacing.lg),
                 _buildIntro(),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Revenue input
                 _buildRevenueSection(),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Coverage toggles
                 _buildCoverageToggles(),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 if (_result != null) ...[
                   // Jour J — protection before/after (P6-A / S42)
                   _buildJourJSection(),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: MintSpacing.lg),
 
                   // Critical alerts
                   if (_result!.alerts.isNotEmpty) ...[
                     _buildAlerts(),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: MintSpacing.lg),
                   ],
 
                   // Coverage gap analysis
                   _buildCoverageGapSection(),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: MintSpacing.lg),
 
                   // Protection cost calculator
                   _buildProtectionCost(),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: MintSpacing.lg),
 
                   // AVS info
                   _buildAvsInfo(),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: MintSpacing.lg),
 
                   // 3a info
                   _build3aInfo(),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: MintSpacing.lg),
 
                   // Recommendations
                   _buildRecommendations(),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: MintSpacing.lg),
 
                   // ── P7-D : Sauvetage LPP — libre passage (LFLP art. 3-4) ──
                   if (!_hasLpp)
@@ -127,41 +130,44 @@ class _IndependantScreenState extends State<IndependantScreen> {
                       options: const [
                         LppTransferOption(
                           label: 'Fondation de libre passage',
-                          emoji: '🏦',
-                          description: 'Place ton avoir en libre passage avec un rendement correct.',
+                          emoji: '\u{1F3E6}',
+                          description:
+                              'Place ton avoir en libre passage avec un rendement correct.',
                           fiveYearGain: 8500,
                           recommended: true,
                           legalRef: 'LFLP art. 4',
                         ),
                         LppTransferOption(
-                          label: 'Institution suppletive',
-                          emoji: '⚠️',
-                          description: 'Transfert automatique apres 6 mois — rendement minimal.',
+                          label: 'Institution suppl\u00e9tive',
+                          emoji: '\u26A0\uFE0F',
+                          description:
+                              'Transfert automatique apr\u00e8s 6 mois \u2014 rendement minimal.',
                           fiveYearGain: 1200,
                           legalRef: 'OPP2 art. 10',
                         ),
                         LppTransferOption(
                           label: 'Nouvelle caisse LPP',
-                          emoji: '🔄',
-                          description: 'Tu t\'affilies volontairement a une caisse LPP.',
+                          emoji: '\u{1F504}',
+                          description:
+                              'Tu t\'affilies volontairement \u00e0 une caisse LPP.',
                           fiveYearGain: 12000,
                           legalRef: 'LPP art. 44',
                         ),
                       ],
                     ),
-                  if (!_hasLpp) const SizedBox(height: 20),
+                  if (!_hasLpp) const SizedBox(height: MintSpacing.lg),
                 ],
 
                 // Disclaimer
                 _buildDisclaimer(),
-                const SizedBox(height: 16),
+                const SizedBox(height: MintSpacing.md),
 
                 _buildMintIndependantSection(),
-                const SizedBox(height: 20),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Sources
                 _buildSourcesFooter(),
-                const SizedBox(height: 100),
+                const SizedBox(height: MintSpacing.xxl),
               ]),
             ),
           ),
@@ -175,20 +181,18 @@ class _IndependantScreenState extends State<IndependantScreen> {
   Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
       pinned: true,
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.white,
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
         onPressed: () => context.pop(),
       ),
-      title: Text(
-        S.of(context)!.independantAppBarTitle,
-        style: GoogleFonts.montserrat(
-          fontWeight: FontWeight.w700,
-          fontSize: 14,
-          letterSpacing: 1.5,
-          color: MintColors.textMuted,
+      title: Semantics(
+        header: true,
+        child: Text(
+          S.of(context)!.independantAppBarTitle,
+          style: MintTextStyles.headlineMedium(),
         ),
       ),
     );
@@ -211,26 +215,22 @@ class _IndependantScreenState extends State<IndependantScreen> {
             size: 28,
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: MintSpacing.md),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                S.of(context)!.independantTitle,
-                style: GoogleFonts.outfit(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
+              Semantics(
+                header: true,
+                child: Text(
+                  S.of(context)!.independantTitle,
+                  style: MintTextStyles.headlineLarge(),
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: MintSpacing.xs),
               Text(
                 S.of(context)!.independantSubtitle,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodyMedium(),
               ),
             ],
           ),
@@ -243,25 +243,21 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
   Widget _buildIntro() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.appleSurface,
+        color: MintColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
+        border: Border.all(color: MintColors.border.withAlpha(128)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.info, size: 20),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: Text(
               S.of(context)!.independantIntroDesc,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
         ],
@@ -270,8 +266,6 @@ class _IndependantScreenState extends State<IndependantScreen> {
   }
 
   // ── Jour J section (P6-A / S42) ───────────────────────────
-  //  Dramatic before/after: every protection ON vs OFF.
-  //  Computed from result or estimated from revenuNet.
 
   static const _protections = [
     ('AVS', '\ud83e\uddf1', 'Double ta cotisation'),
@@ -282,23 +276,17 @@ class _IndependantScreenState extends State<IndependantScreen> {
   ];
 
   Widget _buildJourJSection() {
-    // Estimate protection monthly loss when switching to self-employment.
-    // AVS: employee share doubles (indep. pays both sides — LAVS art. 8).
     final avsMonth = _revenuNet * avsCotisationSalarie / 12;
-    // LPP: voluntary caisse bonification (age-dependent — LPP art. 16).
-    // Falls back to result's avsMensuel when a full calculation is available.
     final lppMonth = _result?.protectionCost.avsMensuel ??
         _revenuNet * getLppBonificationRate(_age) / 12;
-    // LAA non-professionnelle: indicative market premium (~150 CHF/mois).
-    // IJM maladie: indicative market premium (~100 CHF/mois).
-    // These are educational estimates — real premiums depend on caisse & coverage.
     const double kLaaIndepMensuel = 150.0;
     const double kIjmIndepMensuel = 100.0;
-    final totalLoss = (avsMonth + lppMonth + kLaaIndepMensuel + kIjmIndepMensuel)
-        .roundToDouble();
+    final totalLoss =
+        (avsMonth + lppMonth + kLaaIndepMensuel + kIjmIndepMensuel)
+            .roundToDouble();
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -314,32 +302,24 @@ class _IndependantScreenState extends State<IndependantScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
           Row(
             children: [
               const Text('\ud83d\udd04', style: TextStyle(fontSize: 20)),
-              const SizedBox(width: 8),
+              const SizedBox(width: MintSpacing.sm),
               Expanded(
                 child: Text(
                   S.of(context)!.independantJourJTitle,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Text(
             S.of(context)!.independantJourJSubtitle,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.labelSmall(),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: MintSpacing.md),
 
           // Column headers
           Row(
@@ -349,50 +329,41 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 child: Text(
                   S.of(context)!.independantJourJEmployee,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.success,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.success),
                 ),
               ),
               Expanded(
                 child: Text(
                   S.of(context)!.independantJourJSelfEmployed,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.error,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.error),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
 
-          // Protection rows
           ..._protections.map((p) => _buildProtectionRow(p.$1, p.$2, p.$3)),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: MintSpacing.sm),
 
           // Chiffre-choc
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: MintColors.error.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              S.of(context)!.independantJourJChiffreChoc(IndependantService.formatChf(totalLoss)),
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: MintColors.error,
-                height: 1.4,
+          Semantics(
+            label: S.of(context)!.independantJourJChiffreChoc(
+                IndependantService.formatChf(totalLoss)),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(MintSpacing.sm),
+              decoration: BoxDecoration(
+                color: MintColors.error.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(10),
               ),
-              textAlign: TextAlign.center,
+              child: Text(
+                S.of(context)!.independantJourJChiffreChoc(
+                    IndependantService.formatChf(totalLoss)),
+                style: MintTextStyles.labelSmall(color: MintColors.error),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
         ],
@@ -402,24 +373,21 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
   Widget _buildProtectionRow(String label, String emoji, String detail) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(bottom: MintSpacing.xs),
       child: Row(
         children: [
           Text(emoji, style: const TextStyle(fontSize: 16)),
-          const SizedBox(width: 6),
+          const SizedBox(width: MintSpacing.xs),
           Expanded(
             flex: 2,
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
           ),
           const Expanded(
-            child: Icon(Icons.check_circle, color: MintColors.success, size: 18),
+            child:
+                Icon(Icons.check_circle, color: MintColors.success, size: 18),
           ),
           Expanded(
             child: Column(
@@ -428,10 +396,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 Text(
                   detail,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    fontSize: 9,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.micro(color: MintColors.textMuted),
                 ),
               ],
             ),
@@ -445,77 +410,66 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
   Widget _buildRevenueSection() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withValues(alpha: 0.06),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-            spreadRadius: -4,
-          ),
-        ],
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
+        borderRadius: BorderRadius.circular(16),
+        border:
+            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             S.of(context)!.independantRevenueTitle,
-            style: GoogleFonts.outfit(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium(),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 IndependantService.formatChf(_revenuNet),
-                style: GoogleFonts.outfit(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.headlineMedium(),
               ),
               Text(
                 S.of(context)!.independantAgeLabel(_age),
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodySmall(
+                    color: MintColors.textSecondary),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 6,
-            ),
-            child: Slider(
-              value: _revenuNet,
-              min: 20000,
-              max: 200000,
-              divisions: 36,
-              onChanged: (value) {
-                _revenuNet = value;
-                _compute();
-              },
+          const SizedBox(height: MintSpacing.sm),
+          Semantics(
+            label: S.of(context)!.independantRevenueTitle,
+            value: IndependantService.formatChf(_revenuNet),
+            child: SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                activeTrackColor: MintColors.primary,
+                inactiveTrackColor: MintColors.border,
+                thumbColor: MintColors.primary,
+                overlayColor: MintColors.primary.withValues(alpha: 0.1),
+                trackHeight: 4,
+              ),
+              child: Slider(
+                value: _revenuNet,
+                min: 20000,
+                max: 200000,
+                divisions: 36,
+                onChanged: (value) {
+                  _revenuNet = value;
+                  _compute();
+                },
+              ),
             ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('CHF\u00A020k', style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
-              Text('CHF\u00A0200k', style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
+              Text('CHF\u00A020k',
+                  style: MintTextStyles.labelSmall()),
+              Text('CHF\u00A0200k',
+                  style: MintTextStyles.labelSmall()),
             ],
           ),
         ],
@@ -527,24 +481,21 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
   Widget _buildCoverageToggles() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
+        borderRadius: BorderRadius.circular(16),
+        border:
+            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             S.of(context)!.independantCoverageTitle,
-            style: GoogleFonts.outfit(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium(),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildToggleRow(S.of(context)!.independantToggleLpp, _hasLpp, (v) {
             _hasLpp = v;
             _compute();
@@ -566,25 +517,27 @@ class _IndependantScreenState extends State<IndependantScreen> {
     );
   }
 
-  Widget _buildToggleRow(String label, bool value, ValueChanged<bool> onChanged) {
+  Widget _buildToggleRow(
+      String label, bool value, ValueChanged<bool> onChanged) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: MintSpacing.sm),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeTrackColor: MintColors.success,
+          Semantics(
+            toggled: value,
+            label: label,
+            child: Switch(
+              value: value,
+              onChanged: onChanged,
+              activeTrackColor: MintColors.success,
+            ),
           ),
         ],
       ),
@@ -605,12 +558,12 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 ? MintColors.warning
                 : MintColors.info;
         return Padding(
-          padding: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.only(bottom: MintSpacing.sm),
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MintSpacing.md),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(color: color.withValues(alpha: 0.3)),
             ),
             child: Row(
@@ -621,16 +574,11 @@ class _IndependantScreenState extends State<IndependantScreen> {
                   color: color,
                   size: 20,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: MintSpacing.sm),
                 Expanded(
                   child: Text(
                     alert,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: color,
-                      height: 1.5,
-                      fontWeight: isCritique ? FontWeight.w600 : FontWeight.w400,
-                    ),
+                    style: MintTextStyles.bodySmall(color: color),
                   ),
                 ),
               ],
@@ -644,35 +592,33 @@ class _IndependantScreenState extends State<IndependantScreen> {
   // ── Coverage gap section ───────────────────────────────────
 
   Widget _buildCoverageGapSection() {
+    final l = S.of(context)!;
     final result = _result!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            const Icon(Icons.shield_outlined, size: 16, color: MintColors.textMuted),
-            const SizedBox(width: 8),
+            const Icon(Icons.shield_outlined,
+                size: 16, color: MintColors.textMuted),
+            const SizedBox(width: MintSpacing.sm),
             Text(
-              S.of(context)!.independantCoverageAnalysis,
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textMuted,
-                letterSpacing: 1,
-              ),
+              l.independantCoverageAnalysis,
+              style: MintTextStyles.labelSmall(),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm),
         ...result.coverageGaps.map((gap) => Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: _buildCoverageCard(gap),
-        )),
+              padding: const EdgeInsets.only(bottom: MintSpacing.sm),
+              child: _buildCoverageCard(gap),
+            )),
       ],
     );
   }
 
   Widget _buildCoverageCard(CoverageGapItem gap) {
+    final l = S.of(context)!;
     final statusColor = gap.isCovered
         ? MintColors.success
         : gap.urgency == 'critique'
@@ -682,90 +628,83 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 : MintColors.info;
 
     final statusLabel = gap.isCovered
-        ? 'Couvert'
+        ? l.independantCoveredLabel
         : gap.urgency == 'critique'
-            ? 'NON COUVERT — Critique'
+            ? l.independantCriticalLabel
             : gap.urgency == 'haute'
-                ? 'NON COUVERT'
-                : 'Non couvert';
+                ? l.independantHighLabel
+                : l.independantLowLabel;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: statusColor.withValues(alpha: 0.3),
-          width: gap.isCovered ? 0.8 : 1.5,
+    return Semantics(
+      label: '${gap.label}: $statusLabel',
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: statusColor.withValues(alpha: 0.3),
+            width: gap.isCovered ? 0.8 : 1.5,
+          ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: statusColor.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    gap.isCovered ? Icons.check_circle : Icons.cancel,
+                    color: statusColor,
+                    size: 18,
+                  ),
                 ),
-                child: Icon(
-                  gap.isCovered ? Icons.check_circle : Icons.cancel,
-                  color: statusColor,
-                  size: 18,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      gap.label,
-                      style: GoogleFonts.outfit(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.textPrimary,
+                const SizedBox(width: MintSpacing.sm),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        gap.label,
+                        style: MintTextStyles.titleMedium(),
                       ),
-                    ),
-                    const SizedBox(height: 2),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        statusLabel,
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: statusColor,
+                      const SizedBox(height: 2),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: MintSpacing.sm, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: statusColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          statusLabel,
+                          style:
+                              MintTextStyles.labelSmall(color: statusColor),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            gap.recommendation,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.5,
+              ],
             ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            gap.source,
-            style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted),
-          ),
-        ],
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              gap.recommendation,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+            const SizedBox(height: MintSpacing.xs),
+            Text(
+              gap.source,
+              style: MintTextStyles.labelSmall(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -777,82 +716,64 @@ class _IndependantScreenState extends State<IndependantScreen> {
     final cost = result.protectionCost;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withValues(alpha: 0.06),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-            spreadRadius: -4,
-          ),
-        ],
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
+        borderRadius: BorderRadius.circular(16),
+        border:
+            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             S.of(context)!.independantProtectionCostTitle,
-            style: GoogleFonts.outfit(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.headlineMedium(),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Text(
             S.of(context)!.independantProtectionCostSubtitle,
-            style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
 
-          _buildCostRow(S.of(context)!.independantCostAvs, cost.avsMensuel, MintColors.tealLight),
-          const SizedBox(height: 10),
+          _buildCostRow(S.of(context)!.independantCostAvs, cost.avsMensuel,
+              MintColors.tealLight),
+          const SizedBox(height: MintSpacing.sm),
           if (!_hasIjm)
-            _buildCostRow(S.of(context)!.independantCostIjm, cost.ijmMensuel, MintColors.error),
-          if (!_hasIjm) const SizedBox(height: 10),
+            _buildCostRow(S.of(context)!.independantCostIjm, cost.ijmMensuel,
+                MintColors.error),
+          if (!_hasIjm) const SizedBox(height: MintSpacing.sm),
           if (!_hasLaa)
-            _buildCostRow(S.of(context)!.independantCostLaa, cost.laaMensuel, MintColors.warning),
-          if (!_hasLaa) const SizedBox(height: 10),
-          _buildCostRow(S.of(context)!.independantCost3a, cost.pillar3aMensuel, MintColors.indigo),
-          const SizedBox(height: 16),
+            _buildCostRow(S.of(context)!.independantCostLaa, cost.laaMensuel,
+                MintColors.warning),
+          if (!_hasLaa) const SizedBox(height: MintSpacing.sm),
+          _buildCostRow(S.of(context)!.independantCost3a, cost.pillar3aMensuel,
+              MintColors.indigo),
+          const SizedBox(height: MintSpacing.md),
 
           Divider(color: MintColors.border.withValues(alpha: 0.5)),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
 
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 S.of(context)!.independantTotalMonthly,
-                style: GoogleFonts.outfit(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(),
               ),
               Text(
                 IndependantService.formatChf(cost.totalMensuel),
-                style: GoogleFonts.outfit(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.primary,
-                ),
+                style: MintTextStyles.displayMedium(color: MintColors.primary),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Align(
             alignment: Alignment.centerRight,
             child: Text(
               '${IndependantService.formatChf(cost.totalAnnuel)} ${S.of(context)!.independantPerYear}',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
         ],
@@ -871,30 +792,20 @@ class _IndependantScreenState extends State<IndependantScreen> {
             shape: BoxShape.circle,
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: MintSpacing.sm),
         Expanded(
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodyMedium(),
           ),
         ),
         Text(
           IndependantService.formatChf(amount),
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
         ),
         Text(
           S.of(context)!.independantPerMonth,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.labelSmall(),
         ),
       ],
     );
@@ -905,7 +816,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
   Widget _buildAvsInfo() {
     final result = _result!;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.accentPastel,
         borderRadius: BorderRadius.circular(16),
@@ -915,31 +826,25 @@ class _IndependantScreenState extends State<IndependantScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.people_outline, color: MintColors.tealLight, size: 20),
-              const SizedBox(width: 8),
+              const Icon(Icons.people_outline,
+                  color: MintColors.tealLight, size: 20),
+              const SizedBox(width: MintSpacing.sm),
               Text(
                 S.of(context)!.independantAvsTitle,
-                style: GoogleFonts.outfit(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.tealDark,
-                ),
+                style: MintTextStyles.titleMedium(color: MintColors.tealDark),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
-            S.of(context)!.independantAvsBody(IndependantService.formatChf(result.cotisationAvsAnnuelle)),
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.tealDark,
-              height: 1.5,
-            ),
+            S.of(context)!.independantAvsBody(
+                IndependantService.formatChf(result.cotisationAvsAnnuelle)),
+            style: MintTextStyles.bodySmall(color: MintColors.tealDark),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: MintSpacing.xs),
           Text(
             S.of(context)!.independantAvsSource,
-            style: GoogleFonts.inter(fontSize: 11, color: MintColors.teal),
+            style: MintTextStyles.labelSmall(color: MintColors.teal),
           ),
         ],
       ),
@@ -951,7 +856,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
   Widget _build3aInfo() {
     final result = _result!;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.indigo.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
@@ -961,33 +866,27 @@ class _IndependantScreenState extends State<IndependantScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.savings_outlined, color: MintColors.indigo, size: 20),
-              const SizedBox(width: 8),
+              const Icon(Icons.savings_outlined,
+                  color: MintColors.indigo, size: 20),
+              const SizedBox(width: MintSpacing.sm),
               Text(
                 S.of(context)!.independant3aTitle,
-                style: GoogleFonts.outfit(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.indigoDark,
-                ),
+                style: MintTextStyles.titleMedium(color: MintColors.indigoDark),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             _hasLpp
                 ? S.of(context)!.independant3aWithLpp
-                : S.of(context)!.independant3aWithoutLpp(IndependantService.formatChf(result.plafond3a)),
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.indigoDeep,
-              height: 1.5,
-            ),
+                : S.of(context)!.independant3aWithoutLpp(
+                    IndependantService.formatChf(result.plafond3a)),
+            style: MintTextStyles.bodySmall(color: MintColors.indigoDeep),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: MintSpacing.xs),
           Text(
             S.of(context)!.independant3aSource,
-            style: GoogleFonts.inter(fontSize: 11, color: MintColors.pillarLpp),
+            style: MintTextStyles.labelSmall(color: MintColors.pillarLpp),
           ),
         ],
       ),
@@ -1005,29 +904,27 @@ class _IndependantScreenState extends State<IndependantScreen> {
       children: [
         Row(
           children: [
-            const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.textMuted),
-            const SizedBox(width: 8),
+            const Icon(Icons.lightbulb_outline,
+                size: 16, color: MintColors.textMuted),
+            const SizedBox(width: MintSpacing.sm),
             Text(
               S.of(context)!.independantRecommendationsHeader,
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textMuted,
-                letterSpacing: 1,
-              ),
+              style: MintTextStyles.labelSmall(),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm),
         ...result.recommendations.asMap().entries.map((entry) {
           return Padding(
-            padding: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.only(bottom: MintSpacing.sm),
             child: Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: MintColors.white,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
+                border: Border.all(
+                    color: MintColors.border.withValues(alpha: 0.6),
+                    width: 0.8),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1042,23 +939,17 @@ class _IndependantScreenState extends State<IndependantScreen> {
                     child: Center(
                       child: Text(
                         '${entry.key + 1}',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.primary,
-                        ),
+                        style: MintTextStyles.labelSmall(
+                            color: MintColors.primary),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: MintSpacing.sm),
                   Expanded(
                     child: Text(
                       entry.value,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: MintColors.textSecondary,
-                        height: 1.5,
-                      ),
+                      style: MintTextStyles.bodySmall(
+                          color: MintColors.textSecondary),
                     ),
                   ),
                 ],
@@ -1070,7 +961,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
     );
   }
 
-  // ── MINT Indépendant section (S42) ────────────────────────
+  // ── MINT Ind\u00e9pendant section (S42) ────────────────────────
 
   Widget _buildMintIndependantSection() {
     final desiredNet = _revenuNet;
@@ -1078,21 +969,18 @@ class _IndependantScreenState extends State<IndependantScreen> {
     final socialCharges = desiredNet * 0.10;
     final businessExp = desiredNet * 0.15;
     final unpaidDays = desiredNet * 0.05;
-    final requiredRevenue = desiredNet + taxes + socialCharges + businessExp + unpaidDays;
+    final requiredRevenue =
+        desiredNet + taxes + socialCharges + businessExp + unpaidDays;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Section title
         Padding(
-          padding: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.only(bottom: MintSpacing.md),
           child: Text(
             S.of(context)!.independantAnalysisHeader,
-            style: GoogleFonts.montserrat(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.headlineMedium(),
           ),
         ),
 
@@ -1101,82 +989,98 @@ class _IndependantScreenState extends State<IndependantScreen> {
           expectedIncome: _revenuNet,
           lppOption: DecisionOption(
             title: 'Caisse LPP facultative',
-            emoji: '🏛️',
-            subtitle: 'Protection rente invalidité + retraite',
+            emoji: '\u{1F3DB}\uFE0F',
+            subtitle: 'Protection rente invalidit\u00e9 + retraite',
             pros: const [
-              'Couverture invalidité incluse',
-              'Cotisations déductibles',
-              'Rente prévue à la retraite',
+              'Couverture invalidit\u00e9 incluse',
+              'Cotisations d\u00e9ductibles',
+              'Rente pr\u00e9vue \u00e0 la retraite',
             ],
             cons: const [
-              'Cotisations obligatoires élevées',
+              'Cotisations obligatoires \u00e9lev\u00e9es',
               'Moins flexible',
             ],
             annualTaxSavings: _revenuNet * 0.08,
           ),
           grand3aOption: DecisionOption(
             title: 'Grand 3a (sans LPP)',
-            emoji: '🏦',
+            emoji: '\u{1F3E6}',
             subtitle: '20% du revenu net, max CHF 36\'288/an',
             pros: const [
-              'Flexibilité totale',
-              'Déduction fiscale maximale',
-              'Capital disponible à 60 ans',
+              'Flexibilit\u00e9 totale',
+              'D\u00e9duction fiscale maximale',
+              'Capital disponible \u00e0 60 ans',
             ],
             cons: const [
-              'Pas de couverture invalidité',
-              'Pas de rente prévue',
+              'Pas de couverture invalidit\u00e9',
+              'Pas de rente pr\u00e9vue',
             ],
-            annualTaxSavings: (_revenuNet * pilier3aTauxRevenuSansLpp).clamp(0, pilier3aPlafondSansLpp) * 0.25,
+            annualTaxSavings:
+                (_revenuNet * pilier3aTauxRevenuSansLpp).clamp(0, pilier3aPlafondSansLpp) *
+                    0.25,
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         // True hourly rate
         TrueHourlyRateWidget(
           desiredNetAnnual: desiredNet,
           layers: [
-            RateLayer(label: 'Impôts (estimation)', amount: taxes, emoji: '🏛️'),
-            RateLayer(label: 'Charges sociales AVS/AI', amount: socialCharges, emoji: '🛡️'),
-            RateLayer(label: 'Frais professionnels', amount: businessExp, emoji: '💼'),
-            RateLayer(label: 'Jours non facturables', amount: unpaidDays, emoji: '📅'),
+            RateLayer(
+                label: 'Imp\u00f4ts (estimation)',
+                amount: taxes,
+                emoji: '\u{1F3DB}\uFE0F'),
+            RateLayer(
+                label: 'Charges sociales AVS/AI',
+                amount: socialCharges,
+                emoji: '\u{1F6E1}\uFE0F'),
+            RateLayer(
+                label: 'Frais professionnels',
+                amount: businessExp,
+                emoji: '\u{1F4BC}'),
+            RateLayer(
+                label: 'Jours non facturables',
+                amount: unpaidDays,
+                emoji: '\u{1F4C5}'),
           ],
           requiredRevenue: requiredRevenue,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
-        // ── Super-pouvoir fiscal indépendant (déductions) ──
+        // ── Super-pouvoir fiscal ind\u00e9pendant (d\u00e9ductions) ──
         FiscalSuperpowerWidget(
           taxRate: 0.25,
           superpowers: [
             const FiscalSuperpower(
               label: 'Pilier 3a grand versement',
-              emoji: '🏦',
+              emoji: '\u{1F3E6}',
               annualDeduction: 20000,
               taxSaving: 20000 * 0.25,
               legalRef: 'OPP3 art. 1',
-              note: 'Max 20% du revenu net, plafonné à CHF 36\'288/an sans LPP',
+              note:
+                  'Max 20% du revenu net, plafonn\u00e9 \u00e0 CHF 36\'288/an sans LPP',
             ),
             FiscalSuperpower(
               label: 'Frais professionnels effectifs',
-              emoji: '💼',
+              emoji: '\u{1F4BC}',
               annualDeduction: desiredNet * 0.15,
               taxSaving: desiredNet * 0.15 * 0.25,
               legalRef: 'LIFD art. 27 al. 2',
-              note: 'Loyer bureau, matériel, formation — déductibles au réel',
+              note:
+                  'Loyer bureau, mat\u00e9riel, formation \u2014 d\u00e9ductibles au r\u00e9el',
             ),
             const FiscalSuperpower(
               label: 'Primes assurance maladie (LPP vol.)',
-              emoji: '🛡️',
+              emoji: '\u{1F6E1}\uFE0F',
               annualDeduction: 3600,
               taxSaving: 3600 * 0.25,
               legalRef: 'LIFD art. 33 al. 1 lit. g',
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
-        // Double prix de la liberté — comparaison charges salarié vs indépendant
+        // Double prix de la libert\u00e9
         DoublePriceFreedomWidget(
           grossIncome: _revenuNet,
           charges: [
@@ -1184,44 +1088,45 @@ class _IndependantScreenState extends State<IndependantScreen> {
               label: 'AVS / AI / APG',
               employeeAmount: _revenuNet * 0.0530,
               selfEmployedAmount: _revenuNet * 0.1010,
-              note: 'LAVS art. 8 — indép. paie les 2 parts',
+              note: 'LAVS art. 8 \u2014 ind\u00e9p. paie les 2 parts',
             ),
             ChargeLine(
               label: 'LPP (2e pilier)',
               employeeAmount: _revenuNet * 0.070,
               selfEmployedAmount: 0,
-              note: 'Facultatif pour indépendant (LPP art. 4)',
+              note: 'Facultatif pour ind\u00e9pendant (LPP art. 4)',
             ),
             ChargeLine(
-              label: 'Chômage (AC)',
+              label: 'Ch\u00f4mage (AC)',
               employeeAmount: _revenuNet * 0.011,
               selfEmployedAmount: 0,
-              note: 'Pas d\'AC pour indépendant (LACI art. 2)',
+              note: 'Pas d\'AC pour ind\u00e9pendant (LACI art. 2)',
             ),
             ChargeLine(
               label: 'Cotisations pro (IJM/LAA)',
               employeeAmount: _revenuNet * 0.020,
               selfEmployedAmount: _revenuNet * 0.040,
-              note: 'À charge entière de l\'indépendant',
+              note: '\u00c0 charge enti\u00e8re de l\'ind\u00e9pendant',
             ),
           ],
           totalEmployee: _revenuNet * (0.0530 + 0.070 + 0.011 + 0.020),
           totalSelfEmployed: _revenuNet * (0.1010 + 0 + 0 + 0.040),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         // 90-day plan
         const NinetyDayPlanWidget(
           phases: [
             PlanPhase(
               title: 'Administratif urgent',
-              emoji: '📋',
+              emoji: '\u{1F4CB}',
               deadline: 'J+30',
               urgencyColor: MintColors.scoreCritique,
               actions: [
                 PlanAction(
-                  label: 'Inscription caisse AVS indépendants',
-                  consequence: 'Amendes rétroactives si délai dépassé',
+                  label: 'Inscription caisse AVS ind\u00e9pendants',
+                  consequence:
+                      'Amendes r\u00e9troactives si d\u00e9lai d\u00e9pass\u00e9',
                   legalRef: 'LAVS art. 12',
                 ),
                 PlanAction(
@@ -1232,29 +1137,36 @@ class _IndependantScreenState extends State<IndependantScreen> {
               ],
             ),
             PlanPhase(
-              title: 'Prévoyance',
-              emoji: '🏦',
+              title: 'Pr\u00e9voyance',
+              emoji: '\u{1F3E6}',
               deadline: 'J+60',
               urgencyColor: MintColors.scoreAttention,
               actions: [
                 PlanAction(
-                  label: 'Ouvrir compte 3a (déduction jusqu\'à CHF 36\'288)',
+                  label:
+                      'Ouvrir compte 3a (d\u00e9duction jusqu\'\u00e0 CHF 36\'288)',
                   legalRef: 'OPP3',
                 ),
                 PlanAction(
-                  label: 'Évaluer IJM (indemnité journalière maladie)',
-                  consequence: 'Perte de revenus dès J+3 en cas de maladie',
+                  label:
+                      '\u00c9valuer IJM (indemnit\u00e9 journali\u00e8re maladie)',
+                  consequence:
+                      'Perte de revenus d\u00e8s J+3 en cas de maladie',
                 ),
               ],
             ),
             PlanPhase(
               title: 'Optimisation fiscale',
-              emoji: '💡',
+              emoji: '\u{1F4A1}',
               deadline: 'J+90',
               urgencyColor: MintColors.primary,
               actions: [
-                PlanAction(label: 'Frais professionnels déductibles — tenir registre'),
-                PlanAction(label: 'Acomptes impôts cantonaux — éviter les intérêts'),
+                PlanAction(
+                    label:
+                        'Frais professionnels d\u00e9ductibles \u2014 tenir registre'),
+                PlanAction(
+                    label:
+                        'Acomptes imp\u00f4ts cantonaux \u2014 \u00e9viter les int\u00e9r\u00eats'),
               ],
             ),
           ],
@@ -1266,29 +1178,27 @@ class _IndependantScreenState extends State<IndependantScreen> {
   // ── Disclaimer ─────────────────────────────────────────────
 
   Widget _buildDisclaimer() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.warningBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.orangeRetroWarm),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              S.of(context)!.independantDisclaimer,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.deepOrange,
-                height: 1.5,
+    return Semantics(
+      label: S.of(context)!.independantDisclaimer,
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        decoration: BoxDecoration(
+          color: MintColors.surface,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.info_outline, color: MintColors.textMuted, size: 18),
+            const SizedBox(width: MintSpacing.sm),
+            Expanded(
+              child: Text(
+                S.of(context)!.independantDisclaimer,
+                style: MintTextStyles.micro(),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1301,20 +1211,12 @@ class _IndependantScreenState extends State<IndependantScreen> {
       children: [
         Text(
           S.of(context)!.independantSourcesTitle,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.labelSmall(),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: MintSpacing.xs),
         Text(
           S.of(context)!.independantSourcesBody,
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            color: MintColors.textMuted,
-            height: 1.5,
-          ),
+          style: MintTextStyles.micro(),
         ),
       ],
     );
