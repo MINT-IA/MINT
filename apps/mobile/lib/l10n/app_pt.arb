@@ -6048,5 +6048,29 @@
     }
   },
   "tabToday": "Hoje",
-  "tabDossier": "Dossiê"
+  "tabDossier": "Dossiê",
+  "affordabilityInsightRevenueTitle": "O que te limita: o teu rendimento, não o teu capital próprio",
+  "affordabilityInsightRevenueBody": "Os bancos suíços calculam com uma taxa teórica de 5\u00a0% (diretiva ASB), mesmo que a taxa real do mercado seja muito mais baixa. É um teste de resistência: verificam que poderias assumir os encargos se as taxas subissem. Os teus encargos teóricos: {chargesTheoriques}/mês. À taxa de mercado (~1,5\u00a0%): {chargesReelles}/mês.",
+  "@affordabilityInsightRevenueBody": {
+    "placeholders": {
+      "chargesTheoriques": {"type": "String"},
+      "chargesReelles": {"type": "String"}
+    }
+  },
+  "affordabilityInsightEquityTitle": "O que te limita: o teu capital próprio",
+  "affordabilityInsightEquityBody": "Faltam-te aproximadamente CHF\u00a0{manque} de capital próprio para atingir o mínimo de 20\u00a0% exigido pelos bancos.",
+  "@affordabilityInsightEquityBody": {
+    "placeholders": {
+      "manque": {"type": "String"}
+    }
+  },
+  "affordabilityInsightOkTitle": "Boa notícia: ambos os critérios estão cumpridos",
+  "affordabilityInsightOkBody": "O teu rendimento e capital próprio permitem-te aceder a este imóvel. Compara os tipos de hipoteca e as estratégias de amortização.",
+  "affordabilityInsightLppCap": "O teu 2.º pilar está limitado: apenas CHF\u00a0{lppUtilise} de {lppTotal} contam (máx. 10\u00a0% do preço, regra ASB).",
+  "@affordabilityInsightLppCap": {
+    "placeholders": {
+      "lppUtilise": {"type": "String"},
+      "lppTotal": {"type": "String"}
+    }
+  }
 }

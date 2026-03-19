@@ -6306,5 +6306,29 @@
     }
   },
   "tabToday": "Aujourd'hui",
-  "tabDossier": "Dossier"
+  "tabDossier": "Dossier",
+  "affordabilityInsightRevenueTitle": "Ce qui te limite\u00a0: ton revenu, pas tes fonds propres",
+  "affordabilityInsightRevenueBody": "Les banques suisses calculent avec un taux théorique de 5\u00a0% (directive ASB), même si le taux réel du marché est bien plus bas. C'est un test de résistance\u00a0: elles vérifient que tu pourrais assumer les charges si les taux remontaient. Tes charges théoriques\u00a0: {chargesTheoriques}/mois. Au taux réel (~1,5\u00a0%)\u00a0: {chargesReelles}/mois.",
+  "@affordabilityInsightRevenueBody": {
+    "placeholders": {
+      "chargesTheoriques": {"type": "String"},
+      "chargesReelles": {"type": "String"}
+    }
+  },
+  "affordabilityInsightEquityTitle": "Ce qui te limite\u00a0: tes fonds propres",
+  "affordabilityInsightEquityBody": "Il te manque environ CHF\u00a0{manque} de fonds propres pour atteindre le minimum de 20\u00a0% exigé par les banques.",
+  "@affordabilityInsightEquityBody": {
+    "placeholders": {
+      "manque": {"type": "String"}
+    }
+  },
+  "affordabilityInsightOkTitle": "Bonne nouvelle\u00a0: les deux critères sont remplis",
+  "affordabilityInsightOkBody": "Ton revenu et tes fonds propres te permettent d'accéder à ce bien. Pense à comparer les types d'hypothèque et les stratégies d'amortissement.",
+  "affordabilityInsightLppCap": "Ton 2e pilier est plafonné\u00a0: seuls CHF\u00a0{lppUtilise} sur {lppTotal} sont comptés (max 10\u00a0% du prix, règle ASB).",
+  "@affordabilityInsightLppCap": {
+    "placeholders": {
+      "lppUtilise": {"type": "String"},
+      "lppTotal": {"type": "String"}
+    }
+  }
 }

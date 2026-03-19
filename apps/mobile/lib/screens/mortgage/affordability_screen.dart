@@ -86,6 +86,10 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
 
                 // Jauges
                 _buildGaugesSection(result),
+                const SizedBox(height: 16),
+
+                // Insight pedagogique
+                _buildInsightCard(result),
                 const SizedBox(height: 24),
 
                 // Sliders
@@ -218,6 +222,88 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
             thresholdLabel: 'Min 20%',
             isOk: result.fondsPropresOk,
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInsightCard(AffordabilityResult result) {
+    final l = S.of(context)!;
+    final lppNonUtilise = _avoirLpp - result.lppUtilise;
+
+    // Determine insight content based on binding constraint
+    final IconData icon;
+    final String title;
+    final String body;
+
+    if (result.isRevenueConstrained && result.fondsPropresOk) {
+      icon = Icons.lightbulb_outline;
+      title = l.affordabilityInsightRevenueTitle;
+      body = l.affordabilityInsightRevenueBody(
+        formatChf(result.chargesTheoriquesMensuelles),
+        formatChf(result.chargesReellesMensuelles),
+      );
+    } else if (!result.fondsPropresOk) {
+      icon = Icons.account_balance_wallet_outlined;
+      title = l.affordabilityInsightEquityTitle;
+      body = l.affordabilityInsightEquityBody(
+        formatChf(result.manqueFondsPropres),
+      );
+    } else {
+      icon = Icons.check_circle_outline;
+      title = l.affordabilityInsightOkTitle;
+      body = l.affordabilityInsightOkBody;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.primaryLight.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.primary.withValues(alpha: 0.25)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: MintColors.primary, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            body,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textSecondary,
+              height: 1.5,
+            ),
+          ),
+          if (lppNonUtilise > 0) ...[
+            const SizedBox(height: 8),
+            Text(
+              l.affordabilityInsightLppCap(
+                formatChf(result.lppUtilise),
+                formatChf(_avoirLpp),
+              ),
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: MintColors.textSecondary,
+                height: 1.5,
+              ),
+            ),
+          ],
         ],
       ),
     );

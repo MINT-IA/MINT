@@ -6062,5 +6062,29 @@
     }
   },
   "tabToday": "Heute",
-  "tabDossier": "Akte"
+  "tabDossier": "Akte",
+  "affordabilityInsightRevenueTitle": "Was dich einschränkt: dein Einkommen, nicht dein Eigenkapital",
+  "affordabilityInsightRevenueBody": "Schweizer Banken rechnen mit einem theoretischen Zinssatz von 5\u00a0% (ASB-Richtlinie), auch wenn der aktuelle Marktzins deutlich tiefer ist. Es ist ein Belastungstest: Sie prüfen, ob du die Kosten tragen könntest, falls die Zinsen steigen. Deine theoretischen Kosten: {chargesTheoriques}/Mt. Zum Marktzins (~1,5\u00a0%): {chargesReelles}/Mt.",
+  "@affordabilityInsightRevenueBody": {
+    "placeholders": {
+      "chargesTheoriques": {"type": "String"},
+      "chargesReelles": {"type": "String"}
+    }
+  },
+  "affordabilityInsightEquityTitle": "Was dich einschränkt: dein Eigenkapital",
+  "affordabilityInsightEquityBody": "Dir fehlen ca. CHF\u00a0{manque} Eigenkapital, um die von den Banken geforderten 20\u00a0% zu erreichen.",
+  "@affordabilityInsightEquityBody": {
+    "placeholders": {
+      "manque": {"type": "String"}
+    }
+  },
+  "affordabilityInsightOkTitle": "Gute Nachricht: Beide Kriterien sind erfüllt",
+  "affordabilityInsightOkBody": "Dein Einkommen und dein Eigenkapital reichen für diese Immobilie. Vergleiche verschiedene Hypothekenarten und Amortisationsstrategien.",
+  "affordabilityInsightLppCap": "Deine 2. Säule ist begrenzt: Nur CHF\u00a0{lppUtilise} von {lppTotal} werden angerechnet (max. 10\u00a0% des Preises, ASB-Regel).",
+  "@affordabilityInsightLppCap": {
+    "placeholders": {
+      "lppUtilise": {"type": "String"},
+      "lppTotal": {"type": "String"}
+    }
+  }
 }

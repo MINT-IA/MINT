@@ -6048,5 +6048,29 @@
     }
   },
   "tabToday": "Oggi",
-  "tabDossier": "Fascicolo"
+  "tabDossier": "Fascicolo",
+  "affordabilityInsightRevenueTitle": "Cosa ti limita: il tuo reddito, non i tuoi fondi propri",
+  "affordabilityInsightRevenueBody": "Le banche svizzere calcolano con un tasso teorico del 5\u00a0% (direttiva ASB), anche se il tasso reale di mercato è molto più basso. È un test di resistenza: verificano che potresti sostenere gli oneri se i tassi salissero. I tuoi oneri teorici: {chargesTheoriques}/mese. Al tasso di mercato (~1,5\u00a0%): {chargesReelles}/mese.",
+  "@affordabilityInsightRevenueBody": {
+    "placeholders": {
+      "chargesTheoriques": {"type": "String"},
+      "chargesReelles": {"type": "String"}
+    }
+  },
+  "affordabilityInsightEquityTitle": "Cosa ti limita: i tuoi fondi propri",
+  "affordabilityInsightEquityBody": "Ti mancano circa CHF\u00a0{manque} di fondi propri per raggiungere il minimo del 20\u00a0% richiesto dalle banche.",
+  "@affordabilityInsightEquityBody": {
+    "placeholders": {
+      "manque": {"type": "String"}
+    }
+  },
+  "affordabilityInsightOkTitle": "Buona notizia: entrambi i criteri sono soddisfatti",
+  "affordabilityInsightOkBody": "Il tuo reddito e i tuoi fondi propri ti permettono di acquistare questo immobile. Confronta i tipi di ipoteca e le strategie di ammortamento.",
+  "affordabilityInsightLppCap": "Il tuo 2° pilastro è limitato: solo CHF\u00a0{lppUtilise} su {lppTotal} vengono conteggiati (max 10\u00a0% del prezzo, regola ASB).",
+  "@affordabilityInsightLppCap": {
+    "placeholders": {
+      "lppUtilise": {"type": "String"},
+      "lppTotal": {"type": "String"}
+    }
+  }
 }

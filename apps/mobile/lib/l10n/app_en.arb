@@ -6091,5 +6091,29 @@
     }
   },
   "tabToday": "Today",
-  "tabDossier": "File"
+  "tabDossier": "File",
+  "affordabilityInsightRevenueTitle": "What's limiting you: your income, not your equity",
+  "affordabilityInsightRevenueBody": "Swiss banks use a theoretical 5% interest rate (ASB directive), even though the actual market rate is much lower. It's a stress test: they check you could handle the charges if rates rose. Your theoretical charges: {chargesTheoriques}/mo. At market rate (~1.5%): {chargesReelles}/mo.",
+  "@affordabilityInsightRevenueBody": {
+    "placeholders": {
+      "chargesTheoriques": {"type": "String"},
+      "chargesReelles": {"type": "String"}
+    }
+  },
+  "affordabilityInsightEquityTitle": "What's limiting you: your equity",
+  "affordabilityInsightEquityBody": "You're missing approximately CHF {manque} in equity to reach the 20% minimum required by banks.",
+  "@affordabilityInsightEquityBody": {
+    "placeholders": {
+      "manque": {"type": "String"}
+    }
+  },
+  "affordabilityInsightOkTitle": "Good news: both criteria are met",
+  "affordabilityInsightOkBody": "Your income and equity allow you to afford this property. Consider comparing mortgage types and amortization strategies.",
+  "affordabilityInsightLppCap": "Your 2nd pillar is capped: only CHF {lppUtilise} out of {lppTotal} count (max 10% of price, ASB rule).",
+  "@affordabilityInsightLppCap": {
+    "placeholders": {
+      "lppUtilise": {"type": "String"},
+      "lppTotal": {"type": "String"}
+    }
+  }
 }

@@ -6048,5 +6048,29 @@
     }
   },
   "tabToday": "Hoy",
-  "tabDossier": "Expediente"
+  "tabDossier": "Expediente",
+  "affordabilityInsightRevenueTitle": "Lo que te limita: tus ingresos, no tu capital propio",
+  "affordabilityInsightRevenueBody": "Los bancos suizos calculan con una tasa teórica del 5\u00a0% (directiva ASB), aunque la tasa real del mercado es mucho menor. Es una prueba de resistencia: verifican que podrías asumir los cargos si las tasas subieran. Tus cargos teóricos: {chargesTheoriques}/mes. A tasa de mercado (~1,5\u00a0%): {chargesReelles}/mes.",
+  "@affordabilityInsightRevenueBody": {
+    "placeholders": {
+      "chargesTheoriques": {"type": "String"},
+      "chargesReelles": {"type": "String"}
+    }
+  },
+  "affordabilityInsightEquityTitle": "Lo que te limita: tu capital propio",
+  "affordabilityInsightEquityBody": "Te faltan aproximadamente CHF\u00a0{manque} de capital propio para alcanzar el mínimo del 20\u00a0% exigido por los bancos.",
+  "@affordabilityInsightEquityBody": {
+    "placeholders": {
+      "manque": {"type": "String"}
+    }
+  },
+  "affordabilityInsightOkTitle": "Buena noticia: ambos criterios se cumplen",
+  "affordabilityInsightOkBody": "Tus ingresos y capital propio te permiten acceder a esta propiedad. Compara los tipos de hipoteca y las estrategias de amortización.",
+  "affordabilityInsightLppCap": "Tu 2.º pilar está limitado: solo CHF\u00a0{lppUtilise} de {lppTotal} cuentan (máx. 10\u00a0% del precio, regla ASB).",
+  "@affordabilityInsightLppCap": {
+    "placeholders": {
+      "lppUtilise": {"type": "String"},
+      "lppTotal": {"type": "String"}
+    }
+  }
 }

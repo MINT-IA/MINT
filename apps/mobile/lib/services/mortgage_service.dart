@@ -35,6 +35,9 @@ class AffordabilityResult {
   final String chiffreChocTexte;
   final bool chiffreChocPositif;
   final String disclaimer;
+  final bool isRevenueConstrained;
+  final double lppUtilise;
+  final double chargesReellesMensuelles;
 
   const AffordabilityResult({
     required this.prixMaxAccessible,
@@ -49,6 +52,9 @@ class AffordabilityResult {
     required this.chiffreChocTexte,
     required this.chiffreChocPositif,
     required this.disclaimer,
+    required this.isRevenueConstrained,
+    required this.lppUtilise,
+    required this.chargesReellesMensuelles,
   });
 }
 
@@ -75,22 +81,63 @@ class AffordabilityCalculator {
     final lpp = avoirLpp.clamp(0.0, 2000000.0);
     final prix = prixAchat.clamp(0.0, 10000000.0);
 
-    // Prix max basee sur la regle du 1/3 :
-    // Charges theoriques = hypotheque x 6% + prix x 1%
-    //                    = (prix - FP) x 6% + prix x 1% = prix x 7% - FP x 6%
-    // Charges max = revenu x 1/3
-    // => prix <= (revenu x 1/3 + FP x 6%) / 7%
-    // Aussi : prix <= FP / 20% (contrainte fonds propres)
-    final fondsPropresTotal = epargne + a3a + (prix > 0 ? min(lpp, prix * hypothequePart2ePilierMax) : 0.0);
+    // --- Prix max accessible (resolution auto-coherente) ---
+    // Le plafond LPP (max 10% du prix) depend du prix, donc on resout
+    // le systeme d'equations pour eviter une dependance circulaire.
+    //
+    // Charges theoriques = (P - FP(P)) x 6% + P x 1%
+    // FP(P) = hardEquity + min(lpp, P x 10%)
+    //
+    // Cas 1: tout le LPP est utilisable (lpp <= P x 10%)
+    //   FP = hardEquity + lpp (constant)
+    //   P = (rev/3 + FP x 6%) / 7%
+    //
+    // Cas 2: LPP plafonne (lpp > P x 10%)
+    //   FP(P) = hardEquity + P x 10%
+    //   Charges = P x 7% - (hardEquity + P x 10%) x 6%
+    //           = P x (7% - 0.6%) - hardEquity x 6%
+    //   P = (rev/3 + hardEquity x 6%) / (7% - 0.6%)
     const tauxChargesSansAccessoires = hypothequeTauxTheorique + hypothequeTauxAmortissement;
-    final prixMaxRevenu = revenu > 0
-        ? (revenu * hypothequeRatioChargesMax + fondsPropresTotal * tauxChargesSansAccessoires) / hypothequeTauxChargesTotal
-        : 0.0;
-    final prixMaxEquity = fondsPropresTotal / hypothequeFondsPropresMin;
+    final hardEquity = epargne + a3a;
+
+    // Contrainte revenu (regle du 1/3)
+    double prixMaxRevenu;
+    if (revenu > 0) {
+      // Essai avec tout le LPP
+      final fpFull = hardEquity + lpp;
+      final pMaxFull = (revenu * hypothequeRatioChargesMax + fpFull * tauxChargesSansAccessoires) / hypothequeTauxChargesTotal;
+      if (lpp <= pMaxFull * hypothequePart2ePilierMax) {
+        prixMaxRevenu = pMaxFull;
+      } else {
+        // LPP plafonne: resolution directe
+        const tauxEffectif = hypothequeTauxChargesTotal - hypothequePart2ePilierMax * tauxChargesSansAccessoires;
+        prixMaxRevenu = (revenu * hypothequeRatioChargesMax + hardEquity * tauxChargesSansAccessoires) / tauxEffectif;
+      }
+    } else {
+      prixMaxRevenu = 0.0;
+    }
+
+    // Contrainte fonds propres (min 20%)
+    double prixMaxEquity;
+    {
+      final fpFull = hardEquity + lpp;
+      final pMaxFull = fpFull / hypothequeFondsPropresMin;
+      if (lpp <= pMaxFull * hypothequePart2ePilierMax) {
+        prixMaxEquity = pMaxFull;
+      } else {
+        // LPP plafonne: P x 20% = hardEquity + P x 10% => P = hardEquity / 10%
+        prixMaxEquity = hardEquity > 0
+            ? hardEquity / (hypothequeFondsPropresMin - hypothequePart2ePilierMax)
+            : 0.0;
+      }
+    }
+
     final prixMaxAccessible = min(prixMaxRevenu, prixMaxEquity);
     final hypothequeMax = prixMaxAccessible * (1.0 - hypothequeFondsPropresMin);
 
-    // Fonds propres pour le prix demande
+    // --- Validation du prix cible ---
+    // FP pour le prix demande (LPP plafonne a 10% du prix cible)
+    final fondsPropresTotal = epargne + a3a + (prix > 0 ? min(lpp, prix * hypothequePart2ePilierMax) : 0.0);
     final fondsPropresRequis = prix * hypothequeFondsPropresMin;
     final manqueFondsPropres =
         fondsPropresRequis > fondsPropresTotal
@@ -105,8 +152,15 @@ class AffordabilityCalculator {
     final ratioCharges =
         revenu > 0 ? chargesAnnuelles / revenu : 1.0;
 
+    // Charges reelles (taux marche ~1.5%) pour comparaison educative
+    const tauxReelMarche = 0.015;
+    final chargesReellesAnnuelles = hypotheque * (tauxReelMarche + hypothequeTauxAmortissement) + prix * hypothequeTauxFraisAccessoires;
+    final chargesReellesMensuelles = chargesReellesAnnuelles / 12;
+
     final capaciteOk = ratioCharges <= hypothequeRatioChargesMax;
     final fondsPropresOk = fondsPropresTotal >= fondsPropresRequis;
+    final isRevenueConstrained = prixMaxRevenu < prixMaxEquity;
+    final lppUtilise = prix > 0 ? min(lpp, prix * hypothequePart2ePilierMax) : 0.0;
 
     // Chiffre choc
     String chiffreChocTexte;
@@ -138,6 +192,9 @@ class AffordabilityCalculator {
       manqueFondsPropres: manqueFondsPropres,
       chiffreChocTexte: chiffreChocTexte,
       chiffreChocPositif: chiffreChocPositif,
+      isRevenueConstrained: isRevenueConstrained,
+      lppUtilise: lppUtilise,
+      chargesReellesMensuelles: chargesReellesMensuelles,
       disclaimer:
           'Simulation pedagogique a titre indicatif. La capacite d\'achat '
           'reelle depend de la politique de credit de chaque etablissement. '
