@@ -364,17 +364,7 @@ void main() {
     testWidgets('DisabilityGapScreen renders without error',
         (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          locale: Locale('fr'),
-          localizationsDelegates: [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: S.supportedLocales,
-          home: DisabilityGapScreen(),
-        ),
+        buildTestableWidget(const DisabilityGapScreen()),
       );
       await tester.pump();
       expect(find.byType(Scaffold), findsOneWidget);
