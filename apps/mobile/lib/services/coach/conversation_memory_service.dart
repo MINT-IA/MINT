@@ -103,10 +103,10 @@ class ConversationMemoryService {
     final frequentTopics =
         sortedTopics.take(5).map((e) => e.key).toList();
 
-    // Recent titles (last 5 conversations)
+    // Recent titles (last 5 conversations), sanitized
     final recentTitles = conversations
         .take(5) // Already sorted by recency from ConversationStore
-        .map((c) => c.title)
+        .map((c) => _sanitizeTitle(c.title))
         .toList();
 
     // Build summary text (max 500 chars for token efficiency)
@@ -154,7 +154,7 @@ class ConversationMemoryService {
           : daysSince == 1
               ? 'hier'
               : 'il y a $daysSince jours';
-      parts.add('Dernière conversation ($timeAgo)\u00a0: "${last.title}".');
+      parts.add('Dernière conversation ($timeAgo)\u00a0: "${_sanitizeTitle(last.title)}".');
     }
 
     // Recent titles
@@ -162,7 +162,7 @@ class ConversationMemoryService {
       final titles = conversations
           .skip(1)
           .take(3)
-          .map((c) => '"${c.title}"')
+          .map((c) => '"${_sanitizeTitle(c.title)}"')
           .join(', ');
       parts.add('Conversations récentes\u00a0: $titles.');
     }
@@ -170,5 +170,24 @@ class ConversationMemoryService {
     final fullText = parts.join(' ');
     // Trim to 500 chars max
     return fullText.length > 500 ? '${fullText.substring(0, 497)}...' : fullText;
+  }
+
+  /// Sanitize a conversation title to prevent prompt injection.
+  ///
+  /// Strips system markers, triple-dash delimiters, and truncates
+  /// to 100 chars to prevent memory block manipulation.
+  static String _sanitizeTitle(String title) {
+    var s = title;
+    for (final marker in [
+      '--- MÉMOIRE MINT ---',
+      '--- FIN MÉMOIRE ---',
+      'RAPPEL\u00a0:',
+      'HISTORIQUE DE CONVERSATION',
+    ]) {
+      s = s.replaceAll(RegExp(RegExp.escape(marker), caseSensitive: false), '');
+    }
+    s = s.replaceAll(RegExp(r'-{3,}'), '');
+    s = s.replaceAll(RegExp(r'\s{3,}'), '  ').trim();
+    return s.length > 100 ? '${s.substring(0, 97)}...' : s;
   }
 }

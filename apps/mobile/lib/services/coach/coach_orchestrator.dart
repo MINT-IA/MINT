@@ -764,25 +764,49 @@ class CoachOrchestrator {
     return prompt.substring(prompt.length - _maxPromptChars);
   }
 
+  /// Sanitize user input to prevent prompt injection.
+  ///
+  /// Strips system markers that could manipulate the LLM context:
+  /// memory block delimiters, system instructions, etc.
+  static String _sanitizeUserInput(String input) {
+    var s = input;
+    // Strip system prompt markers (case-insensitive)
+    for (final marker in [
+      '--- MÉMOIRE MINT ---',
+      '--- FIN MÉMOIRE ---',
+      'RAPPEL\u00a0:',
+      'HISTORIQUE DE CONVERSATION',
+    ]) {
+      s = s.replaceAll(RegExp(RegExp.escape(marker), caseSensitive: false), '');
+    }
+    // Strip triple-dash delimiters
+    s = s.replaceAll(RegExp(r'-{3,}'), '');
+    // Collapse excessive whitespace
+    s = s.replaceAll(RegExp(r'\s{3,}'), '  ');
+    return s.trim();
+  }
+
   /// Build conversation context string for multi-turn chat.
   ///
   /// Keeps the last 8 messages (4 exchanges) to stay within token limits.
+  /// User messages are sanitized to prevent prompt injection.
   static String _buildConversationContext(
     List<ChatMessage> history,
     String currentMessage,
   ) {
     final relevant =
         history.where((m) => m.isUser || m.isAssistant).toList();
-    if (relevant.length <= 1) return currentMessage;
+    if (relevant.length <= 1) return _sanitizeUserInput(currentMessage);
 
     final tail =
         relevant.length > 8 ? relevant.sublist(relevant.length - 8) : relevant;
 
     final buf = StringBuffer('Contexte de la conversation :\n');
     for (final msg in tail) {
-      buf.writeln('${msg.isUser ? "Utilisateur" : "Coach"}: ${msg.content}');
+      final content = msg.isUser ? _sanitizeUserInput(msg.content) : msg.content;
+      buf.writeln('${msg.isUser ? "Utilisateur" : "Coach"}: $content');
     }
-    buf.writeln('\nNouvelle question :\n$currentMessage');
+    buf.writeln('\nNouvelle question :\n${_sanitizeUserInput(currentMessage)}');
 
     // Truncate to context window before sending to SLM.
     return _truncateToContextWindow(buf.toString());
