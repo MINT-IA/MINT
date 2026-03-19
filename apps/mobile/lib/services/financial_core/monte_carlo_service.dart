@@ -37,7 +37,7 @@ class MonteCarloProjectionService {
   static const String _disclaimer =
       'Simulation Monte Carlo \u00e0 titre p\u00e9dagogique. '
       'Les rendements pass\u00e9s ne pr\u00e9sagent pas des rendements futurs. '
-      'Base\u00a0: 500 simulations, tirages annuels ind\u00e9pendants '
+      'Base\u00a0: 1\u202f000 simulations, tirages annuels ind\u00e9pendants '
       '(LPP, march\u00e9, inflation, croissance salariale). '
       'Ne constitue pas un conseil en placement ou pr\u00e9voyance (LSFin).';
 
@@ -65,7 +65,7 @@ class MonteCarloProjectionService {
     int retirementAgeUser = 65,
     double lppCapitalPct = 0.0,
     double? depensesMensuelles,
-    int numSimulations = 500,
+    int numSimulations = 1000,
     int? seed,
   }) {
     final random = Random(seed);

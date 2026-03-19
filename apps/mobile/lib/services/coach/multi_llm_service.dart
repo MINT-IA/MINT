@@ -127,7 +127,12 @@ class QualityScore {
     required double compliance,
     required double frenchQuality,
   }) {
-    final overall = _geometricMean([relevance, compliance, frenchQuality]);
+    // Floor each axis at 0.1 to prevent a single zero from zeroing the score
+    final overall = _geometricMean([
+      math.max(relevance, 0.1),
+      math.max(compliance, 0.1),
+      math.max(frenchQuality, 0.1),
+    ]);
     return QualityScore(
       relevance: relevance,
       compliance: compliance,

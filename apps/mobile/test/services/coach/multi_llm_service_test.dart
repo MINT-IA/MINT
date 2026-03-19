@@ -236,7 +236,9 @@ void main() {
         compliance: 0.0,
         frenchQuality: 1.0,
       );
-      expect(score.overall, closeTo(0.0, 0.01));
+      // Axes floored at 0.1 → geometric mean ≈ 0.464, not 0.0
+      expect(score.overall, greaterThan(0.0));
+      expect(score.overall, lessThan(0.5));
     });
 
     test('scoreResponse returns valid quality for local fallback', () async {
@@ -1200,13 +1202,15 @@ void main() {
       expect(quality.compliance, lessThan(1.0));
     });
 
-    test('geometric mean of [1.0, 0.0, 1.0] is 0.0', () {
+    test('geometric mean of [1.0, 0.0, 1.0] is floored (not zero)', () {
       final score = QualityScore.compute(
         relevance: 1.0,
         compliance: 0.0,
         frenchQuality: 1.0,
       );
-      expect(score.overall, closeTo(0.0, 0.01));
+      // Axes floored at 0.1 → geometric mean ≈ 0.464
+      expect(score.overall, greaterThan(0.0));
+      expect(score.overall, lessThan(0.5));
     });
 
     test('geometric mean of [0.5, 0.5, 0.5] = 0.5', () {

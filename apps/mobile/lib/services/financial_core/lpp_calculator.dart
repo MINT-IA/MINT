@@ -15,6 +15,23 @@ class LppCalculator {
   /// Safe withdrawal rate (Trinity Study, 4%).
   static const double safeWithdrawalRate = 0.04;
 
+  /// Horizon-adjusted Safe Withdrawal Rate (Trinity Study extension).
+  ///
+  /// The 4% rule assumes a 30-year retirement horizon.
+  /// Shorter horizons allow higher rates; longer horizons require lower.
+  /// Formula: 4% ± 0.1% per year deviation from 30, clamped [3%, 5%].
+  ///
+  /// Educational estimate — ne constitue pas un conseil (LSFin).
+  static double adjustedSwr({
+    required int retirementAge,
+    int lifeExpectancy = 90,
+  }) {
+    final horizon = lifeExpectancy - retirementAge;
+    if (horizon <= 0) return safeWithdrawalRate;
+    final adjustment = (horizon - 30) * 0.001;
+    return (safeWithdrawalRate - adjustment).clamp(0.03, 0.05);
+  }
+
   /// Adjust LPP conversion rate for early retirement.
   ///
   /// Swiss caisses typically reduce the conversion rate by ~0.2 percentage
@@ -127,6 +144,7 @@ class LppCalculator {
     required double lppCapitalPct,
     required String canton,
     bool isMarried = false,
+    int? horizonYears,
   }) {
     if (lppCapitalPct <= 0 || annualRente <= 0) return annualRente / 12;
 
@@ -146,7 +164,10 @@ class LppCalculator {
     final tax = RetirementTaxCalculator.progressiveTax(
         capitalBrut, effectiveBaseRate);
     final capitalNet = capitalBrut - tax;
-    final capitalMonthly = capitalNet * safeWithdrawalRate / 12;
+    final swr = horizonYears != null
+        ? adjustedSwr(retirementAge: 65, lifeExpectancy: 65 + horizonYears)
+        : safeWithdrawalRate;
+    final capitalMonthly = capitalNet * swr / 12;
 
     return renteMonthly + capitalMonthly;
   }
