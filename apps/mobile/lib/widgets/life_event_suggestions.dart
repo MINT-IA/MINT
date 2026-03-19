@@ -252,11 +252,14 @@ class LifeEventSuggestionsSection extends StatelessWidget {
       BuildContext context, LifeEventSuggestion suggestion) {
     return Material(
       color: MintColors.transparent,
-      child: InkWell(
-        onTap: () => context.push(suggestion.route),
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: const EdgeInsets.all(14),
+      child: Semantics(
+        label: suggestion.title,
+        button: true,
+        child: InkWell(
+          onTap: () => context.push(suggestion.route),
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: MintColors.white,
             borderRadius: BorderRadius.circular(14),
@@ -330,6 +333,7 @@ class LifeEventSuggestionsSection extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }

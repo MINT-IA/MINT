@@ -23,11 +23,14 @@ class MintSelectableCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    return Semantics(
+      label: label,
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color:
               isSelected ? selectedColor.withValues(alpha: 0.08) : MintColors.white,
@@ -76,6 +79,7 @@ class MintSelectableCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }
@@ -101,9 +105,12 @@ class MintQuickPickChips<T> extends StatelessWidget {
       runSpacing: 8,
       children: options.map((option) {
         final isSelected = selected == option;
-        return GestureDetector(
-          onTap: () => onSelected(option),
-          child: AnimatedContainer(
+        return Semantics(
+          label: labelBuilder(option),
+          button: true,
+          child: GestureDetector(
+            onTap: () => onSelected(option),
+            child: AnimatedContainer(
             duration: const Duration(milliseconds: 160),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
             decoration: BoxDecoration(
@@ -126,6 +133,7 @@ class MintQuickPickChips<T> extends StatelessWidget {
               ),
             ),
           ),
+        ),
         );
       }).toList(),
     );

@@ -87,11 +87,14 @@ class ComprendreSection extends StatelessWidget {
       child: Material(
         color: MintColors.card,
         borderRadius: BorderRadius.circular(14),
-        child: InkWell(
-          onTap: () => context.push(item.route),
-          borderRadius: BorderRadius.circular(14),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Semantics(
+          label: item.title,
+          button: true,
+          child: InkWell(
+            onTap: () => context.push(item.route),
+            borderRadius: BorderRadius.circular(14),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: MintColors.lightBorder),
@@ -140,6 +143,7 @@ class ComprendreSection extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }

@@ -233,9 +233,12 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
   }) {
     final isSelected = _provider == provider;
     return Expanded(
-      child: GestureDetector(
-        onTap: () => _onProviderChanged(provider),
-        child: Container(
+      child: Semantics(
+        label: 'Sélectionner $label',
+        button: true,
+        child: GestureDetector(
+          onTap: () => _onProviderChanged(provider),
+          child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
             color: isSelected ? MintColors.coachAccent : MintColors.transparent,
@@ -252,6 +255,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
           ),
         ),
       ),
+    ),
     );
   }
 

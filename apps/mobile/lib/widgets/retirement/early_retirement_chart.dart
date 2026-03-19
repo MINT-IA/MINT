@@ -66,10 +66,13 @@ class _EarlyRetirementChartState extends State<EarlyRetirementChart>
                   progress: _animation.value,
                   tappedIndex: _tappedIndex,
                 ),
-                child: GestureDetector(
-                  onTapDown: (d) => _handleTap(d, context),
-                  onTapUp: (_) => _clearTap(),
+                child: Semantics(
+                  label: 'Comparaison retraite anticipée',
+                  child: GestureDetector(
+                    onTapDown: (d) => _handleTap(d, context),
+                    onTapUp: (_) => _clearTap(),
                 ),
+              ),
               );
             },
           ),

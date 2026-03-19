@@ -143,9 +143,12 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                 ),
               ),
               // Close button
-              GestureDetector(
-                onTap: () {
-                  AnalyticsService().trackEvent(
+              Semantics(
+                label: 'Fermer',
+                button: true,
+                child: GestureDetector(
+                  onTap: () {
+                    AnalyticsService().trackEvent(
                     'paywall_dismissed',
                     category: 'conversion',
                     screenName: 'coach_paywall',
@@ -164,6 +167,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                     size: 20,
                   ),
                 ),
+              ),
               ),
             ],
           ),
@@ -258,9 +262,12 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
   }) {
     final isSelected = _selectedTier == tier;
 
-    return GestureDetector(
-      onTap: () => setState(() => _selectedTier = tier),
-      child: AnimatedContainer(
+    return Semantics(
+      label: 'Sélectionner $name',
+      button: true,
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedTier = tier),
+        child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: 180,
         padding: const EdgeInsets.all(16),
@@ -397,6 +404,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
           ],
         ),
       ),
+    ),
     );
   }
 

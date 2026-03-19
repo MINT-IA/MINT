@@ -21,11 +21,14 @@ class PulseActionCard extends StatelessWidget {
         color: MintColors.card,
         borderRadius: BorderRadius.circular(16),
         elevation: 0,
-        child: InkWell(
-          onTap: () => context.push(action.route),
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.all(16),
+        child: Semantics(
+          label: action.title,
+          button: true,
+          child: InkWell(
+            onTap: () => context.push(action.route),
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: MintColors.lightBorder),
@@ -117,6 +120,7 @@ class PulseActionCard extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 

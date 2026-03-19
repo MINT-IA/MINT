@@ -40,10 +40,13 @@ class MicroActionCard extends StatelessWidget {
       ),
       child: Material(
         color: MintColors.transparent,
-        child: InkWell(
-          onTap: () => context.push(action.deeplink),
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
+        child: Semantics(
+          label: action.title,
+          button: true,
+          child: InkWell(
+            onTap: () => context.push(action.deeplink),
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
             padding: const EdgeInsets.all(14),
             child: Row(
               children: [
@@ -103,6 +106,7 @@ class MicroActionCard extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 

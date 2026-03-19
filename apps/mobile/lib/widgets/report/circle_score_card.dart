@@ -21,11 +21,14 @@ class CircleScoreCard extends StatelessWidget {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: InkWell(
-        onTap: onTapDetails,
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          padding: const EdgeInsets.all(20),
+      child: Semantics(
+        label: score.circleName,
+        button: true,
+        child: InkWell(
+          onTap: onTapDetails,
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             gradient: LinearGradient(
@@ -229,6 +232,7 @@ class CircleScoreCard extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 

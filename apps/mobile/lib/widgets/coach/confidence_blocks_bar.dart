@@ -70,9 +70,12 @@ class ConfidenceBlocksBar extends StatelessWidget {
           final isMissing = ratio < 0.1;
 
           return Expanded(
-            child: GestureDetector(
-              onTap: () => context.push('/data-block/${db.dataBlockType}'),
-              child: Padding(
+            child: Semantics(
+              label: db.label,
+              button: true,
+              child: GestureDetector(
+                onTap: () => context.push('/data-block/${db.dataBlockType}'),
+                child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 3),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -131,6 +134,7 @@ class ConfidenceBlocksBar extends StatelessWidget {
                 ),
               ),
             ),
+          ),
           );
         }).toList(),
       ),

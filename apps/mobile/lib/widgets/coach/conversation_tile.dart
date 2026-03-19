@@ -62,11 +62,14 @@ class ConversationTile extends StatelessWidget {
           ),
         );
       },
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Semantics(
+        label: conversation.title,
+        button: true,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
             color: MintColors.card,
             borderRadius: BorderRadius.circular(12),
@@ -169,6 +172,7 @@ class ConversationTile extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 

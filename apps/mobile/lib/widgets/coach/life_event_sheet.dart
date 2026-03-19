@@ -134,10 +134,13 @@ class LifeEventSheet extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 4),
         child: Material(
           color: MintColors.transparent,
-          child: InkWell(
-            onTap: () => Navigator.of(context).pop(event.prompt),
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
+          child: Semantics(
+            label: event.label,
+            button: true,
+            child: InkWell(
+              onTap: () => Navigator.of(context).pop(event.prompt),
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
                 color: MintColors.surface,
@@ -165,6 +168,7 @@ class LifeEventSheet extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }

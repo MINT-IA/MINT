@@ -18,9 +18,12 @@ class InfoTooltip extends StatelessWidget {
     
     if (glossaryTerm == null) return child ?? Text(term);
 
-    return InkWell(
-      onTap: () => _showDefinition(context, glossaryTerm),
-      child: child ?? Container(
+    return Semantics(
+      label: 'Définition de $term',
+      button: true,
+      child: InkWell(
+        onTap: () => _showDefinition(context, glossaryTerm),
+        child: child ?? Container(
         decoration: const BoxDecoration(
           border: Border(bottom: BorderSide(color: MintColors.primary, width: 1)),
         ),
@@ -29,6 +32,7 @@ class InfoTooltip extends StatelessWidget {
           style: const TextStyle(color: MintColors.primary, fontWeight: FontWeight.w500),
         ),
       ),
+    ),
     );
   }
 

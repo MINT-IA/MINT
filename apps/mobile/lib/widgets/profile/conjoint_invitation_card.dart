@@ -287,10 +287,13 @@ class ConjointInvitationCard extends StatelessWidget {
         ),
         if (onChangeRegime != null) ...[
           const SizedBox(width: 8),
-          GestureDetector(
-            onTap: onChangeRegime,
-            child: Text(
-              l.conjointModifier,
+          Semantics(
+            label: 'Modifier le régime matrimonial',
+            button: true,
+            child: GestureDetector(
+              onTap: onChangeRegime,
+              child: Text(
+                l.conjointModifier,
               style: GoogleFonts.inter(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -299,6 +302,7 @@ class ConjointInvitationCard extends StatelessWidget {
                 decorationColor: MintColors.info,
               ),
             ),
+          ),
           ),
         ],
       ],

@@ -111,9 +111,12 @@ class RecommendationCard extends StatelessWidget {
             for (var link in recommendation.evidenceLinks)
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
-                child: InkWell(
-                  onTap: () async {
-                    final uri = Uri.tryParse(link.url);
+                child: Semantics(
+                  label: link.label,
+                  button: true,
+                  child: InkWell(
+                    onTap: () async {
+                      final uri = Uri.tryParse(link.url);
                     if (uri != null && await canLaunchUrl(uri)) {
                       await launchUrl(uri, mode: LaunchMode.externalApplication);
                     }
@@ -131,6 +134,7 @@ class RecommendationCard extends StatelessWidget {
                     ],
                   ),
                 ),
+              ),
               ),
             if (recommendation.evidenceLinks.isNotEmpty) const SizedBox(height: 8),
             const SizedBox(height: 16),

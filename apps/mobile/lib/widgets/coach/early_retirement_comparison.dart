@@ -204,9 +204,12 @@ class EarlyRetirementComparison extends StatelessWidget {
           const Divider(height: 12),
           ...rows.map((r) => _buildRow(r)),
           const SizedBox(height: 10),
-          InkWell(
-            onTap: () => context.push('/coach/cockpit'),
-            child: Row(
+          Semantics(
+            label: 'Simuler ta retraite anticipée',
+            button: true,
+            child: InkWell(
+              onTap: () => context.push('/coach/cockpit'),
+              child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
@@ -222,6 +225,7 @@ class EarlyRetirementComparison extends StatelessWidget {
                     size: 16, color: MintColors.primary),
               ],
             ),
+          ),
           ),
           const SizedBox(height: 6),
           Text(

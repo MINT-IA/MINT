@@ -121,8 +121,11 @@ class _BuybackWidgetState extends State<BuybackWidget> {
           const SizedBox(height: 12),
 
           // Educational tooltip for taux marginal
-          GestureDetector(
-            onTap: () => _showTauxMarginalInfo(context),
+          Semantics(
+            label: 'Information sur le taux marginal',
+            button: true,
+            child: GestureDetector(
+              onTap: () => _showTauxMarginalInfo(context),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
@@ -150,6 +153,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                 ],
               ),
             ),
+          ),
           ),
 
           const SizedBox(height: 12),
