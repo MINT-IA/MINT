@@ -63,14 +63,8 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
         backgroundColor: MintColors.white,
         surfaceTintColor: MintColors.white,
         title: Text('Crédit à la Consommation', style: MintTextStyles.headlineMedium()),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.picture_as_pdf_outlined),
-            onPressed: _exportPdf,
-            tooltip: 'Exporter mon bilan',
-          ),
-          const SizedBox(width: MintSpacing.sm),
-        ],
+        // PDF export hidden — stub not yet implemented
+        actions: const [],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.sm),

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -683,10 +682,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       appBar: AppBar(
         title: Text(
           s.coachTitle,
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w700,
-            color: MintColors.white,
-          ),
+          style: MintTextStyles.titleMedium(color: MintColors.white)
+              .copyWith(fontWeight: FontWeight.w700),
         ),
         backgroundColor: MintColors.primary,
         foregroundColor: MintColors.white,
@@ -756,11 +753,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                   children: [
                     Text(
                       s.coachTitle,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.white,
-                      ),
+                      style: MintTextStyles.titleMedium(color: MintColors.white)
+                          .copyWith(fontSize: 18, fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 2), // tight coupling
                     _buildTierSubtitle(tier),
@@ -819,11 +813,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         const SizedBox(width: MintSpacing.xs),
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
+          style: MintTextStyles.labelSmall(
             color: MintColors.white.withValues(alpha: 0.7),
-          ),
+          ).copyWith(fontSize: 12, fontWeight: FontWeight.w400),
         ),
       ],
     );
@@ -1086,11 +1078,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         const SizedBox(width: 3),
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
+          style: MintTextStyles.micro(
             color: color.withValues(alpha: 0.7),
-          ),
+          ).copyWith(fontWeight: FontWeight.w500),
         ),
       ],
     );

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -456,11 +455,8 @@ class _PulseScreenState extends State<PulseScreen> {
       surfaceTintColor: MintColors.primary,
       title: Text(
         greeting,
-        style: GoogleFonts.montserrat(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: MintColors.white,
-        ),
+        style: MintTextStyles.titleMedium(color: MintColors.white)
+            .copyWith(fontSize: 20),
       ),
       centerTitle: false,
       actions: [
@@ -535,10 +531,7 @@ class _PulseScreenState extends State<PulseScreen> {
                   ),
                   child: Text(
                     l.pulseEmptyCtaStart,
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: MintTextStyles.titleMedium(),
                   ),
                 ),
               ),
@@ -602,11 +595,8 @@ class _SignalRow extends StatelessWidget {
                 children: [
                   Text(
                     value,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: color,
-                    ),
+                    style: MintTextStyles.titleMedium(color: color)
+                        .copyWith(fontWeight: FontWeight.w700),
                   ),
                   if (onTap != null) ...[
                     const SizedBox(width: 4),

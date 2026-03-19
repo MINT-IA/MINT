@@ -61,15 +61,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
         backgroundColor: MintColors.white,
         surfaceTintColor: MintColors.white,
         title: Text(S.of(context)!.debtCheckTitle, style: MintTextStyles.headlineMedium()),
-        actions: [
-          if (_showResults)
-            IconButton(
-              icon: const Icon(Icons.picture_as_pdf_outlined),
-              onPressed: _exportPdf,
-              tooltip: S.of(context)!.debtCheckExportTooltip,
-            ),
-          const SizedBox(width: 8),
-        ],
+        actions: const [],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.sm),

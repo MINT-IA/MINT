@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -163,11 +162,8 @@ class _DossierSection extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: GoogleFonts.inter(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.titleMedium()
+                          .copyWith(fontSize: 15, fontWeight: FontWeight.w500),
                     ),
                     Text(
                       subtitle,

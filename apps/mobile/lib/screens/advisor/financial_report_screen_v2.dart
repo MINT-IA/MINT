@@ -72,13 +72,6 @@ class FinancialReportScreenV2 extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          PdfService.generateFinancialReportPdf(report);
-        },
-        backgroundColor: MintColors.primary,
-        child: const Icon(Icons.picture_as_pdf, color: MintColors.white),
-      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -57,14 +57,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
         backgroundColor: MintColors.white,
         surfaceTintColor: MintColors.white,
         title: Text('Analyse Anti-Leasing', style: MintTextStyles.headlineMedium()),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.picture_as_pdf_outlined),
-            onPressed: _exportPdf,
-            tooltip: 'Exporter mon bilan',
-          ),
-          const SizedBox(width: MintSpacing.sm),
-        ],
+        actions: const [],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.sm),
