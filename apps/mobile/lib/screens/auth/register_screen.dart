@@ -24,7 +24,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _displayNameController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  int? _birthYear;
+  DateTime? _dateOfBirth;
   bool _acceptedCgu = false;
   bool _confirmed18Plus = false;
   bool _consentNotifications = false;
@@ -34,6 +34,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void initState() {
     super.initState();
     _passwordController.addListener(() => setState(() {}));
+    _confirmPasswordController.addListener(() => setState(() {}));
   }
 
   @override
@@ -61,10 +62,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // Persist registration data to profile answers so onboarding
       // can pre-fill and CoachProfile gets the firstName + birthYear.
       final firstName = _displayNameController.text.trim();
-      if (firstName.isNotEmpty || _birthYear != null) {
+      if (firstName.isNotEmpty || _dateOfBirth != null) {
         final answers = await ReportPersistenceService.loadAnswers();
         if (firstName.isNotEmpty) answers['q_firstname'] = firstName;
-        if (_birthYear != null) answers['q_birth_year'] = _birthYear;
+        if (_dateOfBirth != null) {
+          // Store both for backward compatibility
+          answers['q_birth_year'] = _dateOfBirth!.year;
+          answers['q_date_of_birth'] = _dateOfBirth!.toIso8601String();
+        }
         await ReportPersistenceService.saveAnswers(answers);
       }
 
@@ -138,7 +143,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Compte optionnel: tes données restent locales par défaut',
+                  'Compte optionnel\u00a0: tes données restent locales par défaut',
                   style: GoogleFonts.inter(
                     fontSize: 16,
                     color: MintColors.textSecondary,
@@ -159,7 +164,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Pourquoi créer un compte ?',
+                        'Pourquoi créer un compte\u00a0?',
                         style: GoogleFonts.inter(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -168,10 +173,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 8),
                       const _RegisterBenefitRow(
-                        text: 'Projections AVS/LPP alignees a ta situation',
+                        text: 'Projections AVS/LPP alignées à ta situation',
                       ),
                       const _RegisterBenefitRow(
-                        text: 'Coach personnalise avec ton prenom',
+                        text: 'Coach personnalisé avec ton prénom',
                       ),
                       const _RegisterBenefitRow(
                         text: 'Sauvegarde cloud + synchronisation multi-appareils',
@@ -208,41 +213,62 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   autofillHints: const [AutofillHints.givenName],
                   textCapitalization: TextCapitalization.words,
                   decoration: const InputDecoration(
-                    labelText: 'Prenom',
+                    labelText: 'Prénom',
                     prefixIcon: Icon(Icons.person_outline),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Le prenom est necessaire pour personnaliser ton coach';
+                      return 'Le prénom est nécessaire pour personnaliser ton coach';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
-                // Birth year dropdown (LPD minimisation: only year needed for AVS/LPP)
-                DropdownButtonFormField<int>(
-                  value: _birthYear,
-                  decoration: const InputDecoration(
-                    labelText: 'Annee de naissance',
-                    prefixIcon: Icon(Icons.cake_outlined),
-                  ),
-                  items: List.generate(
-                    DateTime.now().year - 1940 + 1,
-                    (i) {
-                      final year = DateTime.now().year - i;
-                      return DropdownMenuItem(
-                        value: year,
-                        child: Text('$year'),
-                      );
-                    },
-                  ),
-                  onChanged: (value) => setState(() => _birthYear = value),
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Necessaire pour les projections AVS/LPP';
+                // Date of birth picker (precise age for AVS/LPP calculations)
+                GestureDetector(
+                  onTap: () async {
+                    final now = DateTime.now();
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: _dateOfBirth ?? DateTime(1980, 1, 1),
+                      firstDate: DateTime(1940),
+                      lastDate: now,
+                      locale: const Locale('fr'),
+                      helpText: 'Date de naissance',
+                      cancelText: 'Annuler',
+                      confirmText: 'Valider',
+                    );
+                    if (picked != null) {
+                      setState(() => _dateOfBirth = picked);
                     }
-                    return null;
                   },
+                  child: AbsorbPointer(
+                    child: TextFormField(
+                      decoration: const InputDecoration(
+                        labelText: 'Date de naissance',
+                        prefixIcon: Icon(Icons.cake_outlined),
+                        hintText: 'jj.mm.aaaa',
+                        suffixIcon: Icon(Icons.calendar_today_outlined),
+                      ),
+                      controller: TextEditingController(
+                        text: _dateOfBirth != null
+                            ? '${_dateOfBirth!.day.toString().padLeft(2, '0')}.'
+                              '${_dateOfBirth!.month.toString().padLeft(2, '0')}.'
+                              '${_dateOfBirth!.year}'
+                            : '',
+                      ),
+                      validator: (_) {
+                        if (_dateOfBirth == null) {
+                          return 'Nécessaire pour les projections AVS/LPP';
+                        }
+                        final age = DateTime.now().year - _dateOfBirth!.year;
+                        if (age < 18) {
+                          return 'Tu dois avoir 18 ans révolus (CGU art. 4.1)';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 // Password field
@@ -250,11 +276,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   controller: _passwordController,
                   obscureText: _obscurePassword,
                   autofillHints: const [AutofillHints.newPassword],
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: InputDecoration(
                     labelText: S.of(context)?.authPassword ?? 'Mot de passe',
                     prefixIcon: const Icon(Icons.lock_outline),
-                    hintText:
-                        S.of(context)?.authPasswordHint ?? 'Minimum 8 caractères',
+                    hintText: '8+ caractères, majuscule, chiffre, symbole',
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
@@ -273,8 +299,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       return 'Mot de passe requis';
                     }
                     if (value.length < 8) {
-                      return S.of(context)?.authPasswordTooShort ??
-                          'Le mot de passe doit contenir au moins 8 caractères';
+                      return 'Minimum 8 caractères';
+                    }
+                    if (!value.contains(RegExp(r'[A-Z]'))) {
+                      return 'Au moins une majuscule requise';
+                    }
+                    if (!value.contains(RegExp(r'[0-9]'))) {
+                      return 'Au moins un chiffre requis';
+                    }
+                    if (!value.contains(RegExp(r'[^A-Za-z0-9]'))) {
+                      return 'Au moins un caractère spécial requis (!@#\$...)';
                     }
                     return null;
                   },
@@ -285,24 +319,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmPassword,
                   autofillHints: const [AutofillHints.newPassword],
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: InputDecoration(
                     labelText: S.of(context)?.authConfirmPassword ??
                         'Confirmer le mot de passe',
                     prefixIcon: const Icon(Icons.lock_outline),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureConfirmPassword
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscureConfirmPassword = !_obscureConfirmPassword;
-                        });
-                      },
+                    suffixIcon: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Real-time match indicator
+                        if (_confirmPasswordController.text.isNotEmpty)
+                          Icon(
+                            _confirmPasswordController.text ==
+                                    _passwordController.text
+                                ? Icons.check_circle
+                                : Icons.cancel,
+                            color: _confirmPasswordController.text ==
+                                    _passwordController.text
+                                ? MintColors.success
+                                : MintColors.error,
+                            size: 20,
+                          ),
+                        IconButton(
+                          icon: Icon(
+                            _obscureConfirmPassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureConfirmPassword =
+                                  !_obscureConfirmPassword;
+                            });
+                          },
+                        ),
+                      ],
                     ),
                   ),
                   validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Confirmation requise';
+                    }
                     if (value != _passwordController.text) {
                       return S.of(context)?.authPasswordMismatch ??
                           'Les mots de passe ne correspondent pas';

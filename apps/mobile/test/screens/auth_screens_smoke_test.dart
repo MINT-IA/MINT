@@ -263,7 +263,7 @@ void main() {
       await tester.pump();
 
       expect(
-        find.textContaining('8 caract'),
+        find.textContaining('8+'),
         findsWidgets,
       );
     });
