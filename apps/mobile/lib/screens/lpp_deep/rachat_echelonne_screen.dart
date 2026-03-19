@@ -582,7 +582,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                                 ),
                               ),
                               const SizedBox(width: 6),
-                              GestureDetector(
+                              Semantics(
+                                label: 'Information sur le taux marginal',
+                                button: true,
+                                child: GestureDetector(
                                 onTap: () => _showTauxMarginalInfo(context),
                                 child: Container(
                                   padding: const EdgeInsets.all(2),
@@ -596,6 +599,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                                     color: MintColors.primary,
                                   ),
                                 ),
+                              ),
                               ),
                             ],
                           ),
@@ -699,7 +703,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
 
   Widget _buildStatusChip(String label, String value) {
     final selected = _civilStatus == value;
-    return GestureDetector(
+    return Semantics(
+      label: 'État civil : $label',
+      button: true,
+      child: GestureDetector(
       onTap: () {
         _civilStatus = value;
         _onInputChanged();
@@ -719,6 +726,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           ),
         ),
       ),
+    ),
     );
   }
 
