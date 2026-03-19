@@ -5,8 +5,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -119,12 +120,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       ),
       title: Text(
         S.of(context)!.docScanAppBarTitle,
-        style: GoogleFonts.montserrat(
-          fontWeight: FontWeight.w800,
-          fontSize: 13,
-          letterSpacing: 1.5,
-          color: MintColors.textMuted,
-        ),
+        style: MintTextStyles.headlineMedium(),
       ),
     );
   }
@@ -135,21 +131,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       children: [
         Text(
           S.of(context)!.docScanHeaderTitle,
-          style: GoogleFonts.montserrat(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-            height: 1.3,
-          ),
+          style: MintTextStyles.headlineMedium(),
         ),
         const SizedBox(height: 8),
         Text(
           S.of(context)!.docScanHeaderSubtitle,
-          style: GoogleFonts.inter(
-            fontSize: 15,
-            color: MintColors.textSecondary,
-            height: 1.5,
-          ),
+          style: MintTextStyles.bodyLarge(color: MintColors.textSecondary),
         ),
       ],
     );
@@ -165,11 +152,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       children: [
         Text(
           S.of(context)!.docScanDocumentType,
-          style: GoogleFonts.montserrat(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
         Wrap(
@@ -180,13 +163,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             return ChoiceChip(
               label: Text(
                 type.label,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: isSelected
-                      ? MintColors.background
-                      : MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodySmall(
+                  color: isSelected ? MintColors.background : MintColors.textPrimary,
+                ).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
               ),
               selected: isSelected,
               selectedColor: MintColors.primary,

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/pillar_3a_deep_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 /// Ecran comparateur de providers 3a (fintech / banque / assurance).
 ///
@@ -33,63 +36,48 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
   @override
   Widget build(BuildContext context) {
     final result = _result;
+    final l = S.of(context)!;
 
     return Scaffold(
-      backgroundColor: MintColors.surface,
+      backgroundColor: MintColors.white,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 100,
             pinned: true,
-            backgroundColor: MintColors.primary,
-            foregroundColor: MintColors.white,
-            iconTheme: const IconThemeData(color: MintColors.white),
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      MintColors.primary,
-                      MintColors.primary.withAlpha(220),
-                    ],
-                  ),
-                ),
-              ),
-              title: Text(
-                'COMPARATEUR 3A',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
-                  letterSpacing: 0.5,
-                ),
-              ),
+            backgroundColor: MintColors.white,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
+              onPressed: () => context.pop(),
+            ),
+            title: Text(
+              l.providerComparatorAppBarTitle,
+              style: MintTextStyles.headlineMedium(),
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Chiffre choc
-                _buildChiffreChoc(result),
-                const SizedBox(height: 24),
+                _buildChiffreChoc(result, l),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Inputs
-                _buildInputsSection(),
-                const SizedBox(height: 24),
+                _buildInputsSection(l),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Provider cards
-                _buildProviderCards(result),
-                const SizedBox(height: 24),
+                _buildProviderCards(result, l),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Warning assurance
-                ..._buildAssuranceWarnings(result),
+                ..._buildAssuranceWarnings(result, l),
 
                 // Disclaimer
                 _buildDisclaimer(result.disclaimer),
-                const SizedBox(height: 40),
+                const SizedBox(height: MintSpacing.xxl),
               ]),
             ),
           ),
@@ -98,51 +86,38 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
     );
   }
 
-  Widget _buildChiffreChoc(ProviderComparisonResult result) {
+  Widget _buildChiffreChoc(ProviderComparisonResult result, S l) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [MintColors.successBg, MintColors.successBg],
-        ),
+        color: MintColors.success.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.greenLight, width: 2),
+        border: Border.all(color: MintColors.success.withValues(alpha: 0.15)),
       ),
       child: Column(
         children: [
           Text(
-            'Difference sur $_duree ans',
-            style: GoogleFonts.montserrat(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: MintColors.greenForest,
-            ),
+            l.providerComparatorChiffreChocLabel(_duree),
+            style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             'CHF ${formatChf(result.differenceMax)}',
-            style: GoogleFonts.montserrat(
-              fontSize: 32,
-              fontWeight: FontWeight.w800,
-              color: MintColors.greenDark,
-            ),
+            style: MintTextStyles.displayMedium(color: MintColors.success),
           ),
-          const SizedBox(height: 4),
-          const Text(
-            'entre le provider le plus et le moins performant',
-            style: TextStyle(
-              fontSize: 12,
-              color: MintColors.categoryGreen,
-            ),
+          const SizedBox(height: MintSpacing.xs),
+          Text(
+            l.providerComparatorChiffreChocSubtitle,
+            style: MintTextStyles.labelSmall(color: MintColors.success),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildInputsSection() {
+  Widget _buildInputsSection(S l) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -152,34 +127,29 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAMETRES',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            l.providerComparatorSectionParametres,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Age
           _buildSliderRow(
-            label: 'Age',
+            label: l.providerComparatorLabelAge,
             value: _age.toDouble(),
             min: 18,
             max: 60,
             divisions: 42,
-            format: '$_age ans',
+            format: l.providerComparatorLabelAgeFormat(_age),
             onChanged: (v) => setState(() {
               _age = v.round();
               _duree = (65 - _age).clamp(5, 45);
             }),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
 
           // Versement
           _buildSliderRow(
-            label: 'Versement annuel',
+            label: l.providerComparatorLabelVersement,
             value: _versementAnnuel,
             min: 1000,
             max: pilier3aPlafondAvecLpp,
@@ -187,81 +157,74 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             format: 'CHF ${formatChf(_versementAnnuel)}',
             onChanged: (v) => setState(() => _versementAnnuel = v),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
 
           // Duree
           _buildSliderRow(
-            label: 'Duree',
+            label: l.providerComparatorLabelDuree,
             value: _duree.toDouble(),
             min: 5,
             max: 45,
             divisions: 40,
-            format: '$_duree ans',
+            format: l.providerComparatorLabelDureeFormat(_duree),
             onChanged: (v) => setState(() => _duree = v.round()),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Profil de risque
-          _buildProfilRisque(),
+          _buildProfilRisque(l),
         ],
       ),
     );
   }
 
-  Widget _buildProfilRisque() {
+  Widget _buildProfilRisque(S l) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Profil de risque',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: MintColors.textPrimary,
-          ),
-        ),
-        const SizedBox(height: 8),
+        Text(l.providerComparatorLabelProfilRisque, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
+        const SizedBox(height: MintSpacing.sm),
         Row(
           children: ProfilRisque.values.map((profil) {
             final isSelected = _profilRisque == profil;
             final label = switch (profil) {
-              ProfilRisque.prudent => 'Prudent',
-              ProfilRisque.equilibre => 'Equilibre',
-              ProfilRisque.dynamique => 'Dynamique',
+              ProfilRisque.prudent => l.providerComparatorProfilPrudent,
+              ProfilRisque.equilibre => l.providerComparatorProfilEquilibre,
+              ProfilRisque.dynamique => l.providerComparatorProfilDynamique,
             };
             return Expanded(
               child: Semantics(
-                label: 'Profil de risque : $label',
+                label: '${l.providerComparatorLabelProfilRisque}\u00a0: $label',
                 button: true,
                 child: GestureDetector(
-                onTap: () => setState(() => _profilRisque = profil),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? MintColors.primary
-                        : MintColors.surface,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
+                  onTap: () => setState(() => _profilRisque = profil),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: MintSpacing.xs),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
                       color: isSelected
                           ? MintColors.primary
-                          : MintColors.border,
+                          : MintColors.surface,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: isSelected
+                            ? MintColors.primary
+                            : MintColors.border,
+                      ),
                     ),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: isSelected
-                          ? MintColors.white
-                          : MintColors.textSecondary,
+                    alignment: Alignment.center,
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: isSelected
+                            ? MintColors.white
+                            : MintColors.textSecondary,
+                      ),
                     ),
                   ),
                 ),
-              ),
               ),
             );
           }).toList(),
@@ -285,37 +248,27 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textPrimary,
-              ),
-            ),
-            Text(
-              format,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
-            ),
+            Text(label, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
+            Text(format, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
           ],
         ),
-        Slider(
-          value: value,
-          min: min,
-          max: max,
-          divisions: divisions,
-          activeColor: MintColors.primary,
-          onChanged: onChanged,
+        Semantics(
+          label: label,
+          value: format,
+          child: Slider(
+            value: value,
+            min: min,
+            max: max,
+            divisions: divisions,
+            activeColor: MintColors.primary,
+            onChanged: onChanged,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildProviderCards(ProviderComparisonResult result) {
+  Widget _buildProviderCards(ProviderComparisonResult result, S l) {
     // Trier par capital final descendant
     final sorted = List<ProviderResult>.from(result.providers)
       ..sort((a, b) => b.capitalFinal.compareTo(a.capitalFinal));
@@ -324,24 +277,19 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'COMPARAISON',
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
-            letterSpacing: 1,
-          ),
+          l.providerComparatorSectionComparaison,
+          style: MintTextStyles.bodySmall(color: MintColors.textMuted),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm + 4),
         for (final provider in sorted) ...[
-          _buildProviderCard(provider, sorted.first.capitalFinal),
-          const SizedBox(height: 12),
+          _buildProviderCard(provider, sorted.first.capitalFinal, l),
+          const SizedBox(height: MintSpacing.sm + 4),
         ],
       ],
     );
   }
 
-  Widget _buildProviderCard(ProviderResult result, double maxCapital) {
+  Widget _buildProviderCard(ProviderResult result, double maxCapital, S l) {
     final isWarning = result.hasWarning;
     final isBest = result.badge != null &&
         result.badge!.contains('Rendement le plus eleve');
@@ -351,17 +299,17 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
     double borderWidth = 1;
 
     if (isBest) {
-      bgColor = MintColors.successBg;
-      borderColor = MintColors.greenLight;
+      bgColor = MintColors.success.withValues(alpha: 0.06);
+      borderColor = MintColors.success.withValues(alpha: 0.3);
       borderWidth = 2;
     } else if (isWarning) {
-      bgColor = MintColors.urgentBg;
-      borderColor = MintColors.redBg;
+      bgColor = MintColors.error.withValues(alpha: 0.06);
+      borderColor = MintColors.error.withValues(alpha: 0.3);
       borderWidth = 2;
     }
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(16),
@@ -378,29 +326,16 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      result.provider.nom,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      result.provider.description,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: MintColors.textMuted,
-                      ),
-                    ),
+                    Text(result.provider.nom, style: MintTextStyles.titleMedium()),
+                    Text(result.provider.description, style: MintTextStyles.labelSmall(color: MintColors.textMuted)),
                   ],
                 ),
               ),
               if (result.badge != null && !isWarning)
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: MintColors.categoryGreen,
+                    color: MintColors.success,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -408,32 +343,27 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                         ? result.badge!.substring(0, 20)
                         : result.badge!,
                     style: const TextStyle(
-                      color: MintColors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
+                      color: MintColors.white, fontSize: 9, fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
               if (isWarning)
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: MintColors.redDeep,
+                    color: MintColors.error,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
-                    'WARNING',
-                    style: TextStyle(
-                      color: MintColors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
+                  child: Text(
+                    l.providerComparatorWarningLabel,
+                    style: const TextStyle(
+                      color: MintColors.white, fontSize: 9, fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
 
           // Metrics row
           Row(
@@ -442,44 +372,34 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Rendement',
-                      style:
-                          TextStyle(fontSize: 10, color: MintColors.textMuted)),
+                  Text(l.providerComparatorRendement, style: MintTextStyles.micro(color: MintColors.textMuted)),
                   Text(
                     '${(result.rendementNet * 100).toStringAsFixed(1)}%',
-                    style: const TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Frais',
-                      style:
-                          TextStyle(fontSize: 10, color: MintColors.textMuted)),
+                  Text(l.providerComparatorFrais, style: MintTextStyles.micro(color: MintColors.textMuted)),
                   Text(
                     '${(result.provider.fraisGestion * 100).toStringAsFixed(2)}%',
-                    style: const TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  const Text('Capital final',
-                      style:
-                          TextStyle(fontSize: 10, color: MintColors.textMuted)),
+                  Text(l.providerComparatorCapitalFinal, style: MintTextStyles.micro(color: MintColors.textMuted)),
                   Text(
                     'CHF ${formatChf(result.capitalFinal)}',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
+                    style: MintTextStyles.titleMedium(
                       color: isBest
-                          ? MintColors.greenDark
+                          ? MintColors.success
                           : isWarning
-                              ? MintColors.redMedium
+                              ? MintColors.error
                               : MintColors.textPrimary,
                     ),
                   ),
@@ -490,20 +410,16 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
 
           // Difference vs meilleur
           if (result.capitalFinal < maxCapital) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: MintColors.redBg,
+                color: MintColors.error.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                '-CHF ${formatChf(maxCapital - result.capitalFinal)} vs premier',
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: MintColors.redMedium,
-                ),
+                l.providerComparatorDiffVsPremier(formatChf(maxCapital - result.capitalFinal)),
+                style: MintTextStyles.labelSmall(color: MintColors.error).copyWith(fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -512,7 +428,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
     );
   }
 
-  List<Widget> _buildAssuranceWarnings(ProviderComparisonResult result) {
+  List<Widget> _buildAssuranceWarnings(ProviderComparisonResult result, S l) {
     final warnings = result.providers
         .where((p) => p.hasWarning && p.warningMessage != null)
         .toList();
@@ -522,13 +438,11 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
     return [
       for (final w in warnings) ...[
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(MintSpacing.md),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [MintColors.urgentBg, MintColors.redBg],
-            ),
+            color: MintColors.error.withValues(alpha: 0.06),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: MintColors.coralLight, width: 2),
+            border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -536,71 +450,45 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
               Row(
                 children: [
                   const Icon(Icons.warning_amber_rounded,
-                      color: MintColors.redMedium, size: 24),
-                  const SizedBox(width: 12),
+                      color: MintColors.error, size: 24),
+                  const SizedBox(width: MintSpacing.sm + 4),
                   Expanded(
                     child: Text(
-                      'ATTENTION — Assurance 3a',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.redDark,
-                      ),
+                      l.providerComparatorAssuranceTitle,
+                      style: MintTextStyles.bodySmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: MintSpacing.sm + 4),
+              Text(w.warningMessage!, style: MintTextStyles.bodySmall(color: MintColors.error)),
+              const SizedBox(height: MintSpacing.sm),
               Text(
-                w.warningMessage!,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: MintColors.redMedium,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Les assurances 3a combinent epargne et couverture risque, '
-                'mais les frais eleves (souvent > 1.5%) et la rigidite du '
-                'contrat les rendent defavorables pour les jeunes epargnants.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: MintColors.redDeep,
-                  height: 1.4,
-                ),
+                l.providerComparatorAssuranceNote,
+                style: MintTextStyles.labelSmall(color: MintColors.error),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: MintSpacing.lg),
       ],
     ];
   }
 
   Widget _buildDisclaimer(String disclaimer) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.warningBg,
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.orangeRetroWarm),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              disclaimer,
-              style: const TextStyle(
-                fontSize: 11,
-                color: MintColors.deepOrange,
-                height: 1.4,
-              ),
-            ),
-          ),
+          const SizedBox(width: MintSpacing.sm + 4),
+          Expanded(child: Text(disclaimer, style: MintTextStyles.micro(color: MintColors.textMuted))),
         ],
       ),
     );
