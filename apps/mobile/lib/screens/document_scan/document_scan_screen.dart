@@ -369,6 +369,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       if (image == null) return;
       await _processImageFile(image);
     } catch (e) {
+      if (!mounted) return;
       _showErrorSnack(S.of(context)!.docScanCameraError);
     }
   }
@@ -398,6 +399,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       if (ext == 'txt') {
         final text = await _readTextFile(file);
         if (text.trim().isEmpty) {
+          if (!mounted) return;
           _showErrorSnack(S.of(context)!.docScanEmptyTextFile);
           return;
         }
@@ -412,6 +414,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
       final localPath = await _resolveLocalPath(file, ext: ext);
       if (localPath == null || localPath.isEmpty) {
+        if (!mounted) return;
         await _showOcrRecoverySheet(
           title: S.of(context)!.docScanFileUnreadableTitle,
           message: S.of(context)!.docScanFileUnreadableMessage,
@@ -421,6 +424,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
       await _processImageFile(XFile(localPath));
     } catch (e) {
+      if (!mounted) return;
       _showErrorSnack(S.of(context)!.docScanImportError(e.toString()));
     }
   }
@@ -495,6 +499,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       if (!mounted) return;
       await context.push('/scan/review', extra: result);
     } catch (e) {
+      if (!mounted) return;
       _showErrorSnack(S.of(context)!.docScanParsingError(e.toString()));
     } finally {
       if (mounted) setState(() => _isProcessing = false);
@@ -582,6 +587,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }) async {
     final localPath = await _resolveLocalPath(file, ext: ext);
     if (localPath == null || localPath.isEmpty) {
+      if (!mounted) return;
       await _showPdfImportFallback(
         title: S.of(context)!.docScanPdfDetected,
         message: S.of(context)!.docScanPdfCannotRead,
@@ -596,6 +602,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         await _showPdfAuthRequiredSheet();
         return;
       }
+      if (!mounted) return;
       await _showPdfImportFallback(
         title: S.of(context)!.docScanPdfAnalysisUnavailable,
         message: parse.errorMessage ?? S.of(context)!.docScanPdfNotParsed,
@@ -603,6 +610,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       return;
     }
 
+    if (!mounted) return;
     await _showPdfImportFallback(
       title: S.of(context)!.docScanPdfDetected,
       message: _selectedType == DocumentType.lppCertificate
@@ -923,6 +931,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       );
       final extraction = _mapLppUploadToExtraction(upload);
       if (extraction.fields.isEmpty) {
+        if (!mounted) {
+          return const _PdfParseResult(success: false);
+        }
         return _PdfParseResult(
           success: false,
           errorMessage: S.of(context)!.docScanPdfNoData,
@@ -940,7 +951,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       return _PdfParseResult(
         success: false,
         requiresAuthentication: requiresAuthentication,
-        errorMessage: S.of(context)!.docScanPdfBackendError(e.toString()),
+        errorMessage: mounted
+            ? S.of(context)!.docScanPdfBackendError(e.toString())
+            : e.toString(),
       );
     } catch (e) {
       debugPrint('[DocumentScan] Backend PDF parsing unavailable: $e');
@@ -1123,10 +1136,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       }).toList();
 
       if (fields.isEmpty) {
+        if (!mounted) return;
         _showErrorSnack(S.of(context)!.docScanVisionNoFields);
         return;
       }
 
+      if (!mounted) return;
       final result = ExtractionResult(
         documentType: _selectedType,
         fields: fields,
@@ -1144,6 +1159,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     } on RagApiException catch (e) {
       _showErrorSnack(e.message);
     } catch (e) {
+      if (!mounted) return;
       _showErrorSnack(S.of(context)!.docScanVisionError(e.toString()));
     } finally {
       if (mounted) setState(() => _isProcessing = false);
