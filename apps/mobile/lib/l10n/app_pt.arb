@@ -5972,13 +5972,13 @@
   "disabilityStatLine1": "[PT] 1 em cada 5 pessoas",
   "disabilityStatLine2": "[PT] será afetada antes dos 65 anos",
 
-  "coachGreetingSlm": "Olá {name}! Sou o teu coach MINT — funciono diretamente no teu iPhone, nenhum dado sai do teu dispositivo. Pergunta-me sobre previdência, impostos ou reforma.",
+  "coachGreetingSlm": "Ol\u00e1 {name}. As tuas perguntas ficam no teu dispositivo \u2014 nada sai. Pergunta o que quiseres, vamos ver os teus n\u00fameros juntos.",
   "@coachGreetingSlm": {
     "placeholders": {
       "name": { "type": "String" }
     }
   },
-  "coachGreetingDefault": "Olá {name}! Sou o teu coach MINT. Pergunta-me sobre previdência, impostos, orçamento ou reforma na Suíça.{scoreSuffix}",
+  "coachGreetingDefault": "Ol\u00e1 {name}. Faz a tua pergunta \u2014 vou ver os teus n\u00fameros e digo-te o que vejo.{scoreSuffix}",
   "@coachGreetingDefault": {
     "placeholders": {
       "name": { "type": "String" },
@@ -6006,8 +6006,8 @@
   "coachSuggestTaxImpact": "Simular o impacto fiscal",
   "coachSuggestFitness": "A minha pontuação Fitness",
   "coachSuggestRetirement": "A minha trajetória de reforma",
-  "coachEmptyStateMessage": "Completa o teu diagnóstico para conversar com o teu coach",
-  "coachEmptyStateButton": "Começar",
+  "coachEmptyStateMessage": "Ainda sem perfil. Tr\u00eas perguntas, e come\u00e7amos a conversar.",
+  "coachEmptyStateButton": "Fazer o meu diagn\u00f3stico",
   "coachTooltipHistory": "Histórico",
   "coachTooltipExport": "Exportar conversa",
   "coachTooltipSettings": "Definições de IA",
@@ -6026,6 +6026,7 @@
   "coachFallbackName": "amigo/a",
   "coachUserMessage": "A tua mensagem",
   "coachCoachMessage": "Resposta do coach",
+  "coachSendButton": "Enviar",
   "profileDefaultName": "Utilizador",
   "profileNameAge": "{name}, {age} anos",
   "@profileNameAge": {

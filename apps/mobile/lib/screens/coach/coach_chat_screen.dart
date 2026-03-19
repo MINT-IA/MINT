@@ -6,6 +6,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
@@ -180,8 +182,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
     if (tier == ChatTier.slm) {
       greeting = s.coachGreetingSlm(name);
-    } else if (_isByokConfigured) {
-      greeting = CoachLlmService.initialGreeting(p);
     } else {
       final scoreSuffix = _buildGreetingScoreContext(p);
       greeting = s.coachGreetingDefault(name, scoreSuffix);
@@ -199,7 +199,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final topTipActions = tips.take(3).map((t) => t.title).toList();
       suggestions = topTipActions.isNotEmpty
           ? topTipActions
-          : CoachLlmService.initialSuggestions;
+          : [
+              s.coachSuggestRetirement,
+              s.coachSuggestDeductions,
+              s.coachSuggestSimulate3a,
+            ];
     }
 
     // No response cards on greeting — they duplicate Pulse.
@@ -384,9 +388,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             ? compliance.sanitizedText
             : rawText);
 
-    final suggestedActions = compliance.useFallback
-        ? null
-        : _inferSuggestedActions(userMessage);
+    final suggestedActions =
+        compliance.useFallback ? null : _inferSuggestedActions(userMessage);
 
     // Phase 1: generate inline response cards from user message
     final cards = _profile != null
@@ -408,7 +411,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   /// Handle standard (non-streaming) response via orchestrator.
-  Future<void> _handleStandardResponse(String text, {String? memoryBlock}) async {
+  Future<void> _handleStandardResponse(String text,
+      {String? memoryBlock}) async {
     try {
       final config = _buildConfig();
       final response = await CoachLlmService.chat(
@@ -687,22 +691,21 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
+          padding: const EdgeInsets.symmetric(horizontal: MintSpacing.xl),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.chat_bubble_outline,
-                  size: 64, color: MintColors.greyMedium),
-              const SizedBox(height: 16),
+              Icon(Icons.chat_bubble_outline,
+                  size: 64,
+                  color: MintColors.textMuted.withValues(alpha: 0.4)),
+              const SizedBox(height: MintSpacing.md),
               Text(
                 s.coachEmptyStateMessage,
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodyLarge(
+                    color: MintColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: MintSpacing.md),
               FilledButton(
                 onPressed: () => context.go('/onboarding/quick'),
                 style: FilledButton.styleFrom(
@@ -710,10 +713,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 ),
                 child: Text(
                   s.coachEmptyStateButton,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: MintTextStyles.titleMedium(
+                      color: MintColors.white),
                 ),
               ),
             ],
@@ -735,17 +736,18 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.md, vertical: MintSpacing.sm + 4),
           child: Row(
             children: [
               if (!widget.isEmbeddedInTab) ...[
                 IconButton(
                   icon: const Icon(Icons.arrow_back, color: MintColors.white),
-                  onPressed: () => Navigator.of(context).maybePop(),
+                  onPressed: () => context.pop(),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: MintSpacing.sm),
               ] else
-                const SizedBox(width: 4),
+                const SizedBox(width: MintSpacing.xs),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -758,7 +760,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                         color: MintColors.white,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 2), // tight coupling
                     _buildTierSubtitle(tier),
                   ],
                 ),
@@ -778,7 +780,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                   onPressed: _exportConversation,
                 ),
               IconButton(
-                icon: const Icon(Icons.settings_outlined, color: MintColors.white),
+                icon: const Icon(Icons.settings_outlined,
+                    color: MintColors.white),
                 tooltip: s.coachTooltipSettings,
                 onPressed: () => context.push('/profile/byok'),
               ),
@@ -810,7 +813,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     return Row(
       children: [
         Icon(icon, size: 12, color: MintColors.white.withValues(alpha: 0.7)),
-        const SizedBox(width: 4),
+        const SizedBox(width: MintSpacing.xs),
         Text(
           label,
           style: GoogleFonts.inter(
@@ -826,16 +829,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   Widget _buildDisclaimer() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+          horizontal: MintSpacing.md, vertical: MintSpacing.sm),
       color: MintColors.coachBubble,
       child: Text(
         S.of(context)!.coachDisclaimer,
-        style: GoogleFonts.inter(
-          fontSize: 11,
-          fontWeight: FontWeight.w400,
-          color: MintColors.textSecondary,
-          fontStyle: FontStyle.italic,
-        ),
+        style: MintTextStyles.micro(color: MintColors.textSecondary),
         textAlign: TextAlign.center,
       ),
     );
@@ -848,7 +847,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   Widget _buildMessageList() {
     return ListView.builder(
       controller: _scrollController,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+          horizontal: MintSpacing.md, vertical: MintSpacing.sm + 4),
       itemCount: _messages.length,
       itemBuilder: (context, index) {
         final msg = _messages[index];
@@ -888,27 +888,23 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   Widget _buildUserBubble(ChatMessage msg) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(width: 48),
+          const SizedBox(width: MintSpacing.xxl),
           Flexible(
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: MintSpacing.md, vertical: MintSpacing.sm + 4),
               decoration: BoxDecoration(
                 color: MintColors.primary,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
                 msg.content,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: MintColors.white,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.white),
               ),
             ),
           ),
@@ -922,7 +918,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         _isStreaming && msg == _messages.last && msg.tier == ChatTier.slm;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -943,11 +939,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                   size: 18,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: MintSpacing.sm),
               Flexible(
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 12),
+                      horizontal: MintSpacing.md, vertical: MintSpacing.sm + 4),
                   decoration: BoxDecoration(
                     color: MintColors.coachBubble,
                     borderRadius: BorderRadius.circular(16),
@@ -959,15 +955,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                         msg.content.isEmpty && isStreamingThis
                             ? '...'
                             : msg.content,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.bodyMedium(
+                            color: MintColors.textPrimary),
                       ),
                       // Streaming cursor
                       if (isStreamingThis) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: MintSpacing.xs),
                         SizedBox(
                           width: 8,
                           height: 14,
@@ -978,12 +971,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 48),
+              const SizedBox(width: MintSpacing.xxl),
             ],
           ),
           // Tier badge
           if (!isStreamingThis && msg.tier != ChatTier.none) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: MintSpacing.xs),
             Padding(
               padding: const EdgeInsets.only(left: 40),
               child: _buildTierBadge(msg.tier),
@@ -991,7 +984,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           ],
           // Sources
           if (msg.sources.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             Padding(
               padding: const EdgeInsets.only(left: 40, right: 48),
               child: _buildSourcesSection(msg.sources),
@@ -999,7 +992,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           ],
           // Disclaimers (from RAG backend)
           if (msg.disclaimers.isNotEmpty) ...[
-            const SizedBox(height: 6),
+            const SizedBox(height: MintSpacing.sm - 2),
             Padding(
               padding: const EdgeInsets.only(left: 40, right: 48),
               child: _buildDisclaimersSection(msg.disclaimers),
@@ -1007,7 +1000,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           ],
           // Response Cards (Phase 1 — inline strip)
           if (!isStreamingThis && msg.responseCards.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             Padding(
               padding: const EdgeInsets.only(left: 40),
               child: ResponseCardStrip(cards: msg.responseCards),
@@ -1017,7 +1010,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           if (!isStreamingThis &&
               msg.suggestedActions != null &&
               msg.suggestedActions!.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             Padding(
               padding: const EdgeInsets.only(left: 40),
               child: Wrap(
@@ -1027,11 +1020,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                   return ActionChip(
                     label: Text(
                       action,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: MintColors.coachAccent,
-                      ),
+                      style: MintTextStyles.labelSmall(
+                          color: MintColors.coachAccent),
                     ),
                     backgroundColor: MintColors.white,
                     side: BorderSide(
@@ -1105,16 +1095,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   Widget _buildSystemMessage(ChatMessage msg) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: MintSpacing.sm),
       child: Center(
         child: Text(
           msg.content,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
-            color: MintColors.textMuted,
-            fontStyle: FontStyle.italic,
-          ),
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted)
+              .copyWith(fontStyle: FontStyle.italic),
           textAlign: TextAlign.center,
         ),
       ),
@@ -1127,7 +1113,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       label: loadingText,
       liveRegion: true,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        padding: const EdgeInsets.symmetric(
+            horizontal: MintSpacing.md, vertical: MintSpacing.xs),
         child: Row(
           children: [
             Container(
@@ -1143,10 +1130,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 size: 18,
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: MintSpacing.sm),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: MintSpacing.md, vertical: MintSpacing.sm + 4),
               decoration: BoxDecoration(
                 color: MintColors.coachBubble,
                 borderRadius: BorderRadius.circular(16),
@@ -1162,14 +1149,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                       color: MintColors.coachAccent.withValues(alpha: 0.6),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: MintSpacing.sm),
                   Text(
                     loadingText,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w400,
-                      color: MintColors.textMuted,
-                    ),
+                    style: MintTextStyles.bodySmall(
+                        color: MintColors.textMuted),
                   ),
                 ],
               ),
@@ -1204,7 +1188,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               letterSpacing: 0.5,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           for (final source in sources)
             Padding(
               padding: const EdgeInsets.only(bottom: 3),
@@ -1212,27 +1196,28 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 label: source.title,
                 button: true,
                 child: InkWell(
-                onTap: () => _navigateToSource(source),
-                child: Row(
-                  children: [
-                    Icon(Icons.description_outlined,
-                        size: 13,
-                        color: MintColors.info.withValues(alpha: 0.7)),
-                    const SizedBox(width: 5),
-                    Expanded(
-                      child: Text(
-                        '${source.title}${source.section.isNotEmpty ? ' \u2014 ${source.section}' : ''}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: MintColors.info,
-                          decoration: TextDecoration.underline,
-                          decorationColor: MintColors.info.withValues(alpha: 0.5),
+                  onTap: () => _navigateToSource(source),
+                  child: Row(
+                    children: [
+                      Icon(Icons.description_outlined,
+                          size: 13,
+                          color: MintColors.info.withValues(alpha: 0.7)),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
+                          '${source.title}${source.section.isNotEmpty ? ' \u2014 ${source.section}' : ''}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: MintColors.info,
+                            decoration: TextDecoration.underline,
+                            decorationColor:
+                                MintColors.info.withValues(alpha: 0.5),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
               ),
             ),
         ],
@@ -1306,7 +1291,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.sm + 4, vertical: MintSpacing.sm),
           child: Row(
             children: [
               // Life event trigger button
@@ -1317,65 +1303,70 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 onPressed: _isStreaming ? null : _showLifeEventSheet,
               ),
               Expanded(
-                child: TextField(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  textInputAction: TextInputAction.send,
-                  maxLines: null,
-                  enabled: !_isStreaming,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: MintColors.textPrimary,
+                child: Semantics(
+                  textField: true,
+                  label: s.coachInputHint,
+                  child: TextField(
+                    controller: _controller,
+                    focusNode: _focusNode,
+                    textInputAction: TextInputAction.send,
+                    maxLines: null,
+                    enabled: !_isStreaming,
+                    style: MintTextStyles.bodyMedium(
+                        color: MintColors.textPrimary),
+                    decoration: InputDecoration(
+                      hintText: s.coachInputHint,
+                      hintStyle: MintTextStyles.bodyMedium(
+                          color: MintColors.textMuted),
+                      filled: true,
+                      fillColor: MintColors.surface,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: MintSpacing.md,
+                        vertical: 10,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: BorderSide(
+                          color: MintColors.border.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: BorderSide(
+                          color: MintColors.border.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: const BorderSide(
+                          color: MintColors.coachAccent,
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                    onSubmitted: (text) => _sendMessage(text),
                   ),
-                  decoration: InputDecoration(
-                    hintText: s.coachInputHint,
-                    hintStyle: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: MintColors.textMuted,
-                    ),
-                    filled: true,
-                    fillColor: MintColors.surface,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
-                      borderSide: BorderSide(
-                        color: MintColors.border.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
-                      borderSide: BorderSide(
-                        color: MintColors.border.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
-                      borderSide: const BorderSide(
-                        color: MintColors.coachAccent,
-                        width: 1.5,
-                      ),
-                    ),
-                  ),
-                  onSubmitted: (text) => _sendMessage(text),
                 ),
               ),
-              const SizedBox(width: 8),
-              Container(
-                decoration: BoxDecoration(
-                  color: _isStreaming
-                      ? MintColors.textMuted
-                      : MintColors.coachAccent,
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: IconButton(
-                  icon:
-                      const Icon(Icons.send, color: MintColors.white, size: 20),
-                  onPressed: _isStreaming
-                      ? null
-                      : () => _sendMessage(_controller.text),
+              const SizedBox(width: MintSpacing.sm),
+              Semantics(
+                button: true,
+                label: s.coachSendButton,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: _isStreaming
+                        ? MintColors.textMuted
+                        : MintColors.coachAccent,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.send,
+                        color: MintColors.white, size: 20),
+                    tooltip: s.coachSendButton,
+                    onPressed: _isStreaming
+                        ? null
+                        : () => _sendMessage(_controller.text),
+                  ),
                 ),
               ),
             ],

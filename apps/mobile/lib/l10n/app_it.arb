@@ -6006,8 +6006,8 @@
   "coachSuggestTaxImpact": "Simulare l'impatto fiscale",
   "coachSuggestFitness": "Il mio punteggio Fitness",
   "coachSuggestRetirement": "La mia traiettoria di pensionamento",
-  "coachEmptyStateMessage": "Completa la tua diagnosi per chattare con il tuo coach",
-  "coachEmptyStateButton": "Iniziare",
+  "coachEmptyStateMessage": "Ancora nessun profilo. Tre domande, e iniziamo a parlare.",
+  "coachEmptyStateButton": "Fare la mia diagnosi",
   "coachTooltipHistory": "Cronologia",
   "coachTooltipExport": "Esportare conversazione",
   "coachTooltipSettings": "Impostazioni IA",
@@ -6026,6 +6026,7 @@
   "coachFallbackName": "amico/a",
   "coachUserMessage": "Il tuo messaggio",
   "coachCoachMessage": "Risposta del coach",
+  "coachSendButton": "Invia",
   "profileDefaultName": "Utente",
   "profileNameAge": "{name}, {age} anni",
   "@profileNameAge": {
