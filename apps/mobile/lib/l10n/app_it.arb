@@ -7084,4 +7084,11 @@
   "acceptInvitationTitle": "Unirsi a un nucleo",
   "financialReportTitle": "Il tuo Piano Mint",
   "timelineTitle": "Il mio percorso"
+,
+  "capKindComplete": "Completare",
+  "capKindCorrect": "Correggere",
+  "capKindOptimize": "Ottimizzare",
+  "capKindSecure": "Proteggere",
+  "capKindPrepare": "Preparare",
+  "proofSheetSources": "Fonti"
 }

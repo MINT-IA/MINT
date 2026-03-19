@@ -52,11 +52,12 @@ void main() {
   final now = DateTime(2026, 3, 19);
 
   group('CapEngine — always returns 1 cap', () {
-    test('returns a cap for minimal profile', () {
+    test('returns a cap for minimal profile with stable id', () {
       final profile = _profile();
       final cap = CapEngine.compute(profile: profile, now: now);
 
       expect(cap, isNotNull);
+      expect(cap.id, isNotEmpty);
       expect(cap.headline, isNotEmpty);
       expect(cap.whyNow, isNotEmpty);
       expect(cap.ctaLabel, isNotEmpty);
@@ -160,22 +161,22 @@ void main() {
     });
   });
 
-  group('CapEngine — recency modifier', () {
-    test('same cap served recently gets penalized', () {
+  group('CapEngine — recency modifier (deterministic)', () {
+    test('same cap served 2h ago has lower priority score', () {
       final profile = _profile(
         dettes: _dettes(25000),
       );
 
-      // First computation — fresh
+      // Fresh — no memory
       final cap1 = CapEngine.compute(
         profile: profile,
         now: now,
         memory: const CapMemory(),
       );
 
-      // Second computation — same cap served 2 hours ago
+      // Same cap served 2 hours ago
       final memory = CapMemory(
-        lastCapServed: 'debt_correct',
+        lastCapServed: cap1.id,
         lastCapDate: now.subtract(const Duration(hours: 2)),
       );
       final cap2 = CapEngine.compute(
@@ -184,30 +185,50 @@ void main() {
         memory: memory,
       );
 
-      // Both should return a cap, but priority score should differ
-      expect(cap1, isNotNull);
-      expect(cap2, isNotNull);
-      // The recency penalty may cause a different cap to win,
-      // or at minimum the score should be lower
+      // If the same cap still wins, its score must be lower
+      if (cap2.id == cap1.id) {
+        expect(cap2.priorityScore, lessThan(cap1.priorityScore));
+      }
     });
 
-    test('cap served 24h+ ago is not penalized', () {
+    test('cap served 24h+ ago is not penalized — same score', () {
       final profile = _profile(
         dettes: _dettes(25000),
       );
 
+      final capFresh = CapEngine.compute(
+        profile: profile,
+        now: now,
+        memory: const CapMemory(),
+      );
+
       final memory = CapMemory(
-        lastCapServed: 'debt_correct',
+        lastCapServed: capFresh.id,
         lastCapDate: now.subtract(const Duration(hours: 25)),
       );
-      final cap = CapEngine.compute(
+      final capOld = CapEngine.compute(
         profile: profile,
         now: now,
         memory: memory,
       );
 
-      // Debt should still win even with yesterday's cap
-      expect(cap.kind, CapKind.correct);
+      // 24h+ = no penalty, same winner, same score
+      expect(capOld.id, capFresh.id);
+      expect(capOld.priorityScore, capFresh.priorityScore);
+    });
+
+    test('recency is deterministic — same now gives same result', () {
+      final profile = _profile(dettes: _dettes(25000));
+      final memory = CapMemory(
+        lastCapServed: 'debt_correct',
+        lastCapDate: now.subtract(const Duration(hours: 3)),
+      );
+
+      final r1 = CapEngine.compute(profile: profile, now: now, memory: memory);
+      final r2 = CapEngine.compute(profile: profile, now: now, memory: memory);
+
+      expect(r1.id, r2.id);
+      expect(r1.priorityScore, r2.priorityScore);
     });
   });
 

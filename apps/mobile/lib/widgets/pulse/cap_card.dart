@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/screens/pulse/pulse_screen.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -65,7 +66,7 @@ class CapCard extends StatelessWidget {
               ],
 
               // Kind pill
-              _buildKindPill(),
+              _buildKindPill(context),
               const SizedBox(height: MintSpacing.sm + 4),
 
               // Headline
@@ -129,7 +130,7 @@ class CapCard extends StatelessWidget {
     );
   }
 
-  Widget _buildKindPill() {
+  Widget _buildKindPill(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -137,7 +138,7 @@ class CapCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        _kindLabel,
+        _kindLabel(context),
         style: MintTextStyles.labelSmall(color: _kindColor),
       ),
     );
@@ -211,23 +212,36 @@ class CapCard extends StatelessWidget {
           context.push(cap.ctaRoute!);
         }
       case CtaMode.coach:
-        // Switch to coach tab (index 1) — prompt injection handled by caller
+        // Switch to coach tab with injected prompt if available.
+        // CoachChatScreen reads the pending prompt from a shared state.
+        if (cap.coachPrompt != null && cap.coachPrompt!.isNotEmpty) {
+          CapCoachBridge.pendingPrompt = cap.coachPrompt;
+        }
         NavigationShellState.switchTab(1);
       case CtaMode.capture:
-        // Open enrichment flow — for now, go to profile
-        context.push('/onboarding/enrichment');
+        // Route to the specific capture flow based on captureType.
+        final route = switch (cap.captureType) {
+          'lpp' => '/document-scan',
+          'avs' => '/document-scan/avs',
+          'profile' => '/onboarding/enrichment',
+          _ => '/onboarding/enrichment',
+        };
+        context.push(route);
     }
   }
 
   // ── COMPUTED ──────────────────────────────────────────────
 
-  String get _kindLabel => switch (cap.kind) {
-        CapKind.complete => 'Compléter',
-        CapKind.correct => 'Corriger',
-        CapKind.optimize => 'Optimiser',
-        CapKind.secure => 'Sécuriser',
-        CapKind.prepare => 'Préparer',
-      };
+  String _kindLabel(BuildContext context) {
+    final l = S.of(context)!;
+    return switch (cap.kind) {
+      CapKind.complete => l.capKindComplete,
+      CapKind.correct => l.capKindCorrect,
+      CapKind.optimize => l.capKindOptimize,
+      CapKind.secure => l.capKindSecure,
+      CapKind.prepare => l.capKindPrepare,
+    };
+  }
 
   Color get _kindColor => switch (cap.kind) {
         CapKind.complete => MintColors.info,
@@ -236,4 +250,24 @@ class CapCard extends StatelessWidget {
         CapKind.secure => MintColors.error,
         CapKind.prepare => MintColors.primary,
       };
+}
+
+/// Bridge for passing coach prompt from CapCard to CoachChatScreen.
+///
+/// CoachChatScreen checks [pendingPrompt] on mount and consumes it.
+/// Lightweight alternative to a full Provider just for this handoff.
+/// Bridge for passing coach prompt from CapCard to CoachChatScreen.
+///
+/// CoachChatScreen checks [pendingPrompt] on mount and consumes it.
+/// Lightweight alternative to a full Provider just for this handoff.
+class CapCoachBridge {
+  CapCoachBridge._();
+  static String? pendingPrompt;
+
+  /// Consume the pending prompt (returns it and clears).
+  static String? consume() {
+    final p = pendingPrompt;
+    pendingPrompt = null;
+    return p;
+  }
 }

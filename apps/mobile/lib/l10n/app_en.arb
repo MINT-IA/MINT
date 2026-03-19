@@ -7456,4 +7456,11 @@
   "financialReportTransparency": "Transparency and compliance",
   "financialReportLegalMention": "Legal notice",
   "financialReportDisclaimer": "Educational tool — not financial advice under FinSA. Amounts are estimates based on declared data."
+,
+  "capKindComplete": "Complete",
+  "capKindCorrect": "Correct",
+  "capKindOptimize": "Optimize",
+  "capKindSecure": "Secure",
+  "capKindPrepare": "Prepare",
+  "proofSheetSources": "Sources"
 }

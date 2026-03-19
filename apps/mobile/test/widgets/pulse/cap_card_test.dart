@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/widgets/pulse/cap_card.dart';
 
@@ -25,6 +27,7 @@ CapDecision _makeCap({
   String? confidenceLabel,
 }) {
   return CapDecision(
+    id: 'test_${kind.name}',
     kind: kind,
     priorityScore: 0.8,
     headline: headline,
@@ -39,6 +42,14 @@ CapDecision _makeCap({
 
 Widget _wrap(Widget child) {
   return MaterialApp(
+    locale: const Locale('fr'),
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: S.supportedLocales,
     home: Scaffold(
       body: SingleChildScrollView(
         child: Padding(

@@ -7084,4 +7084,11 @@
   "acceptInvitationTitle": "Aderir a um agregado",
   "financialReportTitle": "O teu Plano Mint",
   "timelineTitle": "O meu percurso"
+,
+  "capKindComplete": "Completar",
+  "capKindCorrect": "Corrigir",
+  "capKindOptimize": "Otimizar",
+  "capKindSecure": "Proteger",
+  "capKindPrepare": "Preparar",
+  "proofSheetSources": "Fontes"
 }

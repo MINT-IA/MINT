@@ -3,6 +3,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -44,13 +45,14 @@ class CapEngine {
     if (confidence.score < 45 && confidence.prompts.isNotEmpty) {
       final top = confidence.prompts.first;
       candidates.add(CapDecision(
+        id: 'complete_${top.category}',
         kind: CapKind.complete,
         priorityScore: _score(
           impact: 0.7,
           urgency: 0.8,
           confidencePenalty: 1.0,
           readiness: 1.0,
-          recency: _recencyModifier('complete_${top.category}', memory),
+          recency: _recencyModifier('complete_${top.category}', memory, now),
         ),
         headline: 'Il manque une pièce',
         whyNow: '${top.label} — sans cette donnée, '
@@ -68,13 +70,14 @@ class CapEngine {
     // ── 2. Critical: debt ──
     if (profile.dettes.hasDette && profile.dettes.totalDettes > 10000) {
       candidates.add(CapDecision(
+        id: 'debt_correct',
         kind: CapKind.correct,
         priorityScore: _score(
           impact: 0.9,
           urgency: 0.9,
           confidencePenalty: _confPenalty(confidence.score),
           readiness: 1.0,
-          recency: _recencyModifier('debt_correct', memory),
+          recency: _recencyModifier('debt_correct', memory, now),
         ),
         headline: 'Ta dette pèse',
         // Reframing rule: never show bad number alone — show the lever.
@@ -93,13 +96,14 @@ class CapEngine {
         (profile.prevoyance.avoirLppTotal == null ||
             profile.prevoyance.avoirLppTotal == 0)) {
       candidates.add(CapDecision(
+        id: 'indep_no_lpp',
         kind: CapKind.secure,
         priorityScore: _score(
           impact: 0.85,
           urgency: 0.8,
           confidencePenalty: _confPenalty(confidence.score),
           readiness: 1.0,
-          recency: _recencyModifier('indep_no_lpp', memory),
+          recency: _recencyModifier('indep_no_lpp', memory, now),
         ),
         headline: 'Ton 2e pilier\u00a0: CHF\u00a00',
         whyNow: 'Sans LPP, ta retraite = AVS seule. '
@@ -122,13 +126,14 @@ class CapEngine {
       if (cards3a.isNotEmpty) {
         final card = cards3a.first;
         candidates.add(CapDecision(
+          id: 'pillar_3a',
           kind: CapKind.optimize,
           priorityScore: _score(
             impact: 0.75,
             urgency: daysToYearEnd <= 30 ? 1.0 : 0.7,
             confidencePenalty: _confPenalty(confidence.score),
             readiness: 1.0,
-            recency: _recencyModifier('pillar_3a', memory),
+            recency: _recencyModifier('pillar_3a', memory, now),
           ),
           headline: 'Cette année compte encore',
           whyNow: 'Un versement 3a peut encore alléger '
@@ -148,13 +153,14 @@ class CapEngine {
     final rachatMax = profile.prevoyance.rachatMaximum ?? 0;
     if (rachatMax > 5000) {
       candidates.add(CapDecision(
+        id: 'lpp_buyback',
         kind: CapKind.optimize,
         priorityScore: _score(
           impact: 0.7,
           urgency: 0.5,
           confidencePenalty: _confPenalty(confidence.score),
           readiness: 1.0,
-          recency: _recencyModifier('lpp_buyback', memory),
+          recency: _recencyModifier('lpp_buyback', memory, now),
         ),
         headline: 'Rachat LPP disponible',
         whyNow: 'Tu peux racheter jusqu\u2019à '
@@ -170,18 +176,22 @@ class CapEngine {
     // ── 6. Budget deficit → reframing rule ──
     if (profile.totalDepensesMensuelles > 0 &&
         profile.salaireBrutMensuel > 0) {
-      // Rough net estimate
-      final netMensuel = profile.salaireBrutMensuel * 0.78;
+      final netMensuel = NetIncomeBreakdown.compute(
+        grossSalary: profile.salaireBrutMensuel * 12,
+        canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+        age: profile.age,
+      ).monthlyNetPayslip;
       final libre = netMensuel - profile.totalDepensesMensuelles;
       if (libre < 0) {
         candidates.add(CapDecision(
+          id: 'budget_deficit',
           kind: CapKind.correct,
           priorityScore: _score(
             impact: 0.8,
             urgency: 0.7,
             confidencePenalty: _confPenalty(confidence.score),
             readiness: 1.0,
-            recency: _recencyModifier('budget_deficit', memory),
+            recency: _recencyModifier('budget_deficit', memory, now),
           ),
           // Reframing: show the margin to recover, not just the red.
           headline: 'Ta marge à retrouver',
@@ -207,13 +217,14 @@ class CapEngine {
         final rate = card.chiffreChoc.value;
         if (rate > 0 && rate < 65) {
           candidates.add(CapDecision(
+            id: 'replacement_rate',
             kind: CapKind.prepare,
             priorityScore: _score(
               impact: 0.7,
               urgency: profile.age >= 55 ? 0.8 : 0.5,
               confidencePenalty: _confPenalty(confidence.score),
               readiness: 1.0,
-              recency: _recencyModifier('replacement_rate', memory),
+              recency: _recencyModifier('replacement_rate', memory, now),
             ),
             headline: 'Ta retraite pince encore',
             whyNow:
@@ -229,20 +240,27 @@ class CapEngine {
       }
     }
 
-    // ── 8. Protection gap (no coverage check) ──
-    // Simplified: if age > 35, no patrimoine.mortgageBalance, not indep
-    // → suggest coverage check
-    if (profile.age >= 35 &&
+    // ── 8. Protection gap ──
+    // Only trigger if a real signal exists:
+    // - has dependents (couple or children)
+    // - OR has a mortgage (need life insurance)
+    // - OR age 50+ (disability gap matters more)
+    // Never trigger on just "age >= 35 salarié".
+    final hasDependents = profile.isCouple || profile.nombreEnfants > 0;
+    final hasMortgage = (profile.patrimoine.mortgageBalance ?? 0) > 0;
+    final isSenior = profile.age >= 50;
+    if ((hasDependents || hasMortgage || isSenior) &&
         profile.employmentStatus != 'independant' &&
         !memory.completedActions.contains('coverage_check')) {
       candidates.add(CapDecision(
+        id: 'coverage_check',
         kind: CapKind.secure,
         priorityScore: _score(
           impact: 0.5,
-          urgency: 0.4,
+          urgency: hasMortgage ? 0.6 : 0.4,
           confidencePenalty: _confPenalty(confidence.score),
           readiness: 1.0,
-          recency: _recencyModifier('coverage_check', memory),
+          recency: _recencyModifier('coverage_check', memory, now),
         ),
         headline: 'Ta couverture mérite un check',
         whyNow: 'IJM, AI, LPP invalidité — '
@@ -260,13 +278,14 @@ class CapEngine {
           ResponseCardService.generateForPulse(profile, limit: 1);
       if (cards.isNotEmpty) {
         final card = cards.first;
-        candidates.add(_fromResponseCard(card, confidence.score, memory));
+        candidates.add(_fromResponseCard(card, confidence.score, memory, now));
       }
     }
 
     // ── 10. Ultimate fallback: enrichment ──
     if (candidates.isEmpty) {
       return CapDecision(
+        id: 'fallback_enrich',
         kind: CapKind.complete,
         priorityScore: 1.0,
         headline: 'Complète ton profil',
@@ -303,12 +322,13 @@ class CapEngine {
   }
 
   /// Recency modifier: avoid re-serving the same cap.
-  static double _recencyModifier(String capId, CapMemory memory) {
+  /// Uses injected [now] for determinism (pure function contract).
+  static double _recencyModifier(
+      String capId, CapMemory memory, DateTime now) {
     if (memory.lastCapServed != capId) return 1.0;
     if (memory.lastCapDate == null) return 1.0;
 
-    final hoursSince =
-        DateTime.now().difference(memory.lastCapDate!).inHours;
+    final hoursSince = now.difference(memory.lastCapDate!).inHours;
     if (hoursSince >= 24) return 1.0;
     if (hoursSince >= 12) return 0.7;
     if (hoursSince >= 6) return 0.4;
@@ -321,8 +341,10 @@ class CapEngine {
     ResponseCard card,
     double confidenceScore,
     CapMemory memory,
+    DateTime now,
   ) {
     return CapDecision(
+      id: 'rc_${card.id}',
       kind: _kindFromCardType(card.type),
       priorityScore: _score(
         impact: card.impactPoints / 25.0,
@@ -333,7 +355,7 @@ class CapEngine {
                 : 0.4,
         confidencePenalty: _confPenalty(confidenceScore),
         readiness: 1.0,
-        recency: _recencyModifier(card.id, memory),
+        recency: _recencyModifier(card.id, memory, now),
       ),
       headline: card.title,
       whyNow: card.subtitle,

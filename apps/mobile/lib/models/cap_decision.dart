@@ -51,6 +51,13 @@ class CapSignal {
 ///
 /// Represents the most useful thing MINT can propose right now.
 class CapDecision {
+  /// Stable identifier for this cap decision.
+  ///
+  /// Used by CapMemoryStore.markServed() / markCompleted().
+  /// Must be deterministic for the same input profile state.
+  /// Examples: "debt_correct", "pillar_3a", "complete_lpp".
+  final String id;
+
   /// What kind of cap this is.
   final CapKind kind;
 
@@ -94,6 +101,7 @@ class CapDecision {
   final List<String> sourceCards;
 
   const CapDecision({
+    required this.id,
     required this.kind,
     required this.priorityScore,
     required this.headline,

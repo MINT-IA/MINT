@@ -105,6 +105,45 @@ void main() {
     });
   });
 
+  group('CapMemory — copyWith clears nullable fields', () {
+    test('passing null explicitly clears recentFrictionContext', () {
+      final memory = CapMemory(
+        recentFrictionContext: 'budget_stress',
+        completedActions: ['a'],
+      );
+
+      final cleared = memory.copyWith(recentFrictionContext: null);
+
+      expect(cleared.recentFrictionContext, isNull);
+      expect(cleared.completedActions, ['a']); // other fields preserved
+    });
+
+    test('passing null explicitly clears preferredCtaMode', () {
+      final memory = CapMemory(preferredCtaMode: 'route');
+
+      final cleared = memory.copyWith(preferredCtaMode: null);
+
+      expect(cleared.preferredCtaMode, isNull);
+    });
+
+    test('passing null explicitly clears lastCapServed', () {
+      final memory = CapMemory(lastCapServed: 'old_cap');
+
+      final cleared = memory.copyWith(lastCapServed: null);
+
+      expect(cleared.lastCapServed, isNull);
+    });
+
+    test('omitting a field preserves existing value (not clear)', () {
+      final memory = CapMemory(recentFrictionContext: 'stress');
+
+      // copyWith with no recentFrictionContext arg → keeps 'stress'
+      final kept = memory.copyWith(completedActions: ['x']);
+
+      expect(kept.recentFrictionContext, 'stress');
+    });
+  });
+
   group('CapMemoryStore — markAbandoned', () {
     test('trims abandonedFlows to max 10', () {
       final long = List.generate(12, (i) => 'flow_$i');

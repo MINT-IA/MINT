@@ -2,6 +2,13 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Sentinel value for "not provided" in copyWith — allows explicit null.
+const Object _undefined = _Undefined();
+
+class _Undefined {
+  const _Undefined();
+}
+
 /// Persistent memory for the CapEngine.
 ///
 /// Tracks which caps were served, completed, or abandoned
@@ -42,24 +49,35 @@ class CapMemory {
     this.recentFrictionContext,
   });
 
+  /// Copy with explicit null clearing support.
+  ///
+  /// Pass the [_cleared] sentinel to explicitly set a nullable field to null.
+  /// Omit a field to keep the current value.
   CapMemory copyWith({
-    String? lastCapServed,
-    DateTime? lastCapDate,
+    Object? lastCapServed = _undefined,
+    Object? lastCapDate = _undefined,
     List<String>? completedActions,
     List<String>? abandonedFlows,
-    String? preferredCtaMode,
+    Object? preferredCtaMode = _undefined,
     List<String>? declaredGoals,
-    String? recentFrictionContext,
+    Object? recentFrictionContext = _undefined,
   }) {
     return CapMemory(
-      lastCapServed: lastCapServed ?? this.lastCapServed,
-      lastCapDate: lastCapDate ?? this.lastCapDate,
+      lastCapServed: lastCapServed == _undefined
+          ? this.lastCapServed
+          : lastCapServed as String?,
+      lastCapDate: lastCapDate == _undefined
+          ? this.lastCapDate
+          : lastCapDate as DateTime?,
       completedActions: completedActions ?? this.completedActions,
       abandonedFlows: abandonedFlows ?? this.abandonedFlows,
-      preferredCtaMode: preferredCtaMode ?? this.preferredCtaMode,
+      preferredCtaMode: preferredCtaMode == _undefined
+          ? this.preferredCtaMode
+          : preferredCtaMode as String?,
       declaredGoals: declaredGoals ?? this.declaredGoals,
-      recentFrictionContext:
-          recentFrictionContext ?? this.recentFrictionContext,
+      recentFrictionContext: recentFrictionContext == _undefined
+          ? this.recentFrictionContext
+          : recentFrictionContext as String?,
     );
   }
 

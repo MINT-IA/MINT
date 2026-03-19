@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -419,7 +420,8 @@ class ResponseCardWidget extends StatelessWidget {
 
             // Sources
             if (card.sources.isNotEmpty) ...[
-              Text('Sources', style: MintTextStyles.bodySmall()),
+              Text(S.of(context)?.proofSheetSources ?? 'Sources',
+                  style: MintTextStyles.bodySmall()),
               const SizedBox(height: MintSpacing.xs),
               ...card.sources.map(
                 (s) => Padding(
@@ -531,18 +533,25 @@ class ResponseCardStrip extends StatelessWidget {
       );
     }
 
-    return SizedBox(
-      height: _estimateHeight(),
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-        itemCount: cards.length,
-        separatorBuilder: (_, __) => const SizedBox(width: MintSpacing.sm + 4),
-        itemBuilder: (_, index) => SizedBox(
-          width: 280,
-          child: ResponseCardWidget(card: cards[index], variant: variant),
-        ),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 75% of available width, minimum 260, maximum 320.
+        final cardWidth = (constraints.maxWidth * 0.75).clamp(260.0, 320.0);
+        return SizedBox(
+          height: _estimateHeight(),
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
+            itemCount: cards.length,
+            separatorBuilder: (_, __) =>
+                const SizedBox(width: MintSpacing.sm + 4),
+            itemBuilder: (_, index) => SizedBox(
+              width: cardWidth,
+              child: ResponseCardWidget(card: cards[index], variant: variant),
+            ),
+          ),
+        );
+      },
     );
   }
 

@@ -7426,4 +7426,11 @@
   "financialReportTransparency": "Transparenz und Compliance",
   "financialReportLegalMention": "Rechtshinweis",
   "financialReportDisclaimer": "Bildungstool — keine Finanzberatung im Sinne des FIDLEG. Die Beträge sind Schätzungen auf Basis der gemeldeten Daten."
+,
+  "capKindComplete": "Vervollständigen",
+  "capKindCorrect": "Korrigieren",
+  "capKindOptimize": "Optimieren",
+  "capKindSecure": "Absichern",
+  "capKindPrepare": "Vorbereiten",
+  "proofSheetSources": "Quellen"
 }

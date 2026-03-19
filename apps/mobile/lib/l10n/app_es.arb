@@ -7211,4 +7211,11 @@
   "financialReportTransparency": "Transparencia y cumplimiento",
   "financialReportLegalMention": "Mención legal",
   "financialReportDisclaimer": "Herramienta educativa — no constituye asesoramiento financiero según la LSFin. Los importes son estimaciones basadas en datos declarados."
+,
+  "capKindComplete": "Completar",
+  "capKindCorrect": "Corregir",
+  "capKindOptimize": "Optimizar",
+  "capKindSecure": "Asegurar",
+  "capKindPrepare": "Preparar",
+  "proofSheetSources": "Fuentes"
 }
