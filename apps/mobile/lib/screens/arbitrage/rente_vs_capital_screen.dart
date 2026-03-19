@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -11,6 +10,8 @@ import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
@@ -378,56 +379,41 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          // ── SliverAppBar ──
+          // ── SliverAppBar (white standard — Simulator screen) ──
           SliverAppBar(
-            expandedHeight: 100,
             pinned: true,
-            backgroundColor: MintColors.primary,
-            foregroundColor: MintColors.white,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                S.of(context)!.renteVsCapitalAppBarTitle,
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.white,
-                ),
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [MintColors.primary, MintColors.accent],
-                  ),
-                ),
-              ),
+            backgroundColor: MintColors.white,
+            foregroundColor: MintColors.textPrimary,
+            surfaceTintColor: MintColors.white,
+            title: Text(
+              S.of(context)!.renteVsCapitalAppBarTitle,
+              style: MintTextStyles.headlineMedium(),
             ),
           ),
 
           // ── Content ──
           SliverPadding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(MintSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── Hero intro (why this matters) ──
                 _buildHeroIntro(),
-                const SizedBox(height: 20),
+                const SizedBox(height: MintSpacing.lg),
 
                 // ── Inputs (2 modes) ──
                 _buildInputSection(),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 if (_isLoading && _result == null)
                   const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24),
+                    padding: EdgeInsets.symmetric(vertical: MintSpacing.lg),
                     child: Center(child: CircularProgressIndicator()),
                   ),
 
                 if (_hasError && _result == null)
                   Container(
-                    padding: const EdgeInsets.all(16),
-                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.all(MintSpacing.md),
+                    margin: const EdgeInsets.only(bottom: MintSpacing.md),
                     decoration: BoxDecoration(
                       color: MintColors.error.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12),
@@ -435,10 +421,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     child: Row(
                       children: [
                         const Icon(Icons.error_outline, color: MintColors.error, size: 20),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: MintSpacing.sm),
                         Expanded(child: Text(
-                          'Une erreur est survenue. Réessaie plus tard.',
-                          style: GoogleFonts.inter(fontSize: 13, color: MintColors.error),
+                          S.of(context)!.renteVsCapitalErrorRetry,
+                          style: MintTextStyles.bodySmall(color: MintColors.error),
                         )),
                       ],
                     ),
@@ -453,7 +439,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
                   if (_hasEstimatedValues && _inputMode == _InputMode.estimate)
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.only(bottom: MintSpacing.sm),
                       child: SmartDefaultIndicator(
                         source: S.of(context)!.renteVsCapitalProfileAutoFill,
                         confidence: _result!.confidenceScore / 100,
@@ -465,34 +451,34 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   //  Chiffre-choc + Hero CHF/mois + micro-légendes
                   // ══════════════════════════════════════════════
                   _buildChiffreChocAccroche(),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: MintSpacing.md),
                   _buildHeroMonthly(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: MintSpacing.lg),
 
                   // ══════════════════════════════════════════════
                   //  BLOC C — COMPRENDRE
                   //  3 cartes éducatives (fiscalité, inflation, transmission)
                   // ══════════════════════════════════════════════
                   _buildEducationalCards(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: MintSpacing.lg),
 
                   // ══════════════════════════════════════════════
                   //  BLOC B — EXPLORER
                   //  Slider espérance + chart trajectoire (fused)
                   // ══════════════════════════════════════════════
                   _buildExplorerBloc(chartOptions),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: MintSpacing.lg),
 
                   // ══════════════════════════════════════════════
                   //  BLOC D — AFFINER
                   //  Hypothèses + impact cards + tornado (ExpansionTile)
                   // ══════════════════════════════════════════════
                   _buildAffinerBloc(),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: MintSpacing.lg),
 
                   // ── Disclaimer ──
                   _buildDisclaimerCard(),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: MintSpacing.xl),
                 ],
               ]),
             ),
@@ -508,7 +494,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
   Widget _buildHeroIntro() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.info.withAlpha(12),
         borderRadius: BorderRadius.circular(16),
@@ -519,13 +505,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         children: [
           Text(
             S.of(context)!.renteVsCapitalIntro,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textPrimary,
-              height: 1.5,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: MintSpacing.sm),
           _introPuce(
             S.of(context)!.renteVsCapitalRenteLabel,
             S.of(context)!.renteVsCapitalRenteExplanation,
@@ -545,7 +527,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
   Widget _introPuce(String term, String explanation) {
     return Padding(
-      padding: const EdgeInsets.only(top: 6),
+      padding: const EdgeInsets.only(top: MintSpacing.xs),
       child: Semantics(
         label: term,
         button: true,
@@ -553,17 +535,15 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         onTap: () => _showExplanation(term, explanation),
         borderRadius: BorderRadius.circular(8),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
+          padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text('  \u2022  ', style: TextStyle(color: MintColors.info)),
               Text(
                 term,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
+                style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(
                   fontWeight: FontWeight.w600,
-                  color: MintColors.info,
                   decoration: TextDecoration.underline,
                   decorationColor: MintColors.info.withAlpha(60),
                 ),
@@ -584,7 +564,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) => Padding(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.md, MintSpacing.lg, MintSpacing.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -598,19 +578,18 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: MintSpacing.lg),
             Text(
               term,
-              style: GoogleFonts.montserrat(
-                fontSize: 18, fontWeight: FontWeight.w700,
-                color: MintColors.primary,
+              style: MintTextStyles.headlineMedium(color: MintColors.primary).copyWith(
+                fontSize: 18,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.sm),
             Text(
               text,
-              style: GoogleFonts.inter(
-                fontSize: 15, color: MintColors.textPrimary, height: 1.6,
+              style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(
+                fontSize: 15, height: 1.6,
               ),
             ),
           ],
@@ -625,7 +604,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
   Widget _buildInputSection() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.card,
         borderRadius: BorderRadius.circular(20),
@@ -635,34 +614,37 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Mode selector
-          SizedBox(
-            width: double.infinity,
-            child: SegmentedButton<_InputMode>(
-              segments: [
-                ButtonSegment(
-                  value: _InputMode.estimate,
-                  label: Text(S.of(context)!.renteVsCapitalEstimateMode),
-                  icon: const Icon(Icons.auto_fix_high, size: 16),
-                ),
-                ButtonSegment(
-                  value: _InputMode.certificate,
-                  label: Text(S.of(context)!.renteVsCapitalCertificateMode),
-                  icon: const Icon(Icons.description_outlined, size: 16),
-                ),
-              ],
-              selected: {_inputMode},
-              onSelectionChanged: (v) {
-                setState(() => _inputMode = v.first);
-                _recalculate();
-              },
-              style: ButtonStyle(
-                textStyle: WidgetStatePropertyAll(
-                  GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600),
+          Semantics(
+            label: S.of(context)!.renteVsCapitalEstimateMode,
+            child: SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<_InputMode>(
+                segments: [
+                  ButtonSegment(
+                    value: _InputMode.estimate,
+                    label: Text(S.of(context)!.renteVsCapitalEstimateMode),
+                    icon: const Icon(Icons.auto_fix_high, size: 16),
+                  ),
+                  ButtonSegment(
+                    value: _InputMode.certificate,
+                    label: Text(S.of(context)!.renteVsCapitalCertificateMode),
+                    icon: const Icon(Icons.description_outlined, size: 16),
+                  ),
+                ],
+                selected: {_inputMode},
+                onSelectionChanged: (v) {
+                  setState(() => _inputMode = v.first);
+                  _recalculate();
+                },
+                style: ButtonStyle(
+                  textStyle: WidgetStatePropertyAll(
+                    MintTextStyles.labelSmall().copyWith(fontWeight: FontWeight.w600, fontSize: 12),
+                  ),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           if (_inputMode == _InputMode.estimate) ...[
             _buildLabeledField(
@@ -670,32 +652,32 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               label: S.of(context)!.renteVsCapitalAge,
               fieldName: 'age',
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.sm),
             // Retirement age slider
             _buildRetirementAgeSlider(),
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.sm),
             _buildLabeledField(
               controller: _salaryCtrl,
               label: S.of(context)!.renteVsCapitalSalary,
               fieldName: 'salaire_brut',
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.sm),
             _buildLabeledField(
               controller: _lppTotalCtrl,
               label: S.of(context)!.renteVsCapitalLppTotal,
               fieldName: 'lpp_total',
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.sm),
             // Rachat LPP
             _buildRachatSection(),
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.sm),
             // EPL
             _buildEplSection(),
             // Auto-computed readout
             if (_result != null && _result!.isProjected) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: MintSpacing.sm),
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(MintSpacing.sm),
                 decoration: BoxDecoration(
                   color: MintColors.surface,
                   borderRadius: BorderRadius.circular(12),
@@ -708,21 +690,20 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                         _ageRetraite,
                         formatChf(_result!.capitalProjecte),
                       ),
-                      style: GoogleFonts.inter(
-                        fontSize: 13, fontWeight: FontWeight.w600,
-                        color: MintColors.textPrimary,
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: MintSpacing.xs),
                     Text(
                       S.of(context)!.renteVsCapitalEstimatedRente(
                         formatChf(_result!.renteNetMensuelle * 12),
                       ),
-                      style: GoogleFonts.inter(
-                        fontSize: 12, color: MintColors.textSecondary,
+                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(
+                        fontSize: 12,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: MintSpacing.xs),
                     Row(
                       children: [
                         SmartDefaultIndicator(
@@ -742,19 +723,19 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               label: S.of(context)!.renteVsCapitalLppOblig,
               fieldName: 'lpp_obligatoire',
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.sm),
             _buildLabeledField(
               controller: _capitalSurobCtrl,
               label: S.of(context)!.renteVsCapitalLppSurob,
               fieldName: 'lpp_surobligatoire',
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.sm),
             _buildLabeledField(
               controller: _renteCtrl,
               label: S.of(context)!.renteVsCapitalRenteProposed,
               fieldName: 'rente_projetee',
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.sm),
             Row(
               children: [
                 Expanded(
@@ -764,7 +745,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     isPercent: true,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: MintSpacing.sm),
                 Expanded(
                   child: _buildLabeledField(
                     controller: _tcSurobCtrl,
@@ -777,9 +758,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             // Confidence gratification
             if (_result != null)
               Padding(
-                padding: const EdgeInsets.only(top: 12),
+                padding: const EdgeInsets.only(top: MintSpacing.sm),
                 child: Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(MintSpacing.sm),
                   decoration: BoxDecoration(
                     color: MintColors.success.withAlpha(15),
                     borderRadius: BorderRadius.circular(12),
@@ -789,13 +770,12 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     children: [
                       const Icon(Icons.check_circle_outline,
                           size: 20, color: MintColors.success),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: MintSpacing.sm),
                       Expanded(
                         child: Text(
                           S.of(context)!.renteVsCapitalMaxPrecision,
-                          style: GoogleFonts.inter(
-                            fontSize: 12, color: MintColors.success,
-                            fontWeight: FontWeight.w500,
+                          style: MintTextStyles.labelSmall(color: MintColors.success).copyWith(
+                            fontSize: 12,
                           ),
                         ),
                       ),
@@ -805,7 +785,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               ),
           ],
 
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           // Canton + Married
           Row(
             children: [
@@ -814,9 +794,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(S.of(context)!.renteVsCapitalCanton, style: _labelStyle),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: MintSpacing.xs),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
                       decoration: BoxDecoration(
                         color: MintColors.surface,
                         borderRadius: BorderRadius.circular(12),
@@ -830,7 +810,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                           return DropdownMenuItem(
                             value: code,
                             child: Text('$code - $name',
-                                style: GoogleFonts.inter(fontSize: 14)),
+                                style: MintTextStyles.bodyMedium()),
                           );
                         }).toList(),
                         onChanged: (v) {
@@ -841,16 +821,20 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   ],
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: MintSpacing.md),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(S.of(context)!.renteVsCapitalMarried, style: _labelStyle),
-                  const SizedBox(height: 6),
-                  Switch(
-                    value: _isMarried,
-                    activeTrackColor: MintColors.primary,
-                    onChanged: (v) { _isMarried = v; _recalculate(); },
+                  const SizedBox(height: MintSpacing.xs),
+                  Semantics(
+                    label: S.of(context)!.renteVsCapitalMarried,
+                    toggled: _isMarried,
+                    child: Switch(
+                      value: _isMarried,
+                      activeTrackColor: MintColors.primary,
+                      onChanged: (v) { _isMarried = v; _recalculate(); },
+                    ),
                   ),
                 ],
               ),
@@ -873,30 +857,33 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               valueListenable: _ageRetraiteSlider,
               builder: (_, v, __) => Text(
                 S.of(context)!.renteVsCapitalAgeYears(v.round()),
-                style: GoogleFonts.inter(
-                  fontSize: 13, fontWeight: FontWeight.w600,
-                  color: MintColors.primary,
+                style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
           ],
         ),
-        SliderTheme(
-          data: SliderThemeData(
-            activeTrackColor: MintColors.primary,
-            inactiveTrackColor: MintColors.textMuted.withAlpha(40),
-            thumbColor: MintColors.primary,
-            overlayColor: MintColors.primary.withAlpha(30),
-            trackHeight: 4,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-          ),
-          child: Slider(
-            value: _ageRetraiteSlider.value,
-            min: 58, max: 70, divisions: 12,
-            onChanged: (v) {
-              _ageRetraiteSlider.value = v;
-              _recalculate();
-            },
+        Semantics(
+          label: S.of(context)!.renteVsCapitalRetirementAge,
+          slider: true,
+          child: SliderTheme(
+            data: SliderThemeData(
+              activeTrackColor: MintColors.primary,
+              inactiveTrackColor: MintColors.textMuted.withAlpha(40),
+              thumbColor: MintColors.primary,
+              overlayColor: MintColors.primary.withAlpha(30),
+              trackHeight: 4,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+            ),
+            child: Slider(
+              value: _ageRetraiteSlider.value,
+              min: 58, max: 70, divisions: 12,
+              onChanged: (v) {
+                _ageRetraiteSlider.value = v;
+                _recalculate();
+              },
+            ),
           ),
         ),
       ],
@@ -919,7 +906,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               FieldHelpTooltip(fieldName: fieldName),
           ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: MintSpacing.xs),
         TextField(
           controller: controller,
           keyboardType: isPercent
@@ -929,7 +916,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           inputFormatters: isPercent
               ? [FilteringTextInputFormatter.allow(RegExp(r'[\d.]'))]
               : [FilteringTextInputFormatter.digitsOnly],
-          style: GoogleFonts.inter(fontSize: 15, color: MintColors.textPrimary),
+          style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(
+            fontSize: 15,
+          ),
           decoration: InputDecoration(
             filled: true,
             fillColor: MintColors.surface,
@@ -938,7 +927,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16, vertical: 14,
+              horizontal: MintSpacing.md, vertical: 14,
             ),
           ),
           onChanged: (_) => _recalculate(),
@@ -974,29 +963,31 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       accroche = r.chiffreChoc;
     }
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: MintColors.info.withAlpha(12),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: MintColors.info.withAlpha(30)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.bolt_rounded, size: 20, color: MintColors.info),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              accroche,
-              style: GoogleFonts.inter(
-                fontSize: 14, fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary, height: 1.5,
+    return Semantics(
+      label: accroche,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md, vertical: 14),
+        decoration: BoxDecoration(
+          color: MintColors.info.withAlpha(12),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: MintColors.info.withAlpha(30)),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.bolt_rounded, size: 20, color: MintColors.info),
+            const SizedBox(width: MintSpacing.sm),
+            Expanded(
+              child: Text(
+                accroche,
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1019,7 +1010,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         : S.of(context)!.renteVsCapitalSyntheseRenteHigher(formatChf(delta));
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.card,
         borderRadius: BorderRadius.circular(20),
@@ -1040,41 +1031,40 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               Expanded(
                 child: Column(
                   children: [
-                    Text(S.of(context)!.renteVsCapitalHeroRente, style: GoogleFonts.montserrat(
-                      fontSize: 11, fontWeight: FontWeight.w700,
-                      color: MintColors.retirementAvs,
-                      letterSpacing: 1.2,
-                    )),
-                    const SizedBox(height: 6),
-                    Text(
-                      formatChf(renteMois),
-                      style: GoogleFonts.montserrat(
-                        fontSize: 26, fontWeight: FontWeight.w800,
-                        color: MintColors.textPrimary,
+                    Text(S.of(context)!.renteVsCapitalHeroRente,
+                      style: MintTextStyles.labelSmall(color: MintColors.retirementAvs).copyWith(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.2,
                       ),
                     ),
-                    Text(S.of(context)!.renteVsCapitalPerMonth, style: GoogleFonts.inter(
-                      fontSize: 13, color: MintColors.textSecondary,
-                    )),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(
+                      formatChf(renteMois),
+                      style: MintTextStyles.displayMedium().copyWith(
+                        fontSize: 26,
+                      ),
+                    ),
+                    Text(S.of(context)!.renteVsCapitalPerMonth,
+                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm, vertical: 3),
                       decoration: BoxDecoration(
                         color: MintColors.retirementAvs.withAlpha(15),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: Text(S.of(context)!.renteVsCapitalForLife, style: GoogleFonts.inter(
-                        fontSize: 11, fontWeight: FontWeight.w600,
-                        color: MintColors.retirementAvs,
-                      )),
+                      child: Text(S.of(context)!.renteVsCapitalForLife,
+                        style: MintTextStyles.labelSmall(color: MintColors.retirementAvs).copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: MintSpacing.sm),
                     // ── Micro-légende ──
                     Text(
                       S.of(context)!.renteVsCapitalMicroRente,
-                      style: GoogleFonts.inter(
-                        fontSize: 10, color: MintColors.textMuted, height: 1.3,
-                      ),
+                      style: MintTextStyles.micro(),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -1086,44 +1076,43 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               Expanded(
                 child: Column(
                   children: [
-                    Text(S.of(context)!.renteVsCapitalHeroCapital, style: GoogleFonts.montserrat(
-                      fontSize: 11, fontWeight: FontWeight.w700,
-                      color: MintColors.retirementLpp,
-                      letterSpacing: 1.2,
-                    )),
-                    const SizedBox(height: 6),
-                    Text(
-                      formatChf(capitalMois),
-                      style: GoogleFonts.montserrat(
-                        fontSize: 26, fontWeight: FontWeight.w800,
-                        color: MintColors.textPrimary,
+                    Text(S.of(context)!.renteVsCapitalHeroCapital,
+                      style: MintTextStyles.labelSmall(color: MintColors.retirementLpp).copyWith(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.2,
                       ),
                     ),
-                    Text(S.of(context)!.renteVsCapitalPerMonth, style: GoogleFonts.inter(
-                      fontSize: 13, color: MintColors.textSecondary,
-                    )),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(
+                      formatChf(capitalMois),
+                      style: MintTextStyles.displayMedium().copyWith(
+                        fontSize: 26,
+                      ),
+                    ),
+                    Text(S.of(context)!.renteVsCapitalPerMonth,
+                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm, vertical: 3),
                       decoration: BoxDecoration(
                         color: MintColors.retirementLpp.withAlpha(15),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: Text(S.of(context)!.renteVsCapitalDuration(capitalDuration), style: GoogleFonts.inter(
-                        fontSize: 11, fontWeight: FontWeight.w600,
-                        color: MintColors.retirementLpp,
-                      )),
+                      child: Text(S.of(context)!.renteVsCapitalDuration(capitalDuration),
+                        style: MintTextStyles.labelSmall(color: MintColors.retirementLpp).copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: MintSpacing.sm),
                     // ── Micro-légende ──
                     Text(
                       S.of(context)!.renteVsCapitalMicroCapital(
                         swr.toStringAsFixed(0),
                         rendement.toStringAsFixed(0),
                       ),
-                      style: GoogleFonts.inter(
-                        fontSize: 10, color: MintColors.textMuted, height: 1.3,
-                      ),
+                      style: MintTextStyles.micro(),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -1131,26 +1120,23 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(MintSpacing.sm),
             decoration: BoxDecoration(
               color: MintColors.surface,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
               synthese,
-              style: GoogleFonts.inter(
-                fontSize: 13, color: MintColors.textPrimary,
-                height: 1.5, fontWeight: FontWeight.w500,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
               textAlign: TextAlign.center,
             ),
           ),
           // AVS complement if available
           if (_avsRenteMensuelle != null && _avsRenteMensuelle! > 0) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.sm),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -1162,20 +1148,21 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               child: Row(
                 children: [
                   const Icon(Icons.add_circle_outline, size: 16, color: MintColors.textMuted),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: MintSpacing.sm),
                   Expanded(
                     child: RichText(
                       text: TextSpan(
-                        style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(
+                          fontSize: 12,
+                        ),
                         children: [
                           TextSpan(text: S.of(context)!.renteVsCapitalAvsEstimated),
                           TextSpan(
                             text: S.of(context)!.renteVsCapitalAvsAmount(
                               formatChf(_avsRenteMensuelle!),
                             ),
-                            style: GoogleFonts.inter(
+                            style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(
                               fontSize: 12, fontWeight: FontWeight.w700,
-                              color: MintColors.textPrimary,
                             ),
                           ),
                           TextSpan(text: S.of(context)!.renteVsCapitalAvsSupplementary),
@@ -1198,7 +1185,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
   Widget _buildExplorerBloc(List<TrajectoireOption> chartOptions) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.card,
         borderRadius: BorderRadius.circular(20),
@@ -1210,60 +1197,56 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           // ── Slider: "Et si je vis jusqu'a..." ──
           Text(
             S.of(context)!.renteVsCapitalLifeExpectancy,
-            style: GoogleFonts.montserrat(
-              fontSize: 15, fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
           ),
-          const SizedBox(height: 8),
-          SliderTheme(
-            data: SliderThemeData(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.textMuted.withAlpha(40),
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withAlpha(30),
-              trackHeight: 6,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
-              valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
-              showValueIndicator: ShowValueIndicator.always,
-            ),
-            child: Slider(
-              value: _lifeExpectancy,
-              min: 70, max: 100, divisions: 30,
-              label: S.of(context)!.renteVsCapitalAgeYears(_lifeExpectancy.round()),
-              onChanged: (v) {
-                setState(() => _lifeExpectancy = v);
-                _recalculate();
-              },
+          const SizedBox(height: MintSpacing.sm),
+          Semantics(
+            label: S.of(context)!.renteVsCapitalLifeExpectancy,
+            slider: true,
+            child: SliderTheme(
+              data: SliderThemeData(
+                activeTrackColor: MintColors.primary,
+                inactiveTrackColor: MintColors.textMuted.withAlpha(40),
+                thumbColor: MintColors.primary,
+                overlayColor: MintColors.primary.withAlpha(30),
+                trackHeight: 6,
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
+                valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
+                showValueIndicator: ShowValueIndicator.onDrag,
+              ),
+              child: Slider(
+                value: _lifeExpectancy,
+                min: 70, max: 100, divisions: 30,
+                label: S.of(context)!.renteVsCapitalAgeYears(_lifeExpectancy.round()),
+                onChanged: (v) {
+                  setState(() => _lifeExpectancy = v);
+                  _recalculate();
+                },
+              ),
             ),
           ),
           _buildDeltaAtAge(_lifeExpectancy.round()),
-          const SizedBox(height: 6),
+          const SizedBox(height: MintSpacing.xs),
           Text(
             S.of(context)!.renteVsCapitalLifeExpectancyRef,
-            style: GoogleFonts.inter(
-              fontSize: 11, color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.labelSmall(),
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
 
           // ── Chart: capital restant vs revenus cumules de la rente ──
           Text(
             S.of(context)!.renteVsCapitalChartTitle,
-            style: GoogleFonts.montserrat(
-              fontSize: 15, fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Text(
             S.of(context)!.renteVsCapitalChartSubtitle,
-            style: GoogleFonts.inter(
-              fontSize: 12, color: MintColors.textSecondary,
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(
+              fontSize: 12,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           TrajectoryComparisonChart(
             options: chartOptions,
             breakevenYear: _result!.breakevenYear,
@@ -1291,7 +1274,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       // Should not happen now that horizon is dynamic, but safety fallback
       return Text(
         S.of(context)!.renteVsCapitalBeyondHorizon(age),
-        style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
+        style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
       );
     }
 
@@ -1304,7 +1287,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     final winnerColor = delta > 0 ? MintColors.retirementLpp : MintColors.retirementAvs;
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(MintSpacing.sm),
       decoration: BoxDecoration(
         color: winnerColor.withAlpha(10),
         borderRadius: BorderRadius.circular(10),
@@ -1315,29 +1298,23 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             delta > 0 ? Icons.trending_up : Icons.trending_down,
             color: winnerColor, size: 20,
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: Text.rich(
               TextSpan(children: [
                 TextSpan(
                   text: S.of(context)!.renteVsCapitalDeltaAtAge(age),
-                  style: GoogleFonts.inter(
-                    fontSize: 13, color: MintColors.textPrimary,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                 ),
                 TextSpan(
                   text: '$winner = +${formatChf(delta.abs())} ',
-                  style: GoogleFonts.inter(
-                    fontSize: 13, fontWeight: FontWeight.w700,
-                    color: winnerColor,
+                  style: MintTextStyles.bodySmall(color: winnerColor).copyWith(
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 TextSpan(
                   text: S.of(context)!.renteVsCapitalDeltaAdvance,
-                  style: GoogleFonts.inter(
-                    fontSize: 13, color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ]),
             ),
@@ -1360,12 +1337,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       children: [
         Text(
           S.of(context)!.renteVsCapitalEducationalTitle,
-          style: GoogleFonts.montserrat(
-            fontSize: 16, fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.titleMedium(),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm),
 
         // Card 1: Fiscalite
         _educationalCard(
@@ -1388,7 +1362,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   formatChf(r.impotRetraitCapital - r.impotCumulRente),
                 ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm),
 
         // Card 2: Inflation
         _educationalCard(
@@ -1407,7 +1381,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             ((1 - 1 / math.pow(1 + inflation, 20)) * 100).round(),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm),
 
         // Card 3: Transmission
         _educationalCard(
@@ -1453,7 +1427,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     required String bottomText,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.card,
         borderRadius: BorderRadius.circular(16),
@@ -1466,11 +1440,12 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           Row(
             children: [
               Icon(icon, size: 18, color: iconColor),
-              const SizedBox(width: 8),
-              Text(title, style: GoogleFonts.montserrat(
-                fontSize: 14, fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              )),
+              const SizedBox(width: MintSpacing.sm),
+              Expanded(
+                child: Text(title, style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(
+                  fontWeight: FontWeight.w700,
+                )),
+              ),
             ],
           ),
           const SizedBox(height: 14),
@@ -1481,25 +1456,17 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(leftTitle, style: GoogleFonts.inter(
-                      fontSize: 11, fontWeight: FontWeight.w600,
-                      color: MintColors.textSecondary,
+                    Text(leftTitle, style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(
+                      fontWeight: FontWeight.w600,
                     )),
                     if (leftSubtitle.isNotEmpty) ...[
                       const SizedBox(height: 2),
-                      Text(leftSubtitle, style: GoogleFonts.inter(
-                        fontSize: 10, color: MintColors.textMuted,
-                      )),
+                      Text(leftSubtitle, style: MintTextStyles.micro()),
                     ],
-                    const SizedBox(height: 6),
-                    Text(leftValue, style: GoogleFonts.montserrat(
-                      fontSize: 16, fontWeight: FontWeight.w800,
-                      color: MintColors.textPrimary,
-                    ), textAlign: TextAlign.center),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(leftValue, style: MintTextStyles.titleMedium(), textAlign: TextAlign.center),
                     const SizedBox(height: 2),
-                    Text(leftDetail, style: GoogleFonts.inter(
-                      fontSize: 10, color: MintColors.textMuted,
-                    )),
+                    Text(leftDetail, style: MintTextStyles.micro()),
                   ],
                 ),
               ),
@@ -1508,31 +1475,23 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(rightTitle, style: GoogleFonts.inter(
-                      fontSize: 11, fontWeight: FontWeight.w600,
-                      color: MintColors.textSecondary,
+                    Text(rightTitle, style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(
+                      fontWeight: FontWeight.w600,
                     )),
                     if (rightSubtitle.isNotEmpty) ...[
                       const SizedBox(height: 2),
-                      Text(rightSubtitle, style: GoogleFonts.inter(
-                        fontSize: 10, color: MintColors.textMuted,
-                      )),
+                      Text(rightSubtitle, style: MintTextStyles.micro()),
                     ],
-                    const SizedBox(height: 6),
-                    Text(rightValue, style: GoogleFonts.montserrat(
-                      fontSize: 16, fontWeight: FontWeight.w800,
-                      color: MintColors.textPrimary,
-                    ), textAlign: TextAlign.center),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(rightValue, style: MintTextStyles.titleMedium(), textAlign: TextAlign.center),
                     const SizedBox(height: 2),
-                    Text(rightDetail, style: GoogleFonts.inter(
-                      fontSize: 10, color: MintColors.textMuted,
-                    )),
+                    Text(rightDetail, style: MintTextStyles.micro()),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           // Bottom insight
           Container(
             width: double.infinity,
@@ -1543,9 +1502,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             ),
             child: Text(
               bottomText,
-              style: GoogleFonts.inter(
-                fontSize: 12, color: MintColors.textPrimary,
-                height: 1.5, fontWeight: FontWeight.w500,
+              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(
+                fontSize: 12, height: 1.5,
               ),
             ),
           ),
@@ -1564,19 +1522,16 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       children: [
         Text(
           S.of(context)!.renteVsCapitalAffinerTitle,
-          style: GoogleFonts.montserrat(
-            fontSize: 16, fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.titleMedium(),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: MintSpacing.xs),
         Text(
           S.of(context)!.renteVsCapitalAffinerSubtitle,
-          style: GoogleFonts.inter(
-            fontSize: 12, color: MintColors.textSecondary,
+          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(
+            fontSize: 12,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: MintSpacing.md),
 
         // ── Hypothesis sliders (vulgarized labels) ──
         HypothesisEditorWidget(
@@ -1603,26 +1558,23 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             _recalculate();
           },
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         // ── Impact cards (simplified sensitivity) ──
         _buildImpactCards(),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm),
 
         // ── Tornado in ExpansionTile ──
         ExpansionTile(
           tilePadding: EdgeInsets.zero,
-          childrenPadding: const EdgeInsets.only(bottom: 8),
+          childrenPadding: const EdgeInsets.only(bottom: MintSpacing.sm),
           title: Text(
             S.of(context)!.renteVsCapitalTornadoToggle,
-            style: GoogleFonts.inter(
-              fontSize: 13, fontWeight: FontWeight.w500,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
           children: [ArbitrageTornadoSection(result: _result!)],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: MintSpacing.md),
 
         // ── Hypothèses détaillées ──
         _buildHypothesesSection(),
@@ -1650,22 +1602,19 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       children: [
         Text(
           S.of(context)!.renteVsCapitalImpactTitle,
-          style: GoogleFonts.montserrat(
-            fontSize: 15, fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: MintSpacing.xs),
         Text(
           S.of(context)!.renteVsCapitalImpactSubtitle,
-          style: GoogleFonts.inter(
-            fontSize: 12, color: MintColors.textSecondary,
+          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(
+            fontSize: 12,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm),
         for (int i = 0; i < top.length; i++) ...[
           _impactCard(i + 1, top[i], maxSwing),
-          if (i < top.length - 1) const SizedBox(height: 8),
+          if (i < top.length - 1) const SizedBox(height: MintSpacing.sm),
         ],
       ],
     );
@@ -1695,40 +1644,40 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Center(
-                  child: Text('#$rank', style: GoogleFonts.inter(
-                    fontSize: 10, fontWeight: FontWeight.w700,
-                    color: MintColors.primary,
+                  child: Text('#$rank', style: MintTextStyles.micro(color: MintColors.primary).copyWith(
+                    fontWeight: FontWeight.w700, fontStyle: FontStyle.normal,
                   )),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: MintSpacing.sm),
               Expanded(
-                child: Text(v.label, style: GoogleFonts.inter(
-                  fontSize: 13, fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
+                child: Text(v.label, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(
+                  fontWeight: FontWeight.w600,
                 )),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           // Impact bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(3),
-            child: LinearProgressIndicator(
-              value: barFraction,
-              minHeight: 6,
-              backgroundColor: MintColors.border.withAlpha(60),
-              valueColor: AlwaysStoppedAnimation(MintColors.primary.withAlpha(180)),
+          Semantics(
+            label: '${v.label}: ${_formatDelta(lowDelta)} / ${_formatDelta(highDelta)}',
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(3),
+              child: LinearProgressIndicator(
+                value: barFraction,
+                minHeight: 6,
+                backgroundColor: MintColors.border.withAlpha(60),
+                valueColor: AlwaysStoppedAnimation(MintColors.primary.withAlpha(180)),
+              ),
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: MintSpacing.xs),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 '${v.lowLabel} : ${_formatDelta(lowDelta)}',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
+                style: MintTextStyles.labelSmall(
                   color: lowDelta < 0
                       ? MintColors.danger
                       : MintColors.success,
@@ -1736,8 +1685,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               ),
               Text(
                 '${v.highLabel} : ${_formatDelta(highDelta)}',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
+                style: MintTextStyles.labelSmall(
                   color: highDelta >= 0
                       ? MintColors.success
                       : MintColors.danger,
@@ -1762,26 +1710,25 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     if (_result == null) return const SizedBox.shrink();
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
-      childrenPadding: const EdgeInsets.only(bottom: 8),
+      childrenPadding: const EdgeInsets.only(bottom: MintSpacing.sm),
       title: Text(
         S.of(context)!.renteVsCapitalHypothesesTitle,
-        style: GoogleFonts.montserrat(
-          fontSize: 14, fontWeight: FontWeight.w600,
-          color: MintColors.textPrimary,
+        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(
+          fontWeight: FontWeight.w600,
         ),
       ),
       children: [
         for (final h in _result!.hypotheses)
           Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.only(bottom: MintSpacing.xs),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text('  \u2022  ',
                     style: TextStyle(color: MintColors.textMuted)),
                 Expanded(
-                  child: Text(h, style: GoogleFonts.inter(
-                    fontSize: 12, color: MintColors.textSecondary, height: 1.4,
+                  child: Text(h, style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(
+                    fontSize: 12, height: 1.4,
                   )),
                 ),
               ],
@@ -1799,7 +1746,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     if (_result == null) return const SizedBox.shrink();
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.surface,
         borderRadius: BorderRadius.circular(16),
@@ -1811,23 +1758,24 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             children: [
               const Icon(Icons.info_outline_rounded,
                   size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
-              Text(S.of(context)!.renteVsCapitalWarning, style: GoogleFonts.inter(
-                fontSize: 12, fontWeight: FontWeight.w600,
-                color: MintColors.textMuted,
-              )),
+              const SizedBox(width: MintSpacing.sm),
+              Text(S.of(context)!.renteVsCapitalWarning,
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
+                  fontSize: 12, fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(_result!.disclaimer, style: GoogleFonts.inter(
-            fontSize: 11, color: MintColors.textMuted, height: 1.4,
-          )),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
+          Text(_result!.disclaimer,
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             S.of(context)!.renteVsCapitalSources(_result!.sources.join(' | ')),
-            style: GoogleFonts.inter(
-              fontSize: 10, color: MintColors.textMuted, height: 1.3,
-            ),
+            style: MintTextStyles.micro(),
           ),
         ],
       ),
@@ -1838,10 +1786,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   //  FORMATTING HELPERS
   // ═══════════════════════════════════════════════════════════════
 
-  static final _labelStyle = GoogleFonts.inter(
-    fontSize: 13, fontWeight: FontWeight.w500,
-    color: MintColors.textSecondary,
-  );
+  static final _labelStyle = MintTextStyles.bodySmall(color: MintColors.textSecondary);
 
   Widget _buildRachatSection() {
     final maxRachat = double.tryParse(_rachatMaxCtrl.text.replaceAll("'", '')) ?? 0;
@@ -1859,22 +1804,20 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             if (maxRachat > 0)
               Text(
                 S.of(context)!.renteVsCapitalRachatMax(formatChf(maxRachat)),
-                style: GoogleFonts.inter(
-                  fontSize: 11, color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.labelSmall(),
               ),
           ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: MintSpacing.xs),
         TextField(
           controller: _rachatAnnuelCtrl,
           keyboardType: TextInputType.number,
           onTapOutside: (_) => FocusScope.of(context).unfocus(),
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          style: GoogleFonts.inter(fontSize: 14, color: MintColors.textPrimary),
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
           decoration: InputDecoration(
             hintText: S.of(context)!.renteVsCapitalRachatHint,
-            hintStyle: GoogleFonts.inter(color: MintColors.textMuted),
+            hintStyle: MintTextStyles.bodyMedium(color: MintColors.textMuted),
             prefixText: 'CHF ',
             filled: true,
             fillColor: MintColors.surface,
@@ -1905,24 +1848,28 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 style: _labelStyle,
               ),
             ),
-            Switch(
-              value: _hasEpl,
-              activeTrackColor: MintColors.primary,
-              onChanged: (v) => setState(() { _hasEpl = v; _recalculate(); }),
+            Semantics(
+              label: S.of(context)!.renteVsCapitalEplLabel,
+              toggled: _hasEpl,
+              child: Switch(
+                value: _hasEpl,
+                activeTrackColor: MintColors.primary,
+                onChanged: (v) => setState(() { _hasEpl = v; _recalculate(); }),
+              ),
             ),
           ],
         ),
         if (_hasEpl) ...[
-          const SizedBox(height: 6),
+          const SizedBox(height: MintSpacing.xs),
           TextField(
             controller: _eplAmountCtrl,
             keyboardType: TextInputType.number,
             onTapOutside: (_) => FocusScope.of(context).unfocus(),
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            style: GoogleFonts.inter(fontSize: 14, color: MintColors.textPrimary),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
             decoration: InputDecoration(
               hintText: S.of(context)!.renteVsCapitalEplHint,
-              hintStyle: GoogleFonts.inter(color: MintColors.textMuted),
+              hintStyle: MintTextStyles.bodyMedium(color: MintColors.textMuted),
               prefixText: 'CHF ',
               filled: true,
               fillColor: MintColors.surface,
@@ -1937,10 +1884,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             ),
             onChanged: (_) => _recalculate(),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Text(
             S.of(context)!.renteVsCapitalEplLegalRef,
-            style: GoogleFonts.inter(fontSize: 10, color: MintColors.textMuted),
+            style: MintTextStyles.micro(),
           ),
         ],
       ],
