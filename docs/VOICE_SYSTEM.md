@@ -87,7 +87,7 @@ s'ajustent subtilement selon le profil.
 | Signal | Jeune actif (22-35) | Milieu de parcours (35-50) | Pré-retraite (50-65) |
 |--------|--------------------|-----------------------------|----------------------|
 | **Rythme** | Plus court, plus direct | Équilibré | Un peu plus posé, pas plus long |
-| **Vocabulaire** | "balles", "cash", "fisc" OK | Standard | Standard, jamais familier |
+| **Vocabulaire** | "fisc" OK, argot rare et mesuré | Standard | Standard, jamais familier |
 | **Références** | "Ton premier appart", "ta boîte" | "Ton foyer", "ta situation" | "Tes années de cotisation", "ton horizon" |
 | **Humour** | Observation ("Oui, la Suisse a un formulaire pour ça") | Complicité ("Tu le sais déjà, mais les chiffres aident") | Understatement ("C'est un peu plus qu'un détail") |
 | **Longueur CTA** | 3 mots ("Voir mon 3a") | 4-5 mots ("Simuler mon rachat LPP") | 4-5 mots ("Explorer mes options") |
@@ -371,6 +371,10 @@ Mauvais : "Excellent travail, continuez comme ça !"
 | **Headspace** (app) | Le "acknowledge then guide" — reconnaître avant d'aider | Moments de stress |
 | **Wise** (fintech) | La clarté radicale, 0 décoration | Universel |
 
+> **Attention** : ces références sont des inspirations, pas des modèles à imiter.
+> Le but est de produire une voix MINT, pas une voix "RTS spirituelle fintech".
+> Emprunter un mécanisme (l'understatement), pas un style (le pastiche).
+
 ### La formule d'humour suisse romand
 
 > Prendre une réalité bureaucratique → la constater avec calme → laisser l'absurdité parler
@@ -388,7 +392,116 @@ Exemples MINT :
 
 ---
 
-## 9. IMPLÉMENTATION
+## 9. ADAPTATION LINGUISTIQUE ET CULTURELLE
+
+### Le problème
+
+La Suisse n'est pas un pays monolingue. MINT cible :
+
+| Population | Langue | Taille | Particularité culturelle |
+|-----------|--------|--------|--------------------------|
+| Romands | Français | 23% | Understatement, litote, distance polie avec l'argent |
+| Alémaniques | Allemand (suisse) | 63% | Direct, pragmatique, Sachlichkeit (factualité). L'humour est sec, pas spirituel. |
+| Tessinois | Italien | 8% | Chaleureux, expressif, liens familiaux forts dans les décisions financières |
+| Expats anglophones | Anglais | ~10% résidents | Clear, no-nonsense, attendent de la transparence type Wise/Revolut |
+| Communauté portugaise | Portugais | ~260k | Souvent primo-arrivants, besoin d'accessibilité maximale, respect de la dignité |
+| Communauté espagnophone | Espagnol | ~100k | Similaire au portugais, souvent 2e génération, bilingual |
+| Frontaliers | FR/IT/DE | ~350k | Complexité fiscale unique (impôt source, 90 jours, charges sociales mixtes) |
+
+### Principe fondamental
+
+> **La voix MINT n'est PAS une traduction mot-à-mot du français.**
+> Chaque langue a sa propre version de l'intelligence relationnelle MINT.
+
+Les 5 piliers (calme, précis, fin, rassurant, net) restent identiques.
+Mais leur **expression** change selon la culture linguistique.
+
+### Adaptation par langue
+
+#### Français (FR) — langue de référence
+- Ton : understatement romand, légèrement spirituel
+- Tutoiement systématique
+- Humour : litote, observation absurde du quotidien suisse
+- Référence tonale : Kucholl & Veillon, Le Temps
+
+#### Allemand (DE) — Sachlichkeit + Wärme
+- Ton : factuel, structuré, mais chaleureux (pas froid)
+- **Duzen** (tu) acceptable dans le contexte app — les neobanks suisses-allemandes (Neon, Yuh) l'utilisent
+- L'humour romand (litote, absurde) ne traduit PAS — remplacer par :
+  - Pragmatisme avec un clin d'œil : "Drei Säulen. Die meisten kennen anderthalb."
+  - Clarté comme valeur en soi : la phrase bien construite EST le plaisir
+- Attention au Hochdeutsch vs Schweizerdeutsch : MINT écrit en Hochdeutsch standard mais
+  le ton ne doit pas sonner "allemand d'Allemagne" (trop direct/marketing)
+- Référence tonale : NZZ Feuilleton (rigueur), SRF (accessibilité)
+
+#### Italiano (IT) — Calore + Chiarezza
+- Ton : chaleureux, un peu plus expressif qu'en français, jamais froid
+- **Tu** systématique (natural en italien)
+- Plus de place pour l'émotion : les Tessinois parlent plus ouvertement d'argent en famille
+- L'humour : calembours légers OK, mais pas de sarcasme
+- Attention : ne pas tomber dans le ton "italiano standard" — le Ticino a sa propre identité
+- Référence tonale : RSI (radio suisse italienne), Il Caffè (hebdo tessinois)
+
+#### English (EN) — Clarity + Trust
+- Ton : Wise-like clarity. Direct, transparent, respectful.
+- Le public anglophone en Suisse est souvent expat, international, mobile
+- Attend de la **transparence radicale** : pas de jargon suisse non expliqué
+- Chaque sigle (AVS, LPP, LAMal) doit avoir son équivalent EN au premier usage :
+  "AVS (state pension)", "LPP (occupational pension)", "LAMal (health insurance)"
+- L'humour : understatement britannique fonctionne, pas le humor américain loud
+- Référence tonale : Wise, The Economist, Monzo
+
+#### Português (PT) — Respeito + Acessibilidade
+- Ton : respectueux, accessible, jamais condescendant
+- Public souvent primo-arrivant ou 2e génération — le jargon suisse est un vrai obstacle
+- **Você** (formel-poli) plutôt que "tu" brésilien — la communauté portugaise suisse
+  est majoritairement d'origine portugaise, pas brésilienne
+- Chaque concept suisse doit être expliqué clairement :
+  "O 2º pilar (LPP) é a poupança profissional obrigatória na Suíça."
+- Pas d'humour qui suppose une connaissance culturelle suisse — rester informatif et chaleureux
+- Référence tonale : journalisme lusophone de qualité, Público (Portugal)
+
+#### Español (ES) — Cercanía + Claridad
+- Ton : proche, clair, ni formel ni familier
+- Public souvent 2e génération, bilingual — comprend le contexte suisse
+- **Tú** (informel) acceptable — cohérent avec le FR et les apps modernes
+- Plus de latitude pour l'humour léger que le PT (public plus intégré)
+- Référence tonale : El País (clarté), apps espagnoles modernes
+
+### Règles de traduction
+
+1. **Le FR est la langue source** — c'est le template ARB
+2. **Chaque traduction est une adaptation culturelle**, pas un mot-à-mot
+3. **Les chiffres ne changent pas** — CHF, pourcentages, montants sont universels
+4. **Les références légales restent en français** — "LPP art. 14" est le même partout
+   (les lois suisses sont publiées dans les 3 langues officielles, mais les sigles FR dominent)
+5. **Les ARB `@metadata`** doivent documenter le contexte émotionnel pour aider les traducteurs :
+   ```json
+   "@pulseNarrativeYearsToAct": {
+     "description": "Narrative when user has 6-15 years to retirement. Tone: encouraging, not urgent.",
+     "placeholders": { "yearsToRetire": { "type": "int" } }
+   }
+   ```
+6. **Test de qualité** : un natif de chaque langue doit relire les surfaces critiques
+   (Aujourd'hui, Coach fallback, onboarding) avant release
+
+### Ce qui est spécifique aux frontaliers
+
+Les frontaliers (FR→CH, IT→CH, DE→CH) ont un contexte unique :
+- Impôt à la source (pas déclaration ordinaire)
+- Règle des 90 jours (télétravail)
+- Charges sociales mixtes (cotisent en CH, résident ailleurs)
+- LAMal optionnelle (choix CMU en France)
+
+MINT doit :
+- Détecter l'archetype `cross_border` dans le profil
+- Adapter le vocabulaire : "ton salaire en Suisse" vs "ton salaire"
+- Expliquer les concepts CH sans supposer qu'ils sont connus
+- Proposer les écrans frontalier en priorité dans les Response Cards
+
+---
+
+## 10. IMPLÉMENTATION
 
 ### Où s'applique ce système
 
@@ -411,7 +524,7 @@ Exemples MINT :
 2. **Relire à voix haute** — si ça sonne comme une notice, réécrire
 3. **Test du banquier** : un directeur de banque de 55 ans se sentirait-il respecté ?
 4. **Test du barista** : un barista de 25 ans comprendrait-il sans chercher ?
-5. **Test du sourire** : au moins une phrase par écran qui fait esquisser un sourire
+5. **Test du sourire** : quand le contexte s'y prête, un trait d'esprit. Jamais sur erreur, deuil, sécurité, consentement.
 6. **Ajouter aux 6 ARB** — les traductions doivent garder le même esprit, pas mot-à-mot
 
 ### Adaptation au profil (code)
