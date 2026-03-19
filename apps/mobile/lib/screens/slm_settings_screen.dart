@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/services/slm/slm_model_tier.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:provider/provider.dart';
 
 /// SLM Settings Screen — On-device AI model management.
@@ -23,67 +24,52 @@ class SlmSettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final slm = context.watch<SlmProvider>();
+    final l10n = S.of(context)!;
 
     return Scaffold(
-      backgroundColor: MintColors.background,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar.large(
-            title: Text(
-              S.of(context)!.slmIaOnDevice,
-              style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
-            ),
-            flexibleSpace: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [MintColors.primary, MintColors.accent],
-                ),
-              ),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _buildPrivacyBanner(context),
-                const SizedBox(height: 16),
-                _buildTierSelector(context, slm),
-                const SizedBox(height: 16),
-                _buildModelCard(context, slm),
-                const SizedBox(height: 16),
-                _buildStatusCard(context, slm),
-                const SizedBox(height: 16),
-                _buildInfoCard(context, slm),
-              ]),
-            ),
-          ),
+      backgroundColor: MintColors.white,
+      appBar: AppBar(
+        backgroundColor: MintColors.white,
+        surfaceTintColor: MintColors.white,
+        elevation: 0,
+        title: Text(
+          l10n.slmIaOnDevice,
+          style: MintTextStyles.headlineMedium(),
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        children: [
+          _buildPrivacyBanner(context, l10n),
+          const SizedBox(height: MintSpacing.md),
+          _buildTierSelector(context, slm, l10n),
+          const SizedBox(height: MintSpacing.md),
+          _buildModelCard(context, slm, l10n),
+          const SizedBox(height: MintSpacing.md),
+          _buildStatusCard(context, slm, l10n),
+          const SizedBox(height: MintSpacing.md),
+          _buildInfoCard(context, slm, l10n),
         ],
       ),
     );
   }
 
-  Widget _buildPrivacyBanner(BuildContext context) {
+  Widget _buildPrivacyBanner(BuildContext context, S l10n) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.primary.withValues(alpha: 0.1),
+        color: MintColors.info.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.primary.withValues(alpha: 0.3)),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.shield, color: MintColors.primary, size: 28),
-          const SizedBox(width: 12),
+          const Icon(Icons.shield, color: MintColors.info, size: 28),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
-              S.of(context)!.slmPrivacyMessage,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: MintColors.primary,
-                fontWeight: FontWeight.w500,
-              ),
+              l10n.slmPrivacyMessage,
+              style: MintTextStyles.bodyMedium(color: MintColors.info),
             ),
           ),
         ],
@@ -91,55 +77,52 @@ class SlmSettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTierSelector(BuildContext context, SlmProvider slm) {
+  Widget _buildTierSelector(BuildContext context, SlmProvider slm, S l10n) {
     final recommended = slm.recommendedTier;
     final active = slm.activeTier;
     final isDownloading = slm.downloadState == DownloadState.downloading;
 
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Choisis ton mod\u00e8le',
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+    return Container(
+      padding: const EdgeInsets.all(MintSpacing.lg - 4),
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.slmChooseModel,
+            style: MintTextStyles.titleMedium(),
+          ),
+          const SizedBox(height: MintSpacing.xs),
+          Text(
+            l10n.slmTwoSizesAvailable,
+            style: MintTextStyles.bodySmall(),
+          ),
+          const SizedBox(height: MintSpacing.md),
+          for (final config in SlmTierConfig.allTiers) ...[
+            _buildTierOption(
+              context,
+              l10n: l10n,
+              config: config,
+              isActive: active == config.tier,
+              isRecommended: recommended == config.tier,
+              isDisabled: isDownloading || slm.isProcessing,
+              onTap: () => slm.selectTier(config.tier),
             ),
-            const SizedBox(height: 4),
-            Text(
-              'Deux tailles disponibles selon ton appareil',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 16),
-            for (final config in SlmTierConfig.allTiers) ...[
-              _buildTierOption(
-                context,
-                config: config,
-                isActive: active == config.tier,
-                isRecommended: recommended == config.tier,
-                isDisabled: isDownloading || slm.isProcessing,
-                onTap: () => slm.selectTier(config.tier),
-              ),
-              if (config.tier != SlmTierConfig.allTiers.last.tier)
-                const SizedBox(height: 10),
-            ],
+            if (config.tier != SlmTierConfig.allTiers.last.tier)
+              const SizedBox(height: MintSpacing.sm + 2),
           ],
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildTierOption(
     BuildContext context, {
+    required S l10n,
     required SlmTierConfig config,
     required bool isActive,
     required bool isRecommended,
@@ -154,8 +137,9 @@ class SlmSettingsScreen extends StatelessWidget {
         : MintColors.transparent;
 
     return Semantics(
-      label: 'Sélectionner le modèle ${config.displayName}',
+      label: '${l10n.slmChooseModel} ${config.displayName}',
       button: true,
+      selected: isActive,
       child: GestureDetector(
       onTap: isDisabled ? null : onTap,
       child: AnimatedContainer(
@@ -173,7 +157,7 @@ class SlmSettingsScreen extends StatelessWidget {
               color: isActive ? MintColors.primary : MintColors.textMuted,
               size: 22,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: MintSpacing.sm + 4),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,20 +167,18 @@ class SlmSettingsScreen extends StatelessWidget {
                       Flexible(
                         child: Text(
                           config.displayName,
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                          style: MintTextStyles.bodyMedium(
                             color: isActive
                                 ? MintColors.primary
                                 : MintColors.textPrimary,
-                          ),
+                          ).copyWith(fontWeight: FontWeight.w600),
                         ),
                       ),
                       if (isRecommended) ...[
-                        const SizedBox(width: 8),
+                        const SizedBox(width: MintSpacing.sm),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
+                            horizontal: MintSpacing.sm,
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
@@ -204,24 +186,19 @@ class SlmSettingsScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            'Recommand\u00e9',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
+                            l10n.slmRecommended,
+                            style: MintTextStyles.labelSmall(
                               color: MintColors.success,
-                            ),
+                            ).copyWith(fontWeight: FontWeight.w600),
                           ),
                         ),
                       ],
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: MintSpacing.xs),
                   Text(
                     '${config.modelSizeFormatted} \u2022 ~${config.estimatedDownloadMinutes} min \u2022 ${config.compatibilityHint}',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textMuted,
-                    ),
+                    style: MintTextStyles.labelSmall(),
                   ),
                 ],
               ),
@@ -233,13 +210,16 @@ class SlmSettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildModelCard(BuildContext context, SlmProvider slm) {
+  Widget _buildModelCard(BuildContext context, SlmProvider slm, S l10n) {
     if (slm.modelInfo == null) {
-      return const Card(
-        child: Padding(
-          padding: EdgeInsets.all(24),
-          child: Center(child: CircularProgressIndicator()),
+      return Container(
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: MintColors.border),
         ),
+        child: const Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -247,196 +227,196 @@ class SlmSettingsScreen extends StatelessWidget {
     final isDownloading = slm.downloadState == DownloadState.downloading;
     final isFailed = slm.downloadState == DownloadState.failed;
 
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  info.isReady
-                      ? Icons.check_circle
-                      : isFailed
-                          ? Icons.error_outline
-                          : Icons.cloud_download,
-                  color: info.isReady
-                      ? MintColors.success
-                      : isFailed
-                          ? MintColors.error
-                          : MintColors.primary,
-                  size: 24,
+    return Container(
+      padding: const EdgeInsets.all(MintSpacing.lg - 4),
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                info.isReady
+                    ? Icons.check_circle
+                    : isFailed
+                        ? Icons.error_outline
+                        : Icons.cloud_download,
+                color: info.isReady
+                    ? MintColors.success
+                    : isFailed
+                        ? MintColors.error
+                        : MintColors.primary,
+                size: 24,
+              ),
+              const SizedBox(width: MintSpacing.sm),
+              Expanded(
+                child: Text(
+                  info.displayName,
+                  style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    info.displayName,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
+              ),
+            ],
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          Text(
+            l10n.slmSizeLabel(SlmDownloadService.instance.modelSizeFormatted),
+            style: MintTextStyles.bodyMedium(),
+          ),
+          const SizedBox(height: MintSpacing.xs),
+          Text(
+            l10n.slmVersionLabel(info.version),
+            style: MintTextStyles.bodyMedium(),
+          ),
+          const SizedBox(height: MintSpacing.md),
+
+          if (!info.isReady &&
+              !slm.canAttemptDownload &&
+              slm.prerequisiteWarning != null)
+            Container(
+              margin: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
+              padding: const EdgeInsets.all(MintSpacing.sm + 4),
+              decoration: BoxDecoration(
+                color: MintColors.warning.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(8),
+                border:
+                    Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.lock_outline,
+                      color: MintColors.warning, size: 20),
+                  const SizedBox(width: MintSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      slm.prerequisiteWarning!,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.warning,
+                      ),
                     ),
                   ),
+                ],
+              ),
+            ),
+
+          // ── State: Starting download (processing, not yet downloading) ──
+          if (slm.isProcessing && !isDownloading && !info.isReady) ...[
+            Row(
+              children: [
+                const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: MintColors.primary,
+                  ),
+                ),
+                const SizedBox(width: MintSpacing.sm + 4),
+                Text(
+                  l10n.slmStartingDownload,
+                  style: MintTextStyles.bodyMedium(
+                    color: MintColors.primary,
+                  ).copyWith(fontWeight: FontWeight.w500),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Taille : ${SlmDownloadService.instance.modelSizeFormatted}',
-              style: GoogleFonts.inter(fontSize: 14, color: MintColors.textSecondary),
+          ],
+
+          // ── State: Download in progress ──
+          if (isDownloading) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: slm.downloadProgress,
+                backgroundColor: MintColors.border,
+                color: MintColors.primary,
+                minHeight: 8,
+              ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              'Version : ${info.version}',
-              style: GoogleFonts.inter(fontSize: 14, color: MintColors.textSecondary),
+            const SizedBox(height: MintSpacing.sm + 2),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '${(slm.downloadProgress * 100).toStringAsFixed(1)}%',
+                  style: MintTextStyles.bodyMedium(
+                    color: MintColors.primary,
+                  ).copyWith(fontWeight: FontWeight.w600, fontSize: 15),
+                ),
+                Text(
+                  _formatDownloadedSize(slm.downloadProgress),
+                  style: MintTextStyles.labelSmall(),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-
-            if (!info.isReady &&
-                !slm.canAttemptDownload &&
-                slm.prerequisiteWarning != null)
-              Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: MintColors.warning.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(8),
-                  border:
-                      Border.all(color: MintColors.warning.withValues(alpha: 0.35)),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.lock_outline,
-                        color: MintColors.warning, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        slm.prerequisiteWarning!,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: MintColors.warningText,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-            // ── State: Starting download (processing, not yet downloading) ──
-            if (slm.isProcessing && !isDownloading && !info.isReady) ...[
-              Row(
-                children: [
-                  const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      color: MintColors.primary,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    S.of(context)!.slmStartingDownload,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: MintColors.primary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-
-            // ── State: Download in progress ──
-            if (isDownloading) ...[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: slm.downloadProgress,
-                  backgroundColor: MintColors.lightBorder,
-                  color: MintColors.primary,
-                  minHeight: 8,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '${(slm.downloadProgress * 100).toStringAsFixed(1)}%',
-                    style: GoogleFonts.inter(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.primary,
-                    ),
-                  ),
-                  Text(
-                    _formatDownloadedSize(slm.downloadProgress),
-                    style: GoogleFonts.inter(
-                        fontSize: 12, color: MintColors.textSecondary),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '~${SlmDownloadService.instance.estimatedDownloadMinutes} min sur WiFi',
-                style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
-              ),
-              const SizedBox(height: 14),
-              SizedBox(
-                width: double.infinity,
+            const SizedBox(height: MintSpacing.xs),
+            Text(
+              l10n.slmWifiEstimate(SlmDownloadService.instance.estimatedDownloadMinutes),
+              style: MintTextStyles.labelSmall(),
+            ),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: Semantics(
+                label: l10n.slmCancelDownload,
+                button: true,
                 child: OutlinedButton.icon(
                   onPressed: slm.cancelDownload,
                   icon: const Icon(Icons.close, size: 18),
-                  label: Text(S.of(context)!.slmCancelDownload),
+                  label: Text(l10n.slmCancelDownload),
                 ),
               ),
-            ],
+            ),
+          ],
 
-            // ── State: Download failed ──
-            if (isFailed && !slm.isProcessing) ...[
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: MintColors.error.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.error_outline,
-                        color: MintColors.error, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        slm.lastError ??
-                            'Le téléchargement a échoué. '
-                                'Vérifie ta connexion WiFi et '
-                                'l\'espace disponible sur ton appareil.',
-                        style: GoogleFonts.inter(
-                            fontSize: 13, color: MintColors.redMedium),
+          // ── State: Download failed ──
+          if (isFailed && !slm.isProcessing) ...[
+            Container(
+              padding: const EdgeInsets.all(MintSpacing.sm + 4),
+              decoration: BoxDecoration(
+                color: MintColors.error.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: MintColors.error.withValues(alpha: 0.15)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.error_outline,
+                      color: MintColors.error, size: 20),
+                  const SizedBox(width: MintSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      slm.lastError ?? l10n.slmDownloadFailedMessage,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.error,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
+            ),
+            const SizedBox(height: MintSpacing.sm + 4),
+            SizedBox(
+              width: double.infinity,
+              child: Semantics(
+                label: slm.canAttemptDownload
+                    ? l10n.slmRetryDownload
+                    : l10n.slmDownloadUnavailable,
+                button: true,
                 child: FilledButton.icon(
                   onPressed: slm.canAttemptDownload
-                      ? () => _startDownload(context, slm)
+                      ? () => _startDownload(context, slm, l10n)
                       : null,
                   icon: Icon(
                       slm.canAttemptDownload ? Icons.refresh : Icons.lock),
                   label: Text(
                     slm.canAttemptDownload
-                        ? 'Réessayer le téléchargement'
-                        : 'Téléchargement indisponible sur ce build',
+                        ? l10n.slmRetryDownload
+                        : l10n.slmDownloadUnavailable,
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
@@ -444,22 +424,28 @@ class SlmSettingsScreen extends StatelessWidget {
                   ),
                 ),
               ),
-            ],
+            ),
+          ],
 
-            // ── State: Not started (initial) ──
-            if (!isDownloading && !isFailed && !info.isReady && !slm.isProcessing)
-              SizedBox(
-                width: double.infinity,
+          // ── State: Not started (initial) ──
+          if (!isDownloading && !isFailed && !info.isReady && !slm.isProcessing)
+            SizedBox(
+              width: double.infinity,
+              child: Semantics(
+                label: slm.canAttemptDownload
+                    ? l10n.slmDownloadButton(SlmDownloadService.instance.modelSizeFormatted)
+                    : l10n.slmDownloadUnavailable,
+                button: true,
                 child: FilledButton.icon(
                   onPressed: slm.canAttemptDownload
-                      ? () => _startDownload(context, slm)
+                      ? () => _startDownload(context, slm, l10n)
                       : null,
                   icon: Icon(
                       slm.canAttemptDownload ? Icons.download : Icons.lock),
                   label: Text(
                     slm.canAttemptDownload
-                        ? 'Télécharger (${SlmDownloadService.instance.modelSizeFormatted})'
-                        : 'Téléchargement indisponible sur ce build',
+                        ? l10n.slmDownloadButton(SlmDownloadService.instance.modelSizeFormatted)
+                        : l10n.slmDownloadUnavailable,
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
@@ -467,17 +453,21 @@ class SlmSettingsScreen extends StatelessWidget {
                   ),
                 ),
               ),
+            ),
 
-            // ── State: Model ready ──
-            if (!isDownloading && !isFailed && info.isReady) ...[
-              SizedBox(
-                width: double.infinity,
+          // ── State: Model ready ──
+          if (!isDownloading && !isFailed && info.isReady) ...[
+            SizedBox(
+              width: double.infinity,
+              child: Semantics(
+                label: l10n.slmDeleteModelButton,
+                button: true,
                 child: OutlinedButton.icon(
                   onPressed:
-                      slm.isProcessing ? null : () => _deleteModel(context, slm),
+                      slm.isProcessing ? null : () => _deleteModel(context, slm, l10n),
                   icon: const Icon(Icons.delete_outline, color: MintColors.error),
                   label: Text(
-                    S.of(context)!.slmDeleteModelButton,
+                    l10n.slmDeleteModelButton,
                     style: const TextStyle(color: MintColors.error),
                   ),
                   style: OutlinedButton.styleFrom(
@@ -486,21 +476,19 @@ class SlmSettingsScreen extends StatelessWidget {
                   ),
                 ),
               ),
-            ],
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
 
-  Future<void> _startDownload(BuildContext context, SlmProvider slm) async {
+  Future<void> _startDownload(BuildContext context, SlmProvider slm, S l10n) async {
     if (!slm.canAttemptDownload) {
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         SnackBar(
           content: Text(
-            slm.prerequisiteWarning ??
-                'Ce build ne permet pas le téléchargement du modèle.',
-            style: GoogleFonts.inter(),
+            slm.prerequisiteWarning ?? l10n.slmDownloadNotAvailable,
           ),
           backgroundColor: MintColors.error,
           duration: const Duration(seconds: 6),
@@ -513,25 +501,25 @@ class SlmSettingsScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(
-          S.of(context)!.slmDownloadModelTitle,
-          style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+          l10n.slmDownloadModelTitle,
+          style: MintTextStyles.titleMedium(),
         ),
         content: Text(
-          'Le mod\u00e8le fait ${SlmDownloadService.instance.modelSizeFormatted}. '
-          'Assure-toi d\'\u00eatre connect\u00e9 en WiFi pour \u00e9viter '
-          'une consommation importante de donn\u00e9es mobiles.\n\n'
-          '~${SlmDownloadService.instance.estimatedDownloadMinutes} min sur WiFi. '
-          'Compatible\u00a0: ${slm.activeTierConfig.compatibilityHint}.',
-          style: GoogleFonts.inter(),
+          l10n.slmDownloadDialogBody(
+            SlmDownloadService.instance.modelSizeFormatted,
+            SlmDownloadService.instance.estimatedDownloadMinutes,
+            slm.activeTierConfig.compatibilityHint,
+          ),
+          style: MintTextStyles.bodyMedium(),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text(S.of(context)!.slmCancel),
+            child: Text(l10n.slmCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text(S.of(context)!.slmDownload),
+            child: Text(l10n.slmDownload),
           ),
         ],
       ),
@@ -545,20 +533,17 @@ class SlmSettingsScreen extends StatelessWidget {
         context.mounted &&
         slm.downloadState == DownloadState.failed) {
       final reason =
-          slm.lastError ?? 'Vérifie ta connexion WiFi et l\'espace disponible.';
+          slm.lastError ?? l10n.slmDownloadFailedDefault;
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         SnackBar(
-          content: Text(
-            'Échec du téléchargement. $reason',
-            style: GoogleFonts.inter(),
-          ),
+          content: Text(l10n.slmDownloadFailedSnack(reason)),
           backgroundColor: MintColors.error,
           duration: const Duration(seconds: 6),
           action: slm.canAttemptDownload
               ? SnackBarAction(
-                  label: 'Réessayer',
+                  label: l10n.commonRetry,
                   textColor: MintColors.white,
-                  onPressed: () => _startDownload(context, slm),
+                  onPressed: () => _startDownload(context, slm, l10n),
                 )
               : null,
         ),
@@ -566,27 +551,27 @@ class SlmSettingsScreen extends StatelessWidget {
     }
   }
 
-  Future<void> _deleteModel(BuildContext context, SlmProvider slm) async {
+  Future<void> _deleteModel(BuildContext context, SlmProvider slm, S l10n) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(
-          S.of(context)!.slmDeleteModelTitle,
-          style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+          l10n.slmDeleteModelTitle,
+          style: MintTextStyles.titleMedium(),
         ),
         content: Text(
-          S.of(context)!.slmDeleteModelContent(SlmDownloadService.instance.modelSizeFormatted),
-          style: GoogleFonts.inter(),
+          l10n.slmDeleteModelContent(SlmDownloadService.instance.modelSizeFormatted),
+          style: MintTextStyles.bodyMedium(),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text(S.of(context)!.slmCancel),
+            child: Text(l10n.slmCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(foregroundColor: MintColors.error),
-            child: Text(S.of(context)!.slmDelete),
+            child: Text(l10n.slmDelete),
           ),
         ],
       ),
@@ -613,7 +598,7 @@ class SlmSettingsScreen extends StatelessWidget {
         '${totalGo.toStringAsFixed(1)} Go';
   }
 
-  Widget _buildStatusCard(BuildContext context, SlmProvider slm) {
+  Widget _buildStatusCard(BuildContext context, SlmProvider slm, S l10n) {
     final engineStatus = slm.engineStatus;
     final isReady = slm.isModelReady;
 
@@ -623,61 +608,65 @@ class SlmSettingsScreen extends StatelessWidget {
 
     switch (engineStatus) {
       case SlmStatus.running:
-        statusText = 'Prêt — le coach utilise l\'IA on-device';
+        statusText = l10n.slmStatusRunning;
         statusColor = MintColors.success;
         statusIcon = Icons.check_circle;
       case SlmStatus.ready:
-        statusText = 'Modèle téléchargé — initialisation requise';
+        statusText = l10n.slmStatusReady;
         statusColor = MintColors.warning;
         statusIcon = Icons.pending;
       case SlmStatus.error:
-        statusText = 'Erreur — appareil non compatible ou mémoire insuffisante';
+        statusText = l10n.slmStatusError;
         statusColor = MintColors.error;
         statusIcon = Icons.error;
       case SlmStatus.downloading:
-        statusText = 'Téléchargement en cours...';
+        statusText = l10n.slmStatusDownloading;
         statusColor = MintColors.primary;
         statusIcon = Icons.downloading;
       case SlmStatus.notDownloaded:
         statusText = isReady
-            ? 'Modèle prêt — lance l\'initialisation'
-            : 'Modèle non téléchargé';
-        statusColor = MintColors.greyMedium;
+            ? l10n.slmStatusModelReady
+            : l10n.slmStatusNotDownloaded;
+        statusColor = MintColors.textMuted;
         statusIcon = Icons.cloud_off;
     }
 
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              S.of(context)!.slmEngineStatus,
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Icon(statusIcon, color: statusColor, size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    statusText,
-                    style: GoogleFonts.inter(fontSize: 14, color: statusColor),
-                  ),
+    return Container(
+      padding: const EdgeInsets.all(MintSpacing.lg - 4),
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.slmEngineStatus,
+            style: MintTextStyles.titleMedium(),
+          ),
+          const SizedBox(height: MintSpacing.sm + 4),
+          Row(
+            children: [
+              Icon(statusIcon, color: statusColor, size: 20),
+              const SizedBox(width: MintSpacing.sm),
+              Expanded(
+                child: Text(
+                  statusText,
+                  style: MintTextStyles.bodyMedium(color: statusColor),
                 ),
-              ],
-            ),
-            if (isReady && engineStatus != SlmStatus.running) ...[
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
+              ),
+            ],
+          ),
+          if (isReady && engineStatus != SlmStatus.running) ...[
+            const SizedBox(height: MintSpacing.md),
+            SizedBox(
+              width: double.infinity,
+              child: Semantics(
+                label: slm.isProcessing
+                    ? l10n.slmInitializing
+                    : l10n.slmInitEngine,
+                button: true,
                 child: FilledButton.icon(
                   onPressed: slm.isProcessing
                       ? null
@@ -685,10 +674,8 @@ class SlmSettingsScreen extends StatelessWidget {
                           final success = await slm.initializeEngine();
                           if (!success && context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                    'Erreur d\'initialisation du modèle. '
-                                    'Vérifie que ton appareil est compatible.'),
+                              SnackBar(
+                                content: Text(l10n.slmInitError),
                               ),
                             );
                           }
@@ -705,8 +692,8 @@ class SlmSettingsScreen extends StatelessWidget {
                       : const Icon(Icons.play_arrow),
                   label: Text(
                     slm.isProcessing
-                        ? 'Initialisation...'
-                        : 'Initialiser le moteur',
+                        ? l10n.slmInitializing
+                        : l10n.slmInitEngine,
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
@@ -714,88 +701,85 @@ class SlmSettingsScreen extends StatelessWidget {
                   ),
                 ),
               ),
-            ],
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
 
-  Widget _buildInfoCard(BuildContext context, SlmProvider slm) {
-    return Card(
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              S.of(context)!.slmHowItWorks,
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+  Widget _buildInfoCard(BuildContext context, SlmProvider slm, S l10n) {
+    return Container(
+      padding: const EdgeInsets.all(MintSpacing.lg - 4),
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.slmHowItWorks,
+            style: MintTextStyles.titleMedium(),
+          ),
+          const SizedBox(height: MintSpacing.sm + 4),
+          _buildInfoRow(
+            Icons.download,
+            l10n.slmInfoDownload(SlmDownloadService.instance.estimatedDownloadMinutes),
+          ),
+          _buildInfoRow(
+            Icons.phone_android,
+            l10n.slmInfoOnDevice,
+          ),
+          _buildInfoRow(
+            Icons.wifi_off,
+            l10n.slmInfoOffline,
+          ),
+          _buildInfoRow(
+            Icons.shield,
+            l10n.slmInfoPrivacy,
+          ),
+          _buildInfoRow(
+            Icons.speed,
+            l10n.slmInfoSpeed,
+          ),
+          const Divider(height: MintSpacing.lg),
+          _buildInfoRow(
+            Icons.link,
+            l10n.slmInfoSourceModel(SlmDownloadService.modelId),
+          ),
+          _buildInfoRow(
+            slm.hasAuthToken ? Icons.key : Icons.key_off,
+            slm.hasAuthToken
+                ? l10n.slmInfoAuthConfigured
+                : l10n.slmInfoAuthNotConfigured,
+          ),
+          Text(
+            l10n.slmInfoCompatibility(
+              slm.activeTierConfig.compatibilityHint,
+              slm.activeTierConfig.modelSizeFormatted,
+              slm.activeTierConfig.minRamGb,
             ),
-            const SizedBox(height: 12),
-            _buildInfoRow(
-              Icons.download,
-              'Télécharge le modèle une fois (~${SlmDownloadService.instance.estimatedDownloadMinutes} min sur WiFi)',
-            ),
-            _buildInfoRow(
-              Icons.phone_android,
-              'L\'IA tourne directement sur ton téléphone',
-            ),
-            _buildInfoRow(
-              Icons.wifi_off,
-              'Fonctionne même sans connexion internet',
-            ),
-            _buildInfoRow(
-              Icons.shield,
-              'Tes données ne quittent jamais ton appareil',
-            ),
-            _buildInfoRow(
-              Icons.speed,
-              'Réponses en 2-4 secondes sur un appareil récent',
-            ),
-            const Divider(height: 24),
-            _buildInfoRow(
-              Icons.link,
-              'Source modèle : ${SlmDownloadService.modelId}',
-            ),
-            _buildInfoRow(
-              slm.hasAuthToken ? Icons.key : Icons.key_off,
-              slm.hasAuthToken
-                  ? 'Authentification HuggingFace : configurée'
-                  : 'Authentification HuggingFace : non configurée (download impossible si URL Gemma gated)',
-            ),
-            Text(
-              'Compatibilit\u00e9\u00a0: ${slm.activeTierConfig.compatibilityHint}.\n'
-              'Le mod\u00e8le n\u00e9cessite ${slm.activeTierConfig.modelSizeFormatted} d\'espace disque '
-              'et ~${slm.activeTierConfig.minRamGb} Go de RAM.',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
+            style: MintTextStyles.labelSmall(),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildInfoRow(IconData icon, String text) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, size: 18, color: MintColors.primary),
-          const SizedBox(width: 8),
+          const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.inter(fontSize: 13),
+              style: MintTextStyles.bodySmall(),
             ),
           ),
         ],

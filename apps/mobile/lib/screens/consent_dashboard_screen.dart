@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/privacy_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 
 class ConsentDashboardScreen extends StatefulWidget {
   const ConsentDashboardScreen({super.key});
@@ -60,6 +61,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
   }
 
   void _exportData() {
+    final l10n = S.of(context)!;
     final summary = PrivacyService.generateExportSummary(
       profileId: 'local',
       profileData: {
@@ -80,33 +82,28 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(
-          S.of(context)!.consentExportTitle,
-          style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+          l10n.consentExportTitle,
+          style: MintTextStyles.titleMedium(),
         ),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Format: ${summary['format']}'),
-              const SizedBox(height: 8),
-              Text('Categories: $categories'),
-              const SizedBox(height: 8),
+              Text('Format: ${summary['format']}',
+                  style: MintTextStyles.bodyMedium()),
+              const SizedBox(height: MintSpacing.sm),
+              Text('Categories: $categories',
+                  style: MintTextStyles.bodyMedium()),
+              const SizedBox(height: MintSpacing.sm),
               Text(
                 summary['retentionPolicy'] as String,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.labelSmall(),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: MintSpacing.sm + 4),
               Text(
                 summary['disclaimer'] as String,
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontStyle: FontStyle.italic,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.micro(),
               ),
             ],
           ),
@@ -114,7 +111,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(S.of(context)!.consentClose),
+            child: Text(l10n.consentClose),
           ),
         ],
       ),
@@ -123,17 +120,18 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
+
     if (_loading) {
       return Scaffold(
-        backgroundColor: MintColors.background,
+        backgroundColor: MintColors.white,
         appBar: AppBar(
+          backgroundColor: MintColors.white,
+          surfaceTintColor: MintColors.white,
+          elevation: 0,
           title: Text(
-            S.of(context)!.consentControlCenter,
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
-            ),
+            l10n.consentControlCenter,
+            style: MintTextStyles.headlineMedium(),
           ),
         ),
         body: const Center(child: CircularProgressIndicator()),
@@ -142,32 +140,34 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
 
     if (_hasError) {
       return Scaffold(
-        backgroundColor: MintColors.background,
+        backgroundColor: MintColors.white,
         appBar: AppBar(
+          backgroundColor: MintColors.white,
+          surfaceTintColor: MintColors.white,
+          elevation: 0,
           title: Text(
-            S.of(context)!.consentControlCenter,
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
-            ),
+            l10n.consentControlCenter,
+            style: MintTextStyles.headlineMedium(),
           ),
         ),
         body: Center(
           child: Container(
-            padding: const EdgeInsets.all(16),
-            margin: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(MintSpacing.md),
+            margin: const EdgeInsets.all(MintSpacing.lg),
             decoration: BoxDecoration(
-              color: MintColors.error.withValues(alpha: 0.08),
+              color: MintColors.error.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: MintColors.error.withValues(alpha: 0.15),
+              ),
             ),
             child: Row(
               children: [
                 const Icon(Icons.error_outline, color: MintColors.error, size: 20),
-                const SizedBox(width: 12),
+                const SizedBox(width: MintSpacing.sm + 4),
                 Expanded(child: Text(
-                  'Une erreur est survenue. Réessaie plus tard.',
-                  style: GoogleFonts.inter(fontSize: 13, color: MintColors.error),
+                  l10n.consentErrorMessage,
+                  style: MintTextStyles.bodySmall(color: MintColors.error),
                 )),
               ],
             ),
@@ -181,77 +181,70 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
     );
 
     return Scaffold(
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.white,
       appBar: AppBar(
+        backgroundColor: MintColors.white,
+        surfaceTintColor: MintColors.white,
+        elevation: 0,
         title: Text(
-          S.of(context)!.consentControlCenter,
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1,
-          ),
+          l10n.consentControlCenter,
+          style: MintTextStyles.headlineMedium(),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(MintSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSecurityHeader(),
-            const SizedBox(height: 24),
-            _buildExportButton(),
-            const SizedBox(height: 32),
+            _buildSecurityHeader(l10n),
+            const SizedBox(height: MintSpacing.lg),
+            _buildExportButton(l10n),
+            const SizedBox(height: MintSpacing.xl),
             Text(
-              S.of(context)!.consentRequiredTitle,
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              l10n.consentRequiredTitle,
+              style: MintTextStyles.titleMedium(),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.sm + 4),
             ...consentStatus
                 .where((c) => c['required'] == true)
-                .map((c) => _buildCategoryCard(c)),
-            const SizedBox(height: 24),
+                .map((c) => _buildCategoryCard(c, l10n)),
+            const SizedBox(height: MintSpacing.lg),
             Text(
-              S.of(context)!.consentOptionalTitle,
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              l10n.consentOptionalTitle,
+              style: MintTextStyles.titleMedium(),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.sm + 4),
             ...consentStatus
                 .where((c) => c['required'] == false)
-                .map((c) => _buildCategoryCard(c)),
-            const SizedBox(height: 32),
-            _buildRevokeAllButton(),
-            const SizedBox(height: 24),
+                .map((c) => _buildCategoryCard(c, l10n)),
+            const SizedBox(height: MintSpacing.xl),
+            _buildRevokeAllButton(l10n),
+            const SizedBox(height: MintSpacing.lg),
             _buildDisclaimer(),
-            const SizedBox(height: 16),
-            _buildSources(),
+            const SizedBox(height: MintSpacing.md),
+            _buildSources(l10n),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSecurityHeader() {
+  Widget _buildSecurityHeader(S l10n) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg - 4),
       decoration: BoxDecoration(
-        color: MintColors.success.withValues(alpha: 0.05),
+        color: MintColors.success.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.success.withValues(alpha: 0.2)),
+        border: Border.all(color: MintColors.success.withValues(alpha: 0.15)),
       ),
       child: Row(
         children: [
           const Icon(Icons.lock_person_outlined, color: MintColors.success),
-          const SizedBox(width: 16),
+          const SizedBox(width: MintSpacing.md),
           Expanded(
             child: Text(
-              S.of(context)!.consentSecurityMessage,
-              style: const TextStyle(fontSize: 13, color: MintColors.textPrimary),
+              l10n.consentSecurityMessage,
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
           ),
         ],
@@ -259,23 +252,27 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
     );
   }
 
-  Widget _buildExportButton() {
+  Widget _buildExportButton(S l10n) {
     return SizedBox(
       width: double.infinity,
-      child: OutlinedButton.icon(
-        onPressed: _exportData,
-        icon: const Icon(Icons.download_outlined),
-        label: Text(S.of(context)!.consentExportData),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: MintColors.primary,
-          side: const BorderSide(color: MintColors.primary),
-          padding: const EdgeInsets.symmetric(vertical: 14),
+      child: Semantics(
+        label: l10n.consentExportData,
+        button: true,
+        child: OutlinedButton.icon(
+          onPressed: _exportData,
+          icon: const Icon(Icons.download_outlined),
+          label: Text(l10n.consentExportData),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: MintColors.primary,
+            side: const BorderSide(color: MintColors.primary),
+            padding: const EdgeInsets.symmetric(vertical: 14),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildCategoryCard(Map<String, dynamic> category) {
+  Widget _buildCategoryCard(Map<String, dynamic> category, S l10n) {
     final id = category['id'] as String;
     final label = category['label'] as String;
     final description = category['description'] as String;
@@ -285,12 +282,12 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
     final retentionDays = category['retentionDays'] as int;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(MintSpacing.lg - 4),
         decoration: BoxDecoration(
           color: MintColors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(color: MintColors.border),
         ),
         child: Column(
@@ -302,54 +299,50 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
                 Expanded(
                   child: Text(
                     label,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                    ),
+                    style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
                   ),
                 ),
                 if (isRequired)
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                      horizontal: MintSpacing.sm,
+                      vertical: MintSpacing.xs,
                     ),
                     decoration: BoxDecoration(
                       color: MintColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      S.of(context)!.consentRequired,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
+                      l10n.consentRequired,
+                      style: MintTextStyles.labelSmall(
                         color: MintColors.primary,
-                      ),
+                      ).copyWith(fontSize: 10, fontWeight: FontWeight.w600),
                     ),
                   )
                 else
-                  Switch.adaptive(
-                    value: isConsented,
-                    onChanged: (v) => _toggleConsent(id, v),
-                    activeTrackColor: MintColors.success,
+                  Semantics(
+                    label: '$label toggle',
+                    toggled: isConsented,
+                    child: Switch.adaptive(
+                      value: isConsented,
+                      onChanged: (v) => _toggleConsent(id, v),
+                      activeTrackColor: MintColors.success,
+                    ),
                   ),
               ],
             ),
             const SizedBox(height: 6),
             Text(
               description,
-              style: const TextStyle(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.sm + 4),
             Wrap(
-              spacing: 8,
+              spacing: MintSpacing.sm,
               runSpacing: 6,
               children: [
                 _buildTag(legalBasis),
-                _buildTag(S.of(context)!.consentRetentionDays(retentionDays)),
+                _buildTag(l10n.consentRetentionDays(retentionDays)),
               ],
             ),
           ],
@@ -360,74 +353,69 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
 
   Widget _buildTag(String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm, vertical: MintSpacing.xs),
       decoration: BoxDecoration(
-        color: MintColors.background,
+        color: MintColors.surface,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         text,
-        style: const TextStyle(fontSize: 10, color: MintColors.textMuted),
+        style: MintTextStyles.labelSmall().copyWith(fontSize: 10),
       ),
     );
   }
 
-  Widget _buildRevokeAllButton() {
+  Widget _buildRevokeAllButton(S l10n) {
     return SizedBox(
       width: double.infinity,
-      child: OutlinedButton(
-        onPressed: _revokeAll,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: MintColors.error,
-          side: const BorderSide(color: MintColors.error),
-          padding: const EdgeInsets.symmetric(vertical: 14),
+      child: Semantics(
+        label: l10n.consentRevokeAll,
+        button: true,
+        child: OutlinedButton(
+          onPressed: _revokeAll,
+          style: OutlinedButton.styleFrom(
+            foregroundColor: MintColors.error,
+            side: const BorderSide(color: MintColors.error),
+            padding: const EdgeInsets.symmetric(vertical: 14),
+          ),
+          child: Text(l10n.consentRevokeAll),
         ),
-        child: Text(S.of(context)!.consentRevokeAll),
       ),
     );
   }
 
   Widget _buildDisclaimer() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.info.withValues(alpha: 0.05),
+        color: MintColors.info.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
-      child: const Text(
+      child: Text(
         PrivacyService.disclaimer,
-        style: TextStyle(
-          fontSize: 11,
-          fontStyle: FontStyle.italic,
-          color: MintColors.textMuted,
-        ),
+        style: MintTextStyles.micro(),
       ),
     );
   }
 
-  Widget _buildSources() {
+  Widget _buildSources(S l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          S.of(context)!.consentLegalSources,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
+          l10n.consentLegalSources,
+          style: MintTextStyles.labelSmall(
             color: MintColors.textSecondary,
-          ),
+          ).copyWith(fontWeight: FontWeight.w600, fontSize: 12),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: MintSpacing.sm),
         ...PrivacyService.sources.map(
           (s) => Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.only(bottom: MintSpacing.xs),
             child: Text(
-              '• $s',
-              style: const TextStyle(
-                fontSize: 10,
-                color: MintColors.textMuted,
-              ),
+              '\u2022 $s',
+              style: MintTextStyles.labelSmall().copyWith(fontSize: 10),
             ),
           ),
         ),

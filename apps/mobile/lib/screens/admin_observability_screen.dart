@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 
 typedef AdminMapLoader = Future<Map<String, dynamic>> Function({int days});
 typedef AdminCsvLoader = Future<String> Function({int days});
@@ -73,27 +74,19 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
   }
 
   Future<void> _copyCsvExport() async {
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     try {
       final csv = await (widget.csvLoader ?? _defaultCsvLoader)(days: _days);
       if (!mounted) return;
       await Clipboard.setData(ClipboardData(text: csv));
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            l10n?.adminObsCsvCopied ?? 'CSV cohortes copié dans le presse-papiers',
-          ),
-        ),
+        SnackBar(content: Text(l10n.adminObsCsvCopied)),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '${l10n?.adminObsExportFailed ?? 'Export impossible'}: $e',
-          ),
-        ),
+        SnackBar(content: Text('${l10n.adminObsExportFailed}: $e')),
       );
     }
   }
@@ -120,38 +113,42 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     return Scaffold(
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.white,
       appBar: AppBar(
-        backgroundColor: MintColors.background,
+        backgroundColor: MintColors.white,
+        surfaceTintColor: MintColors.white,
+        elevation: 0,
         title: Text(
-          l10n?.adminObsTitle ?? 'Admin Observability',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w700),
+          l10n.adminObsTitle,
+          style: MintTextStyles.headlineMedium(),
         ),
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? _buildError()
+              ? _buildError(l10n)
               : RefreshIndicator(
                   onRefresh: _load,
                   child: ListView(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(MintSpacing.md),
                     children: [
-                      _buildHeaderControls(),
-                      const SizedBox(height: 12),
-                      _buildObsCard(),
-                      const SizedBox(height: 12),
-                      _buildQualityCard(),
-                      const SizedBox(height: 12),
-                      _buildCohortsCard(),
-                      const SizedBox(height: 12),
-                      OutlinedButton.icon(
-                        onPressed: _copyCsvExport,
-                        icon: const Icon(Icons.download_outlined),
-                        label: Text(
-                          l10n?.adminObsExportCsv ?? 'Exporter CSV cohortes',
+                      _buildHeaderControls(l10n),
+                      const SizedBox(height: MintSpacing.sm + 4),
+                      _buildObsCard(l10n),
+                      const SizedBox(height: MintSpacing.sm + 4),
+                      _buildQualityCard(l10n),
+                      const SizedBox(height: MintSpacing.sm + 4),
+                      _buildCohortsCard(l10n),
+                      const SizedBox(height: MintSpacing.sm + 4),
+                      Semantics(
+                        label: l10n.adminObsExportCsv,
+                        button: true,
+                        child: OutlinedButton.icon(
+                          onPressed: _copyCsvExport,
+                          icon: const Icon(Icons.download_outlined),
+                          label: Text(l10n.adminObsExportCsv),
                         ),
                       ),
                     ],
@@ -160,40 +157,46 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
     );
   }
 
-  Widget _buildError() {
+  Widget _buildError(S l10n) {
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       children: [
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(MintSpacing.md),
           decoration: BoxDecoration(
-            color: MintColors.error.withValues(alpha: 0.08),
+            color: MintColors.error.withValues(alpha: 0.06),
             borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: MintColors.error.withValues(alpha: 0.15),
+            ),
           ),
           child: Text(
             _error!,
-            style: GoogleFonts.inter(color: MintColors.error),
+            style: MintTextStyles.bodyMedium(color: MintColors.error),
           ),
         ),
-        const SizedBox(height: 12),
-        FilledButton(
-          onPressed: _load,
-          child: Text(S.of(context)?.commonRetry ?? 'Réessayer'),
+        const SizedBox(height: MintSpacing.sm + 4),
+        Semantics(
+          label: l10n.commonRetry,
+          button: true,
+          child: FilledButton(
+            onPressed: _load,
+            child: Text(l10n.commonRetry),
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildHeaderControls() {
+  Widget _buildHeaderControls(S l10n) {
     return Row(
       children: [
         Expanded(
           child: Text(
-            '${S.of(context)?.adminObsWindowLabel ?? 'Fenêtre'}: $_days ${S.of(context)?.commonDays ?? 'jours'}',
-            style: GoogleFonts.inter(
+            '${l10n.adminObsWindowLabel}: $_days ${l10n.commonDays}',
+            style: MintTextStyles.bodyMedium(
               color: MintColors.textSecondary,
-              fontWeight: FontWeight.w600,
-            ),
+            ).copyWith(fontWeight: FontWeight.w600),
           ),
         ),
         SegmentedButton<int>(
@@ -214,12 +217,12 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
     );
   }
 
-  Widget _buildObsCard() {
+  Widget _buildObsCard(S l10n) {
     return _Card(
-      title: 'Auth & Billing',
+      title: l10n.adminObsAuthBilling,
       child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
+        spacing: MintSpacing.sm,
+        runSpacing: MintSpacing.sm,
         children: [
           _chip('Users', '${_obs['users_total'] ?? 0}'),
           _chip('Verified', '${_obs['users_verified'] ?? 0}'),
@@ -231,30 +234,27 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
     );
   }
 
-  Widget _buildQualityCard() {
+  Widget _buildQualityCard(S l10n) {
     final score = (_quality['quality_score'] as num?)?.toDouble() ?? 0;
     return _Card(
-      title: 'Qualité onboarding',
+      title: l10n.adminObsOnboardingQuality,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             '${score.toStringAsFixed(1)} / 100',
-            style: GoogleFonts.inter(
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-            ),
+            style: MintTextStyles.displayMedium().copyWith(fontSize: 28),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           LinearProgressIndicator(
             value: (score / 100).clamp(0.0, 1.0),
             minHeight: 8,
             borderRadius: BorderRadius.circular(99),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: MintSpacing.sm,
+            runSpacing: MintSpacing.sm,
             children: [
               _chip('Started', '${_quality['sessions_started'] ?? 0}'),
               _chip('Completed', '${_quality['sessions_completed'] ?? 0}'),
@@ -273,32 +273,34 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
     );
   }
 
-  Widget _buildCohortsCard() {
+  Widget _buildCohortsCard(S l10n) {
     final rows = (_cohorts['cohorts'] as List?)?.cast<Map>() ?? const [];
     return _Card(
-      title: 'Cohortes (variant x platform)',
+      title: l10n.adminObsCohorts,
       child: rows.isEmpty
           ? Text(
-              'Aucune donnée',
-              style: GoogleFonts.inter(color: MintColors.textSecondary),
+              l10n.adminObsNoData,
+              style: MintTextStyles.bodyMedium(),
             )
           : Column(
               children: rows.take(8).map((row) {
                 final quality = (row['quality_score'] ?? 0).toString();
                 final completion = (row['completion_rate_pct'] ?? 0).toString();
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.only(bottom: MintSpacing.sm + 2),
                   child: Row(
                     children: [
                       Expanded(
                         child: Text(
-                          '${row['variant']} · ${row['platform']}',
-                          style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                          '${row['variant']} \u00b7 ${row['platform']}',
+                          style: MintTextStyles.bodyMedium(
+                            color: MintColors.textPrimary,
+                          ).copyWith(fontWeight: FontWeight.w600),
                         ),
                       ),
                       Text(
-                        '$completion% · Q$quality',
-                        style: GoogleFonts.inter(color: MintColors.textSecondary),
+                        '$completion% \u00b7 Q$quality',
+                        style: MintTextStyles.bodyMedium(),
                       ),
                     ],
                   ),
@@ -310,7 +312,7 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
 
   Widget _chip(String label, String value) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm + 2, vertical: 7),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(9),
@@ -318,7 +320,9 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
       ),
       child: Text(
         '$label: $value',
-        style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600),
+        style: MintTextStyles.labelSmall(
+          color: MintColors.textPrimary,
+        ).copyWith(fontWeight: FontWeight.w600, fontSize: 12),
       ),
     );
   }
@@ -344,9 +348,9 @@ class _Card extends StatelessWidget {
         children: [
           Text(
             title,
-            style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700),
+            style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: MintSpacing.sm + 2),
           child,
         ],
       ),
