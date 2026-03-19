@@ -153,7 +153,10 @@ class SlmSettingsScreen extends StatelessWidget {
         ? MintColors.primary.withValues(alpha: 0.06)
         : MintColors.transparent;
 
-    return GestureDetector(
+    return Semantics(
+      label: 'Sélectionner le modèle ${config.displayName}',
+      button: true,
+      child: GestureDetector(
       onTap: isDisabled ? null : onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -226,6 +229,7 @@ class SlmSettingsScreen extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 
