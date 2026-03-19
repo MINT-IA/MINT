@@ -2344,7 +2344,7 @@
   "budgetEmptyTitle": "Ton budget se construit automatiquement",
   "budgetEmptyBody": "Complète ton diagnostic pour débloquer ton plan mensuel avec tes vrais revenus et charges.",
   "budgetEmptyAction": "Faire mon diagnostic",
-  "budgetMonthlyTitle": "Budget Mensuel",
+  "budgetMonthlyTitle": "Budget mensuel",
   "budgetAvailableThisMonth": "Disponible ce mois",
   "budgetNetIncome": "Revenu net",
   "budgetHousing": "Logement",
@@ -4161,9 +4161,9 @@
     }
   },
   "pulseWelcome": "Bienvenue sur MINT",
-  "pulseEmptyTitle": "Commence par remplir ton profil !",
-  "pulseEmptySubtitle": "Quelques questions suffisent pour obtenir ta première estimation de visibilité financière.",
-  "pulseEmptyCtaStart": "Démarrer",
+  "pulseEmptyTitle": "Trois questions, un premier chiffre.",
+  "pulseEmptySubtitle": "Le reste viendra. Commence par ton profil, on fera parler les chiffres.",
+  "pulseEmptyCtaStart": "Commencer",
   "pulseVisibilityTitle": "Visibilité financière",
   "pulsePrioritiesTitle": "Tes priorités",
   "pulsePrioritiesSubtitle": "Actions personnalisées selon ton profil",
@@ -6230,26 +6230,26 @@
   "authContinueLocal": "Continuer en mode local",
   "authBack": "Retour",
 
-  "coachGreetingSlm": "Salut {name}\u00a0! Je suis ton coach MINT — je tourne directement sur ton iPhone, aucune donnée ne quitte ton appareil. Pose-moi tes questions sur la prévoyance, les impôts ou la retraite.",
+  "coachGreetingSlm": "Salut {name}. Tes questions restent sur ton appareil. On peut parler prévoyance, impôts ou retraite.",
   "@coachGreetingSlm": {
     "placeholders": {
       "name": { "type": "String" }
     }
   },
-  "coachGreetingDefault": "Salut {name}\u00a0! Je suis ton coach MINT. Pose-moi tes questions sur la prévoyance, les impôts, le budget ou la retraite en Suisse.{scoreSuffix}",
+  "coachGreetingDefault": "Salut {name}. Pose ta question, je regarde ce que tes chiffres racontent.{scoreSuffix}",
   "@coachGreetingDefault": {
     "placeholders": {
       "name": { "type": "String" },
       "scoreSuffix": { "type": "String" }
     }
   },
-  "coachScoreSuffix": " Ton score Fitness est de {score}/100.",
+  "coachScoreSuffix": " En ce moment, tu es à {score}/100.",
   "@coachScoreSuffix": {
     "placeholders": {
       "score": { "type": "int" }
     }
   },
-  "coachComplianceError": "Je n'ai pas pu formuler une réponse conforme. Reformule ta question ou explore les simulateurs.",
+  "coachComplianceError": "Je préfère rester net sur celle-ci. Reformule, ou passe par un outil plus direct.",
   "coachErrorInvalidKey": "Ta clé API semble invalide ou expirée. Vérifie-la dans les paramètres.",
   "coachErrorRateLimit": "Limite de requêtes atteinte. Réessaie dans quelques instants.",
   "coachErrorGeneric": "Erreur technique. Réessaie plus tard.",
@@ -6257,13 +6257,13 @@
   "coachSuggestSimulate3a": "Simuler un versement 3a",
   "coachSuggestView3a": "Voir mes comptes 3a",
   "coachSuggestSimulateLpp": "Simuler un rachat LPP",
-  "coachSuggestUnderstandLpp": "Comprendre le rachat LPP",
-  "coachSuggestTrajectory": "Voir ma trajectoire",
-  "coachSuggestScenarios": "Explorer les scénarios",
-  "coachSuggestDeductions": "Déductions fiscales possibles",
+  "coachSuggestUnderstandLpp": "Comprendre mon rachat LPP",
+  "coachSuggestTrajectory": "Voir où j'en suis",
+  "coachSuggestScenarios": "Explorer mes scénarios",
+  "coachSuggestDeductions": "Où alléger mes impôts",
   "coachSuggestTaxImpact": "Simuler l'impact fiscal",
-  "coachSuggestFitness": "Mon score Fitness",
-  "coachSuggestRetirement": "Ma trajectoire retraite",
+  "coachSuggestFitness": "Où j'en suis",
+  "coachSuggestRetirement": "Ma retraite, concrètement",
   "coachEmptyStateMessage": "Complète ton diagnostic pour discuter avec ton coach",
   "coachEmptyStateButton": "Commencer",
   "coachTooltipHistory": "Historique",
@@ -6277,9 +6277,9 @@
   "coachBadgeByok": "Cloud",
   "coachBadgeFallback": "Hors-ligne",
   "coachDisclaimer": "Outil éducatif — les réponses ne constituent pas un conseil financier. LSFin.",
-  "coachLoading": "Réflexion en cours...",
+  "coachLoading": "Je regarde ça...",
   "coachSources": "Sources",
-  "coachInputHint": "Pose ta question...",
+  "coachInputHint": "Pose ta question, ou ouvre un sujet",
   "coachTitle": "Coach MINT",
   "coachFallbackName": "ami·e",
   "coachUserMessage": "Ton message",
@@ -6332,14 +6332,14 @@
     }
   },
   "tabCoach": "Coach",
-  "pulseNarrativeRetirementClose": "ta retraite approche. Voici où tu en es.",
-  "pulseNarrativeYearsToAct": "tu as {yearsToRetire} ans pour agir. Chaque année compte.",
+  "pulseNarrativeRetirementClose": "ta retraite approche. Chaque décision pèse un peu plus.",
+  "pulseNarrativeYearsToAct": "tu as {yearsToRetire} ans pour agir. Chaque année peut te rendre de l'air.",
   "@pulseNarrativeYearsToAct": {"placeholders": {"yearsToRetire": {"type": "int"}}},
-  "pulseNarrativeTimeToBuild": "tu as le temps de construire. Voici ta situation.",
-  "pulseNarrativeDefault": "voici ta situation financière.",
-  "pulseLabelReplacementRate": "Taux de remplacement à la retraite",
-  "pulseLabelRetirementIncome": "Revenu estimé à la retraite",
-  "pulseLabelFinancialScore": "Score de préparation financière",
+  "pulseNarrativeTimeToBuild": "tu as le temps de construire. Autant lui donner une bonne forme.",
+  "pulseNarrativeDefault": "tes chiffres commencent à parler.",
+  "pulseLabelReplacementRate": "Part de train de vie conservée",
+  "pulseLabelRetirementIncome": "Revenu mensuel possible à la retraite",
+  "pulseLabelFinancialScore": "Degré de clarté de ta situation",
   "exploreHubRetraiteTitle": "Retraite",
   "exploreHubRetraiteSubtitle": "AVS, LPP, 3a, projections",
   "exploreHubFamilleTitle": "Famille",
@@ -6368,9 +6368,9 @@
   "dossierStartProfile": "Commence ton profil",
   "dossierProfileCompleted": "{percent} % complété",
   "@dossierProfileCompleted": {"placeholders": {"percent": {"type": "int"}}},
-  "exploreHubFeatured": "Parcours vedettes",
-  "exploreHubSeeAll": "Voir tout",
-  "exploreHubLearnMore": "Comprendre ce sujet",
+  "exploreHubFeatured": "Commencer par",
+  "exploreHubSeeAll": "Tous les outils",
+  "exploreHubLearnMore": "Lire l'essentiel",
   "retraiteHubFeaturedOverview": "Aperçu retraite",
   "retraiteHubFeaturedOverviewSub": "Ton estimation personnalisée en 3 minutes",
   "retraiteHubFeaturedRenteCapital": "Rente vs Capital",
@@ -6442,8 +6442,77 @@
   "santeHubFeaturedCheckupSub": "Vérifie que tu es bien protégé·e",
   "santeHubToolAssuranceInvalidite": "Assurance invalidité",
   "santeHubToolInvaliditeIndependant": "Invalidité indépendant",
-  "dossierSlmTitle": "Modèle local (SLM)",
-  "dossierSlmSubtitle": "IA embarquée, fonctionne hors ligne",
-  "dossierByokTitle": "Clé API (BYOK)",
-  "dossierByokSubtitle": "Connecte ton propre modèle IA"
+  "dossierSlmTitle": "IA embarquée",
+  "dossierSlmSubtitle": "Tourne sur ton appareil, même hors ligne",
+  "dossierByokTitle": "Clé IA perso",
+  "dossierByokSubtitle": "Branche ton propre modèle IA",
+  "budgetErrorRetry": "Le calcul a buté. Réessaie\u00a0?",
+  "budgetChiffreChocCaption": "Soit ce qu'il te reste après toutes tes charges fixes",
+  "budgetMethodTitle": "Comprendre ce budget",
+  "budgetMethodBody": "Ce budget sépare tes charges fixes (loyer, LAMal, impôts) de ton reste à vivre. La règle 50/30/20 suggère\u00a0: 50\u00a0% pour les besoins, 30\u00a0% pour les envies, 20\u00a0% pour l'épargne. C'est un repère, pas une obligation.",
+  "budgetMethodSource": "Source\u00a0: méthode 50/30/20 (Elizabeth Warren, 2005)",
+  "budgetDisclaimerNote": "Estimation éducative. Ne constitue pas un conseil financier (LSFin art.\u00a03).",
+
+  "chiffreChocIfYouAct": "Si tu agis",
+  "chiffreChocIfYouDontAct": "Si tu ne fais rien",
+  "chiffreChocAvantApresGapAct": "Un rachat LPP ou un 3a peut réduire cet écart de moitié.",
+  "chiffreChocAvantApresGapNoAct": "L'écart se creuse chaque année. À la retraite, il sera trop tard.",
+  "chiffreChocAvantApresLiquidityAct": "Épargner 500\u00a0CHF/mois reconstitue 3 mois de réserve en 6 mois.",
+  "chiffreChocAvantApresLiquidityNoAct": "Un imprévu sans réserve, c'est un crédit à la consommation.",
+  "chiffreChocAvantApresTaxAct": "Chaque année sans 3a, c'est une économie d'impôt perdue.",
+  "chiffreChocAvantApresTaxNoAct": "Sans 3a, tu paies le taux plein et tu ne prépares pas ta retraite.",
+  "chiffreChocAvantApresIncomeAct": "Quelques ajustements peuvent améliorer ta projection.",
+  "chiffreChocAvantApresIncomeNoAct": "Ta situation actuelle reste stable, mais sans marge de progression.",
+  "chiffreChocConfidenceSimple": "Basé sur {count} données. Ajoutes-en pour affiner.",
+  "@chiffreChocConfidenceSimple": {
+    "description": "Simplified confidence indicator. Tone: inviting, not jargon.",
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "quickStartTitle": "Trois questions, un premier chiffre.",
+  "quickStartSubtitle": "Le reste, c'est toi qui décides quand.",
+  "quickStartFirstName": "Ton prénom",
+  "quickStartFirstNameHint": "Facultatif",
+  "quickStartAge": "Ton âge",
+  "quickStartAgeValue": "{age} ans",
+  "@quickStartAgeValue": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "quickStartSalary": "Ton revenu brut annuel",
+  "quickStartSalaryValue": "{salary}/an",
+  "@quickStartSalaryValue": {
+    "placeholders": {
+      "salary": { "type": "String" }
+    }
+  },
+  "quickStartCanton": "Canton",
+  "quickStartPreviewTitle": "Premier aperçu retraite",
+  "quickStartVerdictGood": "En bonne voie",
+  "quickStartVerdictWatch": "À surveiller",
+  "quickStartVerdictGap": "À traiter",
+  "quickStartToday": "Aujourd'hui",
+  "quickStartAtRetirement": "À la retraite",
+  "quickStartPerMonth": "/mois",
+  "quickStartDropPct": "-{pct}\u00a0% de pouvoir d'achat ({gap}/mois)",
+  "@quickStartDropPct": {
+    "placeholders": {
+      "pct": { "type": "String" },
+      "gap": { "type": "String" }
+    }
+  },
+  "quickStartDisclaimer": "Estimation éducative. Pas un conseil financier (LSFin).",
+  "quickStartCta": "Voir mon aperçu",
+  "quickStartSectionIdentity": "Identité & Foyer",
+  "quickStartSectionIncome": "Revenus & Épargne",
+  "quickStartSectionPension": "Prévoyance (LPP)",
+  "quickStartSectionProperty": "Immobilier & Dettes",
+  "quickStartSectionGuidance": "Section\u00a0: {label} — mets à jour tes informations ci-dessous.",
+  "@quickStartSectionGuidance": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  }
 }

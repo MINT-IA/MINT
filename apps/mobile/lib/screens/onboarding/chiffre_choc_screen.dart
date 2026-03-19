@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/chiffre_choc_selector.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
-/// Chiffre Choc screen — full-screen card with ONE impactful number.
+/// Chiffre Choc screen — Category A (Hero).
 ///
-/// Sprint S31 — Onboarding Redesign.
+/// Full-screen card with ONE dominant animated number.
+/// Max 2 sections above fold, 1 primary CTA, avant/apres expandable.
+///
+/// Sprint S31 (created) / S52 (upgraded to Design System v2).
 /// Receives age, grossSalary, canton via route extra.
-/// Shows animated number with context, confidence indicator, and two CTAs.
 class ChiffreChocScreen extends StatefulWidget {
   const ChiffreChocScreen({super.key});
 
@@ -29,6 +33,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
   bool _didStartLoad = false;
   MinimalProfileResult? _profile;
   ChiffreChoc? _chiffreChoc;
+  bool _avantApresExpanded = false;
 
   @override
   void initState() {
@@ -154,6 +159,28 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
     };
   }
 
+  /// Returns avant/apres texts based on chiffre choc type.
+  ({String actText, String noActText}) _avantApresTexts(S l10n, ChiffreChocType type) {
+    return switch (type) {
+      ChiffreChocType.liquidityAlert => (
+        actText: l10n.chiffreChocAvantApresLiquidityAct,
+        noActText: l10n.chiffreChocAvantApresLiquidityNoAct,
+      ),
+      ChiffreChocType.retirementGap => (
+        actText: l10n.chiffreChocAvantApresGapAct,
+        noActText: l10n.chiffreChocAvantApresGapNoAct,
+      ),
+      ChiffreChocType.taxSaving3a => (
+        actText: l10n.chiffreChocAvantApresTaxAct,
+        noActText: l10n.chiffreChocAvantApresTaxNoAct,
+      ),
+      ChiffreChocType.retirementIncome => (
+        actText: l10n.chiffreChocAvantApresIncomeAct,
+        noActText: l10n.chiffreChocAvantApresIncomeNoAct,
+      ),
+    };
+  }
+
   @override
   void dispose() {
     _animController.dispose();
@@ -164,6 +191,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
   Widget build(BuildContext context) {
     final choc = _chiffreChoc;
     final profile = _profile;
+    final l10n = S.of(context)!;
 
     if (choc == null || profile == null) {
       return const Scaffold(
@@ -173,38 +201,43 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
 
     final accentColor = _colorForKey(choc.colorKey);
     final infoCount = profile.providedFieldsCount;
+    final avantApres = _avantApresTexts(l10n, choc.type);
 
     return Scaffold(
       backgroundColor: MintColors.background,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
           child: Column(
             children: [
-              const SizedBox(height: 16),
+              const SizedBox(height: MintSpacing.md),
+
               // Back button
               Align(
                 alignment: Alignment.centerLeft,
-                child: IconButton(
-                  onPressed: () => context.pop(),
-                  icon: const Icon(Icons.arrow_back_rounded),
-                  color: MintColors.textSecondary,
+                child: Semantics(
+                  button: true,
+                  label: 'Retour',
+                  child: IconButton(
+                    onPressed: () => context.pop(),
+                    icon: const Icon(Icons.arrow_back_rounded),
+                    color: MintColors.textSecondary,
+                  ),
                 ),
               ),
               const Spacer(flex: 2),
 
-              // Animated chiffre choc card
+              // ── Hero card with animated chiffre choc ──
               FadeTransition(
                 opacity: _fadeAnim,
                 child: ScaleTransition(
                   scale: _scaleAnim,
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(32),
+                    padding: const EdgeInsets.all(MintSpacing.xl),
                     decoration: BoxDecoration(
                       color: MintColors.card,
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: MintColors.lightBorder),
                       boxShadow: [
                         BoxShadow(
                           color: accentColor.withAlpha(25),
@@ -230,40 +263,36 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                             size: 28,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: MintSpacing.md),
 
-                        // Title
+                        // Title (category label above the number)
                         Text(
                           choc.title,
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                          style: MintTextStyles.bodySmall(
                             color: MintColors.textSecondary,
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: MintSpacing.sm),
 
-                        // THE NUMBER
-                        Text(
-                          choc.value,
-                          style: GoogleFonts.montserrat(
-                            fontSize: 48,
-                            fontWeight: FontWeight.w800,
-                            color: accentColor,
-                            height: 1.1,
+                        // THE NUMBER — displayLarge (48pt, Hero A)
+                        Semantics(
+                          label: choc.value,
+                          child: Text(
+                            choc.value,
+                            style: MintTextStyles.displayLarge(
+                              color: accentColor,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: MintSpacing.md),
 
-                        // Subtitle
+                        // Caption — human impact, not jargon
                         Text(
                           choc.subtitle,
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
+                          style: MintTextStyles.bodyMedium(
                             color: MintColors.textSecondary,
-                            height: 1.5,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -273,34 +302,107 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: MintSpacing.md),
 
-              // Confidence indicator
+              // ── Avant/Apres expandable (L2 requirement) ──
               FadeTransition(
                 opacity: _fadeAnim,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: MintColors.surface,
-                    borderRadius: BorderRadius.circular(12),
+                child: Semantics(
+                  button: true,
+                  label: _avantApresExpanded
+                      ? 'Masquer la comparaison'
+                      : 'Afficher la comparaison',
+                  child: GestureDetector(
+                    onTap: () =>
+                        setState(() => _avantApresExpanded = !_avantApresExpanded),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: MintSpacing.md,
+                        vertical: MintSpacing.sm + MintSpacing.xs,
+                      ),
+                      decoration: BoxDecoration(
+                        color: MintColors.surface,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Tap row
+                          Row(
+                            children: [
+                              Icon(
+                                _avantApresExpanded
+                                    ? Icons.expand_less_rounded
+                                    : Icons.expand_more_rounded,
+                                size: 20,
+                                color: MintColors.textMuted,
+                              ),
+                              const SizedBox(width: MintSpacing.sm),
+                              Expanded(
+                                child: Text(
+                                  '${l10n.chiffreChocIfYouAct} / ${l10n.chiffreChocIfYouDontAct}',
+                                  style: MintTextStyles.bodySmall(
+                                    color: MintColors.textMuted,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          // Expanded content
+                          if (_avantApresExpanded) ...[
+                            const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
+
+                            // "Si tu agis"
+                            _AvantApresRow(
+                              icon: Icons.trending_up_rounded,
+                              iconColor: MintColors.success,
+                              label: l10n.chiffreChocIfYouAct,
+                              text: avantApres.actText,
+                            ),
+                            const SizedBox(height: MintSpacing.sm),
+
+                            // "Si tu ne fais rien"
+                            _AvantApresRow(
+                              icon: Icons.trending_flat_rounded,
+                              iconColor: MintColors.warning,
+                              label: l10n.chiffreChocIfYouDontAct,
+                              text: avantApres.noActText,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
                   ),
+                ),
+              ),
+
+              const SizedBox(height: MintSpacing.sm),
+
+              // ── Confidence indicator — simplified ──
+              FadeTransition(
+                opacity: _fadeAnim,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: MintSpacing.xs),
                   child: Row(
                     children: [
                       const Icon(
                         Icons.tune_rounded,
-                        size: 18,
+                        size: 14,
                         color: MintColors.textMuted,
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: MintSpacing.xs),
                       Expanded(
                         child: Text(
-                          'Estimation basée sur $infoCount informations. '
-                          'Plus tu précises, plus c\'est fiable.',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
+                          l10n.chiffreChocConfidenceSimple(
+                            infoCount.toString(),
+                          ),
+                          style: MintTextStyles.labelSmall(
                             color: MintColors.textMuted,
-                            height: 1.4,
                           ),
                         ),
                       ),
@@ -311,51 +413,54 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
 
               const Spacer(flex: 3),
 
-              // CTA 1: Action
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () {
-                    // Navigate to relevant simulation based on chiffre choc type
-                    final route = switch (choc.type) {
-                      ChiffreChocType.liquidityAlert => '/budget',
-                      ChiffreChocType.retirementGap => '/coach/cockpit',
-                      ChiffreChocType.taxSaving3a => '/pilier-3a',
-                      ChiffreChocType.retirementIncome => '/coach/cockpit',
-                    };
-                    AnalyticsService().trackCTAClick(
-                      'chiffre_choc_action',
-                      screenName: 'chiffre_choc',
-                      data: {
-                        'choc_type': choc.type.name,
-                        'target_route': route,
-                      },
-                    );
-                    context.go(route);
-                  },
-                  style: FilledButton.styleFrom(
-                    backgroundColor: MintColors.primary,
-                    foregroundColor: MintColors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+              // ── Primary CTA (single) ──
+              Semantics(
+                button: true,
+                label: l10n.chiffreChocAction,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () {
+                      final route = switch (choc.type) {
+                        ChiffreChocType.liquidityAlert => '/budget',
+                        ChiffreChocType.retirementGap => '/coach/cockpit',
+                        ChiffreChocType.taxSaving3a => '/pilier-3a',
+                        ChiffreChocType.retirementIncome => '/coach/cockpit',
+                      };
+                      AnalyticsService().trackCTAClick(
+                        'chiffre_choc_action',
+                        screenName: 'chiffre_choc',
+                        data: {
+                          'choc_type': choc.type.name,
+                          'target_route': route,
+                        },
+                      );
+                      context.go(route);
+                    },
+                    style: FilledButton.styleFrom(
+                      backgroundColor: MintColors.primary,
+                      foregroundColor: MintColors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    'Qu\'est-ce que je peux faire ?',
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                    child: Text(
+                      l10n.chiffreChocAction,
+                      style: MintTextStyles.titleMedium(
+                        color: MintColors.white,
+                      ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: MintSpacing.sm),
 
-              // CTA 2: Enrich profile
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
+              // ── Secondary: enrich profile (Ghost / TextButton) ──
+              Semantics(
+                button: true,
+                label: l10n.chiffreChocEnrich,
+                child: TextButton(
                   onPressed: () {
                     AnalyticsService().trackCTAClick(
                       'chiffre_choc_enrich',
@@ -364,47 +469,76 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                     );
                     context.push('/profile/bilan');
                   },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: MintColors.textPrimary,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    side:
-                        const BorderSide(color: MintColors.border, width: 1.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                  style: TextButton.styleFrom(
+                    foregroundColor: MintColors.info,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
+                  child: Text(
+                    l10n.chiffreChocEnrich,
+                    style: MintTextStyles.bodyMedium(
+                      color: MintColors.info,
                     ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Affiner mon profil',
-                        style: GoogleFonts.inter(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: MintSpacing.sm),
 
-              // Disclaimer
+              // ── Disclaimer (micro pattern) ──
               Text(
-                'Outil educatif — ne constitue pas un conseil financier (LSFin). '
-                'Sources : LAVS art. 34, LPP art. 14-16, OPP3 art. 7.',
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  color: MintColors.textMuted,
-                  height: 1.3,
-                ),
+                l10n.chiffreChocDisclaimer,
+                style: MintTextStyles.micro(),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: MintSpacing.md),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+// ── Private helper widget for avant/apres rows ──
+
+class _AvantApresRow extends StatelessWidget {
+  const _AvantApresRow({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    required this.text,
+  });
+
+  final IconData icon;
+  final Color iconColor;
+  final String label;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 18, color: iconColor),
+        const SizedBox(width: MintSpacing.sm),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: MintTextStyles.bodySmall(color: iconColor),
+              ),
+              const SizedBox(height: MintSpacing.xs),
+              Text(
+                text,
+                style: MintTextStyles.labelSmall(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
