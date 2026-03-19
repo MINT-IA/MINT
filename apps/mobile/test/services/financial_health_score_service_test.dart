@@ -377,4 +377,65 @@ void main() {
       expect(last3.length, 2);
     });
   });
+
+  // ═══════════════════════════════════════════════════════════════
+  //  19. All-zeros edge case
+  // ═══════════════════════════════════════════════════════════════
+
+  group('Edge cases', () {
+    test('19. all-zeros FRI → FHS score 0, level critical', () async {
+      final prefs = await _seedHistory([]);
+      final service = FinancialHealthScoreService(prefs);
+      final fri = _makeFri(l: 0, f: 0, r: 0, s: 0); // total 0
+      final fhs = await service.computeDailyAt(fri, DateTime.now());
+
+      expect(fhs.score, 0.0);
+      expect(fhs.level, FhsLevel.critical);
+      expect(fhs.liquidite, 0.0);
+      expect(fhs.fiscalite, 0.0);
+      expect(fhs.retraite, 0.0);
+      expect(fhs.risque, 0.0);
+      expect(fhs.trend, FhsTrend.stable);
+      expect(fhs.deltaVsYesterday, 0.0);
+    });
+
+    test('20. maximum profile (100) → FHS excellent', () async {
+      final prefs = await _seedHistory([]);
+      final service = FinancialHealthScoreService(prefs);
+      final fri = _makeFri(l: 25, f: 25, r: 25, s: 25); // total 100
+      final fhs = await service.computeDailyAt(fri, DateTime.now());
+
+      expect(fhs.score, 100.0);
+      expect(fhs.level, FhsLevel.excellent);
+    });
+
+    test('21. trend detection across 3 consecutive days', () async {
+      final now = DateTime.now();
+      final day1 = now.subtract(const Duration(days: 2));
+      final day2 = now.subtract(const Duration(days: 1));
+
+      // Day 1: score 50
+      final prefs1 = await _seedHistory([
+        _makeHistoryEntry(score: 50, computedAt: day1),
+      ]);
+      final service1 = FinancialHealthScoreService(prefs1);
+      final fri60 = _makeFri(l: 15, f: 15, r: 15, s: 15); // total 60
+      final fhsDay2 = await service1.computeDailyAt(fri60, day2);
+      // Day 2 vs Day 1: delta = 60-50 = 10 → up
+      expect(fhsDay2.trend, FhsTrend.up);
+      expect(fhsDay2.deltaVsYesterday, closeTo(10.0, 0.1));
+
+      // Day 3: score drops to 45
+      final prefs2 = await _seedHistory([
+        _makeHistoryEntry(score: 50, computedAt: day1),
+        _makeHistoryEntry(score: 60, computedAt: day2),
+      ]);
+      final service2 = FinancialHealthScoreService(prefs2);
+      final fri45 = _makeFri(l: 10, f: 10, r: 15, s: 10); // total 45
+      final fhsDay3 = await service2.computeDailyAt(fri45, now);
+      // Day 3 vs Day 2: delta = 45-60 = -15 → down
+      expect(fhsDay3.trend, FhsTrend.down);
+      expect(fhsDay3.deltaVsYesterday, closeTo(-15.0, 0.1));
+    });
+  });
 }
