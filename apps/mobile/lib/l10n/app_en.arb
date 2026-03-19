@@ -6060,5 +6060,8 @@
   "coachLoading": "Thinking...",
   "coachSources": "Sources",
   "coachInputHint": "Ask your question...",
-  "coachTitle": "MINT Coach"
+  "coachTitle": "MINT Coach",
+  "coachFallbackName": "friend",
+  "coachUserMessage": "Your message",
+  "coachCoachMessage": "Coach response"
 }

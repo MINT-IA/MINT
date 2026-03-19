@@ -172,7 +172,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   void _addInitialGreeting() {
     assert(_profile != null);
     final p = _profile!;
-    final name = p.firstName ?? 'ami·e';
+    final name = p.firstName ?? S.of(context)!.coachFallbackName;
     final s = S.of(context)!;
 
     final tier = _currentTier();
@@ -818,17 +818,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           child = _buildSystemMessage(msg);
         } else if (msg.isUser) {
           child = Semantics(
-            label: msg.content,
+            label: S.of(context)!.coachUserMessage,
             child: _buildUserBubble(msg),
           );
         } else {
           child = Semantics(
-            label: msg.content,
+            label: S.of(context)!.coachCoachMessage,
             child: _buildCoachBubble(msg),
           );
         }
         return TweenAnimationBuilder<double>(
-          key: ValueKey(msg.timestamp),
+          key: ValueKey('msg_$index'),
           tween: Tween<double>(begin: 0.0, end: 1.0),
           duration: const Duration(milliseconds: 350),
           curve: Curves.easeOutCubic,

@@ -6031,5 +6031,8 @@
   "coachLoading": "Nachdenken...",
   "coachSources": "Quellen",
   "coachInputHint": "Stelle deine Frage...",
-  "coachTitle": "MINT Coach"
+  "coachTitle": "MINT Coach",
+  "coachFallbackName": "Freund·in",
+  "coachUserMessage": "Deine Nachricht",
+  "coachCoachMessage": "Coach-Antwort"
 }

@@ -419,7 +419,7 @@ class FallbackTemplates {
       '${ctx.firstName}, en tant qu\'indépendant·e, la LPP est '
       'facultative mais tu peux t\'affilier (LPP art. 4). Sans LPP, '
       'ton plafond 3a monte à 36\u00a0288\u00a0CHF/an (20\u00a0% du '
-      'revenu net). Tu dois cotiser toi-même à l\'AVS (min. '
+      'revenu net). La cotisation AVS est à ta charge (min. '
       '530\u00a0CHF/an, LAVS art. 8).\n\n'
       '_Outil éducatif — ne constitue pas un conseil financier (LSFin)._';
 

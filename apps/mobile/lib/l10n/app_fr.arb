@@ -6275,5 +6275,8 @@
   "coachLoading": "Réflexion en cours...",
   "coachSources": "Sources",
   "coachInputHint": "Pose ta question...",
-  "coachTitle": "Coach MINT"
+  "coachTitle": "Coach MINT",
+  "coachFallbackName": "ami·e",
+  "coachUserMessage": "Ton message",
+  "coachCoachMessage": "Réponse du coach"
 }

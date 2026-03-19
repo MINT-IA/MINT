@@ -6017,5 +6017,8 @@
   "coachLoading": "A pensar...",
   "coachSources": "Fontes",
   "coachInputHint": "Faz a tua pergunta...",
-  "coachTitle": "Coach MINT"
+  "coachTitle": "Coach MINT",
+  "coachFallbackName": "amigo/a",
+  "coachUserMessage": "A tua mensagem",
+  "coachCoachMessage": "Resposta do coach"
 }
