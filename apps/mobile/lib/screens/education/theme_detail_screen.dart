@@ -58,9 +58,9 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
     if (rawTheme == null) {
       return Scaffold(
         backgroundColor: MintColors.background,
-        appBar: AppBar(title: const Text('Theme inconnu')),
-        body: const Center(
-          child: Text('Ce theme n\'existe pas. Retour en arriere.'),
+        appBar: AppBar(title: Text(S.of(context)!.themeInconnu)),
+        body: Center(
+          child: Text(S.of(context)!.themeInconnuBody),
         ),
       );
     }

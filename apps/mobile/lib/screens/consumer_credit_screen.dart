@@ -6,6 +6,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/debt_repayment_widget.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 class ConsumerCreditSimulatorScreen extends StatefulWidget {
   const ConsumerCreditSimulatorScreen({super.key});
@@ -62,7 +63,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
       appBar: AppBar(
         backgroundColor: MintColors.white,
         surfaceTintColor: MintColors.white,
-        title: Text('Crédit à la Consommation', style: MintTextStyles.headlineMedium()),
+        title: Text(S.of(context)!.creditTitle, style: MintTextStyles.headlineMedium()),
         // PDF export hidden — stub not yet implemented
         actions: const [],
       ),
@@ -133,7 +134,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
               const SizedBox(width: MintSpacing.sm),
               Expanded(
                 child: Text(
-                  'Points d\'attention du Mentor',
+                  S.of(context)!.creditMentorTitle,
                   style: MintTextStyles.titleMedium(),
                 ),
               ),
@@ -141,7 +142,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(
-            'En Suisse, un crédit coûte entre 4% et 10%. Cet argent "perdu" en intérêts pourrait être investi pour ton avenir.',
+            S.of(context)!.creditMentorBody,
             style: MintTextStyles.bodyMedium(),
           ),
         ],
@@ -153,10 +154,10 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Paramètres'),
+        _buildSectionHeader(S.of(context)!.creditParametres),
         const SizedBox(height: MintSpacing.lg),
         _buildSlider(
-          label: 'Montant à emprunter',
+          label: S.of(context)!.creditMontantEmprunter,
           value: _amount,
           min: 1000,
           max: 50000,
@@ -169,7 +170,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
         ),
         const SizedBox(height: MintSpacing.md),
         _buildSlider(
-          label: 'Durée du remboursement',
+          label: S.of(context)!.creditDureeRemboursement,
           value: _durationMonths.toDouble(),
           min: 6,
           max: 60,
@@ -182,7 +183,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
         ),
         const SizedBox(height: MintSpacing.md),
         _buildSlider(
-          label: 'Taux annuel effectif',
+          label: S.of(context)!.creditTauxAnnuel,
           value: _annualRate,
           min: 1,
           max: 15,
@@ -271,7 +272,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
       ),
       child: Column(
         children: [
-          Text('Ta Mensualité', style: MintTextStyles.bodyMedium()),
+          Text(S.of(context)!.creditTaMensualite, style: MintTextStyles.bodyMedium()),
           const SizedBox(height: MintSpacing.sm),
           Text(
             _currencyFormat.format(monthlyPayment),
@@ -283,7 +284,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Coût des intérêts :', style: MintTextStyles.bodyMedium()),
+              Text(S.of(context)!.creditCoutInterets, style: MintTextStyles.bodyMedium()),
               Text(
                 _currencyFormat.format(totalInterest),
                 style: MintTextStyles.bodyMedium(color: MintColors.error).copyWith(fontWeight: FontWeight.w600),
@@ -304,7 +305,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
                   const SizedBox(width: MintSpacing.sm),
                   Expanded(
                     child: Text(
-                      'Attention : Ce taux dépasse le max légal suisse de 10%.',
+                      S.of(context)!.creditRateWarning,
                       style: MintTextStyles.bodySmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -321,11 +322,11 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Conseils du Mentor'),
+        _buildSectionHeader(S.of(context)!.creditConseilsTitle),
         const SizedBox(height: MintSpacing.lg),
-        _buildGuidanceItem(Icons.savings_outlined, 'Épargner d\'abord', 'En économisant pendant 12 mois au lieu d\'emprunter, tu gardes ${_currencyFormat.format(_result!['totalInterest'])} dans ta poche.'),
-        _buildGuidanceItem(Icons.family_restroom_outlined, 'Cercle de confiance', 'Un prêt familial peut souvent être obtenu à 0% d\'intérêt.'),
-        _buildGuidanceItem(Icons.help_outline_rounded, 'Dettes Conseils Suisse', 'Contacte-les AVANT de signer si ta situation est fragile.'),
+        _buildGuidanceItem(Icons.savings_outlined, S.of(context)!.creditEpargnerDabord, S.of(context)!.creditEpargnerDabordBody(_currencyFormat.format(_result!['totalInterest']))),
+        _buildGuidanceItem(Icons.family_restroom_outlined, S.of(context)!.creditCercleConfiance, S.of(context)!.creditCercleConfianceBody),
+        _buildGuidanceItem(Icons.help_outline_rounded, S.of(context)!.creditDettesConseils, S.of(context)!.creditDettesConseilsBody),
       ],
     );
   }
@@ -365,8 +366,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
         child: Text(
-          'Information à but préventif. Ne constitue pas un conseil juridique ou financier. '
-          'Loi suisse sur le crédit à la consommation (LCC) appliquée.',
+          S.of(context)!.creditDisclaimer,
           style: MintTextStyles.micro(),
           textAlign: TextAlign.center,
         ),

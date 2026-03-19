@@ -5,6 +5,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/info_tooltip.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 class SimulatorCompoundScreen extends StatefulWidget {
   const SimulatorCompoundScreen({super.key});
@@ -58,7 +59,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
       appBar: AppBar(
         backgroundColor: MintColors.white,
         surfaceTintColor: MintColors.white,
-        title: Text('Intérêts Composés', style: MintTextStyles.headlineMedium()),
+        title: Text(S.of(context)!.compoundTitle, style: MintTextStyles.headlineMedium()),
         actions: const [],
       ),
       body: SingleChildScrollView(
@@ -96,7 +97,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
             children: [
               const Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
               const SizedBox(width: MintSpacing.sm),
-              Text('L\'avis du Mentor', style: MintTextStyles.titleMedium()),
+              Text(S.of(context)!.compoundMentorTitle, style: MintTextStyles.titleMedium()),
             ],
           ),
           const SizedBox(height: MintSpacing.sm),
@@ -104,9 +105,9 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
             text: TextSpan(
               style: MintTextStyles.bodyMedium(),
               children: [
-                TextSpan(text: 'Comprendre l\''),
+                TextSpan(text: S.of(context)!.compoundMentorIntro),
                 WidgetSpan(child: InfoTooltip(term: 'intérêt composé')),
-                TextSpan(text: ', c\'est comprendre comment ton argent travaille pour toi pendant que tu dors.'),
+                TextSpan(text: S.of(context)!.compoundMentorOutro),
               ],
             ),
           ),
@@ -119,10 +120,10 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Configuration'),
+        _buildSectionHeader(S.of(context)!.compoundConfiguration),
         const SizedBox(height: MintSpacing.lg),
         _buildSlider(
-          label: 'Capital de départ',
+          label: S.of(context)!.compoundCapitalDepart,
           value: _principal,
           min: 0,
           max: 100000,
@@ -135,7 +136,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
         ),
         const SizedBox(height: MintSpacing.md),
         _buildSlider(
-          label: 'Épargne mensuelle',
+          label: S.of(context)!.compoundEpargneMensuelle,
           value: _monthlyContribution,
           min: 0,
           max: 5000,
@@ -148,7 +149,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
         ),
         const SizedBox(height: MintSpacing.md),
         _buildSlider(
-          label: 'Taux (Rendement annuel)',
+          label: S.of(context)!.compoundTauxRendement,
           value: _annualRate,
           min: 0,
           max: 12,
@@ -161,7 +162,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
         ),
         const SizedBox(height: MintSpacing.md),
         _buildSlider(
-          label: 'Horizon de temps',
+          label: S.of(context)!.compoundHorizonTemps,
           value: _years.toDouble(),
           min: 1,
           max: 40,
@@ -243,7 +244,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
       ),
       child: Column(
         children: [
-          Text('Valeur Finale Potentielle', style: MintTextStyles.bodyMedium()),
+          Text(S.of(context)!.compoundValeurFinale, style: MintTextStyles.bodyMedium()),
           const SizedBox(height: MintSpacing.sm),
           Text(
             _currencyFormat.format(finalValue),
@@ -265,7 +266,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            '${gainPercentage.toStringAsFixed(0)}% de ce montant provient uniquement de tes gains de placement.',
+            S.of(context)!.compoundGainsPercent(gainPercentage.toStringAsFixed(0)),
             style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
           ),
@@ -278,11 +279,11 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Leçons Méditées'),
+        _buildSectionHeader(S.of(context)!.compoundLeconsTitle),
         const SizedBox(height: MintSpacing.lg),
-        _buildLessonItem(Icons.timer_outlined, 'Le temps est roi', 'Attendre 5 ans avant de commencer peut te faire perdre la moitié de ton capital final.'),
-        _buildLessonItem(Icons.auto_graph_outlined, 'L\'effet de levier', 'Une fois lancé, ton capital génère ses propres intérêts, qui en génèrent d\'autres à leur tour.'),
-        _buildLessonItem(Icons.psychology_outlined, 'Discipline', 'La regularite des versements mensuels est souvent plus efficace que la recherche du moment ideal pour investir.'),
+        _buildLessonItem(Icons.timer_outlined, S.of(context)!.compoundTempsRoi, S.of(context)!.compoundTempsRoiBody),
+        _buildLessonItem(Icons.auto_graph_outlined, S.of(context)!.compoundEffetLevier, S.of(context)!.compoundEffetLevierBody),
+        _buildLessonItem(Icons.psychology_outlined, S.of(context)!.compoundDiscipline, S.of(context)!.compoundDisciplineBody),
       ],
     );
   }
@@ -322,7 +323,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
         child: Text(
-          'Calcul théorique basé sur un rendement constant. Les performances passées ne garantissent pas les résultats futurs.',
+          S.of(context)!.compoundDisclaimer,
           style: MintTextStyles.micro(),
           textAlign: TextAlign.center,
         ),

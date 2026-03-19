@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -224,7 +225,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () => _launchUrl(url),
                   icon: const Icon(Icons.open_in_new, size: 16),
-                  label: const Text('Site web'),
+                  label: Text(S.of(context)!.helpResourceSiteWeb),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: color,
                     side: BorderSide(color: color.withValues(alpha: 0.5)),

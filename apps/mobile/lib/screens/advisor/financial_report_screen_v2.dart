@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -55,7 +56,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
     return Scaffold(
       backgroundColor: MintColors.surface,
       appBar: AppBar(
-        title: Text('Ton Plan Mint', style: MintTextStyles.titleMedium(color: MintColors.textPrimary)),
+        title: Text(S.of(context)!.reportTonPlanMint, style: MintTextStyles.titleMedium(color: MintColors.textPrimary)),
         backgroundColor: MintColors.white,
         foregroundColor: MintColors.textPrimary,
         elevation: 0,
@@ -142,7 +143,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
                 child: Text(
-                  'Optimise ton 3a',
+                  S.of(context)!.reportOptimise3a,
                   style: MintTextStyles.headlineMedium(),
                 ),
               ),
@@ -200,7 +201,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             const SizedBox(height: MintSpacing.lg),
 
             // ── Disclaimer Footer ──
-            _buildDisclaimerFooter(),
+            _buildDisclaimerFooter(context),
 
             const SizedBox(height: MintSpacing.xxl),
           ],
@@ -626,7 +627,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '\ud83c\udfaf Tes 3 Actions Prioritaires',
+            S.of(context)!.reportActions,
             style: MintTextStyles.headlineMedium(),
           ),
           const SizedBox(height: MintSpacing.md),
@@ -727,7 +728,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             child: FilledButton.icon(
               onPressed: () => context.push(_routeForCategory(action.category)),
               icon: const Icon(Icons.arrow_forward, size: 16),
-              label: const Text('Commencer'),
+              label: Text(S.of(context)!.reportCommencer),
               style: FilledButton.styleFrom(
                 backgroundColor: priorityColor,
                 foregroundColor: MintColors.white,
@@ -998,7 +999,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  DISCLAIMER FOOTER — Mention legale obligatoire
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildDisclaimerFooter() {
+  Widget _buildDisclaimerFooter(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
       child: Container(
@@ -1020,15 +1021,14 @@ class FinancialReportScreenV2 extends StatelessWidget {
                     size: 14, color: MintColors.textMuted),
                 const SizedBox(width: 6),
                 Text(
-                  'Mention legale',
+                  S.of(context)!.reportMentionLegale,
                   style: MintTextStyles.labelSmall().copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Text(
-              'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier au sens de la LSFin. '
-              'Les montants sont des estimations bas\u00e9es sur les donn\u00e9es d\u00e9clar\u00e9es.',
+              S.of(context)!.reportDisclaimerText,
               style: MintTextStyles.micro(),
             ),
           ],

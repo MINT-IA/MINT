@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -143,7 +144,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
             foregroundColor: MintColors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Louer ou acheter ?',
+                S.of(context)!.locationLouerOuAcheter,
                 style: MintTextStyles.headlineMedium(color: MintColors.white),
               ),
               background: Container(
@@ -178,17 +179,17 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: SmartDefaultIndicator(
-                        source: 'Valeurs pre-remplies depuis ton profil',
+                        source: S.of(context)!.locationValeursProfil,
                         confidence: _result!.confidenceScore / 100,
                       ),
                     ),
                   Text(
-                    'Trajectoires comparees',
+                    S.of(context)!.locationTrajectoires,
                     style: MintTextStyles.titleMedium(),
                   ),
                   const SizedBox(height: MintSpacing.xs),
                   Text(
-                    'Touche le graphique pour voir les valeurs a chaque annee.',
+                    S.of(context)!.locationToucheGraphique,
                     style: MintTextStyles.bodySmall(),
                   ),
                   const SizedBox(height: 12),
@@ -224,10 +225,10 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
 
                   // ── Hypothesis sliders ──
                   HypothesisEditorWidget(
-                    hypotheses: const [
+                    hypotheses: [
                       HypothesisConfig(
                         key: 'rendement_marche',
-                        label: 'Rendement marche',
+                        label: S.of(context)!.locationRendementMarche,
                         min: 0,
                         max: 8,
                         divisions: 16,
@@ -235,7 +236,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                       ),
                       HypothesisConfig(
                         key: 'appreciation_immo',
-                        label: 'Appreciation immobiliere',
+                        label: S.of(context)!.locationAppreciationImmo,
                         min: 0,
                         max: 4,
                         divisions: 8,
@@ -243,7 +244,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                       ),
                       HypothesisConfig(
                         key: 'taux_hypo',
-                        label: 'Taux hypothecaire',
+                        label: S.of(context)!.locationTauxHypo,
                         min: 0.5,
                         max: 5,
                         divisions: 9,
@@ -251,7 +252,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                       ),
                       HypothesisConfig(
                         key: 'horizon',
-                        label: 'Horizon',
+                        label: S.of(context)!.locationHorizon,
                         min: 5,
                         max: 30,
                         divisions: 25,
@@ -326,23 +327,23 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ton projet immobilier',
+            S.of(context)!.locationProjetImmobilier,
             style: MintTextStyles.titleMedium(),
           ),
           const SizedBox(height: 16),
           _buildTextField(
             controller: _capitalCtrl,
-            label: 'Capital disponible / fonds propres (CHF)',
+            label: S.of(context)!.locationCapitalDispo,
           ),
           const SizedBox(height: 12),
           _buildTextField(
             controller: _loyerCtrl,
-            label: 'Loyer mensuel actuel (CHF)',
+            label: S.of(context)!.locationLoyerMensuel,
           ),
           const SizedBox(height: 12),
           _buildTextField(
             controller: _prixBienCtrl,
-            label: 'Prix du bien immobilier (CHF)',
+            label: S.of(context)!.locationPrixBien,
           ),
           const SizedBox(height: 16),
 
@@ -354,7 +355,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Canton',
+                      S.of(context)!.locationCanton,
                       style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                     ),
                     const SizedBox(height: 6),
@@ -394,7 +395,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Marie\u00b7e',
+                    S.of(context)!.locationMarie,
                     style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                   ),
                   const SizedBox(height: 6),
@@ -424,7 +425,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                 ),
               ),
               child: Text(
-                'Comparer les trajectoires',
+                S.of(context)!.locationComparer,
                 style: MintTextStyles.titleMedium(color: MintColors.white),
               ),
             ),
@@ -502,20 +503,17 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Verification de la capacite financiere (FINMA)',
+                  S.of(context)!.locationCapaciteFinma,
                   style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Charge theorique annuelle : ${_formatChf(chargeTheorique)} '
-                  '(taux theorique 5 % + amortissement 1 % + entretien 1 %). '
-                  'Les banques exigent que cette charge ne depasse pas 1/3 de '
-                  'ton revenu brut annuel.',
+                  S.of(context)!.locationChargeTheorique(_formatChf(chargeTheorique)),
                   style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Revenu brut minimum necessaire : ${_formatChf(chargeTheorique * 3)}',
+                  S.of(context)!.locationRevenuMinimum(_formatChf(chargeTheorique * 3)),
                   style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
@@ -589,7 +587,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
       tilePadding: EdgeInsets.zero,
       childrenPadding: const EdgeInsets.only(bottom: 8),
       title: Text(
-        'Hypotheses utilisees',
+        S.of(context)!.locationHypotheses,
         style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
       ),
       children: [
@@ -639,7 +637,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                'Avertissement',
+                S.of(context)!.locationAvertissement,
                 style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600),
               ),
             ],

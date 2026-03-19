@@ -5,6 +5,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/leasing_cost_widget.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 class SimulatorLeasingScreen extends StatefulWidget {
   const SimulatorLeasingScreen({super.key});
@@ -56,7 +57,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
       appBar: AppBar(
         backgroundColor: MintColors.white,
         surfaceTintColor: MintColors.white,
-        title: Text('Analyse Anti-Leasing', style: MintTextStyles.headlineMedium()),
+        title: Text(S.of(context)!.leasingTitle, style: MintTextStyles.headlineMedium()),
         actions: const [],
       ),
       body: SingleChildScrollView(
@@ -102,12 +103,12 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
             children: [
               const Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
               const SizedBox(width: MintSpacing.sm),
-              Text('Réflexion du Mentor', style: MintTextStyles.titleMedium()),
+              Text(S.of(context)!.leasingMentorTitle, style: MintTextStyles.titleMedium()),
             ],
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(
-            'Le leasing est souvent une "fuite" de capital. Cet argent pourrait servir à construire ton patrimoine plutôt qu\'à financer la dépréciation d\'un véhicule.',
+            S.of(context)!.leasingMentorBody,
             style: MintTextStyles.bodyMedium(),
           ),
         ],
@@ -119,10 +120,10 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Données du Contrat'),
+        _buildSectionHeader(S.of(context)!.leasingDonneesContrat),
         const SizedBox(height: MintSpacing.lg),
         _buildSlider(
-          label: 'Mensualité prévue',
+          label: S.of(context)!.leasingMensualitePrevue,
           value: _monthlyPayment,
           min: 100,
           max: 1500,
@@ -135,7 +136,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
         ),
         const SizedBox(height: MintSpacing.md),
         _buildSlider(
-          label: 'Durée du leasing',
+          label: S.of(context)!.leasingDuree,
           value: _durationMonths.toDouble(),
           min: 12,
           max: 60,
@@ -148,7 +149,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
         ),
         const SizedBox(height: MintSpacing.md),
         _buildSlider(
-          label: 'Rendement alternatif espéré',
+          label: S.of(context)!.leasingRendementAlternatif,
           value: _alternativeRate,
           min: 1,
           max: 10,
@@ -228,7 +229,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
       ),
       child: Column(
         children: [
-          Text('Coût d\'opportunité sur 20 ans', style: MintTextStyles.bodyMedium()),
+          Text(S.of(context)!.leasingCoutOpportunite20, style: MintTextStyles.bodyMedium()),
           const SizedBox(height: MintSpacing.sm),
           Text(
             _currencyFormat.format(opportunityCost20),
@@ -236,7 +237,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
           ),
           const SizedBox(height: MintSpacing.lg),
           Text(
-            'Si tu investissais cette mensualité au lieu de payer un leasing, voilà le capital que tu aurais construit.',
+            S.of(context)!.leasingInvestirAuLieu,
             style: MintTextStyles.bodySmall(),
             textAlign: TextAlign.center,
           ),
@@ -253,7 +254,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
                 const SizedBox(width: MintSpacing.sm),
                 Expanded(
                   child: Text(
-                    'C\'est environ ${_currencyFormat.format(opportunityCost20 * 0.2)} de fonds propres pour un achat immobilier.',
+                    S.of(context)!.leasingFondsPropres(_currencyFormat.format(opportunityCost20 * 0.2)),
                     style: MintTextStyles.bodySmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -269,11 +270,11 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('S\'écarter du Trou Noir'),
+        _buildSectionHeader(S.of(context)!.leasingAlternativesTitle),
         const SizedBox(height: MintSpacing.lg),
-        _buildAltItem(Icons.directions_car_outlined, 'Occasion de Qualité', 'Acheter cash une voiture de 3-4 ans réduit drastiquement la perte de valeur.'),
-        _buildAltItem(Icons.train_outlined, 'Abo Général / Transports', 'Le confort du train en Suisse est souvent plus rentable et serein.'),
-        _buildAltItem(Icons.share_outlined, 'Mobility / Partage', 'Ne paie que quand tu roules. Pas d\'assurance, pas d\'entretien, pas de leasing.'),
+        _buildAltItem(Icons.directions_car_outlined, S.of(context)!.leasingOccasion, S.of(context)!.leasingOccasionBody),
+        _buildAltItem(Icons.train_outlined, S.of(context)!.leasingAboGeneral, S.of(context)!.leasingAboGeneralBody),
+        _buildAltItem(Icons.share_outlined, S.of(context)!.leasingMobility, S.of(context)!.leasingMobilityBody),
       ],
     );
   }
@@ -313,7 +314,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
         child: Text(
-          'Le leasing reste une option pour certains professionnels. Cette analyse vise à sensibiliser le particulier sur le coût à long terme.',
+          S.of(context)!.leasingDisclaimer,
           style: MintTextStyles.micro(),
           textAlign: TextAlign.center,
         ),

@@ -69,10 +69,10 @@ class PortfolioScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.warning_amber_rounded, color: MintColors.error),
-          SizedBox(width: 16),
+          const Icon(Icons.warning_amber_rounded, color: MintColors.error),
+          const SizedBox(width: 16),
           Expanded(
             child: Text(
               'Alerte Dettes : Ta priorité absolue est le désendettement avant tout réinvestissement.',
@@ -149,11 +149,11 @@ class PortfolioScreen extends StatelessWidget {
             style: MintTextStyles.displayMedium(),
           ),
           const SizedBox(height: 16),
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.trending_up, color: MintColors.success, size: 16),
-              SizedBox(width: 4),
+              const Icon(Icons.trending_up, color: MintColors.success, size: 16),
+              const SizedBox(width: 4),
               Text(
                 '509.30 (0.50%) aujourd\'hui',
                 style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
@@ -215,10 +215,10 @@ class PortfolioScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.primary.withValues(alpha: 0.1)),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
-          SizedBox(width: 16),
+          const Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
+          const SizedBox(width: 16),
           Expanded(
             child: Text(
               'Ton allocation est saine. Pense à rééquilibrer ton 3a prochainement.',

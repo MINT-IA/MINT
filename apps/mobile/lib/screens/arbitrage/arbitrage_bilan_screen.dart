@@ -7,6 +7,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
 //  ARBITRAGE BILAN SCREEN — S45 Phase 1
@@ -30,7 +31,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
 
     if (profile == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Bilan d\'arbitrage')),
+        appBar: AppBar(title: Text(S.of(context)!.arbitrageBilanTitle)),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(32),
@@ -41,14 +42,14 @@ class ArbitrageBilanScreen extends StatelessWidget {
                     size: 48, color: MintColors.textMuted),
                 const SizedBox(height: 16),
                 Text(
-                  'Complete ton profil pour voir tes pistes d\'arbitrage',
+                  S.of(context)!.arbitrageBilanEmptyProfile,
                   textAlign: TextAlign.center,
                   style: MintTextStyles.bodyLarge(),
                 ),
                 const SizedBox(height: 20),
                 FilledButton(
                   onPressed: () => context.push('/onboarding/quick'),
-                  child: const Text('Commencer'),
+                  child: Text(S.of(context)!.reportCommencer),
                 ),
               ],
             ),
@@ -87,13 +88,13 @@ class ArbitrageBilanScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
-                          'Tes leviers d\'action',
+                          S.of(context)!.arbitrageBilanLeviers,
                           style: MintTextStyles.headlineMedium(color: MintColors.white),
                         ),
                         const SizedBox(height: MintSpacing.xs),
                         if (summary.items.isNotEmpty)
                           Text(
-                            '${formatChfWithPrefix(summary.aggregateMonthlyImpact)}/mois de potentiel identifie',
+                            S.of(context)!.arbitrageBilanPotentiel(formatChfWithPrefix(summary.aggregateMonthlyImpact)),
                             style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.85)),
                           ),
                       ],
@@ -102,7 +103,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
                 ),
               ),
               title: Text(
-                'Bilan d\'arbitrage',
+                S.of(context)!.arbitrageBilanTitle,
                 style: MintTextStyles.titleMedium(),
               ),
             ),
@@ -115,7 +116,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
               delegate: SliverChildListDelegate([
                 // Caveat
                 if (summary.items.length > 1)
-                  _buildCaveat(),
+                  _buildCaveat(context),
 
                 // Computed items
                 ...summary.items.map((item) => Padding(
@@ -127,7 +128,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
                 if (summary.lockedItems.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Text(
-                    'Debloque d\'autres pistes',
+                    S.of(context)!.arbitrageBilanDebloquer,
                     style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 10),
@@ -139,13 +140,12 @@ class ArbitrageBilanScreen extends StatelessWidget {
 
                 // Cross-dependencies
                 if (summary.items.length >= 2)
-                  _buildCrossDependencies(summary),
+                  _buildCrossDependencies(context, summary),
 
                 // Disclaimer
                 const SizedBox(height: 16),
                 Text(
-                  'Outil educatif — ne constitue pas un conseil financier (LSFin). '
-                  'Sources : LPP art. 14, 79b / LIFD art. 22, 33, 38 / OPP3 art. 7.',
+                  S.of(context)!.arbitrageBilanDisclaimer,
                   style: MintTextStyles.micro(),
                 ),
                 const SizedBox(height: 32),
@@ -157,7 +157,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCaveat() {
+  Widget _buildCaveat(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Container(
@@ -174,8 +174,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Ces pistes ne s\'additionnent pas forcement — '
-                'certaines sont liees entre elles.',
+                S.of(context)!.arbitrageBilanCaveat,
                 style: MintTextStyles.bodySmall(),
               ),
             ),
@@ -185,7 +184,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCrossDependencies(ArbitrageSummary summary) {
+  Widget _buildCrossDependencies(BuildContext context, ArbitrageSummary summary) {
     final hasRenteVsCapital =
         summary.items.any((i) => i.id == 'rente_vs_capital');
     final hasCalendrier =
@@ -194,14 +193,10 @@ class ArbitrageBilanScreen extends StatelessWidget {
 
     final notes = <String>[];
     if (hasRenteVsCapital && hasCalendrier) {
-      notes.add(
-          'Si tu retires ton LPP en capital, le calendrier de retraits '
-          'change fondamentalement.');
+      notes.add(S.of(context)!.arbitrageBilanCrossDep1);
     }
     if (hasRachat && hasRenteVsCapital) {
-      notes.add(
-          'Un rachat LPP augmente aussi le capital disponible pour le '
-          'choix rente vs capital.');
+      notes.add(S.of(context)!.arbitrageBilanCrossDep2);
     }
 
     if (notes.isEmpty) return const SizedBox.shrink();
@@ -223,7 +218,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
                 const Icon(Icons.link, size: 16, color: MintColors.info),
                 const SizedBox(width: 8),
                 Text(
-                  'Liens entre ces pistes',
+                  S.of(context)!.arbitrageBilanLiens,
                   style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
@@ -360,7 +355,7 @@ class _ArbitrageItemCard extends StatelessWidget {
 
             // Disclaimer line
             Text(
-              'Dans ce scenario simule — a explorer en detail',
+              S.of(context)!.arbitrageBilanScenario,
               style: MintTextStyles.micro(),
             ),
           ],

@@ -7766,5 +7766,233 @@
   "coverageCriticalGaps": "lacune{count} critique{count}"
 ,
   "coverageCriticalGapSingular": "lacune critique",
-  "coverageCriticalGapPlural": "lacunes critiques"
+  "coverageCriticalGapPlural": "lacunes critiques",
+
+  "reportTonPlanMint": "Ton Plan Mint",
+  "reportCommencer": "Commencer",
+  "reportOptimise3a": "Optimise ton 3a",
+  "reportActions": "🎯 Tes 3 Actions Prioritaires",
+  "reportMentionLegale": "Mention légale",
+  "reportDisclaimerText": "Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin. Les montants sont des estimations basées sur les données déclarées.",
+
+  "compoundTitle": "Intérêts Composés",
+  "compoundMentorTitle": "L'avis du Mentor",
+  "compoundMentorIntro": "Comprendre l'",
+  "compoundMentorOutro": ", c'est comprendre comment ton argent travaille pour toi pendant que tu dors.",
+  "compoundConfiguration": "Configuration",
+  "compoundCapitalDepart": "Capital de départ",
+  "compoundEpargneMensuelle": "Épargne mensuelle",
+  "compoundTauxRendement": "Taux (Rendement annuel)",
+  "compoundHorizonTemps": "Horizon de temps",
+  "compoundValeurFinale": "Valeur Finale Potentielle",
+  "compoundGainsPercent": "{percent}% de ce montant provient uniquement de tes gains de placement.",
+  "@compoundGainsPercent": {
+    "placeholders": {
+      "percent": { "type": "String" }
+    }
+  },
+  "compoundLeconsTitle": "Leçons Méditées",
+  "compoundTempsRoi": "Le temps est roi",
+  "compoundTempsRoiBody": "Attendre 5 ans avant de commencer peut te faire perdre la moitié de ton capital final.",
+  "compoundEffetLevier": "L'effet de levier",
+  "compoundEffetLevierBody": "Une fois lancé, ton capital génère ses propres intérêts, qui en génèrent d'autres à leur tour.",
+  "compoundDiscipline": "Discipline",
+  "compoundDisciplineBody": "La régularité des versements mensuels est souvent plus efficace que la recherche du moment idéal pour investir.",
+  "compoundDisclaimer": "Calcul théorique basé sur un rendement constant. Les performances passées ne garantissent pas les résultats futurs.",
+
+  "leasingTitle": "Analyse Anti-Leasing",
+  "leasingMentorTitle": "Réflexion du Mentor",
+  "leasingMentorBody": "Le leasing est souvent une \"fuite\" de capital. Cet argent pourrait servir à construire ton patrimoine plutôt qu'à financer la dépréciation d'un véhicule.",
+  "leasingDonneesContrat": "Données du Contrat",
+  "leasingMensualitePrevue": "Mensualité prévue",
+  "leasingDuree": "Durée du leasing",
+  "leasingRendementAlternatif": "Rendement alternatif espéré",
+  "leasingCoutOpportunite20": "Coût d'opportunité sur 20 ans",
+  "leasingInvestirAuLieu": "Si tu investissais cette mensualité au lieu de payer un leasing, voilà le capital que tu aurais construit.",
+  "leasingFondsPropres": "C'est environ {amount} de fonds propres pour un achat immobilier.",
+  "@leasingFondsPropres": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "leasingAlternativesTitle": "S'écarter du Trou Noir",
+  "leasingOccasion": "Occasion de Qualité",
+  "leasingOccasionBody": "Acheter cash une voiture de 3-4 ans réduit drastiquement la perte de valeur.",
+  "leasingAboGeneral": "Abo Général / Transports",
+  "leasingAboGeneralBody": "Le confort du train en Suisse est souvent plus rentable et serein.",
+  "leasingMobility": "Mobility / Partage",
+  "leasingMobilityBody": "Ne paie que quand tu roules. Pas d'assurance, pas d'entretien, pas de leasing.",
+  "leasingDisclaimer": "Le leasing reste une option pour certains professionnels. Cette analyse vise à sensibiliser le particulier sur le coût à long terme.",
+
+  "creditTitle": "Crédit à la Consommation",
+  "creditMentorTitle": "Points d'attention du Mentor",
+  "creditMentorBody": "En Suisse, un crédit coûte entre 4% et 10%. Cet argent \"perdu\" en intérêts pourrait être investi pour ton avenir.",
+  "creditParametres": "Paramètres",
+  "creditMontantEmprunter": "Montant à emprunter",
+  "creditDureeRemboursement": "Durée du remboursement",
+  "creditTauxAnnuel": "Taux annuel effectif",
+  "creditTaMensualite": "Ta Mensualité",
+  "creditCoutInterets": "Coût des intérêts\u00a0:",
+  "creditRateWarning": "Attention\u00a0: Ce taux dépasse le max légal suisse de 10%.",
+  "creditConseilsTitle": "Conseils du Mentor",
+  "creditEpargnerDabord": "Épargner d'abord",
+  "creditEpargnerDabordBody": "En économisant pendant 12 mois au lieu d'emprunter, tu gardes {amount} dans ta poche.",
+  "@creditEpargnerDabordBody": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "creditCercleConfiance": "Cercle de confiance",
+  "creditCercleConfianceBody": "Un prêt familial peut souvent être obtenu à 0% d'intérêt.",
+  "creditDettesConseils": "Dettes Conseils Suisse",
+  "creditDettesConseilsBody": "Contacte-les AVANT de signer si ta situation est fragile.",
+  "creditDisclaimer": "Information à but préventif. Ne constitue pas un conseil juridique ou financier. Loi suisse sur le crédit à la consommation (LCC) appliquée.",
+
+  "arbitrageBilanTitle": "Bilan d'arbitrage",
+  "arbitrageBilanEmptyProfile": "Complète ton profil pour voir tes pistes d'arbitrage",
+  "arbitrageBilanLeviers": "Tes leviers d'action",
+  "arbitrageBilanPotentiel": "{amount}/mois de potentiel identifié",
+  "@arbitrageBilanPotentiel": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "arbitrageBilanCaveat": "Ces pistes ne s'additionnent pas forcément — certaines sont liées entre elles.",
+  "arbitrageBilanDebloquer": "Débloque d'autres pistes",
+  "arbitrageBilanLiens": "Liens entre ces pistes",
+  "arbitrageBilanScenario": "Dans ce scénario simulé — à explorer en détail",
+  "arbitrageBilanDisclaimer": "Outil éducatif — ne constitue pas un conseil financier (LSFin). Sources\u00a0: LPP art. 14, 79b / LIFD art. 22, 33, 38 / OPP3 art. 7.",
+  "arbitrageBilanCrossDep1": "Si tu retires ton LPP en capital, le calendrier de retraits change fondamentalement.",
+  "arbitrageBilanCrossDep2": "Un rachat LPP augmente aussi le capital disponible pour le choix rente vs capital.",
+
+  "annualRefreshTitle": "Check-up annuel",
+  "annualRefreshSubtitle": "Quelques questions rapides pour mettre ton profil à jour.",
+  "annualRefreshQ1": "Ton salaire brut mensuel a-t-il changé\u00a0?",
+  "annualRefreshQ2": "Ta situation professionnelle",
+  "annualRefreshQ3": "Ton avoir LPP actuel",
+  "annualRefreshQ3Help": "Regarde ton certificat de prévoyance (tu le reçois chaque janvier)",
+  "annualRefreshQ4": "Ton solde 3a approximatif",
+  "annualRefreshQ4Help": "Connecte-toi sur ton app 3a pour voir le solde exact",
+  "annualRefreshQ5": "Un projet immobilier en vue\u00a0?",
+  "annualRefreshQ6": "Un changement familial cette année\u00a0?",
+  "annualRefreshQ7": "Ta tolérance au risque",
+  "annualRefreshSubmit": "Mettre à jour mon profil",
+  "annualRefreshDisclaimer": "Cet outil est à but éducatif et ne constitue pas un conseil financier au sens de la LSFin. Consulte un·e spécialiste pour des conseils personnalisés.",
+  "annualRefreshResult": "Profil mis à jour\u00a0!",
+  "annualRefreshScoreUp": "Ton score a augmenté de {delta} points\u00a0!",
+  "@annualRefreshScoreUp": {
+    "placeholders": {
+      "delta": { "type": "int" }
+    }
+  },
+  "annualRefreshScoreDown": "Ton score a baissé de {delta} points — vérifions ensemble",
+  "@annualRefreshScoreDown": {
+    "placeholders": {
+      "delta": { "type": "int" }
+    }
+  },
+  "annualRefreshScoreStable": "Ton score est stable — continue comme ça\u00a0!",
+  "annualRefreshRetour": "Retour au dashboard",
+  "annualRefreshAvant": "Avant",
+  "annualRefreshApres": "Après",
+  "annualRefreshMontantPositif": "Le montant doit être positif",
+  "annualRefreshMemeEmploi": "Même emploi",
+  "annualRefreshNouvelEmploi": "Nouvel emploi",
+  "annualRefreshIndependant": "Indépendant·e",
+  "annualRefreshSansEmploi": "Sans emploi",
+  "annualRefreshAucun": "Aucun",
+  "annualRefreshAchat": "Achat",
+  "annualRefreshVente": "Vente",
+  "annualRefreshRefinancement": "Refinancement",
+  "annualRefreshMariage": "Mariage",
+  "annualRefreshNaissance": "Naissance",
+  "annualRefreshDivorce": "Divorce",
+  "annualRefreshDeces": "Décès",
+  "annualRefreshConservateur": "Conservateur",
+  "annualRefreshModere": "Modéré",
+  "annualRefreshAgressif": "Agressif",
+
+  "themeInconnu": "Thème inconnu",
+  "themeInconnuBody": "Ce thème n'existe pas. Retour en arrière.",
+
+  "acceptInvitationVoirMenage": "Voir mon ménage",
+
+  "helpResourceSiteWeb": "Site web",
+
+  "locationProjetImmobilier": "Ton projet immobilier",
+  "locationCapitalDispo": "Capital disponible / fonds propres (CHF)",
+  "locationLoyerMensuel": "Loyer mensuel actuel (CHF)",
+  "locationPrixBien": "Prix du bien immobilier (CHF)",
+  "locationCanton": "Canton",
+  "locationMarie": "Marié·e",
+  "locationComparer": "Comparer les trajectoires",
+  "locationLouerOuAcheter": "Louer ou acheter\u00a0?",
+  "locationTrajectoires": "Trajectoires comparées",
+  "locationToucheGraphique": "Touche le graphique pour voir les valeurs à chaque année.",
+  "locationCapaciteFinma": "Vérification de la capacité financière (FINMA)",
+  "locationChargeTheorique": "Charge théorique annuelle\u00a0: {amount} (taux théorique 5\u00a0% + amortissement 1\u00a0% + entretien 1\u00a0%). Les banques exigent que cette charge ne dépasse pas 1/3 de ton revenu brut annuel.",
+  "@locationChargeTheorique": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "locationRevenuMinimum": "Revenu brut minimum nécessaire\u00a0: {amount}",
+  "@locationRevenuMinimum": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "locationHypotheses": "Hypothèses utilisées",
+  "locationRendementMarche": "Rendement marché",
+  "locationAppreciationImmo": "Appréciation immobilière",
+  "locationTauxHypo": "Taux hypothécaire",
+  "locationHorizon": "Horizon",
+  "locationValeursProfil": "Valeurs pré-remplies depuis ton profil",
+  "locationAvertissement": "Avertissement",
+  "annualRefreshTitle": "Check-up annuel",
+  "annualRefreshSubtitle": "Quelques questions rapides pour mettre ton profil à jour.",
+  "annualRefreshQ1": "Ton salaire brut mensuel a-t-il changé\u00a0?",
+  "annualRefreshQ2": "Ta situation professionnelle",
+  "annualRefreshQ3": "Ton avoir LPP actuel",
+  "annualRefreshQ3Help": "Regarde ton certificat de prévoyance (tu le reçois chaque janvier)",
+  "annualRefreshQ4": "Ton solde 3a approximatif",
+  "annualRefreshQ4Help": "Connecte-toi sur ton app 3a pour voir le solde exact",
+  "annualRefreshQ5": "Un projet immobilier en vue\u00a0?",
+  "annualRefreshQ6": "Un changement familial cette année\u00a0?",
+  "annualRefreshQ7": "Ta tolérance au risque",
+  "annualRefreshSubmit": "Mettre à jour mon profil",
+  "annualRefreshDisclaimer": "Cet outil est à but éducatif et ne constitue pas un conseil financier au sens de la LSFin. Consulte un\u00b7e spécialiste pour des conseils personnalisés.",
+  "annualRefreshResult": "Profil mis à jour\u00a0!",
+  "annualRefreshAvant": "Avant",
+  "annualRefreshApres": "Après",
+  "annualRefreshScoreUp": "Ton score a augmenté de {delta} points\u00a0!",
+  "@annualRefreshScoreUp": {
+    "placeholders": {
+      "delta": { "type": "int" }
+    }
+  },
+  "annualRefreshScoreDown": "Ton score a baissé de {delta} points — vérifions ensemble",
+  "@annualRefreshScoreDown": {
+    "placeholders": {
+      "delta": { "type": "int" }
+    }
+  },
+  "annualRefreshScoreStable": "Ton score est stable — continue comme ça\u00a0!",
+  "annualRefreshRetour": "Retour au dashboard",
+  "annualRefreshMontantPositif": "Le montant doit être positif",
+  "annualRefreshMemeEmploi": "Même emploi",
+  "annualRefreshNouvelEmploi": "Nouvel emploi",
+  "annualRefreshIndependant": "Indépendant\u00b7e",
+  "annualRefreshSansEmploi": "Sans emploi",
+  "annualRefreshAucun": "Aucun",
+  "annualRefreshAchat": "Achat",
+  "annualRefreshVente": "Vente",
+  "annualRefreshRefinancement": "Refinancement",
+  "annualRefreshMariage": "Mariage",
+  "annualRefreshNaissance": "Naissance",
+  "annualRefreshDivorce": "Divorce",
+  "annualRefreshDeces": "Décès",
+  "annualRefreshConservateur": "Conservateur",
+  "annualRefreshModere": "Modéré",
+  "annualRefreshAgressif": "Agressif"
 }

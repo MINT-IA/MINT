@@ -7,6 +7,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
 //  ANNUAL REFRESH SCREEN — T6 / MINT Coach
@@ -104,64 +105,68 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
     return double.tryParse(cleaned) ?? 0;
   }
 
-  String _employmentLabel(String status) {
+  String _employmentLabel(BuildContext context, String status) {
+    final s = S.of(context)!;
     switch (status) {
       case 'salarie':
-        return 'Même emploi';
+        return s.annualRefreshMemeEmploi;
       case 'nouvel_emploi':
-        return 'Nouvel emploi';
+        return s.annualRefreshNouvelEmploi;
       case 'independant':
-        return 'Indépendant\u00b7e';
+        return s.annualRefreshIndependant;
       case 'chomage':
       case 'sans_emploi':
-        return 'Sans emploi';
+        return s.annualRefreshSansEmploi;
       default:
-        return 'Même emploi';
+        return s.annualRefreshMemeEmploi;
     }
   }
 
-  String _realEstateLabel(String project) {
+  String _realEstateLabel(BuildContext context, String project) {
+    final s = S.of(context)!;
     switch (project) {
       case 'aucun':
-        return 'Aucun';
+        return s.annualRefreshAucun;
       case 'achat':
-        return 'Achat';
+        return s.annualRefreshAchat;
       case 'vente':
-        return 'Vente';
+        return s.annualRefreshVente;
       case 'refinancement':
-        return 'Refinancement';
+        return s.annualRefreshRefinancement;
       default:
-        return 'Aucun';
+        return s.annualRefreshAucun;
     }
   }
 
-  String _familyLabel(String change) {
+  String _familyLabel(BuildContext context, String change) {
+    final s = S.of(context)!;
     switch (change) {
       case 'aucun':
-        return 'Aucun';
+        return s.annualRefreshAucun;
       case 'mariage':
-        return 'Mariage';
+        return s.annualRefreshMariage;
       case 'naissance':
-        return 'Naissance';
+        return s.annualRefreshNaissance;
       case 'divorce':
-        return 'Divorce';
+        return s.annualRefreshDivorce;
       case 'deces':
-        return 'Décès';
+        return s.annualRefreshDeces;
       default:
-        return 'Aucun';
+        return s.annualRefreshAucun;
     }
   }
 
-  String _riskLabel(String risk) {
+  String _riskLabel(BuildContext context, String risk) {
+    final s = S.of(context)!;
     switch (risk) {
       case 'conservateur':
-        return 'Conservateur';
+        return s.annualRefreshConservateur;
       case 'modere':
-        return 'Modéré';
+        return s.annualRefreshModere;
       case 'agressif':
-        return 'Agressif';
+        return s.annualRefreshAgressif;
       default:
-        return 'Modéré';
+        return s.annualRefreshModere;
     }
   }
 
@@ -242,7 +247,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 Text(
-                  'Quelques questions rapides pour mettre ton profil à jour.',
+                  S.of(context)!.annualRefreshSubtitle,
                   style: MintTextStyles.bodyMedium(),
                 ),
                 const SizedBox(height: MintSpacing.lg),
@@ -294,7 +299,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
         onPressed: () => context.pop(),
       ),
       title: Text(
-        'Check-up annuel',
+        S.of(context)!.annualRefreshTitle,
         style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
       ),
       surfaceTintColor: MintColors.white,
@@ -308,7 +313,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   Widget _buildSalaireCard() {
     return _questionCard(
       number: 1,
-      title: 'Ton salaire brut mensuel a-t-il changé ?',
+      title: S.of(context)!.annualRefreshQ1,
       child: Column(
         children: [
           Text(
@@ -347,14 +352,14 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
 
     return _questionCard(
       number: 2,
-      title: 'Ta situation professionnelle',
+      title: S.of(context)!.annualRefreshQ2,
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
         children: options.map((opt) {
           final isSelected = _employmentStatus == opt;
           return ChoiceChip(
-            label: Text(_employmentLabel(opt)),
+            label: Text(_employmentLabel(context, opt)),
             selected: isSelected,
             onSelected: (_) => setState(() => _employmentStatus = opt),
             selectedColor: MintColors.coachAccent.withAlpha(30),
@@ -385,9 +390,8 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   Widget _buildLppCard() {
     return _questionCard(
       number: 3,
-      title: 'Ton avoir LPP actuel',
-      helpText:
-          'Regarde ton certificat de prévoyance (tu le reçois chaque janvier)',
+      title: S.of(context)!.annualRefreshQ3,
+      helpText: S.of(context)!.annualRefreshQ3Help,
       child: TextFormField(
         controller: _lppController,
         keyboardType: TextInputType.number,
@@ -411,7 +415,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
         style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
         validator: (v) {
           final val = _parseChf(v ?? '');
-          if (val < 0) return 'Le montant doit être positif';
+          if (val < 0) return S.of(context)!.annualRefreshMontantPositif;
           return null;
         },
       ),
@@ -425,8 +429,8 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   Widget _buildThreeACard() {
     return _questionCard(
       number: 4,
-      title: 'Ton solde 3a approximatif',
-      helpText: 'Connecte-toi sur ton app 3a pour voir le solde exact',
+      title: S.of(context)!.annualRefreshQ4,
+      helpText: S.of(context)!.annualRefreshQ4Help,
       child: TextFormField(
         controller: _threeAController,
         keyboardType: TextInputType.number,
@@ -450,7 +454,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
         style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
         validator: (v) {
           final val = _parseChf(v ?? '');
-          if (val < 0) return 'Le montant doit être positif';
+          if (val < 0) return S.of(context)!.annualRefreshMontantPositif;
           return null;
         },
       ),
@@ -466,14 +470,14 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
 
     return _questionCard(
       number: 5,
-      title: 'Un projet immobilier en vue ?',
+      title: S.of(context)!.annualRefreshQ5,
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
         children: options.map((opt) {
           final isSelected = _realEstateProject == opt;
           return ChoiceChip(
-            label: Text(_realEstateLabel(opt)),
+            label: Text(_realEstateLabel(context, opt)),
             selected: isSelected,
             onSelected: (_) => setState(() => _realEstateProject = opt),
             selectedColor: MintColors.coachAccent.withAlpha(30),
@@ -506,14 +510,14 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
 
     return _questionCard(
       number: 6,
-      title: 'Un changement familial cette année ?',
+      title: S.of(context)!.annualRefreshQ6,
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
         children: options.map((opt) {
           final isSelected = _familyChange == opt;
           return ChoiceChip(
-            label: Text(_familyLabel(opt)),
+            label: Text(_familyLabel(context, opt)),
             selected: isSelected,
             onSelected: (_) => setState(() => _familyChange = opt),
             selectedColor: MintColors.coachAccent.withAlpha(30),
@@ -546,13 +550,13 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
 
     return _questionCard(
       number: 7,
-      title: 'Ta tolérance au risque',
+      title: S.of(context)!.annualRefreshQ7,
       child: Row(
         children: options.map((opt) {
           final isSelected = _riskTolerance == opt;
           return Expanded(
             child: Semantics(
-              label: _riskLabel(opt),
+              label: _riskLabel(context, opt),
               button: true,
               child: GestureDetector(
               onTap: () => setState(() => _riskTolerance = opt),
@@ -585,7 +589,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      _riskLabel(opt),
+                      _riskLabel(context, opt),
                       textAlign: TextAlign.center,
                       style: MintTextStyles.labelSmall(
                         color: isSelected
@@ -632,7 +636,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                 ),
               )
             : Text(
-                'Mettre à jour mon profil',
+                S.of(context)!.annualRefreshSubmit,
                 style: MintTextStyles.titleMedium(color: MintColors.white),
               ),
       ),
@@ -647,9 +651,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Text(
-        'Cet outil est à but éducatif et ne constitue pas un conseil financier '
-        'au sens de la LSFin. Consulte un\u00b7e spécialiste pour des conseils '
-        'personnalisés.',
+        S.of(context)!.annualRefreshDisclaimer,
         textAlign: TextAlign.center,
         style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(height: 1.5),
       ),
@@ -706,7 +708,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                 const SizedBox(height: 24),
                 // Title
                 Text(
-                  'Profil mis à jour !',
+                  S.of(context)!.annualRefreshResult,
                   textAlign: TextAlign.center,
                   style: MintTextStyles.headlineMedium(),
                 ),
@@ -732,7 +734,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           _scoreColumn(
-                            'Avant',
+                            S.of(context)!.annualRefreshAvant,
                             _oldScore ?? 0,
                             MintColors.textMuted,
                           ),
@@ -742,7 +744,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                             size: 24,
                           ),
                           _scoreColumn(
-                            'Après',
+                            S.of(context)!.annualRefreshApres,
                             _newScore ?? 0,
                             MintColors.coachAccent,
                           ),
@@ -752,19 +754,19 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                       // Delta text
                       if (improved)
                         Text(
-                          'Ton score a augmenté de $delta points !',
+                          S.of(context)!.annualRefreshScoreUp(delta),
                           textAlign: TextAlign.center,
                           style: MintTextStyles.bodyLarge(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
                         )
                       else if (dropped)
                         Text(
-                          'Ton score a baissé de ${delta.abs()} points — vérifions ensemble',
+                          S.of(context)!.annualRefreshScoreDown(delta.abs()),
                           textAlign: TextAlign.center,
                           style: MintTextStyles.bodyLarge(color: MintColors.warning).copyWith(fontWeight: FontWeight.w600),
                         )
                       else
                         Text(
-                          'Ton score est stable — continue comme ça !',
+                          S.of(context)!.annualRefreshScoreStable,
                           textAlign: TextAlign.center,
                           style: MintTextStyles.bodyLarge(color: MintColors.coachAccent).copyWith(fontWeight: FontWeight.w600),
                         ),
@@ -787,7 +789,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                       elevation: 0,
                     ),
                     child: Text(
-                      'Retour au dashboard',
+                      S.of(context)!.annualRefreshRetour,
                       style: MintTextStyles.titleMedium(color: MintColors.white),
                     ),
                   ),
