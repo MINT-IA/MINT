@@ -7798,5 +7798,15 @@
   "reportSoaLim1": "Basiert ausschlie\u00dflich auf deklarierten Informationen",
   "reportSoaLim2": "Steuersch\u00e4tzung approximativ (kantonale Durchschnittss\u00e4tze)",
   "reportSoaLim3": "Ber\u00fccksichtigt keine Einnahmen aus beweglichem Verm\u00f6gen",
-  "reportSoaLim4": "Projektionen ber\u00fccksichtigen keine Inflation"
+  "reportSoaLim4": "Projektionen ber\u00fccksichtigen keine Inflation",
+
+  "checkinEvolution": "Deine Entwicklung",
+  "portfolioReadinessTitle": "Readiness Index (Meilensteine)",
+  "portfolioPerennite": "Nachhaltigkeit Rente",
+  "portfolioProjetImmo": "Immobilienprojekt",
+  "portfolioProtectionFamille": "Familienschutz",
+  "portfolioAllocationSaine": "Deine Allokation ist gesund. Denke daran, dein 3a bald auszugleichen.",
+  "portfolioAlerteDettes": "Schuldenalarm: Deine Priorität ist die Schuldenrückzahlung vor jeder Reinvestition.",
+  "dividendeSplitMin": "0% Gehalt",
+  "dividendeSplitMax": "100% Gehalt"
 }

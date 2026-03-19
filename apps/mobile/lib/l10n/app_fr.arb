@@ -8118,5 +8118,15 @@
   "reportSoaLim1": "Basé sur les informations déclaratives uniquement",
   "reportSoaLim2": "Estimation fiscale approximative (taux moyens cantonaux)",
   "reportSoaLim3": "Ne prend pas en compte les revenus de fortune mobilière",
-  "reportSoaLim4": "Les projections ne tiennent pas compte de l'inflation"
+  "reportSoaLim4": "Les projections ne tiennent pas compte de l'inflation",
+
+  "checkinEvolution": "Ton évolution",
+  "portfolioReadinessTitle": "Readiness Index (Milestones)",
+  "portfolioPerennite": "Pérennité Retraite",
+  "portfolioProjetImmo": "Projet Immobilier",
+  "portfolioProtectionFamille": "Protection Famille",
+  "portfolioAllocationSaine": "Ton allocation est saine. Pense à rééquilibrer ton 3a prochainement.",
+  "portfolioAlerteDettes": "Alerte Dettes : Ta priorité absolue est le désendettement avant tout réinvestissement.",
+  "dividendeSplitMin": "0% salaire",
+  "dividendeSplitMax": "100% salaire"
 }

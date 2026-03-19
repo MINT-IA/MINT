@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -33,12 +34,12 @@ class PortfolioScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (hasDebt) ...[
-              _buildSafeModeWarning(),
+              _buildSafeModeWarning(context),
               const SizedBox(height: 24),
             ],
             _buildWealthSummary(),
             const SizedBox(height: 32),
-            _buildReadinessIndex(profile),
+            _buildReadinessIndex(context, profile),
             const SizedBox(height: 32),
             _buildSectionHeader('Répartition par Enveloppe'),
             const SizedBox(height: 12),
@@ -52,7 +53,7 @@ class PortfolioScreen extends StatelessWidget {
               lockedMessage:
                   'Les conseils d\'allocation sont desactives en mode protection. '
                   'Ta priorite est de reduire tes dettes avant de reequilibrer ton patrimoine.',
-              child: _buildCoachAdvice(),
+              child: _buildCoachAdvice(context),
             ),
             const SizedBox(height: 100),
           ],
@@ -61,7 +62,7 @@ class PortfolioScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSafeModeWarning() {
+  Widget _buildSafeModeWarning(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -75,7 +76,7 @@ class PortfolioScreen extends StatelessWidget {
           const SizedBox(width: 16),
           Expanded(
             child: Text(
-              'Alerte Dettes : Ta priorité absolue est le désendettement avant tout réinvestissement.',
+              S.of(context)!.portfolioAlerteDettes,
               style: MintTextStyles.bodySmall(color: MintColors.error).copyWith(fontWeight: FontWeight.bold),
             ),
           ),
@@ -84,7 +85,7 @@ class PortfolioScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildReadinessIndex(Profile? profile) {
+  Widget _buildReadinessIndex(BuildContext context, Profile? profile) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -95,13 +96,13 @@ class PortfolioScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Readiness Index (Milestones)', style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.bold)),
+          Text(S.of(context)!.portfolioReadinessTitle, style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          _readinessRow('Pérennité Retraite', 0.65),
+          _readinessRow(S.of(context)!.portfolioPerennite, 0.65),
           const SizedBox(height: 12),
-          _readinessRow('Projet Immobilier', 0.40),
+          _readinessRow(S.of(context)!.portfolioProjetImmo, 0.40),
           const SizedBox(height: 12),
-          _readinessRow('Protection Famille', 0.85),
+          _readinessRow(S.of(context)!.portfolioProtectionFamille, 0.85),
         ],
       ),
     );
@@ -207,7 +208,7 @@ class PortfolioScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCoachAdvice() {
+  Widget _buildCoachAdvice(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -221,7 +222,7 @@ class PortfolioScreen extends StatelessWidget {
           const SizedBox(width: 16),
           Expanded(
             child: Text(
-              'Ton allocation est saine. Pense à rééquilibrer ton 3a prochainement.',
+              S.of(context)!.portfolioAllocationSaine,
               style: MintTextStyles.bodyMedium(),
             ),
           ),

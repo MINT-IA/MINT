@@ -1409,7 +1409,7 @@ Reponds uniquement avec le texte final.
               Icon(trendIcon, size: 18, color: trendColor),
               const SizedBox(width: 8),
               Text(
-                'Ton evolution',
+                S.of(context)!.checkinEvolution,
                 style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               const Spacer(),

@@ -338,7 +338,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               child: OutlinedButton.icon(
                 onPressed: () => _revokeConsent(index),
                 icon: const Icon(Icons.cancel_outlined, size: 16),
-                label: const Text('Revoquer'),
+                label: Text(S.of(context)!.openBankingConsentRevoke),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: MintColors.error,
                   side: BorderSide(color: MintColors.error.withValues(alpha: 0.5)),
@@ -440,7 +440,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
       child: OutlinedButton.icon(
         onPressed: _startNewConsentFlow,
         icon: const Icon(Icons.add, size: 18),
-        label: const Text('Ajouter un consentement'),
+        label: Text(S.of(context)!.openBankingAddConsent),
         style: OutlinedButton.styleFrom(
           foregroundColor: MintColors.textPrimary,
           side: const BorderSide(color: MintColors.border),
@@ -741,7 +741,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: const Text('Retour'),
+                  child: Text(S.of(context)!.openBankingBack),
                 ),
               ),
               const SizedBox(width: 12),
@@ -758,7 +758,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: const Text('Suivant'),
+                  child: Text(S.of(context)!.openBankingNext),
                 ),
               ),
             ],
@@ -863,7 +863,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: const Text('Retour'),
+                  child: Text(S.of(context)!.openBankingBack),
                 ),
               ),
               const SizedBox(width: 12),
@@ -898,7 +898,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: const Text('Confirmer'),
+                  child: Text(S.of(context)!.openBankingConfirm),
                 ),
               ),
             ],

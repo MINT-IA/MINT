@@ -458,8 +458,8 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('0% salaire', style: MintTextStyles.micro(color: MintColors.textMuted)),
-              Text('100% salaire', style: MintTextStyles.micro(color: MintColors.textMuted)),
+              Text(S.of(context)!.dividendeSplitMin, style: MintTextStyles.micro(color: MintColors.textMuted)),
+              Text(S.of(context)!.dividendeSplitMax, style: MintTextStyles.micro(color: MintColors.textMuted)),
             ],
           ),
           const SizedBox(height: 12),

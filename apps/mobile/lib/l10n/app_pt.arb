@@ -7456,5 +7456,15 @@
   "reportSoaLim1": "Baseado apenas em informações declarativas",
   "reportSoaLim2": "Estimativa fiscal aproximada (taxas médias cantonais)",
   "reportSoaLim3": "Não tem em conta os rendimentos de património mobiliário",
-  "reportSoaLim4": "As projeções não têm em conta a inflação"
+  "reportSoaLim4": "As projeções não têm em conta a inflação",
+
+  "checkinEvolution": "A tua evolução",
+  "portfolioReadinessTitle": "Índice de Preparação (Marcos)",
+  "portfolioPerennite": "Sustentabilidade Reforma",
+  "portfolioProjetImmo": "Projeto Imobiliário",
+  "portfolioProtectionFamille": "Proteção Familiar",
+  "portfolioAllocationSaine": "A tua alocação é saudável. Pensa em reequilibrar o teu 3a em breve.",
+  "portfolioAlerteDettes": "Alerta Dívidas: A tua prioridade é o pagamento de dívidas antes de qualquer reinvestimento.",
+  "dividendeSplitMin": "0% salário",
+  "dividendeSplitMax": "100% salário"
 }

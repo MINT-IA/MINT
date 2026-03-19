@@ -7828,5 +7828,15 @@
   "reportSoaLim1": "Based on declared information only",
   "reportSoaLim2": "Approximate tax estimate (average cantonal rates)",
   "reportSoaLim3": "Does not account for movable asset income",
-  "reportSoaLim4": "Projections do not account for inflation"
+  "reportSoaLim4": "Projections do not account for inflation",
+
+  "checkinEvolution": "Your evolution",
+  "portfolioReadinessTitle": "Readiness Index (Milestones)",
+  "portfolioPerennite": "Retirement Sustainability",
+  "portfolioProjetImmo": "Real Estate Project",
+  "portfolioProtectionFamille": "Family Protection",
+  "portfolioAllocationSaine": "Your allocation is healthy. Consider rebalancing your 3a soon.",
+  "portfolioAlerteDettes": "Debt Alert: Your top priority is debt repayment before any reinvestment.",
+  "dividendeSplitMin": "0% salary",
+  "dividendeSplitMax": "100% salary"
 }

@@ -7583,5 +7583,15 @@
   "reportSoaLim1": "Basado \u00fanicamente en informaci\u00f3n declarativa",
   "reportSoaLim2": "Estimaci\u00f3n fiscal aproximada (tasas medias cantonales)",
   "reportSoaLim3": "No tiene en cuenta los ingresos de patrimonio mobiliario",
-  "reportSoaLim4": "Las proyecciones no tienen en cuenta la inflaci\u00f3n"
+  "reportSoaLim4": "Las proyecciones no tienen en cuenta la inflaci\u00f3n",
+
+  "checkinEvolution": "Tu evolución",
+  "portfolioReadinessTitle": "Índice de Preparación (Hitos)",
+  "portfolioPerennite": "Sostenibilidad Jubilación",
+  "portfolioProjetImmo": "Proyecto Inmobiliario",
+  "portfolioProtectionFamille": "Protección Familiar",
+  "portfolioAllocationSaine": "Tu asignación es saludable. Piensa en reequilibrar tu 3a pronto.",
+  "portfolioAlerteDettes": "Alerta Deudas: Tu prioridad es el pago de deudas antes de cualquier reinversión.",
+  "dividendeSplitMin": "0% salario",
+  "dividendeSplitMax": "100% salario"
 }
