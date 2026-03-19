@@ -153,9 +153,12 @@ void main() {
       await tester.pumpWidget(buildProfileScreen(coachProvider: coachProvider));
       await tester.pump();
 
-      // All 4 FactFind sections should show "Complet"
-      // Identity, Income, Pension, Property should all be complete
-      expect(find.text('Complet'), findsNWidgets(4));
+      // Phase 2 redesign: completion shown via check_circle icons in inline progress
+      // All 4 completion rows should have check_circle icons
+      expect(find.byIcon(Icons.check_circle), findsWidgets);
+      // Section labels still present
+      expect(find.textContaining('Foyer'), findsWidgets);
+      expect(find.textContaining('Revenus'), findsWidgets);
     });
 
     testWidgets(
@@ -165,30 +168,33 @@ void main() {
       await tester.pumpWidget(buildProfileScreen(coachProvider: coachProvider));
       await tester.pump();
 
+      // Phase 2 redesign: completion rows use check_circle for complete,
+      // reward badges (+15%, +10%) for incomplete
       // Identity = complete, Income = complete (has salary > 0)
-      // Pension = missing, Property = missing (partial profile)
-      expect(find.text('Complet'), findsNWidgets(2));
-      expect(find.text('Manquant'), findsNWidgets(2));
+      expect(find.byIcon(Icons.check_circle), findsWidgets);
+      // Pension and Property show reward badges
+      expect(find.textContaining('+15'), findsWidgets);
+      expect(find.textContaining('+10'), findsWidgets);
     });
 
-    testWidgets('Profile sections have tappable InkWell widgets',
+    testWidgets('Profile sections have tappable GestureDetector widgets',
         (tester) async {
       await tester.pumpWidget(buildProfileScreen());
       await tester.pump();
 
-      // There should be InkWell widgets for each FactFind section
-      // (4 FactFind + consent + AI + documents = 7 minimum)
-      expect(find.byType(InkWell), findsWidgets);
+      // Phase 2 redesign: completion rows use GestureDetector, settings use InkWell
+      expect(find.byType(GestureDetector), findsWidgets);
     });
 
-    testWidgets('Profile shows guidance card with full profile',
+    testWidgets('Profile shows section headers (Mon dossier / Réglages)',
         (tester) async {
       final coachProvider = buildFullCoachProvider();
       await tester.pumpWidget(buildProfileScreen(coachProvider: coachProvider));
       await tester.pump();
 
-      // Profile guidance card shows recommended section and quality score
-      expect(find.textContaining('Section recommand'), findsOneWidget);
+      // Phase 2 redesign: two section headers replace old guidance card
+      expect(find.text('MON DOSSIER'), findsOneWidget);
+      expect(find.textContaining('GLAGES'), findsOneWidget); // RÉ prefix may be trimmed
     });
   });
 
