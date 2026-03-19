@@ -125,9 +125,12 @@ class NarrativeHeader extends StatelessWidget {
               if (boostAction != null &&
                   confidenceBoostAvailable != null) ...[
                 const Spacer(),
-                GestureDetector(
-                  onTap: onBoostTap,
-                  child: Text(
+                Semantics(
+                  label: 'Améliorer la confiance',
+                  button: true,
+                  child: GestureDetector(
+                    onTap: onBoostTap,
+                    child: Text(
                     '\u{1F4C4} $boostAction (+$confidenceBoostAvailable%)',
                     style: GoogleFonts.inter(
                       fontSize: 12,
@@ -135,6 +138,7 @@ class NarrativeHeader extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
+                ),
                 ),
               ],
             ],

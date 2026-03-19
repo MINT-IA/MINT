@@ -26,7 +26,10 @@ class MintGlassCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(24),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: InkWell(
+        child: Semantics(
+          label: 'interactive element',
+          button: true,
+          child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(24),
           child: Container(
@@ -50,7 +53,7 @@ class MintGlassCard extends StatelessWidget {
             ),
             child: child,
           ),
-        ),
+        ),),
       ),
     );
   }
@@ -195,7 +198,10 @@ class MintPremiumButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Semantics(
+      label: 'interactive element',
+      button: true,
+      child: GestureDetector(
       onTap: isLoading ? null : onTap,
       child: Container(
         height: 72, // Fixed height for consistency with the design
@@ -241,7 +247,7 @@ class MintPremiumButton extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       MintColors.white.withValues(alpha: 0.03),
-                      Colors.transparent,
+                      MintColors.transparent,
                     ],
                     stops: const [0.0, 0.5],
                   ),
@@ -323,6 +329,6 @@ class MintPremiumButton extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),);
   }
 }

@@ -762,7 +762,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         child: Column(
           children: [
             // Header row (checkbox + title + expand)
-            GestureDetector(
+            Semantics(
+              label: 'Développer : $title',
+              button: true,
+              child: GestureDetector(
               onTap: () {
                 setState(() {
                   _expandedItems[index] = !isExpanded;
@@ -774,7 +777,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Checkbox
-                    GestureDetector(
+                    Semantics(
+                      label: 'Cocher : $title',
+                      button: true,
+                      child: GestureDetector(
                       onTap: () {
                         setState(() {
                           if (isChecked) {
@@ -791,7 +797,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                         decoration: BoxDecoration(
                           color: isChecked
                               ? MintColors.success
-                              : Colors.transparent,
+                              : MintColors.transparent,
                           borderRadius: BorderRadius.circular(7),
                           border: Border.all(
                             color: isChecked
@@ -805,6 +811,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                                 size: 15, color: MintColors.white)
                             : null,
                       ),
+                    ),
                     ),
                     const SizedBox(width: 12),
 
@@ -835,6 +842,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                   ],
                 ),
               ),
+            ),
             ),
 
             // Expandable description

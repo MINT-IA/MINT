@@ -261,11 +261,20 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Sur 20 ans de retraite, c\'est ${formatChfWithPrefix(_lifetimeLoss)} de moins — définitivement.',
+            'Sur 20 ans de retraite, c\'est ${formatChfWithPrefix(_lifetimeLoss)} de moins\u00a0— d\u00e9finitivement.', // TODO: i18n
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
               height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Calcul\u00a0: rente mensuelle \u00d7 13 mois/an (13\u1d49 rente AVS d\u00e8s d\u00e9c.\u00a02026)', // TODO: i18n
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              color: MintColors.textMuted,
+              fontStyle: FontStyle.italic,
             ),
           ),
           const SizedBox(height: 8),

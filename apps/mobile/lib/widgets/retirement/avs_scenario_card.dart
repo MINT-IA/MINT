@@ -34,9 +34,12 @@ class AvsScenarioCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final config = _scenarioConfig;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
+    return Semantics(
+      label: 'Scénario AVS',
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
@@ -168,6 +171,7 @@ class AvsScenarioCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 

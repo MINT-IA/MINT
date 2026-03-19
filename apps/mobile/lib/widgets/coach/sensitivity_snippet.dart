@@ -76,9 +76,12 @@ class SensitivitySnippet extends StatelessWidget {
           // ── View all link ──────────────────────────
           if (onViewAll != null) ...[
             const SizedBox(height: 12),
-            GestureDetector(
-              onTap: onViewAll,
-              child: Row(
+            Semantics(
+              label: 'Voir l\'analyse complète',
+              button: true,
+              child: GestureDetector(
+                onTap: onViewAll,
+                child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
@@ -97,6 +100,7 @@ class SensitivitySnippet extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
             ),
           ],
 

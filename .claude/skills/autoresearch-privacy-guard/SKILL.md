@@ -1,136 +1,131 @@
 ---
 name: autoresearch-privacy-guard
-description: "Audit-only scan for PII leaks in logs, analytics, LLM prompts, and CoachContext. Reports violations without modifying code. Use with /autoresearch-privacy-guard."
+description: "PII leak scanner + autonomous fixer. Scans logs, analytics, LLM prompts, CoachContext for PII. Detect → anonymize → verify → commit. Use with /autoresearch-privacy-guard."
 compatibility: Requires Flutter SDK and Python 3.10+
-allowed-tools: Bash(grep:*) Bash(find:*) Read Glob Grep
 metadata:
   author: mint-team
-  version: "1.0"
+  version: "3.0"
 ---
 
-# Autoresearch Privacy Guard — PII leak scanner (audit-only)
+# Autoresearch Privacy Guard v3 — Karpathy PII Hunter
 
-## Purpose
+> "If it can identify a user, it must not reach logs, analytics, or LLM."
 
-Scan the entire MINT codebase for potential PII (Personally Identifiable Information) leaks. This skill is **read-only** — it produces a report but never modifies code.
+## Constraints (NON-NEGOTIABLE)
 
-## Legal context
+- **Single metric**: PII violations count (target: 0).
+- **Time budget**: 3 min per fix. If fix breaks tests → revert immediately.
+- **Single target**: ONE file per fix cycle.
+- **Legal**: nLPD (Swiss Data Protection Act), CLAUDE.md § 6.
+- **NEVER delete functionality** — only redact/anonymize the PII portion.
+- **NEVER fix PII in test files** — fake test data is acceptable.
 
-- **nLPD** (Swiss Federal Act on Data Protection, in force since 1 Sept 2023)
-- **CLAUDE.md rule**: "Never log identifiable data (IBANs, names, SSN, employer)"
-- **CoachContext**: NEVER contains exact salary, savings, debts, NPA, or employer
+## PII Detection Patterns
 
-## What constitutes PII in MINT
+| Category | Grep pattern | Anonymize to |
+|----------|-------------|--------------|
+| IBAN | `CH\d{2}\s?\d{4}` | `[IBAN_REDACTED]` |
+| AVS/AHV number | `756\.\d{4}\.\d{4}\.\d{2}` | `[AVS_REDACTED]` |
+| Exact salary in log | `salary\|salaire` in `print\|log\|debug` | Range bracket "100-120K" |
+| NPA in prompt | `\d{4}\s[A-Z]` in coach context | Canton code only ("VS") |
+| Employer | `employer\|employeur` in log/prompt | `[EMPLOYER]` |
+| Email | `@.*\.` in log context | `[EMAIL_REDACTED]` |
+| Phone | `+41\|0[0-9]{9}` | `[PHONE_REDACTED]` |
 
-| Category | Examples | Detection pattern |
-|----------|----------|-------------------|
-| Financial IDs | IBAN, account numbers | `CH\d{2}\s?\d{4}`, `\d{4}\s\d{4}\s\d{4}` |
-| Social security | AHV/AVS number | `756\.\d{4}\.\d{4}\.\d{2}` |
-| Personal | Name, email, phone | `@.*\.`, `+41`, `firstName`, `lastName` in log context |
-| Location | NPA, exact address | `\d{4}\s[A-Z]` (Swiss postal code pattern) |
-| Financial amounts | Exact salary, debts | Raw amounts in `print()`, `log()`, `debugPrint()` |
-| Employer | Company name | `employer`, `employeur` in log/prompt context |
-
-## Scan phases
-
-### Phase 1: Dart code — print/log statements
-
-```bash
-# Find all print/log statements
-grep -rn "print(\|debugPrint(\|log(\|logger\." apps/mobile/lib/ --include="*.dart" | grep -v "// \|/// \|_test\|test/"
-```
-
-For each match, check if the logged content could contain:
-- Profile fields (salary, savings, debts, NPA, employer)
-- User input (form values, text fields)
-- API responses with user data
-
-### Phase 2: CoachContext construction
+## Scan Phases (in order)
 
 ```bash
-# Find CoachContext building
-grep -rn "CoachContext\|coachContext\|_buildCoachContext\|profileContext" apps/mobile/lib/ --include="*.dart" | grep -v test
+# Phase 1: Dart print/log statements
+grep -rn "print(\|debugPrint(\|log(\|logger\." apps/mobile/lib/ --include="*.dart" \
+  | grep -v "// \|/// \|_test\|test/"
+
+# Phase 2: CoachContext construction (CRITICAL — sent to LLM)
+grep -rn "CoachContext\|coachContext\|_buildCoachContext" apps/mobile/lib/ --include="*.dart" \
+  | grep -v test
+
+# Phase 3: Analytics events
+grep -rn "analytics\.\|trackEvent\|logEvent" apps/mobile/lib/ --include="*.dart" | grep -v test
+
+# Phase 4: Backend logging
+grep -rn "logger\.\|logging\.\|print(" services/backend/ --include="*.py" \
+  | grep -v test | grep -v "__pycache__"
+
+# Phase 5: LLM prompts
+grep -rn "systemPrompt\|system_prompt\|buildPrompt" apps/mobile/lib/ --include="*.dart" \
+  | grep -v test
+
+# Phase 6: SharedPreferences
+grep -rn "SharedPreferences\|setString\|setDouble" apps/mobile/lib/ --include="*.dart" \
+  | grep -v test
 ```
 
-Verify that CoachContext never contains:
-- Exact salary amounts (should use ranges like "80-120k")
-- Exact savings/debt amounts
-- NPA or commune name
-- Employer name
-- IBAN or account numbers
+## The Loop
 
-### Phase 3: Analytics events
+```
+┌─ SCAN: Run all 6 phase commands. Collect hits.
+│
+├─ CLASSIFY each hit: CRITICAL (reaches external: logs, LLM, analytics) | WARNING (local only)
+│
+├─ FIX (one file at a time, ≤3 min):
+│  1. Read file containing PII
+│  2. Identify PII type
+│  3. Replace with anonymized equivalent (see table above)
+│  4. Verify: grep for original pattern → must return 0 hits
+│  5. flutter test → pass → commit. Fail → revert.
+│
+├─ LOG: Append to experiment log
+│
+├─ COMMIT: git add ... && git commit -m "fix(privacy): redact PII in <file>"
+│
+└─ REPEAT: Fix all CRITICAL findings. Report WARNING findings.
+```
+
+## CoachContext Checklist (CRITICAL)
+
+CoachContext sent to LLM must NEVER contain:
+- [ ] Exact salary (use bracket: "80-100K")
+- [ ] Exact savings/debt amounts (use bracket)
+- [ ] NPA/commune (use canton code: "VS", "GE")
+- [ ] Employer name (omit or "[EMPLOYER]")
+- [ ] IBAN or account numbers
 
 ```bash
-# Find analytics tracking
-grep -rn "analytics\.\|trackEvent\|logEvent\|FirebaseAnalytics" apps/mobile/lib/ --include="*.dart" | grep -v test
+grep -A 20 "CoachContext\|buildCoachContext" apps/mobile/lib/ -r --include="*.dart" \
+  | grep -i "salaire\|salary\|savings\|dette\|debt\|npa\|postal\|employer\|employeur\|iban"
 ```
 
-Verify no PII in event properties.
-
-### Phase 4: Backend logging
-
-```bash
-# Find Python logging
-grep -rn "logger\.\|logging\.\|print(" services/backend/ --include="*.py" | grep -v test | grep -v "__pycache__"
-```
-
-### Phase 5: LLM prompts
-
-```bash
-# Find system prompts sent to LLM
-grep -rn "systemPrompt\|system_prompt\|buildPrompt\|_buildSystem" apps/mobile/lib/ --include="*.dart" | grep -v test
-```
-
-Verify prompts don't embed raw financial data.
-
-### Phase 6: SharedPreferences / local storage
-
-```bash
-# Find local storage writes
-grep -rn "SharedPreferences\|setString\|setDouble\|setInt" apps/mobile/lib/ --include="*.dart" | grep -v test
-```
-
-Verify sensitive data is not stored in plain text.
-
-## Report format
+## Experiment Log (append-only)
 
 ```
-PRIVACY GUARD AUDIT REPORT
-============================
-Scan date: YYYY-MM-DD
-Files scanned: N
+finding  phase  file                    pii_type  severity  status   action
+1        1      coach_service.dart:45   salary    CRITICAL  fixed    replaced with bracket
+2        2      coach_context.dart:89   npa       CRITICAL  fixed    replaced with canton
+3        3      analytics.dart:12       email     WARNING   flagged  needs manual review
+```
 
-CRITICAL (PII in logs/prompts):
-  - file.dart:123 — print() contains profile.salaireBrut
-  - file.dart:456 — CoachContext includes exact NPA
-  ...
+## Final Report
 
-WARNING (potential PII exposure):
-  - file.dart:789 — debugPrint with user input variable
-  ...
+```
+AUTORESEARCH PRIVACY GUARD — SESSION REPORT
+Date: YYYY-MM-DD | Files scanned: N
+
+CRITICAL (fixed):
+  - coach_service.dart:45 — print(salary) → print("[SALARY_BRACKET]")
+  - coach_context.dart:89 — NPA in prompt → canton only
+
+WARNING (flagged for review):
+  - analytics.dart:12 — ambiguous variable in event
 
 OK (verified safe):
-  - CoachContext: ✅ uses ranges, no exact values
-  - Analytics: ✅ no PII in event properties
+  - CoachContext: ✅ uses ranges
+  - Analytics: ✅ no PII in events
   - LLM prompts: ✅ no raw financial data
-  ...
 
-RECOMMENDATIONS:
-  - Replace print(profile.salary) with print('salary: [redacted]')
-  - Use CoachContext.anonymized() instead of raw profile
-  ...
+EXPERIMENT LOG:
+finding  phase  file  type  severity  status  action
+1        ...
 ```
-
-## Strict rules
-
-- **NEVER** modify any code — this is an audit-only skill
-- **NEVER** create files (except the report)
-- Report ALL findings, even if they seem minor
-- False positives are OK — better to over-report than miss a leak
-- Focus on what reaches external systems (logs, analytics, LLM, network)
-- Local-only data (SharedPreferences for app state) is lower priority
 
 ## Invocation
 
-`/autoresearch-privacy-guard` — full scan, produces report
+- `/autoresearch-privacy-guard` — full scan + autonomous fix

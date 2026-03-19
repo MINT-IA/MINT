@@ -54,8 +54,11 @@ class DocumentScanCta extends StatelessWidget {
         ],
       ),
       child: Material(
-        color: Colors.transparent,
-        child: InkWell(
+        color: MintColors.transparent,
+        child: Semantics(
+          label: 'Scan',
+          button: true,
+          child: InkWell(
           onTap: () => context.push('/scan'),
           borderRadius: BorderRadius.circular(20),
           child: Padding(
@@ -173,7 +176,7 @@ class DocumentScanCta extends StatelessWidget {
               ],
             ),
           ),
-        ),
+        ),),
       ),
     );
   }

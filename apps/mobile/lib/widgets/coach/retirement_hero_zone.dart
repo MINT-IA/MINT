@@ -402,8 +402,10 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
 
     return Column(
       children: [
-        GestureDetector(
-          // Use onTapDown + onPanUpdate to avoid conflict with parent vertical scroll.
+        Semantics(
+          label: 'Explorer la projection de revenu',
+          child: GestureDetector(
+            // Use onTapDown + onPanUpdate to avoid conflict with parent vertical scroll.
           // Horizontal pan wins because the sparkline is small and intentional.
           behavior: HitTestBehavior.opaque,
           onPanUpdate: (details) {
@@ -437,6 +439,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
               ),
             ),
           ),
+        ),
         ),
         const SizedBox(height: 4),
         // Age labels
@@ -472,10 +475,13 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
     final isGood = score >= 70;
     final chipColor = isGood ? MintColors.success : MintColors.warning;
 
-    return GestureDetector(
-      onTap: widget.onConfidenceTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+    return Semantics(
+      label: 'Score de confiance',
+      button: true,
+      child: GestureDetector(
+        onTap: widget.onConfidenceTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: chipColor.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(20),
@@ -507,6 +513,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
           ],
         ),
       ),
+    ),
     );
   }
 

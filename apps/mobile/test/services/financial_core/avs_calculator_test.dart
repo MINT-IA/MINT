@@ -171,4 +171,27 @@ void main() {
       expect(result.user, equals(1500));
     });
   });
+
+  group('AvsCalculator.annualRente — 13e rente', () {
+    test('rente max × 13 = 32760', () {
+      final r = AvsCalculator.annualRente(avsRenteMaxMensuelle);
+      expect(r, closeTo(avsRenteMaxMensuelle * 13, 0.01));
+    });
+    test('rente min × 13 = 16380', () {
+      final r = AvsCalculator.annualRente(avsRenteMinMensuelle);
+      expect(r, closeTo(avsRenteMinMensuelle * 13, 0.01));
+    });
+    test('couple max × 13 = 49140', () {
+      final r = AvsCalculator.annualRente(avsRenteCoupleMaxMensuelle);
+      expect(r, closeTo(avsRenteCoupleMaxMensuelle * 13, 0.01));
+    });
+    test('partial rente × 13', () {
+      final r = AvsCalculator.annualRente(1890);
+      expect(r, closeTo(1890 * 13, 0.01));
+    });
+    test('include13eme=false → × 12', () {
+      final r = AvsCalculator.annualRente(avsRenteMaxMensuelle, include13eme: false);
+      expect(r, closeTo(avsRenteMaxMensuelle * 12, 0.01));
+    });
+  });
 }

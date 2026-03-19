@@ -6,12 +6,17 @@ library;
 
 /// Type of coach output component, each with length constraints.
 enum ComponentType {
-  greeting,      // max 30 words
-  scoreSummary,  // max 80 words
-  tip,           // max 120 words
-  chiffreChoc,   // max 100 words
+  greeting,          // max 30 words
+  scoreSummary,      // max 80 words
+  tip,               // max 120 words
+  chiffreChoc,       // max 100 words
   scenario,          // max 150 words
   enrichmentGuide,   // max 150 words — data block conversational guide
+  chatSystem,        // max 300 words — main chat system prompt (S51)
+  chatSafeMode,      // max 200 words — debt/stress mode (S51)
+  chatFollowUp,      // max 250 words — multi-turn follow-up (S51)
+  chatSimulation,    // max 250 words — simulation scenario (S51)
+  chatSenior,        // max 200 words — adapted for 60+ users (S51)
   general,           // max 200 words
 }
 
@@ -23,6 +28,11 @@ const Map<ComponentType, int> componentWordLimits = {
   ComponentType.chiffreChoc: 100,
   ComponentType.scenario: 150,
   ComponentType.enrichmentGuide: 150,
+  ComponentType.chatSystem: 300,
+  ComponentType.chatSafeMode: 200,
+  ComponentType.chatFollowUp: 250,
+  ComponentType.chatSimulation: 250,
+  ComponentType.chatSenior: 200,
   ComponentType.general: 200,
 };
 

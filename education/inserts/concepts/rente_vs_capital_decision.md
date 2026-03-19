@@ -1,13 +1,9 @@
-# Insert: rente_vs_capital_decision (Rente vs capital — la décision irrévocable)
-
-## Metadata
-```yaml
-questionId: "rente_vs_capital_decision"
-phase: "Niveau 1"
-status: "READY"
-pilier: 2
-concept: "rente_vs_capital_decision"
-```
+---
+id: rente_vs_capital_decision
+title: Rente vs capital — la décision irrévocable
+trigger: rente ou capital, choix retraite, capital LPP, breakeven rente, décision irrévocable
+tags: [lpp, rente, capital, breakeven, retraite, decision]
+---
 
 ## Trigger
 - L'utilisateur approche de la retraite (55 ans+).

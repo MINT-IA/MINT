@@ -382,11 +382,14 @@ class TimelineScreen extends StatelessWidget {
   }
 
   Widget _buildQuickActionCard(BuildContext context, _QuickAction action) {
-    return GestureDetector(
-      onTap: () => context.push(action.route),
-      child: Container(
-        width: 150,
-        padding: const EdgeInsets.all(14),
+    return Semantics(
+      label: action.title,
+      button: true,
+      child: GestureDetector(
+        onTap: () => context.push(action.route),
+        child: Container(
+          width: 150,
+          padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: MintColors.white,
           borderRadius: BorderRadius.circular(16),
@@ -433,6 +436,7 @@ class TimelineScreen extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -493,11 +497,14 @@ class TimelineScreen extends StatelessWidget {
   // ── Event card ─────────────────────────────────────────────
 
   Widget _buildEventCard(BuildContext context, _LifeEvent event) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => context.push(event.route),
-        borderRadius: BorderRadius.circular(14),
+    return Semantics(
+      label: event.title,
+      button: true,
+      child: Material(
+        color: MintColors.transparent,
+        child: InkWell(
+          onTap: () => context.push(event.route),
+          borderRadius: BorderRadius.circular(14),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
@@ -552,6 +559,7 @@ class TimelineScreen extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }

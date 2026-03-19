@@ -144,7 +144,7 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
             decoration: BoxDecoration(
-              color: isSelected ? MintColors.primary : Colors.transparent,
+              color: isSelected ? MintColors.primary : MintColors.transparent,
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(

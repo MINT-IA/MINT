@@ -563,7 +563,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     required String url,
     String? telephone,
   }) {
-    return InkWell(
+    return Semantics(
+      label: nom,
+      button: true,
+      child: InkWell(
       onTap: () => _launchUrl(url),
       borderRadius: BorderRadius.circular(12),
       child: Container(
@@ -612,6 +615,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                 color: MintColors.textMuted, size: 18),
           ],
         ),
+      ),
       ),
     );
   }

@@ -58,7 +58,10 @@ class StressCheckInsertWidget extends StatelessWidget {
     required String label,
     required String route,
   }) {
-    return InkWell(
+    return Semantics(
+      label: 'interactive element',
+      button: true,
+      child: InkWell(
       onTap: () => onAction?.call(route),
       borderRadius: BorderRadius.circular(12),
       child: Container(
@@ -85,6 +88,6 @@ class StressCheckInsertWidget extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),);
   }
 }

@@ -104,9 +104,11 @@ void main() {
   // ═══════════════════════════════════════════════════════════════
 
   group('computeFiscal', () {
-    test('zero 3a contribution → 0 fiscal score (no rachat)', () {
+    test('zero 3a contribution → amort-only fiscal score (no rachat)', () {
       const inp = FriInput(actual3a: 0, max3a: 7258);
-      expect(FriCalculator.computeFiscal(inp), 0.0);
+      // 3a=0%, not owner → utilisationAmort=1.0
+      // f = 25 * (0.80*0 + 0.20*1.0) = 5.0
+      expect(FriCalculator.computeFiscal(inp), closeTo(5.0, 0.01));
     });
 
     test('full 3a + no rachat applicable → 80% weight on 3a', () {
@@ -166,7 +168,7 @@ void main() {
       const inp = FriInput(actual3a: 3629, max3a: 7258);
       // 3a = 50%, no rachat, not owner → amort=1.0
       // f = 25 * (0.80*0.5 + 0.20*1.0) = 25 * 0.60 = 15.0
-      expect(FriCalculator.computeFiscal(inp), 15.0);
+      expect(FriCalculator.computeFiscal(inp), closeTo(15.0, 0.01));
     });
 
     test('max3a < 1 treated as 1 (no division by zero)', () {
@@ -386,7 +388,7 @@ void main() {
 
     test('disclaimer and sources are present', () {
       final result = FriCalculator.compute(const FriInput());
-      expect(result.disclaimer, contains('educatif'));
+      expect(result.disclaimer, contains('ducatif'));
       expect(result.disclaimer, contains('LSFin'));
       expect(result.sources, isNotEmpty);
       expect(result.sources.any((s) => s.contains('LAVS')), isTrue);

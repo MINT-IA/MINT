@@ -6,7 +6,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
-import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -521,13 +520,8 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
 
     setState(() => _isProcessing = false);
 
-    // Navigate to extraction review
     if (!mounted) return;
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ExtractionReviewScreen(result: result),
-      ),
-    );
+    context.push('/scan/review', extra: result);
   }
 }
 

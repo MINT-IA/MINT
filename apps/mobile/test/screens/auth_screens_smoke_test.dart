@@ -34,7 +34,7 @@ void main() {
     );
   }
 
-  /// Helper to wrap ByokSettingsScreen with required ByokProvider
+  /// Helper to wrap ByokSettingsScreen with required ByokProvider + AuthProvider
   Widget buildByokTestable(Widget child) {
     return MaterialApp(
       locale: const Locale('fr'),
@@ -45,8 +45,15 @@ void main() {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: S.supportedLocales,
-      home: ChangeNotifierProvider<ByokProvider>(
-        create: (_) => ByokProvider(),
+      home: MultiProvider(
+        providers: [
+          ChangeNotifierProvider<ByokProvider>(
+            create: (_) => ByokProvider(),
+          ),
+          ChangeNotifierProvider<AuthProvider>(
+            create: (_) => AuthProvider(),
+          ),
+        ],
         child: child,
       ),
     );
@@ -256,7 +263,7 @@ void main() {
       await tester.pump();
 
       expect(
-        find.textContaining('8 caract'),
+        find.textContaining('8+'),
         findsWidgets,
       );
     });

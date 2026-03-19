@@ -1,8 +1,10 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -22,7 +24,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _displayNameController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  int? _birthYear;
+  DateTime? _dateOfBirth;
+  bool _acceptedCgu = false;
+  bool _confirmed18Plus = false;
+  bool _consentNotifications = false;
+  bool _consentAnalytics = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordController.addListener(() => setState(() {}));
+    _confirmPasswordController.addListener(() => setState(() {}));
+  }
 
   @override
   void dispose() {
@@ -49,15 +62,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // Persist registration data to profile answers so onboarding
       // can pre-fill and CoachProfile gets the firstName + birthYear.
       final firstName = _displayNameController.text.trim();
-      if (firstName.isNotEmpty || _birthYear != null) {
+      if (firstName.isNotEmpty || _dateOfBirth != null) {
         final answers = await ReportPersistenceService.loadAnswers();
         if (firstName.isNotEmpty) answers['q_firstname'] = firstName;
-        if (_birthYear != null) answers['q_birth_year'] = _birthYear;
+        if (_dateOfBirth != null) {
+          // Store both for backward compatibility
+          answers['q_birth_year'] = _dateOfBirth!.year;
+          answers['q_date_of_birth'] = _dateOfBirth!.toIso8601String();
+        }
         await ReportPersistenceService.saveAnswers(answers);
       }
 
+      // Persist consent preferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('consent_notifications', _consentNotifications);
+      await prefs.setBool('consent_analytics', _consentAnalytics);
+      await prefs.setBool('accepted_cgu_v1', true);
+      await prefs.setString('cgu_accepted_at', DateTime.now().toIso8601String());
+
       if (!mounted) return;
-      if (authProvider.requiresEmailVerification) {
+      final redirect = GoRouterState.of(context).uri.queryParameters['redirect'];
+      if (redirect != null && redirect.startsWith('/')) {
+        context.go(Uri.decodeComponent(redirect));
+      } else if (authProvider.requiresEmailVerification) {
         context.go('/auth/verify-email');
       } else {
         context.go('/home');
@@ -116,7 +143,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Compte optionnel: tes données restent locales par défaut',
+                  'Compte optionnel\u00a0: tes données restent locales par défaut',
                   style: GoogleFonts.inter(
                     fontSize: 16,
                     color: MintColors.textSecondary,
@@ -137,7 +164,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Pourquoi créer un compte ?',
+                        'Pourquoi créer un compte\u00a0?',
                         style: GoogleFonts.inter(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -146,10 +173,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 8),
                       const _RegisterBenefitRow(
-                        text: 'Projections AVS/LPP alignees a ta situation',
+                        text: 'Projections AVS/LPP alignées à ta situation',
                       ),
                       const _RegisterBenefitRow(
-                        text: 'Coach personnalise avec ton prenom',
+                        text: 'Coach personnalisé avec ton prénom',
                       ),
                       const _RegisterBenefitRow(
                         text: 'Sauvegarde cloud + synchronisation multi-appareils',
@@ -186,41 +213,62 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   autofillHints: const [AutofillHints.givenName],
                   textCapitalization: TextCapitalization.words,
                   decoration: const InputDecoration(
-                    labelText: 'Prenom',
+                    labelText: 'Prénom',
                     prefixIcon: Icon(Icons.person_outline),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Le prenom est necessaire pour personnaliser ton coach';
+                      return 'Le prénom est nécessaire pour personnaliser ton coach';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
-                // Birth year dropdown (LPD minimisation: only year needed for AVS/LPP)
-                DropdownButtonFormField<int>(
-                  value: _birthYear,
-                  decoration: const InputDecoration(
-                    labelText: 'Annee de naissance',
-                    prefixIcon: Icon(Icons.cake_outlined),
-                  ),
-                  items: List.generate(
-                    DateTime.now().year - 1940 + 1,
-                    (i) {
-                      final year = DateTime.now().year - i;
-                      return DropdownMenuItem(
-                        value: year,
-                        child: Text('$year'),
-                      );
-                    },
-                  ),
-                  onChanged: (value) => setState(() => _birthYear = value),
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Necessaire pour les projections AVS/LPP';
+                // Date of birth picker (precise age for AVS/LPP calculations)
+                GestureDetector(
+                  onTap: () async {
+                    final now = DateTime.now();
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: _dateOfBirth ?? DateTime(1980, 1, 1),
+                      firstDate: DateTime(1940),
+                      lastDate: now,
+                      locale: const Locale('fr'),
+                      helpText: 'Date de naissance',
+                      cancelText: 'Annuler',
+                      confirmText: 'Valider',
+                    );
+                    if (picked != null) {
+                      setState(() => _dateOfBirth = picked);
                     }
-                    return null;
                   },
+                  child: AbsorbPointer(
+                    child: TextFormField(
+                      decoration: const InputDecoration(
+                        labelText: 'Date de naissance',
+                        prefixIcon: Icon(Icons.cake_outlined),
+                        hintText: 'jj.mm.aaaa',
+                        suffixIcon: Icon(Icons.calendar_today_outlined),
+                      ),
+                      controller: TextEditingController(
+                        text: _dateOfBirth != null
+                            ? '${_dateOfBirth!.day.toString().padLeft(2, '0')}.'
+                              '${_dateOfBirth!.month.toString().padLeft(2, '0')}.'
+                              '${_dateOfBirth!.year}'
+                            : '',
+                      ),
+                      validator: (_) {
+                        if (_dateOfBirth == null) {
+                          return 'Nécessaire pour les projections AVS/LPP';
+                        }
+                        final age = DateTime.now().year - _dateOfBirth!.year;
+                        if (age < 18) {
+                          return 'Tu dois avoir 18 ans révolus (CGU art. 4.1)';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 // Password field
@@ -228,11 +276,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   controller: _passwordController,
                   obscureText: _obscurePassword,
                   autofillHints: const [AutofillHints.newPassword],
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: InputDecoration(
                     labelText: S.of(context)?.authPassword ?? 'Mot de passe',
                     prefixIcon: const Icon(Icons.lock_outline),
-                    hintText:
-                        S.of(context)?.authPasswordHint ?? 'Minimum 8 caractères',
+                    hintText: '8+ caractères, majuscule, chiffre, symbole',
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
@@ -251,8 +299,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       return 'Mot de passe requis';
                     }
                     if (value.length < 8) {
-                      return S.of(context)?.authPasswordTooShort ??
-                          'Le mot de passe doit contenir au moins 8 caractères';
+                      return 'Minimum 8 caractères';
+                    }
+                    if (!value.contains(RegExp(r'[A-Z]'))) {
+                      return 'Au moins une majuscule requise';
+                    }
+                    if (!value.contains(RegExp(r'[0-9]'))) {
+                      return 'Au moins un chiffre requis';
+                    }
+                    if (!value.contains(RegExp(r'[^A-Za-z0-9]'))) {
+                      return 'Au moins un caractère spécial requis (!@#\$...)';
                     }
                     return null;
                   },
@@ -263,24 +319,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmPassword,
                   autofillHints: const [AutofillHints.newPassword],
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: InputDecoration(
                     labelText: S.of(context)?.authConfirmPassword ??
                         'Confirmer le mot de passe',
                     prefixIcon: const Icon(Icons.lock_outline),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureConfirmPassword
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscureConfirmPassword = !_obscureConfirmPassword;
-                        });
-                      },
+                    suffixIcon: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Real-time match indicator
+                        if (_confirmPasswordController.text.isNotEmpty)
+                          Icon(
+                            _confirmPasswordController.text ==
+                                    _passwordController.text
+                                ? Icons.check_circle
+                                : Icons.cancel,
+                            color: _confirmPasswordController.text ==
+                                    _passwordController.text
+                                ? MintColors.success
+                                : MintColors.error,
+                            size: 20,
+                          ),
+                        IconButton(
+                          icon: Icon(
+                            _obscureConfirmPassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureConfirmPassword =
+                                  !_obscureConfirmPassword;
+                            });
+                          },
+                        ),
+                      ],
                     ),
                   ),
                   validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Confirmation requise';
+                    }
                     if (value != _passwordController.text) {
                       return S.of(context)?.authPasswordMismatch ??
                           'Les mots de passe ne correspondent pas';
@@ -288,8 +367,129 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return null;
                   },
                 ),
+                const SizedBox(height: 16),
+                // Password strength indicator
+                _PasswordStrengthIndicator(
+                  password: _passwordController.text,
+                ),
                 const SizedBox(height: 24),
-                // Password requirements
+                // ── CGU & Consent checkboxes ──
+                // CGU checkbox (required, non-pre-checked)
+                CheckboxListTile(
+                  value: _acceptedCgu,
+                  onChanged: (v) => setState(() => _acceptedCgu = v ?? false),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: RichText(
+                    text: TextSpan(
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: MintColors.textSecondary,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: S.of(context)!.authCguAccept,
+                        ),
+                        TextSpan(
+                          text: S.of(context)!.authCguLink,
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: MintColors.primary,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => context.go('/profile/consent'),
+                        ),
+                        TextSpan(
+                          text: S.of(context)!.authCguAndPrivacy,
+                        ),
+                        TextSpan(
+                          text: 'politique de confidentialité',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: MintColors.primary,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => context.go('/profile/consent'),
+                        ),
+                        const TextSpan(text: ' *'),
+                      ],
+                    ),
+                  ),
+                ),
+                // 18+ checkbox (required, non-pre-checked)
+                CheckboxListTile(
+                  value: _confirmed18Plus,
+                  onChanged: (v) =>
+                      setState(() => _confirmed18Plus = v ?? false),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: Text(
+                    S.of(context)!.authConfirm18,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // "Consentements optionnels" divider
+                Row(
+                  children: [
+                    const Expanded(child: Divider()),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        S.of(context)!.authConsentSection,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: MintColors.textMuted,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const Expanded(child: Divider()),
+                  ],
+                ),
+                // Notifications checkbox (optional)
+                CheckboxListTile(
+                  value: _consentNotifications,
+                  onChanged: (v) =>
+                      setState(() => _consentNotifications = v ?? false),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: Text(
+                    S.of(context)!.authConsentNotifications,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                ),
+                // Analytics checkbox (optional)
+                CheckboxListTile(
+                  value: _consentAnalytics,
+                  onChanged: (v) =>
+                      setState(() => _consentAnalytics = v ?? false),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: Text(
+                    S.of(context)!.authConsentAnalytics,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Privacy reassurance text
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -299,14 +499,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Row(
                     children: [
                       const Icon(
-                        Icons.info_outline,
-                        color: MintColors.info,
+                        Icons.shield_outlined,
+                        color: MintColors.primary,
                         size: 20,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Utilise au moins 8 caractères pour sécuriser ton compte',
+                          S.of(context)!.authPrivacyReassurance,
                           style: GoogleFonts.inter(
                             color: MintColors.textSecondary,
                             fontSize: 13,
@@ -348,7 +548,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 if (authProvider.error != null) const SizedBox(height: 24),
                 // Register button
                 FilledButton(
-                  onPressed: authProvider.isLoading ? null : _handleRegister,
+                  onPressed: (_acceptedCgu && _confirmed18Plus && !authProvider.isLoading) ? _handleRegister : null,
                   child: authProvider.isLoading
                       ? const SizedBox(
                           height: 20,
@@ -430,6 +630,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _PasswordStrengthIndicator extends StatelessWidget {
+  final String password;
+
+  const _PasswordStrengthIndicator({required this.password});
+
+  int _computeStrength() {
+    if (password.isEmpty) return 0;
+    int score = 0;
+    if (password.length >= 8) score++;
+    if (password.contains(RegExp(r'[A-Z]'))) score++;
+    if (password.contains(RegExp(r'[0-9]'))) score++;
+    if (password.contains(RegExp(r'[^A-Za-z0-9]'))) score++;
+    return score;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final strength = _computeStrength();
+    const colors = [
+      MintColors.error,
+      MintColors.scoreAttention,
+      MintColors.warning,
+      MintColors.success,
+    ];
+
+    return Row(
+      children: List.generate(4, (i) {
+        final isActive = i < strength;
+        return Expanded(
+          child: Container(
+            height: 4,
+            margin: EdgeInsets.only(right: i < 3 ? 4 : 0),
+            decoration: BoxDecoration(
+              color: isActive
+                  ? colors[strength - 1]
+                  : MintColors.border,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+        );
+      }),
     );
   }
 }

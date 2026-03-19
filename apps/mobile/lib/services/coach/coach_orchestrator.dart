@@ -162,15 +162,25 @@ class CoachOrchestrator {
   ///
   /// Chat surface fallback chain: SLM (30s) → BYOK (30s) → mock template.
   /// ComplianceGuard applied centrally on all outputs.
+  ///
+  /// [memoryBlock] — optional enriched context from [ContextInjectorService].
+  /// When provided, appended to the system prompt for lifecycle-aware,
+  /// goal-aware, and conversation-history-aware AI responses.
   static Future<CoachResponse> generateChat({
     required String userMessage,
     required List<ChatMessage> history,
     required CoachContext ctx,
     LlmConfig? byokConfig,
+    String? memoryBlock,
   }) async {
+    // Build system prompt with optional memory block injection (S58).
+    const basePrompt = PromptRegistry.baseSystemPrompt;
+    final systemPrompt = (memoryBlock != null && memoryBlock.isNotEmpty)
+        ? '$basePrompt\n\n$memoryBlock'
+        : basePrompt;
+
     // 1. SLM tier for chat
     if (_slmEligible()) {
-      const systemPrompt = PromptRegistry.baseSystemPrompt;
       final conversationCtx = _buildConversationContext(history, userMessage);
       final slmOut = await _trySlm(
         systemPrompt: systemPrompt,
@@ -196,6 +206,7 @@ class CoachOrchestrator {
         history: history,
         config: byokConfig,
         ctx: ctx,
+        memoryBlock: memoryBlock,
       );
       if (byokResponse != null) return byokResponse;
     }
@@ -410,10 +421,16 @@ class CoachOrchestrator {
     required List<ChatMessage> history,
     required LlmConfig config,
     required CoachContext ctx,
+    String? memoryBlock,
   }) async {
     final ragService = RagService();
     final providerStr = _llmProviderString(config.provider);
-    final augmentedQuestion = _buildConversationContext(history, userMessage);
+    final baseQuestion = _buildConversationContext(history, userMessage);
+    // Prepend memory block to the question so the RAG backend sees the
+    // enriched context (lifecycle, goals, conversation history).
+    final augmentedQuestion = (memoryBlock != null && memoryBlock.isNotEmpty)
+        ? '$memoryBlock\n\n$baseQuestion'
+        : baseQuestion;
 
     RagResponse ragResponse;
     try {
@@ -537,10 +554,13 @@ class CoachOrchestrator {
   ///
   /// Handles re-initialization after dispose — when the user leaves the
   /// coach screen and returns, the engine is transparently re-initialized.
+  ///
+  /// [memoryBlock] — optional enriched context from [ContextInjectorService].
   static Stream<String>? streamChat({
     required String userMessage,
     required List<ChatMessage> history,
     required CoachContext ctx,
+    String? memoryBlock,
   }) {
     if (!_slmEligible()) return null;
 
@@ -553,10 +573,14 @@ class CoachOrchestrator {
         userMessage: userMessage,
         history: history,
         ctx: ctx,
+        memoryBlock: memoryBlock,
       );
     }
 
-    const systemPrompt = PromptRegistry.baseSystemPrompt;
+    final basePrompt = _selectSystemPrompt(ctx);
+    final systemPrompt = (memoryBlock != null && memoryBlock.isNotEmpty)
+        ? '$basePrompt\n\n$memoryBlock'
+        : basePrompt;
     final conversationCtx = _buildConversationContext(history, userMessage);
     final truncated = _truncateToContextWindow(conversationCtx);
 
@@ -566,6 +590,13 @@ class CoachOrchestrator {
     );
   }
 
+  /// Select the appropriate system prompt based on user context.
+  /// Uses senior prompt for 60+, base prompt otherwise.
+  static String _selectSystemPrompt(CoachContext ctx) {
+    if (ctx.age >= 60) return PromptRegistry.chatSeniorPrompt(ctx);
+    return PromptRegistry.baseSystemPrompt;
+  }
+
   /// Internal: stream chat with async re-initialization before streaming.
   ///
   /// Used when [SlmEngine] was disposed and needs re-init before generating.
@@ -573,12 +604,16 @@ class CoachOrchestrator {
     required String userMessage,
     required List<ChatMessage> history,
     required CoachContext ctx,
+    String? memoryBlock,
   }) async* {
     final ok = await _ensureInitialized();
     if (!ok) return;
 
     final engine = SlmEngine.instance;
-    const systemPrompt = PromptRegistry.baseSystemPrompt;
+    final basePrompt = _selectSystemPrompt(ctx);
+    final systemPrompt = (memoryBlock != null && memoryBlock.isNotEmpty)
+        ? '$basePrompt\n\n$memoryBlock'
+        : basePrompt;
     final conversationCtx = _buildConversationContext(history, userMessage);
     final truncated = _truncateToContextWindow(conversationCtx);
 
@@ -608,6 +643,11 @@ class CoachOrchestrator {
       case ComponentType.enrichmentGuide:
         return 'enrichment_guide';
       case ComponentType.general:
+      case ComponentType.chatSystem:
+      case ComponentType.chatSafeMode:
+      case ComponentType.chatFollowUp:
+      case ComponentType.chatSimulation:
+      case ComponentType.chatSenior:
         return 'general';
     }
   }
@@ -631,6 +671,11 @@ class CoachOrchestrator {
       case ComponentType.enrichmentGuide:
         return 'Guide l\'utilisateur pour compléter son profil.';
       case ComponentType.general:
+      case ComponentType.chatSystem:
+      case ComponentType.chatSafeMode:
+      case ComponentType.chatFollowUp:
+      case ComponentType.chatSimulation:
+      case ComponentType.chatSenior:
         return 'Réponds de manière éducative.';
     }
   }
@@ -657,6 +702,11 @@ class CoachOrchestrator {
         return FallbackTemplates.enrichmentGuide(ctx, 'general');
       case ComponentType.scenario:
       case ComponentType.general:
+      case ComponentType.chatSystem:
+      case ComponentType.chatSafeMode:
+      case ComponentType.chatFollowUp:
+      case ComponentType.chatSimulation:
+      case ComponentType.chatSenior:
         return FallbackTemplates.scoreSummary(ctx);
     }
   }
@@ -670,7 +720,14 @@ class CoachOrchestrator {
   ///   4. Succession planning for users > 50
   ///   5. Generic tip narrative (default)
   static String _contextualTip(CoachContext ctx) {
-    // FATCA: highest priority for US taxpayers (complex obligations)
+    // Life event-specific guidance — all 18 from definitive enum.
+    final lifeEvent = ctx.knownValues['last_life_event']?.toString() ?? '';
+    if (lifeEvent.isNotEmpty) {
+      final eventTip = _lifeEventTip(ctx, lifeEvent);
+      if (eventTip != null) return eventTip;
+    }
+
+    // FATCA: highest priority for US taxpayers
     if (ctx.archetype == 'expat_us') {
       return FallbackTemplates.fatcaGuidance(ctx);
     }
@@ -682,12 +739,6 @@ class CoachOrchestrator {
       return FallbackTemplates.disabilityBridge(ctx);
     }
 
-    // Libre passage: relevant during job transitions
-    final lifeEvent = ctx.knownValues['last_life_event']?.toString() ?? '';
-    if (lifeEvent == 'jobLoss' || lifeEvent == 'newJob') {
-      return FallbackTemplates.librePassageGuide(ctx);
-    }
-
     // Succession: relevant for 50+ (estate planning horizon)
     if (ctx.age >= 50) {
       return FallbackTemplates.successionPlanning(ctx);
@@ -695,6 +746,30 @@ class CoachOrchestrator {
 
     // Default: generic personalized tip
     return FallbackTemplates.tipNarrative(ctx);
+  }
+
+  /// Map a life event to its specialized fallback template.
+  static String? _lifeEventTip(CoachContext ctx, String event) {
+    return switch (event) {
+      'marriage' => FallbackTemplates.marriageGuidance(ctx),
+      'divorce' => FallbackTemplates.divorceGuidance(ctx),
+      'birth' => FallbackTemplates.birthGuidance(ctx),
+      'concubinage' => FallbackTemplates.concubinageGuidance(ctx),
+      'deathOfRelative' => FallbackTemplates.deathOfRelativeGuidance(ctx),
+      'firstJob' => FallbackTemplates.firstJobGuidance(ctx),
+      'newJob' || 'jobLoss' => FallbackTemplates.librePassageGuide(ctx),
+      'selfEmployment' => FallbackTemplates.selfEmploymentGuidance(ctx),
+      'retirement' => FallbackTemplates.retirementGuidance(ctx),
+      'housingPurchase' => FallbackTemplates.housingPurchaseGuidance(ctx),
+      'housingSale' => FallbackTemplates.housingSaleGuidance(ctx),
+      'inheritance' => FallbackTemplates.inheritanceGuidance(ctx),
+      'donation' => FallbackTemplates.donationGuidance(ctx),
+      'disability' => FallbackTemplates.disabilityBridge(ctx),
+      'cantonMove' => FallbackTemplates.cantonMoveGuidance(ctx),
+      'countryMove' => FallbackTemplates.countryMoveGuidance(ctx),
+      'debtCrisis' => FallbackTemplates.debtCrisisGuidance(ctx),
+      _ => null,
+    };
   }
 
   /// Map [LlmProvider] to the string expected by [RagService].
@@ -721,25 +796,50 @@ class CoachOrchestrator {
     return prompt.substring(prompt.length - _maxPromptChars);
   }
 
+  /// Sanitize user input to prevent prompt injection.
+  ///
+  /// Strips system markers that could manipulate the LLM context:
+  /// memory block delimiters, system instructions, etc.
+  static String _sanitizeUserInput(String input) {
+    var s = input;
+    // Strip system prompt markers (case-insensitive)
+    for (final marker in [
+      '--- MÉMOIRE MINT ---',
+      '--- FIN MÉMOIRE ---',
+      'RAPPEL\u00a0:',
+      'HISTORIQUE DE CONVERSATION',
+    ]) {
+      s = s.replaceAll(RegExp(RegExp.escape(marker), caseSensitive: false), '');
+    }
+    // Strip triple-dash delimiters only when surrounded by whitespace/BOL/EOL
+    // (avoids mangling legitimate text like "45---65")
+    s = s.replaceAll(RegExp(r'(?<=\s|^)-{3,}(?=\s|$)'), '');
+    // Collapse excessive whitespace
+    s = s.replaceAll(RegExp(r'\s{3,}'), '  ');
+    return s.trim();
+  }
+
   /// Build conversation context string for multi-turn chat.
   ///
   /// Keeps the last 8 messages (4 exchanges) to stay within token limits.
+  /// User messages are sanitized to prevent prompt injection.
   static String _buildConversationContext(
     List<ChatMessage> history,
     String currentMessage,
   ) {
     final relevant =
         history.where((m) => m.isUser || m.isAssistant).toList();
-    if (relevant.length <= 1) return currentMessage;
+    if (relevant.length <= 1) return _sanitizeUserInput(currentMessage);
 
     final tail =
         relevant.length > 8 ? relevant.sublist(relevant.length - 8) : relevant;
 
     final buf = StringBuffer('Contexte de la conversation :\n');
     for (final msg in tail) {
-      buf.writeln('${msg.isUser ? "Utilisateur" : "Coach"}: ${msg.content}');
+      final content = msg.isUser ? _sanitizeUserInput(msg.content) : msg.content;
+      buf.writeln('${msg.isUser ? "Utilisateur" : "Coach"}: $content');
     }
-    buf.writeln('\nNouvelle question :\n$currentMessage');
+    buf.writeln('\nNouvelle question :\n${_sanitizeUserInput(currentMessage)}');
 
     // Truncate to context window before sending to SLM.
     return _truncateToContextWindow(buf.toString());

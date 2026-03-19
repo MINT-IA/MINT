@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/screens/document_scan/document_impact_screen.dart';
 
 // ────────────────────────────────────────────────────────────
 //  EXTRACTION REVIEW SCREEN — Sprint S42-S43
@@ -89,10 +90,10 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       scrolledUnderElevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => Navigator.of(context).pop(),
+        onPressed: () => context.pop(),
       ),
       title: Text(
-        'VERIFICATION',
+        S.of(context)!.extractionReviewAppBar,
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w800,
           fontSize: 13,
@@ -111,7 +112,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Verifie les valeurs extraites',
+          S.of(context)!.extractionReviewTitle,
           style: GoogleFonts.montserrat(
             fontSize: 22,
             fontWeight: FontWeight.w700,
@@ -121,9 +122,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          '${_fields.length} champs detectes'
-          '${reviewCount > 0 ? ' dont $reviewCount a verifier' : ''}. '
-          'Tu peux modifier chaque valeur avant de confirmer.',
+          S.of(context)!.extractionReviewSubtitle(_fields.length, reviewCount > 0 ? S.of(context)!.extractionReviewNeedsReview(reviewCount) : ''),
           style: GoogleFonts.inter(
             fontSize: 15,
             color: MintColors.textSecondary,
@@ -164,7 +163,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           ),
           const SizedBox(width: 6),
           Text(
-            'Confiance extraction : $pct%',
+            S.of(context)!.extractionReviewConfidence(pct),
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -307,7 +306,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                 onPressed: () => _editField(field),
                 icon: const Icon(Icons.edit_outlined, size: 20),
                 color: MintColors.textMuted,
-                tooltip: 'Modifier',
+                tooltip: S.of(context)!.extractionReviewEditTooltip,
                 style: IconButton.styleFrom(
                   backgroundColor: MintColors.surface,
                   shape: RoundedRectangleBorder(
@@ -322,7 +321,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           if (field.sourceText.isNotEmpty) ...[
             const SizedBox(height: 6),
             Text(
-              'Lu : "${_truncateSource(field.sourceText)}"',
+              S.of(context)!.extractionReviewSourcePrefix(_truncateSource(field.sourceText)),
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: MintColors.textMuted,
@@ -347,7 +346,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         onPressed: _onConfirmAll,
         icon: const Icon(Icons.check_circle_outline, size: 22),
         label: Text(
-          'Confirmer tout',
+          S.of(context)!.extractionReviewConfirmAll,
           style: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -447,7 +446,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(
-          'Modifier : ${field.label}',
+          S.of(context)!.extractionReviewEditTitle(field.label),
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w600,
             fontSize: 16,
@@ -458,7 +457,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Valeur actuelle : ${_formatValue(field)}',
+              S.of(context)!.extractionReviewCurrentValue(_formatValue(field)),
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -471,7 +470,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                   const TextInputType.numberWithOptions(decimal: true),
               onTapOutside: (_) => FocusScope.of(context).unfocus(),
               decoration: InputDecoration(
-                labelText: 'Nouvelle valeur',
+                labelText: S.of(context)!.extractionReviewNewValue,
                 labelStyle: GoogleFonts.inter(fontSize: 14),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -487,9 +486,10 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         ),
         actions: [
           TextButton(
+            // Navigator.pop is acceptable here — dismissing a showDialog
             onPressed: () => Navigator.of(ctx).pop(),
             child: Text(
-              'Annuler',
+              S.of(context)!.extractionReviewCancel,
               style: GoogleFonts.inter(color: MintColors.textSecondary),
             ),
           ),
@@ -507,13 +507,14 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                   }
                 });
               }
+              // Navigator.pop is acceptable here — dismissing a showDialog
               Navigator.of(ctx).pop();
             },
             style: FilledButton.styleFrom(
               backgroundColor: MintColors.primary,
             ),
             child: Text(
-              'Valider',
+              S.of(context)!.extractionReviewValidate,
               style: GoogleFonts.inter(fontWeight: FontWeight.w600),
             ),
           ),
@@ -570,14 +571,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
 
     if (!mounted) return;
 
-    // Navigate to impact screen with real confidence values
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => DocumentImpactScreen(
-          result: confirmedResult,
-          previousConfidence: previousConfidence,
-        ),
-      ),
-    );
+    context.push('/scan/impact', extra: {
+      'result': confirmedResult,
+      'previousConfidence': previousConfidence,
+    });
   }
 }

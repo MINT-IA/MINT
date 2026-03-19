@@ -326,10 +326,13 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildBilanLink(BuildContext context, bool hasProfile) {
-    return InkWell(
-      onTap: () => context.push('/profile/bilan'),
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
+    return Semantics(
+      label: 'Mon aperçu financier',
+      button: true,
+      child: InkWell(
+        onTap: () => context.push('/profile/bilan'),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -371,6 +374,7 @@ class ProfileScreen extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -609,42 +613,46 @@ class ProfileScreen extends StatelessWidget {
     String? reward,
     VoidCallback? onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            Icon(icon,
-                size: 16, color: isComplete ? MintColors.white : MintColors.white38),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(label,
-                  style: TextStyle(
-                    color: isComplete ? MintColors.white : MintColors.white54,
-                    fontSize: 13,
-                    decoration: isComplete ? TextDecoration.none : null,
-                  )),
-            ),
-            if (isComplete)
-              const Icon(Icons.check_circle, size: 16, color: MintColors.white)
-            else if (reward != null)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: MintColors.white24,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(reward,
-                    style: const TextStyle(
-                        color: MintColors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold)),
-              )
-            else
-              const Icon(Icons.radio_button_unchecked,
-                  size: 16, color: MintColors.white38),
-          ],
+    return Semantics(
+      label: label,
+      button: onTap != null,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            children: [
+              Icon(icon,
+                  size: 16, color: isComplete ? MintColors.white : MintColors.white38),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(label,
+                    style: TextStyle(
+                      color: isComplete ? MintColors.white : MintColors.white54,
+                      fontSize: 13,
+                      decoration: isComplete ? TextDecoration.none : null,
+                    )),
+              ),
+              if (isComplete)
+                const Icon(Icons.check_circle, size: 16, color: MintColors.white)
+              else if (reward != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: MintColors.white24,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(reward,
+                      style: const TextStyle(
+                          color: MintColors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold)),
+                )
+              else
+                const Icon(Icons.radio_button_unchecked,
+                    size: 16, color: MintColors.white38),
+            ],
+          ),
         ),
       ),
     );
@@ -658,55 +666,59 @@ class ProfileScreen extends StatelessWidget {
     String? reward,
     VoidCallback? onTap,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: MintColors.border),
-          ),
-          child: Row(
-            children: [
-              Icon(icon,
-                  color:
-                      isComplete ? MintColors.success : MintColors.textMuted),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title,
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text(status,
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: isComplete
-                                ? MintColors.success
-                                : MintColors.textMuted)),
-                  ],
+    return Semantics(
+      label: title,
+      button: true,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: MintColors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: MintColors.border),
+            ),
+            child: Row(
+              children: [
+                Icon(icon,
+                    color:
+                        isComplete ? MintColors.success : MintColors.textMuted),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title,
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text(status,
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: isComplete
+                                  ? MintColors.success
+                                  : MintColors.textMuted)),
+                    ],
+                  ),
                 ),
-              ),
-              if (reward != null)
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                      color: MintColors.appleSurface,
-                      borderRadius: BorderRadius.circular(8)),
-                  child: Text(reward,
-                      style: const TextStyle(
-                          color: MintColors.primary,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold)),
-                ),
-              const Icon(Icons.chevron_right,
-                  size: 18, color: MintColors.textMuted),
-            ],
+                if (reward != null)
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                        color: MintColors.appleSurface,
+                        borderRadius: BorderRadius.circular(8)),
+                    child: Text(reward,
+                        style: const TextStyle(
+                            color: MintColors.primary,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold)),
+                  ),
+                const Icon(Icons.chevron_right,
+                    size: 18, color: MintColors.textMuted),
+              ],
+            ),
           ),
         ),
       ),
@@ -902,37 +914,41 @@ class ProfileScreen extends StatelessWidget {
         Text(S.of(context)!.profileLanguageTitle,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
-        InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () async {
-            final selected =
-                await showLanguageSelector(context, localeProvider.locale);
-            if (selected != null && context.mounted) {
-              context.read<LocaleProvider>().setLocale(selected);
-            }
-          },
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: MintColors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: MintColors.border),
-            ),
-            child: Row(
-              children: [
-                Text(flag, style: const TextStyle(fontSize: 24)),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+        Semantics(
+          label: 'Changer la langue: $name',
+          button: true,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () async {
+              final selected =
+                  await showLanguageSelector(context, localeProvider.locale);
+              if (selected != null && context.mounted) {
+                context.read<LocaleProvider>().setLocale(selected);
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: MintColors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: MintColors.border),
+              ),
+              child: Row(
+                children: [
+                  Text(flag, style: const TextStyle(fontSize: 24)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                ),
-                const Icon(Icons.chevron_right, color: MintColors.textMuted),
-              ],
+                  const Icon(Icons.chevron_right, color: MintColors.textMuted),
+                ],
+              ),
             ),
           ),
         ),

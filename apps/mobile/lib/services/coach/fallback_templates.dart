@@ -294,6 +294,146 @@ class FallbackTemplates {
   }
 
   // ═══════════════════════════════════════════════════════════════
+  // Life event templates (all 18 events from definitive enum)
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Marriage: AVS couple cap, LPP beneficiary, fiscal impact.
+  static String marriageGuidance(CoachContext ctx) =>
+      '${ctx.firstName}, le mariage a un impact direct sur ta prévoyance. '
+      'L\'AVS prévoit un plafonnement des rentes de couple à '
+      '150\u00a0% d\'une rente maximale (LAVS art. 35). Côté LPP, '
+      'ton conjoint devient bénéficiaire prioritaire (LPP art. 19-20). '
+      'L\'imposition commune pourrait modifier ta charge fiscale. '
+      'Il serait utile de simuler l\'impact sur ta trajectoire.\n\n'
+      '_Outil éducatif — ne constitue pas un conseil financier (LSFin)._';
+
+  /// Divorce: LPP splitting, AVS credits, fiscal separation.
+  static String divorceGuidance(CoachContext ctx) =>
+      '${ctx.firstName}, en cas de divorce, la prévoyance accumulée '
+      'pendant le mariage est partagée (CC art. 122-124). Les '
+      'bonifications AVS sont réparties (LAVS art. 29sexies). '
+      'Le retour à l\'imposition individuelle modifie les barèmes. '
+      'Vérifie ton certificat LPP et simule l\'impact sur ta retraite.\n\n'
+      '_Outil éducatif — ne constitue pas un conseil financier (LSFin)._';
+
+  /// Birth: child bonifications AVS, family allowances, budget.
+  static String birthGuidance(CoachContext ctx) =>
+      '${ctx.firstName}, l\'arrivée d\'un enfant ouvre droit à des '
+      'bonifications pour tâches éducatives AVS (LAVS art. 29sexies). '
+      'Tu as droit aux allocations familiales (min. 200\u00a0CHF/mois). '
+      'Côté budget, les frais augmentent d\'env. 1\u00a0000-1\u00a0500\u00a0CHF/mois. '
+      'Pense à inscrire le nouveau-né à la LAMal dans les 30 jours.\n\n'
+      '_Outil éducatif — ne constitue pas un conseil financier (LSFin)._';
+
+  /// Concubinage: no legal protection, testament needed.
+  static String concubinageGuidance(CoachContext ctx) =>
+      '${ctx.firstName}, le concubinage n\'offre aucune protection légale '
+      'automatique en Suisse. Ton partenaire n\'a PAS droit à la rente '
+      'de survivant AVS (LAVS art. 23). La LPP ne couvre le concubin '
+      'que si le règlement le prévoit (LPP art. 20a). Sans testament, '
+      'l\'héritage va aux héritiers légaux (CC art. 457). Un contrat '
+      'de concubinage et un testament pourraient être utiles.\n\n'
+      '_Outil éducatif — ne constitue pas un conseil financier (LSFin)._';
+
+  /// Death of relative: survivor benefits, succession.
+  static String deathOfRelativeGuidance(CoachContext ctx) =>
+      '${ctx.firstName}, le décès d\'un proche peut ouvrir droit à '
+      'une rente de survivant AVS (LAVS art. 23-24) et LPP '
+      '(LPP art. 18-22). La succession suit les parts réservataires '
+      '(CC art. 470-471). L\'impôt sur les successions varie selon '
+      'le canton de ${ctx.canton}.\n\n'
+      '_Outil éducatif — ne constitue pas un conseil financier (LSFin)._';
+
+  /// Housing purchase: mortgage, EPL, tax impact.
+  static String housingPurchaseGuidance(CoachContext ctx) =>
+      '${ctx.firstName}, un achat immobilier mobilise plusieurs piliers. '
+      'Tu peux retirer ton 2e pilier via EPL (LPP art. 30c, min. '
+      '20\u00a0000\u00a0CHF). Fonds propres min. 20\u00a0% (max 10\u00a0% '
+      'du 2e pilier). Le taux théorique de 5\u00a0% + 1\u00a0% amort. + '
+      '1\u00a0% frais ne doit pas dépasser 1/3 du revenu brut. '
+      'Simule l\'impact complet.\n\n'
+      '_Outil éducatif — ne constitue pas un conseil financier (LSFin)._';
+
+  /// Housing sale: capital gains tax, EPL reimbursement.
+  static String housingSaleGuidance(CoachContext ctx) =>
+      '${ctx.firstName}, la vente d\'un bien déclenche l\'impôt sur '
+      'les gains immobiliers (taux selon ${ctx.canton} et durée de '
+      'détention). Si tu avais retiré du 2e pilier via EPL, tu '
+      'pourrais devoir le rembourser (LPP art. 30d).\n\n'
+      '_Outil éducatif — ne constitue pas un conseil financier (LSFin)._';
+
+  /// Inheritance: succession rules, tax, réserves.
+  static String inheritanceGuidance(CoachContext ctx) =>
+      '${ctx.firstName}, un héritage suit les règles des parts '
+      'réservataires (CC art. 470-471). L\'impôt sur les successions '
+      'varie selon ${ctx.canton} et le lien de parenté. Le 2e pilier '
+      'du défunt suit des règles spécifiques (LPP art. 18-22).\n\n'
+      '_Outil éducatif — ne constitue pas un conseil financier (LSFin)._';
+
+  /// Donation: inter vivos, tax, réserves.
+  static String donationGuidance(CoachContext ctx) =>
+      '${ctx.firstName}, une donation entre vifs est soumise à l\'impôt '
+      'selon ${ctx.canton}. Les parts réservataires doivent être '
+      'respectées (CC art. 470-471). Le rapport des donations '
+      '(CC art. 626-632) pourrait s\'appliquer à la succession.\n\n'
+      '_Outil éducatif — ne constitue pas un conseil financier (LSFin)._';
+
+  /// Canton move: fiscal impact, LAMal change.
+  static String cantonMoveGuidance(CoachContext ctx) =>
+      '${ctx.firstName}, un déménagement cantonal a un impact fiscal '
+      'significatif. Le barème d\'impôt, la valeur locative et l\'impôt '
+      'sur le retrait du capital varient entre cantons. Ta LPP reste '
+      'inchangée. Par contre, ta LAMal doit être adaptée.\n\n'
+      '_Outil éducatif — ne constitue pas un conseil financier (LSFin)._';
+
+  /// Country move: pillar export, bilateral agreements.
+  static String countryMoveGuidance(CoachContext ctx) =>
+      '${ctx.firstName}, un départ de Suisse impacte les 3 piliers. '
+      'Le 2e pilier est transféré en libre passage (LFLP art. 2). '
+      'Le retrait est possible si tu quittes l\'UE/AELE (partie '
+      'obligatoire). Le 3a peut être retiré au départ définitif. '
+      'L\'AVS verse la rente à l\'étranger (conventions bilatérales).\n\n'
+      '_Outil éducatif — ne constitue pas un conseil financier (LSFin)._';
+
+  /// Debt crisis: priority mode, no optimization, orientation.
+  static String debtCrisisGuidance(CoachContext ctx) =>
+      '${ctx.firstName}, si tu fais face à des difficultés financières, '
+      'consulte gratuitement : Caritas Suisse, Dettes Conseils Suisse '
+      '(www.dettes.ch), ou La Main Tendue (143). La priorité est de '
+      'protéger ton minimum vital (LP art. 93). Les optimisations '
+      '(3a, rachat LPP) ne sont PAS adaptées tant que la dette n\'est '
+      'pas stabilisée.\n\n'
+      '_Outil éducatif — ne constitue pas un conseil financier (LSFin)._';
+
+  /// First job: starting pillar contributions.
+  static String firstJobGuidance(CoachContext ctx) =>
+      '${ctx.firstName}, ton premier emploi lance ta prévoyance. '
+      'Tu cotises à l\'AVS dès le 1er janvier après tes 17 ans '
+      '(LAVS art. 3). La LPP commence dès 22\u00a0680\u00a0CHF/an '
+      '(LPP art. 7). Tu peux ouvrir un 3a (max 7\u00a0258\u00a0CHF/an) '
+      'pour réduire tes impôts dès la première année.\n\n'
+      '_Outil éducatif — ne constitue pas un conseil financier (LSFin)._';
+
+  /// Self-employment: LPP optional, 3a max higher.
+  static String selfEmploymentGuidance(CoachContext ctx) =>
+      '${ctx.firstName}, en tant qu\'indépendant·e, la LPP est '
+      'facultative mais tu peux t\'affilier (LPP art. 4). Sans LPP, '
+      'ton plafond 3a monte à 36\u00a0288\u00a0CHF/an (20\u00a0% du '
+      'revenu net). La cotisation AVS est à ta charge (min. '
+      '530\u00a0CHF/an, LAVS art. 8).\n\n'
+      '_Outil éducatif — ne constitue pas un conseil financier (LSFin)._';
+
+  /// Retirement: withdrawal options, timing, fiscal.
+  static String retirementGuidance(CoachContext ctx) =>
+      '${ctx.firstName}, la retraite approche. Tu peux partir entre '
+      '63 et 70 ans (LAVS art. 40). Le retrait anticipé réduit la '
+      'rente de ~6.8\u00a0%/an. Rente, capital, ou mixte ? Le capital '
+      'est taxé séparément (LIFD art. 38), la rente est un revenu '
+      'imposable. L\'échelonnement des retraits pourrait optimiser '
+      'la fiscalité.\n\n'
+      '_Outil éducatif — ne constitue pas un conseil financier (LSFin)._';
+
+  // ═══════════════════════════════════════════════════════════════
   // Helpers
   // ═══════════════════════════════════════════════════════════════
 

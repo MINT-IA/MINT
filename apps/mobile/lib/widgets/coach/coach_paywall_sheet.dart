@@ -35,7 +35,7 @@ class CoachPaywallSheet extends StatefulWidget {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: MintColors.transparent,
       builder: (_) => ChangeNotifierProvider.value(
         value: context.read<SubscriptionProvider>(),
         child: const CoachPaywallSheet(),
@@ -143,9 +143,12 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                 ),
               ),
               // Close button
-              GestureDetector(
-                onTap: () {
-                  AnalyticsService().trackEvent(
+              Semantics(
+                label: 'Fermer',
+                button: true,
+                child: GestureDetector(
+                  onTap: () {
+                    AnalyticsService().trackEvent(
                     'paywall_dismissed',
                     category: 'conversion',
                     screenName: 'coach_paywall',
@@ -164,6 +167,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                     size: 20,
                   ),
                 ),
+              ),
               ),
             ],
           ),
@@ -258,9 +262,12 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
   }) {
     final isSelected = _selectedTier == tier;
 
-    return GestureDetector(
-      onTap: () => setState(() => _selectedTier = tier),
-      child: AnimatedContainer(
+    return Semantics(
+      label: 'Sélectionner $name',
+      button: true,
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedTier = tier),
+        child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: 180,
         padding: const EdgeInsets.all(16),
@@ -387,7 +394,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                         : MintColors.border,
                     width: 2,
                   ),
-                  color: isSelected ? MintColors.primary : Colors.transparent,
+                  color: isSelected ? MintColors.primary : MintColors.transparent,
                 ),
                 child: isSelected
                     ? const Icon(Icons.check, color: MintColors.white, size: 14)
@@ -397,6 +404,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
           ],
         ),
       ),
+    ),
     );
   }
 

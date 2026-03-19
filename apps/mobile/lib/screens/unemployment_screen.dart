@@ -757,7 +757,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
           decoration: BoxDecoration(
             color: isCurrent
                 ? MintColors.primary.withValues(alpha: 0.06)
-                : Colors.transparent,
+                : MintColors.transparent,
             borderRadius: BorderRadius.circular(8),
             border: isCurrent
                 ? Border.all(
@@ -858,7 +858,10 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
           const SizedBox(height: 16),
           ...List.generate(items.length, (index) {
             final checked = _checkedItems.contains(index);
-            return GestureDetector(
+            return Semantics(
+              label: 'Checklist item ${index + 1}',
+              button: true,
+              child: GestureDetector(
               onTap: () {
                 setState(() {
                   if (checked) {
@@ -879,7 +882,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
                       decoration: BoxDecoration(
                         color: checked
                             ? MintColors.success
-                            : Colors.transparent,
+                            : MintColors.transparent,
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
                           color: checked
@@ -912,6 +915,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
                   ],
                 ),
               ),
+            ),
             );
           }),
         ],

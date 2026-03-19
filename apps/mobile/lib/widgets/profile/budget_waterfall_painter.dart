@@ -234,10 +234,14 @@ class _WaterfallRow extends StatelessWidget {
     );
 
     if (step.onTap != null) {
-      return GestureDetector(
-        onTap: step.onTap,
-        behavior: HitTestBehavior.opaque,
-        child: row,
+      return Semantics(
+        label: step.label,
+        button: true,
+        child: GestureDetector(
+          onTap: step.onTap,
+          behavior: HitTestBehavior.opaque,
+          child: row,
+        ),
       );
     }
     return row;

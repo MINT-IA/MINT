@@ -92,7 +92,10 @@ class _ExploreRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return Semantics(
+      label: 'interactive element',
+      button: true,
+      child: InkWell(
       onTap: () => context.push(route),
       borderRadius: BorderRadius.circular(10),
       child: Padding(
@@ -134,6 +137,6 @@ class _ExploreRow extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),);
   }
 }

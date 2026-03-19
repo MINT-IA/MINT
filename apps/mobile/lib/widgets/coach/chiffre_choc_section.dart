@@ -100,9 +100,10 @@ class ChiffreChocSection extends StatelessWidget {
         value: perteTotaleRetraite,
         message: 'Rente AVS perdue sur 20 ans de retraite avec '
             '$lacunesAVS ann\u00e9e${lacunesAVS > 1 ? 's' : ''} '
-            'de cotisation manquante${lacunesAVS > 1 ? 's' : ''}.',
+            'de cotisation manquante${lacunesAVS > 1 ? 's' : ''} '
+            '(calcul\u00a0: rente mensuelle \u00d7 13 mois/an, 13\u1d49 rente incluse).', // TODO: i18n
         narrativeMessage: narratives['avs'],
-        source: 'LAVS art. 29',
+        source: 'LAVS art. 29bis-29ter, 13\u1d49 rente AVS (d\u00e8s d\u00e9c. 2026)',
         ctaLabel: 'V\u00e9rifier mes lacunes',
         ctaRoute: '/retraite',
         icon: Icons.shield_outlined,

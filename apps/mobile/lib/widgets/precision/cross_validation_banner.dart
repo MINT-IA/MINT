@@ -113,15 +113,19 @@ class _CrossValidationBannerState extends State<CrossValidationBanner>
                     ),
                   ),
                 ),
-                InkWell(
-                  onTap: _dismiss,
-                  borderRadius: BorderRadius.circular(12),
-                  child: const Padding(
-                    padding: EdgeInsets.all(2),
-                    child: Icon(
-                      Icons.close,
-                      size: 16,
-                      color: MintColors.textMuted,
+                Semantics(
+                  label: 'Fermer',
+                  button: true,
+                  child: InkWell(
+                    onTap: _dismiss,
+                    borderRadius: BorderRadius.circular(12),
+                    child: const Padding(
+                      padding: EdgeInsets.all(2),
+                      child: Icon(
+                        Icons.close,
+                        size: 16,
+                        color: MintColors.textMuted,
+                      ),
                     ),
                   ),
                 ),
@@ -131,10 +135,13 @@ class _CrossValidationBannerState extends State<CrossValidationBanner>
             const SizedBox(height: 8),
 
             // Suggestion
-            InkWell(
-              onTap: widget.onAction,
-              borderRadius: BorderRadius.circular(8),
-              child: Row(
+            Semantics(
+              label: widget.alert.suggestion,
+              button: true,
+              child: InkWell(
+                onTap: widget.onAction,
+                borderRadius: BorderRadius.circular(8),
+                child: Row(
                 children: [
                   Icon(
                     Icons.lightbulb_outline_rounded,
@@ -159,6 +166,7 @@ class _CrossValidationBannerState extends State<CrossValidationBanner>
                       color: MintColors.textMuted,
                     ),
                 ],
+              ),
               ),
             ),
           ],

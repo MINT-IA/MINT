@@ -745,6 +745,11 @@ class CoachNarrativeService {
   }
 
   /// Construit le system prompt avec le contexte complet de l'utilisateur.
+  ///
+  /// Prompt constructed here — see prompt_registry.dart for base prompts.
+  /// This prompt uses CoachProfile + CoachingTip + FinancialFitnessService
+  /// + retirement context + Swiss constants grounding, which differ from
+  /// PromptRegistry's CoachContext model.
   static String _buildSystemPrompt({
     required CoachProfile profile,
     required List<Map<String, dynamic>>? scoreHistory,

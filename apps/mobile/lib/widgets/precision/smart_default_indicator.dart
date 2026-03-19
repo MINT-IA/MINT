@@ -39,11 +39,14 @@ class SmartDefaultIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => _showDetail(context),
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        margin: const EdgeInsets.only(left: 6),
+    return Semantics(
+      label: 'Valeur estimée',
+      button: true,
+      child: InkWell(
+        onTap: () => _showDetail(context),
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          margin: const EdgeInsets.only(left: 6),
         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
         decoration: BoxDecoration(
           color: MintColors.textMuted.withAlpha(20),
@@ -72,6 +75,7 @@ class SmartDefaultIndicator extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 

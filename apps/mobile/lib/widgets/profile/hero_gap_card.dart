@@ -204,9 +204,12 @@ class HeroGapCard extends StatelessWidget {
   }
 
   Widget _buildScanCta(S s) {
-    return GestureDetector(
-      onTap: onScanTap,
-      child: Row(
+    return Semantics(
+      label: 'Scanner un certificat',
+      button: true,
+      child: GestureDetector(
+        onTap: onScanTap,
+        child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.document_scanner, color: MintColors.white, size: 18),
@@ -241,6 +244,7 @@ class HeroGapCard extends StatelessWidget {
           ],
         ],
       ),
+    ),
     );
   }
 }

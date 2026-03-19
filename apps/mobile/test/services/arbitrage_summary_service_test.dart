@@ -87,8 +87,6 @@ void main() {
       final profile = _buildProfile(avoirLppTotal: 300000);
       final summary = ArbitrageSummaryService.compute(profile);
 
-      final renteItem =
-          summary.items.where((i) => i.id == 'rente_vs_capital').toList();
       // May or may not be present depending on whether diff > 10
       // But it should NOT be in locked
       final lockedIds = summary.lockedItems.map((l) => l.id).toSet();

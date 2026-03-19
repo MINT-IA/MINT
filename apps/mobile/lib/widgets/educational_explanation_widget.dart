@@ -40,9 +40,12 @@ class _EducationalExplanationWidgetState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header cliquable
-          InkWell(
-            onTap: () => setState(() => _isExpanded = !_isExpanded),
-            borderRadius: BorderRadius.circular(16),
+          Semantics(
+            label: 'Afficher les détails',
+            button: true,
+            child: InkWell(
+              onTap: () => setState(() => _isExpanded = !_isExpanded),
+              borderRadius: BorderRadius.circular(16),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -84,6 +87,7 @@ class _EducationalExplanationWidgetState
                 ],
               ),
             ),
+          ),
           ),
 
           // Contenu détaillé (dépliable)

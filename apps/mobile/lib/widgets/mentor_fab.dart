@@ -7,6 +7,7 @@ import 'package:mint_mobile/theme/colors.dart';
 ///
 /// Tapping opens a compact bottom sheet with 3 contextual quick actions
 /// instead of the old 5-button "Mentor Advisor" menu.
+// TODO: add Semantics for accessibility
 class MentorFAB extends StatelessWidget {
   const MentorFAB({super.key, this.currentTabIndex = 0});
 
@@ -26,7 +27,7 @@ class MentorFAB extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: false,
-      backgroundColor: Colors.transparent,
+      backgroundColor: MintColors.transparent,
       builder: (context) => _CoachQuickSheet(currentTabIndex: currentTabIndex),
     );
   }
@@ -159,7 +160,7 @@ class _CoachQuickSheet extends StatelessWidget {
 
   Widget _buildActionTile(BuildContext context, {required _CoachAction action}) {
     return Material(
-      color: Colors.transparent,
+      color: MintColors.transparent,
       child: InkWell(
         onTap: () {
           Navigator.pop(context);

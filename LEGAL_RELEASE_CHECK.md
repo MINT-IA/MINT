@@ -27,14 +27,14 @@ This checklist must pass before any major release or merging features related to
 - [x] All automated Backend Compliance Tests are passing.
 - [x] SOT.md and OpenAPI contracts are perfectly synchronized.
 
-## 6. Arbitrage Engine Compliance
-- [ ] No option is presented as "better", "optimal", or "recommended".
-- [ ] All comparisons show options side by side, never ranked.
-- [ ] Hypotheses are visible and modifiable on every arbitrage screen.
-- [ ] Sensitivity analysis is shown ("Si X change de Y%, le résultat s'inverse").
-- [ ] Crossover point is displayed when trajectories intersect.
-- [ ] Conditional language used throughout ("Dans ce scénario simulé...").
-- [ ] Rente vs Capital ALWAYS shows mixed scenario (oblig/suroblig split).
+## 6. Arbitrage Engine Compliance (verified S41-S44)
+- [x] No option is presented as "better", "optimal", or "recommended".
+- [x] All comparisons show options side by side, never ranked.
+- [x] Hypotheses are visible and modifiable on every arbitrage screen.
+- [x] Sensitivity analysis is shown ("Si X change de Y%, le résultat s'inverse").
+- [x] Crossover point is displayed when trajectories intersect.
+- [x] Conditional language used throughout ("Dans ce scénario simulé...").
+- [x] Rente vs Capital ALWAYS shows mixed scenario (oblig/suroblig split).
 
 ## 7. Coach Layer Compliance (from S35+)
 - [x] ComplianceGuard validates ALL LLM output before display.
@@ -46,11 +46,11 @@ This checklist must pass before any major release or merging features related to
 - [ ] BYOK consent screen shows exactly which data is sent to which provider.
 - [x] Fallback templates produce compliant output without LLM.
 
-## 8. Data Acquisition Compliance (from S42+)
-- [ ] Document images NEVER stored (deleted after OCR extraction).
-- [ ] On-device OCR by default (document never leaves phone).
-- [ ] Cloud OCR requires explicit consent + data deleted after processing.
-- [ ] Extracted values require user confirmation before profile injection.
-- [ ] Source quality tracked per field (document vs manual vs estimated).
-- [ ] Longitudinal snapshots require explicit opt-in consent (nLPD art. 5).
-- [ ] User can delete all snapshots and extracted data at any time.
+## 8. Data Acquisition Compliance (verified S42-S47)
+- [x] Document images NEVER stored (deleted after OCR extraction).
+- [x] On-device OCR by default (document never leaves phone).
+- [x] Cloud OCR requires explicit consent + data deleted after processing.
+- [x] Extracted values require user confirmation before profile injection.
+- [x] Source quality tracked per field (ProfileDataSource enum: estimated → openBanking, S46).
+- [x] Longitudinal snapshots require explicit opt-in consent (nLPD art. 5).
+- [x] User can delete all snapshots and extracted data at any time.

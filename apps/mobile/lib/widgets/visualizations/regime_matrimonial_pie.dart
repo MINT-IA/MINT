@@ -304,7 +304,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
                   curve: Curves.easeOutCubic,
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    color: isSelected ? MintColors.white : Colors.transparent,
+                    color: isSelected ? MintColors.white : MintColors.transparent,
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: isSelected
                         ? [

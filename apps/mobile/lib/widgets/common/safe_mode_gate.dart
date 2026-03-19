@@ -95,9 +95,12 @@ class SafeModeGate extends StatelessWidget {
                       ),
                 ],
                 const SizedBox(height: 12),
-                InkWell(
-                  onTap: () {
-                    showModalBottomSheet<void>(
+                Semantics(
+                  label: 'Pourquoi est-ce bloqué',
+                  button: true,
+                  child: InkWell(
+                    onTap: () {
+                      showModalBottomSheet<void>(
                       context: context,
                       backgroundColor: MintColors.white,
                       shape: const RoundedRectangleBorder(
@@ -157,6 +160,7 @@ class SafeModeGate extends StatelessWidget {
                       decoration: TextDecoration.underline,
                     ),
                   ),
+                ),
                 ),
                 const SizedBox(height: 12),
                 SizedBox(

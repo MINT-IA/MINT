@@ -36,7 +36,12 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (mounted && success) {
-      context.go('/home');
+      final redirect = GoRouterState.of(context).uri.queryParameters['redirect'];
+      if (redirect != null && redirect.startsWith('/')) {
+        context.go(Uri.decodeComponent(redirect));
+      } else {
+        context.go('/home');
+      }
     }
   }
 

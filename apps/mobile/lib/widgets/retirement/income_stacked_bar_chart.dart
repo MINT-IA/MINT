@@ -77,10 +77,13 @@ class _IncomeStackedBarChartState extends State<IncomeStackedBarChart>
                   tappedPhase: _tappedPhaseIndex,
                   tappedSegment: _tappedSegmentIndex,
                 ),
-                child: GestureDetector(
-                  onTapDown: (details) => _handleTap(details, context),
-                  onTapUp: (_) => _clearTap(),
+                child: Semantics(
+                  label: 'Détail des revenus de retraite',
+                  child: GestureDetector(
+                    onTapDown: (details) => _handleTap(details, context),
+                    onTapUp: (_) => _clearTap(),
                 ),
+              ),
               );
             },
           ),

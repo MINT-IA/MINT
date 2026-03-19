@@ -145,6 +145,15 @@ class SlmEngine {
   /// the engine when the user returns to the coach screen.
   bool _disposed = false;
 
+  /// Which compute backend is active (GPU or CPU). Null until init completes.
+  PreferredBackend? _activeBackend;
+
+  /// The compute backend currently in use. Null before initialization.
+  PreferredBackend? get activeBackend => _activeBackend;
+
+  /// Whether the engine fell back to CPU (slower, causes thermal throttling).
+  bool get isCpuFallback => _activeBackend == PreferredBackend.cpu;
+
   /// Init lock: prevents concurrent [initialize] calls from corrupting state.
   /// If init is in progress, subsequent callers await the same future.
   Completer<bool>? _initCompleter;
@@ -212,6 +221,7 @@ class SlmEngine {
   Future<bool> _doInitialize() async {
     // Reset disposed flag — the caller is explicitly requesting (re-)init.
     _disposed = false;
+    _activeBackend = null;
 
     // RAM guard: skip SLM entirely on low-RAM devices to prevent OOM crash.
     // Uses the active tier's minCores as the capability threshold.
@@ -270,11 +280,13 @@ class SlmEngine {
       }
 
       _status = SlmStatus.running;
+      _activeBackend = PreferredBackend.gpu;
       debugPrint('[SLM] Engine initialized: $modelId (GPU preferred)');
       return true;
     } catch (e) {
-      debugPrint('[SLM] Engine GPU init failed: $e');
+      debugPrint('[SLM] Engine GPU init failed: $e — trying CPU fallback');
       // Retry with CPU backend for older devices.
+      // WARNING: CPU inference on a 4B model is very slow (1-3 tokens/sec).
       try {
         _model = await FlutterGemma.getActiveModel(
           maxTokens: maxContextTokens,
@@ -289,7 +301,8 @@ class SlmEngine {
         }
 
         _status = SlmStatus.running;
-        debugPrint('[SLM] Engine initialized: $modelId (CPU fallback)');
+        _activeBackend = PreferredBackend.cpu;
+        debugPrint('[SLM] Engine initialized on CPU fallback: $modelId');
         return true;
       } catch (e2) {
         debugPrint('[SLM] Engine CPU fallback failed: $e2');
@@ -313,9 +326,6 @@ class SlmEngine {
     int maxTokens = defaultMaxTokens,
     double temperature = defaultTemperature,
   }) async {
-    if (_disposed) return null;
-    if (!isAvailable || _model == null) return null;
-
     // Concurrency guard: one generation at a time (device memory constraint).
     if (_isGenerating) {
       debugPrint('[SLM] Generation skipped: another call in progress');
@@ -327,6 +337,10 @@ class SlmEngine {
     InferenceChat? chat;
 
     try {
+      // Guards inside try so finally always resets _isGenerating.
+      if (_disposed) return null;
+      if (!isAvailable || _model == null) return null;
+
       // Create a chat session with caller-specified params.
       // temperature and tokenBuffer map to our public API.
       chat = await _model!.createChat(
@@ -386,18 +400,7 @@ class SlmEngine {
     int maxTokens = defaultMaxTokens,
     double temperature = defaultTemperature,
   }) async* {
-    // BUG 4 fix: early return if disposed.
-    if (_disposed) {
-      debugPrint('[SLM] generateStream skipped: engine disposed');
-      return;
-    }
-    // BUG 6 fix: log clearly when returning empty so callers can detect
-    // and fall back (e.g. to BYOK or FallbackTemplates).
-    if (!isAvailable || _model == null) {
-      debugPrint('[SLM] generateStream unavailable: '
-          'status=$_status, model=${_model != null}');
-      return;
-    }
+    // Concurrency guard — must stay OUTSIDE try.
     if (_isGenerating) {
       debugPrint('[SLM] generateStream skipped: another generation in progress');
       return;
@@ -407,6 +410,17 @@ class SlmEngine {
     InferenceChat? chat;
 
     try {
+      // Guards inside try so finally always runs.
+      if (_disposed) {
+        debugPrint('[SLM] generateStream skipped: engine disposed');
+        return;
+      }
+      if (!isAvailable || _model == null) {
+        debugPrint('[SLM] generateStream unavailable: '
+            'status=$_status, model=${_model != null}');
+        return;
+      }
+
       chat = await _model!.createChat(
         temperature: temperature,
         tokenBuffer: maxTokens,
@@ -453,6 +467,7 @@ class SlmEngine {
       _status = SlmStatus.ready;
     }
     _isGenerating = false;
+    _activeBackend = null;
     _disposed = true;
     debugPrint('[SLM] Engine disposed (will re-initialize on next use)');
   }

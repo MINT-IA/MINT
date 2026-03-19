@@ -117,15 +117,18 @@ class CoupleActionPlan extends StatelessWidget {
   ) {
     return Padding(
       padding: EdgeInsets.only(bottom: isLast ? 0 : 10),
-      child: InkWell(
-        onTap: action.route != null ? () => context.push(action.route!) : null,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: MintColors.surface,
-            borderRadius: BorderRadius.circular(12),
-          ),
+      child: Semantics(
+        label: action.title,
+        button: true,
+        child: InkWell(
+          onTap: action.route != null ? () => context.push(action.route!) : null,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: MintColors.surface,
+              borderRadius: BorderRadius.circular(12),
+            ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -204,6 +207,7 @@ class CoupleActionPlan extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 

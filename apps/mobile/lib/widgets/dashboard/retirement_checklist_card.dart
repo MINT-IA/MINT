@@ -111,13 +111,16 @@ class RetirementChecklistCard extends StatelessWidget {
   ) {
     return Padding(
       padding: EdgeInsets.only(bottom: isLast ? 0 : 10),
-      child: InkWell(
-        onTap: item.route != null ? () => context.push(item.route!) : null,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: MintColors.surface,
+      child: Semantics(
+        label: item.title,
+        button: true,
+        child: InkWell(
+          onTap: item.route != null ? () => context.push(item.route!) : null,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: MintColors.surface,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -190,6 +193,7 @@ class RetirementChecklistCard extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 

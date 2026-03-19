@@ -25,6 +25,7 @@ apps/mobile/              # Flutter (Dart) — iOS/Android/Web
       financial_core/     # ★ SHARED CALCULATORS — single source of truth
     widgets/              # Reusable widgets + educational inserts
     models/               # Data models
+    constants/            # Centralized constants (social_insurance.dart)
     theme/colors.dart     # MintColors palette
     providers/            # Provider state management
     l10n/                 # ARB files (6 languages)
@@ -55,7 +56,11 @@ legal/                    # CGU, Privacy, Disclaimer, Mentions légales
 | `avs_calculator.dart` | `computeMonthlyRente()`, `renteFromRAMD()`, `computeCouple()` | LAVS art. 21-40 |
 | `lpp_calculator.dart` | `projectToRetirement()`, `projectOneMonth()`, `blendedMonthly()` | LPP art. 14-16 |
 | `tax_calculator.dart` | `capitalWithdrawalTax()`, `progressiveTax()`, `estimateMonthlyIncomeTax()` | LIFD art. 38 |
-| `confidence_scorer.dart` | `ConfidenceScorer.score(profile)` — 3-axis: completeness × accuracy × freshness | Profile completeness |
+| `confidence_scorer.dart` | `EnhancedConfidence` — 4-axis: completeness × accuracy × freshness × understanding | Profile completeness |
+| `arbitrage_engine.dart` | `compareLumpSumVsAnnuity()`, `compareHousingOptions()` | Side-by-side scenarios |
+| `monte_carlo_service.dart` | `runSimulation()` — 1000+ stochastic projections | Retirement probability |
+| `withdrawal_sequencing_service.dart` | `optimizeWithdrawalOrder()` — LIFO/FIFO tax optimization | Withdrawal planning |
+| `tornado_sensitivity_service.dart` | `computeSensitivity()` — what-if ±1-5% analysis | Sensitivity charts |
 
 **Consumers** (must import `financial_core.dart`, never reimplement):
 `retirement_projection_service`, `forecaster_service`, `lpp_deep_service`, `rente_vs_capital_calculator`, `expat_service`, `financial_report_service`
@@ -79,155 +84,30 @@ flutter gen-l10n                      # Regenerate i18n after ARB changes
 
 ## 4. DEV RULES
 
-### At the START of every task/sprint/session
+> Full git workflow details in `rules.md` (tier 1) and `docs/CICD_ARCHITECTURE.md`.
 
-**Case A — New feature branch:**
-
-```bash
-git fetch --all
-git status
-# If dirty working tree → ask user whether to stash, commit, or discard
-git checkout dev
-git pull --rebase origin dev
-git checkout -b feature/S{XX}-<slug>
-```
-
-**Case B — Resuming an existing feature branch:**
-
-```bash
-git fetch --all
-git status
-# If dirty working tree → ask user whether to stash, commit, or discard
-git checkout feature/S{XX}-<slug>
-git pull --rebase origin feature/S{XX}-<slug>
-```
-
-IMPORTANT:
-- Never start coding on `main` or `staging` directly (always use feature branches or `dev`).
-- No need to update `staging` or `main` locally — Claude Code never branches from them.
-- Promotion PRs (`dev→staging`, `staging→main`) are done via GitHub, not local checkouts.
-- Do NOT rebase on `dev` when resuming — that happens naturally when the PR is merged via GitHub.
-
-### At the END of every task/sprint/session
-
-Steps (execute in order):
-
-```bash
-# 1. Verify you are on a feature branch (recommended workflow)
-# Note: Direct push to dev is allowed, but feature branches are preferred
-BRANCH=$(git branch --show-current)
-if [[ "$BRANCH" == "main" || "$BRANCH" == "staging" ]]; then
-  echo "ERROR: Cannot commit/push on $BRANCH. Create a feature branch or switch to dev."
-  exit 1
-fi
-
-# 2. Stage and commit
-git add <only sprint-relevant files>
-git status  # show user what will be committed
-git commit -m "S{XX}: <description concise>"
-
-# 3. Push to feature branch
-git push origin "$BRANCH" -u
-
-# 4. Create PR → dev (or ask user for promotion PR dev→staging / staging→main)
-# gh pr create --base dev --title "..." --body "..."
-```
-
-### Branch convention
-- Feature work: `feature/S{XX}-<slug>` (e.g. `feature/S35-slm-coach`)
-- Hotfix: `hotfix/<description>`
-- Always branch from latest `dev` (NOT from `main` directly)
-- Direct push to `dev` is allowed (but PRs from feature branches are preferred)
-- Never commit directly to `staging` or `main` (always via PR)
-
-### Branch flow (NON-NEGOTIABLE — see `docs/CICD_ARCHITECTURE.md`)
-
-The CI/CD pipeline enforces a strict promotion flow. Claude Code MUST follow it:
-
+### Branch flow (NON-NEGOTIABLE)
 ```
 feature/* ──PR──> dev ──PR──> staging ──PR──> main
 ```
-
-Rules:
-- **`git push`**: Direct push to `dev` is allowed. NEVER push directly to `staging` or `main`.
-- **`gh pr create`**: The base branch (`--base`) MUST match the promotion flow:
-  - From `feature/*` or `hotfix/*` → base = `dev`
-  - From `dev` → base = `staging` (only when user explicitly asks to promote)
-  - From `staging` → base = `main` (only when user explicitly asks to promote)
-  - **NEVER** create a PR from a feature branch directly to `staging` or `main`
-- **Direct commits** to `staging` or `main` are BANNED (always via PR)
-- **Direct commits** to `dev` are allowed but PRs from feature branches are preferred
-- **Promotion PRs** (`dev→staging`, `staging→main`): only create when user explicitly requests it
-- **Auto-merge `dev→staging`**: Use `gh pr merge --auto --merge` so the PR merges automatically once CI Gate passes
-- **Manual merge `staging→main`**: Create the PR but do NOT auto-merge. The user must approve and merge manually (production deploy)
-- **Merge strategy**:
-  - `feature→dev`: **squash merge** (clean history, 1 commit per feature)
-  - `dev→staging`: **merge commit** (`--merge`, not `--squash`) — preserves SHAs, no resync needed
-  - `staging→main`: **merge commit** — same reason: avoids SHA divergence between branches
-- Before creating a PR `staging→main`: verify the last Smoke Staging run is green (ask user to confirm if unsure)
-- After merge to `main`: backend deploy, TestFlight (if mobile changed), and Web App (if web changed) trigger automatically — do NOT manually trigger these workflows unless user asks
-
-# Promotion PRs — Naming convention
-
-For every promotion PR in the MINT workflow:
-
-- **dev→staging**: name the PR "Staging to vX.Y.Z" (preparation for QA validation, agent tests, CI/CD)
-- **staging→main**: name the PR "Production to vX.Y.Z" (production deployment, official release)
-
-Version meaning:
-| Position | Meaning | Typical MINT trigger | Example |
-|----------|--------|----------------------|---------|
-| X (Major) | Agent architecture overhaul, breaking change, new agent logic | Structural change, breaking change, major refactor | v2.0.0 |
-| Y (Minor) | New visible feature, module extension, new use-case | New screen, calculation, service, agent rule | v1.3.0 |
-| Z (Patch) | Bug fix, optimization, minor adjustment | Agent fix, calculation correction, UI improvement, compliance | v1.3.2 |
-| Suffix a,b,... | Urgent hotfix in production | Critical patch post-release, urgent compliance fix | v1.3.2a |
-
-The version number must be incremented according to the nature of the change: breaking (X), new feature (Y), bugfix (Z), hotfix (suffix).
-
-MINT examples:
-- PR dev→staging: "Staging to v1.3.0" (add agent screen)
-- PR dev→staging: "Staging to v2.0.0" (agent architecture overhaul)
-- PR staging→main: "Production to v1.3.2" (compliance fix)
-- PR staging→main: "Production to v1.3.2a" (urgent hotfix post-release)
-
-**BEFORE creating any promotion PR:**
-
-```bash
-# Get last production version from merged PRs to main
-gh pr list --state merged --base main --limit 1 --json title -q '.[0].title'
-```
-
-Extract version number (e.g., "Production to v0.0.1f" → v0.0.1f), then:
-- **Patch (Z)**: increment last number (v0.0.1f → v0.0.2)
-- **Minor (Y)**: increment middle, reset patch (v0.0.2 → v0.1.0)
-- **Major (X)**: increment first, reset minor+patch (v0.1.0 → v1.0.0)
-- **Hotfix (suffix)**: add/increment letter (v0.0.2 → v0.0.2a, v0.0.2a → v0.0.2b)
-
-This convention is mandatory for every promotion in the MINT CI/CD pipeline.
+- **Feature branches**: `feature/S{XX}-<slug>` from `dev`. Hotfix: `hotfix/<slug>`.
+- **Push**: Direct to `dev` OK. NEVER to `staging` or `main`.
+- **PRs**: feature→dev (squash), dev→staging (merge), staging→main (merge).
+- **Promotion PRs**: "Staging to vX.Y.Z" / "Production to vX.Y.Z". Only when user requests.
+- **Force push is BANNED**. Always `--rebase` on pull.
 
 ### Before ANY code modification
-1. Confirm current branch with `git branch --show-current`
-2. Confirm no uncommitted changes with `git status`
-3. If dirty working tree → ask user whether to stash, commit, or discard
-4. If on `main` or `staging` → create a feature branch first (`git checkout -b feature/...`). Work on `dev` is allowed but feature branches are preferred.
+1. `git branch --show-current` — confirm feature branch (never `main`/`staging`)
+2. `git status` — if dirty, ask user to stash/commit/discard
 
-### Rules
-- **NEVER** force push (`git push --force` is BANNED)
-- **NEVER** auto-merge branches without user approval
-- **NEVER** create PRs that skip the branch flow (`feature→dev→staging→main`)
-- **ALWAYS** use `--rebase` on pull (no merge commits)
-- **ALWAYS** show `git status` output before committing
-- **ALWAYS** delete feature branches after merge (`git branch -d <branch>` local + `git push origin --delete <branch>` remote)
-
-### CI/CD
-- **CI**: `.github/workflows/ci.yml` — triggers on push to staging/main + PRs
-- **Deploy**: `.github/workflows/deploy-backend.yml` — Railway staging (PR merge → staging) + prod (merge → main)
-- **TestFlight**: `.github/workflows/testflight.yml` — manual `workflow_dispatch`, dual-track staging/production
-- **Full reference**: `docs/CICD_ARCHITECTURE.md`
+### Sprint execution method
+**All sprints use autoresearch skills** as primary execution method (see `docs/ROADMAP_V2.md`):
+`/autoresearch-calculator-forge`, `/autoresearch-test-generation`, `/autoresearch-prompt-lab`,
+`/autoresearch-compliance-hardener`, `/autoresearch-ux-polish`, `/autoresearch-quality`,
+`/autoresearch-i18n`, `/autoresearch-coach-evolution`
 
 ### Testing
 - **Service files**: minimum 10 unit tests (edge cases + compliance)
-- **Screens/widgets**: widget tests (render, empty, error states)
 - **Golden couple**: Julien + Lauren tested against known expected values
 - **Before merge**: `flutter analyze` (0 issues) + `flutter test` + `pytest tests/ -q`
 
@@ -282,10 +162,11 @@ Crise:         debtCrisis
 ```
 
 ### Confidence Score (mandatory on ALL projections)
-- `confidenceScore` (0-100%) — 3-axis: completeness × accuracy × freshness (geometric mean)
-- `enrichmentPrompts` — actions to improve accuracy
+- `EnhancedConfidence` (0-100%) — **4-axis**: completeness × accuracy × freshness × understanding (geometric mean)
+- `enrichmentPrompts` — actions to improve accuracy (axis-specific)
 - Uncertainty band (min/max) when confidence < 70%
 - Data sources: estimated(0.25), userInput(0.60), crossValidated(0.70), certificate(0.95), openBanking(1.00)
+- Understanding axis: financial literacy engagement (beginner/intermediate/advanced + coach session bonus)
 
 ### Capital vs Rente Taxation (CRITICAL)
 - **Rente LPP** = revenu imposable annuel (LIFD art. 22)
@@ -404,36 +285,33 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 
 ---
 
-## 10. AGENT TEAM WORKFLOW
+## 10. AGENT TEAM & HIERARCHY
 
-### Team Structure
-- **Team Lead** (Opus): orchestrate, review, merge. Doesn't code (except urgency).
-- **dart-agent** (Sonnet): `apps/mobile/` only. Skill: `.claude/skills/mint-flutter-dev/`
-- **python-agent** (Sonnet): `services/backend/` only. Skill: `.claude/skills/mint-backend-dev/`
-- **swiss-brain** (Opus): transversal review, specs, compliance. Skill: `.claude/skills/mint-swiss-compliance/`
+### Team: Swiss-Brain (spec) → Python-Agent (backend) → Dart-Agent (UI) → Team Lead (review)
 
-### Workflow: Swiss-Brain validates BEFORE devs implement
-```
-Swiss-Brain (spec + test cases) → Python-Agent (backend) → Dart-Agent (UI) → Team Lead (review + merge)
-```
+| Agent | Model | Scope | Skill |
+|-------|-------|-------|-------|
+| Team Lead | Opus | orchestrate, review, merge | `mint-commit` |
+| dart-agent | Sonnet | `apps/mobile/` only | `mint-flutter-dev` |
+| python-agent | Sonnet | `services/backend/` only | `mint-backend-dev` |
+| swiss-brain | Opus | specs, compliance, docs | `mint-swiss-compliance` |
 
-### Cross-modification rules
-| Agent | Can modify | Cannot modify |
-|-------|-----------|---------------|
-| dart-agent | `apps/mobile/` | `services/backend/`, `tools/openapi/` |
-| python-agent | `services/backend/`, `tools/openapi/`, `SOT.md` | `apps/mobile/` |
-| swiss-brain | `docs/`, `education/`, `decisions/`, `visions/` | Code (`*.dart`, `*.py`) |
+### Autoresearch Skills (10 — Karpathy loop pattern)
 
-### Skills Index
-| Skill | File | For |
-|-------|------|-----|
-| mint-flutter-dev | `.claude/skills/mint-flutter-dev/SKILL.md` | dart-agent |
-| mint-backend-dev | `.claude/skills/mint-backend-dev/SKILL.md` | python-agent |
-| mint-swiss-compliance | `.claude/skills/mint-swiss-compliance/SKILL.md` | swiss-brain |
-| mint-test-suite | `.claude/skills/mint-test-suite/SKILL.md` | all agents |
-| mint-commit | `.claude/skills/mint-commit/SKILL.md` | team-lead |
+| Skill | Purpose | Metric |
+|-------|---------|--------|
+| `/autoresearch-quality` | Bug hunter (flutter test → fix code → verify) | test failure count |
+| `/autoresearch-calculator-forge` | Financial calc edge-case validator | calculation accuracy % |
+| `/autoresearch-test-generation` | Autonomous test factory | test coverage % |
+| `/autoresearch-prompt-lab` | Coach AI prompt optimizer | prompt quality score |
+| `/autoresearch-compliance-hardener` | Adversarial compliance tester | compliance pass rate |
+| `/autoresearch-coach-evolution` | Coaching content optimizer (lifecycle-aware) | composite text score |
+| `/autoresearch-i18n` | Hardcoded string extraction | hardcoded string count |
+| `/autoresearch-ux-polish` | UX law violation scanner+fixer | ux violations count |
+| `/autoresearch-test-coverage` | Test gap auditor + delegator | uncovered services |
+| `/autoresearch-privacy-guard` | PII leak scanner + fixer | PII violations count |
 
-In case of conflict, priority order:
+### Conflict resolution (priority order)
 1. `rules.md` — Non-negotiable technical + ethical rules
 2. `CLAUDE.md` (this file) — Project context, constants, compliance
 3. `.claude/skills/` — Agent-specific conventions
@@ -448,20 +326,38 @@ If code contradicts 1-8: fix the code OR write an ADR.
 
 ---
 
+## 11. STRATEGIC ROADMAP V2
+
+> Full details: `docs/ROADMAP_V2.md` | Based on: `visions/MINT_Analyse_Strategique_Benchmark.md`
+
+| Phase | Sprints | Focus | Key Features |
+|-------|---------|-------|-------------|
+| 1 "Le Conversationnel" | S51-S56 | MINT parle | Chat AI, 3a rétroactif, 13e rente AVS, Financial Health Score, streaks+milestones, RAG v1 |
+| 2 "Le Compagnon" | S57-S62 | MINT s'adapte | Lifecycle Engine (7 phases), AI memory, Weekly Recap, cantonal benchmarks, JITAI nudges |
+| 3 "L'Expert" | S63-S68 | MINT indispensable | Voice AI, multi-LLM, Expert tier (human advisors), advanced gamification |
+| 4 "La Référence" | S69+ | Standard suisse | Institutional APIs, B2B caisses+RH, Open Finance, expansion DACH |
+
+**Execution method**: All sprints use autoresearch dev skills (`visions/MINT_Autoresearch_Dev_Agents.md`).
+
+---
+
 ## 12. REFERENCE DOCUMENTS
 
 | Document | Purpose |
 |----------|---------|
 | `rules.md` | Tier 1: fintech-grade principles, UX rules, workflow |
-| `SOT.md` | Data contracts: Profile, SessionReport |
+| `SOT.md` | Data contracts: Profile, SessionReport, EnhancedConfidence |
 | `LEGAL_RELEASE_CHECK.md` | Pre-release compliance gate |
 | `DefinitionOfDone.md` | Sprint completion criteria |
-| `docs/VISION_V1.md` | Strategic direction V1 (~25 screens, 3 tabs) |
+| `docs/ROADMAP_V2.md` | Strategic roadmap V2 (benchmark-driven, 4 phases) |
+| `docs/VISION_UNIFIEE_V1.md` | Unified V1 vision (7 hermeneutic principles, 3 tabs) |
 | `docs/CICD_ARCHITECTURE.md` | Full CI/CD pipeline reference |
 | `docs/ONBOARDING_ARBITRAGE_ENGINE.md` | Onboarding + arbitrage specs |
 | `docs/DATA_ACQUISITION_STRATEGY.md` | OCR, guided entry, Open Banking |
+| `docs/UX_WIDGET_REDESIGN_MASTERPLAN.md` | UX 7 laws + 75 creative proposals |
+| `visions/MINT_Analyse_Strategique_Benchmark.md` | 40+ app benchmark + academic research |
+| `visions/MINT_Autoresearch_Dev_Agents.md` | 10 dev agents (build) — sprint execution method |
+| `visions/MINT_Autoresearch_Agents.md` | 10 veille agents (post-launch) |
 | `visions/vision_product.md` | Core promise, acquisition strategy |
 | `visions/vision_compliance.md` | LSFin, FINMA, nLPD framework |
-| `visions/vision_tech_stack.md` | Technical choices |
 | `legal/DISCLAIMER.md` | User-facing educational disclaimer |
-| `legal/CGU.md` | Terms of service |

@@ -309,23 +309,26 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     int count,
     String label,
   ) {
-    return InkWell(
-      onTap: () => _pickAndUpload(type),
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: MintColors.lightBorder),
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: 0.06),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+    return Semantics(
+      label: label,
+      button: true,
+      child: InkWell(
+        onTap: () => _pickAndUpload(type),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: MintColors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: MintColors.lightBorder),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.06),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -362,6 +365,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -625,9 +629,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       ),
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
-        child: InkWell(
-          onTap: () => context.push('/documents/${doc.id}'),
-          borderRadius: BorderRadius.circular(16),
+        child: Semantics(
+          label: typeLabel,
+          button: true,
+          child: InkWell(
+            onTap: () => context.push('/documents/${doc.id}'),
+            borderRadius: BorderRadius.circular(16),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -700,6 +707,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               ],
             ),
           ),
+        ),
         ),
       ),
     );
@@ -1127,16 +1135,19 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // ──────────────────────────────────────────────────────────
 
   Widget _buildBankImportCard(S? s) {
-    return InkWell(
-      onTap: () => context.push('/bank-import'),
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: MintColors.info.withValues(alpha: 0.3)),
-        ),
+    return Semantics(
+      label: s?.bankImportTitle ?? 'Importer un relevé bancaire',
+      button: true,
+      child: InkWell(
+        onTap: () => context.push('/bank-import'),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: MintColors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: MintColors.info.withValues(alpha: 0.3)),
+          ),
         child: Row(
           children: [
             Container(
@@ -1178,6 +1189,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 

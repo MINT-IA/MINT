@@ -12,6 +12,9 @@ class MintColors {
   static const Color selectionBg = Color(0xFFF5F5F7); 
   static const Color selectionBorder = Color(0xFF1D1D1F);
   
+  // Transparent
+  static const Color transparent = Color(0x00000000);
+
   // Neutrals - Minimalist
   static const Color background = Color(0xFFFFFFFF);
   static const Color appleSurface = Color(0xFFF5F5F7); 

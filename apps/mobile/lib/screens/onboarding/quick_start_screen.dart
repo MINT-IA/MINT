@@ -14,11 +14,16 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 /// Quick Start — single-screen onboarding that gets the user to the dashboard
 /// in under 20 seconds.
 ///
-/// Collects 4 fields: firstName, age, salary, canton.
-/// Shows a live retirement preview as the user adjusts sliders.
+/// Collects 3 fields: firstName, age, canton.
+/// Salary is collected later in the profile enrichment flow (behind AuthGate).
+/// Shows a live retirement preview using the Swiss median salary as default.
 /// Saves via [CoachProfileProvider.updateFromSmartFlow] and navigates to /home.
 class QuickStartScreen extends StatefulWidget {
-  const QuickStartScreen({super.key});
+  /// Optional section to highlight when navigating from profile edit buttons.
+  /// Values: 'identity', 'income', 'pension', 'property'.
+  final String? initialSection;
+
+  const QuickStartScreen({super.key, this.initialSection});
 
   @override
   State<QuickStartScreen> createState() => _QuickStartScreenState();
@@ -28,14 +33,66 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
   final _analytics = AnalyticsService();
   final _nameController = TextEditingController();
   double _age = 45;
-  double _salary = 85000;
   String _canton = 'VD';
   bool _saving = false;
+
+  /// Default salary used for the preview estimation (Swiss median).
+  /// Actual salary is collected later in the profile enrichment flow
+  /// (behind AuthGate, since it is sensitive financial data).
+  static const double _defaultSalary = 85000;
+
+  /// Maps section parameter to a user-friendly label for the guidance snackbar.
+  static const _sectionLabels = {
+    'identity': 'Identité & Foyer',
+    'income': 'Revenus & Épargne',
+    'pension': 'Prévoyance (LPP)',
+    'property': 'Immobilier & Dettes',
+  };
 
   @override
   void initState() {
     super.initState();
     _analytics.trackScreenView('/onboarding/quick');
+
+    // Pre-fill from existing profile if editing a specific section
+    if (widget.initialSection != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _prefillFromProfile();
+        _showSectionGuidance();
+      });
+    }
+  }
+
+  /// Pre-fill fields from the existing coach profile when editing.
+  void _prefillFromProfile() {
+    final provider = context.read<CoachProfileProvider>();
+    final profile = provider.profile;
+    if (profile == null) return;
+
+    setState(() {
+      if (profile.firstName != null && profile.firstName!.isNotEmpty) {
+        _nameController.text = profile.firstName!;
+      }
+      if (profile.age != null) {
+        _age = profile.age!.toDouble().clamp(22, 67);
+      }
+      if (profile.canton.isNotEmpty) {
+        _canton = profile.canton;
+      }
+    });
+  }
+
+  /// Show a guidance snackbar indicating which section the user should edit.
+  void _showSectionGuidance() {
+    final label = _sectionLabels[widget.initialSection];
+    if (label == null || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Section\u00a0: $label — mets à jour tes informations ci-dessous.'),
+        duration: const Duration(seconds: 4),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
@@ -60,19 +117,19 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
 
   Map<String, double> _estimate() {
     final age = _age.round();
-    final avs = AvsCalculator.renteFromRAMD(_salary);
-    final lppBalance = _estimateLppBalance(age, _salary);
+    final avs = AvsCalculator.renteFromRAMD(_defaultSalary);
+    final lppBalance = _estimateLppBalance(age, _defaultSalary);
     final lppAnnual = LppCalculator.projectToRetirement(
       currentBalance: lppBalance,
       currentAge: age,
       retirementAge: 65,
-      grossAnnualSalary: _salary,
+      grossAnnualSalary: _defaultSalary,
       caisseReturn: 0.01,
       conversionRate: lppTauxConversionMinDecimal,
     );
     final lppMonthly = lppAnnual / 12;
     final total = avs + lppMonthly;
-    final current = _salary / 12;
+    final current = _defaultSalary / 12;
     final ratio = current > 0 ? total / current : 0.0;
     return {'total': total, 'current': current, 'ratio': ratio};
   }
@@ -84,7 +141,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     final provider = context.read<CoachProfileProvider>();
     provider.updateFromSmartFlow(
       age: _age.round(),
-      grossSalary: _salary,
+      grossSalary: _defaultSalary,
       canton: _canton,
       firstName: _nameController.text.trim().isNotEmpty
           ? _nameController.text.trim()
@@ -136,7 +193,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      '4 infos suffisent. Tu pourras affiner plus tard.',
+                      '3 infos suffisent. Tu pourras affiner plus tard.',
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         color: MintColors.textSecondary,
@@ -190,21 +247,6 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                         max: 67,
                         divisions: 45,
                         onChanged: (v) => setState(() => _age = v),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // ── Salary slider ──
-                    _buildSliderLabel(
-                        'Salaire brut annuel', '${formatChf(_salary)} CHF'),
-                    SliderTheme(
-                      data: _sliderTheme(),
-                      child: Slider(
-                        value: _salary,
-                        min: 30000,
-                        max: 250000,
-                        divisions: 44,
-                        onChanged: (v) => setState(() => _salary = v),
                       ),
                     ),
                     const SizedBox(height: 16),

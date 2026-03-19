@@ -271,9 +271,12 @@ class _CouplePhaseTimelineState extends State<CouplePhaseTimeline> {
                 ),
               ),
               if (_isModified)
-                GestureDetector(
-                  onTap: _resetSlider,
-                  child: Container(
+                Semantics(
+                  label: 'Réinitialiser',
+                  button: true,
+                  child: GestureDetector(
+                    onTap: _resetSlider,
+                    child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 4,
@@ -291,6 +294,7 @@ class _CouplePhaseTimelineState extends State<CouplePhaseTimeline> {
                       ),
                     ),
                   ),
+                ),
                 ),
             ],
           ),
