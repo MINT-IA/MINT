@@ -1341,49 +1341,57 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         ),
         child: Column(
           children: [
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  _expandedItems[index] = !isExpanded;
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          if (isChecked) {
-                            _checkedItems.remove(index);
-                          } else {
-                            _checkedItems.add(index);
-                          }
-                        });
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: isChecked
-                              ? MintColors.success
-                              : MintColors.transparent,
-                          borderRadius: BorderRadius.circular(7),
-                          border: Border.all(
-                            color: isChecked
-                                ? MintColors.success
-                                : MintColors.border,
-                            width: 1.5,
+            Semantics(
+              label: 'Détails de $title',
+              button: true,
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _expandedItems[index] = !isExpanded;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Semantics(
+                        label: 'Cocher $title',
+                        button: true,
+                        toggled: isChecked,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              if (isChecked) {
+                                _checkedItems.remove(index);
+                              } else {
+                                _checkedItems.add(index);
+                              }
+                            });
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: isChecked
+                                  ? MintColors.success
+                                  : MintColors.transparent,
+                              borderRadius: BorderRadius.circular(7),
+                              border: Border.all(
+                                color: isChecked
+                                    ? MintColors.success
+                                    : MintColors.border,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: isChecked
+                                ? const Icon(Icons.check,
+                                    size: 15, color: MintColors.white)
+                                : null,
                           ),
                         ),
-                        child: isChecked
-                            ? const Icon(Icons.check,
-                                size: 15, color: MintColors.white)
-                            : null,
                       ),
-                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -1406,7 +1414,8 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                       size: 20,
                       color: MintColors.textMuted,
                     ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
