@@ -107,11 +107,12 @@ void main() {
       expect(find.text('Moi'), findsWidgets);
     });
 
-    testWidgets('shows Precision Index card', (tester) async {
+    testWidgets('shows profile completion progress', (tester) async {
       await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('Precision Index'), findsOneWidget);
+      // Phase 2: Precision Index replaced by inline completion progress
+      expect(find.textContaining('Compl'), findsWidgets);
       expect(find.byType(LinearProgressIndicator), findsWidgets);
     });
 
@@ -124,11 +125,12 @@ void main() {
       expect(find.textContaining('LPP'), findsWidgets);
     });
 
-    testWidgets('shows security and data section', (tester) async {
+    testWidgets('shows settings section', (tester) async {
       await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('Data'), findsOneWidget);
+      // Phase 2: "Sécurité & Data" header replaced by "RÉGLAGES" section
+      expect(find.textContaining('GLAGES'), findsOneWidget);
     });
 
     testWidgets('shows delete data button', (tester) async {
@@ -213,11 +215,12 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      final identityLabel = find.textContaining('Identité & Foyer').last;
+      // Phase 2: completion rows use GestureDetector, not InkWell
+      final identityLabel = find.textContaining('Foyer').last;
       await tester.ensureVisible(identityLabel);
       final identitySection = find.ancestor(
         of: identityLabel,
-        matching: find.byType(InkWell),
+        matching: find.byType(GestureDetector),
       );
       await tester.tap(identitySection.first);
       await tester.pump();
