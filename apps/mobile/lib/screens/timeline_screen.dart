@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 
 // ────────────────────────────────────────────────────────────
 //  LIFE EVENT DEFINITION
@@ -294,10 +295,7 @@ class TimelineScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'Sélectionne un événement pour simuler son impact financier.',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodySmall(),
                 ),
                 const SizedBox(height: 16),
                 for (final category in _categories) ...[
@@ -326,11 +324,7 @@ class TimelineScreen extends StatelessWidget {
       elevation: 0,
       title: Text(
         'Mon parcours',
-        style: GoogleFonts.montserrat(
-          fontWeight: FontWeight.w700,
-          fontSize: 18,
-          color: MintColors.textPrimary,
-        ),
+        style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
       ),
     );
   }
@@ -343,20 +337,12 @@ class TimelineScreen extends StatelessWidget {
         children: [
           Text(
             'Ta vie financière,\nétape par étape.',
-            style: GoogleFonts.montserrat(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.headlineLarge().copyWith(fontSize: 24),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             'Outils essentiels et événements de vie — tout est là.',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-              height: 1.5,
-            ),
+            style: MintTextStyles.bodyMedium(),
           ),
         ],
       ),
@@ -417,19 +403,14 @@ class TimelineScreen extends StatelessWidget {
             const Spacer(),
             Text(
               action.title,
-              style: GoogleFonts.montserrat(
-                fontSize: 13,
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(
                 fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: MintSpacing.xs),
             Text(
               action.subtitle,
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.micro(),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -449,10 +430,8 @@ class TimelineScreen extends StatelessWidget {
         const SizedBox(width: 8),
         Text(
           title,
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
+          style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(
             fontWeight: FontWeight.w800,
-            color: MintColors.primary,
             letterSpacing: 1.2,
           ),
         ),
@@ -479,10 +458,8 @@ class TimelineScreen extends StatelessWidget {
         const SizedBox(width: 10),
         Text(
           category.label,
-          style: GoogleFonts.montserrat(
-            fontSize: 11,
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
             fontWeight: FontWeight.w800,
-            color: MintColors.textMuted,
             letterSpacing: 1.0,
           ),
         ),
@@ -530,19 +507,14 @@ class TimelineScreen extends StatelessWidget {
                   children: [
                     Text(
                       event.title,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 14,
+                      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(
                         fontWeight: FontWeight.w700,
-                        color: MintColors.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: MintSpacing.xs),
                     Text(
                       event.subtitle,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: MintColors.textSecondary,
-                      ),
+                      style: MintTextStyles.labelSmall(),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),

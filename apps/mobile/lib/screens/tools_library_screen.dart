@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 
 /// Data model for a single tool entry.
 class _ToolItem {
@@ -536,10 +537,8 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
             ),
             title: Text(
               S.of(context)!.toolsAllTools,
-              style: GoogleFonts.montserrat(
-                fontWeight: FontWeight.w700,
+              style: MintTextStyles.headlineMedium().copyWith(
                 fontSize: 18,
-                color: MintColors.textPrimary,
                 letterSpacing: -0.3,
               ),
             ),
@@ -567,10 +566,8 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                     ),
                     child: Text(
                       S.of(context)!.toolsToolCount(_totalToolCount.toString()),
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
+                      style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(
                         fontWeight: FontWeight.w600,
-                        color: MintColors.primary,
                       ),
                     ),
                   ),
@@ -584,10 +581,8 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                     ),
                     child: Text(
                       S.of(context)!.toolsCategoryCount(_effectiveCategories.length.toString()),
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
+                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(
                         fontWeight: FontWeight.w600,
-                        color: MintColors.textSecondary,
                       ),
                     ),
                   ),
@@ -600,10 +595,8 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                       },
                       child: Text(
                         S.of(context)!.toolsClear,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
+                        style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(
                           fontWeight: FontWeight.w600,
-                          color: MintColors.info,
                         ),
                       ),
                     ),
@@ -652,16 +645,10 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
       child: TextField(
         controller: _searchController,
         onChanged: (value) => setState(() => _searchQuery = value),
-        style: GoogleFonts.inter(
-          fontSize: 15,
-          color: MintColors.textPrimary,
-        ),
+        style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
         decoration: InputDecoration(
           hintText: S.of(context)!.toolsSearchHint,
-          hintStyle: GoogleFonts.inter(
-            fontSize: 15,
-            color: MintColors.textMuted,
-          ),
+          hintStyle: MintTextStyles.bodyLarge(color: MintColors.textMuted),
           prefixIcon:
               const Icon(Icons.search, color: MintColors.textMuted, size: 20),
           suffixIcon: _searchQuery.isNotEmpty
@@ -694,19 +681,12 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
           const SizedBox(height: 16),
           Text(
             S.of(context)!.toolsNoResults,
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.textSecondary),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             S.of(context)!.toolsNoResultsHint,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textMuted),
           ),
         ],
       ),
@@ -753,27 +733,22 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                   Expanded(
                     child: Text(
                       category.title.toUpperCase(),
-                      style: GoogleFonts.montserrat(
-                        fontSize: 12,
+                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(
                         fontWeight: FontWeight.w800,
-                        color: MintColors.textSecondary,
                         letterSpacing: 1.2,
                       ),
                     ),
                   ),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm, vertical: 3),
                     decoration: BoxDecoration(
                       color: MintColors.surface,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       '${category.tools.length}',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
+                      style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
                         fontWeight: FontWeight.w600,
-                        color: MintColors.textMuted,
                       ),
                     ),
                   ),
@@ -853,21 +828,15 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                   children: [
                     Text(
                       tool.title,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
+                      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(
                         fontWeight: FontWeight.w600,
-                        color: MintColors.textPrimary,
                         height: 1.2,
                       ),
                     ),
                     const SizedBox(height: 3),
                     Text(
                       tool.subtitle,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textSecondary,
-                        height: 1.3,
-                      ),
+                      style: MintTextStyles.bodySmall().copyWith(height: 1.3),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

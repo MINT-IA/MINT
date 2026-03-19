@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:provider/provider.dart';
@@ -19,11 +20,12 @@ class PortfolioScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Mon patrimoine',
-          style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, fontSize: 18, color: MintColors.textPrimary),
+          style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
         ),
         centerTitle: false,
         elevation: 0,
         backgroundColor: MintColors.white,
+        surfaceTintColor: MintColors.white,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -74,7 +76,7 @@ class PortfolioScreen extends StatelessWidget {
           Expanded(
             child: Text(
               'Alerte Dettes : Ta priorité absolue est le désendettement avant tout réinvestissement.',
-              style: TextStyle(fontSize: 13, color: MintColors.error, fontWeight: FontWeight.bold),
+              style: MintTextStyles.bodySmall(color: MintColors.error).copyWith(fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -93,7 +95,7 @@ class PortfolioScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Readiness Index (Milestones)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+          Text('Readiness Index (Milestones)', style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           _readinessRow('Pérennité Retraite', 0.65),
           const SizedBox(height: 12),
@@ -111,8 +113,8 @@ class PortfolioScreen extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: const TextStyle(fontSize: 12, color: MintColors.textSecondary)),
-            Text('${(value * 100).toInt()}%', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+            Text(label, style: MintTextStyles.bodySmall()),
+            Text('${(value * 100).toInt()}%', style: MintTextStyles.bodySmall().copyWith(fontWeight: FontWeight.bold)),
           ],
         ),
         const SizedBox(height: 4),
@@ -137,18 +139,14 @@ class PortfolioScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Text(
+          Text(
             'Valeur Totale Neté',
-            style: TextStyle(fontSize: 14, color: MintColors.textSecondary, fontWeight: FontWeight.w500),
+            style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w500),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             'CHF 102\'678.64',
-            style: GoogleFonts.montserrat(
-              fontSize: 32,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.displayMedium(),
           ),
           const SizedBox(height: 16),
           const Row(
@@ -158,7 +156,7 @@ class PortfolioScreen extends StatelessWidget {
               SizedBox(width: 4),
               Text(
                 '509.30 (0.50%) aujourd\'hui',
-                style: TextStyle(color: MintColors.success, fontWeight: FontWeight.w600, fontSize: 13),
+                style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -170,11 +168,7 @@ class PortfolioScreen extends StatelessWidget {
   Widget _buildSectionHeader(String title) {
     return Text(
       title,
-      style: GoogleFonts.montserrat(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: MintColors.textPrimary,
-      ),
+      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
     );
   }
 
@@ -201,12 +195,12 @@ class PortfolioScreen extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+              style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
             ),
           ),
           Text(
             balance,
-            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+            style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
           ),
         ],
       ),
@@ -228,7 +222,7 @@ class PortfolioScreen extends StatelessWidget {
           Expanded(
             child: Text(
               'Ton allocation est saine. Pense à rééquilibrer ton 3a prochainement.',
-              style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.4),
+              style: MintTextStyles.bodyMedium(),
             ),
           ),
         ],

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -146,11 +145,7 @@ class OpenBankingHubScreen extends StatelessWidget {
                 Text(
                   'Consultation reglementaire FINMA en cours. '
                   'Les donnees affichees sont des exemples de demonstration.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.amberDark,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.amberDark),
                 ),
               ],
             ),
@@ -174,10 +169,8 @@ class OpenBankingHubScreen extends StatelessWidget {
         ),
         child: Text(
           'MODE DEMO',
-          style: GoogleFonts.montserrat(
-            fontSize: 10,
+          style: MintTextStyles.labelSmall(color: MintColors.blueDark).copyWith(
             fontWeight: FontWeight.w700,
-            color: MintColors.blueDark,
             letterSpacing: 1,
           ),
         ),
@@ -214,10 +207,7 @@ class OpenBankingHubScreen extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 'Connecte tes comptes bancaires',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodyMedium(),
               ),
             ],
           ),
@@ -235,10 +225,8 @@ class OpenBankingHubScreen extends StatelessWidget {
         const SizedBox(width: 8),
         Text(
           title,
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
             fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
             letterSpacing: 1,
           ),
         ),
@@ -280,10 +268,8 @@ class OpenBankingHubScreen extends StatelessWidget {
             child: Center(
               child: Text(
                 OpenBankingService.getBankInitials(account.bankName),
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
+                style: MintTextStyles.bodySmall(color: avatarColor).copyWith(
                   fontWeight: FontWeight.w800,
-                  color: avatarColor,
                 ),
               ),
             ),
@@ -301,10 +287,7 @@ class OpenBankingHubScreen extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   account.maskedIban,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textMuted),
                 ),
               ],
             ),
@@ -315,19 +298,12 @@ class OpenBankingHubScreen extends StatelessWidget {
             children: [
               Text(
                 OpenBankingService.formatChf(account.balance),
-                style: GoogleFonts.inter(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
               ),
               const SizedBox(height: 2),
               Text(
                 _formatSyncTime(account.lastSync),
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.micro(),
               ),
             ],
           ),
@@ -391,11 +367,7 @@ class OpenBankingHubScreen extends StatelessWidget {
               const SizedBox(width: 10),
               Text(
                 'Ajouter une banque',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textMuted),
               ),
               const SizedBox(width: 8),
               const Icon(Icons.lock_outline,
@@ -429,27 +401,17 @@ class OpenBankingHubScreen extends StatelessWidget {
         children: [
           Text(
             'Solde total',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodySmall(),
           ),
           const SizedBox(height: 8),
           Text(
             OpenBankingService.formatChf(total),
-            style: GoogleFonts.inter(
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.displayMedium(),
           ),
           const SizedBox(height: 4),
           Text(
             '3 comptes connectes',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
         ],
       ),
@@ -497,21 +459,17 @@ class OpenBankingHubScreen extends StatelessWidget {
             children: [
               Text(
                 'Epargne nette',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(
                   fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
                 ),
               ),
               Text(
                 OpenBankingService.formatChf(summary['net'] ?? 0),
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
+                style: MintTextStyles.bodyMedium(
                   color: (summary['net'] ?? 0) >= 0
                       ? MintColors.success
                       : MintColors.error,
-                ),
+                ).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -535,17 +493,12 @@ class OpenBankingHubScreen extends StatelessWidget {
           children: [
             Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(),
             ),
             Text(
               OpenBankingService.formatChf(value),
-              style: GoogleFonts.inter(
-                fontSize: 13,
+              style: MintTextStyles.bodySmall(color: color).copyWith(
                 fontWeight: FontWeight.w600,
-                color: color,
               ),
             ),
           ],
@@ -593,32 +546,27 @@ class OpenBankingHubScreen extends StatelessWidget {
                 Expanded(
                   child: Text(
                     _categoryLabel(cat.category),
-                    style: GoogleFonts.inter(
-                        fontSize: 13, color: MintColors.textPrimary),
+                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                   ),
                 ),
                 Text(
                   OpenBankingService.formatChf(cat.totalAmount),
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(
                     fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      const EdgeInsets.symmetric(horizontal: MintSpacing.sm, vertical: MintSpacing.xs),
                   decoration: BoxDecoration(
                     color: MintColors.surface,
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     '${cat.percentage.toStringAsFixed(0)}%',
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
+                    style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(
                       fontWeight: FontWeight.w600,
-                      color: MintColors.textMuted,
                     ),
                   ),
                 ),
@@ -671,19 +619,12 @@ class OpenBankingHubScreen extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.outfit(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                    ),
+                    style: MintTextStyles.bodySmall(),
                   ),
                 ],
               ),
@@ -709,11 +650,7 @@ class OpenBankingHubScreen extends StatelessWidget {
         ),
         child: Text(
           'Propulse par bLink (SIX)',
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            color: MintColors.textMuted,
-            fontWeight: FontWeight.w500,
-          ),
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted),
         ),
       ),
     );
@@ -740,11 +677,7 @@ class OpenBankingHubScreen extends StatelessWidget {
               'Les donnees affichees sont des exemples. '
               'L\'activation du service Open Banking est soumise '
               'a une consultation reglementaire prealable.',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.deepOrange,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.deepOrange),
             ),
           ),
         ],

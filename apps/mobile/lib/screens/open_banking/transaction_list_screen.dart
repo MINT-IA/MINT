@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/open_banking_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -172,11 +172,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                 Text(
                   'Consultation réglementaire FINMA en cours. '
                   'Les données affichées sont des exemples de démonstration.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.amberDark,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.amberDark),
                 ),
               ],
             ),
@@ -200,10 +196,8 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
         ),
         child: Text(
           'MODE DEMO',
-          style: GoogleFonts.montserrat(
-            fontSize: 10,
+          style: MintTextStyles.labelSmall(color: MintColors.blueDark).copyWith(
             fontWeight: FontWeight.w700,
-            color: MintColors.blueDark,
             letterSpacing: 1,
           ),
         ),
@@ -241,10 +235,10 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
         ),
         child: Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+          style: MintTextStyles.bodySmall(
             color: isSelected ? MintColors.white : MintColors.textSecondary,
+          ).copyWith(
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
           ),
         ),
       ),
@@ -284,12 +278,10 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
               ),
               child: Text(
                 cat['label']!,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
+                style: MintTextStyles.bodySmall(
+                  color: isSelected ? MintColors.primary : MintColors.textSecondary,
+                ).copyWith(
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: isSelected
-                      ? MintColors.primary
-                      : MintColors.textSecondary,
                 ),
               ),
             ),
@@ -305,10 +297,8 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   Widget _buildDateHeader(String dateLabel) {
     return Text(
       dateLabel,
-      style: GoogleFonts.montserrat(
-        fontSize: 11,
+      style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
         fontWeight: FontWeight.w700,
-        color: MintColors.textMuted,
         letterSpacing: 0.8,
       ),
     );
@@ -348,10 +338,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                   children: [
                     Text(
                       _formatTransactionDate(tx.date),
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: MintColors.textMuted,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                     ),
                     const SizedBox(width: 8),
                     _buildCategoryBadge(tx.category),
@@ -363,10 +350,8 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           // Amount
           Text(
             '$amountPrefix${OpenBankingService.formatChf(tx.amount.abs())}',
-            style: GoogleFonts.inter(
-              fontSize: 14,
+            style: MintTextStyles.bodyMedium(color: amountColor).copyWith(
               fontWeight: FontWeight.w700,
-              color: amountColor,
             ),
           ),
         ],
@@ -410,10 +395,8 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
       ),
       child: Text(
         _categoryLabel(category),
-        style: GoogleFonts.inter(
-          fontSize: 10,
+        style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(
           fontWeight: FontWeight.w500,
-          color: MintColors.textMuted,
         ),
       ),
     );
@@ -503,17 +486,12 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodySmall(),
         ),
         Text(
           value,
-          style: GoogleFonts.inter(
-            fontSize: 14,
+          style: MintTextStyles.bodyMedium(color: valueColor).copyWith(
             fontWeight: FontWeight.w600,
-            color: valueColor,
           ),
         ),
       ],
@@ -541,11 +519,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
               'Les données affichées sont des exemples. '
               'L\'activation du service Open Banking est soumise '
               'à une consultation réglementaire préalable.',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.deepOrange,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.deepOrange),
             ),
           ),
         ],

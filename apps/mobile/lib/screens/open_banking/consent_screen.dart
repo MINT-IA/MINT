@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/open_banking_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -173,11 +173,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 Text(
                   'Consultation reglementaire FINMA en cours. '
                   'Les donnees affichees sont des exemples de demonstration.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.amberDark,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.amberDark),
                 ),
               ],
             ),
@@ -201,10 +197,8 @@ class _ConsentScreenState extends State<ConsentScreen> {
         ),
         child: Text(
           'MODE DEMO',
-          style: GoogleFonts.montserrat(
-            fontSize: 10,
+          style: MintTextStyles.labelSmall(color: MintColors.blueDark).copyWith(
             fontWeight: FontWeight.w700,
-            color: MintColors.blueDark,
             letterSpacing: 1,
           ),
         ),
@@ -221,10 +215,8 @@ class _ConsentScreenState extends State<ConsentScreen> {
         const SizedBox(width: 8),
         Text(
           title,
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
             fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
             letterSpacing: 1,
           ),
         ),
@@ -286,10 +278,8 @@ class _ConsentScreenState extends State<ConsentScreen> {
                     const SizedBox(width: 6),
                     Text(
                       statusConfig.label,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
+                      style: MintTextStyles.labelSmall(color: statusConfig.color).copyWith(
                         fontWeight: FontWeight.w600,
-                        color: statusConfig.color,
                       ),
                     ),
                   ],
@@ -302,11 +292,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
           // Scopes
           Text(
             'Autorisations',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: 6),
           Wrap(
@@ -322,10 +308,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 ),
                 child: Text(
                   _scopeLabel(scope),
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                 ),
               );
             }).toList(),
@@ -337,18 +320,12 @@ class _ConsentScreenState extends State<ConsentScreen> {
             children: [
               Text(
                 'Accorde le ${_formatDate(consent.grantedAt)}',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: MintSpacing.md),
               Text(
                 'Expire le ${_formatDate(consent.expiresAt)}',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               ),
             ],
           ),
@@ -387,11 +364,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   const SizedBox(width: 8),
                   Text(
                     'Consentement revoque',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.error,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.error),
                   ),
                 ],
               ),
@@ -429,11 +402,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
           Text(
             'Tes droits selon la nLPD '
             '(Loi federale sur la protection des donnees) :',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.tealLight,
-              height: 1.5,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.tealLight),
           ),
           const SizedBox(height: 10),
           _buildNlpdPoint(
@@ -458,11 +427,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(
         text,
-        style: GoogleFonts.inter(
-          fontSize: 12,
-          color: MintColors.tealDark,
-          height: 1.5,
-        ),
+        style: MintTextStyles.bodySmall(color: MintColors.tealDark),
       ),
     );
   }
@@ -510,10 +475,8 @@ class _ConsentScreenState extends State<ConsentScreen> {
             ),
             child: Text(
               'MODE DEMO',
-              style: GoogleFonts.montserrat(
-                fontSize: 10,
+              style: MintTextStyles.labelSmall(color: MintColors.blueDark).copyWith(
                 fontWeight: FontWeight.w700,
-                color: MintColors.blueDark,
                 letterSpacing: 1,
               ),
             ),
@@ -534,10 +497,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
             onPressed: _cancelNewConsentFlow,
             child: Text(
               'Annuler',
-              style: GoogleFonts.inter(
-                color: MintColors.textMuted,
-                fontSize: 14,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textMuted),
             ),
           ),
         ),
@@ -573,13 +533,9 @@ class _ConsentScreenState extends State<ConsentScreen> {
                           ? const Icon(Icons.check, color: MintColors.white, size: 14)
                           : Text(
                               '${i + 1}',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: isActive
-                                    ? MintColors.white
-                                    : MintColors.textMuted,
-                              ),
+                              style: MintTextStyles.bodySmall(
+                                color: isActive ? MintColors.white : MintColors.textMuted,
+                              ).copyWith(fontWeight: FontWeight.w600),
                             ),
                     ),
                   ),
@@ -589,12 +545,10 @@ class _ConsentScreenState extends State<ConsentScreen> {
               const SizedBox(height: 6),
               Text(
                 steps[i],
-                style: GoogleFonts.inter(
-                  fontSize: 10,
+                style: MintTextStyles.micro(
+                  color: isActive ? MintColors.textPrimary : MintColors.textMuted,
+                ).copyWith(
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                  color: isActive
-                      ? MintColors.textPrimary
-                      : MintColors.textMuted,
                 ),
               ),
             ],
@@ -620,11 +574,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
         children: [
           Text(
             'Choisir une banque',
-            style: GoogleFonts.outfit(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium(),
           ),
           const SizedBox(height: 16),
           ...OpenBankingService.supportedBanks.map((bank) => Padding(
@@ -676,13 +626,9 @@ class _ConsentScreenState extends State<ConsentScreen> {
               child: Center(
                 child: Text(
                   OpenBankingService.getBankInitials(bank['name']!),
-                  style: GoogleFonts.montserrat(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: isSelected
-                        ? MintColors.primary
-                        : MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodySmall(
+                    color: isSelected ? MintColors.primary : MintColors.textSecondary,
+                  ).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
             ),
@@ -693,18 +639,13 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 children: [
                   Text(
                     bank['name']!,
-                    style: GoogleFonts.outfit(
-                      fontSize: 14,
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(
                       fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
                     ),
                   ),
                   Text(
                     'SWIFT: ${bank['swift']}',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      color: MintColors.textMuted,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                   ),
                 ],
               ),
@@ -735,19 +676,12 @@ class _ConsentScreenState extends State<ConsentScreen> {
         children: [
           Text(
             'Choisir les autorisations',
-            style: GoogleFonts.outfit(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium(),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: MintSpacing.xs),
           Text(
             'Banque selectionnee : $_selectedBankName',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodySmall(),
           ),
           const SizedBox(height: 16),
 
@@ -786,11 +720,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   child: Text(
                     'Acces en lecture seule. Aucune operation '
                     'financiere ne peut etre effectuee.',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      color: MintColors.textMuted,
-                      height: 1.4,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                   ),
                 ),
               ],
@@ -858,10 +788,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
           Expanded(
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
           ),
         ],
@@ -890,11 +817,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
         children: [
           Text(
             'Confirmation',
-            style: GoogleFonts.outfit(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium(),
           ),
           const SizedBox(height: 16),
 
@@ -922,11 +845,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               'donnees selectionnees en lecture seule pour une duree '
               'de 90 jours. Tu peux revoquer ce consentement '
               'a tout moment.',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.deepOrange,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.deepOrange),
             ),
           ),
 
@@ -995,18 +914,13 @@ class _ConsentScreenState extends State<ConsentScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodySmall(),
         ),
         Flexible(
           child: Text(
             value,
-            style: GoogleFonts.inter(
-              fontSize: 13,
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(
               fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
             ),
             textAlign: TextAlign.end,
           ),
@@ -1036,11 +950,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               'Les donnees affichees sont des exemples. '
               'L\'activation du service Open Banking est soumise '
               'a une consultation reglementaire prealable.',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.deepOrange,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.deepOrange),
             ),
           ),
         ],
