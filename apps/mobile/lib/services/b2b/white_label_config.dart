@@ -76,8 +76,10 @@ class WhiteLabelConfig {
   Map<String, dynamic> toJson() => {
         'organizationName': organizationName,
         if (logoAssetPath != null) 'logoAssetPath': logoAssetPath,
-        'primaryColor': primaryColor.toARGB32(),
-        'accentColor': accentColor.toARGB32(),
+        // ignore: deprecated_member_use
+        'primaryColor': primaryColor.value,
+        // ignore: deprecated_member_use
+        'accentColor': accentColor.value,
         'welcomeMessage': welcomeMessage,
         'hiddenFeatures': hiddenFeatures,
         'supportEmail': supportEmail,
