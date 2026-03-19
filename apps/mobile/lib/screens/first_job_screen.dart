@@ -888,7 +888,10 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
           const SizedBox(height: 16),
           ...List.generate(items.length, (index) {
             final checked = _checkedItems.contains(index);
-            return GestureDetector(
+            return Semantics(
+              label: 'Checklist item ${index + 1}',
+              button: true,
+              child: GestureDetector(
               onTap: () {
                 setState(() {
                   if (checked) {
@@ -951,6 +954,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   ],
                 ),
               ),
+            ),
             );
           }),
         ],
@@ -1208,7 +1212,10 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
         children: scenarios.map((s) {
           return Padding(
             padding: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
+            child: Semantics(
+              label: 'Scénario salaire : ${s.label}',
+              button: true,
+              child: GestureDetector(
               onTap: () {
                 setState(() => _salaire = s.value);
                 _calculate();
@@ -1235,6 +1242,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   ),
                 ),
               ),
+            ),
             ),
           );
         }).toList(),
