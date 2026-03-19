@@ -5965,5 +5965,57 @@
   "disabilityCtaAnalyze": "[PT] Analisar",
   "disabilityAppBarTitle": "[PT] Se não puder mais trabalhar",
   "disabilityStatLine1": "[PT] 1 em cada 5 pessoas",
-  "disabilityStatLine2": "[PT] será afetada antes dos 65 anos"
+  "disabilityStatLine2": "[PT] será afetada antes dos 65 anos",
+
+  "coachGreetingSlm": "Olá {name}! Sou o teu coach MINT — funciono diretamente no teu iPhone, nenhum dado sai do teu dispositivo. Pergunta-me sobre previdência, impostos ou reforma.",
+  "@coachGreetingSlm": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "coachGreetingDefault": "Olá {name}! Sou o teu coach MINT. Pergunta-me sobre previdência, impostos, orçamento ou reforma na Suíça.{scoreSuffix}",
+  "@coachGreetingDefault": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "scoreSuffix": { "type": "String" }
+    }
+  },
+  "coachScoreSuffix": " A tua pontuação Fitness é de {score}/100.",
+  "@coachScoreSuffix": {
+    "placeholders": {
+      "score": { "type": "int" }
+    }
+  },
+  "coachComplianceError": "Não consegui formular uma resposta conforme. Reformula a tua pergunta ou explora os simuladores.",
+  "coachErrorInvalidKey": "A tua chave API parece inválida ou expirada. Verifica-a nas definições.",
+  "coachErrorRateLimit": "Limite de pedidos atingido. Tenta novamente daqui a pouco.",
+  "coachErrorGeneric": "Erro técnico. Tenta novamente mais tarde.",
+  "coachErrorConnection": "Erro de conexão. Verifica a tua ligação à internet ou a tua chave API.",
+  "coachSuggestSimulate3a": "Simular um depósito 3a",
+  "coachSuggestView3a": "Ver as minhas contas 3a",
+  "coachSuggestSimulateLpp": "Simular um resgate LPP",
+  "coachSuggestUnderstandLpp": "Compreender o resgate LPP",
+  "coachSuggestTrajectory": "Ver a minha trajetória",
+  "coachSuggestScenarios": "Explorar cenários",
+  "coachSuggestDeductions": "Deduções fiscais possíveis",
+  "coachSuggestTaxImpact": "Simular o impacto fiscal",
+  "coachSuggestFitness": "A minha pontuação Fitness",
+  "coachSuggestRetirement": "A minha trajetória de reforma",
+  "coachEmptyStateMessage": "Completa o teu diagnóstico para conversar com o teu coach",
+  "coachEmptyStateButton": "Começar",
+  "coachTooltipHistory": "Histórico",
+  "coachTooltipExport": "Exportar conversa",
+  "coachTooltipSettings": "Definições de IA",
+  "coachTooltipLifeEvent": "Evento de vida",
+  "coachTierSlm": "IA on-device",
+  "coachTierByok": "IA nuvem (BYOK)",
+  "coachTierFallback": "Modo offline",
+  "coachBadgeSlm": "On-device",
+  "coachBadgeByok": "Nuvem",
+  "coachBadgeFallback": "Offline",
+  "coachDisclaimer": "Ferramenta educativa — as respostas não constituem aconselhamento financeiro. LSFin.",
+  "coachLoading": "A pensar...",
+  "coachSources": "Fontes",
+  "coachInputHint": "Faz a tua pergunta...",
+  "coachTitle": "Coach MINT"
 }

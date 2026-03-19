@@ -6223,5 +6223,57 @@
   "authOrContinueWith": "ou continuer avec",
   "authPrivacyReassurance": "Tes données restent chiffrées sur ton appareil. Aucune connexion bancaire.",
   "authContinueLocal": "Continuer en mode local",
-  "authBack": "Retour"
+  "authBack": "Retour",
+
+  "coachGreetingSlm": "Salut {name}\u00a0! Je suis ton coach MINT — je tourne directement sur ton iPhone, aucune donnée ne quitte ton appareil. Pose-moi tes questions sur la prévoyance, les impôts ou la retraite.",
+  "@coachGreetingSlm": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "coachGreetingDefault": "Salut {name}\u00a0! Je suis ton coach MINT. Pose-moi tes questions sur la prévoyance, les impôts, le budget ou la retraite en Suisse.{scoreSuffix}",
+  "@coachGreetingDefault": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "scoreSuffix": { "type": "String" }
+    }
+  },
+  "coachScoreSuffix": " Ton score Fitness est de {score}/100.",
+  "@coachScoreSuffix": {
+    "placeholders": {
+      "score": { "type": "int" }
+    }
+  },
+  "coachComplianceError": "Je n'ai pas pu formuler une réponse conforme. Reformule ta question ou explore les simulateurs.",
+  "coachErrorInvalidKey": "Ta clé API semble invalide ou expirée. Vérifie-la dans les paramètres.",
+  "coachErrorRateLimit": "Limite de requêtes atteinte. Réessaie dans quelques instants.",
+  "coachErrorGeneric": "Erreur technique. Réessaie plus tard.",
+  "coachErrorConnection": "Erreur de connexion. Vérifie ta connexion internet ou ta clé API.",
+  "coachSuggestSimulate3a": "Simuler un versement 3a",
+  "coachSuggestView3a": "Voir mes comptes 3a",
+  "coachSuggestSimulateLpp": "Simuler un rachat LPP",
+  "coachSuggestUnderstandLpp": "Comprendre le rachat LPP",
+  "coachSuggestTrajectory": "Voir ma trajectoire",
+  "coachSuggestScenarios": "Explorer les scénarios",
+  "coachSuggestDeductions": "Déductions fiscales possibles",
+  "coachSuggestTaxImpact": "Simuler l'impact fiscal",
+  "coachSuggestFitness": "Mon score Fitness",
+  "coachSuggestRetirement": "Ma trajectoire retraite",
+  "coachEmptyStateMessage": "Complète ton diagnostic pour discuter avec ton coach",
+  "coachEmptyStateButton": "Commencer",
+  "coachTooltipHistory": "Historique",
+  "coachTooltipExport": "Exporter la conversation",
+  "coachTooltipSettings": "Paramètres IA",
+  "coachTooltipLifeEvent": "Evenement de vie",
+  "coachTierSlm": "IA on-device",
+  "coachTierByok": "IA cloud (BYOK)",
+  "coachTierFallback": "Mode hors-ligne",
+  "coachBadgeSlm": "On-device",
+  "coachBadgeByok": "Cloud",
+  "coachBadgeFallback": "Hors-ligne",
+  "coachDisclaimer": "Outil éducatif — les réponses ne constituent pas un conseil financier. LSFin.",
+  "coachLoading": "Réflexion en cours...",
+  "coachSources": "Sources",
+  "coachInputHint": "Pose ta question...",
+  "coachTitle": "Coach MINT"
 }

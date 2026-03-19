@@ -577,7 +577,7 @@ class CoachOrchestrator {
       );
     }
 
-    const basePrompt = PromptRegistry.baseSystemPrompt;
+    final basePrompt = _selectSystemPrompt(ctx);
     final systemPrompt = (memoryBlock != null && memoryBlock.isNotEmpty)
         ? '$basePrompt\n\n$memoryBlock'
         : basePrompt;
@@ -588,6 +588,13 @@ class CoachOrchestrator {
       systemPrompt: systemPrompt,
       userPrompt: truncated,
     );
+  }
+
+  /// Select the appropriate system prompt based on user context.
+  /// Uses senior prompt for 60+, base prompt otherwise.
+  static String _selectSystemPrompt(CoachContext ctx) {
+    if (ctx.age >= 60) return PromptRegistry.chatSeniorPrompt(ctx);
+    return PromptRegistry.baseSystemPrompt;
   }
 
   /// Internal: stream chat with async re-initialization before streaming.
@@ -603,7 +610,7 @@ class CoachOrchestrator {
     if (!ok) return;
 
     final engine = SlmEngine.instance;
-    const basePrompt = PromptRegistry.baseSystemPrompt;
+    final basePrompt = _selectSystemPrompt(ctx);
     final systemPrompt = (memoryBlock != null && memoryBlock.isNotEmpty)
         ? '$basePrompt\n\n$memoryBlock'
         : basePrompt;
@@ -713,7 +720,14 @@ class CoachOrchestrator {
   ///   4. Succession planning for users > 50
   ///   5. Generic tip narrative (default)
   static String _contextualTip(CoachContext ctx) {
-    // FATCA: highest priority for US taxpayers (complex obligations)
+    // Life event-specific guidance — all 18 from definitive enum.
+    final lifeEvent = ctx.knownValues['last_life_event']?.toString() ?? '';
+    if (lifeEvent.isNotEmpty) {
+      final eventTip = _lifeEventTip(ctx, lifeEvent);
+      if (eventTip != null) return eventTip;
+    }
+
+    // FATCA: highest priority for US taxpayers
     if (ctx.archetype == 'expat_us') {
       return FallbackTemplates.fatcaGuidance(ctx);
     }
@@ -725,12 +739,6 @@ class CoachOrchestrator {
       return FallbackTemplates.disabilityBridge(ctx);
     }
 
-    // Libre passage: relevant during job transitions
-    final lifeEvent = ctx.knownValues['last_life_event']?.toString() ?? '';
-    if (lifeEvent == 'jobLoss' || lifeEvent == 'newJob') {
-      return FallbackTemplates.librePassageGuide(ctx);
-    }
-
     // Succession: relevant for 50+ (estate planning horizon)
     if (ctx.age >= 50) {
       return FallbackTemplates.successionPlanning(ctx);
@@ -738,6 +746,30 @@ class CoachOrchestrator {
 
     // Default: generic personalized tip
     return FallbackTemplates.tipNarrative(ctx);
+  }
+
+  /// Map a life event to its specialized fallback template.
+  static String? _lifeEventTip(CoachContext ctx, String event) {
+    return switch (event) {
+      'marriage' => FallbackTemplates.marriageGuidance(ctx),
+      'divorce' => FallbackTemplates.divorceGuidance(ctx),
+      'birth' => FallbackTemplates.birthGuidance(ctx),
+      'concubinage' => FallbackTemplates.concubinageGuidance(ctx),
+      'deathOfRelative' => FallbackTemplates.deathOfRelativeGuidance(ctx),
+      'firstJob' => FallbackTemplates.firstJobGuidance(ctx),
+      'newJob' || 'jobLoss' => FallbackTemplates.librePassageGuide(ctx),
+      'selfEmployment' => FallbackTemplates.selfEmploymentGuidance(ctx),
+      'retirement' => FallbackTemplates.retirementGuidance(ctx),
+      'housingPurchase' => FallbackTemplates.housingPurchaseGuidance(ctx),
+      'housingSale' => FallbackTemplates.housingSaleGuidance(ctx),
+      'inheritance' => FallbackTemplates.inheritanceGuidance(ctx),
+      'donation' => FallbackTemplates.donationGuidance(ctx),
+      'disability' => FallbackTemplates.disabilityBridge(ctx),
+      'cantonMove' => FallbackTemplates.cantonMoveGuidance(ctx),
+      'countryMove' => FallbackTemplates.countryMoveGuidance(ctx),
+      'debtCrisis' => FallbackTemplates.debtCrisisGuidance(ctx),
+      _ => null,
+    };
   }
 
   /// Map [LlmProvider] to the string expected by [RagService].

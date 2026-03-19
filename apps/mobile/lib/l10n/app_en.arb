@@ -6008,5 +6008,57 @@
   "disabilityCtaAnalyze": "Analyze",
   "disabilityAppBarTitle": "If I can no longer work",
   "disabilityStatLine1": "1 in 5 people",
-  "disabilityStatLine2": "will be affected before age 65"
+  "disabilityStatLine2": "will be affected before age 65",
+
+  "coachGreetingSlm": "Hi {name}! I'm your MINT coach — running directly on your iPhone, no data leaves your device. Ask me about pensions, taxes or retirement.",
+  "@coachGreetingSlm": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "coachGreetingDefault": "Hi {name}! I'm your MINT coach. Ask me about pensions, taxes, budgeting or retirement in Switzerland.{scoreSuffix}",
+  "@coachGreetingDefault": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "scoreSuffix": { "type": "String" }
+    }
+  },
+  "coachScoreSuffix": " Your Fitness score is {score}/100.",
+  "@coachScoreSuffix": {
+    "placeholders": {
+      "score": { "type": "int" }
+    }
+  },
+  "coachComplianceError": "I couldn't formulate a compliant answer. Rephrase your question or explore the simulators.",
+  "coachErrorInvalidKey": "Your API key seems invalid or expired. Check it in settings.",
+  "coachErrorRateLimit": "Rate limit reached. Try again in a moment.",
+  "coachErrorGeneric": "Technical error. Try again later.",
+  "coachErrorConnection": "Connection error. Check your internet connection or API key.",
+  "coachSuggestSimulate3a": "Simulate a 3a contribution",
+  "coachSuggestView3a": "View my 3a accounts",
+  "coachSuggestSimulateLpp": "Simulate an LPP buyback",
+  "coachSuggestUnderstandLpp": "Understand LPP buyback",
+  "coachSuggestTrajectory": "View my trajectory",
+  "coachSuggestScenarios": "Explore scenarios",
+  "coachSuggestDeductions": "Possible tax deductions",
+  "coachSuggestTaxImpact": "Simulate tax impact",
+  "coachSuggestFitness": "My Fitness score",
+  "coachSuggestRetirement": "My retirement trajectory",
+  "coachEmptyStateMessage": "Complete your diagnosis to chat with your coach",
+  "coachEmptyStateButton": "Start",
+  "coachTooltipHistory": "History",
+  "coachTooltipExport": "Export conversation",
+  "coachTooltipSettings": "AI Settings",
+  "coachTooltipLifeEvent": "Life event",
+  "coachTierSlm": "On-device AI",
+  "coachTierByok": "Cloud AI (BYOK)",
+  "coachTierFallback": "Offline mode",
+  "coachBadgeSlm": "On-device",
+  "coachBadgeByok": "Cloud",
+  "coachBadgeFallback": "Offline",
+  "coachDisclaimer": "Educational tool — answers do not constitute financial advice. FinSA.",
+  "coachLoading": "Thinking...",
+  "coachSources": "Sources",
+  "coachInputHint": "Ask your question...",
+  "coachTitle": "MINT Coach"
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
@@ -172,21 +173,18 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     assert(_profile != null);
     final p = _profile!;
     final name = p.firstName ?? 'ami·e';
+    final s = S.of(context)!;
 
     final tier = _currentTier();
     final String greeting;
 
     if (tier == ChatTier.slm) {
-      greeting = 'Salut $name ! Je suis ton coach MINT — '
-          'je tourne directement sur ton iPhone, aucune donnée ne quitte ton appareil. '
-          'Pose-moi tes questions sur la prévoyance, les impôts ou la retraite.';
+      greeting = s.coachGreetingSlm(name);
     } else if (_isByokConfigured) {
       greeting = CoachLlmService.initialGreeting(p);
     } else {
       final scoreSuffix = _buildGreetingScoreContext(p);
-      greeting = 'Salut $name ! Je suis ton coach MINT. '
-          'Pose-moi tes questions sur la prévoyance, les impôts, '
-          'le budget ou la retraite en Suisse.$scoreSuffix';
+      greeting = s.coachGreetingDefault(name, scoreSuffix);
     }
 
     // Phase 1: personalized suggestions based on age/archetype
@@ -224,7 +222,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     try {
       final score = FinancialFitnessService.calculate(profile: profile);
       if (score.global > 0) {
-        return ' Ton score Fitness est de ${score.global}/100.';
+        return S.of(context)!.coachScoreSuffix(score.global);
       }
     } catch (_) {}
     return '';
@@ -386,8 +384,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
 
     final finalText = compliance.useFallback
-        ? 'Je n\'ai pas pu formuler une réponse conforme. '
-            'Reformule ta question ou explore les simulateurs.'
+        ? S.of(context)!.coachComplianceError
         : (compliance.sanitizedText.isNotEmpty
             ? compliance.sanitizedText
             : rawText);
@@ -449,18 +446,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       });
       _scrollToBottom();
     } on RagApiException catch (e) {
+      final s = S.of(context)!;
       final String errorMsg;
       switch (e.code) {
         case 'invalid_key':
-          errorMsg =
-              'Ta clé API semble invalide ou expirée. Vérifie-la dans les paramètres.';
+          errorMsg = s.coachErrorInvalidKey;
           break;
         case 'rate_limit':
-          errorMsg =
-              'Limite de requêtes atteinte. Réessaie dans quelques instants.';
+          errorMsg = s.coachErrorRateLimit;
           break;
         default:
-          errorMsg = 'Erreur technique. Réessaie plus tard.';
+          errorMsg = s.coachErrorGeneric;
       }
       setState(() {
         _messages.add(ChatMessage(
@@ -474,8 +470,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       setState(() {
         _messages.add(ChatMessage(
           role: 'system',
-          content:
-              'Erreur de connexion. Vérifie ta connexion internet ou ta clé API.',
+          content: S.of(context)!.coachErrorConnection,
           timestamp: DateTime.now(),
         ));
         _isLoading = false;
@@ -544,20 +539,21 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   List<String> _inferSuggestedActions(String userMessage) {
+    final s = S.of(context)!;
     final lower = userMessage.toLowerCase();
     if (lower.contains('3a')) {
-      return ['Simuler un versement 3a', 'Voir mes comptes 3a'];
+      return [s.coachSuggestSimulate3a, s.coachSuggestView3a];
     }
     if (lower.contains('lpp') || lower.contains('rachat')) {
-      return ['Simuler un rachat LPP', 'Comprendre le rachat LPP'];
+      return [s.coachSuggestSimulateLpp, s.coachSuggestUnderstandLpp];
     }
     if (lower.contains('retraite')) {
-      return ['Voir ma trajectoire', 'Explorer les scénarios'];
+      return [s.coachSuggestTrajectory, s.coachSuggestScenarios];
     }
     if (lower.contains('impot') || lower.contains('fiscal')) {
-      return ['Déductions fiscales possibles', 'Simuler l\'impact fiscal'];
+      return [s.coachSuggestDeductions, s.coachSuggestTaxImpact];
     }
-    return ['Mon score Fitness', 'Ma trajectoire retraite'];
+    return [s.coachSuggestFitness, s.coachSuggestRetirement];
   }
 
   void _scrollToBottom() {
@@ -636,11 +632,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final s = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
         title: Text(
-          'Coach MINT',
+          s.coachTitle,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             color: MintColors.white,
@@ -659,7 +656,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                   size: 64, color: MintColors.greyMedium),
               const SizedBox(height: 16),
               Text(
-                'Complète ton diagnostic pour discuter avec ton coach',
+                s.coachEmptyStateMessage,
                 style: GoogleFonts.inter(
                   fontSize: 16,
                   color: MintColors.textSecondary,
@@ -673,7 +670,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                   backgroundColor: MintColors.primary,
                 ),
                 child: Text(
-                  'Commencer',
+                  s.coachEmptyStateButton,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -693,6 +690,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   Widget _buildAppBar(BuildContext context) {
     final tier = _currentTier();
+    final s = S.of(context)!;
     return Container(
       decoration: const BoxDecoration(color: MintColors.primary),
       child: SafeArea(
@@ -714,7 +712,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Coach MINT',
+                      s.coachTitle,
                       style: GoogleFonts.montserrat(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -728,7 +726,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               ),
               IconButton(
                 icon: const Icon(Icons.history, color: MintColors.white),
-                tooltip: 'Historique',
+                tooltip: s.coachTooltipHistory,
                 onPressed: () async {
                   await _autoSaveConversation();
                   if (mounted) context.push('/coach/history');
@@ -737,12 +735,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               if (_messages.any((m) => m.isUser))
                 IconButton(
                   icon: const Icon(Icons.share, color: MintColors.white),
-                  tooltip: 'Exporter la conversation',
+                  tooltip: s.coachTooltipExport,
                   onPressed: _exportConversation,
                 ),
               IconButton(
                 icon: const Icon(Icons.settings_outlined, color: MintColors.white),
-                tooltip: 'Paramètres IA',
+                tooltip: s.coachTooltipSettings,
                 onPressed: () => context.push('/profile/byok'),
               ),
             ],
@@ -753,19 +751,20 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   Widget _buildTierSubtitle(ChatTier tier) {
+    final s = S.of(context)!;
     final String label;
     final IconData icon;
     switch (tier) {
       case ChatTier.slm:
-        label = 'IA on-device';
+        label = s.coachTierSlm;
         icon = Icons.smartphone;
         break;
       case ChatTier.byok:
-        label = 'IA cloud (BYOK)';
+        label = s.coachTierByok;
         icon = Icons.cloud_outlined;
         break;
       default:
-        label = 'Mode hors-ligne';
+        label = s.coachTierFallback;
         icon = Icons.wifi_off;
         break;
     }
@@ -791,7 +790,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       color: MintColors.coachBubble,
       child: Text(
-        'Outil éducatif — les réponses ne constituent pas un conseil financier. LSFin.',
+        S.of(context)!.coachDisclaimer,
         style: GoogleFonts.inter(
           fontSize: 11,
           fontWeight: FontWeight.w400,
@@ -814,9 +813,36 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       itemCount: _messages.length,
       itemBuilder: (context, index) {
         final msg = _messages[index];
-        if (msg.isSystem) return _buildSystemMessage(msg);
-        if (msg.isUser) return _buildUserBubble(msg);
-        return _buildCoachBubble(msg);
+        final Widget child;
+        if (msg.isSystem) {
+          child = _buildSystemMessage(msg);
+        } else if (msg.isUser) {
+          child = Semantics(
+            label: msg.content,
+            child: _buildUserBubble(msg),
+          );
+        } else {
+          child = Semantics(
+            label: msg.content,
+            child: _buildCoachBubble(msg),
+          );
+        }
+        return TweenAnimationBuilder<double>(
+          key: ValueKey(msg.timestamp),
+          tween: Tween<double>(begin: 0.0, end: 1.0),
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeOutCubic,
+          builder: (context, value, child) {
+            return Opacity(
+              opacity: value,
+              child: Transform.translate(
+                offset: Offset(0, 20 * (1 - value)),
+                child: child,
+              ),
+            );
+          },
+          child: child,
+        );
       },
     );
   }
@@ -991,22 +1017,23 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   Widget _buildTierBadge(ChatTier tier) {
+    final s = S.of(context)!;
     final String label;
     final IconData icon;
     final Color color;
     switch (tier) {
       case ChatTier.slm:
-        label = 'On-device';
+        label = s.coachBadgeSlm;
         icon = Icons.smartphone;
         color = MintColors.success;
         break;
       case ChatTier.byok:
-        label = 'Cloud';
+        label = s.coachBadgeByok;
         icon = Icons.cloud_outlined;
         color = MintColors.info;
         break;
       case ChatTier.fallback:
-        label = 'Hors-ligne';
+        label = s.coachBadgeFallback;
         icon = Icons.wifi_off;
         color = MintColors.textMuted;
         break;
@@ -1049,55 +1076,60 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   Widget _buildLoadingIndicator() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: MintColors.coachAccent,
-              borderRadius: BorderRadius.circular(16),
+    final loadingText = S.of(context)!.coachLoading;
+    return Semantics(
+      label: loadingText,
+      liveRegion: true,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: MintColors.coachAccent,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(
+                Icons.psychology,
+                color: MintColors.white,
+                size: 18,
+              ),
             ),
-            child: const Icon(
-              Icons.psychology,
-              color: MintColors.white,
-              size: 18,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: MintColors.coachBubble,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: MintColors.coachAccent.withValues(alpha: 0.6),
+            const SizedBox(width: 8),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: MintColors.coachBubble,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: MintColors.coachAccent.withValues(alpha: 0.6),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Réflexion en cours...',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400,
-                    color: MintColors.textMuted,
+                  const SizedBox(width: 8),
+                  Text(
+                    loadingText,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400,
+                      color: MintColors.textMuted,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1118,7 +1150,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Sources',
+            S.of(context)!.coachSources,
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
@@ -1215,6 +1247,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   // ════════════════════════════════════════════════════════════
 
   Widget _buildInputBar() {
+    final s = S.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: MintColors.background,
@@ -1234,7 +1267,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               IconButton(
                 icon: const Icon(Icons.flash_on_outlined,
                     color: MintColors.coachAccent, size: 22),
-                tooltip: 'Evenement de vie',
+                tooltip: s.coachTooltipLifeEvent,
                 onPressed: _isStreaming ? null : _showLifeEventSheet,
               ),
               Expanded(
@@ -1249,7 +1282,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                     color: MintColors.textPrimary,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'Pose ta question...',
+                    hintText: s.coachInputHint,
                     hintStyle: GoogleFonts.inter(
                       fontSize: 14,
                       color: MintColors.textMuted,

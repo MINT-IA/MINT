@@ -5979,5 +5979,57 @@
   "disabilityCtaAnalyze": "[DE] Analysieren",
   "disabilityAppBarTitle": "[DE] Wenn ich nicht mehr arbeiten kann",
   "disabilityStatLine1": "[DE] 1 von 5 Personen",
-  "disabilityStatLine2": "[DE] wird vor 65 betroffen sein"
+  "disabilityStatLine2": "[DE] wird vor 65 betroffen sein",
+
+  "coachGreetingSlm": "Hallo {name}! Ich bin dein MINT-Coach — ich laufe direkt auf deinem iPhone, keine Daten verlassen dein Gerät. Frag mich zur Vorsorge, Steuern oder Pensionierung.",
+  "@coachGreetingSlm": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "coachGreetingDefault": "Hallo {name}! Ich bin dein MINT-Coach. Frag mich zur Vorsorge, Steuern, Budget oder Pensionierung in der Schweiz.{scoreSuffix}",
+  "@coachGreetingDefault": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "scoreSuffix": { "type": "String" }
+    }
+  },
+  "coachScoreSuffix": " Dein Fitness-Score ist {score}/100.",
+  "@coachScoreSuffix": {
+    "placeholders": {
+      "score": { "type": "int" }
+    }
+  },
+  "coachComplianceError": "Ich konnte keine konforme Antwort formulieren. Formuliere deine Frage um oder nutze die Simulatoren.",
+  "coachErrorInvalidKey": "Dein API-Schlüssel scheint ungültig oder abgelaufen zu sein. Überprüfe ihn in den Einstellungen.",
+  "coachErrorRateLimit": "Anfragelimit erreicht. Versuche es in einem Moment erneut.",
+  "coachErrorGeneric": "Technischer Fehler. Versuche es später erneut.",
+  "coachErrorConnection": "Verbindungsfehler. Überprüfe deine Internetverbindung oder deinen API-Schlüssel.",
+  "coachSuggestSimulate3a": "Säule-3a-Einzahlung simulieren",
+  "coachSuggestView3a": "Meine 3a-Konten anzeigen",
+  "coachSuggestSimulateLpp": "BVG-Einkauf simulieren",
+  "coachSuggestUnderstandLpp": "BVG-Einkauf verstehen",
+  "coachSuggestTrajectory": "Meine Trajektorie anzeigen",
+  "coachSuggestScenarios": "Szenarien erkunden",
+  "coachSuggestDeductions": "Mögliche Steuerabzüge",
+  "coachSuggestTaxImpact": "Steuerliche Auswirkung simulieren",
+  "coachSuggestFitness": "Mein Fitness-Score",
+  "coachSuggestRetirement": "Meine Pensionierungs-Trajektorie",
+  "coachEmptyStateMessage": "Vervollständige deine Diagnose, um mit deinem Coach zu chatten",
+  "coachEmptyStateButton": "Starten",
+  "coachTooltipHistory": "Verlauf",
+  "coachTooltipExport": "Gespräch exportieren",
+  "coachTooltipSettings": "KI-Einstellungen",
+  "coachTooltipLifeEvent": "Lebensereignis",
+  "coachTierSlm": "KI on-device",
+  "coachTierByok": "KI Cloud (BYOK)",
+  "coachTierFallback": "Offline-Modus",
+  "coachBadgeSlm": "On-device",
+  "coachBadgeByok": "Cloud",
+  "coachBadgeFallback": "Offline",
+  "coachDisclaimer": "Bildungstool — die Antworten stellen keine Finanzberatung dar. FIDLEG.",
+  "coachLoading": "Nachdenken...",
+  "coachSources": "Quellen",
+  "coachInputHint": "Stelle deine Frage...",
+  "coachTitle": "MINT Coach"
 }
