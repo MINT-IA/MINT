@@ -251,132 +251,292 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     final dette = _dettes[index];
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header: nom éditable + supprimer
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
                 child: TextFormField(
                   initialValue: dette.nom,
-                  style: const TextStyle(
+                  style: GoogleFonts.montserrat(
                     fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                   ),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     isDense: true,
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.zero,
                     hintText: 'Nom de la dette',
+                    hintStyle: TextStyle(
+                      color: MintColors.textMuted.withValues(alpha: 0.5),
+                    ),
                   ),
                   onChanged: (v) => setState(() => dette.nom = v),
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.delete_outline,
-                    color: MintColors.redMaterial, size: 20),
-                onPressed: () => setState(() => _dettes.removeAt(index)),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
+              GestureDetector(
+                onTap: () => setState(() => _dettes.removeAt(index)),
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: MintColors.redBg,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.close,
+                      color: MintColors.redMedium, size: 14),
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 14),
 
-          // Montant
-          _buildMiniSlider(
-            label: 'Montant',
-            value: dette.montant,
-            min: 500,
-            max: 100000,
-            divisions: 199,
-            format: 'CHF ${formatChf(dette.montant)}',
-            onChanged: (v) => setState(() => dette.montant = v),
-          ),
-          const SizedBox(height: 4),
-
-          // Taux
-          _buildMiniSlider(
-            label: 'Taux annuel',
-            value: dette.tauxAnnuel,
-            min: 0.5,
-            max: 20.0,
-            divisions: 39,
-            format: '${dette.tauxAnnuel.toStringAsFixed(1)}%',
-            onChanged: (v) => setState(() => dette.tauxAnnuel = v),
-          ),
-          const SizedBox(height: 4),
-
-          // Mensualite min
-          _buildMiniSlider(
-            label: 'Mensualite min',
-            value: dette.mensualiteMin,
-            min: 50,
-            max: 3000,
-            divisions: 59,
-            format: 'CHF ${formatChf(dette.mensualiteMin)}',
-            onChanged: (v) => setState(() => dette.mensualiteMin = v),
+          // 3 inline value fields
+          Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: _buildInlineValue(
+                  label: 'Montant',
+                  display: 'CHF\u00a0${formatChf(dette.montant)}',
+                  onTap: () => _showValueEditor(
+                    label: 'Montant de la dette',
+                    currentValue: dette.montant,
+                    min: 500,
+                    max: 100000,
+                    prefix: 'CHF',
+                    onChanged: (v) => setState(() => dette.montant = v),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 2,
+                child: _buildInlineValue(
+                  label: 'Taux',
+                  display: '${dette.tauxAnnuel.toStringAsFixed(1)}\u00a0%',
+                  onTap: () => _showValueEditor(
+                    label: 'Taux annuel',
+                    currentValue: dette.tauxAnnuel,
+                    min: 0.5,
+                    max: 20.0,
+                    prefix: '',
+                    suffix: '%',
+                    decimals: true,
+                    onChanged: (v) => setState(() => dette.tauxAnnuel = v),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 3,
+                child: _buildInlineValue(
+                  label: 'Mensualité',
+                  display: 'CHF\u00a0${formatChf(dette.mensualiteMin)}',
+                  onTap: () => _showValueEditor(
+                    label: 'Mensualité minimum',
+                    currentValue: dette.mensualiteMin,
+                    min: 50,
+                    max: 3000,
+                    prefix: 'CHF',
+                    onChanged: (v) =>
+                        setState(() => dette.mensualiteMin = v),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildMiniSlider({
+  /// Champ inline tappable — label + valeur.
+  Widget _buildInlineValue({
     required String label,
-    required double value,
+    required String display,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: MintColors.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.w600,
+                color: MintColors.textMuted,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              display,
+              style: GoogleFonts.montserrat(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Bottom sheet pour saisie précise au clavier.
+  void _showValueEditor({
+    required String label,
+    required double currentValue,
     required double min,
     required double max,
-    required int divisions,
-    required String format,
+    required String prefix,
+    String? suffix,
+    bool decimals = false,
     required ValueChanged<double> onChanged,
   }) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 90,
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 11, color: MintColors.textMuted),
+    final controller = TextEditingController(
+      text: decimals
+          ? currentValue.toStringAsFixed(1)
+          : currentValue.toInt().toString(),
+    );
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(ctx).viewInsets.bottom,
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: const BoxDecoration(
+            color: MintColors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: MintColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                label,
+                style: GoogleFonts.montserrat(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: MintColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (prefix.isNotEmpty)
+                    Text(
+                      '$prefix ',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w600,
+                        color: MintColors.textMuted,
+                      ),
+                    ),
+                  SizedBox(
+                    width: 150,
+                    child: TextField(
+                      controller: controller,
+                      keyboardType: TextInputType.numberWithOptions(
+                        decimal: decimals,
+                      ),
+                      autofocus: true,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w700,
+                        color: MintColors.textPrimary,
+                      ),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ),
+                  if (suffix != null)
+                    Text(
+                      ' $suffix',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w600,
+                        color: MintColors.textMuted,
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Min ${decimals ? min.toStringAsFixed(1) : formatChf(min)} · '
+                'Max ${decimals ? max.toStringAsFixed(1) : formatChf(max)}',
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: MintColors.textMuted,
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () {
+                    final parsed = double.tryParse(
+                      controller.text.replaceAll(RegExp(r"[^0-9.]"), ''),
+                    );
+                    if (parsed != null) {
+                      onChanged(parsed.clamp(min, max));
+                    }
+                    Navigator.pop(ctx);
+                  },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MintColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Valider',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
           ),
         ),
-        Expanded(
-          child: SliderTheme(
-            data: const SliderThemeData(
-              trackHeight: 2,
-              thumbShape: RoundSliderThumbShape(enabledThumbRadius: 6),
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayShape: RoundSliderOverlayShape(overlayRadius: 14),
-            ),
-            child: Slider(
-              value: value.clamp(min, max),
-              min: min,
-              max: max,
-              divisions: divisions,
-              onChanged: onChanged,
-            ),
-          ),
-        ),
-        SizedBox(
-          width: 80,
-          child: Text(
-            format,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
-            textAlign: TextAlign.right,
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -392,82 +552,63 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   }
 
   Widget _buildBudgetSection() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
+    return GestureDetector(
+      onTap: () => _showValueEditor(
+        label: 'Budget mensuel de remboursement',
+        currentValue: _budgetMensuel,
+        min: 200,
+        max: 5000,
+        prefix: 'CHF',
+        onChanged: (v) => setState(() => _budgetMensuel = v),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'BUDGET MENSUEL REMBOURSEMENT',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _buildSliderRow(
-            label: 'Budget total / mois',
-            value: _budgetMensuel,
-            min: 200,
-            max: 5000,
-            divisions: 48,
-            format: 'CHF ${formatChf(_budgetMensuel)}',
-            onChanged: (v) => setState(() => _budgetMensuel = v),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSliderRow({
-    required String label,
-    required double value,
-    required double min,
-    required double max,
-    required int divisions,
-    required String format,
-    required ValueChanged<double> onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: MintColors.primary.withValues(alpha: 0.2)),
+        ),
+        child: Row(
           children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textPrimary,
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: MintColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.payments_outlined,
+                  color: MintColors.primary, size: 22),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Budget remboursement',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'CHF\u00a0${formatChf(_budgetMensuel)} / mois',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: MintColors.primary,
+                    ),
+                  ),
+                ],
               ),
             ),
-            Text(
-              format,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
-            ),
+            const Icon(Icons.edit_outlined,
+                color: MintColors.textMuted, size: 18),
           ],
         ),
-        Slider(
-          value: value,
-          min: min,
-          max: max,
-          divisions: divisions,
-          activeColor: MintColors.primary,
-          onChanged: onChanged,
-        ),
-      ],
+      ),
     );
   }
 
