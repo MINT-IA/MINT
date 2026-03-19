@@ -858,7 +858,10 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
           const SizedBox(height: 16),
           ...List.generate(items.length, (index) {
             final checked = _checkedItems.contains(index);
-            return GestureDetector(
+            return Semantics(
+              label: 'Checklist item ${index + 1}',
+              button: true,
+              child: GestureDetector(
               onTap: () {
                 setState(() {
                   if (checked) {
@@ -912,6 +915,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
                   ],
                 ),
               ),
+            ),
             );
           }),
         ],
