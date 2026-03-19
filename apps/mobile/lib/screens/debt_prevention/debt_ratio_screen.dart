@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/debt_prevention_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
@@ -90,7 +91,13 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
 
                 // Recommandations
                 _buildRecommandationsSection(result),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
+
+                // CTA contextuel → Plan de remboursement
+                if (result.niveau != DebtRiskLevel.vert)
+                  _buildRepaymentCta(result),
+                if (result.niveau != DebtRiskLevel.vert)
+                  const SizedBox(height: 24),
 
                 // Aide professionnelle
                 if (result.niveau == DebtRiskLevel.rouge) ...[
@@ -508,6 +515,73 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildRepaymentCta(DebtRatioResult result) {
+    final isRouge = result.niveau == DebtRiskLevel.rouge;
+    final color = isRouge ? MintColors.error : MintColors.warning;
+    final bgColor = isRouge ? MintColors.urgentBg : MintColors.warningBg;
+
+    return Semantics(
+      label: 'Créer un plan de remboursement',
+      button: true,
+      child: InkWell(
+        onTap: () => context.push('/debt/repayment'),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: color.withValues(alpha: 0.4), width: 2),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(Icons.trending_down, color: color, size: 24),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isRouge
+                          ? 'Crée ton plan de remboursement'
+                          : 'Optimise tes remboursements',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: isRouge ? MintColors.redDark : MintColors.deepOrange,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Compare avalanche et boule de neige pour rembourser plus vite.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isRouge ? MintColors.redDark : MintColors.deepOrange,
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                color: color,
+                size: 16,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

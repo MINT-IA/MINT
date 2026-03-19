@@ -2147,7 +2147,7 @@
   "profileAiSlmTitle": "IA en el dispositivo (SLM)",
   "profileAiSlmReady": "Modelo listo",
   "profileAiSlmNotInstalled": "Modelo no instalado",
-  "profileLanguageTitle": "Langue / Sprache / Language",
+  "profileLanguageTitle": "Idioma",
   "profileAdminObservability": "Admin observability",
   "profileAdminAnalytics": "Analytics beta testers",
   "profileDeleteCloudAccount": "Eliminar mi cuenta en la nube",
@@ -4597,9 +4597,9 @@
   "pulseReadinessActNow": "Lo esencial ocurre ahora",
   "pulseReadinessRetired": "Ya jubilado/a",
   "pulseCompleteProfile": "Completa tu perfil",
-  "profileSectionMyFile": "MI EXPEDIENTE",
-  "profileSectionSettings": "AJUSTES",
-  "profileCompletionLabel": "Completitud del perfil",
+  "profileSectionMyFile": "Mi expediente",
+  "profileSectionSettings": "Ajustes",
+  "profileCompletionLabel": "Tu expediente",
   "agirBudgetNet": "Neto",
   "agirBudgetFixed": "Fijos",
   "agirBudgetAvailable": "Disponible",
@@ -5972,13 +5972,13 @@
   "disabilityStatLine1": "[ES] 1 de cada 5 personas",
   "disabilityStatLine2": "[ES] será afectada antes de los 65 años",
 
-  "coachGreetingSlm": "¡Hola {name}! Soy tu coach MINT — funciono directamente en tu iPhone, ningún dato sale de tu dispositivo. Pregúntame sobre previsión, impuestos o jubilación.",
+  "coachGreetingSlm": "Hola {name}. Tus preguntas se quedan en tu dispositivo \u2014 nada sale. Pregunta lo que quieras, miramos tus cifras juntos.",
   "@coachGreetingSlm": {
     "placeholders": {
       "name": { "type": "String" }
     }
   },
-  "coachGreetingDefault": "¡Hola {name}! Soy tu coach MINT. Pregúntame sobre previsión, impuestos, presupuesto o jubilación en Suiza.{scoreSuffix}",
+  "coachGreetingDefault": "Hola {name}. Haz tu pregunta \u2014 miro tus cifras y te digo lo que veo.{scoreSuffix}",
   "@coachGreetingDefault": {
     "placeholders": {
       "name": { "type": "String" },
@@ -6006,8 +6006,8 @@
   "coachSuggestTaxImpact": "Simular el impacto fiscal",
   "coachSuggestFitness": "Mi puntuación Fitness",
   "coachSuggestRetirement": "Mi trayectoria de jubilación",
-  "coachEmptyStateMessage": "Completa tu diagnóstico para hablar con tu coach",
-  "coachEmptyStateButton": "Comenzar",
+  "coachEmptyStateMessage": "A\u00fan sin perfil. Tres preguntas, y hablamos.",
+  "coachEmptyStateButton": "Hacer mi diagn\u00f3stico",
   "coachTooltipHistory": "Historial",
   "coachTooltipExport": "Exportar conversación",
   "coachTooltipSettings": "Ajustes de IA",
@@ -6026,6 +6026,7 @@
   "coachFallbackName": "amigo/a",
   "coachUserMessage": "Tu mensaje",
   "coachCoachMessage": "Respuesta del coach",
+  "coachSendButton": "Enviar",
   "profileDefaultName": "Usuario",
   "profileNameAge": "{name}, {age} años",
   "@profileNameAge": {
@@ -6235,5 +6236,26 @@
   "quickStartSectionIncome": "Ingresos & Ahorro",
   "quickStartSectionPension": "Previsión (LPP)",
   "quickStartSectionProperty": "Inmuebles & Deudas",
-  "quickStartSectionGuidance": "Sección: {label} — actualiza tus datos a continuación."
+  "quickStartSectionGuidance": "Sección: {label} — actualiza tus datos a continuación.",
+  "profileCompletionHint": "{pct}\u00a0% — falta {missing}",
+  "@profileCompletionHint": {
+    "placeholders": {
+      "pct": { "type": "int" },
+      "missing": { "type": "String" }
+    }
+  },
+  "profileMissingLpp": "tu LPP",
+  "profileMissingIncome": "tus ingresos",
+  "profileMissingProperty": "tu inmueble",
+  "profileMissingIdentity": "tu identidad",
+  "profileMissingAnd": " y ",
+  "profileAnnualRefreshDays": "Última actualización hace {days} días",
+  "@profileAnnualRefreshDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "chiffreChocBack": "Volver",
+  "chiffreChocShowComparison": "Mostrar comparación",
+  "chiffreChocHideComparison": "Ocultar comparación"
 }

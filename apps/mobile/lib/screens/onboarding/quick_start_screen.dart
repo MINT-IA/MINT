@@ -168,8 +168,10 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     final current = est['current']!;
     final ratio = est['ratio']!;
     final gap = (current - total).clamp(0.0, double.infinity);
-    final dropPct =
+    final dropPctRaw =
         current > 0 ? ((current - total) / current * 100).round() : 0;
+    // Clamp to 0: if projection > current, no drop to show
+    final dropPct = dropPctRaw.clamp(0, 100);
 
     return Scaffold(
       backgroundColor: MintColors.white,

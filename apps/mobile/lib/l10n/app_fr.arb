@@ -2147,7 +2147,7 @@
   "profileAiSlmTitle": "IA on-device (SLM)",
   "profileAiSlmReady": "Modèle prêt",
   "profileAiSlmNotInstalled": "Modèle non installé",
-  "profileLanguageTitle": "Langue / Sprache / Language",
+  "profileLanguageTitle": "Langue",
   "profileAdminObservability": "Admin observability",
   "profileAdminAnalytics": "Analytics beta testeurs",
   "profileDeleteCloudAccount": "Supprimer mon compte cloud",
@@ -4597,9 +4597,9 @@
   "pulseReadinessActNow": "L'essentiel se joue maintenant",
   "pulseReadinessRetired": "Déjà à la retraite",
   "pulseCompleteProfile": "Complète ton profil",
-  "profileSectionMyFile": "MON DOSSIER",
-  "profileSectionSettings": "RÉGLAGES",
-  "profileCompletionLabel": "Complétude du profil",
+  "profileSectionMyFile": "Mon dossier",
+  "profileSectionSettings": "Réglages",
+  "profileCompletionLabel": "Ton dossier",
   "agirBudgetNet": "Net",
   "agirBudgetFixed": "Fixes",
   "agirBudgetAvailable": "Dispo",
@@ -6230,13 +6230,13 @@
   "authContinueLocal": "Continuer en mode local",
   "authBack": "Retour",
 
-  "coachGreetingSlm": "Salut {name}. Tes questions restent sur ton appareil. On peut parler prévoyance, impôts ou retraite.",
+  "coachGreetingSlm": "Salut {name}. Tes questions restent sur ton appareil \u2014 rien ne sort. Pose ta question, on regarde tes chiffres ensemble.",
   "@coachGreetingSlm": {
     "placeholders": {
       "name": { "type": "String" }
     }
   },
-  "coachGreetingDefault": "Salut {name}. Pose ta question, je regarde ce que tes chiffres racontent.{scoreSuffix}",
+  "coachGreetingDefault": "Salut {name}. Pose ta question \u2014 je regarde tes chiffres et je te dis ce que j'en pense.{scoreSuffix}",
   "@coachGreetingDefault": {
     "placeholders": {
       "name": { "type": "String" },
@@ -6264,8 +6264,8 @@
   "coachSuggestTaxImpact": "Simuler l'impact fiscal",
   "coachSuggestFitness": "Où j'en suis",
   "coachSuggestRetirement": "Ma retraite, concrètement",
-  "coachEmptyStateMessage": "Complète ton diagnostic pour discuter avec ton coach",
-  "coachEmptyStateButton": "Commencer",
+  "coachEmptyStateMessage": "Pas encore de profil. Trois questions, et on discute.",
+  "coachEmptyStateButton": "Faire mon diagnostic",
   "coachTooltipHistory": "Historique",
   "coachTooltipExport": "Exporter la conversation",
   "coachTooltipSettings": "Paramètres IA",
@@ -6284,6 +6284,7 @@
   "coachFallbackName": "ami·e",
   "coachUserMessage": "Ton message",
   "coachCoachMessage": "Réponse du coach",
+  "coachSendButton": "Envoyer",
   "profileDefaultName": "Utilisateur",
   "profileNameAge": "{name}, {age} ans",
   "@profileNameAge": {
@@ -6514,5 +6515,28 @@
     "placeholders": {
       "label": { "type": "String" }
     }
-  }
+  },
+  "profileCompletionHint": "{pct}\u00a0% — il manque {missing}",
+  "@profileCompletionHint": {
+    "description": "Profile completion with missing sections hint. Tone: factual, inviting.",
+    "placeholders": {
+      "pct": { "type": "int" },
+      "missing": { "type": "String" }
+    }
+  },
+  "profileMissingLpp": "ton LPP",
+  "profileMissingIncome": "tes revenus",
+  "profileMissingProperty": "ton immobilier",
+  "profileMissingIdentity": "ton identité",
+  "profileMissingAnd": " et ",
+  "profileAnnualRefreshDays": "Dernière mise à jour il y a {days} jours",
+  "@profileAnnualRefreshDays": {
+    "description": "Staleness indicator for annual refresh card. Tone: factual, not alarmist.",
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "chiffreChocBack": "Retour",
+  "chiffreChocShowComparison": "Afficher la comparaison",
+  "chiffreChocHideComparison": "Masquer la comparaison"
 }

@@ -2147,7 +2147,7 @@
   "profileAiSlmTitle": "On-Device KI (SLM)",
   "profileAiSlmReady": "Modell bereit",
   "profileAiSlmNotInstalled": "Modell nicht installiert",
-  "profileLanguageTitle": "Langue / Sprache / Language",
+  "profileLanguageTitle": "Sprache",
   "profileAdminObservability": "Admin Observability",
   "profileAdminAnalytics": "Beta-Tester Analytik",
   "profileDeleteCloudAccount": "Mein Cloud-Konto löschen",
@@ -4597,9 +4597,9 @@
   "pulseReadinessActNow": "Das Wesentliche passiert jetzt",
   "pulseReadinessRetired": "Bereits im Ruhestand",
   "pulseCompleteProfile": "Profil vervollständigen",
-  "profileSectionMyFile": "MEINE AKTE",
-  "profileSectionSettings": "EINSTELLUNGEN",
-  "profileCompletionLabel": "Profilvollständigkeit",
+  "profileSectionMyFile": "Meine Akte",
+  "profileSectionSettings": "Einstellungen",
+  "profileCompletionLabel": "Deine Akte",
   "agirBudgetNet": "Netto",
   "agirBudgetFixed": "Fixkosten",
   "agirBudgetAvailable": "Verfügbar",
@@ -5986,13 +5986,13 @@
   "disabilityStatLine1": "[DE] 1 von 5 Personen",
   "disabilityStatLine2": "[DE] wird vor 65 betroffen sein",
 
-  "coachGreetingSlm": "Hallo {name}! Ich bin dein MINT-Coach — ich laufe direkt auf deinem iPhone, keine Daten verlassen dein Gerät. Frag mich zur Vorsorge, Steuern oder Pensionierung.",
+  "coachGreetingSlm": "Hallo {name}. Deine Fragen bleiben auf deinem Ger\u00e4t \u2014 nichts geht raus. Stell deine Frage, wir schauen uns deine Zahlen gemeinsam an.",
   "@coachGreetingSlm": {
     "placeholders": {
       "name": { "type": "String" }
     }
   },
-  "coachGreetingDefault": "Hallo {name}! Ich bin dein MINT-Coach. Frag mich zur Vorsorge, Steuern, Budget oder Pensionierung in der Schweiz.{scoreSuffix}",
+  "coachGreetingDefault": "Hallo {name}. Stell deine Frage \u2014 ich schaue mir deine Zahlen an und sage dir, was ich sehe.{scoreSuffix}",
   "@coachGreetingDefault": {
     "placeholders": {
       "name": { "type": "String" },
@@ -6020,8 +6020,8 @@
   "coachSuggestTaxImpact": "Steuerliche Auswirkung simulieren",
   "coachSuggestFitness": "Mein Fitness-Score",
   "coachSuggestRetirement": "Meine Pensionierungs-Trajektorie",
-  "coachEmptyStateMessage": "Vervollständige deine Diagnose, um mit deinem Coach zu chatten",
-  "coachEmptyStateButton": "Starten",
+  "coachEmptyStateMessage": "Noch kein Profil. Drei Fragen, und wir reden.",
+  "coachEmptyStateButton": "Diagnose starten",
   "coachTooltipHistory": "Verlauf",
   "coachTooltipExport": "Gespräch exportieren",
   "coachTooltipSettings": "KI-Einstellungen",
@@ -6040,6 +6040,7 @@
   "coachFallbackName": "Freund·in",
   "coachUserMessage": "Deine Nachricht",
   "coachCoachMessage": "Coach-Antwort",
+  "coachSendButton": "Senden",
   "profileDefaultName": "Benutzer",
   "profileNameAge": "{name}, {age} Jahre",
   "@profileNameAge": {
@@ -6249,5 +6250,26 @@
   "quickStartSectionIncome": "Einkommen & Sparen",
   "quickStartSectionPension": "Vorsorge (BVG)",
   "quickStartSectionProperty": "Immobilien & Schulden",
-  "quickStartSectionGuidance": "Bereich: {label} — aktualisiere deine Angaben unten."
+  "quickStartSectionGuidance": "Bereich: {label} — aktualisiere deine Angaben unten.",
+  "profileCompletionHint": "{pct}\u00a0% — es fehlt {missing}",
+  "@profileCompletionHint": {
+    "placeholders": {
+      "pct": { "type": "int" },
+      "missing": { "type": "String" }
+    }
+  },
+  "profileMissingLpp": "deine BVG-Daten",
+  "profileMissingIncome": "dein Einkommen",
+  "profileMissingProperty": "deine Immobilien",
+  "profileMissingIdentity": "deine Identität",
+  "profileMissingAnd": " und ",
+  "profileAnnualRefreshDays": "Letzte Aktualisierung vor {days} Tagen",
+  "@profileAnnualRefreshDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "chiffreChocBack": "Zurück",
+  "chiffreChocShowComparison": "Vergleich anzeigen",
+  "chiffreChocHideComparison": "Vergleich ausblenden"
 }

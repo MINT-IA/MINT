@@ -61,7 +61,11 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
 
   Future<void> _computeFromRouteExtra() async {
     final extra = GoRouterState.of(context).extra;
-    if (extra is! Map<String, dynamic>) return;
+    if (extra is! Map<String, dynamic>) {
+      // No valid data — redirect to onboarding instead of infinite spinner
+      if (mounted) context.go('/onboarding/quick');
+      return;
+    }
 
     final age = extra['age'] as int? ?? 35;
     final grossSalary = (extra['grossSalary'] as num?)?.toDouble() ?? 80000;
@@ -217,7 +221,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                 alignment: Alignment.centerLeft,
                 child: Semantics(
                   button: true,
-                  label: 'Retour',
+                  label: l10n.chiffreChocBack,
                   child: IconButton(
                     onPressed: () => context.pop(),
                     icon: const Icon(Icons.arrow_back_rounded),
@@ -310,8 +314,8 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                 child: Semantics(
                   button: true,
                   label: _avantApresExpanded
-                      ? 'Masquer la comparaison'
-                      : 'Afficher la comparaison',
+                      ? l10n.chiffreChocHideComparison
+                      : l10n.chiffreChocShowComparison,
                   child: GestureDetector(
                     onTap: () =>
                         setState(() => _avantApresExpanded = !_avantApresExpanded),

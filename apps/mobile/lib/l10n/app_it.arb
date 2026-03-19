@@ -2147,7 +2147,7 @@
   "profileAiSlmTitle": "IA on-device (SLM)",
   "profileAiSlmReady": "Modello pronto",
   "profileAiSlmNotInstalled": "Modello non installato",
-  "profileLanguageTitle": "Langue / Sprache / Language",
+  "profileLanguageTitle": "Lingua",
   "profileAdminObservability": "Admin observability",
   "profileAdminAnalytics": "Analytics beta tester",
   "profileDeleteCloudAccount": "Elimina il mio account cloud",
@@ -4597,9 +4597,9 @@
   "pulseReadinessActNow": "L'essenziale si gioca ora",
   "pulseReadinessRetired": "Già in pensione",
   "pulseCompleteProfile": "Completa il tuo profilo",
-  "profileSectionMyFile": "IL MIO DOSSIER",
-  "profileSectionSettings": "IMPOSTAZIONI",
-  "profileCompletionLabel": "Completezza del profilo",
+  "profileSectionMyFile": "Il mio dossier",
+  "profileSectionSettings": "Impostazioni",
+  "profileCompletionLabel": "Il tuo dossier",
   "agirBudgetNet": "Netto",
   "agirBudgetFixed": "Fissi",
   "agirBudgetAvailable": "Disponibile",
@@ -5972,13 +5972,13 @@
   "disabilityStatLine1": "[IT] 1 persona su 5",
   "disabilityStatLine2": "[IT] sarà colpita prima dei 65 anni",
 
-  "coachGreetingSlm": "Ciao {name}! Sono il tuo coach MINT — funziono direttamente sul tuo iPhone, nessun dato lascia il tuo dispositivo. Chiedimi di previdenza, tasse o pensionamento.",
+  "coachGreetingSlm": "Ciao {name}. Le tue domande restano sul tuo dispositivo \u2014 nulla esce. Chiedi pure, guardiamo i tuoi numeri insieme.",
   "@coachGreetingSlm": {
     "placeholders": {
       "name": { "type": "String" }
     }
   },
-  "coachGreetingDefault": "Ciao {name}! Sono il tuo coach MINT. Chiedimi di previdenza, tasse, budget o pensionamento in Svizzera.{scoreSuffix}",
+  "coachGreetingDefault": "Ciao {name}. Fai la tua domanda \u2014 guardo i tuoi numeri e ti dico cosa vedo.{scoreSuffix}",
   "@coachGreetingDefault": {
     "placeholders": {
       "name": { "type": "String" },
@@ -6235,5 +6235,26 @@
   "quickStartSectionIncome": "Reddito & Risparmio",
   "quickStartSectionPension": "Previdenza (LPP)",
   "quickStartSectionProperty": "Immobili & Debiti",
-  "quickStartSectionGuidance": "Sezione: {label} — aggiorna le tue informazioni qui sotto."
+  "quickStartSectionGuidance": "Sezione: {label} — aggiorna le tue informazioni qui sotto.",
+  "profileCompletionHint": "{pct}\u00a0% — manca {missing}",
+  "@profileCompletionHint": {
+    "placeholders": {
+      "pct": { "type": "int" },
+      "missing": { "type": "String" }
+    }
+  },
+  "profileMissingLpp": "il tuo LPP",
+  "profileMissingIncome": "il tuo reddito",
+  "profileMissingProperty": "il tuo immobile",
+  "profileMissingIdentity": "la tua identità",
+  "profileMissingAnd": " e ",
+  "profileAnnualRefreshDays": "Ultimo aggiornamento {days} giorni fa",
+  "@profileAnnualRefreshDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "chiffreChocBack": "Indietro",
+  "chiffreChocShowComparison": "Mostra confronto",
+  "chiffreChocHideComparison": "Nascondi confronto"
 }

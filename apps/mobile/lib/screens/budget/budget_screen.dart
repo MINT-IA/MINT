@@ -65,7 +65,7 @@ class _BudgetScreenState extends State<BudgetScreen>
   }
 
   Widget _staggeredEntry({required int index, required Widget child}) {
-    const totalSlots = 5;
+    const totalSlots = 6;
     return AnimatedBuilder(
       animation: _staggerAnimation,
       builder: (context, _) {

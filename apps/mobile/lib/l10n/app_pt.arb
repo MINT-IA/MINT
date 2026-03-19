@@ -2147,7 +2147,7 @@
   "profileAiSlmTitle": "IA on-device (SLM)",
   "profileAiSlmReady": "Modelo pronto",
   "profileAiSlmNotInstalled": "Modelo não instalado",
-  "profileLanguageTitle": "Langue / Sprache / Language",
+  "profileLanguageTitle": "Idioma",
   "profileAdminObservability": "Admin observability",
   "profileAdminAnalytics": "Analytics beta testers",
   "profileDeleteCloudAccount": "Eliminar a minha conta cloud",
@@ -4597,9 +4597,9 @@
   "pulseReadinessActNow": "O essencial acontece agora",
   "pulseReadinessRetired": "Já aposentado/a",
   "pulseCompleteProfile": "Complete o seu perfil",
-  "profileSectionMyFile": "MEU DOSSIÊ",
-  "profileSectionSettings": "CONFIGURAÇÕES",
-  "profileCompletionLabel": "Completude do perfil",
+  "profileSectionMyFile": "Meu dossiê",
+  "profileSectionSettings": "Configurações",
+  "profileCompletionLabel": "O teu dossiê",
   "agirBudgetNet": "Líquido",
   "agirBudgetFixed": "Fixos",
   "agirBudgetAvailable": "Disponível",
@@ -6235,5 +6235,26 @@
   "quickStartSectionIncome": "Rendimento & Poupanca",
   "quickStartSectionPension": "Previdencia (LPP)",
   "quickStartSectionProperty": "Imoveis & Dividas",
-  "quickStartSectionGuidance": "Secao: {label} — atualiza as tuas informacoes abaixo."
+  "quickStartSectionGuidance": "Secao: {label} — atualiza as tuas informacoes abaixo.",
+  "profileCompletionHint": "{pct}\u00a0% — falta {missing}",
+  "@profileCompletionHint": {
+    "placeholders": {
+      "pct": { "type": "int" },
+      "missing": { "type": "String" }
+    }
+  },
+  "profileMissingLpp": "o teu LPP",
+  "profileMissingIncome": "o teu rendimento",
+  "profileMissingProperty": "o teu imovel",
+  "profileMissingIdentity": "a tua identidade",
+  "profileMissingAnd": " e ",
+  "profileAnnualRefreshDays": "Última atualização há {days} dias",
+  "@profileAnnualRefreshDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "chiffreChocBack": "Voltar",
+  "chiffreChocShowComparison": "Mostrar comparação",
+  "chiffreChocHideComparison": "Ocultar comparação"
 }

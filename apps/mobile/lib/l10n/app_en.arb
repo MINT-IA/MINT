@@ -2147,7 +2147,7 @@
   "profileAiSlmTitle": "On-device AI (SLM)",
   "profileAiSlmReady": "Model ready",
   "profileAiSlmNotInstalled": "Model not installed",
-  "profileLanguageTitle": "Language / Sprache / Langue",
+  "profileLanguageTitle": "Language",
   "profileAdminObservability": "Admin observability",
   "profileAdminAnalytics": "Beta tester analytics",
   "profileDeleteCloudAccount": "Delete my cloud account",
@@ -4597,9 +4597,9 @@
   "pulseReadinessActNow": "The essentials are happening now",
   "pulseReadinessRetired": "Already retired",
   "pulseCompleteProfile": "Complete your profile",
-  "profileSectionMyFile": "MY FILE",
-  "profileSectionSettings": "SETTINGS",
-  "profileCompletionLabel": "Profile completion",
+  "profileSectionMyFile": "My file",
+  "profileSectionSettings": "Settings",
+  "profileCompletionLabel": "Your file",
   "agirBudgetNet": "Net",
   "agirBudgetFixed": "Fixed",
   "agirBudgetAvailable": "Available",
@@ -6015,13 +6015,13 @@
   "disabilityStatLine1": "1 in 5 people",
   "disabilityStatLine2": "will be affected before age 65",
 
-  "coachGreetingSlm": "Hi {name}! I'm your MINT coach — running directly on your iPhone, no data leaves your device. Ask me about pensions, taxes or retirement.",
+  "coachGreetingSlm": "Hi {name}. Your questions stay on your device \u2014 nothing leaves. Ask away, let's look at your numbers together.",
   "@coachGreetingSlm": {
     "placeholders": {
       "name": { "type": "String" }
     }
   },
-  "coachGreetingDefault": "Hi {name}! I'm your MINT coach. Ask me about pensions, taxes, budgeting or retirement in Switzerland.{scoreSuffix}",
+  "coachGreetingDefault": "Hi {name}. Ask your question \u2014 I'll look at your numbers and share what I see.{scoreSuffix}",
   "@coachGreetingDefault": {
     "placeholders": {
       "name": { "type": "String" },
@@ -6049,8 +6049,8 @@
   "coachSuggestTaxImpact": "Simulate tax impact",
   "coachSuggestFitness": "My Fitness score",
   "coachSuggestRetirement": "My retirement trajectory",
-  "coachEmptyStateMessage": "Complete your diagnosis to chat with your coach",
-  "coachEmptyStateButton": "Start",
+  "coachEmptyStateMessage": "No profile yet. Three questions, and we're talking.",
+  "coachEmptyStateButton": "Take my diagnosis",
   "coachTooltipHistory": "History",
   "coachTooltipExport": "Export conversation",
   "coachTooltipSettings": "AI Settings",
@@ -6069,6 +6069,7 @@
   "coachFallbackName": "friend",
   "coachUserMessage": "Your message",
   "coachCoachMessage": "Coach response",
+  "coachSendButton": "Send",
   "profileDefaultName": "User",
   "profileNameAge": "{name}, {age} years",
   "@profileNameAge": {
@@ -6278,5 +6279,26 @@
   "quickStartSectionIncome": "Income & Savings",
   "quickStartSectionPension": "Pension (LPP)",
   "quickStartSectionProperty": "Property & Debts",
-  "quickStartSectionGuidance": "Section: {label} — update your information below."
+  "quickStartSectionGuidance": "Section: {label} — update your information below.",
+  "profileCompletionHint": "{pct}\u00a0% — missing {missing}",
+  "@profileCompletionHint": {
+    "placeholders": {
+      "pct": { "type": "int" },
+      "missing": { "type": "String" }
+    }
+  },
+  "profileMissingLpp": "your LPP",
+  "profileMissingIncome": "your income",
+  "profileMissingProperty": "your property",
+  "profileMissingIdentity": "your identity",
+  "profileMissingAnd": " and ",
+  "profileAnnualRefreshDays": "Last updated {days} days ago",
+  "@profileAnnualRefreshDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "chiffreChocBack": "Back",
+  "chiffreChocShowComparison": "Show comparison",
+  "chiffreChocHideComparison": "Hide comparison"
 }
