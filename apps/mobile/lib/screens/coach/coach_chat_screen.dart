@@ -202,18 +202,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           : CoachLlmService.initialSuggestions;
     }
 
-    // Response cards contextuelles pour le greeting
-    final greetingCards = ResponseCardService.generateForPulse(
-      p,
-      limit: 2,
-    );
-
+    // No response cards on greeting — they duplicate Pulse.
+    // Cards appear only in response to user messages.
     _messages.add(ChatMessage(
       role: 'assistant',
       content: greeting,
       timestamp: DateTime.now(),
       suggestedActions: suggestions,
-      responseCards: greetingCards,
       tier: tier,
     ));
   }

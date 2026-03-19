@@ -4595,6 +4595,8 @@
     }
   },
   "pulseReadinessActNow": "L'essentiel se joue maintenant",
+  "pulseReadinessRetired": "Déjà à la retraite",
+  "pulseCompleteProfile": "Complète ton profil",
   "agirBudgetNet": "Net",
   "agirBudgetFixed": "Fixes",
   "agirBudgetAvailable": "Dispo",

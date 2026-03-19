@@ -179,11 +179,11 @@ class ResponseCardWidget extends StatelessWidget {
           child: Text(
             card.title,
             style: GoogleFonts.montserrat(
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,
             ),
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
         ),

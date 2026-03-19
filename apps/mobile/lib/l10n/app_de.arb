@@ -4595,6 +4595,8 @@
     }
   },
   "pulseReadinessActNow": "Das Wesentliche passiert jetzt",
+  "pulseReadinessRetired": "Bereits im Ruhestand",
+  "pulseCompleteProfile": "Profil vervollständigen",
   "agirBudgetNet": "Netto",
   "agirBudgetFixed": "Fixkosten",
   "agirBudgetAvailable": "Verfügbar",

@@ -20,7 +20,7 @@ class ResponseCardService {
   ResponseCardService._();
 
   static const _disclaimer =
-      'Outil educatif — ne constitue pas un conseil financier (LSFin art. 3).';
+      'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin art. 3).';
 
   /// Genere les cartes prioritaires pour le dashboard Pulse.
   /// Max [limit] cartes, triees par urgence puis impact.
@@ -183,7 +183,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'rent_vs_buy',
         title: 'Louer ou acheter',
-        subtitle: 'Compare les deux scenarios sur le long terme',
+        subtitle: 'Compare les deux sc\u00e9narios sur le long terme',
         route: '/arbitrage/location-vs-propriete',
         sources: ['CO art. 253ss', 'FINMA circ.'],
       ));
@@ -545,12 +545,12 @@ class ResponseCardService {
       id: 'pillar_3a_${now.year}',
       type: ResponseCardType.pillar3a,
       title: 'Versement 3a ${now.year}',
-      subtitle: 'Economie fiscale estimee',
+      subtitle: '\u00c9conomie fiscale estim\u00e9e',
       chiffreChoc: ChiffreChoc(
         value: taxSaving,
         unit: 'CHF',
         explanation:
-            'Economie d\'impot estimee si tu verses le plafond de ${plafond.round()} CHF',
+            '\u00c9conomie d\'imp\u00f4t estim\u00e9e si tu verses le plafond de ${plafond.round()} CHF',
       ),
       cta: const CardCta(
         label: 'Simuler mon 3a',
@@ -592,7 +592,7 @@ class ResponseCardService {
         value: rachatMax,
         unit: 'CHF',
         explanation:
-            'Rachat possible. Economie fiscale estimee de ${taxSaving.round()} CHF sur ${rachatSimule.round()} CHF',
+            'Rachat possible. \u00c9conomie fiscale estim\u00e9e de ${taxSaving.round()} CHF sur ${rachatSimule.round()} CHF',
       ),
       cta: const CardCta(
         label: 'Simuler un rachat',
@@ -608,6 +608,7 @@ class ResponseCardService {
 
   static ResponseCard? _tryReplacementRate(CoachProfile profile) {
     if (profile.age < 45) return null;
+    if (profile.age >= profile.effectiveRetirementAge) return null;
     if (profile.salaireBrutMensuel <= 0) return null;
 
     // Use ForecasterService-style projection
@@ -624,7 +625,12 @@ class ResponseCardService {
         : 0.0;
 
     final totalMonthly = monthlyAvs + lppMonthly;
-    final currentMonthly = profile.salaireBrutMensuel * 0.78; // net approx
+    // Use NetIncomeBreakdown for consistent net calculation (same as Pulse)
+    final currentMonthly = NetIncomeBreakdown.compute(
+      grossSalary: profile.revenuBrutAnnuel,
+      canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+      age: profile.age,
+    ).monthlyNetPayslip;
     final replacementRate =
         currentMonthly > 0 ? (totalMonthly / currentMonthly * 100) : 0.0;
 
@@ -632,16 +638,16 @@ class ResponseCardService {
       id: 'replacement_rate',
       type: ResponseCardType.replacementRate,
       title: 'Taux de remplacement',
-      subtitle: 'Projection a ${profile.effectiveRetirementAge} ans',
+      subtitle: 'Projection \u00e0 ${profile.effectiveRetirementAge} ans',
       chiffreChoc: ChiffreChoc(
         value: replacementRate,
         unit: '%',
         explanation:
-            'Revenu estime a la retraite: ${totalMonthly.round()} CHF/mois '
+            'Revenu estim\u00e9 \u00e0 la retraite\u00a0: ${totalMonthly.round()} CHF/mois '
             'vs ${currentMonthly.round()} CHF/mois actuellement',
       ),
       cta: const CardCta(
-        label: 'Explorer mes scenarios',
+        label: 'Explorer mes sc\u00e9narios',
         route: '/rente-vs-capital',
         icon: 'trending_up',
       ),
@@ -650,7 +656,7 @@ class ResponseCardService {
       sources: const ['LAVS art. 29-40', 'LPP art. 14'],
       alertes: [
         if (replacementRate < 60)
-          'Taux inferieur au seuil recommande de 60%. Explore les options.',
+          'Taux inf\u00e9rieur au seuil recommand\u00e9 de 60\u00a0%. Explore les options.',
       ],
       impactPoints: 22,
     );
@@ -677,7 +683,7 @@ class ResponseCardService {
         value: monthlyLoss * 12,
         unit: 'CHF/an',
         explanation:
-            'Reduction estimee de ta rente AVS annuelle due aux lacunes',
+            'R\u00e9duction estim\u00e9e de ta rente AVS annuelle due aux lacunes',
       ),
       cta: const CardCta(
         label: 'Voir mon extrait AVS',
@@ -784,12 +790,12 @@ class ResponseCardService {
       id: 'tax_optimization',
       type: ResponseCardType.taxOptimization,
       title: 'Optimisation fiscale',
-      subtitle: 'Deductions estimees disponibles',
+      subtitle: 'D\u00e9ductions estim\u00e9es disponibles',
       chiffreChoc: ChiffreChoc(
         value: totalSaving,
         unit: 'CHF',
         explanation:
-            'Economie d\'impot estimee via 3a (${plafond3a.round()} CHF) '
+            '\u00c9conomie d\'imp\u00f4t estim\u00e9e via 3a (${plafond3a.round()} CHF) '
             '+ rachat LPP',
       ),
       cta: const CardCta(
@@ -830,7 +836,7 @@ class ResponseCardService {
         value: total,
         unit: 'CHF',
         explanation: isUnderCushion
-            ? 'Epargne liquide (${epargne.round()} CHF) inferieure '
+            ? '\u00c9pargne liquide (${epargne.round()} CHF) inf\u00e9rieure '
                 'a 3 mois de charges (${coussinMin.round()} CHF)'
             : 'Epargne ${epargne.round()} CHF + '
                 'investissements ${investissements.round()} CHF',
@@ -845,7 +851,7 @@ class ResponseCardService {
       sources: const [],
       alertes: [
         if (isUnderCushion)
-          'Coussin de securite recommande: ${coussinMin.round()} CHF (3 mois de charges)',
+          'Coussin de s\u00e9curit\u00e9 recommand\u00e9\u00a0: ${coussinMin.round()} CHF (3 mois de charges)',
       ],
       impactPoints: 12,
     );

@@ -4595,6 +4595,8 @@
     }
   },
   "pulseReadinessActNow": "The essentials are happening now",
+  "pulseReadinessRetired": "Already retired",
+  "pulseCompleteProfile": "Complete your profile",
   "agirBudgetNet": "Net",
   "agirBudgetFixed": "Fixed",
   "agirBudgetAvailable": "Available",

@@ -274,42 +274,54 @@ class _PulseScreenState extends State<PulseScreen> {
           (conjoint.prevoyance?.totalEpargne3a ?? 0);
     }
 
+    final hasRetraite = retraiteEstimee != null && retraiteEstimee > 0;
+    final hasBudget = revenuNet > 0;
+    final hasPatrimoine = patrimoine > 0;
+
     return Row(
       children: [
         Expanded(
           child: _PastilleCard(
             label: l.pulseKeyFigRetraite,
-            value: retraiteEstimee != null
+            value: hasRetraite
                 ? formatChfWithPrefix(retraiteEstimee)
                 : '\u2014',
-            subtitle: tauxRemplacement != null
+            subtitle: hasRetraite && tauxRemplacement != null
                 ? l.pulseKeyFigRetraitePct('${tauxRemplacement.round()}')
-                : null,
+                : l.pulseCompleteProfile,
             icon: Icons.beach_access_outlined,
             color: MintColors.primary,
-            onTap: () => context.push('/retraite'),
+            onTap: () => context.push(hasRetraite ? '/retraite' : '/onboarding/quick?section=income'),
           ),
         ),
         const SizedBox(width: 10),
         Expanded(
           child: _PastilleCard(
             label: l.pulseKeyFigBudgetLibre,
-            value: budgetLibre > 0
-                ? '+${formatChfWithPrefix(budgetLibre)}'
-                : formatChfWithPrefix(budgetLibre),
+            value: hasBudget
+                ? (budgetLibre > 0
+                    ? '+${formatChfWithPrefix(budgetLibre)}'
+                    : formatChfWithPrefix(budgetLibre))
+                : '\u2014',
+            subtitle: hasBudget ? null : l.pulseCompleteProfile,
             icon: Icons.account_balance_wallet_outlined,
-            color: budgetLibre >= 0 ? MintColors.success : MintColors.warning,
-            onTap: () => context.push('/budget'),
+            color: hasBudget
+                ? (budgetLibre >= 0 ? MintColors.success : MintColors.warning)
+                : MintColors.textMuted,
+            onTap: () => context.push(hasBudget ? '/budget' : '/onboarding/quick?section=income'),
           ),
         ),
         const SizedBox(width: 10),
         Expanded(
           child: _PastilleCard(
             label: l.pulseKeyFigPatrimoine,
-            value: formatChfCompact(patrimoine),
+            value: hasPatrimoine
+                ? formatChfCompact(patrimoine)
+                : '\u2014',
+            subtitle: hasPatrimoine ? null : l.pulseCompleteProfile,
             icon: Icons.trending_up_outlined,
-            color: MintColors.info,
-            onTap: () => context.push('/profile/bilan'),
+            color: hasPatrimoine ? MintColors.info : MintColors.textMuted,
+            onTap: () => context.push(hasPatrimoine ? '/profile/bilan' : '/onboarding/quick?section=pension'),
           ),
         ),
       ],
@@ -411,6 +423,7 @@ class _PulseScreenState extends State<PulseScreen> {
     final l = S.of(context)!;
     final age = profile.age;
     final yearsToRetire = profile.effectiveRetirementAge - age;
+    if (yearsToRetire <= 0) return l.pulseReadinessRetired;
     if (yearsToRetire <= 5) return l.pulseReadinessRetireIn(yearsToRetire);
     if (yearsToRetire <= 15) return l.pulseReadinessYearsToAct(yearsToRetire);
     return l.pulseReadinessActNow;
