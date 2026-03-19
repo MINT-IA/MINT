@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/housing_sale_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -222,11 +223,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
               children: [
                 Text(
                   S.of(context)!.housingSaleHeaderTitle,
-                  style: GoogleFonts.outfit(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.headlineMedium(),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -598,11 +595,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           const SizedBox(height: 16),
           Text(
             _chfFmt(r.remploiReport),
-            style: GoogleFonts.outfit(
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              color: MintColors.success,
-            ),
+            style: MintTextStyles.headlineMedium(color: MintColors.success),
           ),
           const SizedBox(height: 4),
           Text(
@@ -711,11 +704,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           const SizedBox(height: 12),
           Text(
             _chfFmt(r.produitNet),
-            style: GoogleFonts.outfit(
-              fontSize: 36,
-              fontWeight: FontWeight.w700,
-              color: isPositive ? MintColors.primary : MintColors.error,
-            ),
+            style: MintTextStyles.displayMedium(color: isPositive ? MintColors.primary : MintColors.error),
           ),
           const SizedBox(height: 16),
           // Breakdown

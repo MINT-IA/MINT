@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/donation_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -195,11 +196,7 @@ class _DonationScreenState extends State<DonationScreen> {
               children: [
                 Text(
                   S.of(context)!.donationHeaderTitle,
-                  style: GoogleFonts.outfit(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.headlineMedium(),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -573,11 +570,7 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(height: 12),
           Text(
             hasTax ? _chfFmt(r.impotDonation) : S.of(context)!.donationExoneree,
-            style: GoogleFonts.outfit(
-              fontSize: 36,
-              fontWeight: FontWeight.w700,
-              color: hasTax ? MintColors.indigo : MintColors.success,
-            ),
+            style: MintTextStyles.displayMedium(color: hasTax ? MintColors.indigo : MintColors.success),
           ),
           if (hasTax) ...[
             const SizedBox(height: 4),
@@ -639,11 +632,7 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(height: 16),
           Text(
             _chfFmt(r.reserveHereditaireTotale),
-            style: GoogleFonts.outfit(
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.headlineMedium(),
           ),
           const SizedBox(height: 4),
           Text(
@@ -778,11 +767,7 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(height: 16),
           Text(
             _chfFmt(r.quotiteDisponible),
-            style: GoogleFonts.outfit(
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.headlineMedium(),
           ),
           const SizedBox(height: 4),
           Text(

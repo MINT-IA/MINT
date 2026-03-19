@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/family_service.dart';
@@ -94,49 +95,30 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     return SliverAppBar(
       pinned: true,
       floating: true,
-      expandedHeight: 160,
-      backgroundColor: MintColors.primary,
+      expandedHeight: 110,
+      backgroundColor: MintColors.white,
+      foregroundColor: MintColors.textPrimary,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: 16),
         title: Text(
           S.of(context)!.concubinageAppBarTitle,
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-            color: MintColors.white,
-          ),
-        ),
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                MintColors.primary,
-                MintColors.primary.withValues(alpha: 0.85),
-              ],
-            ),
-          ),
+          style: MintTextStyles.headlineMedium(),
         ),
       ),
       bottom: TabBar(
         controller: _tabController,
-        indicatorColor: MintColors.white,
+        indicatorColor: MintColors.primary,
         indicatorWeight: 3,
-        labelColor: MintColors.white,
-        unselectedLabelColor: MintColors.white60,
-        labelStyle: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-        ),
-        unselectedLabelStyle: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.w400,
-        ),
+        labelColor: MintColors.textPrimary,
+        unselectedLabelColor: MintColors.textMuted,
+        labelStyle: MintTextStyles.bodySmall().copyWith(fontWeight: FontWeight.w600),
+        unselectedLabelStyle: MintTextStyles.bodySmall(),
         tabs: [
           Tab(text: S.of(context)!.concubinageTabComparateur),
           Tab(text: S.of(context)!.concubinageTabChecklist),
