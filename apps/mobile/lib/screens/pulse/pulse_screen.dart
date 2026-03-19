@@ -395,7 +395,7 @@ class _PulseScreenState extends State<PulseScreen> {
   }
 
   // ────────────────────────────────────────────────────────
-  //  3 PASTILLES
+  //  3 PILIERS — Horizontal carousel (age-adaptive)
   // ────────────────────────────────────────────────────────
 
   Widget _buildPastilles(CoachProfile profile) {
@@ -434,53 +434,57 @@ class _PulseScreenState extends State<PulseScreen> {
     final hasBudget = revenuNet > 0;
     final hasPatrimoine = patrimoine > 0;
 
-    return Row(
-      children: [
-        Expanded(
-          child: _PastilleCard(
-            label: l.pulseKeyFigRetraite,
-            value: hasRetraite
-                ? formatChfWithPrefix(retraiteEstimee)
-                : '\u2014',
-            subtitle: hasRetraite && tauxRemplacement != null
-                ? l.pulseKeyFigRetraitePct('${tauxRemplacement.round()}')
-                : l.pulseCompleteProfile,
-            icon: Icons.beach_access_outlined,
-            color: MintColors.primary,
-            onTap: () => context.push(hasRetraite ? '/retraite' : '/onboarding/quick?section=income'),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _PastilleCard(
-            label: l.pulseKeyFigBudgetLibre,
-            value: hasBudget
-                ? (budgetLibre > 0
-                    ? '+${formatChfWithPrefix(budgetLibre)}'
-                    : formatChfWithPrefix(budgetLibre))
-                : '\u2014',
-            subtitle: hasBudget ? null : l.pulseCompleteProfile,
-            icon: Icons.account_balance_wallet_outlined,
-            color: hasBudget
-                ? (budgetLibre >= 0 ? MintColors.success : MintColors.warning)
-                : MintColors.textMuted,
-            onTap: () => context.push(hasBudget ? '/budget' : '/onboarding/quick?section=income'),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _PastilleCard(
-            label: l.pulseKeyFigPatrimoine,
-            value: hasPatrimoine
-                ? formatChfCompact(patrimoine)
-                : '\u2014',
-            subtitle: hasPatrimoine ? null : l.pulseCompleteProfile,
-            icon: Icons.trending_up_outlined,
-            color: hasPatrimoine ? MintColors.info : MintColors.textMuted,
-            onTap: () => context.push(hasPatrimoine ? '/profile/bilan' : '/onboarding/quick?section=pension'),
-          ),
-        ),
-      ],
+    // Build pillar cards — order adapts by age
+    final cards = <Widget>[
+      _PillarCard(
+        accentColor: MintColors.primary,
+        icon: Icons.beach_access_outlined,
+        label: l.pulseKeyFigRetraite,
+        value: hasRetraite
+            ? formatChfWithPrefix(retraiteEstimee)
+            : '\u2014',
+        subtitle: hasRetraite && tauxRemplacement != null
+            ? l.pulseKeyFigRetraitePct('${tauxRemplacement.round()}')
+            : l.pulseCompleteProfile,
+        onTap: () => context.push(
+            hasRetraite ? '/retraite' : '/onboarding/quick?section=income'),
+      ),
+      _PillarCard(
+        accentColor: hasBudget
+            ? (budgetLibre >= 0 ? MintColors.success : MintColors.warning)
+            : MintColors.textMuted,
+        icon: Icons.account_balance_wallet_outlined,
+        label: l.pulseKeyFigBudgetLibre,
+        value: hasBudget
+            ? (budgetLibre > 0
+                ? '+${formatChfWithPrefix(budgetLibre)}'
+                : formatChfWithPrefix(budgetLibre))
+            : '\u2014',
+        subtitle: hasBudget ? null : l.pulseCompleteProfile,
+        onTap: () => context.push(
+            hasBudget ? '/budget' : '/onboarding/quick?section=income'),
+      ),
+      _PillarCard(
+        accentColor: hasPatrimoine ? MintColors.info : MintColors.textMuted,
+        icon: Icons.trending_up_outlined,
+        label: l.pulseKeyFigPatrimoine,
+        value: hasPatrimoine
+            ? formatChfCompact(patrimoine)
+            : '\u2014',
+        subtitle: hasPatrimoine ? null : l.pulseCompleteProfile,
+        onTap: () => context.push(
+            hasPatrimoine ? '/profile/bilan' : '/onboarding/quick?section=pension'),
+      ),
+    ];
+
+    return SizedBox(
+      height: 110,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: cards.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (_, i) => cards[i],
+      ),
     );
   }
 
@@ -784,22 +788,22 @@ class _PulseScreenState extends State<PulseScreen> {
 // _HeroCard removed — replaced by _buildAdaptiveHeroWithScore (inline method)
 
 // ────────────────────────────────────────────────────────
-//  PASTILLE CARD (compact key figure)
+//  PILLAR CARD — Carousel item (wider, accent bar on top)
 // ────────────────────────────────────────────────────────
 
-class _PastilleCard extends StatelessWidget {
+class _PillarCard extends StatelessWidget {
+  final Color accentColor;
+  final IconData icon;
   final String label;
   final String value;
   final String? subtitle;
-  final IconData icon;
-  final Color color;
   final VoidCallback? onTap;
 
-  const _PastilleCard({
+  const _PillarCard({
+    required this.accentColor,
+    required this.icon,
     required this.label,
     required this.value,
-    required this.icon,
-    required this.color,
     this.subtitle,
     this.onTap,
   });
@@ -812,60 +816,80 @@ class _PastilleCard extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.all(12),
+          width: 150,
+          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-          boxShadow: [
-            BoxShadow(
-              color: MintColors.black.withValues(alpha: 0.03),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, size: 18, color: color),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: GoogleFonts.outfit(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
+            color: MintColors.card,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: MintColors.lightBorder),
+            boxShadow: [
+              BoxShadow(
+                color: MintColors.black.withValues(alpha: 0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.textSecondary,
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Accent bar + icon
+              Row(
+                children: [
+                  Container(
+                    width: 4,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: accentColor,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(icon, size: 16, color: accentColor),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        color: MintColors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            if (subtitle != null) ...[
-              const SizedBox(height: 2),
+              const SizedBox(height: 10),
+              // Value
               Text(
-                subtitle!,
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  color: color,
-                  fontWeight: FontWeight.w600,
+                value,
+                style: GoogleFonts.montserrat(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                  letterSpacing: -0.3,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  subtitle!,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: accentColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ],
-          ],
+          ),
         ),
-      ),
       ),
     );
   }
