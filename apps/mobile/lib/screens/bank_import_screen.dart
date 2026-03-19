@@ -48,7 +48,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
+    final s = S.of(context)!;
 
     return Scaffold(
       backgroundColor: MintColors.background,
@@ -63,13 +63,12 @@ class _BankImportScreenState extends State<BankImportScreen> {
                 children: [
                   // Header
                   Text(
-                    s?.bankImportTitle ?? 'Importer mes relevés',
+                    s.bankImportTitle,
                     style: MintTextStyles.headlineLarge(),
                   ),
                   const SizedBox(height: MintSpacing.sm),
                   Text(
-                    s?.bankImportSubtitle ??
-                        'Analyse automatique de tes transactions',
+                    s.bankImportSubtitle,
                     style: MintTextStyles.bodyLarge(),
                   ),
                   const SizedBox(height: MintSpacing.lg),
@@ -140,14 +139,14 @@ class _BankImportScreenState extends State<BankImportScreen> {
   // App Bar
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildAppBar(S? s) {
+  Widget _buildAppBar(S s) {
     return SliverAppBar(
       backgroundColor: MintColors.white,
       surfaceTintColor: MintColors.white,
       elevation: 0,
       scrolledUnderElevation: 0,
       title: Text(
-        s?.bankImportTitle ?? 'Importer mes relevés',
+        s.bankImportTitle,
         style: MintTextStyles.titleMedium(),
       ),
     );
@@ -157,7 +156,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
   // Step 1: Upload Card
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildUploadCard(S? s) {
+  Widget _buildUploadCard(S s) {
     return Container(
       padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
@@ -195,8 +194,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
-                  s?.bankImportUploadTitle ??
-                      'Importe ton relevé bancaire',
+                  s.bankImportUploadTitle,
                   style: MintTextStyles.titleMedium(color: MintColors.white),
                 ),
               ),
@@ -204,8 +202,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            s?.bankImportUploadBody ??
-                'CSV ou PDF \u2014 UBS, PostFinance, Raiffeisen, ZKB et autres banques suisses',
+            s.bankImportUploadBody,
             style: TextStyle(
               fontSize: 14,
               color: MintColors.white.withValues(alpha: 0.9),
@@ -228,7 +225,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
               ),
               icon: const Icon(Icons.attach_file_rounded, size: 20),
               label: Text(
-                s?.bankImportUploadButton ?? 'Choisir un fichier',
+                s.bankImportUploadButton,
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
@@ -242,7 +239,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
   // Uploading Indicator
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildUploadingIndicator(S? s) {
+  Widget _buildUploadingIndicator(S s) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -262,7 +259,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
           ),
           const SizedBox(width: 16),
           Text(
-            s?.bankImportAnalyzing ?? 'Analyse des transactions...',
+            s.bankImportAnalyzing,
             style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,
@@ -314,7 +311,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
   // ──────────────────────────────────────────────────────────
 
   Widget _buildBankDetectedBadge(BankStatementResult result) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
@@ -328,8 +325,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
           const Icon(Icons.check_circle, color: MintColors.success, size: 18),
           const SizedBox(width: 8),
           Text(
-            s?.bankImportBankDetected(result.bankName) ??
-                '${result.bankName} detecte',
+            s.bankImportBankDetected(result.bankName),
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -345,13 +341,11 @@ class _BankImportScreenState extends State<BankImportScreen> {
   // Step 2: Summary Card
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildSummaryCard(S? s, BankStatementResult result) {
-    final periodStr = s?.bankImportPeriod(
-            _formatDate(result.periodStart), _formatDate(result.periodEnd)) ??
-        'Periode : ${_formatDate(result.periodStart)} - ${_formatDate(result.periodEnd)}';
+  Widget _buildSummaryCard(S s, BankStatementResult result) {
+    final periodStr = s.bankImportPeriod(
+        _formatDate(result.periodStart), _formatDate(result.periodEnd));
     final txCountStr =
-        s?.bankImportTransactionCount(result.transactions.length.toString()) ??
-            '${result.transactions.length} transactions';
+        s.bankImportTransactionCount(result.transactions.length.toString());
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -382,14 +376,14 @@ class _BankImportScreenState extends State<BankImportScreen> {
           const SizedBox(height: 12),
           _buildSummaryRow(
             Icons.arrow_downward_rounded,
-            s?.bankImportIncome ?? 'Revenus',
+            s.bankImportIncome,
             '+${_formatChf(result.totalCredits)}',
             valueColor: MintColors.success,
           ),
           const SizedBox(height: 12),
           _buildSummaryRow(
             Icons.arrow_upward_rounded,
-            s?.bankImportExpenses ?? 'Depenses',
+            s.bankImportExpenses,
             '-${_formatChf(result.totalDebits.abs())}',
             valueColor: MintColors.error,
           ),
@@ -430,7 +424,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
   // Category Breakdown
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildCategoryBreakdown(S? s, BankStatementResult result) {
+  Widget _buildCategoryBreakdown(S s, BankStatementResult result) {
     if (result.categorySummary.isEmpty) return const SizedBox.shrink();
 
     final totalExpenses = result.totalDebits.abs();
@@ -448,7 +442,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            s?.bankImportCategories ?? 'Répartition par catégorie',
+            s.bankImportCategories,
             style: MintTextStyles.labelSmall(),
           ),
           const SizedBox(height: 16),
@@ -515,7 +509,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
   // Recurring Charges
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildRecurringCharges(S? s, BankStatementResult result) {
+  Widget _buildRecurringCharges(S s, BankStatementResult result) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -527,7 +521,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            s?.bankImportRecurring ?? 'Charges récurrentes détectées',
+            s.bankImportRecurring,
             style: MintTextStyles.labelSmall(),
           ),
           const SizedBox(height: 16),
@@ -541,9 +535,8 @@ class _BankImportScreenState extends State<BankImportScreen> {
     );
   }
 
-  Widget _buildRecurringRow(S? s, BankTransaction tx) {
-    final amountStr = s?.bankImportPerMonth(_formatChf(tx.amount.abs())) ??
-        '${_formatChf(tx.amount.abs())}/mois';
+  Widget _buildRecurringRow(S s, BankTransaction tx) {
+    final amountStr = s.bankImportPerMonth(_formatChf(tx.amount.abs()));
 
     return Row(
       children: [
@@ -583,7 +576,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
   // Transaction List
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildTransactionList(S? s, BankStatementResult result) {
+  Widget _buildTransactionList(S s, BankStatementResult result) {
     // Group transactions by date
     final grouped = <String, List<BankTransaction>>{};
     for (final tx in result.transactions) {
@@ -704,7 +697,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
   // Step 3: Budget Preview Card
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildBudgetPreviewCard(S? s, BudgetImportPreview preview) {
+  Widget _buildBudgetPreviewCard(S s, BudgetImportPreview preview) {
     final recurringTotal = preview.recurringCharges.fold<double>(
       0.0,
       (sum, tx) => sum + tx.amount.abs(),
@@ -729,30 +722,30 @@ class _BankImportScreenState extends State<BankImportScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            s?.bankImportBudgetPreview ?? 'Ton budget estimé',
+            s.bankImportBudgetPreview,
             style: MintTextStyles.titleMedium(),
           ),
           const SizedBox(height: 20),
           _buildBudgetRow(
-            s?.bankImportMonthlyIncome ?? 'Revenu mensuel',
+            s.bankImportMonthlyIncome,
             _formatChf(preview.estimatedMonthlyIncome),
             MintColors.textPrimary,
           ),
           const SizedBox(height: 12),
           _buildBudgetRow(
-            s?.bankImportFixedCharges ?? 'Charges fixes',
+            s.bankImportFixedCharges,
             _formatChf(recurringTotal),
             MintColors.textSecondary,
           ),
           const SizedBox(height: 12),
           _buildBudgetRow(
-            s?.bankImportVariable ?? 'Depenses variables',
+            s.bankImportVariable,
             _formatChf(variableExpenses > 0 ? variableExpenses : 0),
             MintColors.textSecondary,
           ),
           const SizedBox(height: 12),
           _buildBudgetRow(
-            s?.bankImportSavingsRate ?? "Taux d'epargne",
+            s.bankImportSavingsRate,
             '${preview.savingsRate.toStringAsFixed(1)}%',
             preview.savingsRate >= 20
                 ? MintColors.success
@@ -767,7 +760,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
             child: FilledButton(
               onPressed: _budgetImported ? null : () => _importIntoBudget(),
               child: Text(
-                s?.bankImportButton ?? 'Importer dans mon budget',
+                s.bankImportButton,
               ),
             ),
           ),
@@ -804,7 +797,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
   // Success Card
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildSuccessCard(S? s) {
+  Widget _buildSuccessCard(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -818,7 +811,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              s?.bankImportSuccess ?? 'Budget mis a jour avec succes',
+              s.bankImportSuccess,
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
@@ -835,7 +828,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
   // Privacy Footer
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildPrivacyFooter(S? s) {
+  Widget _buildPrivacyFooter(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -858,8 +851,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              s?.bankImportPrivacy ??
-                  'Tes releves sont analyses localement. Les transactions ne sont jamais stockees sur nos serveurs.',
+              s.bankImportPrivacy,
               style: const TextStyle(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -947,8 +939,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          S.of(context)?.bankImportSuccess ??
-              'Budget mis a jour avec succes',
+          S.of(context)!.bankImportSuccess,
         ),
         backgroundColor: MintColors.success,
         behavior: SnackBarBehavior.floating,
@@ -990,32 +981,32 @@ class _BankImportScreenState extends State<BankImportScreen> {
   }
 
   /// Localize a category name using ARB keys.
-  String _localizeCategory(S? s, String category) {
+  String _localizeCategory(S s, String category) {
     switch (category) {
       case 'Logement':
-        return s?.bankImportCategoryLogement ?? 'Logement';
+        return s.bankImportCategoryLogement;
       case 'Alimentation':
-        return s?.bankImportCategoryAlimentation ?? 'Alimentation';
+        return s.bankImportCategoryAlimentation;
       case 'Transport':
-        return s?.bankImportCategoryTransport ?? 'Transport';
+        return s.bankImportCategoryTransport;
       case 'Assurance':
-        return s?.bankImportCategoryAssurance ?? 'Assurance';
+        return s.bankImportCategoryAssurance;
       case 'Telecom':
-        return s?.bankImportCategoryTelecom ?? 'Telecom';
+        return s.bankImportCategoryTelecom;
       case 'Impots':
-        return s?.bankImportCategoryImpots ?? 'Impots';
+        return s.bankImportCategoryImpots;
       case 'Sante':
-        return s?.bankImportCategorySante ?? 'Sante';
+        return s.bankImportCategorySante;
       case 'Loisirs':
-        return s?.bankImportCategoryLoisirs ?? 'Loisirs';
+        return s.bankImportCategoryLoisirs;
       case 'Epargne':
-        return s?.bankImportCategoryEpargne ?? 'Epargne';
+        return s.bankImportCategoryEpargne;
       case 'Salaire':
-        return s?.bankImportCategorySalaire ?? 'Salaire';
+        return s.bankImportCategorySalaire;
       case 'Restaurant':
-        return s?.bankImportCategoryRestaurant ?? 'Restaurant';
+        return s.bankImportCategoryRestaurant;
       case 'Divers':
-        return s?.bankImportCategoryDivers ?? 'Divers';
+        return s.bankImportCategoryDivers;
       default:
         return category;
     }

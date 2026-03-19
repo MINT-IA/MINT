@@ -7674,5 +7674,129 @@
   "annualRefreshDeces": "Todesfall",
   "annualRefreshConservateur": "Konservativ",
   "annualRefreshModere": "Moderat",
-  "annualRefreshAgressif": "Aggressiv"
+  "annualRefreshAgressif": "Aggressiv",
+  "reportBonjour": "Hallo {name}!",
+  "@reportBonjour": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "reportProfileSummary": "{age} Jahre \u2022 {canton} \u2022 {civilStatus}",
+  "@reportProfileSummary": {
+    "placeholders": {
+      "age": { "type": "int" },
+      "canton": { "type": "String" },
+      "civilStatus": { "type": "String" }
+    }
+  },
+  "reportStatusGood": "Deine Basis ist solide, weiter so!",
+  "reportStatusMedium": "Ein paar Anpassungen f\u00fcr mehr Sicherheit",
+  "reportStatusLow": "Priorit\u00e4t: Stabilisiere deine Situation",
+  "reportReasonDebt": "Aktiver Konsumentenkredit.",
+  "reportReasonLeasing": "Aktives Leasing mit monatlicher Belastung.",
+  "reportReasonPayments": "Schuldenr\u00fcckzahlungen: CHF {amount} / Monat.",
+  "@reportReasonPayments": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "reportReasonEmergency": "Notfallfonds unzureichend (< 3 Monate).",
+  "reportReasonFragility": "Fragilit\u00e4tssignal erkannt: Priorit\u00e4t ist Budgetstabilit\u00e4t.",
+  "reportBudgetTitle": "Dein Budget",
+  "reportBudgetKeyLabel": "Verf\u00fcgbares Einkommen (nach Fixkosten)",
+  "reportBudgetAction": "Meine Budgetbereiche konfigurieren",
+  "reportProtectionTitle": "Dein Schutz",
+  "reportProtectionKeyLabel": "Notfallfonds (Ziel: 6 Monate)",
+  "reportProtectionSource": "Quelle: LP Art. 93 \u2014 Existenzminimum",
+  "reportProtectionAction": "Meinen Notfallfonds aufbauen",
+  "reportRetirementTitle": "Deine Rente",
+  "reportRetirementKeyLabel": "Gesch\u00e4tztes Einkommen mit 65",
+  "reportRetirementSource": "Quellen: BVG Art. 14, BVV3, AHVG",
+  "reportRetirement3aNone": "Noch kein 3a \u2014 bis zu CHF 7\u2019258/Jahr Steuerabzug m\u00f6glich",
+  "reportRetirement3aOne": "1 S\u00e4ule-3a-Konto \u2014 \u00f6ffne ein 2. zur Auszahlungsoptimierung",
+  "reportRetirement3aMulti": "{count} S\u00e4ule-3a-Konten \u2014 gute Diversifikation",
+  "@reportRetirement3aMulti": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "reportRetirementLppText": "BVG-Einkauf verf\u00fcgbar: CHF {available} \u2014 gesch\u00e4tzte Steuerersparnis: CHF {savings}",
+  "@reportRetirementLppText": {
+    "placeholders": {
+      "available": { "type": "String" },
+      "savings": { "type": "String" }
+    }
+  },
+  "reportTaxTitle": "Deine Steuern",
+  "reportTaxKeyLabel": "Gesch\u00e4tzte Steuern (Effektivsatz: {rate}%)",
+  "@reportTaxKeyLabel": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "reportTaxAction": "26 Kantone vergleichen",
+  "reportTaxSource": "Quelle: DBG Art. 33",
+  "reportTaxIncome": "Steuerbares Einkommen",
+  "reportTaxDeductions": "Abz\u00fcge",
+  "reportTaxEstimated": "Gesch\u00e4tzte Steuern",
+  "reportTaxSavings": "M\u00f6gliche Ersparnis mit BVG-Einkauf: CHF {amount}/Jahr",
+  "@reportTaxSavings": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "reportSafeModePriority": "Priorit\u00e4t: Schuldenabbau",
+  "reportSafeModeActions": "Deine Priorit\u00e4tsma\u00dfnahmen werden durch einen Schuldenabbauplan ersetzt. Stabilisiere deine Situation, bevor du Empfehlungen erkundest.",
+  "reportSafeMode3a": "Der 3a-Vergleich ist deaktiviert, solange du aktive Schulden hast. Die R\u00fcckzahlung hat Vorrang vor jeglichem 3a-Sparen.",
+  "reportSafeModeLpp": "BVG-Einkauf gesperrt",
+  "reportSafeModeLppMessage": "Der BVG-Einkauf ist im Schutzmodus deaktiviert. Zahle deine Schulden zur\u00fcck, bevor du Liquidit\u00e4t in der Vorsorge bindest.",
+  "reportLppTitle": "\ud83d\udcb0 BVG-Einkauf-Strategie",
+  "reportLppEconomie": "Gesamte Steuerersparnis: CHF {amount}",
+  "@reportLppEconomie": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "reportLppYear": "Jahr {year}",
+  "@reportLppYear": {
+    "placeholders": {
+      "year": { "type": "int" }
+    }
+  },
+  "reportLppBuyback": "Einkauf: CHF {amount}",
+  "@reportLppBuyback": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "reportLppSaving": "Ersparnis: CHF {amount}",
+  "@reportLppSaving": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "reportLppHowTitle": "Wie funktioniert das?",
+  "reportLppHowBody": "Verstehe, warum das Staffeln deiner BVG-Eink\u00e4ufe dir zus\u00e4tzlich Tausende von Franken spart.",
+  "reportSoaTitle": "Transparenz und Konformit\u00e4t",
+  "reportSoaNature": "Art der Dienstleistung",
+  "reportSoaEduPhases": "Finanzbildung \u2014 {count} Phasen identifiziert",
+  "@reportSoaEduPhases": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "reportSoaEduSimple": "Personalisierte Finanzbildung",
+  "reportSoaHypotheses": "Arbeitsannahmen",
+  "reportSoaHyp1": "Erkl\u00e4rtes Einkommen im Zeitraum stabil",
+  "reportSoaHyp2": "Obligatorischer BVG-Umwandlungssatz: 6,8\u00a0%",
+  "reportSoaHyp3": "S\u00e4ule-3a-Limit (Angestellte): CHF 7\u2019258/Jahr",
+  "reportSoaHyp4": "Maximale AHV-Rente: CHF 30\u2019240/Jahr",
+  "reportSoaConflicts": "Interessenkonflikte",
+  "reportSoaNoConflict": "Kein Interessenkonflikt f\u00fcr diesen Bericht festgestellt.",
+  "reportSoaNoCommission": "MINT erh\u00e4lt keine Provision auf die erw\u00e4hnten Produkte.",
+  "reportSoaLimitations": "Einschr\u00e4nkungen",
+  "reportSoaLim1": "Basiert ausschlie\u00dflich auf deklarierten Informationen",
+  "reportSoaLim2": "Steuersch\u00e4tzung approximativ (kantonale Durchschnittss\u00e4tze)",
+  "reportSoaLim3": "Ber\u00fccksichtigt keine Einnahmen aus beweglichem Verm\u00f6gen",
+  "reportSoaLim4": "Projektionen ber\u00fccksichtigen keine Inflation"
 }

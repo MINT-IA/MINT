@@ -7704,5 +7704,129 @@
   "annualRefreshDeces": "Death",
   "annualRefreshConservateur": "Conservative",
   "annualRefreshModere": "Moderate",
-  "annualRefreshAgressif": "Aggressive"
+  "annualRefreshAgressif": "Aggressive",
+  "reportBonjour": "Hello {name}!",
+  "@reportBonjour": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "reportProfileSummary": "{age} years old \u2022 {canton} \u2022 {civilStatus}",
+  "@reportProfileSummary": {
+    "placeholders": {
+      "age": { "type": "int" },
+      "canton": { "type": "String" },
+      "civilStatus": { "type": "String" }
+    }
+  },
+  "reportStatusGood": "Your foundation is solid, keep it up!",
+  "reportStatusMedium": "A few adjustments to feel at ease",
+  "reportStatusLow": "Priority: stabilise your situation",
+  "reportReasonDebt": "Active consumer debt.",
+  "reportReasonLeasing": "Active leasing with monthly charge.",
+  "reportReasonPayments": "Debt repayments: CHF {amount} / month.",
+  "@reportReasonPayments": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "reportReasonEmergency": "Emergency fund insufficient (< 3 months).",
+  "reportReasonFragility": "Fragility signal detected: priority is budget stability.",
+  "reportBudgetTitle": "Your Budget",
+  "reportBudgetKeyLabel": "Disposable income (after fixed costs)",
+  "reportBudgetAction": "Set up my envelopes",
+  "reportProtectionTitle": "Your Protection",
+  "reportProtectionKeyLabel": "Emergency fund (target: 6 months)",
+  "reportProtectionSource": "Source: LP art. 93 \u2014 Minimum subsistence",
+  "reportProtectionAction": "Build my emergency fund",
+  "reportRetirementTitle": "Your Retirement",
+  "reportRetirementKeyLabel": "Estimated income at 65",
+  "reportRetirementSource": "Sources: LPP art. 14, OPP3, LAVS",
+  "reportRetirement3aNone": "No 3a yet \u2014 up to CHF 7\u2019258/year in tax deductions possible",
+  "reportRetirement3aOne": "1 pillar 3a account \u2014 open a 2nd to optimise withdrawal",
+  "reportRetirement3aMulti": "{count} pillar 3a accounts \u2014 good diversification",
+  "@reportRetirement3aMulti": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "reportRetirementLppText": "LPP buyback available: CHF {available} \u2014 estimated tax saving: CHF {savings}",
+  "@reportRetirementLppText": {
+    "placeholders": {
+      "available": { "type": "String" },
+      "savings": { "type": "String" }
+    }
+  },
+  "reportTaxTitle": "Your Taxes",
+  "reportTaxKeyLabel": "Estimated taxes (effective rate: {rate}%)",
+  "@reportTaxKeyLabel": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "reportTaxAction": "Compare 26 cantons",
+  "reportTaxSource": "Source: LIFD art. 33",
+  "reportTaxIncome": "Taxable income",
+  "reportTaxDeductions": "Deductions",
+  "reportTaxEstimated": "Estimated taxes",
+  "reportTaxSavings": "Potential saving with LPP buyback: CHF {amount}/year",
+  "@reportTaxSavings": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "reportSafeModePriority": "Priority: debt reduction",
+  "reportSafeModeActions": "Your priority actions are replaced by a debt reduction plan. Stabilise your situation before exploring recommendations.",
+  "reportSafeMode3a": "The 3a comparator is disabled while you have active debts. Repaying debts takes priority over any 3a savings.",
+  "reportSafeModeLpp": "LPP buyback blocked",
+  "reportSafeModeLppMessage": "LPP buyback is disabled in protection mode. Repay your debts before locking liquidity in pension savings.",
+  "reportLppTitle": "\ud83d\udcb0 LPP Buyback Strategy",
+  "reportLppEconomie": "Total tax saving: CHF {amount}",
+  "@reportLppEconomie": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "reportLppYear": "Year {year}",
+  "@reportLppYear": {
+    "placeholders": {
+      "year": { "type": "int" }
+    }
+  },
+  "reportLppBuyback": "Buyback: CHF {amount}",
+  "@reportLppBuyback": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "reportLppSaving": "Saving: CHF {amount}",
+  "@reportLppSaving": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "reportLppHowTitle": "How does it work?",
+  "reportLppHowBody": "Understand why spreading your LPP buybacks saves you thousands of additional francs.",
+  "reportSoaTitle": "Transparency and compliance",
+  "reportSoaNature": "Nature of service",
+  "reportSoaEduPhases": "Financial education \u2014 {count} phases identified",
+  "@reportSoaEduPhases": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "reportSoaEduSimple": "Personalised financial education",
+  "reportSoaHypotheses": "Working assumptions",
+  "reportSoaHyp1": "Declared income stable over the period",
+  "reportSoaHyp2": "Mandatory LPP conversion rate: 6.8%",
+  "reportSoaHyp3": "Pillar 3a cap (employed): CHF 7\u2019258/year",
+  "reportSoaHyp4": "Maximum AVS pension: CHF 30\u2019240/year",
+  "reportSoaConflicts": "Conflicts of interest",
+  "reportSoaNoConflict": "No conflict of interest identified for this report.",
+  "reportSoaNoCommission": "MINT receives no commission on the products mentioned.",
+  "reportSoaLimitations": "Limitations",
+  "reportSoaLim1": "Based on declared information only",
+  "reportSoaLim2": "Approximate tax estimate (average cantonal rates)",
+  "reportSoaLim3": "Does not account for movable asset income",
+  "reportSoaLim4": "Projections do not account for inflation"
 }
