@@ -1,13 +1,9 @@
-# Insert: libre_passage (Libre passage LPP)
-
-## Metadata
-```yaml
-questionId: "libre_passage"
-phase: "Niveau 1"
-status: "READY"
-pilier: 2
-concept: "libre_passage"
-```
+---
+id: libre_passage
+title: Libre passage LPP — ton avoir entre deux emplois
+trigger: libre passage, changement emploi, compte libre passage, fondation supplétive, avoir oublié
+tags: [lpp, libre_passage, transfert, emploi, fondation, lflp]
+---
 
 ## Trigger
 - L'utilisateur mentionne un changement d'emploi ou une période sans emploi.

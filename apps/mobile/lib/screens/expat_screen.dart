@@ -764,7 +764,10 @@ class _ExpatScreenState extends State<ExpatScreen>
                   ),
                 ),
               ),
-              GestureDetector(
+              Semantics(
+                label: 'Sélectionner la date de départ',
+                button: true,
+                child: GestureDetector(
                 onTap: () async {
                   final picked = await showDatePicker(
                     context: context,
@@ -813,6 +816,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                     ],
                   ),
                 ),
+              ),
               ),
             ],
           ),
@@ -1120,7 +1124,10 @@ class _ExpatScreenState extends State<ExpatScreen>
             final timing = item['timing'] as String;
             final isCompleted = _completedChecklist.contains(id);
 
-            return GestureDetector(
+            return Semantics(
+              label: 'Checklist : $title',
+              button: true,
+              child: GestureDetector(
               onTap: () {
                 setState(() {
                   if (isCompleted) {
@@ -1148,6 +1155,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                   isCompleted: true,
                 ),
               ),
+            ),
             );
           }),
         ],

@@ -295,7 +295,10 @@ class CoachBriefingCard extends StatelessWidget {
   Widget _buildConfidenceChip() {
     final isLow = confidenceScore < 70;
 
-    return GestureDetector(
+    return Semantics(
+      label: 'interactive element',
+      button: true,
+      child: GestureDetector(
       onTap: isLow ? onEnrich : null,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -327,6 +330,6 @@ class CoachBriefingCard extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),);
   }
 }

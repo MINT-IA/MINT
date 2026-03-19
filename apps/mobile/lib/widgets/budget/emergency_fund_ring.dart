@@ -81,7 +81,10 @@ class _EmergencyFundRingState extends State<EmergencyFundRing>
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Semantics(
+      label: 'interactive element',
+      button: true,
+      child: GestureDetector(
       onTap: widget.onTap,
       child: SizedBox(
         width: 120,
@@ -136,7 +139,7 @@ class _EmergencyFundRingState extends State<EmergencyFundRing>
           },
         ),
       ),
-    );
+    ),);
   }
 }
 

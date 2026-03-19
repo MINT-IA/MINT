@@ -29,7 +29,7 @@ import 'package:mint_mobile/theme/colors.dart';
 /// await showModalBottomSheet(
 ///   context: context,
 ///   isScrollControlled: true,
-///   backgroundColor: Colors.transparent,
+///   backgroundColor: MintColors.transparent,
 ///   builder: (_) => MilestoneCelebrationSheet(milestone: milestone),
 /// );
 /// ```

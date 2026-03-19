@@ -230,7 +230,10 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
               ProfilRisque.dynamique => 'Dynamique',
             };
             return Expanded(
-              child: GestureDetector(
+              child: Semantics(
+                label: 'Profil de risque : $label',
+                button: true,
+                child: GestureDetector(
                 onTap: () => setState(() => _profilRisque = profil),
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -258,6 +261,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                     ),
                   ),
                 ),
+              ),
               ),
             );
           }).toList(),

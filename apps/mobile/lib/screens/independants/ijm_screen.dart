@@ -311,7 +311,10 @@ class _IjmScreenState extends State<IjmScreen> {
   Widget _buildCarenceChip(int jours) {
     final isSelected = _delaiCarence == jours;
     return Expanded(
-      child: GestureDetector(
+      child: Semantics(
+        label: '$jours jours de carence',
+        button: true,
+        child: GestureDetector(
         onTap: () {
           _delaiCarence = jours;
           _calculate();
@@ -349,6 +352,7 @@ class _IjmScreenState extends State<IjmScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

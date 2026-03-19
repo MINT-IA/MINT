@@ -71,6 +71,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   double _lifeExpectancy = 85;
 
   bool _isLoading = false;
+  bool _hasError = false;
   int _requestCounter = 0;
   ArbitrageResult? _result;
 
@@ -280,7 +281,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     final capitalTotal = capitalOblig + capitalSurob;
     final horizon = math.max(30, (_lifeExpectancy - ageRetraite).round());
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _hasError = false;
+    });
     try {
       final result = await ApiService.compareRenteVsCapital(
         capitalLppTotal: capitalTotal,
@@ -301,26 +305,31 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       setState(() => _result = result);
       return;
     } catch (_) {
-      final fallback = ArbitrageEngine.compareRenteVsCapital(
-        capitalLppTotal: capitalTotal,
-        capitalObligatoire: capitalOblig,
-        capitalSurobligatoire: capitalSurob,
-        renteAnnuelleProposee: renteAnnuelle,
-        tauxConversionObligatoire: tcOblig,
-        tauxConversionSurobligatoire: tcSurob,
-        canton: _canton,
-        ageRetraite: ageRetraite,
-        tauxRetrait: (_hypotheses['swr'] ?? 4.0) / 100,
-        rendementCapital: (_hypotheses['rendement'] ?? 3.0) / 100,
-        inflation: (_hypotheses['inflation'] ?? 2.0) / 100,
-        horizon: horizon,
-        isMarried: _isMarried,
-        dataSources: _dataSources,
-        currentAge: currentAge,
-        grossAnnualSalary: salary,
-      );
-      if (!mounted || requestId != _requestCounter) return;
-      setState(() => _result = fallback);
+      try {
+        final fallback = ArbitrageEngine.compareRenteVsCapital(
+          capitalLppTotal: capitalTotal,
+          capitalObligatoire: capitalOblig,
+          capitalSurobligatoire: capitalSurob,
+          renteAnnuelleProposee: renteAnnuelle,
+          tauxConversionObligatoire: tcOblig,
+          tauxConversionSurobligatoire: tcSurob,
+          canton: _canton,
+          ageRetraite: ageRetraite,
+          tauxRetrait: (_hypotheses['swr'] ?? 4.0) / 100,
+          rendementCapital: (_hypotheses['rendement'] ?? 3.0) / 100,
+          inflation: (_hypotheses['inflation'] ?? 2.0) / 100,
+          horizon: horizon,
+          isMarried: _isMarried,
+          dataSources: _dataSources,
+          currentAge: currentAge,
+          grossAnnualSalary: salary,
+        );
+        if (!mounted || requestId != _requestCounter) return;
+        setState(() => _result = fallback);
+      } catch (_) {
+        if (!mounted || requestId != _requestCounter) return;
+        setState(() => _hasError = true);
+      }
     } finally {
       if (mounted && requestId == _requestCounter) {
         setState(() => _isLoading = false);
@@ -413,6 +422,26 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 24),
                     child: Center(child: CircularProgressIndicator()),
+                  ),
+
+                if (_hasError && _result == null)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: MintColors.error.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline, color: MintColors.error, size: 20),
+                        const SizedBox(width: 12),
+                        Expanded(child: Text(
+                          'Une erreur est survenue. Réessaie plus tard.',
+                          style: GoogleFonts.inter(fontSize: 13, color: MintColors.error),
+                        )),
+                      ],
+                    ),
                   ),
 
                 if (_result != null) ...[
@@ -517,7 +546,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   Widget _introPuce(String term, String explanation) {
     return Padding(
       padding: const EdgeInsets.only(top: 6),
-      child: InkWell(
+      child: Semantics(
+        label: term,
+        button: true,
+        child: InkWell(
         onTap: () => _showExplanation(term, explanation),
         borderRadius: BorderRadius.circular(8),
         child: Padding(
@@ -539,6 +571,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

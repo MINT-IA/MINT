@@ -412,13 +412,16 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       child: Column(
         children: [
           // Collapse toggle
-          InkWell(
-            onTap: onToggle,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  expanded ? S.of(context)!.jobCompareReduce : S.of(context)!.jobCompareShowDetails,
+          Semantics(
+            label: expanded ? S.of(context)!.jobCompareReduce : S.of(context)!.jobCompareShowDetails,
+            button: true,
+            child: InkWell(
+              onTap: onToggle,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    expanded ? S.of(context)!.jobCompareReduce : S.of(context)!.jobCompareShowDetails,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -435,6 +438,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                 ),
               ],
             ),
+          ),
           ),
           if (expanded) ...[
             const SizedBox(height: 16),
@@ -553,11 +557,15 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                 padding: EdgeInsets.only(
                   right: opt != options.last ? 8 : 0,
                 ),
-                child: GestureDetector(
-                  onTap: () => onChanged(opt),
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 10),
+                child: Semantics(
+                  label: '${opt.toInt()}% part employeur',
+                  button: true,
+                  selected: selected,
+                  child: GestureDetector(
+                    onTap: () => onChanged(opt),
+                    child: Container(
+                      padding:
+                          const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
                       color: selected
                           ? accentColor.withValues(alpha: 0.1)
@@ -584,6 +592,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                       ),
                     ),
                   ),
+                ),
                 ),
               ),
             );
@@ -810,7 +819,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
               decoration: BoxDecoration(
                 color: isEven
-                    ? Colors.transparent
+                    ? MintColors.transparent
                     : MintColors.surface.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(6),
               ),
@@ -1009,59 +1018,64 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
         children: List.generate(r.checklist.length, (index) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: InkWell(
-              onTap: () {
-                setState(() {
-                  _checklistState[index] = !_checklistState[index];
-                });
-              },
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: _checklistState[index]
-                      ? MintColors.success.withValues(alpha: 0.06)
-                      : MintColors.surface,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: _checklistState[index]
-                        ? MintColors.success.withValues(alpha: 0.3)
-                        : MintColors.border,
+            child: Semantics(
+              label: r.checklist[index],
+              button: true,
+              toggled: _checklistState[index],
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    _checklistState[index] = !_checklistState[index];
+                  });
+                },
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
                   ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      _checklistState[index]
-                          ? Icons.check_box
-                          : Icons.check_box_outline_blank,
-                      size: 20,
+                  decoration: BoxDecoration(
+                    color: _checklistState[index]
+                        ? MintColors.success.withValues(alpha: 0.06)
+                        : MintColors.surface,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
                       color: _checklistState[index]
-                          ? MintColors.success
-                          : MintColors.textMuted,
+                          ? MintColors.success.withValues(alpha: 0.3)
+                          : MintColors.border,
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        r.checklist[index],
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: _checklistState[index]
-                              ? MintColors.textSecondary
-                              : MintColors.textPrimary,
-                          decoration: _checklistState[index]
-                              ? TextDecoration.lineThrough
-                              : null,
-                          height: 1.4,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        _checklistState[index]
+                            ? Icons.check_box
+                            : Icons.check_box_outline_blank,
+                        size: 20,
+                        color: _checklistState[index]
+                            ? MintColors.success
+                            : MintColors.textMuted,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          r.checklist[index],
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: _checklistState[index]
+                                ? MintColors.textSecondary
+                                : MintColors.textPrimary,
+                            decoration: _checklistState[index]
+                                ? TextDecoration.lineThrough
+                                : null,
+                            height: 1.4,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
               ),
+            ),
             ),
           );
         }),
@@ -1106,7 +1120,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
         border: Border.all(color: MintColors.border),
       ),
       child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
         child: ExpansionTile(
           tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),

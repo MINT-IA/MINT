@@ -42,9 +42,12 @@ class FieldHelpTooltip extends StatelessWidget {
     final help = PrecisionService.getFieldHelp(fieldName);
     if (help == null) return const SizedBox.shrink();
 
-    return InkWell(
-      onTap: () => _showHelpSheet(context, help),
-      borderRadius: BorderRadius.circular(20),
+    return Semantics(
+      label: 'Aide pour ce champ',
+      button: true,
+      child: InkWell(
+        onTap: () => _showHelpSheet(context, help),
+        borderRadius: BorderRadius.circular(20),
       child: const Padding(
         padding: EdgeInsets.all(4),
         child: Icon(
@@ -53,6 +56,7 @@ class FieldHelpTooltip extends StatelessWidget {
           color: MintColors.info,
         ),
       ),
+    ),
     );
   }
 

@@ -244,7 +244,10 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
       child: Row(
         children: [
           Expanded(
-            child: GestureDetector(
+            child: Semantics(
+              label: 'Sélectionner adulte',
+              button: true,
+              child: GestureDetector(
               onTap: () {
                 if (_isChild) {
                   _isChild = false;
@@ -254,7 +257,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: !_isChild ? MintColors.white : Colors.transparent,
+                  color: !_isChild ? MintColors.white : MintColors.transparent,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: !_isChild
                       ? [
@@ -278,9 +281,13 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                 ),
               ),
             ),
+            ),
           ),
           Expanded(
-            child: GestureDetector(
+            child: Semantics(
+              label: 'Sélectionner enfant',
+              button: true,
+              child: GestureDetector(
               onTap: () {
                 if (!_isChild) {
                   _isChild = true;
@@ -290,7 +297,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: _isChild ? MintColors.white : Colors.transparent,
+                  color: _isChild ? MintColors.white : MintColors.transparent,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: _isChild
                       ? [
@@ -313,6 +320,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                   ),
                 ),
               ),
+            ),
             ),
           ),
         ],

@@ -62,3 +62,23 @@ A feature or PR is considered "Done" if:
   - Original images deleted after OCR.
   - Extracted values require user confirmation.
   - Source quality tracked per field.
+
+- **Navigation & i18n** (S49+):
+  - All new screens registered in GoRouter (no `Navigator.push`).
+  - Screens accessible via 3-tab navigation (Pulse, Mint, Moi).
+  - All user-facing strings use `S.of(context)!.key` (6 ARB files).
+  - Response Card integration for coach tab on simulators.
+
+- **Enhanced Confidence** (S46+):
+  - All projections use `EnhancedConfidence` (4-axis: completeness × accuracy × freshness × understanding).
+  - Uncertainty bands mandatory when `combined < 70`.
+  - FRI display gated at `combined >= 50`.
+  - `ProfileDataSource` and `dataTimestamp` tracked per field.
+
+- **Autoresearch Sprint Execution** (S51+):
+  - Sprint deliverables validated by relevant autoresearch skills before merge.
+  - Financial calculations: `/autoresearch-calculator-forge` green.
+  - Compliance: `/autoresearch-compliance-hardener` green (100% pass rate).
+  - Test coverage: `/autoresearch-test-generation` run on new services (min 10 tests).
+  - UX: `/autoresearch-ux-polish` run on new screens (0 violations).
+  - i18n: `/autoresearch-i18n` confirms 0 hardcoded strings in new files.

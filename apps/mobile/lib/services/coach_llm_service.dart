@@ -167,17 +167,20 @@ class CoachLlmService {
     required CoachProfile profile,
     required List<ChatMessage> history,
     required LlmConfig config,
+    String? memoryBlock,
   }) async {
     final coachCtx = _buildCoachContext(profile);
 
     // Delegate to CoachOrchestrator (SLM → BYOK → fallback chain).
     // If SLM is available, it will be tried first (zero-network, privacy-first).
     // BYOK is passed when config.hasApiKey, otherwise skipped.
+    // memoryBlock (S58) provides lifecycle, goals, and conversation history context.
     final orchestratorResponse = await CoachOrchestrator.generateChat(
       userMessage: userMessage,
       history: history,
       ctx: coachCtx,
       byokConfig: config.hasApiKey ? config : null,
+      memoryBlock: memoryBlock,
     );
 
     // If orchestrator returned a non-fallback response (SLM or BYOK succeeded),
@@ -305,6 +308,36 @@ class CoachLlmService {
     return buf.toString();
   }
 
+  /// Converts an exact CHF amount to a privacy-safe range string.
+  ///
+  /// CoachContext MUST NEVER contain exact salary, savings, debts, NPA,
+  /// or employer (CLAUDE.md § 6). This helper rounds values to broad
+  /// ranges so the LLM receives only approximate magnitudes.
+  static String _toRange(double value) {
+    if (value <= 0) return '0 CHF';
+    final abs = value.abs();
+    final int rounded;
+    if (abs < 1000) {
+      rounded = ((abs / 500).round() * 500).clamp(500, 999).toInt();
+    } else if (abs < 10000) {
+      rounded = (abs / 1000).round() * 1000;
+    } else if (abs < 100000) {
+      rounded = (abs / 5000).round() * 5000;
+    } else if (abs < 1000000) {
+      rounded = (abs / 25000).round() * 25000;
+    } else {
+      rounded = (abs / 100000).round() * 100000;
+    }
+    // Format with apostrophe thousands separator
+    final str = rounded.toString();
+    final buf = StringBuffer();
+    for (var i = 0; i < str.length; i++) {
+      if (i > 0 && (str.length - i) % 3 == 0) buf.write("'");
+      buf.write(str[i]);
+    }
+    return '~$buf CHF';
+  }
+
   /// Convertit le profil coach en contexte riche pour le backend RAG.
   ///
   /// Le champ `financial_summary` est injecte dans le system prompt
@@ -318,53 +351,53 @@ class CoachLlmService {
     // Revenus
     if (profile.salaireBrutMensuel > 0) {
       parts.add(
-          'Salaire brut : ${profile.salaireBrutMensuel.toStringAsFixed(0)} CHF/mois');
+          'Salaire brut : ${_toRange(profile.salaireBrutMensuel)}/mois');
     }
 
     // Prevoyance
     final prev = profile.prevoyance;
     if (prev.totalEpargne3a > 0) {
       parts.add(
-          'Avoir 3a : ${prev.totalEpargne3a.toStringAsFixed(0)} CHF');
+          'Avoir 3a : ${_toRange(prev.totalEpargne3a)}');
     }
     if (prev.nombre3a > 0) {
       parts.add('Nombre de comptes 3a : ${prev.nombre3a}');
     }
     if (prev.avoirLppTotal != null && prev.avoirLppTotal! > 0) {
       parts.add(
-          'Avoir LPP : ${prev.avoirLppTotal!.toStringAsFixed(0)} CHF');
+          'Avoir LPP : ${_toRange(prev.avoirLppTotal!)}');
     }
     if (prev.lacuneRachatRestante > 0) {
       parts.add(
-          'Lacune rachat LPP : ${prev.lacuneRachatRestante.toStringAsFixed(0)} CHF');
+          'Lacune rachat LPP : ${_toRange(prev.lacuneRachatRestante)}');
     }
 
     // Patrimoine + dettes
     final pat = profile.patrimoine;
     if (pat.totalPatrimoine > 0) {
       parts.add(
-          'Patrimoine : ${pat.totalPatrimoine.toStringAsFixed(0)} CHF');
+          'Patrimoine : ${_toRange(pat.totalPatrimoine)}');
     }
     if (profile.dettes.totalDettes > 0) {
       parts.add(
-          'Dettes : ${profile.dettes.totalDettes.toStringAsFixed(0)} CHF');
+          'Dettes : ${_toRange(profile.dettes.totalDettes)}');
     }
 
     // Depenses
     final dep = profile.depenses;
     if (dep.loyer > 0) {
-      parts.add('Loyer : ${dep.loyer.toStringAsFixed(0)} CHF/mois');
+      parts.add('Loyer : ${_toRange(dep.loyer)}/mois');
     }
     if (dep.assuranceMaladie > 0) {
       parts.add(
-          'Assurance maladie : ${dep.assuranceMaladie.toStringAsFixed(0)} CHF/mois');
+          'Assurance maladie : ${_toRange(dep.assuranceMaladie)}/mois');
     }
 
     // Versements planifies
     if (profile.plannedContributions.isNotEmpty) {
       final contribs = profile.plannedContributions
           .map((c) =>
-              '${c.label} (${c.amount.toStringAsFixed(0)} CHF/mois)')
+              '${c.label} (${_toRange(c.amount)}/mois)')
           .join(', ');
       parts.add('Versements : $contribs');
     }
@@ -376,7 +409,7 @@ class CoachLlmService {
           : profile.checkIns;
       final summary = recent.map((ci) {
         final month = '${ci.month.month}/${ci.month.year}';
-        return '$month: ${ci.totalVersements.toStringAsFixed(0)} CHF';
+        return '$month: ${_toRange(ci.totalVersements)}';
       }).join(', ');
       parts.add('Derniers check-ins : $summary');
     }
@@ -397,7 +430,7 @@ class CoachLlmService {
         targetDate: profile.goalA.targetDate,
       );
       parts.add(
-          'Capital projete retraite : ${proj.base.capitalFinal.toStringAsFixed(0)} CHF');
+          'Capital projete retraite : ${_toRange(proj.base.capitalFinal)}');
       parts.add(
           'Taux de remplacement : ${proj.tauxRemplacementBase.toStringAsFixed(1)}%');
     } catch (_) {}
@@ -450,6 +483,10 @@ class CoachLlmService {
 
   /// Construit le system prompt avec le contexte utilisateur.
   ///
+  /// Prompt constructed here — see prompt_registry.dart for base prompts.
+  /// This prompt uses CoachProfile + FinancialFitnessService + ForecasterService
+  /// which differ from PromptRegistry's CoachContext model.
+  ///
   /// CRIT #6: wrapped in try-catch to prevent crash on incomplete profiles.
   static String buildSystemPrompt(CoachProfile profile) {
     final firstName = profile.firstName ?? 'utilisateur';
@@ -477,7 +514,7 @@ class CoachLlmService {
         profile: profile,
         targetDate: profile.goalA.targetDate,
       );
-      capitalBase = projection.base.capitalFinal.toStringAsFixed(0);
+      capitalBase = _toRange(projection.base.capitalFinal);
       tauxRemplacement = projection.tauxRemplacementBase.toStringAsFixed(1);
     } catch (_) {}
 
@@ -506,16 +543,20 @@ class CoachLlmService {
     buffer.writeln(
         '- Si pertinent, liste les options avec leur impact en CHF.');
     buffer.writeln(
+        '- Propose 1-3 actions concretes et prioritaires que l\'utilisateur peut faire cette semaine.');
+    buffer.writeln(
         '- Mentionne les risques et points d\'attention.');
     buffer.writeln(
         '- Cite tes sources legales (LPP art. X, LIFD art. Y, etc.).');
+    buffer.writeln(
+        '- Termine par un disclaimer : "Ceci est un outil educatif, ne constitue pas un conseil financier."');
     buffer.writeln();
     buffer.writeln('CONTEXTE UTILISATEUR :');
     buffer.writeln(
         '- Prenom : $firstName, Age : $age, Canton : $canton');
     buffer.writeln(
         '- Score Fitness : $globalScore/100 (Budget: $budgetScore, Prevoyance: $prevoyanceScore, Patrimoine: $patrimoineScore)');
-    buffer.writeln('- Capital projete base : $capitalBase CHF');
+    buffer.writeln('- Capital projete base : $capitalBase');
     buffer.writeln('- Taux de remplacement estime : $tauxRemplacement%');
 
     // Ajouter le contexte conjoint si applicable

@@ -84,11 +84,14 @@ class LetterGeneratorSheet extends StatelessWidget {
       required String title,
       required String subtitle,
       required VoidCallback onTap}) {
-    return InkWell(
-      onTap: () {
-        Navigator.pop(context);
-        onTap();
-      },
+    return Semantics(
+      label: title,
+      button: true,
+      child: InkWell(
+        onTap: () {
+          Navigator.pop(context);
+          onTap();
+        },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
@@ -119,6 +122,7 @@ class LetterGeneratorSheet extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 

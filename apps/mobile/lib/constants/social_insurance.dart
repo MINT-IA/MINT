@@ -355,3 +355,28 @@ const double lamalQuotePartMax = 700.0;
 
 /// Quote-part maximale annuelle LAMal pour jeunes adultes 19-25 ans.
 const double lamalQuotePartMaxJeunesAdultes = 350.0;
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Pilier 3a — Rattrapage retroactif (nouveau droit 2026+)
+// Base legale: OPP3 art. 7 (amendement 2026), OFAS publications annuelles
+// ══════════════════════════════════════════════════════════════════════════════
+
+/// Plafonds historiques 3a (avec LPP) par annee.
+/// Utilises pour calculer le montant de rattrapage retroactif.
+/// Source: OFAS publications annuelles, OPP3 art. 7.
+const Map<int, double> pilier3aHistoricalLimits = {
+  2026: 7258.0,
+  2025: 7258.0,
+  2024: 7056.0,
+  2023: 6883.0,
+  2022: 6826.0,
+  2021: 6826.0,
+  2020: 6826.0,
+  2019: 6826.0,
+  2018: 6826.0,
+  2017: 6768.0,
+  2016: 6768.0,
+};
+
+/// Nombre maximum d'annees de rattrapage retroactif 3a (OPP3 art. 7, amendement 2026).
+const int pilier3aMaxRetroactiveYears = 10;

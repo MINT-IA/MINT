@@ -653,7 +653,10 @@ class _ConsentScreenState extends State<ConsentScreen> {
 
   Widget _buildBankOption(Map<String, String> bank) {
     final isSelected = _selectedBankId == bank['id'];
-    return InkWell(
+    return Semantics(
+      label: 'Sélectionner la banque ${bank['name']}',
+      button: true,
+      child: InkWell(
       onTap: () {
         setState(() {
           _selectedBankId = bank['id'];
@@ -670,7 +673,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               : MintColors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? MintColors.primary : Colors.transparent,
+            color: isSelected ? MintColors.primary : MintColors.transparent,
           ),
         ),
         child: Row(
@@ -727,6 +730,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 

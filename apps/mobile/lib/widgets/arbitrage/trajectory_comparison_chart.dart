@@ -56,10 +56,12 @@ class _TrajectoryComparisonChartState extends State<TrajectoryComparisonChart> {
             final chartWidth = constraints.maxWidth;
             const chartHeight = 250.0;
 
-            return GestureDetector(
-              onTapDown: (details) => _onTap(details, chartWidth, chartHeight),
-              onPanUpdate: (details) =>
-                  _onDrag(details, chartWidth, chartHeight),
+            return Semantics(
+              label: 'Comparaison de trajectoires',
+              child: GestureDetector(
+                onTapDown: (details) => _onTap(details, chartWidth, chartHeight),
+                onPanUpdate: (details) =>
+                    _onDrag(details, chartWidth, chartHeight),
               child: SizedBox(
                 width: chartWidth,
                 height: chartHeight,
@@ -73,6 +75,7 @@ class _TrajectoryComparisonChartState extends State<TrajectoryComparisonChart> {
                   size: Size(chartWidth, chartHeight),
                 ),
               ),
+            ),
             );
           },
         ),

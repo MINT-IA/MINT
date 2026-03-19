@@ -290,35 +290,40 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           Row(
             children: [
               Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    _taxMaritalStatus = 0;
-                    _recalculateTax();
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: _taxMaritalStatus == 0
-                          ? MintColors.primary
-                          : MintColors.appleSurface,
-                      borderRadius: const BorderRadius.horizontal(
-                          left: Radius.circular(12)),
-                      border: Border.all(
+                child: Semantics(
+                  label: S.of(context)!.frontalierCelibataire,
+                  button: true,
+                  selected: _taxMaritalStatus == 0,
+                  child: GestureDetector(
+                    onTap: () {
+                      _taxMaritalStatus = 0;
+                      _recalculateTax();
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
                         color: _taxMaritalStatus == 0
                             ? MintColors.primary
-                            : MintColors.border,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        S.of(context)!.frontalierCelibataire,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                            : MintColors.appleSurface,
+                        borderRadius: const BorderRadius.horizontal(
+                            left: Radius.circular(12)),
+                        border: Border.all(
                           color: _taxMaritalStatus == 0
-                              ? MintColors.white
-                              : MintColors.textSecondary,
+                              ? MintColors.primary
+                              : MintColors.border,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          S.of(context)!.frontalierCelibataire,
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: _taxMaritalStatus == 0
+                                ? MintColors.white
+                                : MintColors.textSecondary,
+                          ),
                         ),
                       ),
                     ),
@@ -326,22 +331,26 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                 ),
               ),
               Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    _taxMaritalStatus = 1;
-                    _recalculateTax();
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: _taxMaritalStatus == 1
-                          ? MintColors.primary
-                          : MintColors.appleSurface,
-                      borderRadius: const BorderRadius.horizontal(
-                          right: Radius.circular(12)),
-                      border: Border.all(
+                child: Semantics(
+                  label: S.of(context)!.frontalierMarie,
+                  button: true,
+                  selected: _taxMaritalStatus == 1,
+                  child: GestureDetector(
+                    onTap: () {
+                      _taxMaritalStatus = 1;
+                      _recalculateTax();
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
                         color: _taxMaritalStatus == 1
+                            ? MintColors.primary
+                            : MintColors.appleSurface,
+                        borderRadius: const BorderRadius.horizontal(
+                            right: Radius.circular(12)),
+                        border: Border.all(
+                          color: _taxMaritalStatus == 1
                             ? MintColors.primary
                             : MintColors.border,
                       ),
@@ -359,6 +368,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                       ),
                     ),
                   ),
+                ),
                 ),
               ),
             ],
@@ -1087,12 +1097,16 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                 final isSelected = _chargesCountry == country;
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
-                  child: GestureDetector(
-                    onTap: () {
-                      _chargesCountry = country;
-                      _recalculateCharges();
-                    },
-                    child: AnimatedContainer(
+                  child: Semantics(
+                    label: country,
+                    button: true,
+                    selected: isSelected,
+                    child: GestureDetector(
+                      onTap: () {
+                        _chargesCountry = country;
+                        _recalculateCharges();
+                      },
+                      child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 10),
@@ -1118,6 +1132,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                         ),
                       ),
                     ),
+                  ),
                   ),
                 );
               }).toList(),

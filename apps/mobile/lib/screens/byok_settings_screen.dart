@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/auth/auth_gate.dart';
 
 /// BYOK Settings Screen - Configure your own LLM API key.
 ///
@@ -210,7 +211,10 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
       {bool isRecommended = false}) {
     final isSelected = _selectedProvider == value;
     return Expanded(
-      child: InkWell(
+      child: Semantics(
+        label: 'Sélectionner le fournisseur $label',
+        button: true,
+        child: InkWell(
         onTap: () => setState(() => _selectedProvider = value),
         borderRadius: BorderRadius.circular(16),
         child: Container(
@@ -236,7 +240,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
               if (isRecommended) ...[
                 const SizedBox(height: 4),
                 Text(
-                  S.of(context)?.byokRecommended ?? 'Recommand\u00e9',
+                  S.of(context)!.byokRecommended,
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
@@ -249,6 +253,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }
@@ -302,14 +307,17 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
       _ => ('', ''),
     };
 
-    return InkWell(
+    return Semantics(
+      label: 'Obtenir une clé API sur $label',
+      button: true,
+      child: InkWell(
       onTap: () => _launchUrl(url),
       child: Row(
         children: [
           const Icon(Icons.open_in_new, size: 14, color: MintColors.info),
           const SizedBox(width: 6),
           Text(
-            S.of(context)?.byokGetKeyOn(label) ?? 'Obtenir une cl\u00e9 sur $label',
+            S.of(context)!.byokGetKeyOn(label),
             style: const TextStyle(
               fontSize: 13,
               color: MintColors.info,
@@ -319,6 +327,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -350,28 +359,31 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
   }
 
   Widget _buildSaveButton(ByokProvider byok, S? s) {
-    return SizedBox(
-      width: double.infinity,
-      child: FilledButton(
-        onPressed: byok.isLoading || _apiKeyController.text.isEmpty
-            ? null
-            : () async {
-                final messenger = ScaffoldMessenger.of(context);
-                await byok.saveKey(
-                    _selectedProvider, _apiKeyController.text.trim());
-                if (mounted) {
-                  messenger.showSnackBar(
-                    SnackBar(
-                      content: Text(s?.byokSaved ?? 'Cl\u00e9 sauvegard\u00e9e avec succ\u00e8s'),
-                      backgroundColor: MintColors.success,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                  );
-                }
-              },
-        child: Text(s?.byokSaveButton ?? 'Sauvegarder'),
+    return AuthGate(
+      triggerContext: AuthTrigger.byokSetup,
+      child: SizedBox(
+        width: double.infinity,
+        child: FilledButton(
+          onPressed: byok.isLoading || _apiKeyController.text.isEmpty
+              ? null
+              : () async {
+                  final messenger = ScaffoldMessenger.of(context);
+                  await byok.saveKey(
+                      _selectedProvider, _apiKeyController.text.trim());
+                  if (mounted) {
+                    messenger.showSnackBar(
+                      SnackBar(
+                        content: Text(s?.byokSaved ?? 'Cl\u00e9 sauvegard\u00e9e avec succ\u00e8s'),
+                        backgroundColor: MintColors.success,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                    );
+                  }
+                },
+          child: Text(s?.byokSaveButton ?? 'Sauvegarder'),
+        ),
       ),
     );
   }

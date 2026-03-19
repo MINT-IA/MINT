@@ -15,7 +15,7 @@ Future<Locale?> showLanguageSelector(
 ) {
   return showModalBottomSheet<Locale>(
     context: context,
-    backgroundColor: Colors.transparent,
+    backgroundColor: MintColors.transparent,
     isScrollControlled: true,
     builder: (_) => LanguageSelectorSheet(currentLocale: currentLocale),
   );
@@ -102,11 +102,14 @@ class _LanguageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return Semantics(
+      label: 'interactive element',
+      button: true,
+      child: InkWell(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        color: isSelected ? MintColors.selectionBg : Colors.transparent,
+        color: isSelected ? MintColors.selectionBg : MintColors.transparent,
         child: Row(
           children: [
             Text(flag, style: const TextStyle(fontSize: 24)),
@@ -125,6 +128,6 @@ class _LanguageTile extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),);
   }
 }

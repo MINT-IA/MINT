@@ -437,7 +437,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       floating: true,
       snap: true,
       backgroundColor: MintColors.background,
-      surfaceTintColor: Colors.transparent,
+      surfaceTintColor: MintColors.transparent,
       elevation: 0,
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
@@ -543,7 +543,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: MintColors.transparent,
       builder: (ctx) => Container(
         constraints: BoxConstraints(
           maxHeight: MediaQuery.of(context).size.height * 0.6,
@@ -587,7 +587,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
             const SizedBox(height: 16),
             ...prompts.take(5).map((p) => Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: InkWell(
+                  child: Semantics(
+                    label: p.label,
+                    button: true,
+                    child: InkWell(
                     onTap: () {
                       Navigator.pop(ctx);
                       context.push('/data-block/${p.category}');
@@ -644,6 +647,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                         ],
                       ),
                     ),
+                  ),
                   ),
                 )),
           ],
@@ -744,52 +748,56 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   }
 
   Widget _buildEducationalCard() {
-    return GestureDetector(
-      onTap: () => context.push('/education/hub'),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: MintColors.info.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(10),
+    return Semantics(
+      label: 'Education hub',
+      button: true,
+      child: GestureDetector(
+        onTap: () => context.push('/education/hub'),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: MintColors.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: MintColors.info.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.school_outlined,
+                    size: 20, color: MintColors.info),
               ),
-              child: const Icon(Icons.school_outlined,
-                  size: 20, color: MintColors.info),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Comment fonctionne la retraite en Suisse ?',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Comment fonctionne la retraite en Suisse ?',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: MintColors.textPrimary,
+                      ),
                     ),
-                  ),
-                  Text(
-                    'AVS, LPP, 3a — les bases en 5 minutes',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
+                    Text(
+                      'AVS, LPP, 3a — les bases en 5 minutes',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: MintColors.textSecondary,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const Icon(Icons.arrow_forward_ios,
-                size: 14, color: MintColors.textMuted),
-          ],
+              const Icon(Icons.arrow_forward_ios,
+                  size: 14, color: MintColors.textMuted),
+            ],
+          ),
         ),
       ),
     );

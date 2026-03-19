@@ -340,7 +340,10 @@ class _LandingScreenState extends State<LandingScreen>
             // Full-width CTA
             SizedBox(
               width: double.infinity,
-              child: GestureDetector(
+              child: Semantics(
+                label: l10n.landingCtaCommencer,
+                button: true,
+                child: GestureDetector(
                 onTap: _onCtaTap,
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 18),
@@ -360,6 +363,7 @@ class _LandingScreenState extends State<LandingScreen>
                   ),
                 ),
               ),
+            ),
             ),
           ],
         ),

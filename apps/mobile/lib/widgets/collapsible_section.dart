@@ -33,7 +33,7 @@ class CollapsibleSection extends StatelessWidget {
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
         child: ExpansionTile(
           initiallyExpanded: initiallyExpanded,
           tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),

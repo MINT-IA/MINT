@@ -94,9 +94,12 @@ class _FinancialDrawerState extends State<FinancialDrawer>
   }
 
   Widget _buildHeader() {
-    return GestureDetector(
-      onTap: _toggle,
-      behavior: HitTestBehavior.opaque,
+    return Semantics(
+      label: 'Ouvrir ou fermer la section',
+      button: true,
+      child: GestureDetector(
+        onTap: _toggle,
+        behavior: HitTestBehavior.opaque,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -185,6 +188,7 @@ class _FinancialDrawerState extends State<FinancialDrawer>
           ],
         ),
       ),
+    ),
     );
   }
 }

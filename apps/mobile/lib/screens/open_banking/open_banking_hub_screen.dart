@@ -658,7 +658,10 @@ class OpenBankingHubScreen extends StatelessWidget {
     required String subtitle,
     required String route,
   }) {
-    return InkWell(
+    return Semantics(
+      label: title,
+      button: true,
+      child: InkWell(
       onTap: () => context.push(route),
       borderRadius: BorderRadius.circular(16),
       child: Container(
@@ -708,6 +711,7 @@ class OpenBankingHubScreen extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 

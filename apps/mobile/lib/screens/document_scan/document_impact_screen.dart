@@ -1,8 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -182,7 +184,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       child: Column(
         children: [
           Text(
-            'Ton profil est plus précis',
+            S.of(context)!.docImpactTitle,
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               fontSize: 24,
@@ -193,8 +195,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           ),
           const SizedBox(height: 8),
           Text(
-            'Les valeurs de ton ${widget.result.documentType.label} '
-            'ont ete integrees dans tes projections.',
+            S.of(context)!.docImpactSubtitle(widget.result.documentType.label),
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 15,
@@ -241,7 +242,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
                 ),
               ),
               Text(
-                '% confiance',
+                S.of(context)!.docImpactConfidenceLabel,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textSecondary,
@@ -277,7 +278,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
                   size: 20, color: MintColors.success),
               const SizedBox(width: 6),
               Text(
-                '+$_deltaPoints points de confiance',
+                S.of(context)!.docImpactDeltaPoints(_deltaPoints),
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -314,7 +315,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         child: Column(
           children: [
             Text(
-              'Chiffre choc recalculé',
+              S.of(context)!.docImpactChiffreChocTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -361,7 +362,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           ),
           const SizedBox(height: 4),
           Text(
-            'd\'avoir LPP reel (dont ${_formatChf(obligVal)} obligatoire)',
+            S.of(context)!.docImpactLppRealAmount(_formatChf(obligVal)),
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 14,
@@ -370,7 +371,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           ),
           const SizedBox(height: 12),
           Text(
-            'Rente obligatoire a 6.8% : CHF ${_formatChf(rentableAt68)}/an',
+            S.of(context)!.docImpactRenteOblig(_formatChf(rentableAt68)),
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -381,10 +382,8 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
             const SizedBox(height: 4),
             Text(
               renteSuroblig != null
-                  ? 'Part surobligatoire (CHF ${_formatChf(surobligVal)}) a '
-                    '${surobligRate!.toStringAsFixed(1)}% = CHF ${_formatChf(renteSuroblig)}/an'
-                  : 'Part surobligatoire (CHF ${_formatChf(surobligVal)}) = taux de '
-                    'conversion libre de la caisse',
+                  ? S.of(context)!.docImpactSurobligWithRate(_formatChf(surobligVal), surobligRate!.toStringAsFixed(1), _formatChf(renteSuroblig))
+                  : S.of(context)!.docImpactSurobligNoRate(_formatChf(surobligVal)),
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 fontSize: 12,
@@ -406,7 +405,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       return Column(
         children: [
           Text(
-            '$years ans de cotisation',
+            S.of(context)!.docImpactAvsYears(years),
             style: GoogleFonts.montserrat(
               fontSize: 28,
               fontWeight: FontWeight.w800,
@@ -415,7 +414,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           ),
           const SizedBox(height: 4),
           Text(
-            'sur $maxYears necessaires pour une rente AVS complete ($completionPct%)',
+            S.of(context)!.docImpactAvsCompletion(maxYears, completionPct),
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 14,
@@ -427,7 +426,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
     }
 
     return Text(
-      'Tes projections sont maintenant basees sur des valeurs reelles.',
+      S.of(context)!.docImpactGenericMessage,
       textAlign: TextAlign.center,
       style: GoogleFonts.inter(
         fontSize: 14,
@@ -448,7 +447,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Champs mis à jour',
+              S.of(context)!.docImpactFieldsUpdated,
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -510,12 +509,12 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         height: 56,
         child: FilledButton.icon(
           onPressed: () {
-            // Pop all the way back to root (dashboard)
-            Navigator.of(context).popUntil((route) => route.isFirst);
+            // Navigate back to root dashboard via GoRouter
+            context.go('/home');
           },
           icon: const Icon(Icons.dashboard_outlined, size: 22),
           label: Text(
-            'Retour au dashboard',
+            S.of(context)!.docImpactReturnDashboard,
             style: GoogleFonts.inter(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -539,8 +538,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
     return Opacity(
       opacity: _ctaFadeIn.value,
       child: Text(
-        'Outil éducatif — ne constitue pas un conseil en prévoyance. '
-        'Vérifie toujours avec ton certificat original (LSFin).',
+        S.of(context)!.docImpactDisclaimer,
         textAlign: TextAlign.center,
         style: GoogleFonts.inter(
           fontSize: 11,

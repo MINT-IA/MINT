@@ -1,156 +1,130 @@
 ---
 name: autoresearch-test-coverage
-description: "Audit-only scan for test coverage gaps. Maps services to tests, flags under-tested or untested files. Reports without modifying code. Use with /autoresearch-test-coverage."
+description: "Test coverage auditor. Maps services to tests, flags under-tested files, outputs test_gaps.json for autoresearch-test-generation. Use with /autoresearch-test-coverage."
 compatibility: Requires Flutter SDK and Python 3.10+
-allowed-tools: Bash(flutter:*) Bash(pytest:*) Bash(grep:*) Read Glob Grep
 metadata:
   author: mint-team
-  version: "1.0"
+  version: "3.0"
 ---
 
-# Autoresearch Test Coverage — Gap scanner (audit-only)
+# Autoresearch Test Coverage v3 — Karpathy Gap Auditor
 
-## Purpose
+> "You can't improve what you don't measure."
 
-Identify services, calculators, and screens with missing or insufficient tests. This skill is **read-only** — it produces a coverage matrix but never modifies code.
+## Constraints (NON-NEGOTIABLE)
 
-## CLAUDE.md requirements
+- **Single metric**: coverage matrix completeness (files audited / total files).
+- **This skill is AUDIT-ONLY**: never modify source code, never create test files.
+- **Output**: coverage report + `test_gaps.json` for `/autoresearch-test-generation` to consume.
+- **CLAUDE.md requirement**: service files need minimum 10 unit tests.
 
-- **Service files**: minimum 10 unit tests (edge cases + compliance)
-- **Screens/widgets**: widget tests (render, empty, error states)
-- **Golden couple**: Julien + Lauren tested against known expected values
-- **Before merge**: `flutter analyze` (0 issues) + `flutter test` + `pytest tests/ -q`
-
-## Scan phases
+## Scan Phases
 
 ### Phase 1: Flutter services inventory
 
 ```bash
-# List all service files
-find apps/mobile/lib/services/ -name "*.dart" -not -name "*_test*" | sort
+cd /Users/julienbattaglia/Desktop/MINT/apps/mobile
 
-# List all test files
-find apps/mobile/test/services/ -name "*_test.dart" | sort
+# All service files
+find lib/services/ -name "*.dart" -not -name "*_test*" | sort
+
+# All test files
+find test/services/ -name "*_test.dart" 2>/dev/null | sort
 ```
 
-For each service file `foo_service.dart`, check if `foo_service_test.dart` exists.
+### Phase 2: Test count per service
 
-### Phase 2: Flutter test count per service
-
-For each test file that exists:
 ```bash
-grep -c "test(" apps/mobile/test/services/foo_service_test.dart
+for f in lib/services/*.dart lib/services/**/*.dart; do
+  base=$(basename "$f" .dart)
+  testfile=$(find test/ -name "${base}_test.dart" 2>/dev/null | head -1)
+  if [ -n "$testfile" ]; then
+    count=$(grep -c "test(" "$testfile" 2>/dev/null || echo 0)
+  else
+    count=0
+  fi
+  echo "$base: $count tests"
+done
 ```
 
-Flag if count < 10 (CLAUDE.md minimum).
-
-### Phase 3: Financial core (highest priority)
+### Phase 3: Financial core (CRITICAL priority)
 
 ```bash
-# These are the most critical — wrong calc = wrong projection
-find apps/mobile/lib/services/financial_core/ -name "*.dart" | sort
-find apps/mobile/test/services/financial_core/ -name "*_test.dart" | sort
+find lib/services/financial_core/ -name "*.dart" | sort
+find test/services/financial_core/ -name "*_test.dart" 2>/dev/null | sort
 ```
 
-Cross-reference and count tests. Financial core services with <10 tests are **CRITICAL**.
+Cross-reference. Financial core with <10 tests = **CRITICAL**.
 
-### Phase 4: Screen/widget tests
+### Phase 4: Screens/widgets
 
 ```bash
-# List all screens
-find apps/mobile/lib/screens/ -name "*.dart" | sort
-
-# List all screen tests
-find apps/mobile/test/screens/ -name "*_test.dart" | sort
+find lib/screens/ -name "*.dart" | sort
+find test/screens/ -name "*_test.dart" 2>/dev/null | sort
 ```
 
-Flag screens with no corresponding test file.
-
-### Phase 5: Backend services
+### Phase 5: Backend
 
 ```bash
-# List all backend service files
-find services/backend/app/services/ -name "*.py" -not -name "__*" | sort
-
-# List all backend tests
-find services/backend/tests/ -name "test_*.py" | sort
+find ../../services/backend/app/services/ -name "*.py" -not -name "__*" | sort
+find ../../services/backend/tests/ -name "test_*.py" | sort
 ```
 
 ### Phase 6: Golden couple validation
 
-Check that golden test files exist and cover both profiles:
 ```bash
-grep -rn "julien\|lauren\|golden" apps/mobile/test/ --include="*.dart" -l
-grep -rn "julien\|lauren\|golden" services/backend/tests/ --include="*.py" -l
+grep -rn "julien\|lauren\|golden" test/ --include="*.dart" -l
 ```
 
-## Report format
+## Priority Mapping
+
+| Priority | What | Threshold |
+|----------|------|-----------|
+| P0 CRITICAL | `financial_core/` with 0 tests | Must have 10+ |
+| P1 HIGH | `financial_core/` with <10 tests OR services with 0 tests | Must have 10+ |
+| P2 MEDIUM | Screens with no widget test | Should have 3+ |
+| P3 LOW | Backend services with <5 tests | Should have 5+ |
+
+## Output: test_gaps.json
+
+Path: `apps/mobile/test/test_gaps.json`
+
+```json
+[
+  {"file": "lib/services/financial_core/abc.dart", "current_tests": 0, "target_tests": 10, "priority": "critical"},
+  {"file": "lib/services/xyz_service.dart", "current_tests": 3, "target_tests": 10, "priority": "high"},
+  {"file": "lib/screens/budget_screen.dart", "current_tests": 0, "target_tests": 3, "priority": "medium"}
+]
+```
+
+After generating, run `/autoresearch-test-generation` to fill gaps.
+
+## Rules
+
+- **NEVER modify source code** — audit only
+- **NEVER create test files** — delegate to `/autoresearch-test-generation`
+- Count `test(` and `testWidgets(` calls (not `group(`)
+- Exclude `integration_test/`
+
+## Final Report
 
 ```
 TEST COVERAGE AUDIT REPORT
-============================
-Scan date: YYYY-MM-DD
+Date: YYYY-MM-DD
 
-FLUTTER SERVICES:
-  Total service files: N
-  With tests: M (X%)
-  With ≥10 tests: P (Y%)
+FLUTTER SERVICES: N total, M with tests (X%), P with >=10 tests (Y%)
 
-COVERAGE MATRIX (sorted by risk):
+CRITICAL: [financial_core with 0 tests]
+WARNING:  [services with <10 tests]
+OK:       [services with >=10 tests]
 
-  CRITICAL (financial_core, no tests):
-    ❌ avs_calculator.dart — 0 tests
-    ...
+SCREENS: N total, M with widget tests (X%)
+BACKEND: N total, M with tests (X%)
+GOLDEN COUPLE: Julien ✅/❌ | Lauren ✅/❌
 
-  WARNING (<10 tests):
-    ⚠️  mortgage_service.dart — 5 tests (need 10+)
-    ...
-
-  OK (≥10 tests):
-    ✅ coaching_service.dart — 36 tests
-    ...
-
-SCREENS:
-  Total screens: N
-  With widget tests: M (X%)
-
-  MISSING TESTS:
-    ❌ screens/budget_screen.dart — no test file
-    ...
-
-BACKEND:
-  Total service files: N
-  With tests: M (X%)
-
-GOLDEN COUPLE:
-  ✅ Julien profile tested in: [files]
-  ✅ Lauren profile tested in: [files]
-  ❌ Missing: [specific gaps]
-
-RECOMMENDATIONS:
-  1. Add 10+ tests to avs_calculator.dart (CRITICAL)
-  2. Add widget test for budget_screen.dart
-  ...
+test_gaps.json generated: K entries
 ```
-
-## Priority ranking
-
-| Priority | What | Why |
-|----------|------|-----|
-| P0 | `financial_core/` with 0 tests | Wrong calc = wrong projection for ALL users |
-| P1 | `financial_core/` with <10 tests | Insufficient edge case coverage |
-| P2 | Other services with 0 tests | Untested business logic |
-| P3 | Screens with no widget test | UI regressions |
-| P4 | Backend services with <5 tests | Backend calculation gaps |
-
-## Strict rules
-
-- **NEVER** modify any code — this is an audit-only skill
-- **NEVER** create test files (only report gaps)
-- Count `test(` and `testWidgets(` calls (not `group(`)
-- Exclude `integration_test/` from the scan
-- Report both absolute count and relative to the 10-test minimum
 
 ## Invocation
 
-`/autoresearch-test-coverage` — full scan, produces report
+- `/autoresearch-test-coverage` — full scan, produces report + test_gaps.json

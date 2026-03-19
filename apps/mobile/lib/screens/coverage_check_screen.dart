@@ -286,7 +286,10 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
 
   Widget _buildStatutChip(String value, String label) {
     final isSelected = _statut == value;
-    return GestureDetector(
+    return Semantics(
+      label: label,
+      button: true,
+      child: GestureDetector(
       onTap: () {
         _statut = value;
         // Reset related switches when changing status
@@ -301,7 +304,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? MintColors.primary : Colors.transparent,
+          color: isSelected ? MintColors.primary : MintColors.transparent,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isSelected ? MintColors.primary : MintColors.border,
@@ -315,6 +318,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             color: isSelected ? MintColors.white : MintColors.textSecondary,
           ),
         ),
+      ),
       ),
     );
   }

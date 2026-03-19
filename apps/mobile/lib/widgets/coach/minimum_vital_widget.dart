@@ -318,7 +318,7 @@ class MinimumVitalWidget extends StatelessWidget {
               LinearProgressIndicator(
                 value: fraction,
                 minHeight: 14,
-                backgroundColor: Colors.transparent,
+                backgroundColor: MintColors.transparent,
                 valueColor: const AlwaysStoppedAnimation<Color>(MintColors.scoreAttention),
               ),
             ],

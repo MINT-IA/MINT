@@ -330,7 +330,10 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
           const SizedBox(height: 16),
 
           if (cantonalResource != null) ...[
-            InkWell(
+            Semantics(
+              label: cantonalResource.nom,
+              button: true,
+              child: InkWell(
               onTap: () => _launchUrl(cantonalResource.url),
               borderRadius: BorderRadius.circular(12),
               child: Container(
@@ -378,6 +381,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                   ],
                 ),
               ),
+            ),
             ),
           ] else
             const Padding(

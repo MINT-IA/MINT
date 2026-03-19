@@ -1400,7 +1400,10 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           const SizedBox(height: 16),
           ...List.generate(items.length, (index) {
             final checked = _moveChecked.contains(index);
-            return GestureDetector(
+            return Semantics(
+              label: items[index],
+              button: true,
+              child: GestureDetector(
               onTap: () {
                 setState(() {
                   if (checked) {
@@ -1421,7 +1424,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                       decoration: BoxDecoration(
                         color: checked
                             ? MintColors.success
-                            : Colors.transparent,
+                            : MintColors.transparent,
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
                           color: checked
@@ -1453,6 +1456,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                     ),
                   ],
                 ),
+              ),
               ),
             );
           }),

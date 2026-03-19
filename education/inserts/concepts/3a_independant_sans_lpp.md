@@ -2,7 +2,7 @@
 id: 3a_independant_sans_lpp
 title: Pilier 3a pour indépendant sans LPP — cinq fois plus de fil
 trigger: statut indépendant sans LPP, archetype independent_no_lpp, optimisation prévoyance indépendant
-tags: [3a, independant, opp3, fiscalite, prevoyance, plafond_grand]
+tags: [3a, independant, opp3, fiscalite, prévoyance, plafond_grand]
 ---
 
 ## Trigger

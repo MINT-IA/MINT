@@ -45,7 +45,10 @@ class ResponseCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Semantics(
+      button: true,
+      label: '${card.title} — ${card.subtitle}',
+      child: GestureDetector(
       onTap: () => context.push(card.cta.route),
       child: Container(
         width: compact ? null : 280,
@@ -148,6 +151,7 @@ class ResponseCardWidget extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -245,34 +249,38 @@ class ResponseCardWidget extends StatelessWidget {
       children: [
         // CTA button
         Flexible(
-          child: GestureDetector(
-            onTap: () => context.push(card.cta.route),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-              decoration: BoxDecoration(
-                color: MintColors.primary,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (card.cta.icon != null) ...[
-                    Icon(_ctaIcon, size: 14, color: MintColors.white),
-                    const SizedBox(width: 6),
-                  ],
-                  Flexible(
-                    child: Text(
-                      card.cta.label,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.white,
+          child: Semantics(
+            button: true,
+            label: card.cta.label,
+            child: GestureDetector(
+              onTap: () => context.push(card.cta.route),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                decoration: BoxDecoration(
+                  color: MintColors.primary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (card.cta.icon != null) ...[
+                      Icon(_ctaIcon, size: 14, color: MintColors.white),
+                      const SizedBox(width: 6),
+                    ],
+                    Flexible(
+                      child: Text(
+                        card.cta.label,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: MintColors.white,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

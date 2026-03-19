@@ -72,6 +72,8 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/screens/housing_sale_screen.dart';
 import 'package:mint_mobile/screens/donation_screen.dart';
+import 'package:mint_mobile/screens/deces_proche_screen.dart';
+import 'package:mint_mobile/screens/demenagement_cantonal_screen.dart';
 import 'package:mint_mobile/screens/mortgage/affordability_screen.dart';
 import 'package:mint_mobile/screens/mortgage/amortization_screen.dart';
 import 'package:mint_mobile/screens/mortgage/epl_combined_screen.dart';
@@ -82,6 +84,7 @@ import 'package:mint_mobile/screens/admin_analytics_screen.dart';
 import 'package:mint_mobile/screens/pillar_3a_deep/provider_comparator_screen.dart';
 import 'package:mint_mobile/screens/pillar_3a_deep/real_return_screen.dart';
 import 'package:mint_mobile/screens/pillar_3a_deep/staggered_withdrawal_screen.dart';
+import 'package:mint_mobile/screens/pillar_3a_deep/retroactive_3a_screen.dart';
 import 'package:mint_mobile/screens/debt_prevention/debt_ratio_screen.dart';
 import 'package:mint_mobile/screens/debt_prevention/help_resources_screen.dart';
 import 'package:mint_mobile/screens/debt_prevention/repayment_screen.dart';
@@ -91,6 +94,7 @@ import 'package:mint_mobile/screens/coach/optimisation_decaissement_screen.dart'
 import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
+import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
 import 'package:mint_mobile/screens/coach/annual_refresh_screen.dart';
 import 'package:mint_mobile/screens/coach/cockpit_detail_screen.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
@@ -109,11 +113,15 @@ import 'package:mint_mobile/services/confidence/enhanced_confidence_service.dart
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
 import 'package:mint_mobile/screens/document_scan/avs_guide_screen.dart';
+import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart';
+import 'package:mint_mobile/screens/document_scan/document_impact_screen.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/providers/household_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/household/household_screen.dart';
 import 'package:mint_mobile/screens/household/accept_invitation_screen.dart';
+import 'package:mint_mobile/screens/achievements_screen.dart';
+import 'package:mint_mobile/screens/cantonal_benchmark_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -136,6 +144,30 @@ final _router = GoRouter(
   observers: [AnalyticsRouteObserver()],
   initialLocation: '/',
   errorBuilder: (context, state) => _MintErrorScreen(error: state.error),
+  redirect: (context, state) {
+    final auth = context.read<AuthProvider>();
+    final isLoggedIn = auth.isLoggedIn;
+    final path = state.uri.path;
+
+    // Routes that REQUIRE auth (data-writing operations)
+    const protectedPrefixes = [
+      '/scan',        // document scanning
+      '/coach/chat',  // AI coach (token consumption)
+      '/couple',      // household/couple features
+      '/byok',        // API key management
+      '/bank-import', // bank statement import
+    ];
+
+    // Check if current path is protected
+    final isProtected = protectedPrefixes.any((p) => path.startsWith(p));
+
+    // If protected and not logged in, redirect to register with return URL
+    if (isProtected && !isLoggedIn) {
+      return '/auth/register?redirect=${Uri.encodeComponent(path)}';
+    }
+
+    return null; // No redirect needed
+  },
   routes: [
     // ── Landing + Auth ────────────────────────────────────────
     GoRoute(
@@ -227,8 +259,17 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         final prompt = state.uri.queryParameters['prompt'];
-        return CoachChatScreen(initialPrompt: prompt);
+        final conversationId = state.uri.queryParameters['conversationId'];
+        return CoachChatScreen(
+          initialPrompt: prompt,
+          conversationId: conversationId,
+        );
       },
+    ),
+    GoRoute(
+      path: '/coach/history',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ConversationHistoryScreen(),
     ),
     GoRoute(
       path: '/succession',
@@ -267,6 +308,11 @@ final _router = GoRouter(
       path: '/3a-deep/staggered-withdrawal',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const StaggeredWithdrawalScreen(),
+    ),
+    GoRoute(
+      path: '/3a-retroactif',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const Retroactive3aScreen(),
     ),
     GoRoute(
       path: '/fiscal',
@@ -455,6 +501,37 @@ final _router = GoRouter(
       builder: (context, state) => const AvsGuideScreen(),
     ),
     GoRoute(path: '/document-scan/avs-guide', redirect: (_, __) => '/scan/avs-guide'),
+    GoRoute(
+      path: '/scan/review',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final result = state.extra as ExtractionResult?;
+        if (result == null) {
+          return const Scaffold(
+            body: Center(child: Text('Document non disponible')),
+          );
+        }
+        return ExtractionReviewScreen(result: result);
+      },
+    ),
+    GoRoute(
+      path: '/scan/impact',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        if (extra == null ||
+            extra['result'] is! ExtractionResult ||
+            extra['previousConfidence'] is! int) {
+          return const Scaffold(
+            body: Center(child: Text('Document non disponible')),
+          );
+        }
+        return DocumentImpactScreen(
+          result: extra['result'] as ExtractionResult,
+          previousConfidence: extra['previousConfidence'] as int,
+        );
+      },
+    ),
 
     GoRoute(
       path: '/documents',
@@ -559,6 +636,16 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DonationScreen(),
     ),
+    GoRoute(
+      path: '/life-event/deces-proche',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DecesProcheScreen(),
+    ),
+    GoRoute(
+      path: '/life-event/demenagement-cantonal',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DemenagementCantonalScreen(),
+    ),
 
     // ── EDUCATION ────────────────────────────────────────────
     GoRoute(
@@ -607,6 +694,26 @@ final _router = GoRouter(
       path: '/arbitrage/location-vs-propriete',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const LocationVsProprieteScreen(),
+    ),
+
+    // ── ACHIEVEMENTS ──────────────────────────────────────────
+    GoRoute(
+      path: '/achievements',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AchievementsScreen(),
+    ),
+
+    // ── WEEKLY RECAP (S52 — redirect until implemented) ─────────
+    GoRoute(
+      path: '/weekly-recap',
+      redirect: (_, __) => '/home',
+    ),
+
+    // ── CANTONAL BENCHMARKS ──────────────────────────────────
+    GoRoute(
+      path: '/cantonal-benchmark',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CantonalBenchmarkScreen(),
     ),
 
     // ── OUTILS & DIVERS ─────────────────────────────────────
@@ -667,7 +774,10 @@ final _router = GoRouter(
     GoRoute(
       path: '/onboarding/quick',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const QuickStartScreen(),
+      builder: (context, state) {
+        final section = state.uri.queryParameters['section'];
+        return QuickStartScreen(initialSection: section);
+      },
     ),
     GoRoute(
       path: '/onboarding/chiffre-choc',

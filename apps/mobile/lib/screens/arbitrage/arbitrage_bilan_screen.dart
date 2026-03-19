@@ -315,7 +315,10 @@ class _ArbitrageItemCard extends StatelessWidget {
     final icon = _iconMap[item.id] ?? Icons.balance;
     final color = _colorMap[item.id] ?? MintColors.primary;
 
-    return InkWell(
+    return Semantics(
+      label: 'Arbitrage : ${item.title}',
+      button: true,
+      child: InkWell(
       onTap: () => context.push(item.route),
       borderRadius: BorderRadius.circular(16),
       child: Container(
@@ -418,6 +421,7 @@ class _ArbitrageItemCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -439,7 +443,10 @@ class _LockedItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return Semantics(
+      label: 'Débloquer : ${locked.title}',
+      button: true,
+      child: InkWell(
       onTap: () => context.push(locked.enrichmentRoute),
       borderRadius: BorderRadius.circular(14),
       child: Container(
@@ -490,6 +497,7 @@ class _LockedItemCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

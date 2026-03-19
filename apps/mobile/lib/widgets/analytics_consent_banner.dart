@@ -125,7 +125,7 @@ class _AnalyticsConsentBannerState extends State<AnalyticsConsentBanner>
             ),
           ),
           child: Material(
-            color: Colors.transparent,
+            color: MintColors.transparent,
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(

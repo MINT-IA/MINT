@@ -496,7 +496,10 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: Material(
+              child: Semantics(
+                label: option,
+                button: true,
+                child: Material(
                 color: bgColor,
                 borderRadius: BorderRadius.circular(14),
                 child: InkWell(
@@ -568,6 +571,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                     ),
                   ),
                 ),
+              ),
               ),
             );
           }),

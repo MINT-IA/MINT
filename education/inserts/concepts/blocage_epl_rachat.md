@@ -1,13 +1,9 @@
-# Insert: blocage_epl_rachat (Blocage EPL après rachat LPP)
-
-## Metadata
-```yaml
-questionId: "blocage_epl_rachat"
-phase: "Niveau 1"
-status: "READY"
-pilier: 2
-concept: "blocage_epl_rachat"
-```
+---
+id: blocage_epl_rachat
+title: Blocage EPL après rachat LPP — la règle des 3 ans
+trigger: rachat LPP EPL, blocage 3 ans, achat immobilier rachat, EPL après rachat, retrait anticipé immobilier
+tags: [lpp, epl, rachat, immobilier, blocage, opp2]
+---
 
 ## Trigger
 - L'utilisateur envisage un rachat LPP ET un achat immobilier dans les 3 prochaines années.

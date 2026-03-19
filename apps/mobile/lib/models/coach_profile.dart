@@ -985,6 +985,7 @@ class CoachProfile {
   // === IDENTITE ===
   final String? firstName;
   final int birthYear;
+  final DateTime? dateOfBirth;
   final String canton;
   final String? commune;
   final String? nationality; // ISO 2-letter code, ex "CH", "US", "FR"
@@ -1082,6 +1083,7 @@ class CoachProfile {
   CoachProfile({
     this.firstName,
     required this.birthYear,
+    this.dateOfBirth,
     required this.canton,
     this.commune,
     this.nationality,
@@ -1213,8 +1215,20 @@ class CoachProfile {
   //  COMPUTED PROPERTIES
   // ════════════════════════════════════════════════════════════════
 
-  /// Age actuel
-  int get age => DateTime.now().year - birthYear;
+  /// Age actuel — précis au jour si dateOfBirth est disponible,
+  /// sinon fallback sur birthYear (précision ±1 an).
+  int get age {
+    if (dateOfBirth != null) {
+      final now = DateTime.now();
+      int a = now.year - dateOfBirth!.year;
+      if (now.month < dateOfBirth!.month ||
+          (now.month == dateOfBirth!.month && now.day < dateOfBirth!.day)) {
+        a--;
+      }
+      return a;
+    }
+    return DateTime.now().year - birthYear;
+  }
 
   /// Age de retraite effectif (custom ou 65 par defaut).
   int get effectiveRetirementAge => targetRetirementAge ?? 65;
@@ -1341,6 +1355,7 @@ class CoachProfile {
   CoachProfile copyWith({
     String? firstName,
     int? birthYear,
+    DateTime? dateOfBirth,
     String? canton,
     String? commune,
     String? nationality,
@@ -1378,6 +1393,7 @@ class CoachProfile {
     return CoachProfile(
       firstName: firstName ?? this.firstName,
       birthYear: birthYear ?? this.birthYear,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       canton: canton ?? this.canton,
       commune: commune ?? this.commune,
       nationality: nationality ?? this.nationality,
@@ -1535,6 +1551,9 @@ class CoachProfile {
     return CoachProfile(
       firstName: json['firstName'] as String?,
       birthYear: json['birthYear'] as int,
+      dateOfBirth: json['dateOfBirth'] != null
+          ? DateTime.tryParse(json['dateOfBirth'] as String)
+          : null,
       canton: json['canton'] as String,
       commune: json['commune'] as String?,
       nationality: json['nationality'] as String?,
@@ -1615,6 +1634,7 @@ class CoachProfile {
   Map<String, dynamic> toJson() => {
         'firstName': firstName,
         'birthYear': birthYear,
+        'dateOfBirth': dateOfBirth?.toIso8601String(),
         'canton': canton,
         'commune': commune,
         'nationality': nationality,
@@ -1665,8 +1685,21 @@ class CoachProfile {
     // ── Identite ────────────────────────────────────────────
     final firstName = answers['q_firstname'] as String?;
     final birthYear = _parseInt(answers['q_birth_year']) ?? 1990;
+    final dobRaw = answers['q_date_of_birth'];
+    final dateOfBirth = dobRaw is String ? DateTime.tryParse(dobRaw) : null;
     final canton = (answers['q_canton'] as String?) ?? 'ZH';
-    final age = DateTime.now().year - birthYear;
+    // Use precise age from dateOfBirth if available
+    final int age;
+    if (dateOfBirth != null) {
+      final now = DateTime.now();
+      age = now.year - dateOfBirth.year -
+          ((now.month < dateOfBirth.month ||
+                  (now.month == dateOfBirth.month && now.day < dateOfBirth.day))
+              ? 1
+              : 0);
+    } else {
+      age = DateTime.now().year - birthYear;
+    }
 
     // Civil status mapping
     final civilStatusRaw = answers['q_civil_status'] as String?;
@@ -2182,6 +2215,7 @@ class CoachProfile {
     return CoachProfile(
       firstName: firstName,
       birthYear: birthYear,
+      dateOfBirth: dateOfBirth,
       canton: canton,
       nationality: answers['q_nationality'] as String?,
       etatCivil: etatCivil,

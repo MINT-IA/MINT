@@ -566,7 +566,10 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
   }
 
   Widget _buildCentrale2ePilier() {
-    return InkWell(
+    return Semantics(
+      label: 'Centrale du 2e pilier (sfbvg.ch)',
+      button: true,
+      child: InkWell(
       onTap: () async {
         final uri = Uri.parse('https://www.sfbvg.ch');
         if (await canLaunchUrl(uri)) {
@@ -611,6 +614,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
             Icon(Icons.open_in_new, color: MintColors.blueClassic, size: 18),
           ],
         ),
+      ),
       ),
     );
   }

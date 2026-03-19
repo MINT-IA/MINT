@@ -550,9 +550,12 @@ class FuturProjectionCard extends StatelessWidget {
     return Column(
       children: [
         const Divider(height: 1, indent: 16, endIndent: 16),
-        InkWell(
-          onTap: onDetailTap,
-          borderRadius: const BorderRadius.only(
+        Semantics(
+          label: 'Explorer les détails',
+          button: true,
+          child: InkWell(
+            onTap: onDetailTap,
+            borderRadius: const BorderRadius.only(
             bottomLeft: Radius.circular(16),
             bottomRight: Radius.circular(16),
           ),
@@ -575,6 +578,7 @@ class FuturProjectionCard extends StatelessWidget {
               ],
             ),
           ),
+        ),
         ),
       ],
     );

@@ -52,15 +52,19 @@ class ArbitrageTeaserSection extends StatelessWidget {
                 ),
               ),
             ),
-            GestureDetector(
-              onTap: () => context.push('/arbitrage/bilan'),
-              child: Text(
+            Semantics(
+              label: 'Voir tout',
+              button: true,
+              child: GestureDetector(
+                onTap: () => context.push('/arbitrage/bilan'),
+                child: Text(
                 'Voir tout \u2192',
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: MintColors.primary,
                 ),
+              ),
               ),
             ),
           ],
@@ -223,12 +227,15 @@ class _ArbitrageTeaserTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => context.push(teaser.route),
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
+    return Semantics(
+      label: teaser.title,
+      button: true,
+      child: InkWell(
+        onTap: () => context.push(teaser.route),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: teaser.color.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(16),
@@ -288,6 +295,7 @@ class _ArbitrageTeaserTile extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

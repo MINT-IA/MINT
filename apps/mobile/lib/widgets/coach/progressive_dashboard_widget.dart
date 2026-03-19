@@ -203,7 +203,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: selected ? _levelColor : Colors.transparent,
+                    color: selected ? _levelColor : MintColors.transparent,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: selected ? _levelColor : MintColors.lightBorder,

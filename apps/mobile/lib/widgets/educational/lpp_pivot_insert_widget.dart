@@ -92,10 +92,13 @@ class LppPivotInsertWidget extends StatelessWidget {
     required String description,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
+    return Semantics(
+      label: title,
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color:
               isSelected ? MintColors.primary.withValues(alpha: 0.1) : MintColors.white,
@@ -179,6 +182,7 @@ class LppPivotInsertWidget extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

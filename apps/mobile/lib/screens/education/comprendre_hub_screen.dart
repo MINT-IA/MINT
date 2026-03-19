@@ -14,7 +14,7 @@ class ComprendreHubScreen extends StatelessWidget {
       backgroundColor: MintColors.background,
       appBar: AppBar(
         title: Text(
-          S.of(context)?.eduHubTitle ?? "J'Y COMPRENDS RIEN",
+          S.of(context)!.eduHubTitle,
           style: GoogleFonts.montserrat(
             fontSize: 14,
             fontWeight: FontWeight.w700,
@@ -35,7 +35,7 @@ class ComprendreHubScreen extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.only(bottom: 24.0),
               child: Text(
-                S.of(context)?.eduHubSubtitle ?? "Pas de panique. Choisis un sujet, on t'explique l'essentiel et on te donne une action simple.",
+                S.of(context)!.eduHubSubtitle,
                 style: const TextStyle(
                   fontSize: 16,
                   color: MintColors.textMuted,
@@ -62,7 +62,10 @@ class _ThemeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return Semantics(
+      label: theme.title,
+      button: true,
+      child: InkWell(
       onTap: () => context.push('/education/theme/${theme.id}'),
       borderRadius: BorderRadius.circular(20),
       child: Container(
@@ -120,7 +123,7 @@ class _ThemeCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            S.of(context)?.eduHubReadQuiz ?? "Lire + quiz \u2022 ${theme.estimatedMinutes} min",
+                            S.of(context)!.eduHubReadQuiz,
                             style: const TextStyle(
                               fontSize: 12,
                               color: MintColors.textMuted,
@@ -136,6 +139,7 @@ class _ThemeCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }

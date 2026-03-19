@@ -41,9 +41,12 @@ class SmartShortcuts extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Header + CTA
-        GestureDetector(
-          onTap: () => context.push('/coach/cockpit'),
-          child: Container(
+        Semantics(
+          label: 'Voir ton bilan détaillé',
+          button: true,
+          child: GestureDetector(
+            onTap: () => context.push('/coach/cockpit'),
+            child: Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
@@ -74,6 +77,7 @@ class SmartShortcuts extends StatelessWidget {
             ),
           ),
         ),
+        ),
         const SizedBox(height: 10),
         // Shortcut chips (wrap flow)
         Wrap(
@@ -86,10 +90,13 @@ class SmartShortcuts extends StatelessWidget {
   }
 
   Widget _buildChip(BuildContext context, _Shortcut s) {
-    return GestureDetector(
-      onTap: () => context.push(s.route),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    return Semantics(
+      label: s.label,
+      button: true,
+      child: GestureDetector(
+        onTap: () => context.push(s.route),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: s.color.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(20),
@@ -111,6 +118,7 @@ class SmartShortcuts extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 

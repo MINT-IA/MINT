@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
@@ -60,6 +61,11 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
   }
+
+  // SharedPreferences mock needed for ContextInjectorService (S58 AI memory).
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
 
   group('CoachChatScreen', () {
     testWidgets('renders without crashing', (tester) async {

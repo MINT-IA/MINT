@@ -13,14 +13,30 @@ class ConsentDashboardScreen extends StatefulWidget {
 
 class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
   late Map<String, bool> _consents;
+  bool _loading = true;
+  bool _hasError = false;
 
   @override
   void initState() {
     super.initState();
-    _consents = {
-      for (final cat in PrivacyService.dataCategories)
-        cat['id'] as String: cat['required'] as bool,
-    };
+    _loadConsents();
+  }
+
+  Future<void> _loadConsents() async {
+    try {
+      _consents = {
+        for (final cat in PrivacyService.dataCategories)
+          cat['id'] as String: cat['required'] as bool,
+      };
+      if (mounted) setState(() => _loading = false);
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+          _loading = false;
+        });
+      }
+    }
   }
 
   void _toggleConsent(String categoryId, bool value) {
@@ -107,6 +123,59 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return Scaffold(
+        backgroundColor: MintColors.background,
+        appBar: AppBar(
+          title: Text(
+            S.of(context)!.consentControlCenter,
+            style: GoogleFonts.montserrat(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1,
+            ),
+          ),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_hasError) {
+      return Scaffold(
+        backgroundColor: MintColors.background,
+        appBar: AppBar(
+          title: Text(
+            S.of(context)!.consentControlCenter,
+            style: GoogleFonts.montserrat(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1,
+            ),
+          ),
+        ),
+        body: Center(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            margin: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: MintColors.error.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.error_outline, color: MintColors.error, size: 20),
+                const SizedBox(width: 12),
+                Expanded(child: Text(
+                  'Une erreur est survenue. Réessaie plus tard.',
+                  style: GoogleFonts.inter(fontSize: 13, color: MintColors.error),
+                )),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     final consentStatus = PrivacyService.getConsentStatus(
       currentConsents: _consents,
     );

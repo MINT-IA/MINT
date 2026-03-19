@@ -4,6 +4,8 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 
+// TODO: add Semantics for accessibility
+
 /// Two-level focus selector for Pulse hero adaptation.
 ///
 /// Level 1: 4 universal intentions (Comprendre, Protéger, Optimiser, Naviguer)

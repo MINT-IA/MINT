@@ -232,12 +232,15 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
 
   Widget _buildPeriodChip(String value, String label) {
     final isSelected = _selectedPeriod == value;
-    return GestureDetector(
+    return Semantics(
+      label: 'Filtrer par période : $label',
+      button: true,
+      child: GestureDetector(
       onTap: () => setState(() => _selectedPeriod = value),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? MintColors.primary : Colors.transparent,
+          color: isSelected ? MintColors.primary : MintColors.transparent,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isSelected ? MintColors.primary : MintColors.border,
@@ -252,6 +255,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 
@@ -267,7 +271,10 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
         itemBuilder: (context, index) {
           final cat = _categories[index];
           final isSelected = _selectedCategory == cat['id'];
-          return GestureDetector(
+          return Semantics(
+            label: 'Filtrer par catégorie : ${cat['label']}',
+            button: true,
+            child: GestureDetector(
             onTap: () => setState(() => _selectedCategory = cat['id']!),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -293,6 +300,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                 ),
               ),
             ),
+          ),
           );
         },
       ),

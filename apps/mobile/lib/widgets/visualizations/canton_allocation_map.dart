@@ -262,7 +262,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: isActive ? MintColors.primary : Colors.transparent,
+          color: isActive ? MintColors.primary : MintColors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(

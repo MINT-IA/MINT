@@ -68,12 +68,16 @@ class FinancialSummaryCard extends StatelessWidget {
                   ),
                 ),
                 if (onEdit != null)
-                  GestureDetector(
-                    onTap: onEdit,
-                    child: const Icon(
-                      Icons.edit_outlined,
-                      size: 18,
-                      color: MintColors.primary,
+                  Semantics(
+                    label: 'Modifier',
+                    button: true,
+                    child: GestureDetector(
+                      onTap: onEdit,
+                      child: const Icon(
+                        Icons.edit_outlined,
+                        size: 18,
+                        color: MintColors.primary,
+                      ),
                     ),
                   ),
               ],
@@ -116,30 +120,34 @@ class FinancialSummaryCard extends StatelessWidget {
           // Scan certificate CTA
           if (onScanCertificate != null) ...[
             const Divider(height: 1, indent: 16, endIndent: 16),
-            InkWell(
-              onTap: onScanCertificate,
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(16),
-                bottomRight: Radius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.document_scanner_outlined,
-                        size: 16, color: MintColors.info),
-                    const SizedBox(width: 8),
-                    Text(
-                      scanLabel ?? 'Scanner un certificat',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.info,
+            Semantics(
+              label: scanLabel ?? 'Scanner un certificat',
+              button: true,
+              child: InkWell(
+                onTap: onScanCertificate,
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(16),
+                  bottomRight: Radius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.document_scanner_outlined,
+                          size: 16, color: MintColors.info),
+                      const SizedBox(width: 8),
+                      Text(
+                        scanLabel ?? 'Scanner un certificat',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: MintColors.info,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

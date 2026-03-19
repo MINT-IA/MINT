@@ -583,7 +583,10 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
         children: options.map((opt) {
           final isSelected = _riskTolerance == opt;
           return Expanded(
-            child: GestureDetector(
+            child: Semantics(
+              label: _riskLabel(opt),
+              button: true,
+              child: GestureDetector(
               onTap: () => setState(() => _riskTolerance = opt),
               child: Container(
                 margin: EdgeInsets.only(
@@ -628,6 +631,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                   ],
                 ),
               ),
+            ),
             ),
           );
         }).toList(),

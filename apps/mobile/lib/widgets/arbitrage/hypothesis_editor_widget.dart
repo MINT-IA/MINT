@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
+// TODO: add Semantics for accessibility (HypothesisEditorWidget sliders)
+
 /// Configuration for a single hypothesis slider.
 class HypothesisConfig {
   final String key;
