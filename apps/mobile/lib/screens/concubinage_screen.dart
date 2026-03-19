@@ -762,7 +762,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         child: Column(
           children: [
             // Header row (checkbox + title + expand)
-            GestureDetector(
+            Semantics(
+              label: 'Développer : $title',
+              button: true,
+              child: GestureDetector(
               onTap: () {
                 setState(() {
                   _expandedItems[index] = !isExpanded;
@@ -774,7 +777,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Checkbox
-                    GestureDetector(
+                    Semantics(
+                      label: 'Cocher : $title',
+                      button: true,
+                      child: GestureDetector(
                       onTap: () {
                         setState(() {
                           if (isChecked) {
@@ -806,6 +812,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                             : null,
                       ),
                     ),
+                    ),
                     const SizedBox(width: 12),
 
                     // Title
@@ -835,6 +842,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                   ],
                 ),
               ),
+            ),
             ),
 
             // Expandable description
