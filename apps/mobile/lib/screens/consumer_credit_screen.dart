@@ -3,6 +3,7 @@ import 'package:mint_mobile/domain/calculators.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/debt_repayment_widget.dart';
+import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 
 class ConsumerCreditSimulatorScreen extends StatefulWidget {
   const ConsumerCreditSimulatorScreen({super.key});
@@ -109,6 +110,8 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
             ),
             const SizedBox(height: 48),
             _buildDisclaimer(),
+            const SizedBox(height: 24),
+            const DebtToolsNav(currentRoute: '/simulator/credit'),
             const SizedBox(height: 40),
           ],
         ),

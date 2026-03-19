@@ -7,6 +7,7 @@ import 'package:mint_mobile/services/debt_prevention_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 
 /// Ecran de diagnostic du ratio d'endettement.
 ///
@@ -99,6 +100,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
 
                 // Disclaimer
                 _buildDisclaimer(result.disclaimer),
+                const SizedBox(height: 24),
+
+                // Navigation croisée dette
+                const DebtToolsNav(currentRoute: '/debt/ratio'),
                 const SizedBox(height: 40),
               ]),
             ),

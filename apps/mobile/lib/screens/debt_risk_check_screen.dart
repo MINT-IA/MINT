@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 
 class DebtRiskCheckScreen extends StatefulWidget {
   const DebtRiskCheckScreen({super.key});
@@ -142,6 +143,8 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
         ),
         const SizedBox(height: 32),
         _buildPrivacyNote(),
+        const SizedBox(height: 24),
+        const DebtToolsNav(currentRoute: '/check/debt'),
         const SizedBox(height: 40),
       ],
     );

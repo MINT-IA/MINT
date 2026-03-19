@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/debt_prevention_service.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 
 /// Ecran des ressources d'aide en cas de dette.
 ///
@@ -103,6 +104,10 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
 
                 // Disclaimer
                 _buildDisclaimer(),
+                const SizedBox(height: 24),
+
+                // Navigation croisée dette
+                const DebtToolsNav(currentRoute: '/debt/help'),
                 const SizedBox(height: 40),
               ]),
             ),

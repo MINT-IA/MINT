@@ -4,6 +4,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/debt_prevention_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/widgets/coach/debt_survival_widget.dart';
+import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 
 /// Ecran de planification du remboursement de dettes.
 ///
@@ -121,6 +122,10 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 ] else
                   _buildEmptyState(),
 
+                const SizedBox(height: 24),
+
+                // Navigation croisée dette
+                const DebtToolsNav(currentRoute: '/debt/repayment'),
                 const SizedBox(height: 40),
               ]),
             ),
