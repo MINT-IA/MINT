@@ -586,7 +586,7 @@ class _PulseScreenState extends State<PulseScreen> {
     return NetIncomeBreakdown.compute(
       grossSalary: profile.salaireBrutMensuel * 12,
       canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-      age: DateTime.now().year - profile.birthYear,
+      age: profile.age,
     ).monthlyNetPayslip;
   }
 

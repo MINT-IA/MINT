@@ -144,18 +144,18 @@ class ResponseCardService {
         (lower.contains('retrait 3a') && lower.contains('plusieur'))) {
       cards.add(_buildSimpleCard(
         id: 'staggered_withdrawal',
-        title: 'Retrait 3a echelonne',
-        subtitle: 'Etaler les retraits pour reduire l\'impot',
+        title: 'Retrait 3a \u00e9chelonn\u00e9',
+        subtitle: '\u00c9taler les retraits pour r\u00e9duire l\'imp\u00f4t',
         route: '/3a-deep/staggered-withdrawal',
         sources: ['LIFD art. 38', 'OPP3 art. 3'],
       ));
     }
     if ((lower.contains('rendement') && lower.contains('3a')) ||
-        lower.contains('rendement reel')) {
+        lower.contains('rendement r\u00e9el')) {
       cards.add(_buildSimpleCard(
         id: 'real_return_3a',
-        title: 'Rendement reel 3a',
-        subtitle: 'Rendement apres frais, inflation et fiscal',
+        title: 'Rendement r\u00e9el 3a',
+        subtitle: 'Rendement apr\u00e8s frais, inflation et fiscal',
         route: '/3a-deep/real-return',
         sources: ['OPP3 art. 7'],
       ));
@@ -251,7 +251,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'divorce',
         title: 'Simulateur divorce',
-        subtitle: 'Partage LPP, pension, impots',
+        subtitle: 'Partage LPP, pension, imp\u00f4ts',
         route: '/divorce',
         sources: ['CC art. 122-124', 'LPP art. 22'],
       ));
@@ -307,7 +307,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'unemployment',
         title: 'Perte d\'emploi',
-        subtitle: 'Indemnites, duree, demarches',
+        subtitle: 'Indemnit\u00e9s, dur\u00e9e, d\u00e9marches',
         route: '/unemployment',
         sources: ['LACI art. 8-27'],
       ));
@@ -328,7 +328,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'expatriation',
         title: 'Expatriation',
-        subtitle: 'Impact sur AVS, LPP, 3a et impots',
+        subtitle: 'Impact sur AVS, LPP, 3a et imp\u00f4ts',
         route: '/expatriation',
         sources: ['LAVS art. 1a', 'ALCP', 'CDI'],
       ));
@@ -449,7 +449,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'leasing',
         title: 'Simulateur leasing',
-        subtitle: 'Cout reel d\'un leasing auto',
+        subtitle: 'Co\u00fbt r\u00e9el d\'un leasing auto',
         route: '/simulator/leasing',
         sources: [],
       ));
@@ -458,7 +458,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'consumer_credit',
         title: 'Credit consommation',
-        subtitle: 'Cout total d\'un credit conso',
+        subtitle: 'Co\u00fbt total d\'un cr\u00e9dit conso',
         route: '/simulator/credit',
         sources: ['LCC art. 1'],
       ));
@@ -496,7 +496,7 @@ class ResponseCardService {
       prompts.add('Rente ou capital : que choisir ?');
       if (!hasLpp) prompts.add('Combien racheter en LPP ?');
     } else if (age >= 35) {
-      prompts.add('Comment reduire mes impots ?');
+      prompts.add('Comment r\u00e9duire mes imp\u00f4ts\u00a0?');
       prompts.add('Combien verser en 3a cette annee ?');
       if (!hasLpp) prompts.add('Simuler un rachat LPP');
     } else {
