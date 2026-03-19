@@ -309,7 +309,10 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           runSpacing: 8,
           children: options.map((opt) {
             final selected = _regime == opt.key;
-            return GestureDetector(
+            return Semantics(
+              label: 'Régime matrimonial : ${opt.value}',
+              button: true,
+              child: GestureDetector(
               onTap: () => setState(() => _regime = opt.key),
               child: Container(
                 padding:
@@ -337,6 +340,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                   ),
                 ),
               ),
+            ),
             );
           }).toList(),
         ),
@@ -866,7 +870,10 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
         children: List.generate(r.checklist.length, (index) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: InkWell(
+            child: Semantics(
+              label: 'Checklist item',
+              button: true,
+              child: InkWell(
               onTap: () {
                 setState(() {
                   _checklistState[index] = !_checklistState[index];
@@ -919,6 +926,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                   ],
                 ),
               ),
+            ),
             ),
           );
         }),
