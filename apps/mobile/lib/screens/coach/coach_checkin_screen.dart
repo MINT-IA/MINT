@@ -641,10 +641,13 @@ Reponds uniquement avec le texte final.
 
   Widget _buildAddContributionButton() {
     final s = S.of(context);
-    return GestureDetector(
-      onTap: _showAddContributionSheet,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
+    return Semantics(
+      label: s?.checkinAddContribution ?? 'Ajouter un versement',
+      button: true,
+      child: GestureDetector(
+        onTap: _showAddContributionSheet,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           color: MintColors.surface,
           borderRadius: BorderRadius.circular(16),
@@ -670,6 +673,7 @@ Reponds uniquement avec le texte final.
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -776,10 +780,14 @@ Reponds uniquement avec le texte final.
                     runSpacing: 8,
                     children: categories.map((cat) {
                       final isSelected = selectedCategory == cat.$1;
-                      return GestureDetector(
-                        onTap: () =>
-                            setSheetState(() => selectedCategory = cat.$1),
-                        child: Container(
+                      return Semantics(
+                        label: cat.$2,
+                        button: true,
+                        selected: isSelected,
+                        child: GestureDetector(
+                          onTap: () =>
+                              setSheetState(() => selectedCategory = cat.$1),
+                          child: Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 14, vertical: 8),
                           decoration: BoxDecoration(
@@ -817,6 +825,7 @@ Reponds uniquement avec le texte final.
                             ],
                           ),
                         ),
+                      ),
                       );
                     }).toList(),
                   ),
@@ -1766,15 +1775,19 @@ class _ContributionRow extends StatelessWidget {
           Positioned(
             top: 4,
             right: 4,
-            child: GestureDetector(
-              onTap: onDelete,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: MintColors.error.withValues(alpha: 0.08),
-                  shape: BoxShape.circle,
+            child: Semantics(
+              label: 'Supprimer',
+              button: true,
+              child: GestureDetector(
+                onTap: onDelete,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: MintColors.error.withValues(alpha: 0.08),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.close, size: 14, color: MintColors.error),
                 ),
-                child: const Icon(Icons.close, size: 14, color: MintColors.error),
               ),
             ),
           ),
