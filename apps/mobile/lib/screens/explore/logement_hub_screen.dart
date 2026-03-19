@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -9,65 +10,66 @@ class LogementHubScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.white,
       appBar: AppBar(
         backgroundColor: MintColors.white,
         surfaceTintColor: MintColors.white,
-        title: Text('Logement', style: MintTextStyles.headlineMedium()),
+        title: Text(l.exploreHubLogementTitle, style: MintTextStyles.headlineMedium()),
         centerTitle: false,
       ),
       body: ListView(
         padding: const EdgeInsets.all(MintSpacing.lg),
         children: [
           Text(
-            'Parcours vedettes',
+            l.exploreHubFeatured,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.md),
           _FeaturedCard(
-            title: 'Capacite hypothecaire',
-            subtitle: 'Combien peux-tu emprunter\u202f?',
+            title: l.logementHubFeaturedCapacite,
+            subtitle: l.logementHubFeaturedCapaciteSub,
             icon: Icons.home_outlined,
             iconColor: MintColors.info,
             onTap: () => context.push('/hypotheque'),
           ),
           const SizedBox(height: MintSpacing.sm),
           _FeaturedCard(
-            title: 'Location vs Propriete',
-            subtitle: 'Compare les deux scenarios sur 20 ans',
+            title: l.logementHubFeaturedLocationPropriete,
+            subtitle: l.logementHubFeaturedLocationProprieteSub,
             icon: Icons.compare_arrows_outlined,
             iconColor: MintColors.success,
             onTap: () => context.push('/arbitrage/location-vs-propriete'),
           ),
           const SizedBox(height: MintSpacing.sm),
           _FeaturedCard(
-            title: 'Vente immobiliere',
-            subtitle: 'Impot sur le gain et reinvestissement',
+            title: l.logementHubFeaturedVente,
+            subtitle: l.logementHubFeaturedVenteSub,
             icon: Icons.sell_outlined,
             iconColor: MintColors.warning,
             onTap: () => context.push('/life-event/housing-sale'),
           ),
           const SizedBox(height: MintSpacing.xl),
           Text(
-            'Voir tout',
+            l.exploreHubSeeAll,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.md),
           _ToolRow(
-            title: 'Amortissement',
+            title: l.logementHubToolAmortissement,
             onTap: () => context.push('/mortgage/amortization'),
           ),
           _ToolRow(
-            title: 'EPL combine',
+            title: l.logementHubToolEplCombine,
             onTap: () => context.push('/mortgage/epl-combined'),
           ),
           _ToolRow(
-            title: 'Valeur locative',
+            title: l.logementHubToolValeurLocative,
             onTap: () => context.push('/mortgage/imputed-rental'),
           ),
           _ToolRow(
-            title: 'SARON vs Fixe',
+            title: l.logementHubToolSaronFixe,
             onTap: () => context.push('/mortgage/saron-vs-fixed'),
           ),
           const SizedBox(height: MintSpacing.xl),
@@ -79,7 +81,7 @@ class LogementHubScreen extends StatelessWidget {
               color: MintColors.info,
             ),
             label: Text(
-              'Comprendre ce sujet',
+              l.exploreHubLearnMore,
               style: MintTextStyles.bodySmall(color: MintColors.info),
             ),
           ),

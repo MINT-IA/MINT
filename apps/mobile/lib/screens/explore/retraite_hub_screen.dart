@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -9,81 +10,82 @@ class RetraiteHubScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.white,
       appBar: AppBar(
         backgroundColor: MintColors.white,
         surfaceTintColor: MintColors.white,
-        title: Text('Retraite', style: MintTextStyles.headlineMedium()),
+        title: Text(l.exploreHubRetraiteTitle, style: MintTextStyles.headlineMedium()),
         centerTitle: false,
       ),
       body: ListView(
         padding: const EdgeInsets.all(MintSpacing.lg),
         children: [
           Text(
-            'Parcours vedettes',
+            l.exploreHubFeatured,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.md),
           _FeaturedCard(
-            title: 'Apercu retraite',
-            subtitle: 'Ton estimation personnalisee en 3 minutes',
+            title: l.retraiteHubFeaturedOverview,
+            subtitle: l.retraiteHubFeaturedOverviewSub,
             icon: Icons.timeline_outlined,
             iconColor: MintColors.info,
             onTap: () => context.push('/retraite'),
           ),
           const SizedBox(height: MintSpacing.sm),
           _FeaturedCard(
-            title: 'Rente vs Capital',
-            subtitle: 'Compare les deux options cote a cote',
+            title: l.retraiteHubFeaturedRenteCapital,
+            subtitle: l.retraiteHubFeaturedRenteCapitalSub,
             icon: Icons.balance_outlined,
             iconColor: MintColors.success,
             onTap: () => context.push('/rente-vs-capital'),
           ),
           const SizedBox(height: MintSpacing.sm),
           _FeaturedCard(
-            title: 'Rachat LPP',
-            subtitle: 'Simule l\'impact fiscal d\'un rachat',
+            title: l.retraiteHubFeaturedRachat,
+            subtitle: l.retraiteHubFeaturedRachatSub,
             icon: Icons.add_chart_outlined,
             iconColor: MintColors.purple,
             onTap: () => context.push('/rachat-lpp'),
           ),
           const SizedBox(height: MintSpacing.xl),
           Text(
-            'Voir tout',
+            l.exploreHubSeeAll,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.md),
           _ToolRow(
-            title: 'Pilier 3a',
+            title: l.retraiteHubToolPilier3a,
             onTap: () => context.push('/pilier-3a'),
           ),
           _ToolRow(
-            title: '3a Comparateur',
+            title: l.retraiteHubTool3aComparateur,
             onTap: () => context.push('/3a-deep/comparator'),
           ),
           _ToolRow(
-            title: '3a Rendement reel',
+            title: l.retraiteHubTool3aRendement,
             onTap: () => context.push('/3a-deep/real-return'),
           ),
           _ToolRow(
-            title: '3a Retrait echelonne',
+            title: l.retraiteHubTool3aRetrait,
             onTap: () => context.push('/3a-deep/staggered-withdrawal'),
           ),
           _ToolRow(
-            title: '3a Retroactif',
+            title: l.retraiteHubTool3aRetroactif,
             onTap: () => context.push('/3a-retroactif'),
           ),
           _ToolRow(
-            title: 'Libre passage',
+            title: l.retraiteHubToolLibrePassage,
             onTap: () => context.push('/libre-passage'),
           ),
           _ToolRow(
-            title: 'Decaissement',
+            title: l.retraiteHubToolDecaissement,
             onTap: () => context.push('/decaissement'),
           ),
           _ToolRow(
-            title: 'EPL',
+            title: l.retraiteHubToolEpl,
             onTap: () => context.push('/epl'),
           ),
           const SizedBox(height: MintSpacing.xl),
@@ -95,7 +97,7 @@ class RetraiteHubScreen extends StatelessWidget {
               color: MintColors.info,
             ),
             label: Text(
-              'Comprendre ce sujet',
+              l.exploreHubLearnMore,
               style: MintTextStyles.bodySmall(color: MintColors.info),
             ),
           ),

@@ -15,7 +15,6 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
-import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
 
 // ────────────────────────────────────────────────────────
 //  AUJOURD'HUI — V4 "Radical Simplicity"
@@ -206,11 +205,11 @@ class _PulseScreenState extends State<PulseScreen> {
     if (_cachedProjection != null) {
       final revenuNet = _computeRevenuNet(profile);
       if (revenuNet > 0) {
-        return 'Taux de remplacement à la retraite';
+        return l.pulseLabelReplacementRate;
       }
-      return 'Revenu estimé à la retraite';
+      return l.pulseLabelRetirementIncome;
     }
-    return 'Score de préparation financière';
+    return l.pulseLabelFinancialScore;
   }
 
   Color _computeDominantColor(_DominantNumber n) {
@@ -241,68 +240,110 @@ class _PulseScreenState extends State<PulseScreen> {
           : hero.subtitle;
     }
     if (yearsToRetire <= 5) {
-      return prefix('ta retraite approche. Voici où tu en es.');
+      return prefix(l.pulseNarrativeRetirementClose);
     }
     if (yearsToRetire <= 15) {
-      return prefix('tu as $yearsToRetire ans pour agir. Chaque année compte.');
+      return prefix(l.pulseNarrativeYearsToAct(yearsToRetire));
     }
     if (yearsToRetire <= 25) {
-      return prefix('tu as le temps de construire. Voici ta situation.');
+      return prefix(l.pulseNarrativeTimeToBuild);
     }
-    return prefix('voici ta situation financière.');
+    return prefix(l.pulseNarrativeDefault);
   }
 
   // ── PRIORITY ACTION ──
 
   Widget _buildPriorityAction(CoachProfile profile, PulseHero? hero) {
-    // Try response card first (most contextual)
+    // Try response card first (most contextual) — render as minimal action card
     final cards = ResponseCardService.generateForPulse(profile, limit: 1);
     if (cards.isNotEmpty) {
-      return ResponseCardWidget(card: cards.first);
+      final card = cards.first;
+      return _buildMinimalActionCard(
+        title: card.title,
+        subtitle: card.subtitle,
+        icon: Icons.arrow_forward_rounded,
+        onTap: () => context.push(card.cta.route),
+      );
     }
 
     // Fallback to hero CTA
     if (hero != null) {
-      return SizedBox(
-        width: double.infinity,
-        height: 52,
-        child: FilledButton(
-          onPressed: () => context.push(hero.ctaRoute),
-          style: FilledButton.styleFrom(
-            backgroundColor: MintColors.primary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: Text(
-            hero.ctaLabel,
-            style: GoogleFonts.inter(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
+      return _buildMinimalActionCard(
+        title: hero.ctaLabel,
+        subtitle: 'Action recommandée',
+        icon: Icons.arrow_forward_rounded,
+        onTap: () => context.push(hero.ctaRoute),
       );
     }
 
     // Last resort: go to coach
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: FilledButton(
-        onPressed: () => NavigationShellState.switchTab(1),
-        style: FilledButton.styleFrom(
-          backgroundColor: MintColors.primary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+    return _buildMinimalActionCard(
+      title: S.of(context)!.pulseEmptyCtaStart,
+      subtitle: 'Commence avec le coach',
+      icon: Icons.arrow_forward_rounded,
+      onTap: () => NavigationShellState.switchTab(1),
+    );
+  }
+
+  Widget _buildMinimalActionCard({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          border: Border.all(
+            color: MintColors.border.withValues(alpha: 0.5),
           ),
+          borderRadius: BorderRadius.circular(16),
         ),
-        child: Text(
-          S.of(context)!.pulseEmptyCtaStart,
-          style: GoogleFonts.inter(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-          ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: MintColors.primary.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                color: MintColors.primary,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: MintSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: MintTextStyles.titleMedium(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    subtitle,
+                    style: MintTextStyles.bodySmall(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: MintSpacing.sm),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: MintColors.textMuted,
+              size: 20,
+            ),
+          ],
         ),
       ),
     );

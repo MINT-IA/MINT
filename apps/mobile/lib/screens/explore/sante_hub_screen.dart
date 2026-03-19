@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -9,57 +10,58 @@ class SanteHubScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.white,
       appBar: AppBar(
         backgroundColor: MintColors.white,
         surfaceTintColor: MintColors.white,
-        title: Text('Sante', style: MintTextStyles.headlineMedium()),
+        title: Text(l.exploreHubSanteTitle, style: MintTextStyles.headlineMedium()),
         centerTitle: false,
       ),
       body: ListView(
         padding: const EdgeInsets.all(MintSpacing.lg),
         children: [
           Text(
-            'Parcours vedettes',
+            l.exploreHubFeatured,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.md),
           _FeaturedCard(
-            title: 'Franchise LAMal',
-            subtitle: 'Trouve la franchise qui te coute le moins',
+            title: l.santeHubFeaturedFranchise,
+            subtitle: l.santeHubFeaturedFranchiseSub,
             icon: Icons.health_and_safety_outlined,
             iconColor: MintColors.info,
             onTap: () => context.push('/assurances/lamal'),
           ),
           const SizedBox(height: MintSpacing.sm),
           _FeaturedCard(
-            title: 'Invalidite',
-            subtitle: 'Estime ta couverture en cas d\'incapacite',
+            title: l.santeHubFeaturedInvalidite,
+            subtitle: l.santeHubFeaturedInvaliditeSub,
             icon: Icons.accessible_outlined,
             iconColor: MintColors.warning,
             onTap: () => context.push('/invalidite'),
           ),
           const SizedBox(height: MintSpacing.sm),
           _FeaturedCard(
-            title: 'Check-up couverture',
-            subtitle: 'Verifie que tu es bien protege',
+            title: l.santeHubFeaturedCheckup,
+            subtitle: l.santeHubFeaturedCheckupSub,
             icon: Icons.verified_user_outlined,
             iconColor: MintColors.success,
             onTap: () => context.push('/assurances/coverage'),
           ),
           const SizedBox(height: MintSpacing.xl),
           Text(
-            'Voir tout',
+            l.exploreHubSeeAll,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.md),
           _ToolRow(
-            title: 'Assurance invalidite',
+            title: l.santeHubToolAssuranceInvalidite,
             onTap: () => context.push('/disability/insurance'),
           ),
           _ToolRow(
-            title: 'Invalidite independant',
+            title: l.santeHubToolInvaliditeIndependant,
             onTap: () => context.push('/disability/self-employed'),
           ),
           const SizedBox(height: MintSpacing.xl),
@@ -71,7 +73,7 @@ class SanteHubScreen extends StatelessWidget {
               color: MintColors.info,
             ),
             label: Text(
-              'Comprendre ce sujet',
+              l.exploreHubLearnMore,
               style: MintTextStyles.bodySmall(color: MintColors.info),
             ),
           ),

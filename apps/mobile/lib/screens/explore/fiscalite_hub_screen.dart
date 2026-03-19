@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -9,57 +10,58 @@ class FiscaliteHubScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.white,
       appBar: AppBar(
         backgroundColor: MintColors.white,
         surfaceTintColor: MintColors.white,
-        title: Text('Fiscalite', style: MintTextStyles.headlineMedium()),
+        title: Text(l.exploreHubFiscaliteTitle, style: MintTextStyles.headlineMedium()),
         centerTitle: false,
       ),
       body: ListView(
         padding: const EdgeInsets.all(MintSpacing.lg),
         children: [
           Text(
-            'Parcours vedettes',
+            l.exploreHubFeatured,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.md),
           _FeaturedCard(
-            title: 'Comparateur fiscal',
-            subtitle: 'Estime ton impot selon differents scenarios',
+            title: l.fiscaliteHubFeaturedComparateur,
+            subtitle: l.fiscaliteHubFeaturedComparateurSub,
             icon: Icons.calculate_outlined,
             iconColor: MintColors.info,
             onTap: () => context.push('/fiscal'),
           ),
           const SizedBox(height: MintSpacing.sm),
           _FeaturedCard(
-            title: 'Demenagement cantonal',
-            subtitle: 'Compare la fiscalite entre cantons',
+            title: l.fiscaliteHubFeaturedDemenagement,
+            subtitle: l.fiscaliteHubFeaturedDemenagementSub,
             icon: Icons.map_outlined,
             iconColor: MintColors.success,
             onTap: () => context.push('/life-event/demenagement-cantonal'),
           ),
           const SizedBox(height: MintSpacing.sm),
           _FeaturedCard(
-            title: 'Allocation annuelle',
-            subtitle: 'Ou placer ton epargne cette annee\u202f?',
+            title: l.fiscaliteHubFeaturedAllocation,
+            subtitle: l.fiscaliteHubFeaturedAllocationSub,
             icon: Icons.pie_chart_outline,
             iconColor: MintColors.purple,
             onTap: () => context.push('/arbitrage/allocation-annuelle'),
           ),
           const SizedBox(height: MintSpacing.xl),
           Text(
-            'Voir tout',
+            l.exploreHubSeeAll,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.md),
           _ToolRow(
-            title: 'Interets composes',
+            title: l.fiscaliteHubToolInteretsComposes,
             onTap: () => context.push('/simulator/compound'),
           ),
           _ToolRow(
-            title: 'Bilan arbitrage',
+            title: l.fiscaliteHubToolBilanArbitrage,
             onTap: () => context.push('/arbitrage/bilan'),
           ),
           const SizedBox(height: MintSpacing.xl),
@@ -71,7 +73,7 @@ class FiscaliteHubScreen extends StatelessWidget {
               color: MintColors.info,
             ),
             label: Text(
-              'Comprendre ce sujet',
+              l.exploreHubLearnMore,
               style: MintTextStyles.bodySmall(color: MintColors.info),
             ),
           ),

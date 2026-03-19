@@ -176,7 +176,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
                 currentIndex: _currentIndex,
                 icon: Icons.chat_bubble_outline,
                 activeIcon: Icons.chat_bubble,
-                label: 'Coach',
+                label: l.tabCoach,
                 onTap: () => _onTap(1),
               ),
               _NavItem(

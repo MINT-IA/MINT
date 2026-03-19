@@ -49,8 +49,8 @@ class DossierTab extends StatelessWidget {
                     ? firstName
                     : l.tabMoi,
                 subtitle: provider.hasProfile
-                    ? '${(provider.profileCompleteness * 100).round()}% complété'
-                    : 'Commence ton profil',
+                    ? l.dossierProfileCompleted((provider.profileCompleteness * 100).round())
+                    : l.dossierStartProfile,
                 onTap: () => context.push('/profile'),
               ),
               const SizedBox(height: MintSpacing.sm),
@@ -58,8 +58,8 @@ class DossierTab extends StatelessWidget {
               // ── Documents ──
               _DossierSection(
                 icon: Icons.folder_outlined,
-                title: 'Documents',
-                subtitle: 'Certificats, relevés, scans',
+                title: l.dossierDocumentsTitle,
+                subtitle: l.dossierDocumentsSubtitle,
                 onTap: () => context.push('/documents'),
               ),
               const SizedBox(height: MintSpacing.sm),
@@ -67,8 +67,8 @@ class DossierTab extends StatelessWidget {
               // ── Couple ──
               _DossierSection(
                 icon: Icons.people_outline,
-                title: 'Couple',
-                subtitle: 'Foyer, conjoint·e, projections duo',
+                title: l.dossierCoupleTitle,
+                subtitle: l.dossierCoupleSubtitle,
                 onTap: () => context.push('/couple'),
               ),
               const SizedBox(height: MintSpacing.sm),
@@ -76,8 +76,8 @@ class DossierTab extends StatelessWidget {
               // ── Bilan financier ──
               _DossierSection(
                 icon: Icons.pie_chart_outline,
-                title: 'Bilan financier',
-                subtitle: 'Vue d\'ensemble de ton patrimoine',
+                title: l.dossierBilanTitle,
+                subtitle: l.dossierBilanSubtitle,
                 onTap: () => context.push('/profile/bilan'),
               ),
 
@@ -85,7 +85,7 @@ class DossierTab extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: MintSpacing.sm),
                 child: Text(
-                  'Réglages',
+                  l.dossierReglages,
                   style: MintTextStyles.bodySmall(
                     color: MintColors.textMuted,
                   ),
@@ -95,18 +95,27 @@ class DossierTab extends StatelessWidget {
               // ── Consentements ──
               _DossierSection(
                 icon: Icons.verified_user_outlined,
-                title: 'Consentements',
-                subtitle: 'Vie privée et partage de données',
+                title: l.dossierConsentsTitle,
+                subtitle: l.dossierConsentsSubtitle,
                 onTap: () => context.push('/profile/consent'),
               ),
               const SizedBox(height: MintSpacing.sm),
 
-              // ── IA locale / BYOK ──
+              // ── Modèle local (SLM) ──
               _DossierSection(
                 icon: Icons.smart_toy_outlined,
-                title: 'IA & Coach',
-                subtitle: 'Modèle local, clé API',
+                title: l.dossierSlmTitle,
+                subtitle: l.dossierSlmSubtitle,
                 onTap: () => context.push('/profile/slm'),
+              ),
+              const SizedBox(height: MintSpacing.sm),
+
+              // ── Clé API (BYOK) ──
+              _DossierSection(
+                icon: Icons.vpn_key_outlined,
+                title: l.dossierByokTitle,
+                subtitle: l.dossierByokSubtitle,
+                onTap: () => context.push('/profile/byok'),
               ),
 
               const SizedBox(height: MintSpacing.xxl),

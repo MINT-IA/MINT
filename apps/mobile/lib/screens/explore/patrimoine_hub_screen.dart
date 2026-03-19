@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -9,57 +10,58 @@ class PatrimoineHubScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.white,
       appBar: AppBar(
         backgroundColor: MintColors.white,
         surfaceTintColor: MintColors.white,
-        title: Text('Patrimoine', style: MintTextStyles.headlineMedium()),
+        title: Text(l.exploreHubPatrimoineTitle, style: MintTextStyles.headlineMedium()),
         centerTitle: false,
       ),
       body: ListView(
         padding: const EdgeInsets.all(MintSpacing.lg),
         children: [
           Text(
-            'Parcours vedettes',
+            l.exploreHubFeatured,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.md),
           _FeaturedCard(
-            title: 'Succession',
-            subtitle: 'Anticipe la transmission de ton patrimoine',
+            title: l.patrimoineHubFeaturedSuccession,
+            subtitle: l.patrimoineHubFeaturedSuccessionSub,
             icon: Icons.account_tree_outlined,
             iconColor: MintColors.purple,
             onTap: () => context.push('/succession'),
           ),
           const SizedBox(height: MintSpacing.sm),
           _FeaturedCard(
-            title: 'Donation',
-            subtitle: 'Fiscalite et impact sur ta prevoyance',
+            title: l.patrimoineHubFeaturedDonation,
+            subtitle: l.patrimoineHubFeaturedDonationSub,
             icon: Icons.card_giftcard_outlined,
             iconColor: MintColors.success,
             onTap: () => context.push('/life-event/donation'),
           ),
           const SizedBox(height: MintSpacing.sm),
           _FeaturedCard(
-            title: 'Rente vs Capital',
-            subtitle: 'Compare les deux options cote a cote',
+            title: l.patrimoineHubFeaturedRenteCapital,
+            subtitle: l.patrimoineHubFeaturedRenteCapitalSub,
             icon: Icons.balance_outlined,
             iconColor: MintColors.info,
             onTap: () => context.push('/rente-vs-capital'),
           ),
           const SizedBox(height: MintSpacing.xl),
           Text(
-            'Voir tout',
+            l.exploreHubSeeAll,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.md),
           _ToolRow(
-            title: 'Bilan financier',
+            title: l.patrimoineHubToolBilan,
             onTap: () => context.push('/profile/bilan'),
           ),
           _ToolRow(
-            title: 'Portfolio',
+            title: l.patrimoineHubToolPortfolio,
             onTap: () => context.push('/portfolio'),
           ),
           const SizedBox(height: MintSpacing.xl),
@@ -71,7 +73,7 @@ class PatrimoineHubScreen extends StatelessWidget {
               color: MintColors.info,
             ),
             label: Text(
-              'Comprendre ce sujet',
+              l.exploreHubLearnMore,
               style: MintTextStyles.bodySmall(color: MintColors.info),
             ),
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -9,85 +10,86 @@ class TravailHubScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.white,
       appBar: AppBar(
         backgroundColor: MintColors.white,
         surfaceTintColor: MintColors.white,
-        title: Text('Travail', style: MintTextStyles.headlineMedium()),
+        title: Text(l.exploreHubTravailTitle, style: MintTextStyles.headlineMedium()),
         centerTitle: false,
       ),
       body: ListView(
         padding: const EdgeInsets.all(MintSpacing.lg),
         children: [
           Text(
-            'Parcours vedettes',
+            l.exploreHubFeatured,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.md),
           _FeaturedCard(
-            title: 'Premier emploi',
-            subtitle: 'Tout ce qu\'il faut savoir pour bien demarrer',
+            title: l.travailHubFeaturedPremierEmploi,
+            subtitle: l.travailHubFeaturedPremierEmploiSub,
             icon: Icons.rocket_launch_outlined,
             iconColor: MintColors.info,
             onTap: () => context.push('/first-job'),
           ),
           const SizedBox(height: MintSpacing.sm),
           _FeaturedCard(
-            title: 'Chomage',
-            subtitle: 'Tes droits, indemnites et demarches',
+            title: l.travailHubFeaturedChomage,
+            subtitle: l.travailHubFeaturedChomageSub,
             icon: Icons.shield_outlined,
             iconColor: MintColors.warning,
             onTap: () => context.push('/unemployment'),
           ),
           const SizedBox(height: MintSpacing.sm),
           _FeaturedCard(
-            title: 'Independant',
-            subtitle: 'Prevoyance et fiscalite sur mesure',
+            title: l.travailHubFeaturedIndependant,
+            subtitle: l.travailHubFeaturedIndependantSub,
             icon: Icons.storefront_outlined,
             iconColor: MintColors.success,
             onTap: () => context.push('/segments/independant'),
           ),
           const SizedBox(height: MintSpacing.xl),
           Text(
-            'Voir tout',
+            l.exploreHubSeeAll,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.md),
           _ToolRow(
-            title: 'Comparateur d\'emploi',
+            title: l.travailHubToolComparateurEmploi,
             onTap: () => context.push('/simulator/job-comparison'),
           ),
           _ToolRow(
-            title: 'Frontalier',
+            title: l.travailHubToolFrontalier,
             onTap: () => context.push('/segments/frontalier'),
           ),
           _ToolRow(
-            title: 'Expatriation',
+            title: l.travailHubToolExpatriation,
             onTap: () => context.push('/expatriation'),
           ),
           _ToolRow(
-            title: 'Gender gap',
+            title: l.travailHubToolGenderGap,
             onTap: () => context.push('/segments/gender-gap'),
           ),
           _ToolRow(
-            title: 'AVS independant',
+            title: l.travailHubToolAvsIndependant,
             onTap: () => context.push('/independants/avs'),
           ),
           _ToolRow(
-            title: 'IJM',
+            title: l.travailHubToolIjm,
             onTap: () => context.push('/independants/ijm'),
           ),
           _ToolRow(
-            title: '3a independant',
+            title: l.travailHubTool3aIndependant,
             onTap: () => context.push('/independants/3a'),
           ),
           _ToolRow(
-            title: 'Dividende vs Salaire',
+            title: l.travailHubToolDividendeSalaire,
             onTap: () => context.push('/independants/dividende-salaire'),
           ),
           _ToolRow(
-            title: 'LPP volontaire',
+            title: l.travailHubToolLppVolontaire,
             onTap: () => context.push('/independants/lpp-volontaire'),
           ),
           const SizedBox(height: MintSpacing.xl),
@@ -99,7 +101,7 @@ class TravailHubScreen extends StatelessWidget {
               color: MintColors.info,
             ),
             label: Text(
-              'Comprendre ce sujet',
+              l.exploreHubLearnMore,
               style: MintTextStyles.bodySmall(color: MintColors.info),
             ),
           ),
