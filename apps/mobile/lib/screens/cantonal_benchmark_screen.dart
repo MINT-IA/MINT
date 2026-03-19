@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/cantonal_benchmark_service.dart';
@@ -64,7 +65,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
             ),
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Repères cantonaux', // TODO: i18n
+                S.of(context)!.benchmarkAppBarTitle,
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700,
                   fontSize: 18,
@@ -123,7 +124,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Activer les repères cantonaux', // TODO: i18n
+                  S.of(context)!.benchmarkOptInTitle,
                   style: GoogleFonts.montserrat(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
@@ -131,11 +132,9 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  // TODO: i18n
-                  'Compare ta situation à des ordres de grandeur '
-                  'issus des statistiques fédérales (OFS).',
-                  style: TextStyle(
+                Text(
+                  S.of(context)!.benchmarkOptInSubtitle,
+                  style: const TextStyle(
                     fontSize: 14,
                     color: MintColors.textSecondary,
                     height: 1.4,
@@ -172,7 +171,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
           const Icon(Icons.bar_chart_rounded, size: 48, color: MintColors.textMuted),
           const SizedBox(height: 16),
           Text(
-            'Des repères, pas un classement', // TODO: i18n
+            S.of(context)!.benchmarkExplanationTitle,
             style: GoogleFonts.montserrat(
               fontWeight: FontWeight.w600,
               fontSize: 18,
@@ -181,14 +180,9 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
-          const Text(
-            // TODO: i18n
-            'Active cette fonctionnalité pour situer ta situation '
-            'financière par rapport à des profils similaires dans '
-            'ton canton. Ces données sont des ordres de grandeur '
-            'issus de statistiques fédérales anonymisées (OFS). '
-            'Aucun classement, aucune comparaison sociale.',
-            style: TextStyle(
+          Text(
+            S.of(context)!.benchmarkExplanationBody,
+            style: const TextStyle(
               fontSize: 14,
               color: MintColors.textSecondary,
               height: 1.5,
@@ -207,9 +201,9 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
         color: MintColors.appleSurface,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Text(
-        'Complète ton profil pour accéder aux repères cantonaux.', // TODO: i18n
-        style: TextStyle(
+      child: Text(
+        S.of(context)!.benchmarkNoProfile,
+        style: const TextStyle(
           fontSize: 14,
           color: MintColors.textSecondary,
           height: 1.5,
@@ -233,9 +227,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
-          // TODO: i18n
-          'Pas de données disponibles pour le canton '
-          '${profile.canton} (tranche ${CantonalBenchmarkService.ageGroupForAge(age)}).',
+          S.of(context)!.benchmarkNoData(profile.canton, CantonalBenchmarkService.ageGroupForAge(age)),
           style: const TextStyle(
             fontSize: 14,
             color: MintColors.textSecondary,
@@ -257,9 +249,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          // TODO: i18n
-          'Profils similaires\u00a0: ${benchmark.canton}, '
-          'tranche ${benchmark.ageGroup}',
+          S.of(context)!.benchmarkSimilarProfiles(benchmark.canton, benchmark.ageGroup),
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w600,
             fontSize: 16,
@@ -280,7 +270,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Source\u00a0: ${benchmark.source}',
+                S.of(context)!.benchmarkSourceLabel(benchmark.source),
                 style: const TextStyle(
                   fontSize: 12,
                   color: MintColors.textMuted,
@@ -308,17 +298,17 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
       BenchmarkPosition.withinRange => (
           Icons.check_circle_outline,
           MintColors.success,
-          'Ta situation se situe dans la fourchette typique.', // TODO: i18n
+          S.of(context)!.benchmarkWithinRange,
         ),
       BenchmarkPosition.aboveRange => (
           Icons.arrow_upward_rounded,
           MintColors.info,
-          'Ta situation est au-delà de la fourchette typique.', // TODO: i18n
+          S.of(context)!.benchmarkAboveRange,
         ),
       BenchmarkPosition.belowRange => (
           Icons.arrow_downward_rounded,
           MintColors.warning,
-          'Ta situation est en-deçà de la fourchette typique.', // TODO: i18n
+          S.of(context)!.benchmarkBelowRange,
         ),
     };
 
@@ -361,8 +351,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Fourchette typique\u00a0: ' // TODO: i18n
-              '${_fmt(metric.range.low)} – ${_fmt(metric.range.high)}',
+              S.of(context)!.benchmarkTypicalRange(_fmt(metric.range.low), _fmt(metric.range.high)),
               style: const TextStyle(
                 fontSize: 12,
                 color: MintColors.textMuted,

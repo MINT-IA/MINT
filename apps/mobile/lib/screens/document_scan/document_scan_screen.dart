@@ -991,7 +991,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   Future<_PdfParseResult> _processPdfViaBackend(String path) async {
     if (kIsWeb || _selectedType != DocumentType.lppCertificate) {
-      return const _PdfParseResult(
+      return _PdfParseResult(
         success: false,
         errorMessage:
             S.of(context)!.docScanPdfTypeUnsupported,
@@ -1006,7 +1006,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       );
       final extraction = _mapLppUploadToExtraction(upload);
       if (extraction.fields.isEmpty) {
-        return const _PdfParseResult(
+        return _PdfParseResult(
           success: false,
           errorMessage: S.of(context)!.docScanPdfNoData,
         );

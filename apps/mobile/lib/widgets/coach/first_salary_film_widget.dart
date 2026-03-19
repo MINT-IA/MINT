@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P5-A  Le Film du premier salaire — 5 actes
@@ -116,7 +117,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Le film de ton premier salaire',
+                  S.of(context)!.firstSalaryFilmTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -128,7 +129,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
           ),
           const SizedBox(height: 8),
           Text(
-            'CHF ${_fmt(widget.grossMonthly)} brut — 5 actes pour tout comprendre.',
+            S.of(context)!.firstSalaryFilmSubtitle(_fmt(widget.grossMonthly)),
             style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
           ),
         ],
@@ -137,7 +138,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
   }
 
   Widget _buildActSelector() {
-    final actLabels = ['1 · Brut→Net', '2 · Invisible', '3 · 3a', '4 · LAMal', '5 · Action'];
+    final actLabels = [S.of(context)!.firstSalaryAct1Label, S.of(context)!.firstSalaryAct2Label, S.of(context)!.firstSalaryAct3Label, S.of(context)!.firstSalaryAct4Label, S.of(context)!.firstSalaryAct5Label];
 
     return Container(
       height: 44,
@@ -183,12 +184,12 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'La douche froide',
+          S.of(context)!.firstSalaryAct1Title,
           style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w800, color: MintColors.textPrimary),
         ),
         const SizedBox(height: 4),
         Text(
-          '"${_fmt(_totalDeductions)} CHF disparaissent. Mais ce n\'est pas perdu — c\'est ton futur."',
+          S.of(context)!.firstSalaryAct1Quote(_fmt(_totalDeductions)),
           style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4, fontStyle: FontStyle.italic),
         ),
         const SizedBox(height: 16),
@@ -207,8 +208,8 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Brut : CHF ${_fmt(widget.grossMonthly)}', style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary)),
-            Text('Net : CHF ${_fmt(_netMonthly)}', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w800, color: MintColors.scoreExcellent)),
+            Text(S.of(context)!.firstSalaryGross(_fmt(widget.grossMonthly)), style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary)),
+            Text(S.of(context)!.firstSalaryNet(_fmt(_netMonthly)), style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w800, color: MintColors.scoreExcellent)),
           ],
         ),
         const SizedBox(height: 6),
@@ -224,7 +225,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
                   color: MintColors.scoreExcellent,
                   alignment: Alignment.center,
                   child: Text(
-                    '${(netRatio * 100).round()}% net',
+                    S.of(context)!.firstSalaryNetPercent((netRatio * 100).round()),
                     style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w800, color: MintColors.white),
                   ),
                 ),
@@ -264,12 +265,12 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'L\'argent invisible',
+          S.of(context)!.firstSalaryAct2Title,
           style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w800, color: MintColors.textPrimary),
         ),
         const SizedBox(height: 4),
         Text(
-          '"Ton vrai salaire est CHF ${_fmt(_totalEmployerCost)}. Ton employeur paie bien plus que tu ne crois."',
+          S.of(context)!.firstSalaryAct2Quote(_fmt(_totalEmployerCost)),
           style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4, fontStyle: FontStyle.italic),
         ),
         const SizedBox(height: 16),
@@ -281,11 +282,11 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
   Widget _buildIcebergCards() {
     return Column(
       children: [
-        _buildCostCard('🌊 Visible : ton salaire net', _netMonthly, MintColors.scoreExcellent, 'Ce que tu touches'),
+        _buildCostCard(S.of(context)!.firstSalaryVisibleNet, _netMonthly, MintColors.scoreExcellent, S.of(context)!.firstSalaryVisibleNetSub),
         const SizedBox(height: 6),
-        _buildCostCard('💧 Tes cotisations', _totalDeductions, MintColors.scoreAttention, 'Déduits de ton brut'),
+        _buildCostCard(S.of(context)!.firstSalaryCotisations, _totalDeductions, MintColors.scoreAttention, S.of(context)!.firstSalaryCotisationsSub),
         const SizedBox(height: 6),
-        _buildCostCard('🏔️ Cotisations employeur', _avsEmployer + _lppEmployer + _ijmEmployer, MintColors.info, 'Invisibles sur ta fiche'),
+        _buildCostCard(S.of(context)!.firstSalaryEmployerCotisations, _avsEmployer + _lppEmployer + _ijmEmployer, MintColors.info, S.of(context)!.firstSalaryEmployerCotisationsSub),
         const SizedBox(height: 10),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -296,7 +297,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Coût total employeur', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
+              Text(S.of(context)!.firstSalaryTotalEmployerCost, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
               Text(
                 'CHF ${_fmt(_totalEmployerCost)}/mois',
                 style: GoogleFonts.montserrat(fontSize: 15, fontWeight: FontWeight.w800, color: MintColors.primary),
@@ -346,20 +347,20 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Le cadeau fiscal 3a',
+          S.of(context)!.firstSalaryAct3Title,
           style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w800, color: MintColors.textPrimary),
         ),
         const SizedBox(height: 4),
         Text(
-          '"CHF ${_fmt(_monthly3a)}/mois → potentiellement millionnaire. Commence maintenant."',
+          S.of(context)!.firstSalaryAct3Quote(_fmt(_monthly3a)),
           style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4, fontStyle: FontStyle.italic),
         ),
         const SizedBox(height: 16),
-        _buildProjectionBar('À 30 ans', at30, at65),
+        _buildProjectionBar(S.of(context)!.firstSalaryAt30, at30, at65),
         const SizedBox(height: 8),
-        _buildProjectionBar('À 40 ans', at40, at65),
+        _buildProjectionBar(S.of(context)!.firstSalaryAt40, at40, at65),
         const SizedBox(height: 8),
-        _buildProjectionBar('À 65 ans', at65, at65),
+        _buildProjectionBar(S.of(context)!.firstSalaryAt65, at65, at65),
         const SizedBox(height: 10),
         Container(
           padding: const EdgeInsets.all(12),
@@ -368,7 +369,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
-            '💰 Plafond 2026 : CHF 7\'258/an · Déduction fiscale directe · OPP3 art. 7',
+            S.of(context)!.firstSalary3aInfo,
             style: GoogleFonts.inter(fontSize: 11, color: MintColors.scoreExcellent, height: 1.4),
           ),
         ),
@@ -404,21 +405,21 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
 
   Widget _buildAct4() {
     final franchises = [
-      (label: 'CHF 300/an', monthly: 25.0, advice: 'Conseillé si maladies chroniques'),
-      (label: 'CHF 1\'500/an', monthly: 125.0, advice: 'Bon compromis · Recommandé'),
-      (label: 'CHF 2\'500/an', monthly: 208.0, advice: 'Économise la prime · Si tu es en bonne santé'),
+      (label: 'CHF 300/an', monthly: 25.0, advice: S.of(context)!.firstSalaryFranchise300Advice),
+      (label: 'CHF 1\'500/an', monthly: 125.0, advice: S.of(context)!.firstSalaryFranchise1500Advice),
+      (label: 'CHF 2\'500/an', monthly: 208.0, advice: S.of(context)!.firstSalaryFranchise2500Advice),
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Le piège LAMal',
+          S.of(context)!.firstSalaryAct4Title,
           style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w800, color: MintColors.textPrimary),
         ),
         const SizedBox(height: 4),
         Text(
-          '"La franchise pas chère peut te coûter cher si tu tombes malade."',
+          S.of(context)!.firstSalaryAct4Quote,
           style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4, fontStyle: FontStyle.italic),
         ),
         const SizedBox(height: 16),
@@ -443,13 +444,13 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Franchise ${f.label}', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
+                      Text(S.of(context)!.firstSalaryFranchiseLabel(f.label), style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
                       Text(f.advice, style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary)),
                     ],
                   ),
                 ),
                 Text(
-                  '−CHF ${_fmt(f.monthly)}/mois prime',
+                  S.of(context)!.firstSalaryFranchisePrime(_fmt(f.monthly)),
                   style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.primary),
                 ),
               ],
@@ -458,7 +459,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
         )),
         const SizedBox(height: 4),
         Text(
-          '💡 LAMal art. 64 — Franchise annuelle choisie, renouvelable chaque année.',
+          S.of(context)!.firstSalaryLamalInfo,
           style: GoogleFonts.inter(fontSize: 11, color: MintColors.info, height: 1.4),
         ),
       ],
@@ -467,23 +468,23 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
 
   Widget _buildAct5() {
     final checklist = [
-      (week: 'Semaine 1', emoji: '🏦', task: 'Ouvrir un compte 3a (banque ou fintech)'),
-      (week: 'Semaine 1', emoji: '⚙️', task: 'Mettre en place un virement automatique mensuel'),
-      (week: 'Semaine 2', emoji: '🏥', task: 'Choisir ta franchise LAMal (recommandé : CHF 1\'500)'),
-      (week: 'Semaine 2', emoji: '🛡️', task: 'Vérifier ta RC privée (env. CHF 100/an)'),
-      (week: 'Avant 31.12', emoji: '💰', task: 'Verser le maximum 3a avant le 31 décembre'),
+      (week: S.of(context)!.firstSalaryWeek1, emoji: '🏦', task: S.of(context)!.firstSalaryTask1),
+      (week: S.of(context)!.firstSalaryWeek1, emoji: '⚙️', task: S.of(context)!.firstSalaryTask2),
+      (week: S.of(context)!.firstSalaryWeek2, emoji: '🏥', task: S.of(context)!.firstSalaryTask3),
+      (week: S.of(context)!.firstSalaryWeek2, emoji: '🛡️', task: S.of(context)!.firstSalaryTask4),
+      (week: S.of(context)!.firstSalaryBefore31Dec, emoji: '💰', task: S.of(context)!.firstSalaryTask5),
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Ta checklist de démarrage',
+          S.of(context)!.firstSalaryAct5Title,
           style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w800, color: MintColors.textPrimary),
         ),
         const SizedBox(height: 4),
         Text(
-          '"5 actions. C\'est tout. Commence cette semaine."',
+          S.of(context)!.firstSalaryAct5Quote,
           style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4, fontStyle: FontStyle.italic),
         ),
         const SizedBox(height: 16),
@@ -530,8 +531,8 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Premier pas financier', style: GoogleFonts.montserrat(fontSize: 14, fontWeight: FontWeight.w800, color: MintColors.scoreExcellent)),
-                    Text('Tu sais maintenant ce que 90% des gens ne savent jamais.', style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary)),
+                    Text(S.of(context)!.firstSalaryBadgeTitle, style: GoogleFonts.montserrat(fontSize: 14, fontWeight: FontWeight.w800, color: MintColors.scoreExcellent)),
+                    Text(S.of(context)!.firstSalaryBadgeSubtitle, style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary)),
                   ],
                 ),
               ),
@@ -544,9 +545,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
 
   Widget _buildDisclaimer() {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : LAVS art. 3, LPP art. 7, LACI art. 3, OPP3 art. 7 (3a 7\'258 CHF/an). '
-      'Taux cotisations indicatifs 2026. Projection 3a : rendement hypothétique 4%/an.',
+      S.of(context)!.firstSalaryDisclaimer,
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,
