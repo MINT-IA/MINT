@@ -27,9 +27,7 @@ class ProfileScreen extends StatelessWidget {
     final coachProvider = context.watch<CoachProfileProvider>();
     final coachProfile = coachProvider.profile;
     final double precision = coachProvider.profileCompleteness;
-    final recommendedSection = coachProvider.recommendedWizardSection;
-    final onboardingQuality =
-        (coachProvider.onboardingQualityScore * 100).round();
+    // recommendedSection and onboardingQuality moved to inline progress
 
     // Compute real completion for each FactFind section
     // Identity: complete if birthYear + canton present (mini-onboarding or full wizard)
@@ -49,6 +47,8 @@ class ProfileScreen extends StatelessWidget {
         (coachProfile.patrimoine.totalPatrimoine > 0 ||
             coachProvider.hasFullProfile);
 
+    final l = S.of(context)!;
+
     return Scaffold(
       backgroundColor: MintColors.background,
       body: CustomScrollView(
@@ -60,168 +60,85 @@ class ProfileScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Identity summary card (Moi tab hero)
+                  // ── Identity card (compact) ───────────────
                   if (coachProfile != null)
                     _buildIdentityCard(context, coachProfile),
-                  if (coachProfile != null) const SizedBox(height: 16),
-                  _buildPrecisionCard(context, precision),
+                  if (coachProfile != null) const SizedBox(height: 20),
+
+                  // ══════════════════════════════════════════
+                  //  SECTION: Mon dossier
+                  // ══════════════════════════════════════════
+                  _buildSectionHeader(l.profileSectionMyFile),
                   const SizedBox(height: 12),
+
+                  // Inline progress bar (replaces imposing black card)
+                  _buildInlineProgress(
+                    context,
+                    precision: precision,
+                    identityComplete: identityComplete,
+                    incomeComplete: incomeComplete,
+                    pensionComplete: pensionComplete,
+                    propertyComplete: propertyComplete,
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Annual refresh nudge (if stale data)
+                  if (_shouldShowAnnualRefresh(coachProvider)) ...[
+                    _buildAnnualRefreshCard(context),
+                    const SizedBox(height: 12),
+                  ],
+
+                  // Mon aperçu financier
                   _buildBilanLink(context, coachProfile != null),
                   const SizedBox(height: 12),
-                  if (precision >= 1.0) ...[
-                    const SizedBox(height: 12),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: MintColors.success.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                            color: MintColors.success.withValues(alpha: 0.3)),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.check_circle_outline,
-                              color: MintColors.success, size: 20),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              S.of(context)?.profileCompleteBanner ??
-                                  'Profil complet ! Ton coach dispose de toutes les données pour des conseils fiables.',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: MintColors.success,
-                                fontWeight: FontWeight.w600,
-                                height: 1.35,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                  if (_shouldShowAnnualRefresh(coachProvider)) ...[
-                    const SizedBox(height: 12),
-                    _buildAnnualRefreshCard(context),
-                  ],
-                  _buildProfileGuidanceCard(
-                    context,
-                    recommendedSection: recommendedSection,
-                    onboardingQuality: onboardingQuality,
-                  ),
-                  const SizedBox(height: 32),
-                  Text(
-                      S.of(context)?.profileFactFindTitle ?? 'Détails FactFind',
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 16),
+
+                  // Documents
+                  _buildDocumentsSection(context),
+                  const SizedBox(height: 12),
+
+                  // Couple / Family
                   _buildFactFindSection(
-                    title: S.of(context)?.profileSectionIdentity ??
-                        'Identité & Foyer',
-                    status: identityComplete
-                        ? (S.of(context)?.profileStatusComplete ?? 'Complet')
-                        : (S.of(context)?.profileStatusPartial ??
-                            'A completer'),
-                    isComplete: identityComplete,
-                    icon: Icons.person_outline,
-                    onTap: () =>
-                        context.push('/advisor/wizard?section=identity'),
-                  ),
-                  _buildFactFindSection(
-                    title: S.of(context)?.profileSectionIncome ??
-                        'Revenus & Épargne',
-                    status: incomeComplete
-                        ? (S.of(context)?.profileStatusComplete ?? 'Complet')
-                        : (S.of(context)?.profileStatusPartial ??
-                            'A completer'),
-                    isComplete: incomeComplete,
-                    icon: Icons.account_balance_wallet_outlined,
-                    onTap: () =>
-                        context.push('/advisor/wizard?section=income'),
-                  ),
-                  _buildFactFindSection(
-                    title: S.of(context)?.profileSectionPension ??
-                        'Prévoyance (LPP)',
-                    status: pensionComplete
-                        ? (S.of(context)?.profileStatusComplete ?? 'Complet')
-                        : (S.of(context)?.profileStatusMissing ?? 'Manquant'),
-                    isComplete: pensionComplete,
-                    icon: Icons.security_outlined,
-                    reward: pensionComplete
-                        ? null
-                        : (S.of(context)?.profileReward15 ??
-                            '+15% de précision'),
-                    onTap: () =>
-                        context.push('/advisor/wizard?section=pension'),
-                  ),
-                  _buildFactFindSection(
-                    title: S.of(context)?.profileSectionProperty ??
-                        'Immobilier & Dettes',
-                    status: propertyComplete
-                        ? (S.of(context)?.profileStatusComplete ?? 'Complet')
-                        : (S.of(context)?.profileStatusMissing ?? 'Manquant'),
-                    isComplete: propertyComplete,
-                    icon: Icons.home_outlined,
-                    reward: propertyComplete
-                        ? null
-                        : (S.of(context)?.profileReward10 ??
-                            '+10% de précision'),
-                    onTap: () =>
-                        context.push('/advisor/wizard?section=property'),
-                  ),
-                  const SizedBox(height: 32),
-                  _buildLanguageSection(context),
-                  const SizedBox(height: 32),
-                  Text(S.of(context)?.profileSecurityTitle ?? 'Sécurité & Data',
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 16),
-                  _buildFactFindSection(
-                    title: S.of(context)?.profileConsentControl ??
-                        'Contrôle des Partages',
-                    status: S.of(context)?.profileConsentManage ??
-                        'Gérer mes accès bLink',
-                    isComplete: true,
-                    icon: Icons.lock_outline,
-                    onTap: () => context.push('/profile/consent'),
-                  ),
-                  const SizedBox(height: 32),
-                  Text(
-                      S.of(context)?.profileAiTitle ??
-                          'Intelligence Artificielle',
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 16),
-                  _buildAiSection(context),
-                  const SizedBox(height: 32),
-                  Text(S.of(context)!.profileFamilySection,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 16),
-                  _buildFactFindSection(
-                    title: 'Notre menage',
+                    title: l.profileFamilySection,
                     status: 'Couple+',
                     isComplete: false,
                     icon: Icons.people_outline,
                     onTap: () => context.push('/couple'),
                   ),
-                  const SizedBox(height: 32),
-                  Text(S.of(context)?.profileDocuments ?? 'Mes documents',
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 16),
-                  _buildDocumentsSection(context),
-                  const SizedBox(height: 32),
-                  // Auth section (if logged in)
+
+                  // ══════════════════════════════════════════
+                  //  SECTION: Réglages
+                  // ══════════════════════════════════════════
+                  const SizedBox(height: 24),
+                  _buildSectionHeader(l.profileSectionSettings),
+                  const SizedBox(height: 12),
+
+                  // Language
+                  _buildLanguageSection(context),
+                  const SizedBox(height: 12),
+
+                  // AI (BYOK + SLM)
+                  _buildAiSection(context),
+                  const SizedBox(height: 12),
+
+                  // Security & Data
+                  _buildFactFindSection(
+                    title: l.profileConsentControl,
+                    status: l.profileConsentManage,
+                    isComplete: true,
+                    icon: Icons.lock_outline,
+                    onTap: () => context.push('/profile/consent'),
+                  ),
+
+                  // Account (if logged in)
                   if (authProvider.isLoggedIn) ...[
-                    Text(S.of(context)?.profileAccountTitle ?? 'Compte',
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     _buildAuthSection(context, authProvider),
-                    const SizedBox(height: 32),
                   ],
+
+                  // Danger zone
+                  const SizedBox(height: 16),
                   _buildDangerZone(context),
+                  const SizedBox(height: 80), // FAB clearance
                 ],
               ),
             ),
@@ -245,6 +162,185 @@ class ProfileScreen extends StatelessWidget {
               color: MintColors.textPrimary)),
     );
   }
+
+  // ══════════════════════════════════════════════════════════════
+  //  SECTION HEADER (clean divider with title)
+  // ══════════════════════════════════════════════════════════════
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Text(
+        title,
+        style: GoogleFonts.montserrat(
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+          color: MintColors.textMuted,
+          letterSpacing: 0.8,
+        ),
+      ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  INLINE PROGRESS (replaces the imposing black Precision Card)
+  // ══════════════════════════════════════════════════════════════
+
+  Widget _buildInlineProgress(
+    BuildContext context, {
+    required double precision,
+    required bool identityComplete,
+    required bool incomeComplete,
+    required bool pensionComplete,
+    required bool propertyComplete,
+  }) {
+    final pct = (precision * 100).toInt();
+    final l = S.of(context)!;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        children: [
+          // Progress header
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l.profileCompletionLabel,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ),
+              Text(
+                '$pct\u00a0%',
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: pct >= 80 ? MintColors.success : MintColors.primary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          // Progress bar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: precision,
+              backgroundColor: MintColors.border,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                pct >= 80 ? MintColors.success : MintColors.primary,
+              ),
+              minHeight: 6,
+            ),
+          ),
+          const SizedBox(height: 12),
+          // 4 completion rows (inline, compact)
+          _buildCompletionRow(
+            icon: Icons.person_outline,
+            label: l.profileSectionIdentity,
+            isComplete: identityComplete,
+            onTap: () => context.push('/advisor/wizard?section=identity'),
+          ),
+          _buildCompletionRow(
+            icon: Icons.account_balance_wallet_outlined,
+            label: l.profileSectionIncome,
+            isComplete: incomeComplete,
+            onTap: () => context.push('/advisor/wizard?section=income'),
+          ),
+          _buildCompletionRow(
+            icon: Icons.security_outlined,
+            label: l.profileSectionPension,
+            isComplete: pensionComplete,
+            reward: pensionComplete ? null : '+15\u00a0%',
+            onTap: () => context.push('/advisor/wizard?section=pension'),
+          ),
+          _buildCompletionRow(
+            icon: Icons.home_outlined,
+            label: l.profileSectionProperty,
+            isComplete: propertyComplete,
+            reward: propertyComplete ? null : '+10\u00a0%',
+            onTap: () => context.push('/advisor/wizard?section=property'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompletionRow({
+    required IconData icon,
+    required String label,
+    required bool isComplete,
+    String? reward,
+    VoidCallback? onTap,
+  }) {
+    return Semantics(
+      label: label,
+      button: onTap != null,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5),
+          child: Row(
+            children: [
+              Icon(icon,
+                  size: 16,
+                  color: isComplete
+                      ? MintColors.success
+                      : MintColors.textMuted),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: isComplete
+                        ? MintColors.textPrimary
+                        : MintColors.textSecondary,
+                  ),
+                ),
+              ),
+              if (isComplete)
+                const Icon(Icons.check_circle,
+                    size: 16, color: MintColors.success)
+              else if (reward != null)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: MintColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    reward,
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: MintColors.primary,
+                    ),
+                  ),
+                )
+              else
+                const Icon(Icons.chevron_right,
+                    size: 16, color: MintColors.textMuted),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  IDENTITY CARD
+  // ══════════════════════════════════════════════════════════════
 
   Widget _buildIdentityCard(BuildContext context, dynamic profile) {
     final l = S.of(context)!;
@@ -378,81 +474,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPrecisionCard(BuildContext context, double precision) {
-    final s = S.of(context);
-    final coachProfile = context.watch<CoachProfileProvider>();
-    final hasFullWizard = coachProfile.hasFullProfile;
-    final hasMini = coachProfile.hasProfile && !hasFullWizard;
-
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: MintColors.primary,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-              color: MintColors.primary.withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10))
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(s?.profilePrecisionIndex ?? 'Precision Index',
-                  style: const TextStyle(
-                      color: MintColors.white70, fontWeight: FontWeight.bold)),
-              Text('${(precision * 100).toInt()}%',
-                  style: const TextStyle(
-                      color: MintColors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const SizedBox(height: 16),
-          LinearProgressIndicator(
-            value: precision,
-            backgroundColor: MintColors.white24,
-            valueColor: const AlwaysStoppedAnimation<Color>(MintColors.white),
-            borderRadius: BorderRadius.circular(4),
-            minHeight: 8,
-          ),
-          const SizedBox(height: 16),
-          // Drill-down: show what's complete and what's missing
-          _buildPrecisionRow(
-            icon: Icons.person_outline,
-            label: s?.profileSectionIdentity ?? 'Identite & Foyer',
-            isComplete: hasMini || hasFullWizard,
-          ),
-          _buildPrecisionRow(
-            icon: Icons.account_balance_wallet_outlined,
-            label: s?.profileSectionIncome ?? 'Revenus & Epargne',
-            isComplete: hasMini || hasFullWizard,
-          ),
-          _buildPrecisionRow(
-            icon: Icons.security_outlined,
-            label: s?.profileSectionPension ?? 'Prevoyance (LPP)',
-            isComplete: hasFullWizard,
-            reward: hasFullWizard ? null : '+15%',
-            onTap: hasFullWizard
-                ? null
-                : () => context.push('/advisor/wizard?section=pension'),
-          ),
-          _buildPrecisionRow(
-            icon: Icons.home_outlined,
-            label: s?.profileSectionProperty ?? 'Immobilier & Dettes',
-            isComplete: hasFullWizard,
-            reward: hasFullWizard ? null : '+10%',
-            onTap: hasFullWizard
-                ? null
-                : () => context.push('/advisor/wizard?section=property'),
-          ),
-        ],
-      ),
-    );
-  }
+  // _buildPrecisionCard removed — replaced by _buildInlineProgress
 
   bool _shouldShowAnnualRefresh(CoachProfileProvider provider) {
     final profile = provider.profile;
@@ -514,146 +536,6 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  String _wizardSectionLabel(BuildContext context, String section) {
-    final s = S.of(context);
-    switch (section) {
-      case 'identity':
-        return s?.profileSectionIdentity ?? 'Identité & Foyer';
-      case 'income':
-        return s?.profileSectionIncome ?? 'Revenus & Épargne';
-      case 'pension':
-        return s?.profileSectionPension ?? 'Prévoyance (LPP)';
-      case 'property':
-        return s?.profileSectionProperty ?? 'Immobilier & Dettes';
-      default:
-        return s?.advisorMiniFullDiagnostic ?? 'Diagnostic complet';
-    }
-  }
-
-  Widget _buildProfileGuidanceCard(
-    BuildContext context, {
-    required String recommendedSection,
-    required int onboardingQuality,
-  }) {
-    final s = S.of(context);
-    final sectionLabel = _wizardSectionLabel(context, recommendedSection);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: MintColors.appleSurface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.radar, size: 16, color: MintColors.info),
-              const SizedBox(width: 8),
-              Text(
-                s?.profileGuidanceTitle ?? 'Section recommandée',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                '$onboardingQuality%',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.info,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            s?.profileGuidanceBody(sectionLabel) ??
-                'Complète maintenant $sectionLabel pour fiabiliser ton plan.',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.35,
-            ),
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => context.push(
-                '/advisor/wizard',
-                extra: {'section': recommendedSection},
-              ),
-              icon: const Icon(Icons.auto_awesome, size: 16),
-              label: Text(
-                s?.profileGuidanceCta(sectionLabel) ??
-                    'Compléter $sectionLabel',
-                style: GoogleFonts.inter(fontWeight: FontWeight.w700),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPrecisionRow({
-    required IconData icon,
-    required String label,
-    required bool isComplete,
-    String? reward,
-    VoidCallback? onTap,
-  }) {
-    return Semantics(
-      label: label,
-      button: onTap != null,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
-            children: [
-              Icon(icon,
-                  size: 16, color: isComplete ? MintColors.white : MintColors.white38),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(label,
-                    style: TextStyle(
-                      color: isComplete ? MintColors.white : MintColors.white54,
-                      fontSize: 13,
-                      decoration: isComplete ? TextDecoration.none : null,
-                    )),
-              ),
-              if (isComplete)
-                const Icon(Icons.check_circle, size: 16, color: MintColors.white)
-              else if (reward != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: MintColors.white24,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(reward,
-                      style: const TextStyle(
-                          color: MintColors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold)),
-                )
-              else
-                const Icon(Icons.radio_button_unchecked,
-                    size: 16, color: MintColors.white38),
-            ],
-          ),
-        ),
       ),
     );
   }
