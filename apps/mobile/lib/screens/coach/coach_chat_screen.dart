@@ -556,6 +556,50 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     return [s.coachSuggestFitness, s.coachSuggestRetirement];
   }
 
+  /// Map suggested action labels to direct navigation routes.
+  /// Returns null if the action should be sent as a chat message instead.
+  String? _routeForAction(String action) {
+    final s = S.of(context)!;
+    final routes = <String, String>{
+      // 3a
+      s.coachSuggestSimulate3a: '/pilier-3a',
+      s.coachSuggestView3a: '/pilier-3a',
+      // LPP
+      s.coachSuggestSimulateLpp: '/rachat-lpp',
+      s.coachSuggestUnderstandLpp: '/rachat-lpp',
+      // Retraite
+      s.coachSuggestTrajectory: '/retraite',
+      s.coachSuggestScenarios: '/rente-vs-capital',
+      // Fiscal
+      s.coachSuggestDeductions: '/fiscal',
+      s.coachSuggestTaxImpact: '/fiscal',
+      // Default
+      s.coachSuggestFitness: '/confidence',
+      s.coachSuggestRetirement: '/retraite',
+    };
+    if (routes.containsKey(action)) return routes[action];
+
+    // Keyword fallback for greeting prompts (suggestedPrompts)
+    final lower = action.toLowerCase();
+    if (lower.contains('retraite') || lower.contains('partir')) {
+      return '/retraite';
+    }
+    if (lower.contains('rente') || lower.contains('capital')) {
+      return '/rente-vs-capital';
+    }
+    if (lower.contains('3a') || lower.contains('pilier')) {
+      return '/pilier-3a';
+    }
+    if (lower.contains('lpp') || lower.contains('rachat')) {
+      return '/rachat-lpp';
+    }
+    if (lower.contains('impot') || lower.contains('fiscal')) {
+      return '/fiscal';
+    }
+    // No route → send as chat message
+    return null;
+  }
+
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -1001,7 +1045,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    onPressed: () => _sendMessage(action),
+                    onPressed: () {
+                      final route = _routeForAction(action);
+                      if (route != null) {
+                        context.push(route);
+                      } else {
+                        _sendMessage(action);
+                      }
+                    },
                   );
                 }).toList(),
               ),
