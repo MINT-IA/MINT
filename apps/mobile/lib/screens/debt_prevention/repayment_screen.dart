@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -75,7 +76,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
               onPressed: () => context.pop(),
             ),
             title: Text(
-              'Plan de remboursement', // TODO: i18n
+              S.of(context)!.repaymentTitle,
               style: MintTextStyles.titleMedium(),
             ),
           ),
@@ -161,7 +162,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       child: Column(
         children: [
           Text(
-            'Lib\u00e9r\u00e9 dans', // TODO: i18n
+            S.of(context)!.repaymentLibereDans,
             style: MintTextStyles.bodySmall(color: color)
                 .copyWith(fontWeight: FontWeight.w600),
           ),
@@ -199,7 +200,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Mes dettes', // TODO: i18n
+                S.of(context)!.repaymentMesDettes,
                 style: MintTextStyles.bodySmall(color: MintColors.textMuted),
               ),
               IconButton(
@@ -559,7 +560,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Budget remboursement', // TODO: i18n
+                    S.of(context)!.repaymentBudgetLabel,
                     style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                   ),
                   const SizedBox(height: 2),
@@ -583,7 +584,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Comparaison des strat\u00e9gies', // TODO: i18n
+          S.of(context)!.repaymentComparaisonStrategies,
           style: MintTextStyles.bodySmall(color: MintColors.textMuted),
         ),
         const SizedBox(height: 12),
@@ -752,7 +753,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        'Le choix d\u00e9pend de ta personnalit\u00e9 financi\u00e8re, pas seulement du co\u00fbt.', // TODO: i18n
+        S.of(context)!.repaymentStrategyNote,
         style: MintTextStyles.labelSmall(color: MintColors.textSecondary)
             .copyWith(fontStyle: FontStyle.italic),
         textAlign: TextAlign.center,
@@ -787,7 +788,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Timeline (Avalanche)', // TODO: i18n
+            S.of(context)!.repaymentTimelineTitle,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: 16),
@@ -797,18 +798,18 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             children: [
               SizedBox(
                 width: 50,
-                child: Text('Mois', // TODO: i18n
+                child: Text(S.of(context)!.repaymentTimelineMois,
                     style: MintTextStyles.labelSmall(color: MintColors.textPrimary)
                         .copyWith(fontWeight: FontWeight.bold)),
               ),
               Expanded(
-                child: Text('Paiement', // TODO: i18n
+                child: Text(S.of(context)!.repaymentTimelinePaiement,
                     style: MintTextStyles.labelSmall(color: MintColors.textPrimary)
                         .copyWith(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.right),
               ),
               Expanded(
-                child: Text('Solde restant', // TODO: i18n
+                child: Text(S.of(context)!.repaymentTimelineSolde,
                     style: MintTextStyles.labelSmall(color: MintColors.textPrimary)
                         .copyWith(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.right),

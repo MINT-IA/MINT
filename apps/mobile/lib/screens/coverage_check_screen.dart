@@ -501,7 +501,9 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
                   ),
                   const SizedBox(width: MintSpacing.sm),
                   Text(
-                    'lacune${result.lacunesCritiques > 1 ? 's' : ''} critique${result.lacunesCritiques > 1 ? 's' : ''}', // TODO: i18n
+                    result.lacunesCritiques > 1
+                        ? S.of(context)!.coverageCriticalGapPlural
+                        : S.of(context)!.coverageCriticalGapSingular,
                     style: MintTextStyles.bodySmall(color: MintColors.error)
                         .copyWith(fontWeight: FontWeight.w600),
                   ),

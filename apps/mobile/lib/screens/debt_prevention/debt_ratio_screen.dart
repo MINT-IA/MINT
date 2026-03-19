@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -62,7 +63,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
             scrolledUnderElevation: 0,
             foregroundColor: MintColors.textPrimary,
             title: Text(
-              'Diagnostic dette', // TODO: i18n
+              S.of(context)!.debtRatioTitle,
               style: MintTextStyles.titleMedium(),
             ),
           ),
@@ -166,7 +167,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(
-            'Ratio dette / revenus', // TODO: i18n
+            S.of(context)!.debtRatioSubLabel,
             style: MintTextStyles.labelSmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.md),
@@ -270,7 +271,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Affiner le diagnostic', // TODO: i18n
+                    S.of(context)!.debtRatioRefineLabel,
                     style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                   ),
                 ),
@@ -753,7 +754,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Minimum vital (LP art.\u00a093)', // TODO: i18n
+            S.of(context)!.debtRatioMinVital,
             style: MintTextStyles.bodySmall(
               color: isMenace ? MintColors.redMedium : MintColors.textMuted,
             ).copyWith(fontWeight: FontWeight.w700),
@@ -840,7 +841,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Recommandations', // TODO: i18n
+            S.of(context)!.debtRatioRecommandations,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.sm + 4),
@@ -902,8 +903,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                   children: [
                     Text(
                       isRouge
-                          ? 'Cr\u00e9e ton plan de remboursement' // TODO: i18n
-                          : 'Optimise tes remboursements', // TODO: i18n
+                          ? S.of(context)!.debtRatioCtaRouge
+                          : S.of(context)!.debtRatioCtaOrange,
                       style: MintTextStyles.bodyMedium(
                         color: isRouge ? MintColors.redDark : MintColors.deepOrange,
                       ).copyWith(fontWeight: FontWeight.w700),
@@ -950,7 +951,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               const Icon(Icons.support_agent, color: MintColors.redMedium, size: 24),
               const SizedBox(width: 12),
               Text(
-                'Aide professionnelle', // TODO: i18n
+                S.of(context)!.debtRatioAidePro,
                 style: MintTextStyles.bodyMedium(color: MintColors.redDark)
                     .copyWith(fontWeight: FontWeight.w700),
               ),
