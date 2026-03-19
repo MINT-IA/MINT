@@ -344,7 +344,7 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildIdentityCard(BuildContext context, dynamic profile) {
     final l = S.of(context)!;
-    final name = profile.firstName ?? 'Utilisateur';
+    final name = profile.firstName ?? l.profileDefaultName;
     final age = profile.age;
     final canton = profile.canton as String;
     final status = profile.employmentStatus as String;
@@ -387,7 +387,7 @@ class ProfileScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      age != null ? '$name, $age ans' : name,
+                      age != null ? l.profileNameAge(name, age) : name,
                       style: GoogleFonts.montserrat(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -412,7 +412,7 @@ class ProfileScreen extends StatelessWidget {
                     size: 18, color: MintColors.textMuted),
                 onPressed: () =>
                     context.push('/onboarding/quick?section=identity'),
-                tooltip: 'Modifier',
+                tooltip: l.commonEdit,
               ),
             ],
           ),
@@ -423,7 +423,7 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildBilanLink(BuildContext context, bool hasProfile) {
     return Semantics(
-      label: 'Mon aperçu financier',
+      label: S.of(context)!.profileBilanTitle,
       button: true,
       child: InkWell(
         onTap: () => context.push('/profile/bilan'),
@@ -446,7 +446,7 @@ class ProfileScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Mon aperçu financier',
+                    S.of(context)!.profileBilanTitle,
                     style: GoogleFonts.montserrat(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -456,8 +456,8 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     hasProfile
-                        ? 'Revenus, prévoyance, patrimoine, dettes'
-                        : 'Complète ton profil pour voir tes chiffres',
+                        ? S.of(context)!.profileBilanSubtitleComplete
+                        : S.of(context)!.profileBilanSubtitleIncomplete,
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: MintColors.white70,
@@ -486,7 +486,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildAnnualRefreshCard(BuildContext context) {
-    final s = S.of(context);
+    final l = S.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
@@ -504,7 +504,7 @@ class ProfileScreen extends StatelessWidget {
                   size: 16, color: MintColors.warning),
               const SizedBox(width: 8),
               Text(
-                s?.profileAnnualRefreshTitle ?? 'Mise à jour annuelle',
+                l.profileAnnualRefreshTitle,
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -515,8 +515,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            s?.profileAnnualRefreshBody ??
-                'Tes données datent de plus de 10 mois. Un check-up rapide (2 min) fiabilise ton plan.',
+            l.profileAnnualRefreshBody,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -530,7 +529,7 @@ class ProfileScreen extends StatelessWidget {
               onPressed: () => context.push('/coach/refresh'),
               icon: const Icon(Icons.refresh, size: 16),
               label: Text(
-                s?.profileAnnualRefreshCta ?? 'Lancer le check-up',
+                l.profileAnnualRefreshCta,
                 style: GoogleFonts.inter(fontWeight: FontWeight.w700),
               ),
             ),
@@ -609,14 +608,14 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildAiSection(BuildContext context) {
     final byok = context.watch<ByokProvider>();
-    final s = S.of(context);
+    final l = S.of(context)!;
     return Column(
       children: [
         _buildFactFindSection(
-          title: s?.profileAiByok ?? 'Ask MINT (BYOK)',
+          title: l.profileAiByok,
           status: byok.isConfigured
-              ? '${byok.providerLabel} \u2014 ${s?.profileAiConfigured ?? 'Configur\u00e9'}'
-              : (s?.profileAiNotConfigured ?? 'Non configur\u00e9'),
+              ? '${byok.providerLabel} \u2014 ${l.profileAiConfigured}'
+              : l.profileAiNotConfigured,
           isComplete: byok.isConfigured,
           icon: Icons.auto_awesome,
           onTap: () => context.push('/profile/byok'),
@@ -625,10 +624,10 @@ class ProfileScreen extends StatelessWidget {
         Builder(builder: (context) {
           final slm = context.watch<SlmProvider>();
           return _buildFactFindSection(
-            title: 'IA on-device (SLM)',
+            title: l.profileSlmTitle,
             status: slm.isEngineAvailable
-                ? 'Mod\u00e8le pr\u00eat'
-                : 'Mod\u00e8le non install\u00e9',
+                ? l.profileSlmReady
+                : l.profileSlmNotInstalled,
             isComplete: slm.isEngineAvailable,
             icon: Icons.smartphone,
             onTap: () => context.push('/profile/slm'),
@@ -640,13 +639,13 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildDocumentsSection(BuildContext context) {
     final docProvider = context.watch<DocumentProvider>();
-    final s = S.of(context);
+    final l = S.of(context)!;
     final count = docProvider.documentCount;
     final statusText = count > 0
-        ? '$count document(s)'
-        : (s?.documentsEmpty ?? 'Aucun document');
+        ? l.profileDocCount(count)
+        : l.documentsEmpty;
     return _buildFactFindSection(
-      title: s?.profileDocuments ?? 'Mes documents',
+      title: l.profileDocuments,
       status: statusText,
       isComplete: count > 0,
       icon: Icons.description_outlined,
@@ -677,7 +676,7 @@ class ProfileScreen extends StatelessWidget {
                     Text(
                       authProvider.displayName ??
                           authProvider.email ??
-                          (S.of(context)?.profileUser ?? 'Utilisateur'),
+                          S.of(context)!.profileUser,
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 16),
                     ),
@@ -703,7 +702,7 @@ class ProfileScreen extends StatelessWidget {
               }
             },
             icon: const Icon(Icons.logout, size: 18),
-            label: Text(S.of(context)?.authLogout ?? 'Se déconnecter'),
+            label: Text(S.of(context)!.authLogout),
             style: TextButton.styleFrom(
               foregroundColor: MintColors.error,
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -773,10 +772,11 @@ class ProfileScreen extends StatelessWidget {
     final success = await authProvider.deleteAccount();
     if (!context.mounted) return;
 
+    final s = S.of(context);
     final message = success
-        ? 'Compte supprimé avec succès.'
+        ? (s?.profileDeleteAccountSuccess ?? 'Compte supprimé avec succès.')
         : (authProvider.error ??
-            'Suppression impossible pour le moment. Réessaie plus tard.');
+            (s?.profileDeleteAccountError ?? 'Suppression impossible pour le moment. Réessaie plus tard.'));
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
     if (success) {
@@ -797,7 +797,7 @@ class ProfileScreen extends StatelessWidget {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
         Semantics(
-          label: 'Changer la langue: $name',
+          label: '${S.of(context)?.profileChangeLanguage ?? 'Changer la langue'}: $name',
           button: true,
           child: InkWell(
             borderRadius: BorderRadius.circular(16),
@@ -839,20 +839,19 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildDangerZone(BuildContext context) {
-    final s = S.of(context);
+    final l = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Divider(),
         const SizedBox(height: 16),
         Text(
-          s?.profileDangerZoneTitle ?? 'Zone sensible',
+          l.profileDangerZoneTitle,
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Text(
-          s?.profileDangerZoneSubtitle ??
-              'Réinitialise ton historique financier local sans supprimer ton compte.',
+          l.profileDangerZoneSubtitle,
           style: const TextStyle(fontSize: 12, color: MintColors.textMuted),
         ),
         const SizedBox(height: 12),
@@ -878,30 +877,20 @@ class ProfileScreen extends StatelessWidget {
 
             if (!context.mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  s?.profileResetSuccess ??
-                      'Historique financier local réinitialisé.',
-                ),
-              ),
+              SnackBar(content: Text(l.profileResetSuccess)),
             );
             if (!context.mounted) return;
             if (kIsWeb) {
-              // On web, navigate to onboarding so the user sees a clean slate.
-              // loadFromWizard() above already confirmed _profile = null.
               context.go('/onboarding/quick');
             } else {
               context.go('/');
             }
           },
           style: TextButton.styleFrom(foregroundColor: MintColors.error),
-          child: Text(
-            s?.profileDeleteData ?? 'Supprimer mes données locales',
-          ),
+          child: Text(l.profileDeleteData),
         ),
         Text(
-          s?.profileResetScopeNote ??
-              'Conserve la connexion et la clé BYOK. Les documents backend ne sont pas supprimés.',
+          l.profileResetScopeNote,
           style: const TextStyle(fontSize: 11, color: MintColors.textMuted),
         ),
       ],

@@ -6039,5 +6039,26 @@
   "coachTitle": "MINT Coach",
   "coachFallbackName": "Freund·in",
   "coachUserMessage": "Deine Nachricht",
-  "coachCoachMessage": "Coach-Antwort"
+  "coachCoachMessage": "Coach-Antwort",
+  "profileDefaultName": "Benutzer",
+  "profileNameAge": "{name}, {age} Jahre",
+  "@profileNameAge": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "age": {"type": "int"}
+    }
+  },
+  "commonEdit": "Bearbeiten",
+  "profileSlmTitle": "On-Device-KI (SLM)",
+  "profileSlmReady": "Modell bereit",
+  "profileSlmNotInstalled": "Modell nicht installiert",
+  "profileDeleteAccountSuccess": "Konto erfolgreich gelöscht.",
+  "profileDeleteAccountError": "Löschung momentan nicht möglich. Versuche es später erneut.",
+  "profileChangeLanguage": "Sprache ändern",
+  "profileDocCount": "{count} Dokument(e)",
+  "@profileDocCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  }
 }

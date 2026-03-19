@@ -211,7 +211,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'saron_vs_fixed',
         title: 'SARON vs taux fixe',
-        subtitle: 'Quel type d\'hypotheque choisir',
+        subtitle: 'Quel type d\'hypoth\u00e8que choisir',
         route: '/mortgage/saron-vs-fixed',
         sources: ['FINMA circ.', 'ASB directives'],
       ));
@@ -230,8 +230,8 @@ class ResponseCardService {
         lower.contains('appartement') || lower.contains('immob'))) {
       cards.add(_buildSimpleCard(
         id: 'housing_sale',
-        title: 'Vente immobiliere',
-        subtitle: 'Impot sur le gain immobilier + remploi',
+        title: 'Vente immobili\u00e8re',
+        subtitle: 'Imp\u00f4t sur le gain immobilier + remploi',
         route: '/life-event/housing-sale',
         sources: ['LHID art. 12'],
       ));
@@ -242,7 +242,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'mariage',
         title: 'Impact du mariage',
-        subtitle: 'Impots, AVS, LPP, succession',
+        subtitle: 'Imp\u00f4ts, AVS, LPP, succession',
         route: '/mariage',
         sources: ['CC art. 159', 'LAVS art. 35'],
       ));
@@ -261,7 +261,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'naissance',
         title: 'Impact d\'une naissance',
-        subtitle: 'Allocations, deductions, budget',
+        subtitle: 'Allocations, d\u00e9ductions, budget',
         route: '/naissance',
         sources: ['LAFam art. 3', 'LIFD art. 35'],
       ));
@@ -318,7 +318,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'first_job',
         title: 'Premier emploi',
-        subtitle: 'Tout comprendre des le depart',
+        subtitle: 'Tout comprendre d\u00e8s le d\u00e9part',
         route: '/first-job',
         sources: ['LAVS art. 3', 'LPP art. 7'],
       ));
@@ -338,7 +338,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'frontalier',
         title: 'Frontalier',
-        subtitle: 'Impot source et particularites',
+        subtitle: 'Imp\u00f4t source et particularit\u00e9s',
         route: '/segments/frontalier',
         sources: ['CDI CH-FR art. 17', 'LIFD art. 83-101'],
       ));
@@ -349,7 +349,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'job_comparison',
         title: 'Comparateur d\'offres',
-        subtitle: 'Compare deux offres d\'emploi (net + prevoyance)',
+        subtitle: 'Compare deux offres d\'emploi (net + pr\u00e9voyance)',
         route: '/simulator/job-comparison',
         sources: ['CO art. 319ss'],
       ));
@@ -359,7 +359,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'dividende_vs_salaire',
         title: 'Dividende vs Salaire',
-        subtitle: 'Optimiser la remuneration en SARL/SA',
+        subtitle: 'Optimiser la r\u00e9mun\u00e9ration en SARL/SA',
         route: '/independants/dividende-salaire',
         sources: ['LIFD art. 20', 'LAVS art. 4'],
       ));
@@ -371,7 +371,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'lamal_franchise',
         title: 'Franchise LAMal',
-        subtitle: 'Quelle franchise choisir ?',
+        subtitle: 'Quelle franchise choisir\u00a0?',
         route: '/assurances/lamal',
         sources: ['LAMal art. 64', 'OAMal art. 103'],
       ));
@@ -382,7 +382,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'coverage_check',
         title: 'Check de couverture',
-        subtitle: 'Verifier tes couvertures',
+        subtitle: 'V\u00e9rifier tes couvertures',
         route: '/assurances/coverage',
         sources: ['LAMal', 'LCA'],
       ));
@@ -391,7 +391,7 @@ class ResponseCardService {
         lower.contains('accident')) {
       cards.add(_buildSimpleCard(
         id: 'disability',
-        title: 'Invalidite — lacune de revenu',
+        title: 'Invalidit\u00e9 \u2014 lacune de revenu',
         subtitle: 'Gap entre revenu actuel et rentes AI/LPP',
         route: '/invalidite',
         sources: ['LAI art. 28-28a', 'LPP art. 23-26'],
@@ -401,7 +401,7 @@ class ResponseCardService {
         lower.contains('femme')) {
       cards.add(_buildSimpleCard(
         id: 'gender_gap',
-        title: 'Ecart femmes/hommes',
+        title: '\u00c9cart femmes/hommes',
         subtitle: 'Impact du temps partiel sur la retraite',
         route: '/segments/gender-gap',
         sources: ['LAVS art. 29', 'LPP art. 7-8'],
@@ -439,8 +439,8 @@ class ResponseCardService {
         lower.contains('combien rapport')) {
       cards.add(_buildSimpleCard(
         id: 'compound_interest',
-        title: 'Interets composes',
-        subtitle: 'Simuler la croissance de ton epargne',
+        title: 'Int\u00e9r\u00eats compos\u00e9s',
+        subtitle: 'Simuler la croissance de ton \u00e9pargne',
         route: '/simulator/compound',
         sources: [],
       ));
@@ -468,7 +468,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'allocation_annuelle',
         title: 'Allocation annuelle',
-        subtitle: 'Ou placer ton epargne cette annee',
+        subtitle: 'O\u00f9 placer ton \u00e9pargne cette ann\u00e9e',
         route: '/arbitrage/allocation-annuelle',
         sources: ['LSFin art. 3'],
       ));
@@ -481,7 +481,7 @@ class ResponseCardService {
   }
 
   /// Suggested prompts personnalises selon le profil.
-  /// Un 50+ voit "Quand partir a la retraite?" au lieu de "Mon score Fitness".
+  /// Un 50+ voit "Quand partir \u00e0 la retraite\u00a0?" au lieu de "Mon score Fitness".
   static List<String> suggestedPrompts(CoachProfile profile) {
     final age = profile.age;
     final isIndep = profile.employmentStatus == 'independant';
@@ -492,12 +492,12 @@ class ResponseCardService {
 
     // Age-driven priorities
     if (age >= 50) {
-      prompts.add('Quand partir a la retraite ?');
-      prompts.add('Rente ou capital : que choisir ?');
+      prompts.add('Quand partir \u00e0 la retraite\u00a0?');
+      prompts.add('Rente ou capital\u00a0: que choisir\u00a0?');
       if (!hasLpp) prompts.add('Combien racheter en LPP ?');
     } else if (age >= 35) {
       prompts.add('Comment r\u00e9duire mes imp\u00f4ts\u00a0?');
-      prompts.add('Combien verser en 3a cette annee ?');
+      prompts.add('Combien verser en 3a cette ann\u00e9e\u00a0?');
       if (!hasLpp) prompts.add('Simuler un rachat LPP');
     } else {
       prompts.add('Pourquoi commencer le 3a maintenant ?');
@@ -506,10 +506,10 @@ class ResponseCardService {
 
     // Archetype-driven
     if (isIndep) {
-      prompts.add('Quelles options de prevoyance pour independant ?');
+      prompts.add('Quelles options de pr\u00e9voyance pour ind\u00e9pendant\u00a0?');
     }
     if (isCouple) {
-      prompts.add('Comment coordonner notre prevoyance de couple ?');
+      prompts.add('Comment coordonner notre pr\u00e9voyance de couple\u00a0?');
     }
     if (profile.archetype == FinancialArchetype.expatUs) {
       prompts.add('Quelles contraintes FATCA sur mon 3a ?');
@@ -678,7 +678,7 @@ class ResponseCardService {
       id: 'avs_gap',
       type: ResponseCardType.avsGap,
       title: 'Lacune AVS',
-      subtitle: '$lacunes annees de cotisation manquantes',
+      subtitle: '$lacunes ann\u00e9es de cotisation manquantes',
       chiffreChoc: ChiffreChoc(
         value: monthlyLoss * 12,
         unit: 'CHF/an',
@@ -712,14 +712,14 @@ class ResponseCardService {
     return ResponseCard(
       id: 'couple_alert',
       type: ResponseCardType.coupleAlert,
-      title: 'Ecart de visibilite couple',
-      subtitle: '${score.coupleWeakName} a ${score.coupleWeakScore!.round()}%',
+      title: '\u00c9cart de visibilit\u00e9 couple',
+      subtitle: '${score.coupleWeakName} \u00e0 ${score.coupleWeakScore!.round()}\u00a0%',
       chiffreChoc: ChiffreChoc(
         value: gap,
         unit: 'pts',
         explanation:
-            'Ecart de ${gap.round()} points entre vos deux profils. '
-            'Equilibrer ameliore la projection couple.',
+            '\u00c9cart de ${gap.round()} points entre vos deux profils. '
+            '\u00c9quilibrer am\u00e9liore la projection couple.',
       ),
       cta: const CardCta(
         label: 'Enrichir le profil couple',
@@ -745,8 +745,8 @@ class ResponseCardService {
     return ResponseCard(
       id: 'independant_coverage',
       type: ResponseCardType.independant,
-      title: 'Prevoyance independant',
-      subtitle: 'Sans LPP, ton 3a est ta prevoyance principale',
+      title: 'Pr\u00e9voyance ind\u00e9pendant',
+      subtitle: 'Sans LPP, ton 3a est ta pr\u00e9voyance principale',
       chiffreChoc: ChiffreChoc(
         value: max3a,
         unit: 'CHF/an',
@@ -799,7 +799,7 @@ class ResponseCardService {
             '+ rachat LPP',
       ),
       cta: const CardCta(
-        label: 'Decouvrir mes deductions',
+        label: 'D\u00e9couvrir mes d\u00e9ductions',
         route: '/fiscal',
         icon: 'receipt_long',
       ),
@@ -830,15 +830,15 @@ class ResponseCardService {
       type: ResponseCardType.patrimoine,
       title: 'Patrimoine',
       subtitle: isUnderCushion
-          ? 'Coussin de securite insuffisant'
+          ? 'Coussin de s\u00e9curit\u00e9 insuffisant'
           : 'Vue d\'ensemble',
       chiffreChoc: ChiffreChoc(
         value: total,
         unit: 'CHF',
         explanation: isUnderCushion
             ? '\u00c9pargne liquide (${epargne.round()} CHF) inf\u00e9rieure '
-                'a 3 mois de charges (${coussinMin.round()} CHF)'
-            : 'Epargne ${epargne.round()} CHF + '
+                '\u00e0 3 mois de charges (${coussinMin.round()} CHF)'
+            : '\u00c9pargne ${epargne.round()} CHF + '
                 'investissements ${investissements.round()} CHF',
       ),
       cta: CardCta(
@@ -899,16 +899,16 @@ class ResponseCardService {
     return ResponseCard(
       id: 'mortgage_overview',
       type: ResponseCardType.mortgage,
-      title: 'Hypotheque',
-      subtitle: 'Ratio LTV: ${ltv.toStringAsFixed(0)}%',
+      title: 'Hypoth\u00e8que',
+      subtitle: 'Ratio LTV\u00a0: ${ltv.toStringAsFixed(0)}\u00a0%',
       chiffreChoc: ChiffreChoc(
         value: mortgage,
         unit: 'CHF',
-        explanation: 'Solde hypothecaire. Valeur du bien: '
+        explanation: 'Solde hypoth\u00e9caire. Valeur du bien\u00a0: '
             '${propertyValue.round()} CHF',
       ),
       cta: const CardCta(
-        label: 'Simuler la capacite',
+        label: 'Simuler la capacit\u00e9',
         route: '/hypotheque',
         icon: 'home',
       ),

@@ -6283,5 +6283,26 @@
   "coachTitle": "Coach MINT",
   "coachFallbackName": "ami·e",
   "coachUserMessage": "Ton message",
-  "coachCoachMessage": "Réponse du coach"
+  "coachCoachMessage": "Réponse du coach",
+  "profileDefaultName": "Utilisateur",
+  "profileNameAge": "{name}, {age} ans",
+  "@profileNameAge": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "age": {"type": "int"}
+    }
+  },
+  "commonEdit": "Modifier",
+  "profileSlmTitle": "IA on-device (SLM)",
+  "profileSlmReady": "Modèle prêt",
+  "profileSlmNotInstalled": "Modèle non installé",
+  "profileDeleteAccountSuccess": "Compte supprimé avec succès.",
+  "profileDeleteAccountError": "Suppression impossible pour le moment. Réessaie plus tard.",
+  "profileChangeLanguage": "Changer la langue",
+  "profileDocCount": "{count} document(s)",
+  "@profileDocCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  }
 }

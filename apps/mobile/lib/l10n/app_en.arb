@@ -6068,5 +6068,26 @@
   "coachTitle": "MINT Coach",
   "coachFallbackName": "friend",
   "coachUserMessage": "Your message",
-  "coachCoachMessage": "Coach response"
+  "coachCoachMessage": "Coach response",
+  "profileDefaultName": "User",
+  "profileNameAge": "{name}, {age} years",
+  "@profileNameAge": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "age": {"type": "int"}
+    }
+  },
+  "commonEdit": "Edit",
+  "profileSlmTitle": "On-device AI (SLM)",
+  "profileSlmReady": "Model ready",
+  "profileSlmNotInstalled": "Model not installed",
+  "profileDeleteAccountSuccess": "Account successfully deleted.",
+  "profileDeleteAccountError": "Deletion not possible at the moment. Try again later.",
+  "profileChangeLanguage": "Change language",
+  "profileDocCount": "{count} document(s)",
+  "@profileDocCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  }
 }

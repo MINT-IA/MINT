@@ -6025,5 +6025,26 @@
   "coachTitle": "Coach MINT",
   "coachFallbackName": "amigo/a",
   "coachUserMessage": "Tu mensaje",
-  "coachCoachMessage": "Respuesta del coach"
+  "coachCoachMessage": "Respuesta del coach",
+  "profileDefaultName": "Usuario",
+  "profileNameAge": "{name}, {age} años",
+  "@profileNameAge": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "age": {"type": "int"}
+    }
+  },
+  "commonEdit": "Editar",
+  "profileSlmTitle": "IA en dispositivo (SLM)",
+  "profileSlmReady": "Modelo listo",
+  "profileSlmNotInstalled": "Modelo no instalado",
+  "profileDeleteAccountSuccess": "Cuenta eliminada con éxito.",
+  "profileDeleteAccountError": "Eliminación imposible por el momento. Inténtalo más tarde.",
+  "profileChangeLanguage": "Cambiar idioma",
+  "profileDocCount": "{count} documento(s)",
+  "@profileDocCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  }
 }
