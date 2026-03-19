@@ -1,47 +1,72 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 
 // ────────────────────────────────────────────────────────────
-//  RESPONSE CARD WIDGET — Phase 1 / Dynamic Cards
+//  RESPONSE CARD WIDGET — V2 "Calm Narrative"
 // ────────────────────────────────────────────────────────────
 //
-//  Rendu unifie pour les cartes coach.
-//  Utilise dans PulseScreen et CoachChatScreen.
+//  Principles (MINT_UX_GRAAL_MASTERPLAN.md §9 + §12):
+//  - Narrative first, proof accessible, action ensuite
+//  - 1 chiffre, 1 phrase, 1 CTA — lisible en 3 secondes
+//  - Aucun diagnostic negatif sans levier
+//  - Sources/alertes en panneau secondaire, pas exposes de force
+//  - Tokens MintTextStyles, MintSpacing, MintColors uniquement
 //
-//  Layout :
-//  ┌──────────────────────────────────────┐
-//  │ [icon]  Titre              [badge]  │
-//  │         Sous-titre                  │
-//  │                                      │
-//  │  ╔═══════════════╗                  │
-//  │  ║ CHF 34'200    ║  ← chiffre-choc │
-//  │  ║ impact estime ║                  │
-//  │  ╚═══════════════╝                  │
-//  │                                      │
-//  │  [CTA button]              [source] │
-//  └──────────────────────────────────────┘
+//  3 variantes:
+//  - chat:    inline dans le coach, compact, cliquable
+//  - sheet:   bottom sheet ou surface large, chiffre visible
+//  - compact: minimal, titre + CTA seulement
 //
-//  Aucun terme banni. CTA educatifs uniquement.
+//  Removed from V1:
+//  - bordure gauche coloree
+//  - badge "+X pts"
+//  - largeur fixe 280
+//  - GoogleFonts ad hoc
+//  - source inline permanente
+//  - alerte inline orange
 // ────────────────────────────────────────────────────────────
 
-/// Widget individuel pour une ResponseCard.
+/// Visual variant for ResponseCardWidget.
+enum ResponseCardVariant {
+  /// Inline in coach chat — compact narrative card.
+  chat,
+
+  /// Full surface — chiffre-choc visible, proof accessible.
+  sheet,
+
+  /// Minimal — title + subtitle + CTA only.
+  compact,
+}
+
+/// Widget for a single ResponseCard.
 ///
-/// Supporte un mode [compact] (sans chiffre-choc) pour le chat inline.
+/// State-of-the-art: Cleo-inspired calm narrative card.
+/// Narrative → chiffre → CTA. Proof on demand.
 class ResponseCardWidget extends StatelessWidget {
   final ResponseCard card;
+  final ResponseCardVariant variant;
 
-  /// Si true, affiche une version compacte (sans chiffre-choc).
-  /// Utilise dans le chat inline.
-  final bool compact;
+  /// Callback when CTA is tapped. Defaults to GoRouter push.
+  final VoidCallback? onCtaTap;
 
   const ResponseCardWidget({
     super.key,
     required this.card,
-    this.compact = false,
+    this.variant = ResponseCardVariant.sheet,
+    this.onCtaTap,
   });
+
+  /// Shortcut constructors
+  const ResponseCardWidget.chat({super.key, required this.card, this.onCtaTap})
+      : variant = ResponseCardVariant.chat;
+
+  const ResponseCardWidget.compact(
+      {super.key, required this.card, this.onCtaTap})
+      : variant = ResponseCardVariant.compact;
 
   @override
   Widget build(BuildContext context) {
@@ -49,325 +74,489 @@ class ResponseCardWidget extends StatelessWidget {
       button: true,
       label: '${card.title} — ${card.subtitle}',
       child: GestureDetector(
-      onTap: () => context.push(card.cta.route),
-      child: Container(
-        width: compact ? null : 280,
-        padding: const EdgeInsets.all(16),
-        margin: compact ? EdgeInsets.zero : const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: MintColors.card,
-          borderRadius: BorderRadius.circular(16),
-          border: Border(
-            left: BorderSide(
-              color: card.borderColor,
-              width: 3,
-            ),
+        onTap: () => _handleTap(context),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          padding: EdgeInsets.all(
+            variant == ResponseCardVariant.compact
+                ? MintSpacing.sm + 4
+                : MintSpacing.md,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: MintColors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // ── Header : icon + titre + badge ──────────
-            _buildHeader(),
-            const SizedBox(height: 6),
-
-            // ── Sous-titre ────────────────────────────
-            Text(
-              card.subtitle,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.4,
+          decoration: BoxDecoration(
+            color: MintColors.card,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: MintColors.black.withValues(alpha: 0.03),
+                blurRadius: 12,
+                offset: const Offset(0, 2),
               ),
-              maxLines: compact ? 2 : 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-
-            // ── Chiffre-choc (mode normal uniquement, skip if value=0) ─
-            if (!compact && card.chiffreChoc.value != 0) ...[
-              const SizedBox(height: 8),
-              _buildChiffreChoc(),
             ],
+          ),
+          child: _buildContent(context),
+        ),
+      ),
+    );
+  }
 
-            // ── Explanation ─────────────────────────────
-            if (!compact && card.chiffreChoc.explanation.isNotEmpty) ...[
-              const SizedBox(height: 4),
+  Widget _buildContent(BuildContext context) {
+    switch (variant) {
+      case ResponseCardVariant.compact:
+        return _buildCompact(context);
+      case ResponseCardVariant.chat:
+        return _buildChat(context);
+      case ResponseCardVariant.sheet:
+        return _buildSheet(context);
+    }
+  }
+
+  // ── COMPACT: titre + CTA chevron ──────────────────────────
+
+  Widget _buildCompact(BuildContext context) {
+    return Row(
+      children: [
+        _buildIcon(size: 32),
+        const SizedBox(width: MintSpacing.sm + 4),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
               Text(
-                card.chiffreChoc.explanation,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                  height: 1.4,
+                card.title,
+                style: MintTextStyles.titleMedium(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (card.subtitle.isNotEmpty)
+                Text(
+                  card.subtitle,
+                  style: MintTextStyles.bodySmall(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
+            ],
+          ),
+        ),
+        const SizedBox(width: MintSpacing.sm),
+        const Icon(
+          Icons.chevron_right_rounded,
+          color: MintColors.textMuted,
+          size: 20,
+        ),
+      ],
+    );
+  }
+
+  // ── CHAT: narrative card for coach inline ─────────────────
+
+  Widget _buildChat(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Title row
+        Row(
+          children: [
+            _buildIcon(size: 28),
+            const SizedBox(width: MintSpacing.sm),
+            Expanded(
+              child: Text(
+                card.title,
+                style: MintTextStyles.titleMedium(),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
+            ),
+            if (_hasDeadline) _buildDeadlinePill(),
+          ],
+        ),
+        const SizedBox(height: MintSpacing.sm),
+
+        // Subtitle / narrative
+        Text(
+          card.subtitle,
+          style: MintTextStyles.bodyMedium(),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+
+        // Chiffre-choc (if meaningful)
+        if (_hasChiffreChoc) ...[
+          const SizedBox(height: MintSpacing.sm + 4),
+          Text(
+            card.chiffreChoc.formatted,
+            style: MintTextStyles.displayMedium(
+              color: MintColors.textPrimary,
+            ).copyWith(fontSize: 22),
+          ),
+        ],
+
+        const SizedBox(height: MintSpacing.md),
+
+        // CTA
+        _buildCta(context),
+      ],
+    );
+  }
+
+  // ── SHEET: full surface with proof layer ──────────────────
+
+  Widget _buildSheet(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Header: icon + title + deadline
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildIcon(size: 36),
+            const SizedBox(width: MintSpacing.sm + 4),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    card.title,
+                    style: MintTextStyles.titleMedium(),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    card.subtitle,
+                    style: MintTextStyles.bodySmall(),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            if (_hasDeadline) ...[
+              const SizedBox(width: MintSpacing.sm),
+              _buildDeadlinePill(),
+            ],
+          ],
+        ),
+
+        // Chiffre-choc hero
+        if (_hasChiffreChoc) ...[
+          const SizedBox(height: MintSpacing.md + 4),
+          Text(
+            card.chiffreChoc.formatted,
+            style: MintTextStyles.displayMedium(
+              color: MintColors.textPrimary,
+            ),
+          ),
+          if (card.chiffreChoc.explanation.isNotEmpty) ...[
+            const SizedBox(height: MintSpacing.xs),
+            Text(
+              card.chiffreChoc.explanation,
+              style: MintTextStyles.bodySmall(),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ],
+
+        const SizedBox(height: MintSpacing.md + 4),
+
+        // CTA + proof access
+        Row(
+          children: [
+            Expanded(child: _buildCta(context)),
+            if (_hasProof) ...[
+              const SizedBox(width: MintSpacing.sm),
+              _buildProofButton(context),
+            ],
+          ],
+        ),
+      ],
+    );
+  }
+
+  // ── SHARED COMPONENTS ─────────────────────────────────────
+
+  Widget _buildIcon({required double size}) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: MintColors.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(size * 0.28),
+      ),
+      child: Icon(
+        card.icon ?? _typeIcon,
+        size: size * 0.5,
+        color: MintColors.primary,
+      ),
+    );
+  }
+
+  Widget _buildDeadlinePill() {
+    final badge = card.deadlineBadge;
+    if (badge == null) return const SizedBox.shrink();
+
+    final isUrgent = card.urgency == CardUrgency.high;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: isUrgent
+            ? MintColors.error.withValues(alpha: 0.08)
+            : MintColors.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.schedule_rounded,
+            size: 12,
+            color: isUrgent ? MintColors.error : MintColors.primary,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            badge,
+            style: MintTextStyles.labelSmall(
+              color: isUrgent ? MintColors.error : MintColors.primary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCta(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: card.cta.label,
+      child: GestureDetector(
+        onTap: () => _handleTap(context),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: MintSpacing.md,
+            vertical: MintSpacing.sm + 2,
+          ),
+          decoration: BoxDecoration(
+            color: MintColors.primary,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
+                  card.cta.label,
+                  style: MintTextStyles.bodySmall(color: MintColors.white)
+                      .copyWith(fontWeight: FontWeight.w600),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 6),
+              const Icon(
+                Icons.arrow_forward_rounded,
+                size: 14,
+                color: MintColors.white,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// "Proof accessible" button — opens sources + alertes in a bottom sheet.
+  /// Narrative first, proof on demand (MINT_UX_GRAAL_MASTERPLAN §9).
+  Widget _buildProofButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showProofSheet(context),
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.sm + 2),
+        decoration: BoxDecoration(
+          color: MintColors.surfaceLight,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Icon(
+          Icons.info_outline_rounded,
+          size: 18,
+          color: MintColors.textMuted,
+        ),
+      ),
+    );
+  }
+
+  void _showProofSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Drag handle
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: MintColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: MintSpacing.md),
+
+            Text(card.title, style: MintTextStyles.titleMedium()),
+            const SizedBox(height: MintSpacing.md),
+
+            // Sources
+            if (card.sources.isNotEmpty) ...[
+              Text('Sources', style: MintTextStyles.bodySmall()),
+              const SizedBox(height: MintSpacing.xs),
+              ...card.sources.map(
+                (s) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(s, style: MintTextStyles.micro()),
+                ),
+              ),
+              const SizedBox(height: MintSpacing.md),
             ],
 
-            // ── Alertes ─────────────────────────────────
-            if (!compact && card.alertes.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: MintColors.warning.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.warning_amber_rounded,
-                        size: 14,
-                        color: MintColors.warning.withValues(alpha: 0.8)),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        card.alertes.first,
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: MintColors.warning,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+            // Alertes
+            if (card.alertes.isNotEmpty) ...[
+              ...card.alertes.map(
+                (a) => Container(
+                  margin: const EdgeInsets.only(bottom: MintSpacing.sm),
+                  padding: const EdgeInsets.all(MintSpacing.sm + 4),
+                  decoration: BoxDecoration(
+                    color: MintColors.warning.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.info_outline_rounded,
+                        size: 16,
+                        color: MintColors.warning.withValues(alpha: 0.7),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: MintSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          a,
+                          style: MintTextStyles.bodySmall(
+                            color: MintColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
 
-            // ── Footer : CTA + source ─────────────────
-            const SizedBox(height: 12),
-            _buildFooter(context),
+            // Disclaimer
+            if (card.disclaimer.isNotEmpty) ...[
+              const SizedBox(height: MintSpacing.sm),
+              Text(card.disclaimer, style: MintTextStyles.micro()),
+            ],
+
+            const SizedBox(height: MintSpacing.md),
           ],
         ),
       ),
-    ),
     );
   }
 
-  Widget _buildHeader() {
-    return Row(
-      children: [
-        // Type icon
-        Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: card.badgeColor,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(
-            card.icon ?? _typeIcon,
-            size: 18,
-            color: card.borderColor,
-          ),
-        ),
-        const SizedBox(width: 10),
-
-        // Title
-        Expanded(
-          child: Text(
-            card.title,
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-
-        // Deadline badge
-        if (card.deadlineBadge != null)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: card.badgeColor,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.schedule, size: 12, color: card.borderColor),
-                const SizedBox(width: 4),
-                Text(
-                  card.deadlineBadge!,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: card.borderColor,
-                  ),
-                ),
-              ],
-            ),
-          )
-        else if (card.impactPoints > 0)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: card.badgeColor,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              '+${card.impactPoints} pts',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: card.borderColor,
-              ),
-            ),
-          ),
-      ],
-    );
+  void _handleTap(BuildContext context) {
+    if (onCtaTap != null) {
+      onCtaTap!();
+    } else {
+      context.push(card.cta.route);
+    }
   }
 
-  Widget _buildChiffreChoc() {
-    return Text(
-      card.chiffreChoc.formatted,
-      style: GoogleFonts.montserrat(
-        fontSize: 28,
-        fontWeight: FontWeight.w700,
-        color: card.borderColor,
-        letterSpacing: -0.5,
-      ),
-    );
-  }
+  // ── COMPUTED ──────────────────────────────────────────────
 
-  Widget _buildFooter(BuildContext context) {
-    return Row(
-      children: [
-        // CTA button
-        Flexible(
-          child: Semantics(
-            button: true,
-            label: card.cta.label,
-            child: GestureDetector(
-              onTap: () => context.push(card.cta.route),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                decoration: BoxDecoration(
-                  color: MintColors.primary,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (card.cta.icon != null) ...[
-                      Icon(_ctaIcon, size: 14, color: MintColors.white),
-                      const SizedBox(width: 6),
-                    ],
-                    Flexible(
-                      child: Text(
-                        card.cta.label,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.white,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-
-        // Source reference
-        if (card.sources.isNotEmpty)
-          Flexible(
-            child: Text(
-              card.sources.join(' · '),
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-      ],
-    );
-  }
-
-  // ── Type → Icon mapping ─────────────────────────────────
+  bool get _hasChiffreChoc => card.chiffreChoc.value != 0;
+  bool get _hasDeadline => card.deadlineBadge != null;
+  bool get _hasProof =>
+      card.sources.isNotEmpty ||
+      card.alertes.isNotEmpty ||
+      card.disclaimer.isNotEmpty;
 
   IconData get _typeIcon => switch (card.type) {
-        ResponseCardType.pillar3a => Icons.savings,
-        ResponseCardType.lppBuyback => Icons.account_balance,
-        ResponseCardType.replacementRate => Icons.trending_up,
-        ResponseCardType.renteVsCapital => Icons.compare_arrows,
-        ResponseCardType.avsGap => Icons.verified_user,
-        ResponseCardType.taxOptimization => Icons.receipt_long,
-        ResponseCardType.coupleAlert => Icons.family_restroom,
-        ResponseCardType.patrimoine => Icons.account_balance_wallet,
-        ResponseCardType.mortgage => Icons.home,
-        ResponseCardType.independant => Icons.business_center,
-      };
-
-  // ── CTA icon ────────────────────────────────────────────
-
-  IconData get _ctaIcon => switch (card.cta.icon) {
-        'savings' => Icons.savings,
-        'account_balance' => Icons.account_balance,
-        'trending_up' => Icons.trending_up,
-        'receipt_long' => Icons.receipt_long,
-        'family_restroom' => Icons.family_restroom,
-        'verified_user' => Icons.verified_user,
-        'home' => Icons.home,
-        'account_balance_wallet' => Icons.account_balance_wallet,
-        'business_center' => Icons.business_center,
-        _ => Icons.arrow_forward,
+        ResponseCardType.pillar3a => Icons.savings_rounded,
+        ResponseCardType.lppBuyback => Icons.account_balance_rounded,
+        ResponseCardType.replacementRate => Icons.trending_up_rounded,
+        ResponseCardType.renteVsCapital => Icons.compare_arrows_rounded,
+        ResponseCardType.avsGap => Icons.verified_user_rounded,
+        ResponseCardType.taxOptimization => Icons.receipt_long_rounded,
+        ResponseCardType.coupleAlert => Icons.family_restroom_rounded,
+        ResponseCardType.patrimoine => Icons.account_balance_wallet_rounded,
+        ResponseCardType.mortgage => Icons.home_rounded,
+        ResponseCardType.independant => Icons.business_center_rounded,
       };
 }
 
-/// Strip horizontale scrollable de ResponseCards.
-/// Utilisee dans le chat Coach et optionnellement sur Pulse.
+/// Scrollable strip of ResponseCards — used in coach chat.
+///
+/// V2: uses chat variant by default. Flexible width.
 class ResponseCardStrip extends StatelessWidget {
   final List<ResponseCard> cards;
+  final ResponseCardVariant variant;
 
-  const ResponseCardStrip({super.key, required this.cards});
+  const ResponseCardStrip({
+    super.key,
+    required this.cards,
+    this.variant = ResponseCardVariant.chat,
+  });
 
   @override
   Widget build(BuildContext context) {
     if (cards.isEmpty) return const SizedBox.shrink();
 
+    if (cards.length == 1) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
+        child: ResponseCardWidget(card: cards.first, variant: variant),
+      );
+    }
+
     return SizedBox(
-      height: _estimateCardHeight(cards),
+      height: _estimateHeight(),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
         itemCount: cards.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
-        itemBuilder: (context, index) {
-          return ResponseCardWidget(card: cards[index]);
-        },
+        separatorBuilder: (_, __) => const SizedBox(width: MintSpacing.sm + 4),
+        itemBuilder: (_, index) => SizedBox(
+          width: 280,
+          child: ResponseCardWidget(card: cards[index], variant: variant),
+        ),
       ),
     );
   }
 
-  /// Estime la hauteur du strip selon le contenu le plus riche.
-  static double _estimateCardHeight(List<ResponseCard> cards) {
-    double maxHeight = 310; // base (title + subtitle + chiffre + explanation + footer + padding)
-    for (final card in cards) {
-      if (card.alertes.isNotEmpty) maxHeight = maxHeight.clamp(350, 400);
-      if (card.sources.isNotEmpty) maxHeight = maxHeight.clamp(330, 400);
+  double _estimateHeight() {
+    switch (variant) {
+      case ResponseCardVariant.compact:
+        return 72;
+      case ResponseCardVariant.chat:
+        return _hasChiffreChoc ? 200 : 160;
+      case ResponseCardVariant.sheet:
+        return _hasChiffreChoc ? 260 : 200;
     }
-    return maxHeight;
   }
+
+  bool get _hasChiffreChoc =>
+      cards.any((c) => c.chiffreChoc.value != 0);
 }
