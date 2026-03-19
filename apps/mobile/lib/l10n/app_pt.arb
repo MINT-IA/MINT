@@ -6780,5 +6780,124 @@
       "netAmount": { "type": "String" }
     }
   },
-  "realReturnPerYear": "/ ano"
+  "realReturnPerYear": "/ ano",
+
+  "genderGapAppBarTitle": "Lacuna de previdência",
+  "genderGapHeaderTitle": "Lacuna de previdência",
+  "genderGapHeaderSubtitle": "Impacto do tempo parcial na reforma",
+  "genderGapIntro": "A dedução de coordenação (CHF\u00a026'460) não é proporcional ao tempo parcial, o que penaliza mais as pessoas que trabalham a tempo reduzido. Move o cursor para ver o impacto.",
+  "genderGapTauxActivite": "Taxa de atividade",
+  "genderGapParametres": "Parâmetros",
+  "genderGapRevenuAnnuel": "Rendimento anual bruto (100%)",
+  "genderGapAge": "Idade",
+  "genderGapAgeValue": "{age} anos",
+  "@genderGapAgeValue": {
+    "placeholders": { "age": { "type": "String" } }
+  },
+  "genderGapAvoirLpp": "Capital LPP atual",
+  "genderGapAnneesCotisation": "Anos de contribuição",
+  "genderGapCanton": "Cantão",
+  "genderGapDemoMode": "Modo demo: perfil exemplo. Completa o teu diagnóstico para resultados personalizados.",
+  "genderGapRenteLppEstimee": "Renda LPP estimada",
+  "genderGapProjection": "Projeção a {annees} anos (idade 65)",
+  "@genderGapProjection": {
+    "placeholders": { "annees": { "type": "String" } }
+  },
+  "genderGapAt100": "A 100%",
+  "genderGapAtTaux": "A {taux}%",
+  "@genderGapAtTaux": {
+    "placeholders": { "taux": { "type": "String" } }
+  },
+  "genderGapPerYear": "/ano",
+  "genderGapLacuneAnnuelle": "Lacuna anual",
+  "genderGapLacuneTotale": "Lacuna total (~20 anos)",
+  "genderGapCoordinationTitle": "Entender a dedução de coordenação",
+  "genderGapCoordinationBody": "A dedução de coordenação é um montante fixo de CHF\u00a026'460 subtraído do teu salário bruto para calcular o salário coordenado (base LPP). Este montante é o mesmo quer trabalhes a 100% ou a 50%.",
+  "genderGapSalaireBrut100": "Salário bruto a 100%",
+  "genderGapSalaireCoordonne100": "Salário coordenado a 100%",
+  "genderGapSalaireBrutTaux": "Salário bruto a {taux}%",
+  "@genderGapSalaireBrutTaux": {
+    "placeholders": { "taux": { "type": "String" } }
+  },
+  "genderGapSalaireCoordonneTaux": "Salário coordenado a {taux}%",
+  "@genderGapSalaireCoordonneTaux": {
+    "placeholders": { "taux": { "type": "String" } }
+  },
+  "genderGapDeductionFixe": "Dedução coordenação (fixa)",
+  "genderGapSourceCoordination": "Fonte: LPP art. 8, OPP2 art. 5",
+  "genderGapStatOfsTitle": "Estatística OFS",
+  "genderGapRecommandations": "Recomendações",
+  "genderGapDisclaimer": "Os resultados apresentados são estimativas simplificadas a título indicativo. Não constituem aconselhamento financeiro personalizado. Consulta a tua caixa de pensões e um especialista qualificado antes de tomar decisões.",
+  "genderGapSources": "Fontes",
+  "genderGapSourcesBody": "LPP art. 8 (dedução de coordenação) / LPP art. 14 (taxa de conversão 6.8%) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (resgate voluntário) / OFS 2024 (estatísticas gender gap)",
+
+  "achievementsErrorMessage": "O carregamento falhou. Tentar novamente?",
+  "documentsEmptyVoice": "Vazio por enquanto. Digitaliza um certificado e tudo fica mais claro.",
+  "documentsConfidenceChoc": "{count} documentos = {pct}% de confiança",
+  "@documentsConfidenceChoc": {
+    "placeholders": {
+      "count": { "type": "String" },
+      "pct": { "type": "String" }
+    }
+  },
+
+  "lamalFranchiseAppBarTitle": "Franquia LAMal",
+  "lamalFranchiseDemoMode": "MODO DEMO",
+  "lamalFranchiseHeaderTitle": "A tua franquia LAMal",
+  "lamalFranchiseHeaderSubtitle": "Encontra a franquia ideal segundo os teus custos de saúde",
+  "lamalFranchiseIntro": "Uma franquia alta reduz o teu prémio mensal, mas aumenta os custos em caso de doença. Desloca os cursores para encontrar o equilíbrio.",
+  "lamalFranchiseToggleAdulte": "Adulto",
+  "lamalFranchiseToggleEnfant": "Criança",
+  "lamalFranchisePrimeSliderLabel": "Prémio mensal (franquia 300)",
+  "lamalFranchiseDepensesSliderLabel": "Custos de saúde anuais estimados",
+  "lamalFranchiseComparisonHeader": "COMPARAÇÃO DE FRANQUIAS",
+  "lamalFranchiseRecommandee": "RECOMENDADA",
+  "lamalFranchiseTotalPrefix": "Total: {amount}",
+  "@lamalFranchiseTotalPrefix": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "lamalFranchisePrimeAn": "Prémio/ano",
+  "lamalFranchiseQuotePart": "Copagamento",
+  "lamalFranchiseEconomie": "Poupança",
+  "lamalFranchiseBreakEvenTitle": "Limiares de rentabilidade",
+  "lamalFranchiseBreakEvenItem": "Acima de {seuil} de custos, a franquia {basse} torna-se mais vantajosa que {haute}.",
+  "@lamalFranchiseBreakEvenItem": {
+    "placeholders": {
+      "seuil": { "type": "String" },
+      "basse": { "type": "String" },
+      "haute": { "type": "String" }
+    }
+  },
+  "lamalFranchiseRecommandationsHeader": "RECOMENDAÇÕES",
+  "lamalFranchiseAlertText": "Lembrete: podes mudar a tua franquia antes de 30 de novembro de cada ano para o ano seguinte.",
+  "lamalFranchiseDisclaimer": "Estimativa educativa. Os prémios variam conforme a seguradora, a região e o modelo. Não constitui aconselhamento financeiro (LSFin).",
+  "lamalFranchiseSourcesHeader": "Fontes",
+  "lamalFranchiseSourcesBody": "LAMal art. 62-64 (franquia e copagamento) / OAMal (regulamento) / priminfo.admin.ch (comparador oficial) / LAMal art. 7 (livre escolha do segurador) / LAMal art. 41a (modelos alternativos)",
+  "lamalFranchisePrimeMin": "CHF\u00a0200",
+  "lamalFranchisePrimeMax": "CHF\u00a0600",
+  "lamalFranchiseDepensesMin": "CHF\u00a00",
+  "lamalFranchiseDepensesMax": "CHF\u00a010'000",
+  "lamalFranchiseSelectAdulte": "Selecionar adulto",
+  "lamalFranchiseSelectEnfant": "Selecionar criança",
+
+  "firstJobCantonLabel": "Cantão",
+  "firstJobSalaryMin": "CHF\u00a02'000",
+  "firstJobSalaryMax": "CHF\u00a015'000",
+  "firstJobActivityMin": "10\u00a0%",
+  "firstJobActivityMax": "100\u00a0%",
+  "firstJobFiscalSavings": "Poupança fiscal estimada: ~{amount}/ano",
+  "@firstJobFiscalSavings": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "firstJobFranchiseSavings": "Franquia 2'500 vs 300: poupança estimada de ~{amount}/ano em prémios",
+  "@firstJobFranchiseSavings": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "firstJobTopBadge": "TOP"
 }

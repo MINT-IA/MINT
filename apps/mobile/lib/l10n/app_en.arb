@@ -6823,5 +6823,124 @@
       "netAmount": { "type": "String" }
     }
   },
-  "realReturnPerYear": "/ yr"
+  "realReturnPerYear": "/ yr",
+
+  "genderGapAppBarTitle": "Pension gap",
+  "genderGapHeaderTitle": "Pension gap",
+  "genderGapHeaderSubtitle": "Part-time work impact on retirement",
+  "genderGapIntro": "The coordination deduction (CHF\u00a026,460) is not prorated for part-time work, which disproportionately affects part-time workers. Move the slider to see the impact.",
+  "genderGapTauxActivite": "Activity rate",
+  "genderGapParametres": "Parameters",
+  "genderGapRevenuAnnuel": "Gross annual income (100%)",
+  "genderGapAge": "Age",
+  "genderGapAgeValue": "{age} years",
+  "@genderGapAgeValue": {
+    "placeholders": { "age": { "type": "String" } }
+  },
+  "genderGapAvoirLpp": "Current LPP assets",
+  "genderGapAnneesCotisation": "Contribution years",
+  "genderGapCanton": "Canton",
+  "genderGapDemoMode": "Demo mode: example profile. Complete your assessment for personalised results.",
+  "genderGapRenteLppEstimee": "Estimated LPP pension",
+  "genderGapProjection": "Projection to {annees} years (age 65)",
+  "@genderGapProjection": {
+    "placeholders": { "annees": { "type": "String" } }
+  },
+  "genderGapAt100": "At 100%",
+  "genderGapAtTaux": "At {taux}%",
+  "@genderGapAtTaux": {
+    "placeholders": { "taux": { "type": "String" } }
+  },
+  "genderGapPerYear": "/yr",
+  "genderGapLacuneAnnuelle": "Annual gap",
+  "genderGapLacuneTotale": "Total gap (~20 years)",
+  "genderGapCoordinationTitle": "Understanding the coordination deduction",
+  "genderGapCoordinationBody": "The coordination deduction is a fixed amount of CHF\u00a026,460 subtracted from your gross salary to calculate the coordinated salary (LPP base). This amount is the same whether you work 100% or 50%.",
+  "genderGapSalaireBrut100": "Gross salary at 100%",
+  "genderGapSalaireCoordonne100": "Coordinated salary at 100%",
+  "genderGapSalaireBrutTaux": "Gross salary at {taux}%",
+  "@genderGapSalaireBrutTaux": {
+    "placeholders": { "taux": { "type": "String" } }
+  },
+  "genderGapSalaireCoordonneTaux": "Coordinated salary at {taux}%",
+  "@genderGapSalaireCoordonneTaux": {
+    "placeholders": { "taux": { "type": "String" } }
+  },
+  "genderGapDeductionFixe": "Coordination deduction (fixed)",
+  "genderGapSourceCoordination": "Source: LPP art. 8, OPP2 art. 5",
+  "genderGapStatOfsTitle": "FSO statistic",
+  "genderGapRecommandations": "Recommendations",
+  "genderGapDisclaimer": "The results shown are simplified estimates for informational purposes only. They do not constitute personalised financial advice. Consult your pension fund and a qualified specialist before making any decisions.",
+  "genderGapSources": "Sources",
+  "genderGapSourcesBody": "LPP art. 8 (coordination deduction) / LPP art. 14 (conversion rate 6.8%) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (voluntary buyback) / FSO 2024 (gender gap statistics)",
+
+  "achievementsErrorMessage": "Loading failed. Try again?",
+  "documentsEmptyVoice": "Nothing here yet. Scan a certificate and everything becomes clearer.",
+  "documentsConfidenceChoc": "{count} documents = {pct}% confidence",
+  "@documentsConfidenceChoc": {
+    "placeholders": {
+      "count": { "type": "String" },
+      "pct": { "type": "String" }
+    }
+  },
+
+  "lamalFranchiseAppBarTitle": "LAMal Deductible",
+  "lamalFranchiseDemoMode": "DEMO MODE",
+  "lamalFranchiseHeaderTitle": "Your LAMal deductible",
+  "lamalFranchiseHeaderSubtitle": "Find the best deductible for your health costs",
+  "lamalFranchiseIntro": "A higher deductible lowers your monthly premium but increases your out-of-pocket costs when you see a doctor. Adjust the sliders to find the right balance.",
+  "lamalFranchiseToggleAdulte": "Adult",
+  "lamalFranchiseToggleEnfant": "Child",
+  "lamalFranchisePrimeSliderLabel": "Monthly premium (deductible 300)",
+  "lamalFranchiseDepensesSliderLabel": "Estimated annual health costs",
+  "lamalFranchiseComparisonHeader": "DEDUCTIBLE COMPARISON",
+  "lamalFranchiseRecommandee": "RECOMMENDED",
+  "lamalFranchiseTotalPrefix": "Total: {amount}",
+  "@lamalFranchiseTotalPrefix": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "lamalFranchisePrimeAn": "Premium/yr",
+  "lamalFranchiseQuotePart": "Co-pay",
+  "lamalFranchiseEconomie": "Savings",
+  "lamalFranchiseBreakEvenTitle": "Break-even thresholds",
+  "lamalFranchiseBreakEvenItem": "Above {seuil} in costs, the {basse} deductible becomes cheaper than {haute}.",
+  "@lamalFranchiseBreakEvenItem": {
+    "placeholders": {
+      "seuil": { "type": "String" },
+      "basse": { "type": "String" },
+      "haute": { "type": "String" }
+    }
+  },
+  "lamalFranchiseRecommandationsHeader": "RECOMMENDATIONS",
+  "lamalFranchiseAlertText": "Reminder: you can change your deductible before November 30 each year for the following year.",
+  "lamalFranchiseDisclaimer": "Educational estimate. Premiums vary by insurer, region, and plan. Not financial advice (FinSA).",
+  "lamalFranchiseSourcesHeader": "Sources",
+  "lamalFranchiseSourcesBody": "KVG art. 62-64 (deductible and co-pay) / KVV (ordinance) / priminfo.admin.ch (official comparator) / KVG art. 7 (free choice of insurer) / KVG art. 41a (alternative models)",
+  "lamalFranchisePrimeMin": "CHF\u00a0200",
+  "lamalFranchisePrimeMax": "CHF\u00a0600",
+  "lamalFranchiseDepensesMin": "CHF\u00a00",
+  "lamalFranchiseDepensesMax": "CHF\u00a010,000",
+  "lamalFranchiseSelectAdulte": "Select adult",
+  "lamalFranchiseSelectEnfant": "Select child",
+
+  "firstJobCantonLabel": "Canton",
+  "firstJobSalaryMin": "CHF\u00a02,000",
+  "firstJobSalaryMax": "CHF\u00a015,000",
+  "firstJobActivityMin": "10%",
+  "firstJobActivityMax": "100%",
+  "firstJobFiscalSavings": "Estimated tax savings: ~{amount}/yr",
+  "@firstJobFiscalSavings": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "firstJobFranchiseSavings": "Deductible 2,500 vs 300: estimated savings of ~{amount}/yr in premiums",
+  "@firstJobFranchiseSavings": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "firstJobTopBadge": "TOP"
 }

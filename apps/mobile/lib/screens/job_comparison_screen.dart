@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/job_comparison_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 import 'package:mint_mobile/widgets/coach/job_change_comparison_widget.dart';
 
@@ -132,20 +133,30 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
-        title: Text(S.of(context)!.jobCompareTitle),
+        backgroundColor: MintColors.white,
+        foregroundColor: MintColors.textPrimary,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: Text(
+          S.of(context)!.jobCompareTitle,
+          style: MintTextStyles.headlineMedium(),
+        ),
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: MintSpacing.lg,
+          vertical: MintSpacing.sm,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildHeader(),
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
             _buildIntroCard(),
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
             _buildAgeSlider(),
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
             _buildJobSection(
               title: S.of(context)!.jobCompareCurrentJob,
               expanded: _currentJobExpanded,
@@ -177,7 +188,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               accentColor: MintColors.primary,
               icon: Icons.business,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
             _buildJobSection(
               title: S.of(context)!.jobCompareNewJob,
               expanded: _newJobExpanded,
@@ -206,51 +217,51 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                   setState(() => _newRachatMax = v),
               hasIjm: _newHasIjm,
               onIjmChanged: (v) => setState(() => _newHasIjm = v),
-              accentColor: MintColors.deepOrange, // orange accent
+              accentColor: MintColors.deepOrange,
               icon: Icons.work_outline,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
             _buildCompareButton(),
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
             if (_result != null) ...[
               Container(key: _resultsKey),
               _buildVerdictCard(),
-              const SizedBox(height: 24),
+              const SizedBox(height: MintSpacing.lg),
               _buildComparisonTable(),
-              const SizedBox(height: 24),
+              const SizedBox(height: MintSpacing.lg),
               _buildLifetimeImpactCard(),
-              const SizedBox(height: 24),
+              const SizedBox(height: MintSpacing.lg),
               if (_result!.alerts.isNotEmpty) ...[
                 _buildAlertsSection(),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
               ],
               _buildChecklistSection(),
-              const SizedBox(height: 24),
+              const SizedBox(height: MintSpacing.lg),
             ],
             _buildEducationalFooter(),
-            const SizedBox(height: 24),
-            // ── P11-A : Le prix du changement ────────────────────
+            const SizedBox(height: MintSpacing.lg),
+            // P11-A : Le prix du changement
             JobChangeComparisonWidget(
               currentJobLabel: S.of(context)!.jobCompareCurrentJobWidget,
               newJobLabel: S.of(context)!.jobCompareNewJobWidget,
               axes: [
                 JobAxis(
                   label: S.of(context)!.jobCompareAxisSalary,
-                  emoji: '💰',
+                  emoji: '\u{1F4B0}',
                   currentValue: _currentSalaireBrut / 12,
                   newValue: _newSalaireBrut / 12,
                   unit: 'CHF/mois',
                 ),
                 JobAxis(
                   label: S.of(context)!.jobCompareAxisLpp,
-                  emoji: '🏦',
+                  emoji: '\u{1F3E6}',
                   currentValue: _currentSalaireBrut * 0.18 / 12,
                   newValue: _newSalaireBrut * 0.18 / 12,
                   unit: 'CHF/mois',
                 ),
                 JobAxis(
                   label: S.of(context)!.jobCompareAxisDistance,
-                  emoji: '🚆',
+                  emoji: '\u{1F686}',
                   currentValue: 15,
                   newValue: 30,
                   unit: 'km',
@@ -258,14 +269,14 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                 ),
                 JobAxis(
                   label: S.of(context)!.jobCompareAxisVacation,
-                  emoji: '🏖️',
+                  emoji: '\u{1F3D6}\u{FE0F}',
                   currentValue: 20,
                   newValue: 25,
                   unit: 'jours',
                 ),
                 JobAxis(
                   label: S.of(context)!.jobCompareAxisWeeklyHours,
-                  emoji: '⏰',
+                  emoji: '\u{23F0}',
                   currentValue: 42,
                   newValue: 40,
                   unit: 'h',
@@ -273,9 +284,9 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
             _buildDisclaimer(),
-            const SizedBox(height: 40),
+            const SizedBox(height: MintSpacing.xl),
           ],
         ),
       ),
@@ -285,7 +296,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
   // --- Header ---
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.surface,
         borderRadius: BorderRadius.circular(20),
@@ -301,26 +312,19 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
             child: const Icon(Icons.swap_horiz,
                 color: MintColors.deepOrange, size: 24),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: MintSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   S.of(context)!.jobCompareTitle,
-                  style: GoogleFonts.outfit(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
                   S.of(context)!.jobCompareSubtitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -333,7 +337,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
   // --- Introduction Card ---
   Widget _buildIntroCard() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.deepOrange.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
@@ -346,15 +350,11 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
         children: [
           Icon(Icons.lightbulb_outline,
               size: 20, color: MintColors.deepOrange.withValues(alpha: 0.8)),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: Text(
               S.of(context)!.jobCompareIntro,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
         ],
@@ -422,13 +422,9 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                 children: [
                   Text(
                     expanded ? S.of(context)!.jobCompareReduce : S.of(context)!.jobCompareShowDetails,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: accentColor,
-                  ),
+                  style: MintTextStyles.labelSmall(color: accentColor),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: MintSpacing.xs),
                 Icon(
                   expanded
                       ? Icons.keyboard_arrow_up
@@ -441,7 +437,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
           ),
           ),
           if (expanded) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
             _buildSlider(
               label: S.of(context)!.jobCompareSalaryLabel,
               value: salaireBrut,
@@ -451,13 +447,13 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               format: (v) => _chfFmt(v),
               onChanged: onSalaireBrutChanged,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
             _buildPartEmployeurChips(
               value: partEmployeur,
               onChanged: onPartEmployeurChanged,
               accentColor: accentColor,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
             _buildSlider(
               label: S.of(context)!.jobCompareConversionRate,
               value: tauxConversion,
@@ -467,7 +463,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               format: (v) => '${v.toStringAsFixed(1)}%',
               onChanged: onTauxConversionChanged,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
             _buildSlider(
               label: S.of(context)!.jobCompareRetirementAssets,
               value: avoirVieillesse,
@@ -477,7 +473,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               format: (v) => _chfFmt(v),
               onChanged: onAvoirVieillesseChanged,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
             _buildSlider(
               label: S.of(context)!.jobCompareDisabilityCoverage,
               value: couvertureInvalidite,
@@ -487,7 +483,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               format: (v) => '${v.toInt()}%',
               onChanged: onCouvertureInvaliditeChanged,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
             _buildSlider(
               label: S.of(context)!.jobCompareDeathCapital,
               value: capitalDeces,
@@ -497,7 +493,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               format: (v) => _chfFmt(v),
               onChanged: onCapitalDecesChanged,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
             _buildSlider(
               label: S.of(context)!.jobCompareMaxBuyback,
               value: rachatMax,
@@ -507,7 +503,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               format: (v) => _chfFmt(v),
               onChanged: onRachatMaxChanged,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
             _buildIjmSwitch(
               value: hasIjm,
               onChanged: onIjmChanged,
@@ -533,29 +529,22 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
           children: [
             Text(
               S.of(context)!.jobCompareEmployerShare,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
             Text(
               '${value.toInt()}%',
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-                color: accentColor,
-              ),
+              style: MintTextStyles.bodySmall(color: accentColor),
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: MintSpacing.sm),
         Row(
           children: options.map((opt) {
             final selected = value == opt;
             return Expanded(
               child: Padding(
                 padding: EdgeInsets.only(
-                  right: opt != options.last ? 8 : 0,
+                  right: opt != options.last ? MintSpacing.sm : 0,
                 ),
                 child: Semantics(
                   label: '${opt.toInt()}% part employeur',
@@ -581,10 +570,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                     child: Center(
                       child: Text(
                         '${opt.toInt()}%',
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          fontWeight:
-                              selected ? FontWeight.w600 : FontWeight.w400,
+                        style: MintTextStyles.bodySmall(
                           color: selected
                               ? accentColor
                               : MintColors.textSecondary,
@@ -607,24 +593,25 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
     required bool value,
     required ValueChanged<bool> onChanged,
   }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Flexible(
-          child: Text(
-            S.of(context)!.jobCompareIjm,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textPrimary,
+    return Semantics(
+      label: S.of(context)!.jobCompareIjm,
+      toggled: value,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Flexible(
+            child: Text(
+              S.of(context)!.jobCompareIjm,
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
           ),
-        ),
-        Switch(
-          value: value,
-          onChanged: onChanged,
-          activeTrackColor: MintColors.primary,
-        ),
-      ],
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeTrackColor: MintColors.primary,
+          ),
+        ],
+      ),
     );
   }
 
@@ -637,10 +624,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
         icon: const Icon(Icons.compare_arrows, size: 20),
         label: Text(
           S.of(context)!.jobCompareButton,
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          style: MintTextStyles.titleMedium(color: MintColors.white),
         ),
         style: FilledButton.styleFrom(
           backgroundColor: MintColors.primary,
@@ -672,72 +656,63 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
         verdictIcon = Icons.balance;
     }
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            verdictColor.withValues(alpha: 0.08),
-            verdictColor.withValues(alpha: 0.04),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: verdictColor.withValues(alpha: 0.2), width: 1.5),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: verdictColor,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(verdictIcon, color: MintColors.white, size: 14),
-                    const SizedBox(width: 6),
-                    Text(
-                      S.of(context)!.jobCompareVerdictLabel,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.white,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+    return Semantics(
+      label: r.verdictDetail,
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              verdictColor.withValues(alpha: 0.08),
+              verdictColor.withValues(alpha: 0.04),
             ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          const SizedBox(height: 16),
-          Text(
-            r.verdictDetail,
-            style: GoogleFonts.outfit(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: verdictColor.withValues(alpha: 0.2), width: 1.5),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: verdictColor,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(verdictIcon, color: MintColors.white, size: 14),
+                      const SizedBox(width: 6),
+                      Text(
+                        S.of(context)!.jobCompareVerdictLabel,
+                        style: MintTextStyles.labelSmall(color: MintColors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            S.of(context)!.jobCompareAxesFavorable(
-              '${r.axes.where((a) => a.isPositive).length}',
-              '${r.axes.length}',
+            const SizedBox(height: MintSpacing.md),
+            Text(
+              r.verdictDetail,
+              style: MintTextStyles.headlineMedium().copyWith(fontSize: 20),
             ),
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              S.of(context)!.jobCompareAxesFavorable(
+                '${r.axes.where((a) => a.isPositive).length}',
+                '${r.axes.length}',
+              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -753,7 +728,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
         children: [
           // Header row
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm, vertical: 10),
             decoration: BoxDecoration(
               color: MintColors.surface,
               borderRadius: BorderRadius.circular(8),
@@ -764,11 +739,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                   flex: 3,
                   child: Text(
                     S.of(context)!.jobCompareAxisLabel,
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textMuted,
-                    ),
+                    style: MintTextStyles.labelSmall(),
                   ),
                 ),
                 Expanded(
@@ -776,11 +747,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                   child: Text(
                     S.of(context)!.jobCompareCurrentLabel,
                     textAlign: TextAlign.right,
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textMuted,
-                    ),
+                    style: MintTextStyles.labelSmall(),
                   ),
                 ),
                 Expanded(
@@ -788,11 +755,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                   child: Text(
                     S.of(context)!.jobCompareNewLabel,
                     textAlign: TextAlign.right,
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textMuted,
-                    ),
+                    style: MintTextStyles.labelSmall(),
                   ),
                 ),
                 Expanded(
@@ -800,28 +763,32 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                   child: Text(
                     S.of(context)!.jobCompareDeltaLabel,
                     textAlign: TextAlign.right,
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textMuted,
-                    ),
+                    style: MintTextStyles.labelSmall(),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           // Data rows
           ...List.generate(r.axes.length, (index) {
             final axis = r.axes[index];
             final isEven = index % 2 == 0;
             return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm, vertical: 12),
               decoration: BoxDecoration(
                 color: isEven
                     ? MintColors.transparent
                     : MintColors.surface.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(6),
+                border: Border(
+                  left: BorderSide(
+                    color: axis.isPositive
+                        ? MintColors.success.withValues(alpha: 0.5)
+                        : MintColors.error.withValues(alpha: 0.5),
+                    width: 3,
+                  ),
+                ),
               ),
               child: Row(
                 children: [
@@ -842,11 +809,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                         Flexible(
                           child: Text(
                             axis.name,
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: MintColors.textPrimary,
-                            ),
+                            style: MintTextStyles.labelSmall(color: MintColors.textPrimary),
                           ),
                         ),
                       ],
@@ -857,10 +820,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                     child: Text(
                       _formatChfSwiss(axis.currentValue),
                       textAlign: TextAlign.right,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: MintColors.textSecondary,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                     ),
                   ),
                   Expanded(
@@ -868,10 +828,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                     child: Text(
                       _formatChfSwiss(axis.newValue),
                       textAlign: TextAlign.right,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: MintColors.textSecondary,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                     ),
                   ),
                   Expanded(
@@ -879,9 +836,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                     child: Text(
                       _deltaFmt(axis.delta),
                       textAlign: TextAlign.right,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
+                      style: MintTextStyles.labelSmall(
                         color: axis.isPositive
                             ? MintColors.success
                             : MintColors.error,
@@ -903,54 +858,44 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
     final annualDelta = r.annualPensionDelta;
     final monthlyDelta = annualDelta / 12;
     final isPositive = annualDelta >= 0;
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.info.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.timeline, color: MintColors.info, size: 18),
-              const SizedBox(width: 8),
-              Text(
-                S.of(context)!.jobCompareRetirementImpact,
-                style: GoogleFonts.montserrat(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.info,
-                  letterSpacing: 1,
+    return Semantics(
+      label: S.of(context)!.jobCompareRetirementImpact,
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        decoration: BoxDecoration(
+          color: MintColors.info.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.timeline, color: MintColors.info, size: 18),
+                const SizedBox(width: MintSpacing.sm),
+                Text(
+                  S.of(context)!.jobCompareRetirementImpact,
+                  style: MintTextStyles.labelSmall(color: MintColors.info),
                 ),
+              ],
+            ),
+            const SizedBox(height: MintSpacing.md),
+            Text(
+              S.of(context)!.jobCompareRetirementBody(
+                isPositive ? S.of(context)!.jobCompareNewJob : S.of(context)!.jobCompareCurrentJob,
+                _chfFmt(annualDelta.abs()),
+                _chfFmt(monthlyDelta.abs()),
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            S.of(context)!.jobCompareRetirementBody(
-              isPositive ? S.of(context)!.jobCompareNewJob : S.of(context)!.jobCompareCurrentJob,
-              _chfFmt(annualDelta.abs()),
-              _chfFmt(monthlyDelta.abs()),
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
             ),
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textPrimary,
-              height: 1.5,
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              S.of(context)!.jobCompareLifetime20Years(_chfFmt(r.lifetimePensionDelta.abs())),
+              style: MintTextStyles.headlineMedium(color: MintColors.info).copyWith(fontSize: 18),
             ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            S.of(context)!.jobCompareLifetime20Years(_chfFmt(r.lifetimePensionDelta.abs())),
-            style: GoogleFonts.outfit(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: MintColors.info,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -963,16 +908,11 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       children: [
         Text(
           S.of(context)!.jobCompareAttentionPoints,
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
-            letterSpacing: 1,
-          ),
+          style: MintTextStyles.labelSmall(),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm),
         ...r.alerts.map((alert) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(bottom: MintSpacing.sm),
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
@@ -991,11 +931,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                     Expanded(
                       child: Text(
                         alert,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: MintColors.textSecondary,
-                          height: 1.4,
-                        ),
+                        style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                       ),
                     ),
                   ],
@@ -1017,7 +953,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       child: Column(
         children: List.generate(r.checklist.length, (index) {
           return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.only(bottom: MintSpacing.sm),
             child: Semantics(
               label: r.checklist[index],
               button: true,
@@ -1060,15 +996,14 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                       Expanded(
                         child: Text(
                           r.checklist[index],
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
+                          style: MintTextStyles.bodySmall(
                             color: _checklistState[index]
                                 ? MintColors.textSecondary
                                 : MintColors.textPrimary,
+                          ).copyWith(
                             decoration: _checklistState[index]
                                 ? TextDecoration.lineThrough
                                 : null,
-                            height: 1.4,
                           ),
                         ),
                       ),
@@ -1090,19 +1025,14 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       children: [
         Text(
           S.of(context)!.jobCompareUnderstandHeader,
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
-            letterSpacing: 1,
-          ),
+          style: MintTextStyles.labelSmall(),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm),
         _buildExpandableTile(
           S.of(context)!.jobCompareEduInvisibleTitle,
           S.of(context)!.jobCompareEduInvisibleBody,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: MintSpacing.sm),
         _buildExpandableTile(
           S.of(context)!.jobCompareEduCertTitle,
           S.of(context)!.jobCompareEduCertBody,
@@ -1122,24 +1052,16 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
         child: ExpansionTile(
-          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          tilePadding: const EdgeInsets.symmetric(horizontal: MintSpacing.md, vertical: MintSpacing.xs),
+          childrenPadding: const EdgeInsets.fromLTRB(MintSpacing.md, 0, MintSpacing.md, MintSpacing.md),
           title: Text(
             title,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
           ),
           children: [
             Text(
               content,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ],
         ),
@@ -1150,25 +1072,21 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
   // --- Disclaimer ---
   Widget _buildDisclaimer() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.warningBg,
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.orangeRetroWarm),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, size: 18, color: MintColors.warning),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: Text(
               S.of(context)!.jobCompareDisclaimer,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.deepOrange,
-                height: 1.5,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ),
         ],
@@ -1195,19 +1113,12 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
             Flexible(
               child: Text(
                 label,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
               ),
             ),
             Text(
               format(value),
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-                color: MintColors.primary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.primary),
             ),
           ],
         ),

@@ -6794,5 +6794,124 @@
       "netAmount": { "type": "String" }
     }
   },
-  "realReturnPerYear": "/ Jahr"
+  "realReturnPerYear": "/ Jahr",
+
+  "genderGapAppBarTitle": "Vorsorgelücke",
+  "genderGapHeaderTitle": "Vorsorgelücke",
+  "genderGapHeaderSubtitle": "Auswirkung der Teilzeitarbeit auf die Rente",
+  "genderGapIntro": "Der Koordinationsabzug (CHF\u00a026'460) wird nicht anteilsmässig für Teilzeit berechnet, was Teilzeitbeschäftigte stärker benachteiligt. Bewege den Regler, um die Auswirkung zu sehen.",
+  "genderGapTauxActivite": "Beschäftigungsgrad",
+  "genderGapParametres": "Parameter",
+  "genderGapRevenuAnnuel": "Bruttojahreseinkommen (100%)",
+  "genderGapAge": "Alter",
+  "genderGapAgeValue": "{age} Jahre",
+  "@genderGapAgeValue": {
+    "placeholders": { "age": { "type": "String" } }
+  },
+  "genderGapAvoirLpp": "Aktuelles BVG-Guthaben",
+  "genderGapAnneesCotisation": "Beitragsjahre",
+  "genderGapCanton": "Kanton",
+  "genderGapDemoMode": "Demo-Modus: Beispielprofil. Vervollständige deine Analyse für personalisierte Ergebnisse.",
+  "genderGapRenteLppEstimee": "Geschätzte BVG-Rente",
+  "genderGapProjection": "Projektion auf {annees} Jahre (Alter 65)",
+  "@genderGapProjection": {
+    "placeholders": { "annees": { "type": "String" } }
+  },
+  "genderGapAt100": "Bei 100%",
+  "genderGapAtTaux": "Bei {taux}%",
+  "@genderGapAtTaux": {
+    "placeholders": { "taux": { "type": "String" } }
+  },
+  "genderGapPerYear": "/Jahr",
+  "genderGapLacuneAnnuelle": "Jährliche Lücke",
+  "genderGapLacuneTotale": "Gesamtlücke (~20 Jahre)",
+  "genderGapCoordinationTitle": "Den Koordinationsabzug verstehen",
+  "genderGapCoordinationBody": "Der Koordinationsabzug ist ein fester Betrag von CHF\u00a026'460, der von deinem Bruttolohn abgezogen wird, um den koordinierten Lohn (BVG-Basis) zu berechnen. Dieser Betrag ist gleich, ob du 100% oder 50% arbeitest.",
+  "genderGapSalaireBrut100": "Bruttolohn bei 100%",
+  "genderGapSalaireCoordonne100": "Koordinierter Lohn bei 100%",
+  "genderGapSalaireBrutTaux": "Bruttolohn bei {taux}%",
+  "@genderGapSalaireBrutTaux": {
+    "placeholders": { "taux": { "type": "String" } }
+  },
+  "genderGapSalaireCoordonneTaux": "Koordinierter Lohn bei {taux}%",
+  "@genderGapSalaireCoordonneTaux": {
+    "placeholders": { "taux": { "type": "String" } }
+  },
+  "genderGapDeductionFixe": "Koordinationsabzug (fest)",
+  "genderGapSourceCoordination": "Quelle: BVG Art. 8, BVV2 Art. 5",
+  "genderGapStatOfsTitle": "BFS-Statistik",
+  "genderGapRecommandations": "Empfehlungen",
+  "genderGapDisclaimer": "Die dargestellten Ergebnisse sind vereinfachte Schätzungen zu Informationszwecken. Sie stellen keine persönliche Finanzberatung dar. Konsultiere deine Pensionskasse und eine qualifizierte Fachperson vor Entscheidungen.",
+  "genderGapSources": "Quellen",
+  "genderGapSourcesBody": "BVG Art. 8 (Koordinationsabzug) / BVG Art. 14 (Umwandlungssatz 6.8%) / BVV2 Art. 5 / BVV3 Art. 7 / BVG Art. 79b (freiwilliger Einkauf) / BFS 2024 (Gender-Gap-Statistik)",
+
+  "achievementsErrorMessage": "Laden fehlgeschlagen. Nochmal versuchen?",
+  "documentsEmptyVoice": "Noch nichts hier. Scanne ein Zertifikat und alles wird klarer.",
+  "documentsConfidenceChoc": "{count} Dokumente = {pct}% Vertrauen",
+  "@documentsConfidenceChoc": {
+    "placeholders": {
+      "count": { "type": "String" },
+      "pct": { "type": "String" }
+    }
+  },
+
+  "lamalFranchiseAppBarTitle": "KVG-Franchise",
+  "lamalFranchiseDemoMode": "DEMOMODUS",
+  "lamalFranchiseHeaderTitle": "Deine KVG-Franchise",
+  "lamalFranchiseHeaderSubtitle": "Finde die ideale Franchise je nach deinen Gesundheitskosten",
+  "lamalFranchiseIntro": "Eine hohe Franchise senkt deine monatliche Prämie, erhöht aber die Kosten im Krankheitsfall. Verschiebe die Regler, um das richtige Gleichgewicht zu finden.",
+  "lamalFranchiseToggleAdulte": "Erwachsene",
+  "lamalFranchiseToggleEnfant": "Kind",
+  "lamalFranchisePrimeSliderLabel": "Monatsprämie (Franchise 300)",
+  "lamalFranchiseDepensesSliderLabel": "Geschätzte jährliche Gesundheitskosten",
+  "lamalFranchiseComparisonHeader": "FRANCHISEVERGLEICH",
+  "lamalFranchiseRecommandee": "EMPFOHLEN",
+  "lamalFranchiseTotalPrefix": "Total: {amount}",
+  "@lamalFranchiseTotalPrefix": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "lamalFranchisePrimeAn": "Prämie/Jahr",
+  "lamalFranchiseQuotePart": "Selbstbehalt",
+  "lamalFranchiseEconomie": "Ersparnis",
+  "lamalFranchiseBreakEvenTitle": "Rentabilitätsschwellen",
+  "lamalFranchiseBreakEvenItem": "Ab {seuil} Kosten wird die Franchise {basse} günstiger als {haute}.",
+  "@lamalFranchiseBreakEvenItem": {
+    "placeholders": {
+      "seuil": { "type": "String" },
+      "basse": { "type": "String" },
+      "haute": { "type": "String" }
+    }
+  },
+  "lamalFranchiseRecommandationsHeader": "EMPFEHLUNGEN",
+  "lamalFranchiseAlertText": "Erinnerung: Du kannst deine Franchise vor dem 30. November jedes Jahres für das Folgejahr ändern.",
+  "lamalFranchiseDisclaimer": "Bildungsschätzung. Die Prämien variieren je nach Versicherer, Region und Modell. Keine Finanzberatung (FIDLEG).",
+  "lamalFranchiseSourcesHeader": "Quellen",
+  "lamalFranchiseSourcesBody": "KVG Art. 62-64 (Franchise und Selbstbehalt) / KVV (Verordnung) / priminfo.admin.ch (offizieller Vergleich) / KVG Art. 7 (freie Wahl des Versicherers) / KVG Art. 41a (alternative Modelle)",
+  "lamalFranchisePrimeMin": "CHF\u00a0200",
+  "lamalFranchisePrimeMax": "CHF\u00a0600",
+  "lamalFranchiseDepensesMin": "CHF\u00a00",
+  "lamalFranchiseDepensesMax": "CHF\u00a010'000",
+  "lamalFranchiseSelectAdulte": "Erwachsene wählen",
+  "lamalFranchiseSelectEnfant": "Kind wählen",
+
+  "firstJobCantonLabel": "Kanton",
+  "firstJobSalaryMin": "CHF\u00a02'000",
+  "firstJobSalaryMax": "CHF\u00a015'000",
+  "firstJobActivityMin": "10\u00a0%",
+  "firstJobActivityMax": "100\u00a0%",
+  "firstJobFiscalSavings": "Geschätzte Steuerersparnis: ~{amount}/Jahr",
+  "@firstJobFiscalSavings": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "firstJobFranchiseSavings": "Franchise 2'500 vs 300: geschätzte Ersparnis von ~{amount}/Jahr an Prämien",
+  "@firstJobFranchiseSavings": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "firstJobTopBadge": "TOP"
 }

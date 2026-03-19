@@ -7061,5 +7061,124 @@
       "netAmount": { "type": "String" }
     }
   },
-  "realReturnPerYear": "/ an"
+  "realReturnPerYear": "/ an",
+
+  "genderGapAppBarTitle": "Lacune de prévoyance",
+  "genderGapHeaderTitle": "Lacune de prévoyance",
+  "genderGapHeaderSubtitle": "Impact du temps partiel sur la retraite",
+  "genderGapIntro": "La déduction de coordination (CHF\u00a026'460) n'est pas proratisée pour le temps partiel, ce qui pénalise davantage les personnes travaillant à temps réduit. Déplace le curseur pour voir l'impact.",
+  "genderGapTauxActivite": "Taux d'activité",
+  "genderGapParametres": "Paramètres",
+  "genderGapRevenuAnnuel": "Revenu annuel brut (100%)",
+  "genderGapAge": "Âge",
+  "genderGapAgeValue": "{age} ans",
+  "@genderGapAgeValue": {
+    "placeholders": { "age": { "type": "String" } }
+  },
+  "genderGapAvoirLpp": "Avoir LPP actuel",
+  "genderGapAnneesCotisation": "Années de cotisation",
+  "genderGapCanton": "Canton",
+  "genderGapDemoMode": "Mode démo\u00a0: profil exemple. Complète ton diagnostic pour des résultats personnalisés.",
+  "genderGapRenteLppEstimee": "Rente LPP estimée",
+  "genderGapProjection": "Projection à {annees} ans (âge 65)",
+  "@genderGapProjection": {
+    "placeholders": { "annees": { "type": "String" } }
+  },
+  "genderGapAt100": "À 100%",
+  "genderGapAtTaux": "À {taux}%",
+  "@genderGapAtTaux": {
+    "placeholders": { "taux": { "type": "String" } }
+  },
+  "genderGapPerYear": "/an",
+  "genderGapLacuneAnnuelle": "Lacune annuelle",
+  "genderGapLacuneTotale": "Lacune totale (~20 ans)",
+  "genderGapCoordinationTitle": "Comprendre la déduction de coordination",
+  "genderGapCoordinationBody": "La déduction de coordination est un montant fixe de CHF\u00a026'460 soustrait de ton salaire brut pour calculer le salaire coordonné (base LPP). Ce montant est le même que tu travailles à 100% ou à 50%.",
+  "genderGapSalaireBrut100": "Salaire brut à 100%",
+  "genderGapSalaireCoordonne100": "Salaire coordonné à 100%",
+  "genderGapSalaireBrutTaux": "Salaire brut à {taux}%",
+  "@genderGapSalaireBrutTaux": {
+    "placeholders": { "taux": { "type": "String" } }
+  },
+  "genderGapSalaireCoordonneTaux": "Salaire coordonné à {taux}%",
+  "@genderGapSalaireCoordonneTaux": {
+    "placeholders": { "taux": { "type": "String" } }
+  },
+  "genderGapDeductionFixe": "Déduction coordination (fixe)",
+  "genderGapSourceCoordination": "Source\u00a0: LPP art. 8, OPP2 art. 5",
+  "genderGapStatOfsTitle": "Statistique OFS",
+  "genderGapRecommandations": "Recommandations",
+  "genderGapDisclaimer": "Les résultats présentés sont des estimations simplifiées à titre indicatif. Ils ne constituent pas un conseil financier personnalisé. Consulte ta caisse de pension et un·e spécialiste qualifié·e avant toute décision.",
+  "genderGapSources": "Sources",
+  "genderGapSourcesBody": "LPP art. 8 (déduction de coordination) / LPP art. 14 (taux de conversion 6.8%) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (rachat volontaire) / OFS 2024 (statistiques gender gap)",
+
+  "achievementsErrorMessage": "Le chargement a buté. On réessaie\u00a0?",
+  "documentsEmptyVoice": "C'est vide pour l'instant. Un scan de certificat, et tout s'éclaire.",
+  "documentsConfidenceChoc": "{count} documents = {pct}% de confiance",
+  "@documentsConfidenceChoc": {
+    "placeholders": {
+      "count": { "type": "String" },
+      "pct": { "type": "String" }
+    }
+  },
+
+  "lamalFranchiseAppBarTitle": "Franchise LAMal",
+  "lamalFranchiseDemoMode": "MODE DÉMO",
+  "lamalFranchiseHeaderTitle": "Ta franchise LAMal",
+  "lamalFranchiseHeaderSubtitle": "Trouve la franchise idéale selon tes frais de santé",
+  "lamalFranchiseIntro": "Une franchise élevée réduit ta prime mensuelle, mais augmente tes frais en cas de maladie. Déplace les curseurs pour trouver l'équilibre.",
+  "lamalFranchiseToggleAdulte": "Adulte",
+  "lamalFranchiseToggleEnfant": "Enfant",
+  "lamalFranchisePrimeSliderLabel": "Prime mensuelle (franchise 300)",
+  "lamalFranchiseDepensesSliderLabel": "Frais de santé annuels estimés",
+  "lamalFranchiseComparisonHeader": "COMPARAISON DES FRANCHISES",
+  "lamalFranchiseRecommandee": "RECOMMANDÉE",
+  "lamalFranchiseTotalPrefix": "Total\u00a0: {amount}",
+  "@lamalFranchiseTotalPrefix": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "lamalFranchisePrimeAn": "Prime/an",
+  "lamalFranchiseQuotePart": "Quote-part",
+  "lamalFranchiseEconomie": "Économie",
+  "lamalFranchiseBreakEvenTitle": "Seuils de rentabilité",
+  "lamalFranchiseBreakEvenItem": "Au-dessus de {seuil} de frais, la franchise {basse} devient plus avantageuse que {haute}.",
+  "@lamalFranchiseBreakEvenItem": {
+    "placeholders": {
+      "seuil": { "type": "String" },
+      "basse": { "type": "String" },
+      "haute": { "type": "String" }
+    }
+  },
+  "lamalFranchiseRecommandationsHeader": "RECOMMANDATIONS",
+  "lamalFranchiseAlertText": "Rappel\u00a0: changement de franchise possible avant le 30 novembre de chaque année pour l'année suivante.",
+  "lamalFranchiseDisclaimer": "Estimation éducative. Les primes varient selon l'assureur, la région et le modèle d'assurance. Ne constitue pas un conseil financier (LSFin).",
+  "lamalFranchiseSourcesHeader": "Sources",
+  "lamalFranchiseSourcesBody": "LAMal art. 62-64 (franchise et quote-part) / OAMal (ordonnance) / priminfo.admin.ch (comparateur officiel) / LAMal art. 7 (libre choix de l'assureur) / LAMal art. 41a (modèles alternatifs)",
+  "lamalFranchisePrimeMin": "CHF\u00a0200",
+  "lamalFranchisePrimeMax": "CHF\u00a0600",
+  "lamalFranchiseDepensesMin": "CHF\u00a00",
+  "lamalFranchiseDepensesMax": "CHF\u00a010'000",
+  "lamalFranchiseSelectAdulte": "Sélectionner adulte",
+  "lamalFranchiseSelectEnfant": "Sélectionner enfant",
+
+  "firstJobCantonLabel": "Canton",
+  "firstJobSalaryMin": "CHF\u00a02'000",
+  "firstJobSalaryMax": "CHF\u00a015'000",
+  "firstJobActivityMin": "10\u00a0%",
+  "firstJobActivityMax": "100\u00a0%",
+  "firstJobFiscalSavings": "Économie fiscale estimée\u00a0: ~{amount}/an",
+  "@firstJobFiscalSavings": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "firstJobFranchiseSavings": "Franchise 2\u00a0500 vs 300\u00a0: économie estimée de ~{amount}/an en primes",
+  "@firstJobFranchiseSavings": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "firstJobTopBadge": "TOP"
 }

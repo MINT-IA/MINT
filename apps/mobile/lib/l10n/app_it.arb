@@ -6780,5 +6780,124 @@
       "netAmount": { "type": "String" }
     }
   },
-  "realReturnPerYear": "/ anno"
+  "realReturnPerYear": "/ anno",
+
+  "genderGapAppBarTitle": "Lacuna previdenziale",
+  "genderGapHeaderTitle": "Lacuna previdenziale",
+  "genderGapHeaderSubtitle": "Impatto del tempo parziale sulla pensione",
+  "genderGapIntro": "La deduzione di coordinamento (CHF\u00a026'460) non è proporzionata per il tempo parziale, il che penalizza maggiormente chi lavora a tempo ridotto. Sposta il cursore per vedere l'impatto.",
+  "genderGapTauxActivite": "Tasso di attività",
+  "genderGapParametres": "Parametri",
+  "genderGapRevenuAnnuel": "Reddito annuo lordo (100%)",
+  "genderGapAge": "Età",
+  "genderGapAgeValue": "{age} anni",
+  "@genderGapAgeValue": {
+    "placeholders": { "age": { "type": "String" } }
+  },
+  "genderGapAvoirLpp": "Averi LPP attuali",
+  "genderGapAnneesCotisation": "Anni di contribuzione",
+  "genderGapCanton": "Cantone",
+  "genderGapDemoMode": "Modalità demo: profilo esempio. Completa la tua analisi per risultati personalizzati.",
+  "genderGapRenteLppEstimee": "Rendita LPP stimata",
+  "genderGapProjection": "Proiezione a {annees} anni (età 65)",
+  "@genderGapProjection": {
+    "placeholders": { "annees": { "type": "String" } }
+  },
+  "genderGapAt100": "Al 100%",
+  "genderGapAtTaux": "Al {taux}%",
+  "@genderGapAtTaux": {
+    "placeholders": { "taux": { "type": "String" } }
+  },
+  "genderGapPerYear": "/anno",
+  "genderGapLacuneAnnuelle": "Lacuna annuale",
+  "genderGapLacuneTotale": "Lacuna totale (~20 anni)",
+  "genderGapCoordinationTitle": "Capire la deduzione di coordinamento",
+  "genderGapCoordinationBody": "La deduzione di coordinamento è un importo fisso di CHF\u00a026'460 sottratto dal tuo stipendio lordo per calcolare lo stipendio coordinato (base LPP). Questo importo è lo stesso sia che tu lavori al 100% o al 50%.",
+  "genderGapSalaireBrut100": "Stipendio lordo al 100%",
+  "genderGapSalaireCoordonne100": "Stipendio coordinato al 100%",
+  "genderGapSalaireBrutTaux": "Stipendio lordo al {taux}%",
+  "@genderGapSalaireBrutTaux": {
+    "placeholders": { "taux": { "type": "String" } }
+  },
+  "genderGapSalaireCoordonneTaux": "Stipendio coordinato al {taux}%",
+  "@genderGapSalaireCoordonneTaux": {
+    "placeholders": { "taux": { "type": "String" } }
+  },
+  "genderGapDeductionFixe": "Deduzione coordinamento (fissa)",
+  "genderGapSourceCoordination": "Fonte: LPP art. 8, OPP2 art. 5",
+  "genderGapStatOfsTitle": "Statistica UST",
+  "genderGapRecommandations": "Raccomandazioni",
+  "genderGapDisclaimer": "I risultati presentati sono stime semplificate a titolo indicativo. Non costituiscono una consulenza finanziaria personalizzata. Consulta la tua cassa pensioni e uno specialista qualificato prima di prendere decisioni.",
+  "genderGapSources": "Fonti",
+  "genderGapSourcesBody": "LPP art. 8 (deduzione di coordinamento) / LPP art. 14 (tasso di conversione 6.8%) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (riscatto volontario) / UST 2024 (statistiche gender gap)",
+
+  "achievementsErrorMessage": "Il caricamento non è riuscito. Riprovare?",
+  "documentsEmptyVoice": "Vuoto per ora. Scansiona un certificato e tutto diventa più chiaro.",
+  "documentsConfidenceChoc": "{count} documenti = {pct}% di fiducia",
+  "@documentsConfidenceChoc": {
+    "placeholders": {
+      "count": { "type": "String" },
+      "pct": { "type": "String" }
+    }
+  },
+
+  "lamalFranchiseAppBarTitle": "Franchigia LAMal",
+  "lamalFranchiseDemoMode": "MODALITÀ DEMO",
+  "lamalFranchiseHeaderTitle": "La tua franchigia LAMal",
+  "lamalFranchiseHeaderSubtitle": "Trova la franchigia ideale in base alle tue spese sanitarie",
+  "lamalFranchiseIntro": "Una franchigia alta riduce il tuo premio mensile, ma aumenta le spese in caso di malattia. Sposta i cursori per trovare l'equilibrio.",
+  "lamalFranchiseToggleAdulte": "Adulto",
+  "lamalFranchiseToggleEnfant": "Bambino",
+  "lamalFranchisePrimeSliderLabel": "Premio mensile (franchigia 300)",
+  "lamalFranchiseDepensesSliderLabel": "Spese sanitarie annuali stimate",
+  "lamalFranchiseComparisonHeader": "CONFRONTO FRANCHIGIE",
+  "lamalFranchiseRecommandee": "RACCOMANDATA",
+  "lamalFranchiseTotalPrefix": "Totale: {amount}",
+  "@lamalFranchiseTotalPrefix": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "lamalFranchisePrimeAn": "Premio/anno",
+  "lamalFranchiseQuotePart": "Partecipazione",
+  "lamalFranchiseEconomie": "Risparmio",
+  "lamalFranchiseBreakEvenTitle": "Soglie di redditività",
+  "lamalFranchiseBreakEvenItem": "Oltre {seuil} di spese, la franchigia {basse} diventa più vantaggiosa di {haute}.",
+  "@lamalFranchiseBreakEvenItem": {
+    "placeholders": {
+      "seuil": { "type": "String" },
+      "basse": { "type": "String" },
+      "haute": { "type": "String" }
+    }
+  },
+  "lamalFranchiseRecommandationsHeader": "RACCOMANDAZIONI",
+  "lamalFranchiseAlertText": "Promemoria: puoi cambiare la franchigia prima del 30 novembre di ogni anno per l'anno successivo.",
+  "lamalFranchiseDisclaimer": "Stima educativa. I premi variano in base all'assicuratore, alla regione e al modello. Non costituisce consulenza finanziaria (LSFin).",
+  "lamalFranchiseSourcesHeader": "Fonti",
+  "lamalFranchiseSourcesBody": "LAMal art. 62-64 (franchigia e partecipazione) / OAMal (ordinanza) / priminfo.admin.ch (comparatore ufficiale) / LAMal art. 7 (libera scelta dell'assicuratore) / LAMal art. 41a (modelli alternativi)",
+  "lamalFranchisePrimeMin": "CHF\u00a0200",
+  "lamalFranchisePrimeMax": "CHF\u00a0600",
+  "lamalFranchiseDepensesMin": "CHF\u00a00",
+  "lamalFranchiseDepensesMax": "CHF\u00a010'000",
+  "lamalFranchiseSelectAdulte": "Selezionare adulto",
+  "lamalFranchiseSelectEnfant": "Selezionare bambino",
+
+  "firstJobCantonLabel": "Cantone",
+  "firstJobSalaryMin": "CHF\u00a02'000",
+  "firstJobSalaryMax": "CHF\u00a015'000",
+  "firstJobActivityMin": "10\u00a0%",
+  "firstJobActivityMax": "100\u00a0%",
+  "firstJobFiscalSavings": "Risparmio fiscale stimato: ~{amount}/anno",
+  "@firstJobFiscalSavings": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "firstJobFranchiseSavings": "Franchigia 2'500 vs 300: risparmio stimato di ~{amount}/anno in premi",
+  "@firstJobFranchiseSavings": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "firstJobTopBadge": "TOP"
 }

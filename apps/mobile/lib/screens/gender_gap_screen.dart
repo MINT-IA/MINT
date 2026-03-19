@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/segments_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  GENDER GAP PREVOYANCE SCREEN — Sprint S12 / Chantier 6
-// ────────────────────────────────────────────────────────────
-//
-// Interactive screen showing the pension gap between current
-// activity rate and 100%. Includes taux_activite slider,
-// visual comparison, educational content about the
-// coordination deduction, and personalised recommendations.
 // ────────────────────────────────────────────────────────────
 
 class GenderGapScreen extends StatefulWidget {
@@ -39,7 +35,6 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
   }
 
   void _compute() {
-    // Scale revenue to match activity rate for the input
     final input = GenderGapInput(
       tauxActivite: _tauxActivite,
       age: _age,
@@ -57,74 +52,61 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
-        slivers: [
-          _buildAppBar(context),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _buildHeader(),
-                const SizedBox(height: 20),
-                _buildIntro(),
-                const SizedBox(height: 24),
-
-                // Taux activite slider
-                _buildTauxSlider(),
-                const SizedBox(height: 24),
-
-                // Input section
-                _buildInputSection(),
-                const SizedBox(height: 24),
-
-                // Results
-                if (_result != null) ...[
-                  _buildPensionComparison(),
-                  const SizedBox(height: 20),
-                  _buildCoordinationExplanation(),
-                  const SizedBox(height: 20),
-                  _buildOfsStatistic(),
-                  const SizedBox(height: 20),
-                  _buildRecommendations(),
-                  const SizedBox(height: 20),
-                ],
-
-                // Disclaimer
-                _buildDisclaimer(),
-                const SizedBox(height: 16),
-
-                // Sources
-                _buildSourcesFooter(),
-                const SizedBox(height: 100),
-              ]),
-            ),
-          ),
-        ],
+      appBar: AppBar(
+        backgroundColor: MintColors.white,
+        foregroundColor: MintColors.textPrimary,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
+          onPressed: () => context.pop(),
+        ),
+        title: Text(
+          s.genderGapAppBarTitle,
+          style: MintTextStyles.headlineMedium(),
+        ),
       ),
-    );
-  }
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.sm, MintSpacing.lg, MintSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildHeader(s),
+            const SizedBox(height: MintSpacing.lg),
+            _buildIntro(s),
+            const SizedBox(height: MintSpacing.lg),
 
-  // ── App Bar ────────────────────────────────────────────────
+            // Taux activite slider
+            _buildTauxSlider(s),
+            const SizedBox(height: MintSpacing.lg),
 
-  Widget _buildAppBar(BuildContext context) {
-    return SliverAppBar(
-      pinned: true,
-      backgroundColor: MintColors.background,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => context.pop(),
-      ),
-      title: Text(
-        'GENDER GAP PREVOYANCE',
-        style: GoogleFonts.montserrat(
-          fontWeight: FontWeight.w700,
-          fontSize: 14,
-          letterSpacing: 1.5,
-          color: MintColors.textMuted,
+            // Input section
+            _buildInputSection(s),
+            const SizedBox(height: MintSpacing.lg),
+
+            // Results
+            if (_result != null) ...[
+              _buildPensionComparison(s),
+              const SizedBox(height: MintSpacing.lg),
+              _buildCoordinationExplanation(s),
+              const SizedBox(height: MintSpacing.lg),
+              _buildOfsStatistic(s),
+              const SizedBox(height: MintSpacing.lg),
+              _buildRecommendations(s),
+              const SizedBox(height: MintSpacing.lg),
+            ],
+
+            // Disclaimer
+            _buildDisclaimer(s),
+            const SizedBox(height: MintSpacing.md),
+
+            // Sources
+            _buildSourcesFooter(s),
+            const SizedBox(height: MintSpacing.xxl),
+          ],
         ),
       ),
     );
@@ -132,75 +114,64 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
 
   // ── Header ─────────────────────────────────────────────────
 
-  Widget _buildHeader() {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: MintColors.successionBg,
-            borderRadius: BorderRadius.circular(16),
+  Widget _buildHeader(S s) {
+    return Semantics(
+      header: true,
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: MintColors.purple.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(
+              Icons.balance,
+              color: MintColors.purple,
+              size: 28,
+            ),
           ),
-          child: const Icon(
-            Icons.balance,
-            color: MintColors.categoryPurple,
-            size: 28,
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Lacune de prevoyance',
-                style: GoogleFonts.outfit(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
+          const SizedBox(width: MintSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  s.genderGapHeaderTitle,
+                  style: MintTextStyles.headlineLarge().copyWith(fontSize: 24),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Impact du temps partiel sur la retraite',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: MintColors.textSecondary,
+                const SizedBox(height: MintSpacing.xs),
+                Text(
+                  s.genderGapHeaderSubtitle,
+                  style: MintTextStyles.bodyMedium(),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   // ── Intro ──────────────────────────────────────────────────
 
-  Widget _buildIntro() {
+  Widget _buildIntro(S s) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.appleSurface,
+        color: MintColors.info.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.info, size: 20),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: Text(
-              'La deduction de coordination (CHF\u00A026\'460) n\'est pas '
-              'proratisee pour le temps partiel, ce qui penalise '
-              'davantage les personnes travaillant a temps reduit. '
-              'Deplacez le curseur pour voir l\'impact.',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              s.genderGapIntro,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
         ],
@@ -210,20 +181,12 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
 
   // ── Taux slider ────────────────────────────────────────────
 
-  Widget _buildTauxSlider() {
+  Widget _buildTauxSlider(S s) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withValues(alpha: 0.06),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-            spreadRadius: -4,
-          ),
-        ],
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
@@ -233,39 +196,36 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Taux d\'activite',
-                style: GoogleFonts.outfit(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+                s.genderGapTauxActivite,
+                style: MintTextStyles.titleMedium(),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: _tauxActivite < 60
-                      ? MintColors.error.withValues(alpha: 0.1)
-                      : _tauxActivite < 80
-                          ? MintColors.warning.withValues(alpha: 0.1)
-                          : MintColors.success.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '${_tauxActivite.round()}%',
-                  style: GoogleFonts.outfit(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
+              Semantics(
+                label: '${_tauxActivite.round()}%',
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
                     color: _tauxActivite < 60
-                        ? MintColors.error
+                        ? MintColors.error.withValues(alpha: 0.1)
                         : _tauxActivite < 80
-                            ? MintColors.warning
-                            : MintColors.success,
+                            ? MintColors.warning.withValues(alpha: 0.1)
+                            : MintColors.success.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '${_tauxActivite.round()}%',
+                    style: MintTextStyles.headlineMedium(
+                      color: _tauxActivite < 60
+                          ? MintColors.error
+                          : _tauxActivite < 80
+                              ? MintColors.warning
+                              : MintColors.success,
+                    ).copyWith(fontSize: 18),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
               activeTrackColor: MintColors.primary,
@@ -288,8 +248,8 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('10%', style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
-              Text('100%', style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
+              Text('10%', style: MintTextStyles.labelSmall()),
+              Text('100%', style: MintTextStyles.labelSmall()),
             ],
           ),
         ],
@@ -299,9 +259,9 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
 
   // ── Input section ──────────────────────────────────────────
 
-  Widget _buildInputSection() {
+  Widget _buildInputSection(S s) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
@@ -311,43 +271,34 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Parametres',
-            style: GoogleFonts.outfit(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
+            s.genderGapParametres,
+            style: MintTextStyles.titleMedium(),
           ),
-          const SizedBox(height: 16),
-          _buildInputRow('Revenu annuel brut (100%)', GenderGapService.formatChf(_revenuAnnuel)),
-          const SizedBox(height: 8),
-          _buildInputRow('Age', '$_age ans'),
-          const SizedBox(height: 8),
-          _buildInputRow('Avoir LPP actuel', GenderGapService.formatChf(_avoirLpp)),
-          const SizedBox(height: 8),
-          _buildInputRow('Annees de cotisation', '$_anneesCotisation'),
-          const SizedBox(height: 8),
-          _buildInputRow('Canton', _canton),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.md),
+          _buildInputRow(s.genderGapRevenuAnnuel, GenderGapService.formatChf(_revenuAnnuel)),
+          const SizedBox(height: MintSpacing.sm),
+          _buildInputRow(s.genderGapAge, s.genderGapAgeValue('$_age')),
+          const SizedBox(height: MintSpacing.sm),
+          _buildInputRow(s.genderGapAvoirLpp, GenderGapService.formatChf(_avoirLpp)),
+          const SizedBox(height: MintSpacing.sm),
+          _buildInputRow(s.genderGapAnneesCotisation, '$_anneesCotisation'),
+          const SizedBox(height: MintSpacing.sm),
+          _buildInputRow(s.genderGapCanton, _canton),
+          const SizedBox(height: MintSpacing.sm),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: MintSpacing.sm),
             decoration: BoxDecoration(
-              color: MintColors.neutralBg,
+              color: MintColors.info.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               children: [
-                const Icon(Icons.science_outlined, color: MintColors.categoryBlue, size: 16),
-                const SizedBox(width: 8),
+                const Icon(Icons.science_outlined, color: MintColors.info, size: 16),
+                const SizedBox(width: MintSpacing.sm),
                 Expanded(
                   child: Text(
-                    'Mode demo : profil exemple. Complete ton diagnostic '
-                    'pour des resultats personnalises.',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      color: MintColors.blueDark,
-                      height: 1.4,
-                    ),
+                    s.genderGapDemoMode,
+                    style: MintTextStyles.labelSmall(color: MintColors.info),
                   ),
                 ),
               ],
@@ -364,15 +315,11 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
         ),
         Text(
           value,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
         ),
       ],
     );
@@ -380,110 +327,86 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
 
   // ── Pension comparison ─────────────────────────────────────
 
-  Widget _buildPensionComparison() {
+  Widget _buildPensionComparison(S s) {
     final result = _result!;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withValues(alpha: 0.06),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-            spreadRadius: -4,
-          ),
-        ],
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Rente LPP estimee',
-            style: GoogleFonts.outfit(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            s.genderGapRenteLppEstimee,
+            style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Text(
-            'Projection a ${result.anneesRestantes} ans (age 65)',
-            style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
+            s.genderGapProjection('${result.anneesRestantes}'),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
 
           // Visual bars
           _buildPensionBar(
-            label: 'A 100%',
+            label: s.genderGapAt100,
             amount: result.renteAt100Pct,
             maxAmount: result.renteAt100Pct,
             color: MintColors.success,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           _buildPensionBar(
-            label: 'A ${_tauxActivite.round()}%',
+            label: s.genderGapAtTaux('${_tauxActivite.round()}'),
             amount: result.renteAtCurrentTaux,
             maxAmount: result.renteAt100Pct,
             color: _tauxActivite < 60 ? MintColors.error : MintColors.warning,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
 
           // Gap highlight
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: MintColors.error.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: MintColors.error.withValues(alpha: 0.2)),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Lacune annuelle',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.error,
+          Semantics(
+            label: '${s.genderGapLacuneAnnuelle} ${GenderGapService.formatChf(result.lacuneAnnuelle)}',
+            child: Container(
+              padding: const EdgeInsets.all(MintSpacing.md),
+              decoration: BoxDecoration(
+                color: MintColors.error.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: MintColors.error.withValues(alpha: 0.2)),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        s.genderGapLacuneAnnuelle,
+                        style: MintTextStyles.bodyMedium(color: MintColors.error),
                       ),
-                    ),
-                    Text(
-                      GenderGapService.formatChf(result.lacuneAnnuelle),
-                      style: GoogleFonts.outfit(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.error,
+                      Text(
+                        GenderGapService.formatChf(result.lacuneAnnuelle),
+                        style: MintTextStyles.headlineMedium(color: MintColors.error).copyWith(fontSize: 18),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Lacune totale (~20 ans)',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: MintColors.textSecondary,
+                    ],
+                  ),
+                  const SizedBox(height: MintSpacing.sm),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        s.genderGapLacuneTotale,
+                        style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                       ),
-                    ),
-                    Text(
-                      GenderGapService.formatChf(result.lacuneTotale),
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.textPrimary,
+                      Text(
+                        GenderGapService.formatChf(result.lacuneTotale),
+                        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -506,19 +429,11 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           children: [
             Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
             Text(
-              '${GenderGapService.formatChf(amount)}/an',
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
+              '${GenderGapService.formatChf(amount)}${S.of(context)!.genderGapPerYear}',
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
             ),
           ],
         ),
@@ -538,10 +453,10 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
 
   // ── Coordination explanation ───────────────────────────────
 
-  Widget _buildCoordinationExplanation() {
+  Widget _buildCoordinationExplanation(S s) {
     final result = _result!;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
@@ -553,75 +468,63 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           Row(
             children: [
               const Icon(Icons.school_outlined, color: MintColors.purple, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                'Comprendre la deduction de coordination',
-                style: GoogleFonts.outfit(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
+              const SizedBox(width: MintSpacing.sm),
+              Expanded(
+                child: Text(
+                  s.genderGapCoordinationTitle,
+                  style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           Text(
-            'La deduction de coordination est un montant fixe de '
-            'CHF\u00A026\'460 soustrait de ton salaire brut pour '
-            'calculer le salaire coordonne (base LPP). Ce montant '
-            'est le meme que tu travailles a 100% ou a 50%.',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.5,
-            ),
+            s.genderGapCoordinationBody,
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Comparison table
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: MintColors.appleSurface,
+              color: MintColors.surface,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
               children: [
                 _buildComparisonRow(
-                  'Salaire brut a 100%',
+                  s.genderGapSalaireBrut100,
                   GenderGapService.formatChf(_revenuAnnuel),
                 ),
-                const Divider(height: 16),
+                const Divider(height: MintSpacing.md),
                 _buildComparisonRow(
-                  'Salaire coordonne a 100%',
+                  s.genderGapSalaireCoordonne100,
                   GenderGapService.formatChf(result.salaireCoordonne100),
                 ),
-                const Divider(height: 16),
+                const Divider(height: MintSpacing.md),
                 _buildComparisonRow(
-                  'Salaire brut a ${_tauxActivite.round()}%',
+                  s.genderGapSalaireBrutTaux('${_tauxActivite.round()}'),
                   GenderGapService.formatChf(_revenuAnnuel * (_tauxActivite / 100)),
                 ),
-                const Divider(height: 16),
+                const Divider(height: MintSpacing.md),
                 _buildComparisonRow(
-                  'Salaire coordonne a ${_tauxActivite.round()}%',
+                  s.genderGapSalaireCoordonneTaux('${_tauxActivite.round()}'),
                   GenderGapService.formatChf(result.salaireCoordonneActuel),
                   highlight: true,
                 ),
-                const Divider(height: 16),
+                const Divider(height: MintSpacing.md),
                 _buildComparisonRow(
-                  'Deduction coordination (fixe)',
+                  s.genderGapDeductionFixe,
                   GenderGapService.formatChf(result.deductionCoordination),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           Text(
-            'Source : LPP art. 8, OPP2 art. 5',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textMuted,
-            ),
+            s.genderGapSourceCoordination,
+            style: MintTextStyles.labelSmall(),
           ),
         ],
       ),
@@ -635,18 +538,14 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         Expanded(
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 12,
+            style: MintTextStyles.labelSmall(
               color: highlight ? MintColors.error : MintColors.textSecondary,
-              fontWeight: highlight ? FontWeight.w600 : FontWeight.w400,
             ),
           ),
         ),
         Text(
           value,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
+          style: MintTextStyles.bodySmall(
             color: highlight ? MintColors.error : MintColors.textPrimary,
           ),
         ),
@@ -656,42 +555,30 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
 
   // ── OFS Statistic ──────────────────────────────────────────
 
-  Widget _buildOfsStatistic() {
+  Widget _buildOfsStatistic(S s) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [MintColors.successionBg, MintColors.successionBg.withValues(alpha: 0.5)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: MintColors.purple.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.bar_chart, color: MintColors.categoryPurple, size: 24),
-          const SizedBox(width: 12),
+          const Icon(Icons.bar_chart, color: MintColors.purple, size: 24),
+          const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Statistique OFS',
-                  style: GoogleFonts.outfit(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.purpleDark,
-                  ),
+                  s.genderGapStatOfsTitle,
+                  style: MintTextStyles.titleMedium(color: MintColors.purple).copyWith(fontSize: 14),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   GenderGapService.statistiqueOfs,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.purpleDark,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.purple),
                 ),
               ],
             ),
@@ -703,7 +590,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
 
   // ── Recommendations ────────────────────────────────────────
 
-  Widget _buildRecommendations() {
+  Widget _buildRecommendations(S s) {
     final result = _result!;
     if (result.recommendations.isEmpty) return const SizedBox.shrink();
 
@@ -713,21 +600,16 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         Row(
           children: [
             const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.textMuted),
-            const SizedBox(width: 8),
+            const SizedBox(width: MintSpacing.sm),
             Text(
-              'RECOMMANDATIONS',
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textMuted,
-                letterSpacing: 1,
-              ),
+              s.genderGapRecommandations,
+              style: MintTextStyles.labelSmall(),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm),
         ...result.recommendations.map((rec) => Padding(
-          padding: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.only(bottom: MintSpacing.sm),
           child: _buildRecommendationCard(rec),
         )),
       ],
@@ -735,69 +617,57 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
   }
 
   Widget _buildRecommendationCard(GenderGapRecommendation rec) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            rec.title,
-            style: GoogleFonts.outfit(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
+    return Semantics(
+      label: rec.title,
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              rec.title,
+              style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            rec.description,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.5,
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              rec.description,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            rec.source,
-            style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted),
-          ),
-        ],
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              rec.source,
+              style: MintTextStyles.labelSmall(),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   // ── Disclaimer ─────────────────────────────────────────────
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S s) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.warningBg,
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.orangeRetroWarm),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: Text(
-              'Les resultats presentes sont des estimations simplifiees '
-              'a titre indicatif. Ils ne constituent pas un conseil '
-              'financier personnalise. Consulte ta caisse de pension '
-              'et un professionnel qualifie avant toute decision.',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.deepOrange,
-                height: 1.5,
-              ),
+              s.genderGapDisclaimer,
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ),
         ],
@@ -807,30 +677,18 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
 
   // ── Sources footer ─────────────────────────────────────────
 
-  Widget _buildSourcesFooter() {
+  Widget _buildSourcesFooter(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Sources',
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textMuted,
-          ),
+          s.genderGapSources,
+          style: MintTextStyles.labelSmall(),
         ),
         const SizedBox(height: 6),
         Text(
-          'LPP art. 8 (deduction de coordination) / '
-          'LPP art. 14 (taux de conversion 6.8%) / '
-          'OPP2 art. 5 / OPP3 art. 7 / '
-          'LPP art. 79b (rachat volontaire) / '
-          'OFS 2024 (statistiques gender gap)',
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            color: MintColors.textMuted,
-            height: 1.5,
-          ),
+          s.genderGapSourcesBody,
+          style: MintTextStyles.labelSmall(),
         ),
       ],
     );
