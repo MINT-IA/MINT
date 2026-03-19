@@ -201,10 +201,13 @@ Crise:         debtCrisis
 ### Swiss Law References
 LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral) | LAMal (assurance maladie) | CO (obligations) | CC (civil) | FINMA circulars
 
-### Language
+### Language & Voice
+- **Full spec**: `docs/VOICE_SYSTEM.md` — pillars, tone by context, audience adaptations, 50 avant/après
 - User-facing text in French (informal "tu"), inclusive ("un·e spécialiste")
 - Educational tone, never prescriptive. Conditional language ("pourrait", "envisager").
 - Non-breaking space (`\u00a0`) before `!`, `?`, `:`, `;`, `%`
+- Voice: calme, précis, fin, rassurant, net. Jamais générique, jamais infantilisant.
+- Adapt by context (discovery/stress/victory), mastery level, and product moment — NOT by age.
 
 ---
 
@@ -367,6 +370,7 @@ If code contradicts 1-8: fix the code OR write an ADR.
 | `docs/ONBOARDING_ARBITRAGE_ENGINE.md` | Onboarding + arbitrage specs |
 | `docs/DATA_ACQUISITION_STRATEGY.md` | OCR, guided entry, Open Banking |
 | `docs/DESIGN_SYSTEM.md` | Visual direction + tokens + components + screen categories + checklist |
+| `docs/VOICE_SYSTEM.md` | Editorial system: brand voice, tone by context, microcopy, 50 avant/après |
 | `docs/NAVIGATION_GRAAL_V10.md` | Target IA: 4 tabs + 7 hubs + Capture + migration plan |
 | `docs/UX_WIDGET_REDESIGN_MASTERPLAN.md` | UX 7 laws + 75 creative proposals |
 | `visions/MINT_Analyse_Strategique_Benchmark.md` | 40+ app benchmark + academic research |
