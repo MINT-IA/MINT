@@ -3309,7 +3309,7 @@ class SDe extends S {
   String get exploreLearnFiscal => 'Schweizer Steuern 101';
 
   @override
-  String get coachWelcome => 'Willkommen bei MINT';
+  String get coachWelcome => 'Deine Zahlen sind bereit';
 
   @override
   String coachHello(String firstName) {
@@ -3336,10 +3336,10 @@ class SDe extends S {
 
   @override
   String get coachCompletePrompt =>
-      'Schliesse deine Diagnose ab, um deinen Score zu entdecken';
+      'Schliesse deine Diagnose ab, um deinen Score zu sehen';
 
   @override
-  String get coachDiscoverScore => 'Meinen Score entdecken — 10 Min.';
+  String get coachDiscoverScore => 'Meinen Score sehen — 10 Min';
 
   @override
   String get coachTrajectory => 'Deine Entwicklung';
@@ -3527,7 +3527,7 @@ class SDe extends S {
 
   @override
   String get eduHubSubtitle =>
-      'Keine Panik. Waehle ein Thema, wir erklaeren dir das Wichtigste und geben dir eine einfache Aktion.';
+      'Wähle ein Thema. Das Wesentliche klar erklärt, eine konkrete Aktion am Ende.';
 
   @override
   String get eduHubReadQuiz => 'Lesen + Quiz • 2 Min';
@@ -3632,11 +3632,11 @@ class SDe extends S {
   String get trajectoryTauxRemplacement => 'Geschätzter Ersatzquote: ';
 
   @override
-  String get trajectoryEmpty => 'Noch keine Projektion verfügbar';
+  String get trajectoryEmpty => 'Noch keine Projektion';
 
   @override
   String get trajectoryEmptySub =>
-      'Vervollständige dein Profil, um deine Entwicklung zu sehen';
+      'Ein Scan deines BVG-Ausweises, und alles wird klar.';
 
   @override
   String get trajectoryDisclaimer =>

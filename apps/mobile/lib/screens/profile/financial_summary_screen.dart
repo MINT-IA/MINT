@@ -132,9 +132,9 @@ class FinancialSummaryScreen extends StatelessWidget {
         : null;
 
     // ── Hero Gap data ──
-    final currentMonthlyNet = breakdown != null
-        ? breakdown.disposableIncome / 12
-        : 0.0;
+    // Use monthlyNetPayslip — same as Pulse and ForecasterService —
+    // for consistent replacement rate denominators across screens.
+    final currentMonthlyNet = breakdown?.monthlyNetPayslip ?? 0.0;
     final renteAvs = prev.renteAVSEstimeeMensuelle ?? 0;
     final renteLpp =
         (prev.avoirLppTotal ?? 0) * prev.tauxConversion / 12;

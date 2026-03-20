@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -88,11 +89,11 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
     _firstName = widget.profile.firstName ?? 'toi';
 
     // Score color
-    if (score.global >= 80) {
+    if (score.global >= friThresholdExcellent) {
       _scoreColor = MintColors.scoreExcellent;
-    } else if (score.global >= 60) {
+    } else if (score.global >= friThresholdBon) {
       _scoreColor = MintColors.scoreBon;
-    } else if (score.global >= 40) {
+    } else if (score.global >= friThresholdAttention) {
       _scoreColor = MintColors.scoreAttention;
     } else {
       _scoreColor = MintColors.scoreCritique;
@@ -583,17 +584,17 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
   }
 
   Color _colorForScore(int score) {
-    if (score >= 80) return MintColors.scoreExcellent;
-    if (score >= 60) return MintColors.scoreBon;
-    if (score >= 40) return MintColors.scoreAttention;
+    if (score >= friThresholdExcellent) return MintColors.scoreExcellent;
+    if (score >= friThresholdBon) return MintColors.scoreBon;
+    if (score >= friThresholdAttention) return MintColors.scoreAttention;
     return MintColors.scoreCritique;
   }
 
   String _localizedLevelLabel(BuildContext context) {
     final score = widget.score.global;
-    if (score >= 80) return S.of(context)!.scoreRevealLevelExcellent;
-    if (score >= 60) return S.of(context)!.scoreRevealLevelGood;
-    if (score >= 40) return S.of(context)!.scoreRevealLevelWarning;
+    if (score >= friThresholdExcellent) return S.of(context)!.scoreRevealLevelExcellent;
+    if (score >= friThresholdBon) return S.of(context)!.scoreRevealLevelGood;
+    if (score >= friThresholdAttention) return S.of(context)!.scoreRevealLevelWarning;
     return S.of(context)!.scoreRevealLevelCritical;
   }
 

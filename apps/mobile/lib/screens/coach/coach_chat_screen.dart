@@ -11,6 +11,8 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/backend_coach_service.dart';
+import 'package:mint_mobile/services/cap_engine.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
@@ -177,14 +179,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     final s = S.of(context)!;
 
     final tier = _currentTier();
-    final String greeting;
-
-    if (tier == ChatTier.slm) {
-      greeting = s.coachGreetingSlm(name);
-    } else {
-      final scoreSuffix = _buildGreetingScoreContext(p);
-      greeting = s.coachGreetingDefault(name, scoreSuffix);
-    }
+    final greeting = _buildCapBasedGreeting(p, name, tier, s);
 
     // Phase 1: personalized suggestions based on age/archetype
     final personalizedPrompts = ResponseCardService.suggestedPrompts(p);
@@ -216,14 +211,33 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     ));
   }
 
-  String _buildGreetingScoreContext(CoachProfile profile) {
+  /// Build a greeting grounded in the user's current cap decision,
+  /// not a generic score. Pattern: "{name}, {observation}. {levier}."
+  String _buildCapBasedGreeting(
+    CoachProfile profile,
+    String name,
+    ChatTier tier,
+    S s,
+  ) {
+    if (tier == ChatTier.slm) {
+      return s.coachGreetingSlm(name);
+    }
+
+    // Try to build a greeting from the cap du jour
     try {
-      final score = FinancialFitnessService.calculate(profile: profile);
-      if (score.global > 0) {
-        return S.of(context)!.coachScoreSuffix(score.global);
-      }
-    } catch (_) {}
-    return '';
+      final cap = CapEngine.compute(
+        profile: profile,
+        now: DateTime.now(),
+      );
+      // Use the cap headline as the observation
+      return '$name, ${cap.headline[0].toLowerCase()}'
+          '${cap.headline.substring(1)}. '
+          '${cap.ctaLabel}\u00a0?';
+    } catch (_) {
+      // Fallback: minimal, not generic
+      return '$name, tes chiffres sont là. '
+          'Qu\u2019est-ce qu\u2019on regarde\u00a0?';
+    }
   }
 
   ChatTier _currentTier() {
@@ -291,6 +305,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       await _handleStreamResponse(stream, text.trim(), ctx);
       return;
     }
+
+    // Try backend Claude proxy (S56 — server-side, no BYOK needed).
+    final backendSuccess = await _tryBackendClaude(text.trim());
+    if (backendSuccess) return;
 
     // Fallback to standard (BYOK → fallback chain).
     await _handleStandardResponse(text.trim(), memoryBlock: memoryBlock);
@@ -407,6 +425,48 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       _isStreaming = false;
     });
     _scrollToBottom();
+  }
+
+  /// Try backend Claude proxy (S56). Returns true if successful.
+  Future<bool> _tryBackendClaude(String text) async {
+    if (_profile == null) return false;
+
+    try {
+      final history = _messages
+          .where((m) => m.role == 'user' || m.role == 'assistant')
+          .map((m) => {'role': m.role, 'content': m.content})
+          .toList();
+
+      final response = await BackendCoachService.chat(
+        message: text,
+        profile: _profile!,
+        history: history,
+      );
+
+      if (response == null) return false;
+
+      // Generate inline response cards
+      final cards = ResponseCardService.generateForChat(_profile!, text);
+
+      if (!mounted) return true;
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: response.reply,
+          timestamp: DateTime.now(),
+          suggestedActions: _inferSuggestedActions(text),
+          responseCards: cards,
+          tier: ChatTier.byok, // Show as AI-powered, not fallback
+          disclaimers: [response.disclaimer],
+        ));
+        _isLoading = false;
+      });
+      _scrollToBottom();
+      return true;
+    } catch (e) {
+      debugPrint('[CoachChat] Backend Claude error: $e');
+      return false;
+    }
   }
 
   /// Handle standard (non-streaming) response via orchestrator.
