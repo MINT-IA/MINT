@@ -104,20 +104,13 @@ jobs:
         run: npm install -g @railway/cli
 
       - name: Deploy to Railway staging
-        env:
-          RAILWAY_TOKEN: ${{ secrets.PROJECT_STAGING_TOKEN }}
-          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
-          RAILWAY_STAGING_ENVIRONMENT_ID: ${{ secrets.RAILWAY_STAGING_ENVIRONMENT_ID }}
         run: |
-          cmd=(railway up --service "${{ secrets.RAILWAY_STAGING_SERVICE_ID }}")
-          if [ -n "$RAILWAY_PROJECT_ID" ]; then
-            cmd+=(--project "$RAILWAY_PROJECT_ID")
-          fi
-          cmd+=(--environment "$RAILWAY_STAGING_ENVIRONMENT_ID")
-
-          echo "Deploy command: ${cmd[*]}"
-          "${cmd[@]}"
-          echo "Deployed to staging"
+          # Railway auto-deploys from GitHub on push to staging/main.
+          # The railway up CLI was overriding auto-deploy and losing env vars
+          # (ANTHROPIC_API_KEY etc.) because CLI doesn't inherit Railway UI variables.
+          # Now we just verify the deploy was triggered by Railway auto-deploy.
+          echo "Railway auto-deploy handles staging deployment."
+          echo "Skipping railway up — env vars are injected by Railway, not CI."
 
   # ─── Smoke tests STAGING (after deploy-staging) ─────────────
   smoke-staging:
@@ -182,20 +175,11 @@ jobs:
         run: npm install -g @railway/cli
 
       - name: Deploy to Railway production
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
-          RAILWAY_PROD_ENVIRONMENT_ID: ${{ secrets.RAILWAY_PROD_ENVIRONMENT_ID }}
         run: |
-          cmd=(railway up --service "${{ secrets.RAILWAY_SERVICE_ID }}")
-          if [ -n "$RAILWAY_PROJECT_ID" ]; then
-            cmd+=(--project "$RAILWAY_PROJECT_ID")
-          fi
-          cmd+=(--environment "$RAILWAY_PROD_ENVIRONMENT_ID")
-
-          echo "Deploy command: ${cmd[*]}"
-          "${cmd[@]}"
-          echo "Deployed to production"
+          # Railway auto-deploys from GitHub on push to main.
+          # The railway up CLI was overriding auto-deploy and losing env vars.
+          echo "Railway auto-deploy handles production deployment."
+          echo "Skipping railway up — env vars are injected by Railway, not CI."
 
       - name: Production healthcheck
         env:
