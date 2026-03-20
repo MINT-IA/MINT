@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P8-C  La Clause 3a oubliée — OPP3 clause bénéficiaire
@@ -101,20 +101,12 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
               children: [
                 Text(
                   'La clause 3a oubliée',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'OPP3 art. 2 — Le 3e pilier ne suit PAS les règles successorales ordinaires.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
             ),
@@ -138,11 +130,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
           const SizedBox(width: 10),
           Text(
             'Ton 3e pilier : CHF ${_fmt(widget.balance3a)}',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: MintColors.primary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -162,21 +150,13 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
         children: [
           Text(
             '💰 Sans clause : ton 3a de CHF ${_fmt(widget.balance3a)} part à tes parents, pas à $partner.',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: MintColors.scoreCritique,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Text(
             'La clause bénéficiaire déroge à la succession ordinaire (OPP3 art. 2). '
             'Sans clause déposée auprès de ta fondation, la loi s\'applique par défaut.',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
           ),
         ],
       ),
@@ -189,11 +169,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
       children: [
         Text(
           'As-tu déposé une clause bénéficiaire ?',
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 8),
         Row(
@@ -224,11 +200,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
         ),
         child: Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: isSelected ? color : MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: isSelected ? color : MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
       ),
     );
@@ -249,11 +221,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
             Expanded(
               child: Text(
                 'Bien ! Vérifie que la clause désigne bien $partner — et qu\'elle est à jour après chaque événement de vie.',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textPrimary,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
               ),
             ),
           ],
@@ -273,12 +241,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
             Expanded(
               child: Text(
                 'Action prioritaire : dépose ta clause bénéficiaire auprès de ta fondation 3a — en 5 minutes.',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.scoreCritique,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w600, height: 1.4),
               ),
             ),
           ],
@@ -307,11 +270,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
         children: [
           Text(
             'Comment déposer une clause en 5 minutes :',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: MintColors.info,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           ...steps.asMap().entries.map((e) => Padding(
@@ -329,7 +288,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
                   child: Center(
                     child: Text(
                       '${e.key + 1}',
-                      style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: MintColors.white),
+                      style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),
                 ),
@@ -337,7 +296,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
                 Expanded(
                   child: Text(
                     e.value,
-                    style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary, height: 1.4),
+                    style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
                   ),
                 ),
               ],
@@ -352,11 +311,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : OPP3 art. 2 al. 1 let. a, CC art. 457-462.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

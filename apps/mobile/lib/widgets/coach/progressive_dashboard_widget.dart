@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P1-J  Le Dashboard progressif — 3 vues selon la maturité
@@ -160,15 +160,11 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
               children: [
                 Text(
                   'Ton tableau de bord retraite',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
                 Text(
                   'Confiance : ${widget.confidenceScore}% — Vue : $_levelLabel',
-                  style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                 ),
               ],
             ),
@@ -190,7 +186,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
         children: [
           Text(
             'Vue :',
-            style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
           ),
           const SizedBox(width: 10),
           ...List.generate(3, (i) {
@@ -211,11 +207,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
                   ),
                   child: Text(
                     levels[i],
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: selected ? MintColors.white : MintColors.textSecondary,
-                    ),
+                    style: MintTextStyles.labelSmall(color: selected ? MintColors.white : MintColors.textSecondary).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
@@ -239,21 +231,17 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
         children: [
           Text(
             'Ton salaire après 65',
-            style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 4),
           Text(
             'CHF ${_fmt(widget.heroMonthlyRente)}/mois',
-            style: GoogleFonts.montserrat(
-              fontSize: 32,
-              fontWeight: FontWeight.w900,
-              color: MintColors.primary,
-            ),
+            style: MintTextStyles.displayMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w900),
           ),
           const SizedBox(height: 4),
           Text(
             'AVS + LPP · Projection scénario de base',
-            style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
           ),
         ],
       ),
@@ -270,11 +258,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
           children: [
             Text(
               '${metrics.length} indicateurs — Vue $_levelLabel',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
             ),
             if (_level < 3)
               GestureDetector(
@@ -284,7 +268,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
                   children: [
                     Text(
                       'Plus de détails',
-                      style: GoogleFonts.inter(fontSize: 11, color: MintColors.primary),
+                      style: MintTextStyles.labelSmall(color: MintColors.primary),
                     ),
                     const Icon(Icons.chevron_right, color: MintColors.primary, size: 16),
                   ],
@@ -318,19 +302,15 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(m.label, style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary)),
+                Text(m.label, style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12)),
                 if (m.note != null)
-                  Text(m.note!, style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary)),
+                  Text(m.note!, style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal)),
               ],
             ),
           ),
           Text(
             '${m.value} ${m.unit}',
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
+            style: MintTextStyles.bodyMedium(color: color).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -356,21 +336,13 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
               children: [
                 Text(
                   widget.nextActionLabel!,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.scoreExcellent,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w700),
                 ),
                 if (widget.nextActionDetail != null) ...[
                   const SizedBox(height: 4),
                   Text(
                     widget.nextActionDetail!,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                      height: 1.4,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                   ),
                 ],
               ],
@@ -385,11 +357,7 @@ class _ProgressiveDashboardWidgetState extends State<ProgressiveDashboardWidget>
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Niveaux basés sur le score de confiance du profil. Projection indicative.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
     );
   }
 }

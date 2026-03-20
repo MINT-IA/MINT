@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P2-B  Le Film du divorce en 3 actes
@@ -124,11 +124,7 @@ class DivorceFilmWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Le film du divorce en 3 actes',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -136,7 +132,7 @@ class DivorceFilmWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Dans l\'ordre chronologique de ce que tu vas vivre — chiffres réels, pas de tabous.',
-            style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
           ),
         ],
       ),
@@ -176,11 +172,7 @@ class DivorceFilmWidget extends StatelessWidget {
                   ),
                   child: Text(
                     number,
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                      color: MintColors.white,
-                    ),
+                    style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -189,11 +181,7 @@ class DivorceFilmWidget extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -208,7 +196,7 @@ class DivorceFilmWidget extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   legalRef,
-                  style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                  style: MintTextStyles.micro(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -224,12 +212,7 @@ class DivorceFilmWidget extends StatelessWidget {
       children: [
         Text(
           '"Vos LPP accumulés pendant le mariage sont coupés en deux. Point."',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: MintColors.textPrimary,
-            fontStyle: FontStyle.italic,
-            height: 1.4,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontStyle: FontStyle.italic, height: 1.4),
         ),
         const SizedBox(height: 12),
         Row(
@@ -252,12 +235,7 @@ class DivorceFilmWidget extends StatelessWidget {
             ),
             child: Text(
               'Tu transfères CHF ${_fmt(_lppTransfer)} → ta rente LPP baisse de ~CHF ${_fmt(_lppMonthlyRenteLoss)}/mois',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.scoreCritique,
-                height: 1.4,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w700, height: 1.4),
             ),
           ),
         ],
@@ -275,11 +253,11 @@ class DivorceFilmWidget extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(label, style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary)),
+          Text(label, style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
           const SizedBox(height: 4),
           Text(
             'CHF ${_fmt(amount)}',
-            style: GoogleFonts.montserrat(fontSize: 14, fontWeight: FontWeight.w800, color: color),
+            style: MintTextStyles.bodyMedium(color: color).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -313,12 +291,7 @@ class DivorceFilmWidget extends StatelessWidget {
             positive
                 ? '+CHF ${_fmt(_monthlyTaxDelta)}/mois d\'impôts — tu perds le splitting marié.'
                 : '-CHF ${_fmt(_monthlyTaxDelta.abs())}/mois d\'impôts — tu gagnes en indépendance.',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: positive ? MintColors.scoreCritique : MintColors.scoreExcellent,
-              height: 1.4,
-            ),
+            style: MintTextStyles.labelSmall(color: positive ? MintColors.scoreCritique : MintColors.scoreExcellent).copyWith(fontSize: 12, fontWeight: FontWeight.w700, height: 1.4),
           ),
         ),
         if (childrenCount > 0)
@@ -326,7 +299,7 @@ class DivorceFilmWidget extends StatelessWidget {
             padding: const EdgeInsets.only(top: 8),
             child: Text(
               '💡 Avec la garde des enfants, tu peux déduire les frais de garde (LIFD art. 35).',
-              style: GoogleFonts.inter(fontSize: 11, color: MintColors.info, height: 1.4),
+              style: MintTextStyles.labelSmall(color: MintColors.info).copyWith(height: 1.4),
             ),
           ),
       ],
@@ -343,11 +316,11 @@ class DivorceFilmWidget extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(label, style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary)),
+          Text(label, style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
           const SizedBox(height: 4),
           Text(
             'CHF ${_fmt(amount)}/an',
-            style: GoogleFonts.montserrat(fontSize: 13, fontWeight: FontWeight.w800, color: color),
+            style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -369,17 +342,17 @@ class DivorceFilmWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Total mensuel', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
+              Text('Total mensuel', style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
               Text(
                 'CHF ${_fmt(_totalMonthlyPension)}/mois',
-                style: GoogleFonts.montserrat(fontSize: 15, fontWeight: FontWeight.w800, color: MintColors.info),
+                style: MintTextStyles.titleMedium(color: MintColors.info).copyWith(fontSize: 15, fontWeight: FontWeight.w800),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
             '⚠️ La pension versée est déductible de TES impôts. Elle est imposable pour l\'autre.',
-            style: GoogleFonts.inter(fontSize: 11, color: MintColors.scoreAttention, height: 1.4),
+            style: MintTextStyles.labelSmall(color: MintColors.scoreAttention).copyWith(height: 1.4),
           ),
         ],
       ],
@@ -392,10 +365,10 @@ class DivorceFilmWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary)),
+          Text(label, style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12)),
           Text(
             'CHF ${_fmt(amount)}/mois',
-            style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: MintColors.info),
+            style: MintTextStyles.labelSmall(color: MintColors.info).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -407,11 +380,7 @@ class DivorceFilmWidget extends StatelessWidget {
       'Outil éducatif · ne constitue pas un conseil juridique au sens de la LSFin. '
       'Source : CC art. 122 (partage LPP), LIFD art. 33/23/35 (pensions alimentaires). '
       'Pension indicative : CHF 1\'500/enfant + CHF 500 conjoint·e.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Carte d'action réutilisable
 ///
@@ -123,20 +123,12 @@ class ActionCard extends StatelessWidget {
       children: [
         Text(
           title,
-          style: GoogleFonts.outfit(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
         ),
         const SizedBox(height: 4),
         Text(
           subtitle,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: MintColors.textSecondary,
-            height: 1.4,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
         ),
       ],
     );

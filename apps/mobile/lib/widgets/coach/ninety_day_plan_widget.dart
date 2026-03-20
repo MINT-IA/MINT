@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  NINETY DAY PLAN WIDGET — P6-B / S42 UX Redesign
@@ -86,11 +86,7 @@ class NinetyDayPlanWidget extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Plan 90 jours \u2014 Checklist de survie',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
                 Container(
@@ -102,11 +98,7 @@ class NinetyDayPlanWidget extends StatelessWidget {
                   ),
                   child: Text(
                     '$_done/$_total',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.primary,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -114,10 +106,7 @@ class NinetyDayPlanWidget extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               'Les 90 premiers jours d\u00e9finissent ta protection',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
             ),
 
             const SizedBox(height: 16),
@@ -151,11 +140,7 @@ class NinetyDayPlanWidget extends StatelessWidget {
             Text(
               'R\u00e9f\u00e9rences\u00a0: LEI, LAVS art. 12, LACI, LAA art. 4. '
               'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin).',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ],
         ),
@@ -177,11 +162,7 @@ class NinetyDayPlanWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   phase.title,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
               Container(
@@ -193,11 +174,7 @@ class NinetyDayPlanWidget extends StatelessWidget {
                 ),
                 child: Text(
                   phase.deadline,
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: phase.urgencyColor,
-                  ),
+                  style: MintTextStyles.micro(color: phase.urgencyColor).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
                 ),
               ),
             ],
@@ -232,22 +209,12 @@ class NinetyDayPlanWidget extends StatelessWidget {
               children: [
                 Text(
                   action.label,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textPrimary,
-                    decoration: action.isCompleted
-                        ? TextDecoration.lineThrough
-                        : null,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, decoration: action.isCompleted ? TextDecoration.lineThrough : null),
                 ),
                 if (action.consequence != null)
                   Text(
                     action.consequence!,
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      color: MintColors.scoreCritique,
-                      fontStyle: FontStyle.italic,
-                    ),
+                    style: MintTextStyles.micro(color: MintColors.scoreCritique),
                   ),
               ],
             ),

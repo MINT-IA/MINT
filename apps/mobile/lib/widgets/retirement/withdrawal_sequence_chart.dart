@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Comparaison visuelle de deux strategies de retrait en capital :
 /// naive (tout d'un coup a la retraite) vs echelonnee (sur plusieurs annees).
@@ -62,21 +62,13 @@ class WithdrawalSequenceChart extends StatelessWidget {
         // ── Titre ─────────────────────────────────────────────
         Text(
           'Sequence de retrait suggeree',
-          style: GoogleFonts.montserrat(
-            fontSize: 17,
-            fontWeight: FontWeight.w800,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 4),
         Text(
           'Echelonner les retraits en capital pour reduire '
           'la charge fiscale',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: MintColors.textSecondary,
-            height: 1.4,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 13, height: 1.4),
         ),
         const SizedBox(height: 20),
 
@@ -124,11 +116,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
       child: Text(
         message,
         textAlign: TextAlign.center,
-        style: GoogleFonts.inter(
-          fontSize: 14,
-          color: MintColors.textSecondary,
-          height: 1.5,
-        ),
+        style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(height: 1.5),
       ),
     );
   }
@@ -158,22 +146,14 @@ class WithdrawalSequenceChart extends StatelessWidget {
         children: [
           Text(
             'Economie fiscale estimee',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 13, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 12),
 
           // Big green number
           Text(
             _formatChf(result.taxSavings),
-            style: GoogleFonts.montserrat(
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              color: MintColors.success,
-            ),
+            style: MintTextStyles.displayMedium(color: MintColors.success).copyWith(fontSize: 28, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 4),
 
@@ -186,11 +166,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
             ),
             child: Text(
               "soit ${(result.savingsPercent * 100).toStringAsFixed(0)}% d'impots en moins",
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: MintColors.success,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
             ),
           ),
           const SizedBox(height: 16),
@@ -235,19 +211,17 @@ class WithdrawalSequenceChart extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: GoogleFonts.inter(
+            style: MintTextStyles.bodySmall(color: muted ? MintColors.textMuted : MintColors.textPrimary).copyWith(
               fontSize: 13,
-              color: muted ? MintColors.textMuted : MintColors.textPrimary,
               decoration: muted ? TextDecoration.lineThrough : null,
             ),
           ),
         ),
         Text(
           "${_formatChf(amount)} d'impots",
-          style: GoogleFonts.inter(
+          style: MintTextStyles.bodySmall(color: muted ? MintColors.textMuted : MintColors.success).copyWith(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: muted ? MintColors.textMuted : MintColors.success,
             decoration: muted ? TextDecoration.lineThrough : null,
           ),
         ),
@@ -320,11 +294,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
                   left: x,
                   child: Text(
                     '$year',
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      color: MintColors.textMuted,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 10, fontWeight: FontWeight.w500, fontStyle: FontStyle.normal),
                   ),
                 );
               }).toList(),
@@ -358,11 +328,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
             padding: const EdgeInsets.only(top: 6),
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: isOptimal ? MintColors.success : MintColors.textMuted,
-              ),
+              style: MintTextStyles.bodyMedium(color: isOptimal ? MintColors.success : MintColors.textMuted).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ),
         ),
@@ -451,21 +417,14 @@ class WithdrawalSequenceChart extends StatelessWidget {
             children: [
               Text(
                 _formatChfCompact(event.amount),
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.white,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
               ),
               if (blockWidth > 64)
                 Text(
                   event.label,
-                  style: GoogleFonts.inter(
-                    fontSize: 9,
-                    color: MintColors.white.withValues(alpha: 0.85),
-                  ),
+                  style: MintTextStyles.micro(color: MintColors.white.withValues(alpha: 0.85)).copyWith(fontSize: 9, fontStyle: FontStyle.normal),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),
@@ -476,10 +435,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
         // Effective rate below
         Text(
           'taux: ${(event.effectiveRate * 100).toStringAsFixed(1)}%',
-          style: GoogleFonts.inter(
-            fontSize: 9,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 9, fontStyle: FontStyle.normal),
         ),
       ],
     );
@@ -500,11 +456,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
       children: [
         Text(
           'Sequence suggeree',
-          style: GoogleFonts.montserrat(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 8),
         Container(
@@ -569,10 +521,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
                 width: 72,
                 child: Text(
                   '${event.year} (${event.age} ans)',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12),
                 ),
               ),
 
@@ -580,11 +529,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
               Expanded(
                 child: Text(
                   event.label,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
                 ),
               ),
 
@@ -594,11 +539,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
                 child: Text(
                   _formatChf(event.amount),
                   textAlign: TextAlign.right,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                 ),
               ),
             ],
@@ -614,10 +555,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
               Text(
                 'impot: ${_formatChf(event.tax)} '
                 '(${(event.effectiveRate * 100).toStringAsFixed(1)}%)',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               ),
             ],
           ),
@@ -648,11 +586,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
           const SizedBox(width: 18), // align with dots
           Text(
             'Total',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w700),
           ),
           const Spacer(),
           Column(
@@ -660,21 +594,13 @@ class WithdrawalSequenceChart extends StatelessWidget {
             children: [
               Text(
                 _formatChf(totalAmount),
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 2),
               Text(
                 'impot: ${_formatChf(totalTax)} '
                 '(${totalRate.toStringAsFixed(1)}%)',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.success,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -738,10 +664,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
         const SizedBox(width: 5),
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
         ),
       ],
     );
@@ -757,21 +680,13 @@ class WithdrawalSequenceChart extends StatelessWidget {
       children: [
         Text(
           result.disclaimer,
-          style: GoogleFonts.inter(
-            fontSize: 10,
-            color: MintColors.textMuted,
-            height: 1.4,
-          ),
+          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 10, fontStyle: FontStyle.normal, height: 1.4),
         ),
         if (result.sources.isNotEmpty) ...[
           const SizedBox(height: 4),
           Text(
             result.sources.join(' \u2022 '),
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.textMuted,
-              height: 1.4,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 10, fontStyle: FontStyle.normal, height: 1.4),
           ),
         ],
       ],

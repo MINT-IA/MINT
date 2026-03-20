@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/educational/educational_insert_widget.dart';
 
 /// Widget generique pour les inserts educatifs informationnels.
@@ -66,11 +66,7 @@ class GenericInfoInsertWidget extends StatelessWidget {
           // Learning goals
           Text(
             'Ce que tu vas comprendre',
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           ...learningGoals.map(_buildLearningGoalItem),
@@ -117,12 +113,7 @@ class GenericInfoInsertWidget extends StatelessWidget {
           Expanded(
             child: Text(
               chiffreChoc,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -152,11 +143,7 @@ class GenericInfoInsertWidget extends StatelessWidget {
           Expanded(
             child: Text(
               goal,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
         ],
@@ -177,10 +164,7 @@ class GenericInfoInsertWidget extends StatelessWidget {
         icon: const Icon(Icons.arrow_forward, size: 18),
         label: Text(
           actionLabel!,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+          style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: MintColors.primary,

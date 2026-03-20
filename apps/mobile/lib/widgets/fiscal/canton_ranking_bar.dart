@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/fiscal_service.dart';
+import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CANTON RANKING BAR — Sprint S20 / Comparateur 26 cantons
@@ -84,13 +84,7 @@ class CantonRankingBar extends StatelessWidget {
             width: 24,
             child: Text(
               '$rang',
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: isHighlighted
-                    ? MintColors.primary
-                    : MintColors.textMuted,
-              ),
+              style: MintTextStyles.bodySmall(color: isHighlighted ? MintColors.primary : MintColors.textMuted).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
             ),
           ),
           // Canton code badge
@@ -106,11 +100,7 @@ class CantonRankingBar extends StatelessWidget {
             ),
             child: Text(
               cantonCode,
-              style: GoogleFonts.montserrat(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: isHighlighted ? MintColors.white : color,
-              ),
+              style: MintTextStyles.micro(color: isHighlighted ? MintColors.white : color).copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           const SizedBox(width: 8),
@@ -119,13 +109,7 @@ class CantonRankingBar extends StatelessWidget {
             width: 90,
             child: Text(
               cantonName,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: isHighlighted ? FontWeight.w600 : FontWeight.w400,
-                color: isHighlighted
-                    ? MintColors.textPrimary
-                    : MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: isHighlighted ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: isHighlighted ? FontWeight.w600 : FontWeight.w400),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -165,13 +149,7 @@ class CantonRankingBar extends StatelessWidget {
             width: 70,
             child: Text(
               FiscalService.formatChf(chargeTotale),
-              style: GoogleFonts.montserrat(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: isHighlighted
-                    ? MintColors.primary
-                    : MintColors.textPrimary,
-              ),
+              style: MintTextStyles.labelSmall(color: isHighlighted ? MintColors.primary : MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
               textAlign: TextAlign.right,
             ),
           ),

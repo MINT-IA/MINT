@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/dashboard_curator_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -61,15 +62,11 @@ class CoachBriefingCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  narr?.greeting ?? 'Bonjour',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 19,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  narr?.greeting ?? S.of(context)!.coachBriefingFallbackGreeting,
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 19, fontWeight: FontWeight.w700),
                 ),
               ),
-              _buildBadge(),
+              _buildBadge(context),
             ],
           ),
 
@@ -79,11 +76,7 @@ class CoachBriefingCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               narr.scoreSummary,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: MintColors.textPrimary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(height: 1.5),
             ),
           ],
 
@@ -107,11 +100,7 @@ class CoachBriefingCard extends StatelessWidget {
                   Flexible(
                     child: Text(
                       narr.retirementCountdown!,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.primary,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -129,12 +118,12 @@ class CoachBriefingCard extends StatelessWidget {
           // ── Top tip / urgent alert ─────────────────────
           if (_hasTopContent) ...[
             const SizedBox(height: 12),
-            _buildTopContent(),
+            _buildTopContent(context),
           ],
 
           // ── Confidence chip ────────────────────────────
           const SizedBox(height: 12),
-          _buildConfidenceChip(),
+          _buildConfidenceChip(context),
         ],
       ),
     );
@@ -166,11 +155,7 @@ class CoachBriefingCard extends StatelessWidget {
           Expanded(
             child: Text(
               narrative!.monthlyComparison!,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textPrimary,
-                height: 1.4,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -185,7 +170,7 @@ class CoachBriefingCard extends StatelessWidget {
       narrative?.topTipNarrative != null ||
       topCard != null;
 
-  Widget _buildTopContent() {
+  Widget _buildTopContent(BuildContext context) {
     // Priority: urgent alert > top tip narrative > curated card
     if (narrative?.urgentAlert != null) {
       return _buildAlertRow(
@@ -223,12 +208,8 @@ class CoachBriefingCard extends StatelessWidget {
           if (card.impactChf != null && card.impactChf! > 0) ...[
             const SizedBox(height: 6),
             Text(
-              'Impact estim\u00e9\u00a0: CHF\u00a0${formatChf(card.impactChf!)}',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: MintColors.success,
-              ),
+              S.of(context)!.coachBriefingImpactEstimated(formatChf(card.impactChf!)),
+              style: MintTextStyles.labelSmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ],
@@ -259,11 +240,7 @@ class CoachBriefingCard extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textPrimary,
-              height: 1.5,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.5),
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
           ),
@@ -272,7 +249,7 @@ class CoachBriefingCard extends StatelessWidget {
     );
   }
 
-  Widget _buildBadge() {
+  Widget _buildBadge(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
@@ -282,18 +259,16 @@ class CoachBriefingCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        isLlmGenerated ? 'Coach IA' : 'Coach',
-        style: GoogleFonts.inter(
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-          color: isLlmGenerated ? MintColors.primary : MintColors.textMuted,
-        ),
+        isLlmGenerated ? S.of(context)!.coachBriefingBadgeLlm : S.of(context)!.coachBriefingBadge,
+        style: MintTextStyles.micro(color: isLlmGenerated ? MintColors.primary : MintColors.textMuted).copyWith(fontWeight: FontWeight.w600),
       ),
     );
   }
 
-  Widget _buildConfidenceChip() {
+  Widget _buildConfidenceChip(BuildContext context) {
     final isLow = confidenceScore < 70;
+    final scoreStr = confidenceScore.toStringAsFixed(0);
+    final l = S.of(context)!;
 
     return Semantics(
       label: 'interactive element',
@@ -319,13 +294,9 @@ class CoachBriefingCard extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               isLow
-                  ? 'Confiance ${confidenceScore.toStringAsFixed(0)}% — Enrichir'
-                  : 'Confiance ${confidenceScore.toStringAsFixed(0)}%',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: isLow ? MintColors.warning : MintColors.success,
-              ),
+                  ? l.coachBriefingConfidenceLow(scoreStr)
+                  : l.coachBriefingConfidence(scoreStr),
+              style: MintTextStyles.labelSmall(color: isLow ? MintColors.warning : MintColors.success).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),

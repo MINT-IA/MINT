@@ -2,12 +2,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -95,22 +96,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
+    final l10n = S.of(context)!;
 
     return Scaffold(
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(MintSpacing.lg),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 32),
+                const SizedBox(height: MintSpacing.xl),
                 // Logo
                 Center(
                   child: Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(MintSpacing.md),
                     decoration: BoxDecoration(
                       color: MintColors.white,
                       borderRadius: BorderRadius.circular(24),
@@ -129,28 +131,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: MintSpacing.xl),
                 // Title
                 Text(
-                  S.of(context)?.authRegisterTitle ?? 'Créer ton compte',
-                  style: GoogleFonts.outfit(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                    letterSpacing: -1.0,
-                  ),
+                  l10n.authRegisterTitle,
+                  style: MintTextStyles.headlineLarge(),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: MintSpacing.sm),
                 Text(
-                  'Compte optionnel\u00a0: tes données restent locales par défaut',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    color: MintColors.textSecondary,
-                  ),
+                  l10n.authRegisterSubtitle,
+                  style: MintTextStyles.bodyLarge(),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: MintSpacing.md),
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
@@ -164,215 +158,233 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Pourquoi créer un compte\u00a0?',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: MintColors.textPrimary,
-                        ),
+                        l10n.authWhyCreateAccount,
+                        style: MintTextStyles.titleMedium().copyWith(fontSize: 14),
                       ),
-                      const SizedBox(height: 8),
-                      const _RegisterBenefitRow(
-                        text: 'Projections AVS/LPP alignées à ta situation',
-                      ),
-                      const _RegisterBenefitRow(
-                        text: 'Coach personnalisé avec ton prénom',
-                      ),
-                      const _RegisterBenefitRow(
-                        text: 'Sauvegarde cloud + synchronisation multi-appareils',
-                      ),
+                      const SizedBox(height: MintSpacing.sm),
+                      _RegisterBenefitRow(text: l10n.authBenefitProjections),
+                      _RegisterBenefitRow(text: l10n.authBenefitCoach),
+                      _RegisterBenefitRow(text: l10n.authBenefitSync),
                     ],
                   ),
                 ),
-                const SizedBox(height: 48),
+                const SizedBox(height: MintSpacing.xxl),
                 // Email field
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  autofillHints: const [AutofillHints.email],
-                  decoration: InputDecoration(
-                    labelText: S.of(context)?.authEmail ?? 'Adresse e-mail',
-                    prefixIcon: const Icon(Icons.email_outlined),
+                Semantics(
+                  label: l10n.authEmail,
+                  textField: true,
+                  child: TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    autofillHints: const [AutofillHints.email],
+                    decoration: InputDecoration(
+                      labelText: l10n.authEmail,
+                      prefixIcon: const Icon(Icons.email_outlined),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return l10n.authEmailInvalid;
+                      }
+                      if (!value.contains('@')) {
+                        return l10n.authEmailInvalid;
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return S.of(context)?.authEmailInvalid ??
-                          'Adresse e-mail invalide';
-                    }
-                    if (!value.contains('@')) {
-                      return S.of(context)?.authEmailInvalid ??
-                          'Adresse e-mail invalide';
-                    }
-                    return null;
-                  },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: MintSpacing.md),
                 // First name field (required for coach personalization)
-                TextFormField(
-                  controller: _displayNameController,
-                  autofillHints: const [AutofillHints.givenName],
-                  textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(
-                    labelText: 'Prénom',
-                    prefixIcon: Icon(Icons.person_outline),
+                Semantics(
+                  label: l10n.authFirstName,
+                  textField: true,
+                  child: TextFormField(
+                    controller: _displayNameController,
+                    autofillHints: const [AutofillHints.givenName],
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                      labelText: l10n.authFirstName,
+                      prefixIcon: const Icon(Icons.person_outline),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return l10n.authFirstNameRequired;
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Le prénom est nécessaire pour personnaliser ton coach';
-                    }
-                    return null;
-                  },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: MintSpacing.md),
                 // Date of birth picker (precise age for AVS/LPP calculations)
-                GestureDetector(
-                  onTap: () async {
-                    final now = DateTime.now();
-                    final picked = await showDatePicker(
-                      context: context,
-                      initialDate: _dateOfBirth ?? DateTime(1980, 1, 1),
-                      firstDate: DateTime(1940),
-                      lastDate: now,
-                      locale: const Locale('fr'),
-                      helpText: 'Date de naissance',
-                      cancelText: 'Annuler',
-                      confirmText: 'Valider',
-                    );
-                    if (picked != null) {
-                      setState(() => _dateOfBirth = picked);
-                    }
-                  },
-                  child: AbsorbPointer(
-                    child: TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: 'Date de naissance',
-                        prefixIcon: Icon(Icons.cake_outlined),
-                        hintText: 'jj.mm.aaaa',
-                        suffixIcon: Icon(Icons.calendar_today_outlined),
+                Semantics(
+                  label: l10n.authDateOfBirth,
+                  button: true,
+                  child: GestureDetector(
+                    onTap: () async {
+                      final now = DateTime.now();
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: _dateOfBirth ?? DateTime(1980, 1, 1),
+                        firstDate: DateTime(1940),
+                        lastDate: now,
+                        locale: const Locale('fr'),
+                        helpText: l10n.authDateOfBirthHelp,
+                        cancelText: l10n.authDateOfBirthCancel,
+                        confirmText: l10n.authDateOfBirthConfirm,
+                      );
+                      if (picked != null) {
+                        setState(() => _dateOfBirth = picked);
+                      }
+                    },
+                    child: AbsorbPointer(
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          labelText: l10n.authDateOfBirth,
+                          prefixIcon: const Icon(Icons.cake_outlined),
+                          hintText: l10n.authDateOfBirthHint,
+                          suffixIcon: const Icon(Icons.calendar_today_outlined),
+                        ),
+                        controller: TextEditingController(
+                          text: _dateOfBirth != null
+                              ? '${_dateOfBirth!.day.toString().padLeft(2, '0')}.'
+                                '${_dateOfBirth!.month.toString().padLeft(2, '0')}.'
+                                '${_dateOfBirth!.year}'
+                              : '',
+                        ),
+                        validator: (_) {
+                          if (_dateOfBirth == null) {
+                            return l10n.authDateOfBirthRequired;
+                          }
+                          final age = DateTime.now().year - _dateOfBirth!.year;
+                          if (age < 18) {
+                            return l10n.authDateOfBirthTooYoung;
+                          }
+                          return null;
+                        },
                       ),
-                      controller: TextEditingController(
-                        text: _dateOfBirth != null
-                            ? '${_dateOfBirth!.day.toString().padLeft(2, '0')}.'
-                              '${_dateOfBirth!.month.toString().padLeft(2, '0')}.'
-                              '${_dateOfBirth!.year}'
-                            : '',
-                      ),
-                      validator: (_) {
-                        if (_dateOfBirth == null) {
-                          return 'Nécessaire pour les projections AVS/LPP';
-                        }
-                        final age = DateTime.now().year - _dateOfBirth!.year;
-                        if (age < 18) {
-                          return 'Tu dois avoir 18 ans révolus (CGU art. 4.1)';
-                        }
-                        return null;
-                      },
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: MintSpacing.md),
                 // Password field
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                  autofillHints: const [AutofillHints.newPassword],
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(
-                    labelText: S.of(context)?.authPassword ?? 'Mot de passe',
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    hintText: '8+ caractères, majuscule, chiffre, symbole',
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Mot de passe requis';
-                    }
-                    if (value.length < 8) {
-                      return 'Minimum 8 caractères';
-                    }
-                    if (!value.contains(RegExp(r'[A-Z]'))) {
-                      return 'Au moins une majuscule requise';
-                    }
-                    if (!value.contains(RegExp(r'[0-9]'))) {
-                      return 'Au moins un chiffre requis';
-                    }
-                    if (!value.contains(RegExp(r'[^A-Za-z0-9]'))) {
-                      return 'Au moins un caractère spécial requis (!@#\$...)';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                // Confirm password field
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  obscureText: _obscureConfirmPassword,
-                  autofillHints: const [AutofillHints.newPassword],
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(
-                    labelText: S.of(context)?.authConfirmPassword ??
-                        'Confirmer le mot de passe',
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    suffixIcon: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Real-time match indicator
-                        if (_confirmPasswordController.text.isNotEmpty)
-                          Icon(
-                            _confirmPasswordController.text ==
-                                    _passwordController.text
-                                ? Icons.check_circle
-                                : Icons.cancel,
-                            color: _confirmPasswordController.text ==
-                                    _passwordController.text
-                                ? MintColors.success
-                                : MintColors.error,
-                            size: 20,
-                          ),
-                        IconButton(
+                Semantics(
+                  label: l10n.authPassword,
+                  textField: true,
+                  child: TextFormField(
+                    controller: _passwordController,
+                    obscureText: _obscurePassword,
+                    autofillHints: const [AutofillHints.newPassword],
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(
+                      labelText: l10n.authPassword,
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      hintText: l10n.authPasswordHintFull,
+                      suffixIcon: Semantics(
+                        label: _obscurePassword
+                            ? 'Afficher le mot de passe'
+                            : 'Masquer le mot de passe',
+                        button: true,
+                        child: IconButton(
                           icon: Icon(
-                            _obscureConfirmPassword
+                            _obscurePassword
                                 ? Icons.visibility_outlined
                                 : Icons.visibility_off_outlined,
                           ),
                           onPressed: () {
                             setState(() {
-                              _obscureConfirmPassword =
-                                  !_obscureConfirmPassword;
+                              _obscurePassword = !_obscurePassword;
                             });
                           },
                         ),
-                      ],
+                      ),
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return l10n.authPasswordRequired;
+                      }
+                      if (value.length < 8) {
+                        return l10n.authPasswordMinChars;
+                      }
+                      if (!value.contains(RegExp(r'[A-Z]'))) {
+                        return l10n.authPasswordNeedUppercase;
+                      }
+                      if (!value.contains(RegExp(r'[0-9]'))) {
+                        return l10n.authPasswordNeedDigit;
+                      }
+                      if (!value.contains(RegExp(r'[^A-Za-z0-9]'))) {
+                        return l10n.authPasswordNeedSpecial;
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Confirmation requise';
-                    }
-                    if (value != _passwordController.text) {
-                      return S.of(context)?.authPasswordMismatch ??
-                          'Les mots de passe ne correspondent pas';
-                    }
-                    return null;
-                  },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: MintSpacing.md),
+                // Confirm password field
+                Semantics(
+                  label: l10n.authConfirmPassword,
+                  textField: true,
+                  child: TextFormField(
+                    controller: _confirmPasswordController,
+                    obscureText: _obscureConfirmPassword,
+                    autofillHints: const [AutofillHints.newPassword],
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(
+                      labelText: l10n.authConfirmPassword,
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Real-time match indicator
+                          if (_confirmPasswordController.text.isNotEmpty)
+                            Icon(
+                              _confirmPasswordController.text ==
+                                      _passwordController.text
+                                  ? Icons.check_circle
+                                  : Icons.cancel,
+                              color: _confirmPasswordController.text ==
+                                      _passwordController.text
+                                  ? MintColors.success
+                                  : MintColors.error,
+                              size: 20,
+                            ),
+                          Semantics(
+                            label: _obscureConfirmPassword
+                                ? 'Afficher le mot de passe'
+                                : 'Masquer le mot de passe',
+                            button: true,
+                            child: IconButton(
+                              icon: Icon(
+                                _obscureConfirmPassword
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscureConfirmPassword =
+                                      !_obscureConfirmPassword;
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return l10n.authConfirmRequired;
+                      }
+                      if (value != _passwordController.text) {
+                        return l10n.authPasswordMismatch;
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(height: MintSpacing.md),
                 // Password strength indicator
                 _PasswordStrengthIndicator(
                   password: _passwordController.text,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
                 // ── CGU & Consent checkboxes ──
                 // CGU checkbox (required, non-pre-checked)
                 CheckboxListTile(
@@ -383,19 +395,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   dense: true,
                   title: RichText(
                     text: TextSpan(
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
+                      style: MintTextStyles.bodySmall(
                         color: MintColors.textSecondary,
                       ),
                       children: [
                         TextSpan(
-                          text: S.of(context)!.authCguAccept,
+                          text: l10n.authCguAccept,
                         ),
                         TextSpan(
-                          text: S.of(context)!.authCguLink,
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
+                          text: l10n.authCguLink,
+                          style: MintTextStyles.bodySmall(
                             color: MintColors.primary,
+                          ).copyWith(
                             fontWeight: FontWeight.w600,
                             decoration: TextDecoration.underline,
                           ),
@@ -403,13 +414,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ..onTap = () => context.go('/profile/consent'),
                         ),
                         TextSpan(
-                          text: S.of(context)!.authCguAndPrivacy,
+                          text: l10n.authCguAndPrivacy,
                         ),
                         TextSpan(
-                          text: 'politique de confidentialité',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
+                          text: l10n.authPrivacyPolicyText,
+                          style: MintTextStyles.bodySmall(
                             color: MintColors.primary,
+                          ).copyWith(
                             fontWeight: FontWeight.w600,
                             decoration: TextDecoration.underline,
                           ),
@@ -430,26 +441,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   contentPadding: EdgeInsets.zero,
                   dense: true,
                   title: Text(
-                    S.of(context)!.authConfirm18,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
+                    l10n.authConfirm18,
+                    style: MintTextStyles.bodySmall(
                       color: MintColors.textSecondary,
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: MintSpacing.sm + 4),
                 // "Consentements optionnels" divider
                 Row(
                   children: [
                     const Expanded(child: Divider()),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm + 4),
                       child: Text(
-                        S.of(context)!.authConsentSection,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
+                        l10n.authConsentSection,
+                        style: MintTextStyles.labelSmall(
                           color: MintColors.textMuted,
-                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -465,9 +473,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   contentPadding: EdgeInsets.zero,
                   dense: true,
                   title: Text(
-                    S.of(context)!.authConsentNotifications,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
+                    l10n.authConsentNotifications,
+                    style: MintTextStyles.bodySmall(
                       color: MintColors.textSecondary,
                     ),
                   ),
@@ -481,19 +488,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   contentPadding: EdgeInsets.zero,
                   dense: true,
                   title: Text(
-                    S.of(context)!.authConsentAnalytics,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
+                    l10n.authConsentAnalytics,
+                    style: MintTextStyles.bodySmall(
                       color: MintColors.textSecondary,
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: MintSpacing.sm),
                 // Privacy reassurance text
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(MintSpacing.md),
                   decoration: BoxDecoration(
-                    color: MintColors.appleSurface,
+                    color: MintColors.surface,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -503,27 +509,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         color: MintColors.primary,
                         size: 20,
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: MintSpacing.sm + 4),
                       Expanded(
                         child: Text(
-                          S.of(context)!.authPrivacyReassurance,
-                          style: GoogleFonts.inter(
+                          l10n.authPrivacyReassurance,
+                          style: MintTextStyles.bodySmall(
                             color: MintColors.textSecondary,
-                            fontSize: 13,
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
                 // Error message
                 if (authProvider.error != null)
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(MintSpacing.md),
                     decoration: BoxDecoration(
-                      color: MintColors.error.withValues(alpha: 0.1),
+                      color: MintColors.error.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: MintColors.error.withValues(alpha: 0.15),
+                      ),
                     ),
                     child: Row(
                       children: [
@@ -532,96 +540,84 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           color: MintColors.error,
                           size: 20,
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: MintSpacing.sm + 4),
                         Expanded(
                           child: Text(
                             authProvider.error!,
-                            style: GoogleFonts.inter(
+                            style: MintTextStyles.bodyMedium(
                               color: MintColors.error,
-                              fontSize: 14,
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                if (authProvider.error != null) const SizedBox(height: 24),
+                if (authProvider.error != null) const SizedBox(height: MintSpacing.lg),
                 // Register button
-                FilledButton(
-                  onPressed: (_acceptedCgu && _confirmed18Plus && !authProvider.isLoading) ? _handleRegister : null,
-                  child: authProvider.isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(MintColors.white),
-                          ),
-                        )
-                      : Text(
-                          S.of(context)?.authCreateAccount ??
-                              'Créer mon compte',
-                          style: GoogleFonts.inter(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton(
-                  onPressed: authProvider.isLoading
-                      ? null
-                      : () {
-                          context.go('/onboarding/quick');
-                        },
-                  child: Text(
-                    'Continuer en mode local',
-                    style: GoogleFonts.inter(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
+                Semantics(
+                  label: l10n.authCreateAccount,
+                  button: true,
+                  child: FilledButton(
+                    onPressed: (_acceptedCgu && _confirmed18Plus && !authProvider.isLoading) ? _handleRegister : null,
+                    child: authProvider.isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(MintColors.white),
+                            ),
+                          )
+                        : Text(l10n.authCreateAccount),
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: MintSpacing.sm + 4),
+                Semantics(
+                  label: l10n.authContinueLocal,
+                  button: true,
+                  child: OutlinedButton(
+                    onPressed: authProvider.isLoading
+                        ? null
+                        : () {
+                            context.go('/onboarding/quick');
+                          },
+                    child: Text(l10n.authContinueLocal),
+                  ),
+                ),
+                const SizedBox(height: MintSpacing.xl),
                 // Login link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      S.of(context)?.authAlreadyAccount ?? 'Déjà inscrit ?',
-                      style: GoogleFonts.inter(
-                        color: MintColors.textSecondary,
-                        fontSize: 14,
-                      ),
+                      l10n.authAlreadyAccount,
+                      style: MintTextStyles.bodyMedium(),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: MintSpacing.sm),
                     TextButton(
                       onPressed: () {
                         context.go('/auth/login');
                       },
                       child: Text(
-                        S.of(context)?.authLogin ?? 'Se connecter',
-                        style: GoogleFonts.inter(
+                        l10n.authLogin,
+                        style: MintTextStyles.bodyMedium(
                           color: MintColors.primary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        ).copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: MintSpacing.md),
                 // Back to landing
                 TextButton(
                   onPressed: () {
                     context.go('/');
                   },
                   child: Text(
-                    'Retour',
-                    style: GoogleFonts.inter(
+                    l10n.authBack,
+                    style: MintTextStyles.bodyMedium(
                       color: MintColors.textMuted,
-                      fontSize: 14,
                     ),
                   ),
                 ),
@@ -665,7 +661,7 @@ class _PasswordStrengthIndicator extends StatelessWidget {
         return Expanded(
           child: Container(
             height: 4,
-            margin: EdgeInsets.only(right: i < 3 ? 4 : 0),
+            margin: EdgeInsets.only(right: i < 3 ? MintSpacing.xs : 0),
             decoration: BoxDecoration(
               color: isActive
                   ? colors[strength - 1]
@@ -699,12 +695,11 @@ class _RegisterBenefitRow extends StatelessWidget {
               color: MintColors.primary,
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.inter(
-                fontSize: 13,
+              style: MintTextStyles.bodySmall(
                 color: MintColors.textSecondary,
               ),
             ),

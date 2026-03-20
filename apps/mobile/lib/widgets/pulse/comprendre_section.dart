@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Section "Comprendre" en bas du dashboard Pulse.
 ///
@@ -60,19 +60,12 @@ class ComprendreSection extends StatelessWidget {
         children: [
           Text(
             l.pulseComprendreTitle,
-            style: GoogleFonts.outfit(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
           ),
           const SizedBox(height: 4),
           Text(
             l.pulseComprendreSubtitle,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 14),
           ...items.map((item) => _buildItem(context, item)),
@@ -117,18 +110,11 @@ class ComprendreSection extends StatelessWidget {
                     children: [
                       Text(
                         item.title,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                       ),
                       Text(
                         item.subtitle,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: MintColors.textMuted,
-                        ),
+                        style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12),
                       ),
                     ],
                   ),

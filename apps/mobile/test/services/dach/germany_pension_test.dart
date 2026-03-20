@@ -168,7 +168,7 @@ void main() {
   group('GermanyPension — edge cases', () {
     test('bAV steuerfreimax is approximately 8% of BBG', () {
       // 8% of 90600 = 7248
-      final expected = GermanyPension.beitragsbemessungsgrenze * 0.08;
+      const expected = GermanyPension.beitragsbemessungsgrenze * 0.08;
       expect(GermanyPension.bavSteuerfreiMax, expected);
     });
 

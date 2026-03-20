@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -100,16 +100,12 @@ class MinimumVitalWidget extends StatelessWidget {
               children: [
                 Text(
                   'Ton bouclier légal',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'LP art. 93 — Ce que tes créanciers ne peuvent PAS toucher',
-                  style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                 ),
               ],
             ),
@@ -135,19 +131,15 @@ class MinimumVitalWidget extends StatelessWidget {
               children: [
                 Text(
                   'Minimum vital protégé',
-                  style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                 ),
                 Text(
                   '${formatChfWithPrefix(_totalProtected)}/mois',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.scoreExcellent,
-                  ),
+                  style: MintTextStyles.headlineMedium(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w800),
                 ),
                 Text(
                   'Légalement insaisissable · LP art. 93',
-                  style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                  style: MintTextStyles.micro(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -157,19 +149,15 @@ class MinimumVitalWidget extends StatelessWidget {
             children: [
               Text(
                 'Saisissable',
-                style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
+                style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
               ),
               Text(
                 formatChfWithPrefix(_seizable),
-                style: GoogleFonts.montserrat(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: _seizable > 0 ? MintColors.scoreAttention : MintColors.scoreExcellent,
-                ),
+                style: MintTextStyles.headlineMedium(color: _seizable > 0 ? MintColors.scoreAttention : MintColors.scoreExcellent).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
               ),
               Text(
                 '/mois max',
-                style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                style: MintTextStyles.micro(color: MintColors.textSecondary),
               ),
             ],
           ),
@@ -184,11 +172,7 @@ class MinimumVitalWidget extends StatelessWidget {
       children: [
         Text(
           'Composantes du minimum vital',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 10),
         ...items.map((item) => Padding(
@@ -212,22 +196,18 @@ class MinimumVitalWidget extends StatelessWidget {
                   children: [
                     Text(
                       item.label,
-                      style: GoogleFonts.inter(fontSize: 13, color: MintColors.textPrimary),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                     ),
                     Text(
                       '${item.legalRef}${item.note != null ? ' · ${item.note}' : ''}',
-                      style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                      style: MintTextStyles.micro(color: MintColors.textSecondary),
                     ),
                   ],
                 ),
               ),
               Text(
                 formatChfWithPrefix(item.amount),
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.scoreExcellent,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -254,22 +234,18 @@ class MinimumVitalWidget extends StatelessWidget {
                     children: [
                       Text(
                         'Enfants ($childrenCount)',
-                        style: GoogleFonts.inter(fontSize: 13, color: MintColors.textPrimary),
+                        style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                       ),
                       Text(
                         'LP art. 93 al. 1 lit. a — besoins enfants',
-                        style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                        style: MintTextStyles.micro(color: MintColors.textSecondary),
                       ),
                     ],
                   ),
                 ),
                 Text(
                   'Inclus',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.scoreExcellent,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -290,15 +266,11 @@ class MinimumVitalWidget extends StatelessWidget {
           children: [
             Text(
               'Salaire brut : ${formatChfWithPrefix(grossMonthly)}/mois',
-              style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
             ),
             Text(
               '${(fraction * 100).round()}% saisissable',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: fraction > 0.4 ? MintColors.scoreCritique : MintColors.scoreAttention,
-              ),
+              style: MintTextStyles.labelSmall(color: fraction > 0.4 ? MintColors.scoreCritique : MintColors.scoreAttention).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -330,11 +302,11 @@ class MinimumVitalWidget extends StatelessWidget {
           children: [
             Text(
               '🟢 Protégé : ${formatChfWithPrefix(_totalProtected)}',
-              style: GoogleFonts.inter(fontSize: 10, color: MintColors.scoreExcellent),
+              style: MintTextStyles.micro(color: MintColors.scoreExcellent),
             ),
             Text(
               '🟠 Saisissable : ${formatChfWithPrefix(_seizable)}',
-              style: GoogleFonts.inter(fontSize: 10, color: MintColors.scoreAttention),
+              style: MintTextStyles.micro(color: MintColors.scoreAttention),
             ),
           ],
         ),
@@ -361,21 +333,13 @@ class MinimumVitalWidget extends StatelessWidget {
               children: [
                 Text(
                   'Si un créancier saisit plus que la limite',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.info,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Contacte un·e avocat·e ou le service des poursuites de ta commune. '
                   'La LP art. 93 est impérative — aucun contrat ne peut y déroger.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
             ),
@@ -390,11 +354,7 @@ class MinimumVitalWidget extends StatelessWidget {
       'Outil éducatif · ne constitue pas un conseil juridique au sens de la LSFin. '
       'Source : LP art. 92 (biens insaisissables), LP art. 93 (minimum vital). '
       'Les montants varient selon le canton et la situation familiale.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

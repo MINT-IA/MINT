@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:provider/provider.dart';
@@ -136,11 +136,8 @@ class _SlmDownloadSheet extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Coach IA sur ton appareil',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.titleMedium()
+                        .copyWith(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -150,11 +147,7 @@ class _SlmDownloadSheet extends StatelessWidget {
             Text(
               'MINT peut installer un modele d\'IA directement sur ton telephone '
               'pour des conseils personnalises — 100% prive, aucune donnee ne quitte ton appareil.',
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodyMedium(),
             ),
             const SizedBox(height: 8),
 
@@ -166,20 +159,14 @@ class _SlmDownloadSheet extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   SlmDownloadService.instance.modelSizeFormatted,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.bodySmall(),
                 ),
                 const SizedBox(width: 16),
                 const Icon(Icons.wifi, size: 16, color: MintColors.textMuted),
                 const SizedBox(width: 6),
                 Text(
                   '~${SlmDownloadService.instance.estimatedDownloadMinutes} min en WiFi',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.bodySmall(),
                 ),
               ],
             ),
@@ -199,11 +186,8 @@ class _SlmDownloadSheet extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 '${(slm.downloadProgress * 100).toStringAsFixed(0)}%',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.primary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.primary)
+                    .copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 12),
             ],
@@ -225,11 +209,8 @@ class _SlmDownloadSheet extends StatelessWidget {
                     Expanded(
                       child: Text(
                         'Coach IA installe ! Tes conseils seront personnalises.',
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.success,
-                        ),
+                        style: MintTextStyles.bodySmall(color: MintColors.success)
+                            .copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
@@ -250,10 +231,8 @@ class _SlmDownloadSheet extends StatelessWidget {
                   ),
                   child: Text(
                     'Continuer',
-                    style: GoogleFonts.inter(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: MintTextStyles.bodyMedium()
+                        .copyWith(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -264,10 +243,7 @@ class _SlmDownloadSheet extends StatelessWidget {
               Text(
                 slm.lastError ??
                     'Le telechargement a echoue. Tu peux reessayer depuis les reglages.',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: MintColors.error,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.error),
               ),
               const SizedBox(height: 12),
             ],
@@ -283,10 +259,8 @@ class _SlmDownloadSheet extends StatelessWidget {
                   icon: const Icon(Icons.download),
                   label: Text(
                     'Installer le coach IA',
-                    style: GoogleFonts.inter(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: MintTextStyles.bodyMedium()
+                        .copyWith(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
@@ -311,10 +285,7 @@ class _SlmDownloadSheet extends StatelessWidget {
                   ),
                   child: Text(
                     'Plus tard',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: MintColors.textSecondary,
-                    ),
+                    style: MintTextStyles.bodyMedium(),
                   ),
                 ),
               ),

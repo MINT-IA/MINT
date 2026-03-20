@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P14-A  Guide première urgence — décès d'un proche
@@ -92,11 +92,7 @@ class _DeathUrgencyGuideWidgetState extends State<DeathUrgencyGuideWidget> {
               Expanded(
                 child: Text(
                   'Guide de première urgence',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -105,11 +101,7 @@ class _DeathUrgencyGuideWidgetState extends State<DeathUrgencyGuideWidget> {
           Text(
             'Ce n\'est pas le moment de tout gérer seul·e. '
             'Voici les étapes, dans l\'ordre, avec bienveillance.',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.5,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.5),
           ),
         ],
       ),
@@ -145,11 +137,7 @@ class _DeathUrgencyGuideWidgetState extends State<DeathUrgencyGuideWidget> {
                     ),
                     child: Text(
                       phase.timeframe,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: phase.color,
-                      ),
+                      style: MintTextStyles.labelSmall(color: phase.color).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -158,11 +146,7 @@ class _DeathUrgencyGuideWidgetState extends State<DeathUrgencyGuideWidget> {
                   Expanded(
                     child: Text(
                       phase.title,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),
                   Icon(
@@ -193,11 +177,7 @@ class _DeathUrgencyGuideWidgetState extends State<DeathUrgencyGuideWidget> {
                         Expanded(
                           child: Text(
                             action,
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: MintColors.textPrimary,
-                              height: 1.4,
-                            ),
+                            style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
                           ),
                         ),
                       ],
@@ -231,22 +211,14 @@ class _DeathUrgencyGuideWidgetState extends State<DeathUrgencyGuideWidget> {
               children: [
                 Text(
                   'Tu n\'es pas seul·e',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.info,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Un·e notaire, un·e avocat·e ou un service d\'aide sociale '
                   'peut t\'accompagner pour les démarches administratives. '
                   'Prends le temps du deuil — les délais légaux sont en semaines, pas en heures.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
             ),
@@ -260,11 +232,7 @@ class _DeathUrgencyGuideWidgetState extends State<DeathUrgencyGuideWidget> {
     return Text(
       'Outil éducatif · ne constitue pas un conseil juridique au sens de la LSFin. '
       'Source : CC art. 537-640 (succession), LAVS art. 23-24 (rentes survivants).',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

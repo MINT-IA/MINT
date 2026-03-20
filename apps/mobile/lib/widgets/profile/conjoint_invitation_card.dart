@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONJOINT INVITATION CARD — Couple linking & invitation CTA
@@ -121,11 +121,7 @@ class ConjointInvitationCard extends StatelessWidget {
             _isLinked
                 ? l.conjointProfilsLies
                 : l.conjointProfilConjoint,
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
         ),
       ],
@@ -160,11 +156,7 @@ class ConjointInvitationCard extends StatelessWidget {
       ),
       child: Text(
         message,
-        style: GoogleFonts.inter(
-          fontSize: 12,
-          height: 1.4,
-          color: MintColors.textPrimary,
-        ),
+        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
       ),
     );
   }
@@ -222,10 +214,7 @@ class ConjointInvitationCard extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
           ),
         ),
@@ -246,10 +235,7 @@ class ConjointInvitationCard extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
           textAlign: TextAlign.center,
         ),
       ),
@@ -266,19 +252,11 @@ class ConjointInvitationCard extends StatelessWidget {
         Expanded(
           child: RichText(
             text: TextSpan(
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.textMuted,
-                height: 1.3,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.3),
               children: [
                 TextSpan(
                   text: l.conjointRegimeLabel,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600),
                 ),
                 TextSpan(text: '$regimeLabel ${l.conjointRegimeDefault}'),
               ],
@@ -294,13 +272,7 @@ class ConjointInvitationCard extends StatelessWidget {
               onTap: onChangeRegime,
               child: Text(
                 l.conjointModifier,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: MintColors.info,
-                decoration: TextDecoration.underline,
-                decorationColor: MintColors.info,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w600, decoration: TextDecoration.underline, decorationColor: MintColors.info),
             ),
           ),
           ),

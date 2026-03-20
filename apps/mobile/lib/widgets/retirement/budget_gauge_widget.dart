@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/retirement_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -129,19 +129,11 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
                       children: [
                         Text(
                           '$displayPercent%',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w800,
-                            color: _gaugeColor,
-                          ),
+                          style: MintTextStyles.displayMedium(color: _gaugeColor).copyWith(fontWeight: FontWeight.w800),
                         ),
                         Text(
                           _gaugeLabel,
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: _gaugeColor,
-                          ),
+                          style: MintTextStyles.bodySmall(color: _gaugeColor).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
@@ -153,19 +145,12 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
           const SizedBox(height: 8),
           Text(
             'Taux de remplacement',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
           Text(
             'Objectif : 60-80% du revenu pre-retraite',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textMuted).copyWith(fontSize: 12),
           ),
           const SizedBox(height: 20),
 
@@ -202,11 +187,7 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
             children: [
               Text(
                 isSurplus ? 'Excedent mensuel' : 'Deficit mensuel',
-                style: GoogleFonts.inter(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
               ),
               AnimatedBuilder(
                 animation: _fillAnimation,
@@ -236,12 +217,7 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
                         ),
                       Text(
                         '${isSurplus ? '+' : ''}${RetirementService.formatChf(displaySolde)}',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color:
-                              isSurplus ? MintColors.success : MintColors.error,
-                        ),
+                        style: MintTextStyles.headlineMedium(color: isSurplus ? MintColors.success : MintColors.error).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
                       ),
                     ],
                   );
@@ -271,18 +247,11 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
           children: [
             Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 13),
             ),
             Text(
               RetirementService.formatChf(value),
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -439,11 +408,7 @@ class _GaugePainter extends CustomPainter {
       final labelTp = TextPainter(
         text: TextSpan(
           text: label,
-          style: GoogleFonts.inter(
-            fontSize: 8,
-            fontWeight: FontWeight.w500,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 8, fontWeight: FontWeight.w500, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       );

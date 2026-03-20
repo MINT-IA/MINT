@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:go_router/go_router.dart';
@@ -74,12 +75,8 @@ class FinancialSummaryScreen extends StatelessWidget {
         titlePadding: const EdgeInsets.only(left: 56, bottom: 14),
         title: Text(
           S.of(context)!.financialSummaryTitle,
-          style: GoogleFonts.montserrat(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-            color: MintColors.white,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.white)
+              .copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.2),
         ),
       ),
     );
@@ -100,10 +97,7 @@ class FinancialSummaryScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               S.of(context)!.financialSummaryNoProfile,
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodyLarge(),
             ),
             const SizedBox(height: 12),
             FilledButton(
@@ -178,7 +172,7 @@ class FinancialSummaryScreen extends StatelessWidget {
 
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(MintSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -340,7 +334,7 @@ class FinancialSummaryScreen extends StatelessWidget {
 
             // ── RESTART DIAGNOSTIC ──
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
               child: OutlinedButton.icon(
                 onPressed: () async {
                   context.read<CoachProfileProvider>().clear();
@@ -353,10 +347,8 @@ class FinancialSummaryScreen extends StatelessWidget {
                 icon: const Icon(Icons.refresh, size: 18),
                 label: Text(
                   S.of(context)!.financialSummaryRestartDiagnostic,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.error)
+                      .copyWith(fontWeight: FontWeight.w600),
                 ),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: MintColors.error,
@@ -369,7 +361,7 @@ class FinancialSummaryScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: MintSpacing.xl),
           ],
         ),
       ),
@@ -390,11 +382,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       ),
       child: Text(
         S.of(context)!.financialSummaryDisclaimer,
-        style: GoogleFonts.inter(
-          fontSize: 11,
-          color: MintColors.textMuted,
-          height: 1.4,
-        ),
+        style: MintTextStyles.labelSmall(),
       ),
     );
   }
@@ -435,20 +423,13 @@ class FinancialSummaryScreen extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: GoogleFonts.montserrat(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.headlineMedium(),
               ),
               const SizedBox(height: 20),
               for (final f in fields) ...[
                 Text(
                   f.label,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodySmall(),
                 ),
                 const SizedBox(height: 6),
                 TextField(
@@ -485,10 +466,7 @@ class FinancialSummaryScreen extends StatelessWidget {
                 ),
                 child: Text(
                   S.of(context)!.financialSummaryEnregistrer,
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.white),
                 ),
               ),
               const SizedBox(height: 8),

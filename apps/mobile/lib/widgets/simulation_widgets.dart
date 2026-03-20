@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'dart:math' as math;
 
 /// Scénario de simulation (prudence/central/stress)
@@ -93,10 +93,7 @@ class CompoundInterestChart extends StatelessWidget {
               const SizedBox(width: 12),
               Text(
                 'Projection Intérêts Composés',
-                style: GoogleFonts.montserrat(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
               ),
             ],
           ),
@@ -277,10 +274,7 @@ class LppBuybackSimulation extends StatelessWidget {
               const SizedBox(width: 12),
               Text(
                 'Impact Rachat LPP',
-                style: GoogleFonts.montserrat(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
               ),
             ],
           ),

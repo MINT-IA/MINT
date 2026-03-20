@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P3-A  Bilan de match — Louer vs Acheter
@@ -147,11 +147,7 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Grand Match · Louer vs Acheter',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -159,11 +155,7 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Dans $years ans, voici ton patrimoine selon ton choix aujourd\'hui.',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
           ),
         ],
       ),
@@ -189,11 +181,7 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Text(
             'vs',
-            style: GoogleFonts.montserrat(
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w800),
           ),
         ),
         Expanded(
@@ -240,30 +228,18 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
               ),
               child: Text(
                 '🏆 GAGNANT',
-                style: GoogleFonts.inter(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
-                ),
+                style: MintTextStyles.micro(color: MintColors.white).copyWith(fontSize: 9, fontWeight: FontWeight.w800, fontStyle: FontStyle.normal),
               ),
             ),
           Text(
             'CHF ${_fmt(patrimony)}',
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
+            style: MintTextStyles.bodyMedium(color: color).copyWith(fontWeight: FontWeight.w800),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 2),
           Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
             textAlign: TextAlign.center,
           ),
         ],
@@ -290,19 +266,11 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
               children: [
                 Text(
                   'Break-even à $be ans',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.info,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w800),
                 ),
                 Text(
                   'Avant $be ans : louer est plus rentable. Après : acheter prend l\'avantage.',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ],
             ),
@@ -318,11 +286,7 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
       children: [
         Text(
           'Coûts mensuels comparés',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w800,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 8),
         _buildCostRow('🏠 Mensualité hypothèque', mortgageMonthly,
@@ -363,30 +327,19 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: isHighlight ? FontWeight.w700 : FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: isHighlight ? FontWeight.w700 : FontWeight.w500),
                 ),
                 if (sub != null)
                   Text(
                     sub,
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      color: MintColors.textSecondary,
-                    ),
+                    style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
                   ),
               ],
             ),
           ),
           Text(
             'CHF ${_fmt(value)}',
-            style: GoogleFonts.montserrat(
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-              color: isHighlight ? MintColors.primary : MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodySmall(color: isHighlight ? MintColors.primary : MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -407,22 +360,14 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
         children: [
           Text(
             '💡 La vraie question',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-              color: MintColors.scoreAttention,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.scoreAttention).copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 4),
           Text(
             'La question n\'est pas "louer ou acheter" — c\'est '
             '"Est-ce que je resterai $_breakEvenYears+ ans dans ce bien ?" '
             'Si oui, acheter a du sens financièrement. Sinon, louer et investir la différence.',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textPrimary,
-              height: 1.5,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.5),
           ),
         ],
       ),
@@ -435,11 +380,7 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
       'Hypothèses : appréciation immobilière ${ (appreciationRate * 100).round()}%/an, '
       'rendement placement ${(investmentReturnRate * 100).round()}%/an, amortissement FINMA 1%/an. '
       'Source : FINMA/ASB (taux théorique 5%), CO art. 261ss.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
     );
   }
 }

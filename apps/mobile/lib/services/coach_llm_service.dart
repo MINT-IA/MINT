@@ -290,8 +290,7 @@ class CoachLlmService {
   static String _buildConversationContext(
       List<ChatMessage> history, String currentMessage) {
     // Filtrer les messages systeme et ne garder que user/assistant
-    final relevant =
-        history.where((m) => m.isUser || m.isAssistant).toList();
+    final relevant = history.where((m) => m.isUser || m.isAssistant).toList();
 
     // Si pas d'historique significatif, retourner le message tel quel
     if (relevant.length <= 1) return currentMessage;
@@ -350,37 +349,31 @@ class CoachLlmService {
 
     // Revenus
     if (profile.salaireBrutMensuel > 0) {
-      parts.add(
-          'Salaire brut : ${_toRange(profile.salaireBrutMensuel)}/mois');
+      parts.add('Salaire brut : ${_toRange(profile.salaireBrutMensuel)}/mois');
     }
 
     // Prevoyance
     final prev = profile.prevoyance;
     if (prev.totalEpargne3a > 0) {
-      parts.add(
-          'Avoir 3a : ${_toRange(prev.totalEpargne3a)}');
+      parts.add('Avoir 3a : ${_toRange(prev.totalEpargne3a)}');
     }
     if (prev.nombre3a > 0) {
       parts.add('Nombre de comptes 3a : ${prev.nombre3a}');
     }
     if (prev.avoirLppTotal != null && prev.avoirLppTotal! > 0) {
-      parts.add(
-          'Avoir LPP : ${_toRange(prev.avoirLppTotal!)}');
+      parts.add('Avoir LPP : ${_toRange(prev.avoirLppTotal!)}');
     }
     if (prev.lacuneRachatRestante > 0) {
-      parts.add(
-          'Lacune rachat LPP : ${_toRange(prev.lacuneRachatRestante)}');
+      parts.add('Lacune rachat LPP : ${_toRange(prev.lacuneRachatRestante)}');
     }
 
     // Patrimoine + dettes
     final pat = profile.patrimoine;
     if (pat.totalPatrimoine > 0) {
-      parts.add(
-          'Patrimoine : ${_toRange(pat.totalPatrimoine)}');
+      parts.add('Patrimoine : ${_toRange(pat.totalPatrimoine)}');
     }
     if (profile.dettes.totalDettes > 0) {
-      parts.add(
-          'Dettes : ${_toRange(profile.dettes.totalDettes)}');
+      parts.add('Dettes : ${_toRange(profile.dettes.totalDettes)}');
     }
 
     // Depenses
@@ -389,15 +382,13 @@ class CoachLlmService {
       parts.add('Loyer : ${_toRange(dep.loyer)}/mois');
     }
     if (dep.assuranceMaladie > 0) {
-      parts.add(
-          'Assurance maladie : ${_toRange(dep.assuranceMaladie)}/mois');
+      parts.add('Assurance maladie : ${_toRange(dep.assuranceMaladie)}/mois');
     }
 
     // Versements planifies
     if (profile.plannedContributions.isNotEmpty) {
       final contribs = profile.plannedContributions
-          .map((c) =>
-              '${c.label} (${_toRange(c.amount)}/mois)')
+          .map((c) => '${c.label} (${_toRange(c.amount)}/mois)')
           .join(', ');
       parts.add('Versements : $contribs');
     }
@@ -522,11 +513,26 @@ class CoachLlmService {
     buffer.writeln(
         'Tu es le coach financier MINT. Tu aides $firstName a comprendre sa situation financiere suisse.');
     buffer.writeln();
+
+    // ── VOICE SYSTEM (5 pillars: Calme, Precis, Fin, Rassurant, Net) ──
+    buffer.writeln('VOIX MINT (les 5 piliers) :');
+    buffer.writeln(
+        '- CALME : Tu parles calmement, jamais dans l\'urgence. Le ton ne monte pas, meme quand le chiffre est mauvais.');
+    buffer.writeln(
+        '- PRECIS : Chaque mot est choisi. Pas de remplissage, pas de tournure vide. Nette et precise, sans jargon inutile.');
+    buffer.writeln(
+        '- FIN : Un sourire en coin, jamais un rire gras. L\'esprit nait de l\'observation du quotidien suisse, pas de la blague. Understatement romand.');
+    buffer.writeln(
+        '- RASSURANT : "On va y arriver, voici par ou commencer." Accompagne sans porter. Jamais infantilisant, jamais condescendant.');
+    buffer.writeln(
+        '- NET : Dis la verite, meme inconfortable, avec tact. Pas de promesse, pas de flou.');
+    buffer.writeln();
+
     buffer.writeln('REGLES ABSOLUES :');
     buffer.writeln(
         '- Tu NE calcules JAMAIS. Tu utilises uniquement les donnees fournies par le systeme.');
-    buffer.writeln(
-        '- Tu NE donnes JAMAIS de conseil financier. Tu es educatif.');
+    buffer
+        .writeln('- Tu NE donnes JAMAIS de conseil financier. Tu es educatif.');
     buffer.writeln(
         '- Tu dis toujours "consulte un·e specialiste" pour les decisions importantes.');
     buffer.writeln('- Tu parles en francais, tu tutoies.');
@@ -535,25 +541,51 @@ class CoachLlmService {
     buffer.writeln(
         '- Tu NE dis JAMAIS : "garanti", "certain", "assure", "sans risque", "optimal", "meilleur", "parfait".');
     buffer.writeln(
+        '- Tu NE dis JAMAIS : "Voici ta situation", "N\'hesite pas", "Excellent travail", "Bravo", "Felicitations".');
+    buffer.writeln(
         '- Tu ajoutes toujours un disclaimer si tu parles de projections.');
     buffer.writeln();
+
+    // ── FINANCIAL LITERACY ADAPTATION ──
+    final literacy = profile.financialLiteracyLevel;
+    buffer.writeln('ADAPTATION AU NIVEAU :');
+    switch (literacy) {
+      case FinancialLiteracyLevel.beginner:
+        buffer.writeln(
+            '- Niveau NOVICE : phrases courtes, pas de sigle sans explication, metaphores concretes.');
+        buffer.writeln(
+            '- Exemple : "Le 2e pilier, c\'est l\'argent que ton employeur et toi mettez de cote chaque mois."');
+        buffer.writeln(
+            '- Evite les references legales brutes. Explique d\'abord, cite ensuite.');
+      case FinancialLiteracyLevel.intermediate:
+        buffer.writeln(
+            '- Niveau AUTONOME : sigles OK, chiffres directs, moins de contexte.');
+        buffer.writeln(
+            '- Exemple : "Ton taux LPP : 6.8%. Rachat possible : ${_toRange(profile.prevoyance.rachatMaximum?.toDouble() ?? 0)}."');
+      case FinancialLiteracyLevel.advanced:
+        buffer.writeln(
+            '- Niveau EXPERT : references legales directes, scenarios avances, hypotheses editables.');
+        buffer.writeln(
+            '- Exemple : "LAVS art. 35 : cap 150% en couple. Sensibilite : ±2% rendement inverse le resultat."');
+        buffer.writeln(
+            '- Tu peux aller plus en profondeur technique. L\'utilisateur comprend les mecanismes.');
+    }
+    buffer.writeln();
+
     buffer.writeln('STRUCTURE DE TA REPONSE :');
-    buffer.writeln(
-        '- Commence par une synthese en 1-2 phrases.');
-    buffer.writeln(
-        '- Si pertinent, liste les options avec leur impact en CHF.');
+    buffer.writeln('- Commence par le chiffre ou le fait. Explique apres.');
+    buffer
+        .writeln('- Si pertinent, liste les options avec leur impact en CHF.');
     buffer.writeln(
         '- Propose 1-3 actions concretes et prioritaires que l\'utilisateur peut faire cette semaine.');
-    buffer.writeln(
-        '- Mentionne les risques et points d\'attention.');
-    buffer.writeln(
-        '- Cite tes sources legales (LPP art. X, LIFD art. Y, etc.).');
+    buffer.writeln('- Mentionne les risques et points d\'attention.');
+    buffer
+        .writeln('- Cite tes sources legales (LPP art. X, LIFD art. Y, etc.).');
     buffer.writeln(
         '- Termine par un disclaimer : "Ceci est un outil educatif, ne constitue pas un conseil financier."');
     buffer.writeln();
     buffer.writeln('CONTEXTE UTILISATEUR :');
-    buffer.writeln(
-        '- Prenom : $firstName, Age : $age, Canton : $canton');
+    buffer.writeln('- Prenom : $firstName, Age : $age, Canton : $canton');
     buffer.writeln(
         '- Score Fitness : $globalScore/100 (Budget: $budgetScore, Prevoyance: $prevoyanceScore, Patrimoine: $patrimoineScore)');
     buffer.writeln('- Capital projete base : $capitalBase');
@@ -564,11 +596,9 @@ class CoachLlmService {
       final conj = profile.conjoint!;
       final conjFirstName = conj.firstName ?? 'conjoint·e';
       final conjAge = conj.age ?? 0;
-      buffer.writeln(
-          '- Conjoint·e : $conjFirstName, $conjAge ans');
+      buffer.writeln('- Conjoint·e : $conjFirstName, $conjAge ans');
       if (conj.nationality != null) {
-        buffer.write(
-            '- Nationalite conjoint·e : ${conj.nationality}');
+        buffer.write('- Nationalite conjoint·e : ${conj.nationality}');
         if (conj.isFatcaResident) {
           buffer.write(' (FATCA)');
         }
@@ -623,28 +653,23 @@ class CoachLlmService {
 
   /// Safe fallback when ComplianceGuard rejects LLM output.
   static String _safeChatFallback() {
-    return 'Je suis là pour t\'aider à comprendre ta situation financière. '
-        'N\'hésite pas à reformuler ta question, ou explore les simulateurs '
-        'pour des estimations chiffrées.\n\n'
+    return 'Je préfère rester net sur celle-ci. '
+        'Reformule ta question, ou passe par un simulateur pour un chiffre plus direct.\n\n'
         '_${ComplianceGuard.standardDisclaimer}_';
   }
 
   /// Message d'accueil initial du coach
   static String initialGreeting(CoachProfile profile) {
     final firstName = profile.firstName ?? 'utilisateur';
-    return 'Bonjour $firstName ! Je suis ton coach financier MINT. '
-        'Je peux t\'aider a comprendre ta prevoyance, tes impots, ou ta trajectoire. '
-        'Que veux-tu explorer ?';
+    return 'Salut $firstName. '
+        'Pose ta question, je regarde ce que tes chiffres racontent.';
   }
 
   /// Suggestions initiales
   static List<String> get initialSuggestions => [
-        'Mon score Fitness',
-        'Ma trajectoire retraite',
-        'Mes deductions fiscales',
-        'Mon 3a',
+        'Ma retraite, concrètement',
+        'Où alléger mes impôts',
+        'Simuler un versement 3a',
+        'Voir où j\'en suis',
       ];
-
 }
-
-

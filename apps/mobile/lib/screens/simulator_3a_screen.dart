@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/models/profile.dart';
@@ -10,7 +13,6 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 import 'package:mint_mobile/widgets/coach/countdown_3a_widget.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
 
@@ -85,69 +87,49 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
     });
   }
 
-  Future<void> _exportPdf() async {
-    if (_result == null) return;
-    
-    // TODO: Implement PDF export for 3a simulator
-    // await PdfService.generateBilanPdf(
-    //   title: 'Bilan Optimisation Pilier 3a',
-    //   results: results,
-    //   recommendations: recommendations,
-    // );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     final hasDebt = context.watch<ProfileProvider>().profile?.hasDebt ?? false;
 
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
-        title: const Text('Optimiseur Pilier 3a'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.picture_as_pdf_outlined),
-            onPressed: _exportPdf,
-            tooltip: 'Exporter mon bilan',
-          ),
-          const SizedBox(width: 8),
-        ],
+        backgroundColor: MintColors.white,
+        foregroundColor: MintColors.textPrimary,
+        title: Text(l.sim3aTitle, style: MintTextStyles.headlineMedium()),
+        actions: const [],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildCoachSection(),
-            const SizedBox(height: 32),
+            const SizedBox(height: MintSpacing.xl),
             _buildInputSection(),
-            const SizedBox(height: 32),
+            const SizedBox(height: MintSpacing.xl),
             if (_result != null)
               SafeModeGate(
                 hasDebt: hasDebt,
-                lockedTitle: 'Priorite au desendettement',
-                lockedMessage:
-                    'En mode protection, les recommandations d\'action 3a sont desactivees. '
-                    'La priorite est de stabiliser ta situation financiere avant de verser dans le 3a.',
+                lockedTitle: l.sim3aDebtLockedTitle,
+                lockedMessage: l.sim3aDebtLockedMessage,
                 child: _buildResultSection(),
               ),
-            const SizedBox(height: 32),
+            const SizedBox(height: MintSpacing.xl),
             SafeModeGate(
               hasDebt: hasDebt,
-              lockedTitle: 'Strategie bloquee',
-              lockedMessage:
-                  'Les strategies d\'investissement 3a sont desactivees tant que tu as des dettes actives. '
-                  'Rembourser tes dettes est un rendement plus eleve que tout placement.',
+              lockedTitle: l.sim3aDebtStrategyTitle,
+              lockedMessage: l.sim3aDebtStrategyMessage,
               child: _buildEducationSection(),
             ),
-            const SizedBox(height: 32),
-            // ── Related sections (hub) ──
+            const SizedBox(height: MintSpacing.xl),
             _buildRelatedSections(),
-            const SizedBox(height: 48),
+            const SizedBox(height: MintSpacing.xxl),
             _buildDisclaimer(),
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
             _buildCountdown3a(),
-            const SizedBox(height: 40),
+            const SizedBox(height: MintSpacing.xl),
           ],
         ),
       ),
@@ -155,26 +137,27 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   }
 
   Widget _buildCoachSection() {
+    final l = S.of(context)!;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
-              SizedBox(width: 12),
-              Text('Le conseil du Mentor', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+              const Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
+              const SizedBox(width: MintSpacing.sm),
+              Text(l.sim3aCoachTitle, style: MintTextStyles.titleMedium()),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           Text(
-            'Le 3a est l\'un des outils les plus efficaces d\'optimisation en Suisse. L\'économie fiscale immédiate est un avantage concret.',
-            style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
+            l.sim3aCoachBody,
+            style: MintTextStyles.bodyMedium(),
           ),
         ],
       ),
@@ -182,15 +165,16 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   }
 
   Widget _buildInputSection() {
+    final l = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Tes Paramètres'),
-        const SizedBox(height: 24),
+        Text(l.sim3aParamsHeader, style: MintTextStyles.labelSmall()),
+        const SizedBox(height: MintSpacing.lg),
         _buildSlider(
           label: _isIndepSansLpp
-              ? 'Versement annuel (indep. sans LPP)'
-              : 'Versement annuel',
+              ? l.sim3aAnnualContributionIndep
+              : l.sim3aAnnualContribution,
           value: _annualContribution,
           min: 1000,
           max: _plafond3a,
@@ -201,58 +185,46 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
             _calculate();
           },
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.md),
         _buildSlider(
-          label: 'Taux marginal d’imposition',
+          label: l.sim3aMarginalRate,
           value: _marginalTaxRate * 100,
           min: 10,
           max: 45,
           divisions: 35,
-          format: (v) => '${v.toStringAsFixed(0)}%',
+          format: (v) => '${v.toStringAsFixed(0)}\u00a0%',
           onChanged: (v) {
             _marginalTaxRate = v / 100;
             _calculate();
           },
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.md),
         _buildSlider(
-          label: 'Années jusqu\'à la retraite',
+          label: l.sim3aYearsToRetirement,
           value: _years.toDouble(),
           min: 5,
           max: 45,
           divisions: 40,
-          format: (v) => '${v.toInt()} ans',
+          format: (v) => l.sim3aYearsSuffix(v.toInt()),
           onChanged: (v) {
             _years = v.toInt();
             _calculate();
           },
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.md),
         _buildSlider(
-          label: 'Rendement annuel espéré',
+          label: l.sim3aExpectedReturn,
           value: _annualReturn,
           min: 0,
           max: 10,
           divisions: 20,
-          format: (v) => '${v.toStringAsFixed(1)}%',
+          format: (v) => '${v.toStringAsFixed(1)}\u00a0%',
           onChanged: (v) {
             _annualReturn = v;
             _calculate();
           },
         ),
       ],
-    );
-  }
-
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title.toUpperCase(),
-      style: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w700,
-        color: MintColors.textMuted,
-        letterSpacing: 1.2,
-      ),
     );
   }
 
@@ -265,63 +237,68 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
     required String Function(double) format,
     required void Function(double) onChanged,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (label.isNotEmpty)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(label, style: const TextStyle(fontSize: 14, color: MintColors.textPrimary)),
-              Text(
-                format(value),
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: MintColors.primary),
-              ),
-            ],
+    return Semantics(
+      label: '$label: ${format(value)}',
+      slider: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (label.isNotEmpty)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(child: Text(label, style: MintTextStyles.bodyMedium(color: MintColors.textPrimary))),
+                Text(
+                  format(value),
+                  style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          const SizedBox(height: MintSpacing.sm),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              trackHeight: 4,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+              activeTrackColor: MintColors.primary,
+              inactiveTrackColor: MintColors.border,
+              thumbColor: MintColors.primary,
+            ),
+            child: Slider(
+              value: value,
+              min: min,
+              max: max,
+              divisions: divisions,
+              onChanged: onChanged,
+            ),
           ),
-        const SizedBox(height: 8),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 4,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-            activeTrackColor: MintColors.primary,
-            inactiveTrackColor: MintColors.border,
-            thumbColor: MintColors.primary,
-          ),
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions,
-            onChanged: onChanged,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildResultSection() {
+    final l = S.of(context)!;
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
-        color: MintColors.appleSurface.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: MintColors.primary.withValues(alpha: 0.1)),
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         children: [
-          const Text('Gain Fiscal Annuel', style: TextStyle(fontSize: 14, color: MintColors.textSecondary)),
-          const SizedBox(height: 8),
+          Text(l.sim3aAnnualTaxSaved, style: MintTextStyles.bodyMedium()),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             _currencyFormat.format(_result!['annualTaxSaved']!),
-            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: MintColors.primary),
+            style: MintTextStyles.displayMedium(color: MintColors.primary),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: MintSpacing.lg),
           const Divider(color: MintColors.border),
-          const SizedBox(height: 16),
-          _buildImpactRow('Capital au terme', _result!['potentialFinalValue']!),
-          const SizedBox(height: 8),
-          _buildImpactRow('Économie fiscale cumulée', _result!['totalTaxSavedOverPeriod']!, color: MintColors.success),
+          const SizedBox(height: MintSpacing.md),
+          _buildImpactRow(l.sim3aFinalCapital, _result!['potentialFinalValue']!),
+          const SizedBox(height: MintSpacing.sm),
+          _buildImpactRow(l.sim3aCumulativeTaxSaved, _result!['totalTaxSavedOverPeriod']!, color: MintColors.success),
         ],
       ),
     );
@@ -331,31 +308,32 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(fontSize: 14, color: MintColors.textSecondary)),
+        Flexible(child: Text(label, style: MintTextStyles.bodyMedium())),
         Text(
           _currencyFormat.format(value),
-          style: TextStyle(fontWeight: FontWeight.w600, color: color ?? MintColors.textPrimary),
+          style: MintTextStyles.bodyMedium(color: color ?? MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );
   }
 
   Widget _buildEducationSection() {
+    final l = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Strategie Gagnante'),
-        const SizedBox(height: 24),
-        _buildSmartItem(Icons.account_balance_wallet_outlined, 'Bancaire > Assurance', 'Évitez les contrats d\'assurance liés. Restez flexible avec un 3a bancaire investi.'),
-        _buildSmartItem(Icons.layers_outlined, 'La règle des 5 comptes', 'Ouvrez plusieurs comptes pour retirer de manière échelonnée et éviter la progression fiscale au retrait.'),
-        _buildSmartItem(Icons.trending_up, '100% Actions', 'Si ta retraite est dans plus de 15 ans, une stratégie actions maximise ton capital.'),
+        Text(l.sim3aStrategyHeader, style: MintTextStyles.labelSmall()),
+        const SizedBox(height: MintSpacing.lg),
+        _buildSmartItem(Icons.account_balance_wallet_outlined, l.sim3aStratBankTitle, l.sim3aStratBankBody),
+        _buildSmartItem(Icons.layers_outlined, l.sim3aStrat5AccountsTitle, l.sim3aStrat5AccountsBody),
+        _buildSmartItem(Icons.trending_up, l.sim3aStrat100ActionsTitle, l.sim3aStrat100ActionsBody),
       ],
     );
   }
 
   Widget _buildSmartItem(IconData icon, String title, String subtitle) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: MintSpacing.lg),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -367,14 +345,14 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
             ),
             child: Icon(icon, color: MintColors.primary, size: 20),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: MintSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                const SizedBox(height: 4),
-                Text(subtitle, style: const TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.4)),
+                Text(title, style: MintTextStyles.titleMedium().copyWith(fontSize: 15)),
+                const SizedBox(height: MintSpacing.xs),
+                Text(subtitle, style: MintTextStyles.bodyMedium()),
               ],
             ),
           ),
@@ -384,29 +362,29 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   }
 
   Widget _buildRelatedSections() {
+    final l = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Explorer aussi',
-          style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
-        const SizedBox(height: 12),
+        Text(l.sim3aExploreAlso, style: MintTextStyles.titleMedium()),
+        const SizedBox(height: MintSpacing.sm),
         CollapsibleSection(
-          title: 'Comparateur prestataires',
-          subtitle: 'VIAC, Finpension, frankly...',
+          title: l.sim3aProviderComparator,
+          subtitle: l.sim3aProviderComparatorSub,
           icon: Icons.compare,
-          child: _buildSectionCta('Comparer', '/3a-deep/comparator'),
+          child: _buildSectionCta(l.sim3aCtaCompare, '/3a-deep/comparator'),
         ),
         CollapsibleSection(
-          title: 'Rendement réel',
-          subtitle: 'Après frais, inflation et fiscal',
+          title: l.sim3aRealReturn,
+          subtitle: l.sim3aRealReturnSub,
           icon: Icons.trending_up,
-          child: _buildSectionCta('Calculer', '/3a-deep/real-return'),
+          child: _buildSectionCta(l.sim3aCtaCalculate, '/3a-deep/real-return'),
         ),
         CollapsibleSection(
-          title: 'Retrait échelonné',
-          subtitle: 'Étaler les retraits pour réduire l\'impôt',
+          title: l.sim3aStaggeredWithdrawal,
+          subtitle: l.sim3aStaggeredWithdrawalSub,
           icon: Icons.calendar_month,
-          child: _buildSectionCta('Planifier', '/3a-deep/staggered-withdrawal'),
+          child: _buildSectionCta(l.sim3aCtaPlan, '/3a-deep/staggered-withdrawal'),
         ),
       ],
     );
@@ -423,12 +401,13 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   }
 
   Widget _buildDisclaimer() {
-    return const Center(
+    final l = S.of(context)!;
+    return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
         child: Text(
-          'Calculs basés sur des moyennes cantonales. Les économies réelles dépendent de ton lieu de résidence et situation familiale.',
-          style: TextStyle(color: MintColors.textMuted, fontSize: 11),
+          l.sim3aDisclaimer,
+          style: MintTextStyles.micro(),
           textAlign: TextAlign.center,
         ),
       ),

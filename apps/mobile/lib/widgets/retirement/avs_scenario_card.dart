@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/retirement_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -74,11 +74,7 @@ class AvsScenarioCard extends StatelessWidget {
               child: Text(
                 config.label,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
               ),
             ),
             const SizedBox(height: 10),
@@ -88,20 +84,13 @@ class AvsScenarioCard extends StatelessWidget {
               fit: BoxFit.scaleDown,
               child: Text(
                 RetirementService.formatChf(renteMensuelle),
-                style: GoogleFonts.montserrat(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: config.color,
-                ),
+                style: MintTextStyles.headlineMedium(color: config.color).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
               ),
             ),
             const SizedBox(height: 2),
             Text(
               'par mois',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textMuted).copyWith(fontSize: 12),
             ),
             const SizedBox(height: 10),
 
@@ -117,11 +106,7 @@ class AvsScenarioCard extends StatelessWidget {
                   fit: BoxFit.scaleDown,
                   child: Text(
                     'Référence',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.info,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.info).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
                   ),
                 ),
               )
@@ -136,13 +121,7 @@ class AvsScenarioCard extends StatelessWidget {
                 ),
                 child: Text(
                   '${penalitePct > 0 ? '+' : ''}${penalitePct.toStringAsFixed(1)}%',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: penalitePct < 0
-                        ? MintColors.error
-                        : MintColors.success,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: penalitePct < 0 ? MintColors.error : MintColors.success).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
                 ),
               ),
             const SizedBox(height: 10),
@@ -160,11 +139,7 @@ class AvsScenarioCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text(
                   'à vie',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w500),
                 ),
               ],
             ),

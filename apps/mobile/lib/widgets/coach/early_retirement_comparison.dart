@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
@@ -152,21 +152,14 @@ class EarlyRetirementComparison extends StatelessWidget {
         children: [
           Text(
             'Comparaison retraite anticip\u00e9e',
-            style: GoogleFonts.montserrat(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 4),
           Text(
             isCouple
                 ? 'Taux de remplacement m\u00e9nage par \u00e2ge de d\u00e9part'
                 : 'Estimation du taux de remplacement par \u00e2ge de d\u00e9part',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
           ),
           const SizedBox(height: 12),
           // Header row
@@ -175,29 +168,17 @@ class EarlyRetirementComparison extends StatelessWidget {
               SizedBox(
                 width: 50,
                 child: Text('Age',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textMuted,
-                    )),
+                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600)),
               ),
               Expanded(
                 child: Text('Revenu mensuel',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textMuted,
-                    )),
+                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600)),
               ),
               SizedBox(
                 width: 70,
                 child: Text('Taux',
                     textAlign: TextAlign.right,
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textMuted,
-                    )),
+                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600)),
               ),
             ],
           ),
@@ -214,11 +195,7 @@ class EarlyRetirementComparison extends StatelessWidget {
               children: [
                 Text(
                   'Simuler ta retraite anticip\u00e9e',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.primary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(width: 4),
                 const Icon(Icons.arrow_forward,
@@ -230,11 +207,7 @@ class EarlyRetirementComparison extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             'Outil \u00e9ducatif \u2014 les taux varient par caisse (LSFin).',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.textMuted,
-              fontStyle: FontStyle.italic,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textMuted),
           ),
         ],
       ),
@@ -261,11 +234,7 @@ class EarlyRetirementComparison extends StatelessWidget {
               children: [
                 Text(
                   '${r.age}',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: textWeight,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: textWeight),
                 ),
                 if (r.isTarget)
                   const Padding(
@@ -279,11 +248,7 @@ class EarlyRetirementComparison extends StatelessWidget {
           Expanded(
             child: Text(
               'CHF ${r.totalMonthly.toStringAsFixed(0)}',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: textWeight,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: textWeight),
             ),
           ),
           SizedBox(
@@ -291,15 +256,11 @@ class EarlyRetirementComparison extends StatelessWidget {
             child: Text(
               '${(r.replacementRate * 100).toStringAsFixed(0)}%',
               textAlign: TextAlign.right,
-              style: GoogleFonts.montserrat(
-                fontSize: 14,
-                fontWeight: textWeight,
-                color: r.replacementRate >= 0.60
+              style: MintTextStyles.bodyMedium(color: r.replacementRate >= 0.60
                     ? MintColors.scoreGreen
                     : r.replacementRate >= 0.45
                         ? MintColors.scoreAttention
-                        : MintColors.scoreRed,
-              ),
+                        : MintColors.scoreRed).copyWith(fontWeight: textWeight),
             ),
           ),
         ],

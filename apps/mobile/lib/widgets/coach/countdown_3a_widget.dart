@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -76,11 +76,7 @@ class Countdown3aWidget extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Compte \u00e0 rebours 3a',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
                 Container(
@@ -92,11 +88,7 @@ class Countdown3aWidget extends StatelessWidget {
                   ),
                   child: Text(
                     '$daysRemaining j \u2014 $_urgencyLabel',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: _urgencyColor,
-                    ),
+                    style: MintTextStyles.labelSmall(color: _urgencyColor).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -139,16 +131,9 @@ class Countdown3aWidget extends StatelessWidget {
                         'd\u2019imp\u00f4ts en moins.\n'
                         'Si tu ne fais rien\u00a0: ${formatChfWithPrefix(taxSavingsIfFull)} '
                         'laiss\u00e9s sur la table. Chaque ann\u00e9e.'
-                    : 'Bravo\u00a0! Tu as rempli ton 3a $year. '
+                    : 'C\u2019est fait\u00a0! Ton 3a $year est rempli. '
                         '\u00c9conomie fiscale\u00a0: ${formatChfWithPrefix(taxSavingsIfFull)}.',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: _remaining > 0
-                      ? MintColors.scoreCritique
-                      : MintColors.scoreExcellent,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.labelSmall(color: _remaining > 0 ? MintColors.scoreCritique : MintColors.scoreExcellent).copyWith(fontSize: 12, fontWeight: FontWeight.w500, height: 1.4),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -157,11 +142,7 @@ class Countdown3aWidget extends StatelessWidget {
             Text(
               'Plafond 3a $year\u00a0: salari\u00e9\u00b7e affili\u00e9\u00b7e LPP (OPP3 art. 7). '
               'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin).',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ],
         ),
@@ -202,11 +183,7 @@ class Countdown3aWidget extends StatelessWidget {
           alignment: Alignment.centerRight,
           child: Text(
             '${(_progress * 100).toStringAsFixed(0)}%',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: _urgencyColor,
-            ),
+            style: MintTextStyles.labelSmall(color: _urgencyColor).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -218,18 +195,11 @@ class Countdown3aWidget extends StatelessWidget {
       children: [
         Text(
           value,
-          style: GoogleFonts.montserrat(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted),
         ),
       ],
     );

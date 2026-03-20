@@ -1,8 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/expat_service.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
@@ -15,9 +16,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 //   Tab 2: "90 jours" — Home office 90-day rule gauge
 //   Tab 3: "Charges"  — Social security comparison CH vs abroad
 //
-// All text in French (informal "tu").
-// Material 3, MintColors theme, GoogleFonts.
-// Ne constitue pas un conseil fiscal ou juridique (LSFin).
+// Category C — Life Event (DESIGN_SYSTEM §2C).
 // ────────────────────────────────────────────────────────────
 
 class FrontalierScreen extends StatefulWidget {
@@ -116,55 +115,36 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     );
   }
 
-  // ── App Bar with Tabs ──────────────────────────────────
+  // ── App Bar with Tabs (white standard per DESIGN_SYSTEM §4.5) ──
 
   Widget _buildAppBar(BuildContext context, bool innerBoxIsScrolled) {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      expandedHeight: 160,
-      backgroundColor: MintColors.primary,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.white),
-        onPressed: () => context.pop(),
+      backgroundColor: MintColors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0.5,
+      leading: Semantics(
+        label: 'Retour',
+        button: true,
+        child: IconButton(
+          icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
+          onPressed: () => context.pop(),
+        ),
       ),
-      flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: 16),
-        title: Text(
-          S.of(context)!.frontalierAppBarTitle,
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-            color: MintColors.white,
-          ),
-        ),
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                MintColors.primary,
-                MintColors.primary.withValues(alpha: 0.85),
-              ],
-            ),
-          ),
-        ),
+      title: Text(
+        S.of(context)!.frontalierAppBarTitle,
+        style: MintTextStyles.headlineMedium(),
       ),
       bottom: TabBar(
         controller: _tabController,
-        indicatorColor: MintColors.white,
+        indicatorColor: MintColors.primary,
         indicatorWeight: 3,
-        labelColor: MintColors.white,
-        unselectedLabelColor: MintColors.white60,
-        labelStyle: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-        ),
-        unselectedLabelStyle: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.w400,
-        ),
+        labelColor: MintColors.textPrimary,
+        unselectedLabelColor: MintColors.textMuted,
+        labelStyle: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+            .copyWith(fontWeight: FontWeight.w600),
+        unselectedLabelStyle: MintTextStyles.bodySmall(),
         tabs: [
           Tab(text: S.of(context)!.frontalierTabImpots),
           Tab(text: S.of(context)!.frontalierTab90Jours),
@@ -180,24 +160,24 @@ class _FrontalierScreenState extends State<FrontalierScreen>
 
   Widget _buildTab1Impots() {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      padding: const EdgeInsets.fromLTRB(
+          MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         _buildTaxInputsCard(),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.md + 4),
         if (_taxResult != null) ...[
           _buildTaxResultCard(),
-          const SizedBox(height: 20),
-          // Quasi-resident badge (GE only)
+          const SizedBox(height: MintSpacing.md + 4),
           if (_taxCanton == 'GE') _buildQuasiResidentBadge(),
-          if (_taxCanton == 'GE') const SizedBox(height: 20),
-          // Tessin note
+          if (_taxCanton == 'GE') const SizedBox(height: MintSpacing.md + 4),
           if (_taxResult!['isTessin'] == true) _buildTessinNote(),
-          if (_taxResult!['isTessin'] == true) const SizedBox(height: 20),
+          if (_taxResult!['isTessin'] == true)
+            const SizedBox(height: MintSpacing.md + 4),
         ],
         _buildEducationalInsert(
           S.of(context)!.frontalierEducationalTax,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.md + 4),
         _buildDisclaimer(),
       ],
     );
@@ -207,7 +187,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     final sortedCodes = ExpatService.sortedCantonCodes;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
@@ -223,45 +203,45 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.frontalierCantonTravail,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(
+                      color: MintColors.textPrimary),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: MintColors.appleSurface,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _taxCanton,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: MintColors.textPrimary,
+              Semantics(
+                label: S.of(context)!.frontalierCantonTravail,
+                button: true,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: MintSpacing.sm + 4),
+                  decoration: BoxDecoration(
+                    color: MintColors.surface,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _taxCanton,
+                      style: MintTextStyles.bodyMedium(
+                          color: MintColors.textPrimary),
+                      items: sortedCodes.map((code) {
+                        return DropdownMenuItem(
+                          value: code,
+                          child: Text(
+                              '$code — ${ExpatService.cantonNames[code]}'),
+                        );
+                      }).toList(),
+                      onChanged: (v) {
+                        if (v != null) {
+                          _taxCanton = v;
+                          _recalculateTax();
+                        }
+                      },
                     ),
-                    items: sortedCodes.map((code) {
-                      return DropdownMenuItem(
-                        value: code,
-                        child: Text(
-                            '$code — ${ExpatService.cantonNames[code]}'),
-                      );
-                    }).toList(),
-                    onChanged: (v) {
-                      if (v != null) {
-                        _taxCanton = v;
-                        _recalculateTax();
-                      }
-                    },
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md + 4),
 
           // Salary slider
           _buildSlider(
@@ -275,18 +255,15 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               _recalculateTax();
             },
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md + 4),
 
           // Marital status segmented button
           Text(
             S.of(context)!.frontalierEtatCivil,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textPrimary,
-            ),
+            style:
+                MintTextStyles.bodyMedium(color: MintColors.textPrimary),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Row(
             children: [
               Expanded(
@@ -301,11 +278,12 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                     },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: MintSpacing.sm + 4),
                       decoration: BoxDecoration(
                         color: _taxMaritalStatus == 0
                             ? MintColors.primary
-                            : MintColors.appleSurface,
+                            : MintColors.surface,
                         borderRadius: const BorderRadius.horizontal(
                             left: Radius.circular(12)),
                         border: Border.all(
@@ -317,13 +295,11 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                       child: Center(
                         child: Text(
                           S.of(context)!.frontalierCelibataire,
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                          style: MintTextStyles.bodySmall(
                             color: _taxMaritalStatus == 0
                                 ? MintColors.white
                                 : MintColors.textSecondary,
-                          ),
+                          ).copyWith(fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),
@@ -342,38 +318,37 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                     },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: MintSpacing.sm + 4),
                       decoration: BoxDecoration(
                         color: _taxMaritalStatus == 1
                             ? MintColors.primary
-                            : MintColors.appleSurface,
+                            : MintColors.surface,
                         borderRadius: const BorderRadius.horizontal(
                             right: Radius.circular(12)),
                         border: Border.all(
                           color: _taxMaritalStatus == 1
-                            ? MintColors.primary
-                            : MintColors.border,
+                              ? MintColors.primary
+                              : MintColors.border,
+                        ),
                       ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        S.of(context)!.frontalierMarie,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: _taxMaritalStatus == 1
-                              ? MintColors.white
-                              : MintColors.textSecondary,
+                      child: Center(
+                        child: Text(
+                          S.of(context)!.frontalierMarie,
+                          style: MintTextStyles.bodySmall(
+                            color: _taxMaritalStatus == 1
+                                ? MintColors.white
+                                : MintColors.textSecondary,
+                          ).copyWith(fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),
                   ),
                 ),
-                ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md + 4),
 
           // Children stepper
           Row(
@@ -381,11 +356,8 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.frontalierEnfantsCharge,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(
+                      color: MintColors.textPrimary),
                 ),
               ),
               _buildStepper(
@@ -416,38 +388,30 @@ class _FrontalierScreenState extends State<FrontalierScreen>
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withValues(alpha: 0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.receipt_long, size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
-              Text(
-                'IMPÔT À LA SOURCE — $cantonNom'.toUpperCase(),
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
+              const Icon(Icons.receipt_long,
+                  size: 16, color: MintColors.textMuted),
+              const SizedBox(width: MintSpacing.sm),
+              Expanded(
+                child: Text(
+                  '${S.of(context)!.frontalierTabImpots} — $cantonNom'
+                      .toUpperCase(),
+                  style: MintTextStyles.labelSmall(),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md + 4),
 
           // Monthly tax hero
           Center(
@@ -455,24 +419,18 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               children: [
                 Text(
                   ExpatService.formatChf(monthlyTax),
-                  style: GoogleFonts.montserrat(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.displayMedium(),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
                   S.of(context)!.frontalierParMois,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.bodyMedium(
+                      color: MintColors.textMuted),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md + 4),
 
           // Effective rate progress
           Row(
@@ -480,22 +438,17 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             children: [
               Text(
                 S.of(context)!.frontalierTauxEffectif,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodySmall(
+                    color: MintColors.textSecondary),
               ),
               Text(
                 ExpatService.formatPercent(effectiveRate * 100),
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.primary,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.primary)
+                    .copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
@@ -506,13 +459,13 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               minHeight: 6,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Annual total
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MintSpacing.md),
             decoration: BoxDecoration(
-              color: MintColors.appleSurface,
+              color: MintColors.surface,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -520,19 +473,13 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               children: [
                 Text(
                   S.of(context)!.frontalierTotalAnnuel,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodyMedium(
+                      color: MintColors.textSecondary),
                 ),
                 Text(
                   ExpatService.formatChf(annualTax),
-                  style: GoogleFonts.montserrat(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(
+                      color: MintColors.textPrimary),
                 ),
               ],
             ),
@@ -543,46 +490,39 @@ class _FrontalierScreenState extends State<FrontalierScreen>
   }
 
   Widget _buildQuasiResidentBadge() {
-    // Simple quasi-resident indicator for GE
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.info.withValues(alpha: 0.08),
+        color: MintColors.info.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.info.withValues(alpha: 0.3)),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(MintSpacing.sm),
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(Icons.gavel, size: 18, color: MintColors.info),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   S.of(context)!.frontalierQuasiResidentTitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.info,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.info)
+                      .copyWith(fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
                   S.of(context)!.frontalierQuasiResidentDesc,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(
+                      color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -595,37 +535,32 @@ class _FrontalierScreenState extends State<FrontalierScreen>
   Widget _buildTessinNote() {
     final note = _taxResult!['note'] as String;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.warning.withValues(alpha: 0.08),
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.warning.withValues(alpha: 0.3)),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.warning_amber, size: 20, color: MintColors.warning),
-          const SizedBox(width: 12),
+          const Icon(Icons.warning_amber,
+              size: 20, color: MintColors.warning),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   S.of(context)!.frontalierTessinTitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.warning,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.warning)
+                      .copyWith(fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
                   note,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(
+                      color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -641,30 +576,23 @@ class _FrontalierScreenState extends State<FrontalierScreen>
 
   Widget _buildTab290Jours() {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      padding: const EdgeInsets.fromLTRB(
+          MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
-        // Input card
         _build90DayInputCard(),
-        const SizedBox(height: 20),
-
+        const SizedBox(height: MintSpacing.md + 4),
         if (_ruleResult != null) ...[
-          // Risk gauge
           _build90DayGauge(),
-          const SizedBox(height: 20),
-
-          // Recommendation
+          const SizedBox(height: MintSpacing.md + 4),
           _build90DayRecommendation(),
-          const SizedBox(height: 20),
-
-          // Legal reference
+          const SizedBox(height: MintSpacing.md + 4),
           _build90DayLegalRef(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md + 4),
         ],
-
         _buildEducationalInsert(
           S.of(context)!.frontalierEducational90Days,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.md + 4),
         _buildDisclaimer(),
       ],
     );
@@ -672,7 +600,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
 
   Widget _build90DayInputCard() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
@@ -695,7 +623,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             formatAsInt: true,
             suffix: S.of(context)!.frontalierJoursSuffix,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md + 4),
           _buildSlider(
             label: S.of(context)!.frontalierJoursHomeOffice,
             value: _homeOfficeDays.toDouble(),
@@ -745,108 +673,91 @@ class _FrontalierScreenState extends State<FrontalierScreen>
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: gaugeColor.withValues(alpha: 0.3)),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withValues(alpha: 0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         children: [
           Row(
             children: [
               const Icon(Icons.speed, size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
+              const SizedBox(width: MintSpacing.sm),
               Text(
                 S.of(context)!.frontalierJaugeRisque,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md + 4),
 
           // Big number
           Text(
             '$riskDays',
-            style: GoogleFonts.montserrat(
-              fontSize: 48,
-              fontWeight: FontWeight.w800,
-              color: gaugeColor,
-            ),
+            style: MintTextStyles.displayLarge(color: gaugeColor),
           ),
           Text(
             S.of(context)!.frontalierJoursHomeOfficeLabel,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md + 4),
 
           // Multi-color gauge bar
           _buildMultiColorGauge(riskDays),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
 
           // Scale labels
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('0', style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
-              Text('70', style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
-              Text('90', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.error)),
-              Text('120', style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
+              Text('0', style: MintTextStyles.labelSmall()),
+              Text('70', style: MintTextStyles.labelSmall()),
+              Text('90',
+                  style: MintTextStyles.labelSmall(color: MintColors.error)
+                      .copyWith(fontWeight: FontWeight.w700)),
+              Text('120', style: MintTextStyles.labelSmall()),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md + 4),
 
           // Status badge
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            decoration: BoxDecoration(
-              color: gaugeColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: gaugeColor.withValues(alpha: 0.3)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(statusIcon, size: 20, color: gaugeColor),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    statusLabel,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: gaugeColor,
+          Semantics(
+            label: statusLabel,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: MintSpacing.md + 4,
+                  vertical: MintSpacing.sm + 4),
+              decoration: BoxDecoration(
+                color: gaugeColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: gaugeColor.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(statusIcon, size: 20, color: gaugeColor),
+                  const SizedBox(width: MintSpacing.sm),
+                  Flexible(
+                    child: Text(
+                      statusLabel,
+                      style: MintTextStyles.bodyMedium(color: gaugeColor)
+                          .copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
 
           if (riskLevel != 'high') ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.sm + 4),
             Text(
               S.of(context)!.frontalierDaysRemaining(daysRemaining),
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-              ),
+              style:
+                  MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ],
         ],
@@ -855,7 +766,6 @@ class _FrontalierScreenState extends State<FrontalierScreen>
   }
 
   Widget _buildMultiColorGauge(int riskDays) {
-    // Build a multi-section gauge: green (0-70), orange (70-90), red (90-120)
     return LayoutBuilder(
       builder: (context, constraints) {
         final totalWidth = constraints.maxWidth;
@@ -863,7 +773,6 @@ class _FrontalierScreenState extends State<FrontalierScreen>
         final orangeWidth = totalWidth * (20 / 120);
         final redWidth = totalWidth * (30 / 120);
 
-        // Indicator position
         final indicatorPos = min(1.0, riskDays / 120.0) * totalWidth;
 
         return SizedBox(
@@ -871,7 +780,6 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              // Background segments
               Row(
                 children: [
                   Container(
@@ -899,7 +807,6 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                   ),
                 ],
               ),
-              // Fill
               Row(
                 children: [
                   Container(
@@ -932,7 +839,6 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                     ),
                 ],
               ),
-              // Indicator triangle
               Positioned(
                 left: indicatorPos - 6,
                 top: 10,
@@ -959,38 +865,30 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     final recommendation = result['recommendation'] as String;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.tips_and_updates, size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
+              const Icon(Icons.tips_and_updates,
+                  size: 16, color: MintColors.textMuted),
+              const SizedBox(width: MintSpacing.sm),
               Text(
                 S.of(context)!.frontalierRecommandation,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           Text(
             recommendation,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textPrimary,
-              height: 1.5,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
           ),
         ],
       ),
@@ -1002,24 +900,20 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     final legalRef = result['legalReference'] as String;
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(MintSpacing.sm + 4),
       decoration: BoxDecoration(
-        color: MintColors.appleSurface,
+        color: MintColors.surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.menu_book, size: 16, color: MintColors.textMuted),
-          const SizedBox(width: 8),
+          const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: Text(
               legalRef,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textMuted,
-                height: 1.4,
-              ),
+              style: MintTextStyles.labelSmall(),
             ),
           ),
         ],
@@ -1033,22 +927,23 @@ class _FrontalierScreenState extends State<FrontalierScreen>
 
   Widget _buildTab3Charges() {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      padding: const EdgeInsets.fromLTRB(
+          MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         _buildChargesInputCard(),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.md + 4),
         if (_chargesResult != null) ...[
           _buildChargesComparison(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md + 4),
           _buildChargesDifferenceBadge(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md + 4),
           _buildLamalSection(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md + 4),
         ],
         _buildEducationalInsert(
           S.of(context)!.frontalierEducationalCharges,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.md + 4),
         _buildDisclaimer(),
       ],
     );
@@ -1058,7 +953,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     final countries = ExpatService.countryLabels.keys.toList();
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
@@ -1079,24 +974,21 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               _recalculateCharges();
             },
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md + 4),
 
           Text(
             S.of(context)!.frontalierPaysResidence,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textPrimary,
-            ),
+            style:
+                MintTextStyles.bodyMedium(color: MintColors.textPrimary),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: countries.map((country) {
                 final isSelected = _chargesCountry == country;
                 return Padding(
-                  padding: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsets.only(right: MintSpacing.sm),
                   child: Semantics(
                     label: country,
                     button: true,
@@ -1107,32 +999,31 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                         _recalculateCharges();
                       },
                       child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? MintColors.primary
-                            : MintColors.appleSurface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: MintSpacing.md,
+                            vertical: MintSpacing.sm + 2),
+                        decoration: BoxDecoration(
                           color: isSelected
                               ? MintColors.primary
-                              : MintColors.border,
+                              : MintColors.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isSelected
+                                ? MintColors.primary
+                                : MintColors.border,
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        country,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: isSelected
-                              ? MintColors.white
-                              : MintColors.textSecondary,
+                        child: Text(
+                          country,
+                          style: MintTextStyles.bodySmall(
+                            color: isSelected
+                                ? MintColors.white
+                                : MintColors.textSecondary,
+                          ).copyWith(fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),
-                  ),
                   ),
                 );
               }).toList(),
@@ -1152,77 +1043,74 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Left: CH charges
         Expanded(
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MintSpacing.md),
             decoration: BoxDecoration(
               color: MintColors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: MintColors.lightBorder),
+              border:
+                  Border.all(color: MintColors.border.withValues(alpha: 0.5)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   S.of(context)!.frontalierChargesCh,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(
+                          color: MintColors.textPrimary)
+                      .copyWith(fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: MintSpacing.sm + 4),
                 _buildChargeRow('AVS/AI/APG', ch['avs_ai_apg'] as double),
                 _buildChargeRow('AC', ch['ac'] as double),
                 _buildChargeRow('LPP (est.)', ch['lpp'] as double),
-                const Divider(height: 16),
-                _buildChargeRow(S.of(context)!.frontalierChargesTotal, ch['total'] as double, bold: true),
-                const SizedBox(height: 4),
+                const Divider(height: MintSpacing.md),
+                _buildChargeRow(S.of(context)!.frontalierChargesTotal,
+                    ch['total'] as double,
+                    bold: true),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
-                  S.of(context)!.frontalierDuSalaire(((ch['totalRate'] as double) * 100).toStringAsFixed(1)),
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: MintColors.textMuted,
-                  ),
+                  S.of(context)!.frontalierDuSalaire(
+                      ((ch['totalRate'] as double) * 100)
+                          .toStringAsFixed(1)),
+                  style: MintTextStyles.labelSmall(),
                 ),
               ],
             ),
           ),
         ),
-        const SizedBox(width: 12),
-        // Right: Foreign charges
+        const SizedBox(width: MintSpacing.sm + 4),
         Expanded(
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MintSpacing.md),
             decoration: BoxDecoration(
               color: MintColors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: MintColors.lightBorder),
+              border:
+                  Border.all(color: MintColors.border.withValues(alpha: 0.5)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   S.of(context)!.frontalierChargesCountry(country),
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(
+                          color: MintColors.textPrimary)
+                      .copyWith(fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: MintSpacing.sm + 4),
                 ..._buildForeignChargeRows(foreign),
-                const Divider(height: 16),
-                _buildChargeRow(
-                    S.of(context)!.frontalierChargesTotal, foreign['total'] as double, bold: true),
-                const SizedBox(height: 4),
+                const Divider(height: MintSpacing.md),
+                _buildChargeRow(S.of(context)!.frontalierChargesTotal,
+                    foreign['total'] as double,
+                    bold: true),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
-                  S.of(context)!.frontalierDuSalaire(((foreign['totalRate'] as double) * 100).toStringAsFixed(1)),
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: MintColors.textMuted,
-                  ),
+                  S.of(context)!.frontalierDuSalaire(
+                      ((foreign['totalRate'] as double) * 100)
+                          .toStringAsFixed(1)),
+                  style: MintTextStyles.labelSmall(),
                 ),
               ],
             ),
@@ -1235,15 +1123,13 @@ class _FrontalierScreenState extends State<FrontalierScreen>
   List<Widget> _buildForeignChargeRows(Map<String, dynamic> foreign) {
     final details = foreign['details'] as Map<String, dynamic>;
     final annualSalary = _chargesSalary * 12;
-    final entries = details.entries
-        .where((e) => e.key != 'total')
-        .toList();
+    final entries =
+        details.entries.where((e) => e.key != 'total').toList();
 
     return entries.map((e) {
       final label = e.key
           .replaceAll('_', ' ')
-          .replaceFirst(
-              e.key[0], e.key[0].toUpperCase());
+          .replaceFirst(e.key[0], e.key[0].toUpperCase());
       final amount = annualSalary * (e.value as double);
       return _buildChargeRow(label, amount);
     }).toList();
@@ -1251,30 +1137,29 @@ class _FrontalierScreenState extends State<FrontalierScreen>
 
   Widget _buildChargeRow(String label, double value, {bool bold = false}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(bottom: MintSpacing.xs + 2),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Flexible(
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: bold ? FontWeight.w700 : FontWeight.w400,
-                color:
-                    bold ? MintColors.textPrimary : MintColors.textSecondary,
-              ),
+              style: bold
+                  ? MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                      .copyWith(fontWeight: FontWeight.w700)
+                  : MintTextStyles.labelSmall(
+                      color: MintColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: MintSpacing.xs),
           Text(
             ExpatService.formatChf(value),
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
-              color: MintColors.textPrimary,
-            ),
+            style: bold
+                ? MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                    .copyWith(fontWeight: FontWeight.w700)
+                : MintTextStyles.labelSmall(color: MintColors.textPrimary)
+                    .copyWith(fontWeight: FontWeight.w500),
           ),
         ],
       ),
@@ -1288,16 +1173,17 @@ class _FrontalierScreenState extends State<FrontalierScreen>
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      padding: const EdgeInsets.symmetric(
+          horizontal: MintSpacing.md + 4, vertical: MintSpacing.sm + 6),
       decoration: BoxDecoration(
         color: chLessCostly
-            ? MintColors.success.withValues(alpha: 0.1)
-            : MintColors.warning.withValues(alpha: 0.1),
+            ? MintColors.success.withValues(alpha: 0.06)
+            : MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: chLessCostly
-              ? MintColors.success.withValues(alpha: 0.3)
-              : MintColors.warning.withValues(alpha: 0.3),
+              ? MintColors.success.withValues(alpha: 0.15)
+              : MintColors.warning.withValues(alpha: 0.15),
         ),
       ),
       child: Row(
@@ -1308,17 +1194,18 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             size: 20,
             color: chLessCostly ? MintColors.success : MintColors.warning,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: MintSpacing.sm),
           Flexible(
             child: Text(
               chLessCostly
-                  ? S.of(context)!.frontalierChargesChMoins(ExpatService.formatChf(difference.abs()))
-                  : S.of(context)!.frontalierChargesChPlus(ExpatService.formatChf(difference.abs())),
-              style: GoogleFonts.montserrat(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: chLessCostly ? MintColors.success : MintColors.warning,
-              ),
+                  ? S.of(context)!.frontalierChargesChMoins(
+                      ExpatService.formatChf(difference.abs()))
+                  : S.of(context)!.frontalierChargesChPlus(
+                      ExpatService.formatChf(difference.abs())),
+              style: MintTextStyles.bodyMedium(
+                color:
+                    chLessCostly ? MintColors.success : MintColors.warning,
+              ).copyWith(fontWeight: FontWeight.w700),
             ),
           ),
         ],
@@ -1328,43 +1215,39 @@ class _FrontalierScreenState extends State<FrontalierScreen>
 
   Widget _buildLamalSection() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.local_hospital, size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
+              const Icon(Icons.local_hospital,
+                  size: 16, color: MintColors.textMuted),
+              const SizedBox(width: MintSpacing.sm),
               Text(
                 S.of(context)!.frontalierAssuranceMaladie,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           _buildLamalOptionRow(
             S.of(context)!.frontalierLamalTitle,
             S.of(context)!.frontalierLamalDesc,
             Icons.shield_outlined,
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: MintSpacing.sm + 2),
           _buildLamalOptionRow(
             S.of(context)!.frontalierCmuTitle,
             S.of(context)!.frontalierCmuDesc,
             Icons.health_and_safety_outlined,
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: MintSpacing.sm + 2),
           _buildLamalOptionRow(
             S.of(context)!.frontalierAssurancePriveeTitle,
             S.of(context)!.frontalierAssurancePriveeDesc,
@@ -1380,34 +1263,29 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(MintSpacing.sm),
           decoration: BoxDecoration(
-            color: MintColors.appleSurface,
+            color: MintColors.surface,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, size: 16, color: MintColors.textSecondary),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: MintSpacing.sm + 2),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodySmall(
+                        color: MintColors.textPrimary)
+                    .copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 2),
               Text(
                 desc,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.labelSmall(
+                    color: MintColors.textSecondary),
               ),
             ],
           ),
@@ -1448,20 +1326,14 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             Expanded(
               child: Text(
                 label,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodySmall(
+                    color: MintColors.textSecondary),
               ),
             ),
             Text(
               displayValue,
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: MintColors.primary,
-              ),
+              style: MintTextStyles.titleMedium(color: MintColors.primary)
+                  .copyWith(fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -1474,16 +1346,20 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             trackHeight: 4,
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
           ),
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions > 0 ? divisions : 1,
-            onChanged: (v) {
-              setState(() {
-                onChanged((v / step).round() * step);
-              });
-            },
+          child: Semantics(
+            label: label,
+            slider: true,
+            child: Slider(
+              value: value,
+              min: min,
+              max: max,
+              divisions: divisions > 0 ? divisions : 1,
+              onChanged: (v) {
+                setState(() {
+                  onChanged((v / step).round() * step);
+                });
+              },
+            ),
           ),
         ),
       ],
@@ -1498,35 +1374,40 @@ class _FrontalierScreenState extends State<FrontalierScreen>
   }) {
     return Row(
       children: [
-        IconButton(
-          onPressed: value > minVal
-              ? () {
-                  setState(() => onChanged(value - 1));
-                }
-              : null,
-          icon: const Icon(Icons.remove_circle_outline, size: 24),
-          color: MintColors.primary,
+        Semantics(
+          label: 'Diminuer',
+          button: true,
+          child: IconButton(
+            onPressed: value > minVal
+                ? () {
+                    setState(() => onChanged(value - 1));
+                  }
+                : null,
+            icon: const Icon(Icons.remove_circle_outline, size: 24),
+            color: MintColors.primary,
+          ),
         ),
         SizedBox(
           width: 32,
           child: Text(
             '$value',
-            style: GoogleFonts.montserrat(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
         ),
-        IconButton(
-          onPressed: value < maxVal
-              ? () {
-                  setState(() => onChanged(value + 1));
-                }
-              : null,
-          icon: const Icon(Icons.add_circle_outline, size: 24),
-          color: MintColors.primary,
+        Semantics(
+          label: 'Augmenter',
+          button: true,
+          child: IconButton(
+            onPressed: value < maxVal
+                ? () {
+                    setState(() => onChanged(value + 1));
+                  }
+                : null,
+            icon: const Icon(Icons.add_circle_outline, size: 24),
+            color: MintColors.primary,
+          ),
         ),
       ],
     );
@@ -1534,17 +1415,17 @@ class _FrontalierScreenState extends State<FrontalierScreen>
 
   Widget _buildEducationalInsert(String text) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.info.withValues(alpha: 0.08),
+        color: MintColors.info.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(MintSpacing.xs + 2),
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
@@ -1552,27 +1433,21 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             child: const Icon(Icons.lightbulb_outline,
                 size: 18, color: MintColors.info),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   S.of(context)!.frontalierLeSavaisTu,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.info,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.info)
+                      .copyWith(fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
                   text,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(
+                      color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -1584,25 +1459,21 @@ class _FrontalierScreenState extends State<FrontalierScreen>
 
   Widget _buildDisclaimer() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.warningBg,
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.warning.withValues(alpha: 0.4)),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
               ExpatService.disclaimer,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.warningText,
-                height: 1.5,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ),
         ],

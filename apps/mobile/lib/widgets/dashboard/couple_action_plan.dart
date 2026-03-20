@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COUPLE ACTION PLAN — P5 / Couple Interactif
@@ -90,18 +90,11 @@ class CoupleActionPlan extends StatelessWidget {
             children: [
               Text(
                 'Plan d\u2019action couple',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               Text(
                 '$userName & $conjName',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
               ),
             ],
           ),
@@ -155,11 +148,7 @@ class CoupleActionPlan extends StatelessWidget {
                         Expanded(
                           child: Text(
                             action.title,
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: MintColors.textPrimary,
-                            ),
+                            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                           ),
                         ),
                       ],
@@ -168,11 +157,7 @@ class CoupleActionPlan extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         action.subtitle!,
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: MintColors.textSecondary,
-                          height: 1.3,
-                        ),
+                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(height: 1.3),
                       ),
                     ],
                     if (action.impactLabel != null) ...[
@@ -186,11 +171,7 @@ class CoupleActionPlan extends StatelessWidget {
                         ),
                         child: Text(
                           action.impactLabel!,
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: MintColors.success,
-                          ),
+                          style: MintTextStyles.micro(color: MintColors.success).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
                         ),
                       ),
                     ],
@@ -220,11 +201,7 @@ class CoupleActionPlan extends StatelessWidget {
       ),
       child: Text(
         action.ownerLabel,
-        style: GoogleFonts.inter(
-          fontSize: 9,
-          fontWeight: FontWeight.w700,
-          color: action.ownerColor,
-        ),
+        style: MintTextStyles.micro(color: action.ownerColor).copyWith(fontSize: 9, fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
       ),
     );
   }
@@ -232,11 +209,7 @@ class CoupleActionPlan extends StatelessWidget {
   Widget _buildDisclaimer() {
     return Text(
       'Actions \u00e9ducatives. Ne constituent pas un conseil financier (LSFin).',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textMuted,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.italic),
     );
   }
 

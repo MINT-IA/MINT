@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/disability_red_screen_widget.dart';
 import 'package:mint_mobile/widgets/coach/disability_countdown_widget.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
@@ -119,22 +120,16 @@ class _DisabilitySelfEmployedScreenState
                     ),
                     child: Text(
                       '🚨  ALERTE INDÉPENDANT',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 11,
+                      style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(
                         fontWeight: FontWeight.w700,
-                        color: MintColors.white,
                         letterSpacing: 1,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: MintSpacing.sm),
                   Text(
                     'Ton filet n\'existe pas',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: MintColors.white,
-                    ),
+                    style: MintTextStyles.headlineMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
                   ),
                 ],
               ),
@@ -144,11 +139,7 @@ class _DisabilitySelfEmployedScreenState
       ),
       title: Text(
         'Invalidité — Indépendant·e',
-        style: GoogleFonts.montserrat(
-          fontSize: 15,
-          fontWeight: FontWeight.w700,
-          color: MintColors.white,
-        ),
+        style: MintTextStyles.bodyLarge(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
       ),
     );
   }
@@ -166,19 +157,12 @@ class _DisabilitySelfEmployedScreenState
         children: [
           Text(
             'Ton revenu mensuel net',
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Text(
             'Ajuste pour voir l\'impact sur ta situation réelle',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.labelSmall(),
           ),
           const SizedBox(height: 12),
           Row(
@@ -186,16 +170,11 @@ class _DisabilitySelfEmployedScreenState
             children: [
               Text(
                 'Revenu net/mois',
-                style: GoogleFonts.inter(
-                    fontSize: 12, color: MintColors.textSecondary),
+                style: MintTextStyles.labelSmall(),
               ),
               Text(
                 "CHF ${_fmtChf(_monthlyRevenue)}",
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.critical,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.critical).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -233,11 +212,7 @@ class _DisabilitySelfEmployedScreenState
         children: [
           Text(
             'Tu as déjà une assurance perte de gain ?',
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
           Row(
@@ -272,11 +247,7 @@ class _DisabilitySelfEmployedScreenState
                     child: Text(
                       'Une APG individuelle dès CHF 45/mois peut couvrir 80% de ton revenu pendant 720 jours. '
                       'C\'est le filet le plus efficace pour un·e indépendant·e.',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.amberDark,
-                        height: 1.4,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.amberDark).copyWith(height: 1.4),
                     ),
                   ),
                 ],
@@ -309,11 +280,9 @@ class _DisabilitySelfEmployedScreenState
         child: Center(
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+            style: MintTextStyles.bodySmall(
               color: selected ? color : MintColors.textSecondary,
-            ),
+            ).copyWith(fontWeight: selected ? FontWeight.w700 : FontWeight.w400),
           ),
         ),
       ),

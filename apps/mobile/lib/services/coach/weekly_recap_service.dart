@@ -421,7 +421,7 @@ class WeeklyRecapService {
     if (budgetStatus == RecapBudgetStatus.overBudget) {
       return 'En pratique, tu peux lister tes 3 plus grosses '
           'dépenses du mois — imagine l\'impact si tu réduis '
-          'un seul poste de 10${_nbsp}%.';
+          'un seul poste de 10$_nbsp%.';
     }
 
     if (activeGoalCount == 0) {
@@ -431,7 +431,7 @@ class WeeklyRecapService {
     }
 
     if (engagementDays >= 5) {
-      return 'Bravo pour ta régularité$_nbsp! En pratique, '
+      return 'Ta régularité paie$_nbsp! En pratique, '
           'continue sur cette lancée — chaque semaine active '
           'fait une vraie différence sur le long terme.';
     }

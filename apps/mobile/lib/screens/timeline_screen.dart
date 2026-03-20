@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 
 // ────────────────────────────────────────────────────────────
 //  LIFE EVENT DEFINITION
@@ -45,176 +47,179 @@ class _EventCategory {
 //  ALL 18 LIFE EVENTS — organized by 6 categories
 // ────────────────────────────────────────────────────────────
 
-const _categories = <_EventCategory>[
-  _EventCategory(
-    label: 'FAMILLE',
-    icon: Icons.family_restroom,
-    color: MintColors.error,
-    events: [
-      _LifeEvent(
-        title: 'Mariage',
-        subtitle: 'Impact LPP, AVS, impôts et régime matrimonial',
-        icon: Icons.favorite_outline,
-        route: '/mariage',
-        accentColor: MintColors.error,
-      ),
-      _LifeEvent(
-        title: 'Concubinage',
-        subtitle: 'Prévoyance, succession et fiscalité du couple non marié',
-        icon: Icons.people_outline,
-        route: '/concubinage',
-        accentColor: MintColors.warning,
-      ),
-      _LifeEvent(
-        title: 'Naissance',
-        subtitle: 'Allocations, déductions fiscales et assurances',
-        icon: Icons.child_care,
-        route: '/naissance',
-        accentColor: MintColors.info,
-      ),
-      _LifeEvent(
-        title: 'Divorce',
-        subtitle: 'Partage LPP, pension et réorganisation financière',
-        icon: Icons.heart_broken_outlined,
-        route: '/divorce',
-        accentColor: MintColors.warning,
-      ),
-      _LifeEvent(
-        title: 'Succession',
-        subtitle: 'Réserves héréditaires, partage et impôts (CC art. 457ss)',
-        icon: Icons.account_balance_outlined,
-        route: '/succession',
-        accentColor: MintColors.primary,
-      ),
-    ],
-  ),
-  _EventCategory(
-    label: 'PROFESSIONNEL',
-    icon: Icons.work_outline,
-    color: MintColors.info,
-    events: [
-      _LifeEvent(
-        title: 'Premier emploi',
-        subtitle: 'Premiers pas\u00a0: AVS, LPP, 3a et budget',
-        icon: Icons.school_outlined,
-        route: '/first-job',
-        accentColor: MintColors.info,
-      ),
-      _LifeEvent(
-        title: 'Changement d\'emploi',
-        subtitle: 'Comparaison LPP, libre passage et négociation',
-        icon: Icons.swap_horiz,
-        route: '/simulator/job-comparison',
-        accentColor: MintColors.primary,
-      ),
-      _LifeEvent(
-        title: 'Indépendant',
-        subtitle: 'AVS, LPP volontaire, 3a élargi et dividende vs salaire',
-        icon: Icons.storefront_outlined,
-        route: '/segments/independant',
-        accentColor: MintColors.success,
-      ),
-      _LifeEvent(
-        title: 'Perte d\'emploi',
-        subtitle: 'Chômage, délai de carence et protection prévoyance',
-        icon: Icons.trending_down,
-        route: '/unemployment',
-        accentColor: MintColors.warning,
-      ),
-      _LifeEvent(
-        title: 'Retraite',
-        subtitle: 'Rente vs capital, échelonnement 3a, lacune AVS',
-        icon: Icons.elderly,
-        route: '/retraite',
-        accentColor: MintColors.primary,
-      ),
-    ],
-  ),
-  _EventCategory(
-    label: 'PATRIMOINE',
-    icon: Icons.account_balance_wallet_outlined,
-    color: MintColors.success,
-    events: [
-      _LifeEvent(
-        title: 'Achat immobilier',
-        subtitle: 'Capacité d\'emprunt, EPL et impôt sur la valeur locative',
-        icon: Icons.home_outlined,
-        route: '/hypotheque',
-        accentColor: MintColors.success,
-      ),
-      _LifeEvent(
-        title: 'Vente immobilière',
-        subtitle: 'Plus-value, impôt cantonal et remploi',
-        icon: Icons.real_estate_agent,
-        route: '/life-event/housing-sale',
-        accentColor: MintColors.warning,
-      ),
-      _LifeEvent(
-        title: 'Héritage',
-        subtitle: 'Estimation, impôt cantonal et partage successoral',
-        icon: Icons.volunteer_activism,
-        route: '/succession',
-        accentColor: MintColors.info,
-      ),
-      _LifeEvent(
-        title: 'Donation',
-        subtitle: 'Impôt cantonal, réserves et quotité disponible',
-        icon: Icons.card_giftcard,
-        route: '/life-event/donation',
-        accentColor: MintColors.primary,
-      ),
-    ],
-  ),
-  _EventCategory(
-    label: 'SANTÉ',
-    icon: Icons.health_and_safety_outlined,
-    color: MintColors.error,
-    events: [
-      _LifeEvent(
-        title: 'Invalidité',
-        subtitle: 'Lacune de couverture AI + LPP et prévention',
-        icon: Icons.accessible,
-        route: '/invalidite',
-        accentColor: MintColors.error,
-      ),
-    ],
-  ),
-  _EventCategory(
-    label: 'MOBILITÉ',
-    icon: Icons.flight_takeoff,
-    color: MintColors.warning,
-    events: [
-      _LifeEvent(
-        title: 'Déménagement cantonal',
-        subtitle: 'Impact fiscal du changement de canton (26 barèmes)',
-        icon: Icons.map_outlined,
-        route: '/fiscal',
-        accentColor: MintColors.warning,
-      ),
-      _LifeEvent(
-        title: 'Expatriation / Frontalier',
-        subtitle: 'Double imposition, 3a et couverture sociale',
-        icon: Icons.public,
-        route: '/expatriation',
-        accentColor: MintColors.info,
-      ),
-    ],
-  ),
-  _EventCategory(
-    label: 'CRISE',
-    icon: Icons.warning_amber_rounded,
-    color: MintColors.error,
-    events: [
-      _LifeEvent(
-        title: 'Surendettement',
-        subtitle: 'Ratio d\'endettement, plan de remboursement et aide',
-        icon: Icons.crisis_alert,
-        route: '/check/debt',
-        accentColor: MintColors.error,
-      ),
-    ],
-  ),
-];
+List<_EventCategory> _buildCategories(BuildContext context) {
+  final s = S.of(context)!;
+  return [
+    _EventCategory(
+      label: s.timelineCatFamille,
+      icon: Icons.family_restroom,
+      color: MintColors.error,
+      events: [
+        _LifeEvent(
+          title: s.timelineEventMariageTitle,
+          subtitle: s.timelineEventMariageSub,
+          icon: Icons.favorite_outline,
+          route: '/mariage',
+          accentColor: MintColors.error,
+        ),
+        _LifeEvent(
+          title: s.timelineEventConcubinageTitle,
+          subtitle: s.timelineEventConcubitageSub,
+          icon: Icons.people_outline,
+          route: '/concubinage',
+          accentColor: MintColors.warning,
+        ),
+        _LifeEvent(
+          title: s.timelineEventNaissanceTitle,
+          subtitle: s.timelineEventNaissanceSub,
+          icon: Icons.child_care,
+          route: '/naissance',
+          accentColor: MintColors.info,
+        ),
+        _LifeEvent(
+          title: s.timelineEventDivorceTitle,
+          subtitle: s.timelineEventDivorceSub,
+          icon: Icons.heart_broken_outlined,
+          route: '/divorce',
+          accentColor: MintColors.warning,
+        ),
+        _LifeEvent(
+          title: s.timelineEventSuccessionTitle,
+          subtitle: s.timelineEventSuccessionSub,
+          icon: Icons.account_balance_outlined,
+          route: '/succession',
+          accentColor: MintColors.primary,
+        ),
+      ],
+    ),
+    _EventCategory(
+      label: s.timelineCatProfessionnel,
+      icon: Icons.work_outline,
+      color: MintColors.info,
+      events: [
+        _LifeEvent(
+          title: s.timelineEventPremierEmploiTitle,
+          subtitle: s.timelineEventPremierEmploiSub,
+          icon: Icons.school_outlined,
+          route: '/first-job',
+          accentColor: MintColors.info,
+        ),
+        _LifeEvent(
+          title: s.timelineEventChangementEmploiTitle,
+          subtitle: s.timelineEventChangementEmploiSub,
+          icon: Icons.swap_horiz,
+          route: '/simulator/job-comparison',
+          accentColor: MintColors.primary,
+        ),
+        _LifeEvent(
+          title: s.timelineEventIndependantTitle,
+          subtitle: s.timelineEventIndependantSub,
+          icon: Icons.storefront_outlined,
+          route: '/segments/independant',
+          accentColor: MintColors.success,
+        ),
+        _LifeEvent(
+          title: s.timelineEventPerteEmploiTitle,
+          subtitle: s.timelineEventPerteEmploiSub,
+          icon: Icons.trending_down,
+          route: '/unemployment',
+          accentColor: MintColors.warning,
+        ),
+        _LifeEvent(
+          title: s.timelineEventRetraiteTitle,
+          subtitle: s.timelineEventRetraiteSub,
+          icon: Icons.elderly,
+          route: '/retraite',
+          accentColor: MintColors.primary,
+        ),
+      ],
+    ),
+    _EventCategory(
+      label: s.timelineCatPatrimoine,
+      icon: Icons.account_balance_wallet_outlined,
+      color: MintColors.success,
+      events: [
+        _LifeEvent(
+          title: s.timelineEventAchatImmoTitle,
+          subtitle: s.timelineEventAchatImmoSub,
+          icon: Icons.home_outlined,
+          route: '/hypotheque',
+          accentColor: MintColors.success,
+        ),
+        _LifeEvent(
+          title: s.timelineEventVenteImmoTitle,
+          subtitle: s.timelineEventVenteImmoSub,
+          icon: Icons.real_estate_agent,
+          route: '/life-event/housing-sale',
+          accentColor: MintColors.warning,
+        ),
+        _LifeEvent(
+          title: s.timelineEventHeritageTitle,
+          subtitle: s.timelineEventHeritageSub,
+          icon: Icons.volunteer_activism,
+          route: '/succession',
+          accentColor: MintColors.info,
+        ),
+        _LifeEvent(
+          title: s.timelineEventDonationTitle,
+          subtitle: s.timelineEventDonationSub,
+          icon: Icons.card_giftcard,
+          route: '/life-event/donation',
+          accentColor: MintColors.primary,
+        ),
+      ],
+    ),
+    _EventCategory(
+      label: s.timelineCatSante,
+      icon: Icons.health_and_safety_outlined,
+      color: MintColors.error,
+      events: [
+        _LifeEvent(
+          title: s.timelineEventInvaliditeTitle,
+          subtitle: s.timelineEventInvaliditeSub,
+          icon: Icons.accessible,
+          route: '/invalidite',
+          accentColor: MintColors.error,
+        ),
+      ],
+    ),
+    _EventCategory(
+      label: s.timelineCatMobilite,
+      icon: Icons.flight_takeoff,
+      color: MintColors.warning,
+      events: [
+        _LifeEvent(
+          title: s.timelineEventDemenagementTitle,
+          subtitle: s.timelineEventDemenagementSub,
+          icon: Icons.map_outlined,
+          route: '/fiscal',
+          accentColor: MintColors.warning,
+        ),
+        _LifeEvent(
+          title: s.timelineEventExpatriationTitle,
+          subtitle: s.timelineEventExpatriationSub,
+          icon: Icons.public,
+          route: '/expatriation',
+          accentColor: MintColors.info,
+        ),
+      ],
+    ),
+    _EventCategory(
+      label: s.timelineCatCrise,
+      icon: Icons.warning_amber_rounded,
+      color: MintColors.error,
+      events: [
+        _LifeEvent(
+          title: s.timelineEventSurendettementTitle,
+          subtitle: s.timelineEventSurendettementSub,
+          icon: Icons.crisis_alert,
+          route: '/check/debt',
+          accentColor: MintColors.error,
+        ),
+      ],
+    ),
+  ];
+}
 
 // ────────────────────────────────────────────────────────────
 //  QUICK ACTIONS (outils essentiels)
@@ -236,36 +241,39 @@ class _QuickAction {
   });
 }
 
-const _quickActions = <_QuickAction>[
-  _QuickAction(
-    title: 'Check-up financier',
-    subtitle: 'Lancer le diagnostic complet',
-    icon: Icons.shield_outlined,
-    route: '/onboarding/quick',
-    color: MintColors.primary,
-  ),
-  _QuickAction(
-    title: 'Budget',
-    subtitle: 'Gérer le cashflow mensuel',
-    icon: Icons.pie_chart_outline,
-    route: '/budget',
-    color: MintColors.success,
-  ),
-  _QuickAction(
-    title: 'Pilier 3a',
-    subtitle: 'Optimiser la déduction fiscale',
-    icon: Icons.savings_outlined,
-    route: '/pilier-3a',
-    color: MintColors.info,
-  ),
-  _QuickAction(
-    title: 'Fiscalité',
-    subtitle: 'Comparer 26 cantons',
-    icon: Icons.receipt_long,
-    route: '/fiscal',
-    color: MintColors.warning,
-  ),
-];
+List<_QuickAction> _buildQuickActionItems(BuildContext context) {
+  final s = S.of(context)!;
+  return [
+    _QuickAction(
+      title: s.timelineQuickCheckupTitle,
+      subtitle: s.timelineQuickCheckupSub,
+      icon: Icons.shield_outlined,
+      route: '/onboarding/quick',
+      color: MintColors.primary,
+    ),
+    _QuickAction(
+      title: s.timelineQuickBudgetTitle,
+      subtitle: s.timelineQuickBudgetSub,
+      icon: Icons.pie_chart_outline,
+      route: '/budget',
+      color: MintColors.success,
+    ),
+    _QuickAction(
+      title: s.timelineQuickPilier3aTitle,
+      subtitle: s.timelineQuickPilier3aSub,
+      icon: Icons.savings_outlined,
+      route: '/pilier-3a',
+      color: MintColors.info,
+    ),
+    _QuickAction(
+      title: s.timelineQuickFiscaliteTitle,
+      subtitle: s.timelineQuickFiscaliteSub,
+      icon: Icons.receipt_long,
+      route: '/fiscal',
+      color: MintColors.warning,
+    ),
+  ];
+}
 
 // ────────────────────────────────────────────────────────────
 //  TIMELINE SCREEN
@@ -276,12 +284,14 @@ class TimelineScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
+    final categories = _buildCategories(context);
     return Scaffold(
       backgroundColor: MintColors.background,
       body: CustomScrollView(
         slivers: [
-          _buildAppBar(),
-          SliverToBoxAdapter(child: _buildTimelineHeader()),
+          _buildAppBar(context),
+          SliverToBoxAdapter(child: _buildTimelineHeader(context)),
           // Quick actions row
           SliverToBoxAdapter(child: _buildQuickActions(context)),
           // Life events by category
@@ -290,17 +300,14 @@ class TimelineScreen extends StatelessWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 24),
-                _buildSectionTitle('ÉVÉNEMENTS DE VIE', Icons.timeline),
+                _buildSectionTitle(s.timelineSectionTitleUpper, Icons.timeline),
                 const SizedBox(height: 4),
                 Text(
-                  'Sélectionne un événement pour simuler son impact financier.',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                  ),
+                  s.timelineSectionSubtitle,
+                  style: MintTextStyles.bodySmall(),
                 ),
                 const SizedBox(height: 16),
-                for (final category in _categories) ...[
+                for (final category in categories) ...[
                   _buildCategoryHeader(category),
                   const SizedBox(height: 8),
                   for (var i = 0; i < category.events.length; i++) ...[
@@ -319,44 +326,34 @@ class TimelineScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(BuildContext context) {
+    final s = S.of(context)!;
     return SliverAppBar(
       floating: true,
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.white,
+      elevation: 0,
       title: Text(
-        'MON PARCOURS',
-        style: GoogleFonts.montserrat(
-          fontWeight: FontWeight.w700,
-          letterSpacing: 2.0,
-          fontSize: 14,
-          color: MintColors.primary,
-        ),
+        s.timelineTitle,
+        style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
       ),
     );
   }
 
-  Widget _buildTimelineHeader() {
+  Widget _buildTimelineHeader(BuildContext context) {
+    final s = S.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ta vie financière,\nétape par étape.',
-            style: GoogleFonts.montserrat(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              color: MintColors.textPrimary,
-            ),
+            s.timelineHeader,
+            style: MintTextStyles.headlineLarge().copyWith(fontSize: 24),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
-            'Outils essentiels et événements de vie — tout est là.',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-              height: 1.5,
-            ),
+            s.timelineSubheader,
+            style: MintTextStyles.bodyMedium(),
           ),
         ],
       ),
@@ -366,15 +363,16 @@ class TimelineScreen extends StatelessWidget {
   // ── Quick actions (horizontal scroll) ──────────────────────
 
   Widget _buildQuickActions(BuildContext context) {
+    final actions = _buildQuickActionItems(context);
     return SizedBox(
       height: 110,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        itemCount: _quickActions.length,
+        itemCount: actions.length,
         separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
-          final action = _quickActions[index];
+          final action = actions[index];
           return _buildQuickActionCard(context, action);
         },
       ),
@@ -417,19 +415,14 @@ class TimelineScreen extends StatelessWidget {
             const Spacer(),
             Text(
               action.title,
-              style: GoogleFonts.montserrat(
-                fontSize: 13,
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(
                 fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: MintSpacing.xs),
             Text(
               action.subtitle,
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.micro(),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -449,10 +442,8 @@ class TimelineScreen extends StatelessWidget {
         const SizedBox(width: 8),
         Text(
           title,
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
+          style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(
             fontWeight: FontWeight.w800,
-            color: MintColors.primary,
             letterSpacing: 1.2,
           ),
         ),
@@ -479,10 +470,8 @@ class TimelineScreen extends StatelessWidget {
         const SizedBox(width: 10),
         Text(
           category.label,
-          style: GoogleFonts.montserrat(
-            fontSize: 11,
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
             fontWeight: FontWeight.w800,
-            color: MintColors.textMuted,
             letterSpacing: 1.0,
           ),
         ),
@@ -530,19 +519,14 @@ class TimelineScreen extends StatelessWidget {
                   children: [
                     Text(
                       event.title,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 14,
+                      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(
                         fontWeight: FontWeight.w700,
-                        color: MintColors.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: MintSpacing.xs),
                     Text(
                       event.subtitle,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: MintColors.textSecondary,
-                      ),
+                      style: MintTextStyles.labelSmall(),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),

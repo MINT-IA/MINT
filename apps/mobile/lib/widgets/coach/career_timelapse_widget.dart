@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -104,11 +104,7 @@ class _CareerTimeLapseWidgetState extends State<CareerTimeLapseWidget> {
           children: [
             Text(
               'Et si tu avais commenc\u00e9 \u00e0\u2026',
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 16),
 
@@ -149,12 +145,7 @@ class _CareerTimeLapseWidgetState extends State<CareerTimeLapseWidget> {
                   'de moins \u00e0 65 ans.\n'
                   'Les int\u00e9r\u00eats compos\u00e9s sont ton alli\u00e9 \u2014 '
                   'mais seulement si tu commences t\u00f4t.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.scoreCritique,
-                    fontWeight: FontWeight.w500,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w500, height: 1.4),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -163,11 +154,7 @@ class _CareerTimeLapseWidgetState extends State<CareerTimeLapseWidget> {
             Text(
               'Projection \u00e0 4% net/an avec ${formatChfWithPrefix(widget.monthly3aContribution)}/mois en 3a. '
               'Outil \u00e9ducatif, ne constitue pas un conseil (LSFin).',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ],
         ),
@@ -187,11 +174,7 @@ class _CareerTimeLapseWidgetState extends State<CareerTimeLapseWidget> {
             width: 50,
             child: Text(
               '${s.startAge} ans',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
-                color: isSelected ? MintColors.primary : MintColors.textMuted,
-              ),
+              style: MintTextStyles.labelSmall(color: isSelected ? MintColors.primary : MintColors.textMuted).copyWith(fontSize: 12, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400),
             ),
           ),
           Expanded(
@@ -216,11 +199,7 @@ class _CareerTimeLapseWidgetState extends State<CareerTimeLapseWidget> {
             child: Text(
               formatChfCompact(s.capitalAt65),
               textAlign: TextAlign.right,
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? MintColors.primary : MintColors.textMuted,
-              ),
+              style: MintTextStyles.labelSmall(color: isSelected ? MintColors.primary : MintColors.textMuted).copyWith(fontSize: 12, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500),
             ),
           ),
         ],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -94,11 +94,7 @@ class CoupleNarrativeTimeline extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Votre histoire \u00e0 deux',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -118,11 +114,7 @@ class CoupleNarrativeTimeline extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               'Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier (LSFin).',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ],
         ),
@@ -151,11 +143,7 @@ class CoupleNarrativeTimeline extends StatelessWidget {
                 child: Center(
                   child: Text(
                     '${act.number}',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: actColor,
-                    ),
+                    style: MintTextStyles.bodySmall(color: actColor).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
@@ -185,23 +173,14 @@ class CoupleNarrativeTimeline extends StatelessWidget {
                   // Act label
                   Text(
                     'ACTE ${act.number} \u00b7 ${act.period}',
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textMuted,
-                      letterSpacing: 0.5,
-                    ),
+                    style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.5),
                   ),
                   const SizedBox(height: 4),
 
                   // Title
                   Text(
                     act.title,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 4),
 
@@ -210,20 +189,13 @@ class CoupleNarrativeTimeline extends StatelessWidget {
                     children: [
                       Text(
                         'Revenus\u00a0: ${formatChfWithPrefix(act.monthlyIncome)}/mois',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: actColor,
-                        ),
+                        style: MintTextStyles.bodySmall(color: actColor).copyWith(fontWeight: FontWeight.w600),
                       ),
                       if (act.deltaPercent != null) ...[
                         const SizedBox(width: 6),
                         Text(
                           '(${act.deltaPercent! >= 0 ? "+" : ""}${act.deltaPercent!.toStringAsFixed(0)}%)',
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            color: MintColors.textMuted,
-                          ),
+                          style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                         ),
                       ],
                     ],
@@ -245,11 +217,7 @@ class CoupleNarrativeTimeline extends StatelessWidget {
                       Expanded(
                         child: Text(
                           act.insight,
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: MintColors.textSecondary,
-                            height: 1.3,
-                          ),
+                          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.3),
                         ),
                       ),
                     ],
@@ -279,12 +247,7 @@ class CoupleNarrativeTimeline extends StatelessWidget {
           Expanded(
             child: Text(
               coachTip!,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textPrimary,
-                height: 1.4,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w500, height: 1.4),
             ),
           ),
         ],

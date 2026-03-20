@@ -5,8 +5,8 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -84,11 +84,7 @@ class ConversationTile extends StatelessWidget {
                   Expanded(
                     child: Text(
                       conversation.title,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w600),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -96,10 +92,7 @@ class ConversationTile extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     _formatRelativeDate(context, conversation.lastMessageAt),
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textMuted,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
                   ),
                 ],
               ),
@@ -109,11 +102,7 @@ class ConversationTile extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   conversation.lastMessagePreview!,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.3,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.3),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -149,7 +138,7 @@ class ConversationTile extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.chat_bubble_outline,
                           size: 12,
                           color: MintColors.textMuted,
@@ -157,11 +146,7 @@ class ConversationTile extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           '${conversation.messageCount}',
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: MintColors.textMuted,
-                          ),
+                          style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w500),
                         ),
                       ],
                     ),
@@ -248,11 +233,7 @@ class _TagChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: GoogleFonts.inter(
-          fontSize: 10,
-          fontWeight: FontWeight.w500,
-          color: _tagColor(label),
-        ),
+        style: MintTextStyles.micro(color: _tagColor(label)).copyWith(fontWeight: FontWeight.w500),
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -108,16 +108,12 @@ class SurvivorPensionWidget extends StatelessWidget {
               children: [
                 Text(
                   'Rentes de survivant',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Si ton·ta partenaire décède — combien touches-tu ?',
-                  style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                 ),
               ],
             ),
@@ -170,25 +166,17 @@ class SurvivorPensionWidget extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 4),
           Text(
             '${formatChfWithPrefix(total)}/mois',
-            style: GoogleFonts.montserrat(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
+            style: MintTextStyles.headlineMedium(color: color).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 4),
           Text(
             detail,
-            style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary, height: 1.3),
+            style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal, height: 1.3),
           ),
         ],
       ),
@@ -214,21 +202,13 @@ class SurvivorPensionWidget extends StatelessWidget {
               children: [
                 Text(
                   'Le mariage vaut ${formatChfWithPrefix(_marriageBonus)}/mois de rente survivant',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.scoreCritique,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Concubin·e sans désignation LPP ni testament = 0 CHF automatique. '
                   'LAVS art. 23 : seul·e le·la conjoint·e légal·e a droit à la rente de veuf/veuve.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
             ),
@@ -304,22 +284,18 @@ class SurvivorPensionWidget extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary),
+                  style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
                 ),
                 Text(
                   ref,
-                  style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                  style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
                 ),
               ],
             ),
           ),
           Text(
             amount > 0 ? formatChfWithPrefix(amount) : '0 CHF',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: amount > 0 ? MintColors.scoreExcellent : MintColors.scoreCritique,
-            ),
+            style: MintTextStyles.bodySmall(color: amount > 0 ? MintColors.scoreExcellent : MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -331,11 +307,7 @@ class SurvivorPensionWidget extends StatelessWidget {
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : LAVS art. 23-24 (rente veuf/veuve), LPP art. 19 (rente partenaire). '
       'Taux AVS survivant : ${(avsSurvivorFactor * 100).toInt()}%.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
     );
   }
 }

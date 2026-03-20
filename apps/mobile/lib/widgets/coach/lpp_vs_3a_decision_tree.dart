@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -86,19 +86,12 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
           children: [
             Text(
               'LPP volontaire ou Grand 3a\u00a0?',
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             Text(
               'Le choix strat\u00e9gique de l\u2019ind\u00e9pendant\u00b7e',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
             ),
             const SizedBox(height: 16),
 
@@ -129,11 +122,7 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
               child: Text(
                 'Il n\u2019y a pas de mauvais choix. Mais le bon te fait '
                 '\u00e9conomiser 3\u2019000\u20139\u2019000 CHF/an d\u2019imp\u00f4ts.',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.primary,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -142,11 +131,7 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
             Text(
               'LPP\u00a0: art. 4 + 44 LPP. 3a\u00a0: OPP3 art. 7. '
               'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin).',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ],
         ),
@@ -171,21 +156,14 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
               children: [
                 Text(
                   'Revenu attendu\u00a0: ${formatChfWithPrefix(widget.expectedIncome)}/an',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   isAboveThreshold
                       ? 'Au-dessus du seuil\u00a0: deux options s\u2019offrent \u00e0 toi'
                       : 'Sous ${formatChfWithPrefix(_lppSeuilVolontaire)}\u00a0: le Grand 3a est ton pilier principal',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                 ),
               ],
             ),
@@ -226,11 +204,7 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
                 Expanded(
                   child: Text(
                     option.title,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
                 Icon(
@@ -243,10 +217,7 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
             const SizedBox(height: 4),
             Text(
               option.subtitle,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted),
             ),
             if (isSelected) ...[
               const SizedBox(height: 10),
@@ -257,11 +228,7 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
                 Text(
                   '\u00c9conomie fiscale\u00a0: '
                   '${formatChfWithPrefix(option.annualTaxSavings!)}/an',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.primary,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                 ),
               ],
               if (widget.onLearnMore != null) ...[
@@ -271,12 +238,7 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
                       index == 0 ? 'lpp' : '3a'),
                   child: Text(
                     'En savoir plus \u2192',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.primary,
-                      decoration: TextDecoration.underline,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
                   ),
                 ),
               ],
@@ -306,11 +268,7 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
               Expanded(
                 child: Text(
                   'Grand 3a = ton pilier retraite',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.primary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
             ],
@@ -319,11 +277,7 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
           Text(
             'Plafond ${formatChfWithPrefix(pilier3aPlafondSansLpp)}/an. Cumule avec l\u2019AVS standard. '
             'Projection\u00a0: 500k\u2013800k \u00e0 65 ans selon rendement.',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
           ),
         ],
       ),
@@ -341,10 +295,7 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
             ),
           ),
         ],

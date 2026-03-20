@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P7-B  Crash-test budget — Budget actuel vs mode survie
@@ -100,11 +100,7 @@ class CrashTestBudgetWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Crash-test budget',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -112,10 +108,7 @@ class CrashTestBudgetWidget extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             'Mode normal vs mode survie',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 12),
           Container(
@@ -132,11 +125,7 @@ class CrashTestBudgetWidget extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   'Tu économises CHF ${_fmt(saving)}/mois en mode survie',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.scoreCritique,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -157,11 +146,7 @@ class CrashTestBudgetWidget extends StatelessWidget {
             child: Text(
               'Normal',
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: MintColors.primary,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           SizedBox(
@@ -169,11 +154,7 @@ class CrashTestBudgetWidget extends StatelessWidget {
             child: Text(
               'Survie',
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: MintColors.scoreCritique,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           const SizedBox(width: 40),
@@ -197,10 +178,7 @@ class CrashTestBudgetWidget extends StatelessWidget {
           Expanded(
             child: Text(
               line.label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
           ),
           SizedBox(
@@ -208,10 +186,7 @@ class CrashTestBudgetWidget extends StatelessWidget {
             child: Text(
               _fmt(line.normalAmount),
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
           ),
           SizedBox(
@@ -219,11 +194,7 @@ class CrashTestBudgetWidget extends StatelessWidget {
             child: Text(
               _fmt(line.survivalAmount),
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: line.status != BudgetLineStatus.locked ? FontWeight.w700 : FontWeight.w400,
-                color: line.status == BudgetLineStatus.locked ? MintColors.textSecondary : color,
-              ),
+              style: MintTextStyles.bodySmall(color: line.status == BudgetLineStatus.locked ? MintColors.textSecondary : color).copyWith(fontWeight: line.status != BudgetLineStatus.locked ? FontWeight.w700 : FontWeight.w400),
             ),
           ),
           SizedBox(
@@ -247,11 +218,7 @@ class CrashTestBudgetWidget extends StatelessWidget {
           Expanded(
             child: Text(
               'TOTAL charges',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           SizedBox(
@@ -259,11 +226,7 @@ class CrashTestBudgetWidget extends StatelessWidget {
             child: Text(
               _fmt(normal),
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           SizedBox(
@@ -271,11 +234,7 @@ class CrashTestBudgetWidget extends StatelessWidget {
             child: Text(
               _fmt(survival),
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.scoreCritique,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           const SizedBox(width: 40),
@@ -301,11 +260,7 @@ class CrashTestBudgetWidget extends StatelessWidget {
           Expanded(
             child: Text(
               'Marge mensuelle',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           SizedBox(
@@ -313,11 +268,7 @@ class CrashTestBudgetWidget extends StatelessWidget {
             child: Text(
               normal >= 0 ? '+${_fmt(normal)}' : '-${_fmt(normal.abs())}',
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: normal >= 0 ? MintColors.scoreExcellent : MintColors.scoreCritique,
-              ),
+              style: MintTextStyles.bodySmall(color: normal >= 0 ? MintColors.scoreExcellent : MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           SizedBox(
@@ -325,11 +276,7 @@ class CrashTestBudgetWidget extends StatelessWidget {
             child: Text(
               survivalLabel,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: survivalColor,
-              ),
+              style: MintTextStyles.bodySmall(color: survivalColor).copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           const SizedBox(width: 40),
@@ -369,19 +316,12 @@ class CrashTestBudgetWidget extends StatelessWidget {
               children: [
                 Text(
                   'Tes réserves : ${months.toStringAsFixed(1)} mois',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: color,
-                  ),
+                  style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   label,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                 ),
               ],
             ),
@@ -396,11 +336,7 @@ class CrashTestBudgetWidget extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       child: Text(
         'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin.',
-        style: GoogleFonts.inter(
-          fontSize: 10,
-          color: MintColors.textSecondary,
-          fontStyle: FontStyle.italic,
-        ),
+        style: MintTextStyles.micro(color: MintColors.textSecondary),
       ),
     );
   }

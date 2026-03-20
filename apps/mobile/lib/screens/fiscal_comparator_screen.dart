@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/data/commune_data.dart';
 import 'package:mint_mobile/data/average_tax_multipliers.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -24,7 +25,7 @@ import 'package:mint_mobile/widgets/coach/moving_true_cost_widget.dart';
 //   Tab 3: "Demenager"  — Move simulation between cantons
 //
 // All text in French (informal "tu").
-// Material 3, MintColors theme, GoogleFonts.
+// Material 3, MintColors theme, MintTextStyles tokens.
 // ────────────────────────────────────────────────────────────
 
 class FiscalComparatorScreen extends StatefulWidget {
@@ -199,49 +200,27 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     return SliverAppBar(
       pinned: true,
       floating: true,
-      expandedHeight: 160,
-      backgroundColor: MintColors.primary,
+      expandedHeight: 120,
+      backgroundColor: MintColors.white,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: 16),
+        titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: MintSpacing.md),
         title: Text(
           S.of(context)!.fiscalComparatorTitle,
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-            color: MintColors.white,
-          ),
-        ),
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                MintColors.primary,
-                MintColors.primary.withValues(alpha: 0.85),
-              ],
-            ),
-          ),
+          style: MintTextStyles.headlineMedium(),
         ),
       ),
       bottom: TabBar(
         controller: _tabController,
-        indicatorColor: MintColors.white,
+        indicatorColor: MintColors.primary,
         indicatorWeight: 3,
-        labelColor: MintColors.white,
-        unselectedLabelColor: MintColors.white60,
-        labelStyle: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-        ),
-        unselectedLabelStyle: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.w400,
-        ),
+        labelColor: MintColors.textPrimary,
+        unselectedLabelColor: MintColors.textMuted,
+        labelStyle: MintTextStyles.bodySmall(),
+        unselectedLabelStyle: MintTextStyles.bodySmall(color: MintColors.textMuted),
         tabs: [
           Tab(text: S.of(context)!.fiscalTabMyTax),
           Tab(text: S.of(context)!.fiscalTab26Cantons),
@@ -257,7 +236,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
 
   Widget _buildTab1MonImpot() {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         _buildInputsCard(),
         const SizedBox(height: 20),
@@ -297,20 +276,12 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.fiscalGrossAnnualIncome,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(),
                 ),
               ),
               Text(
                 FiscalService.formatChf(_revenuBrut),
-                style: GoogleFonts.montserrat(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.primary,
-                ),
+                style: MintTextStyles.headlineMedium(color: MintColors.primary),
               ),
             ],
           ),
@@ -338,11 +309,9 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text("CHF\u00A030'000",
-                  style: GoogleFonts.inter(
-                      fontSize: 11, color: MintColors.textMuted)),
+                  style: MintTextStyles.labelSmall()),
               Text("CHF\u00A0500'000",
-                  style: GoogleFonts.inter(
-                      fontSize: 11, color: MintColors.textMuted)),
+                  style: MintTextStyles.labelSmall()),
             ],
           ),
           const SizedBox(height: 20),
@@ -353,11 +322,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.fiscalCanton,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                 ),
               ),
               Container(
@@ -369,10 +334,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _canton,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                     items: sortedCodes.map((code) {
                       return DropdownMenuItem(
                         value: code,
@@ -413,18 +375,14 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.fiscalCivilStatus,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                 ),
               ),
               SegmentedButton<String>(
                 style: SegmentedButton.styleFrom(
                   selectedBackgroundColor: MintColors.primary,
                   selectedForegroundColor: MintColors.white,
-                  textStyle: GoogleFonts.inter(fontSize: 12),
+                  textStyle: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                 ),
                 segments: [
                   ButtonSegment(
@@ -452,11 +410,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.fiscalChildren,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                 ),
               ),
               Row(
@@ -475,11 +429,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                     width: 32,
                     child: Text(
                       '$_nombreEnfants',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.titleMedium().copyWith(fontSize: 18, fontWeight: FontWeight.w700),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -507,11 +457,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.fiscalNetWealth,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                 ),
               ),
               SizedBox(
@@ -520,16 +466,10 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                   controller: _fortuneController,
                   keyboardType: TextInputType.number,
                   onTapOutside: (_) => FocusScope.of(context).unfocus(),
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                   decoration: InputDecoration(
                     prefixText: 'CHF ',
-                    prefixStyle: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: MintColors.textMuted,
-                    ),
+                    prefixStyle: MintTextStyles.bodyMedium(),
                     filled: true,
                     fillColor: MintColors.appleSurface,
                     contentPadding: const EdgeInsets.symmetric(
@@ -539,10 +479,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                       borderSide: BorderSide.none,
                     ),
                     hintText: '0',
-                    hintStyle: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: MintColors.textMuted,
-                    ),
+                    hintStyle: MintTextStyles.bodyMedium(),
                   ),
                   onChanged: (value) {
                     final parsed =
@@ -565,19 +502,12 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                   children: [
                     Text(
                       S.of(context)!.fiscalChurchMember,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       S.of(context)!.fiscalChurchTax,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: MintColors.textMuted,
-                      ),
+                      style: MintTextStyles.labelSmall(),
                     ),
                   ],
                 ),
@@ -632,11 +562,9 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
             alignment: Alignment.center,
             child: Text(
               '${tauxEffectif.toStringAsFixed(1)}%',
-              style: GoogleFonts.montserrat(
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
+              style: MintTextStyles.displayMedium(
                 color: isBelow ? MintColors.success : MintColors.error,
-              ),
+              ).copyWith(fontSize: 22, fontWeight: FontWeight.w800),
             ),
           ),
           const SizedBox(width: 20),
@@ -646,21 +574,15 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               children: [
                 Text(
                   S.of(context)!.fiscalEffectiveRate,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   isBelow
                       ? S.of(context)!.fiscalBelowAverage(avgAdjusted.toStringAsFixed(1))
                       : S.of(context)!.fiscalAboveAverage(avgAdjusted.toStringAsFixed(1)),
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
+                  style: MintTextStyles.bodySmall(
                     color: isBelow ? MintColors.success : MintColors.error,
-                    height: 1.4,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -712,12 +634,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.fiscalBreakdownTitle,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(),
               ),
             ],
           ),
@@ -757,31 +674,20 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
             children: [
               Text(
                 S.of(context)!.fiscalTotalBurden,
-                style: GoogleFonts.inter(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w700),
               ),
               Text(
                 FiscalService.formatChf(chargeTotaleAvecExtras),
-                style: GoogleFonts.montserrat(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.primary,
-                ),
+                style: MintTextStyles.headlineMedium(color: MintColors.primary),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-              '${FiscalService.formatChf(chargeTotaleAvecExtras / 12)}/mois',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-              ),
+              '${FiscalService.formatChf(chargeTotaleAvecExtras / 12)}${S.of(context)!.fiscalPerMonth}',
+              style: MintTextStyles.bodySmall(),
             ),
           ),
         ],
@@ -804,19 +710,12 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         Expanded(
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodyMedium(),
           ),
         ),
         Text(
           FiscalService.formatChf(amount),
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -849,23 +748,14 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.fiscalNationalPosition,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(),
               ),
             ],
           ),
           const SizedBox(height: 12),
           RichText(
             text: TextSpan(
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: MintColors.textSecondary,
-                height: 1.6,
-              ),
+              style: MintTextStyles.bodyMedium(),
               children: [
                 TextSpan(
                   text: '${FiscalService.cantonNames[_canton]}',
@@ -947,20 +837,12 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
             children: [
               Text(
                 FiscalService.formatChf(ecartMax),
-                style: GoogleFonts.montserrat(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
-                ),
+                style: MintTextStyles.displayMedium(color: MintColors.white),
               ),
               const SizedBox(height: 6),
               Text(
                 S.of(context)!.fiscalGapBetweenCantons,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: MintColors.white70,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.white70),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -979,13 +861,14 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
             children: [
               const Icon(Icons.tune, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
-              Text(
-                'Revenu : ${FiscalService.formatChf(_revenuBrut)} | '
-                '${_etatCivil == 'marie' ? 'Marié·e' : 'Célibataire'}'
-                '${_nombreEnfants > 0 ? ' + $_nombreEnfants enfant${_nombreEnfants > 1 ? 's' : ''}' : ''}',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
+              Flexible(
+                child: Text(
+                  S.of(context)!.fiscalIncomeInfoLabel(
+                    FiscalService.formatChf(_revenuBrut),
+                    _etatCivil == 'marie' ? S.of(context)!.fiscalStatusMarried : S.of(context)!.fiscalStatusSingle,
+                    _nombreEnfants > 0 ? S.of(context)!.fiscalChildrenSuffix(_nombreEnfants) : '',
+                  ),
+                  style: MintTextStyles.bodySmall(),
                 ),
               ),
             ],
@@ -1029,7 +912,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     final sortedCodes = FiscalService.sortedCantonCodes;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Intro
         Container(
@@ -1047,11 +930,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.fiscalMoveIntro,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ),
             ],
@@ -1214,22 +1093,14 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.fiscalWealthTaxTitle,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(),
               ),
             ],
           ),
           const SizedBox(height: 12),
           Text(
             S.of(context)!.fiscalNetWealthAmount(FiscalService.formatChf(_fortune)),
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 12),
           Row(
@@ -1239,19 +1110,12 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                   children: [
                     Text(
                       FiscalService.cantonNames[_cantonDepart] ?? _cantonDepart,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textMuted,
-                      ),
+                      style: MintTextStyles.labelSmall(),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       FiscalService.formatChf(impotDepart),
-                      style: GoogleFonts.montserrat(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -1267,19 +1131,12 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                     Text(
                       FiscalService.cantonNames[_cantonArrivee] ??
                           _cantonArrivee,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textMuted,
-                      ),
+                      style: MintTextStyles.labelSmall(),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       FiscalService.formatChf(impotArrivee),
-                      style: GoogleFonts.montserrat(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -1294,15 +1151,13 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                   : difference < 0
                       ? S.of(context)!.fiscalWealthSurcharge(FiscalService.formatChf(-difference))
                       : S.of(context)!.fiscalWealthEquivalent,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+              style: MintTextStyles.bodyMedium(
                 color: isSaving
                     ? MintColors.success
                     : difference < 0
                         ? MintColors.error
                         : MintColors.textSecondary,
-              ),
+              ).copyWith(fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -1324,11 +1179,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         Expanded(
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
           ),
         ),
         Container(
@@ -1340,10 +1191,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: value,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
               items: codes.map((code) {
                 return DropdownMenuItem(
                   value: code,
@@ -1388,12 +1236,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.fiscalChecklistTitle,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(),
               ),
             ],
           ),
@@ -1442,15 +1285,14 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                     Expanded(
                       child: Text(
                         items[index],
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
+                        style: MintTextStyles.bodyMedium(
                           color: checked
                               ? MintColors.textMuted
                               : MintColors.textPrimary,
+                        ).copyWith(
                           decoration: checked
                               ? TextDecoration.lineThrough
                               : null,
-                          height: 1.4,
                         ),
                       ),
                     ),
@@ -1478,12 +1320,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
             const SizedBox(width: 8),
             Text(
               S.of(context)!.fiscalGoodToKnow,
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textMuted,
-                letterSpacing: 1,
-              ),
+              style: MintTextStyles.labelSmall(),
             ),
           ],
         ),
@@ -1534,20 +1371,12 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     body,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MintColors.textSecondary,
-                      height: 1.5,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                   ),
                 ],
               ),
@@ -1577,11 +1406,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         Expanded(
           child: Text(
             S.of(context)!.fiscalCommune,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
           ),
         ),
         Flexible(
@@ -1597,24 +1422,15 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 isExpanded: true,
                 hint: Text(
                   S.of(context)!.fiscalCapitalDefault,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.bodySmall(),
                 ),
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                 items: [
                   DropdownMenuItem<String?>(
                     value: null,
                     child: Text(
                       S.of(context)!.fiscalCapitalDefault,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: MintColors.textMuted,
-                      ),
+                      style: MintTextStyles.bodySmall(),
                     ),
                   ),
                   ...communes.map((c) {
@@ -1654,11 +1470,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           Expanded(
             child: Text(
               S.of(context)!.fiscalDisclaimer,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.deepOrange,
-                height: 1.5,
-              ),
+              style: MintTextStyles.micro(color: MintColors.deepOrange),
             ),
           ),
         ],

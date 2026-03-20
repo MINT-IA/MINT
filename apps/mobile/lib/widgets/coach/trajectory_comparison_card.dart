@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -61,11 +61,7 @@ class TrajectoryComparisonCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   'Évolution depuis ton profil initial',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -90,10 +86,7 @@ class TrajectoryComparisonCard extends StatelessWidget {
             Text(
               'Estimation basée sur ton profil actuel vs ton profil initial. '
               'Outil éducatif, ne constitue pas un conseil.',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
             ),
           ],
         ),
@@ -126,10 +119,7 @@ class _ComparisonRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
         ),
         const SizedBox(height: 6),
 
@@ -157,11 +147,7 @@ class _ComparisonRow extends StatelessWidget {
           children: [
             Text(
               '${isPositive ? "+" : ""}${formatChf(delta)}',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: isPositive ? MintColors.success : MintColors.error,
-              ),
+              style: MintTextStyles.labelSmall(color: isPositive ? MintColors.success : MintColors.error).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -221,10 +207,7 @@ class _Bar extends StatelessWidget {
           width: 140,
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w400),
             textAlign: TextAlign.right,
           ),
         ),

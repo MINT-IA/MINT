@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/benchmark_service.dart';
+import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Displays a personal progress card — user's own evolution over time.
 ///
@@ -42,11 +42,7 @@ class BenchmarkCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
               // Personal delta badge (replaces removed "Top X%" percentile badge)
@@ -63,13 +59,7 @@ class BenchmarkCard extends StatelessWidget {
                   ),
                   child: Text(
                     '${isPositiveDelta ? '+' : ''}${benchmark.delta.toStringAsFixed(0)}',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: isPositiveDelta
-                          ? MintColors.success
-                          : MintColors.warning,
-                    ),
+                    style: MintTextStyles.labelSmall(color: isPositiveDelta ? MintColors.success : MintColors.warning).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
             ],
@@ -79,11 +69,7 @@ class BenchmarkCard extends StatelessWidget {
           // Message
           Text(
             benchmark.message,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
           ),
 
           // Source removed — no longer referencing OFS/BFS social comparisons

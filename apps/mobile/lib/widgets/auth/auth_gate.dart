@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Actions that require authentication to persist data securely.
 enum AuthTrigger {
@@ -214,11 +214,7 @@ class _RegistrationBottomSheet extends StatelessWidget {
               Text(
                 _titleForTrigger(trigger, l),
                 textAlign: TextAlign.center,
-                style: GoogleFonts.montserrat(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 20),
               ),
               const SizedBox(height: 12),
 
@@ -226,11 +222,7 @@ class _RegistrationBottomSheet extends StatelessWidget {
               Text(
                 _messageForTrigger(trigger, l),
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: MintColors.textSecondary,
-                  height: 1.5,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(height: 1.5),
               ),
               const SizedBox(height: 28),
 
@@ -255,10 +247,7 @@ class _RegistrationBottomSheet extends StatelessWidget {
                   ),
                   child: Text(
                     l.authGateCreateAccount,
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -284,10 +273,7 @@ class _RegistrationBottomSheet extends StatelessWidget {
                   ),
                   child: Text(
                     l.authGateLogin,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -306,11 +292,7 @@ class _RegistrationBottomSheet extends StatelessWidget {
                   Flexible(
                     child: Text(
                       l.authGatePrivacyNote,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textMuted,
-                        height: 1.3,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12, height: 1.3),
                     ),
                   ),
                 ],

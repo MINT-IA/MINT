@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 class RetirementProjectionCard extends StatelessWidget {
   final RetirementProjection projection;
@@ -44,15 +44,15 @@ class RetirementProjectionCard extends StatelessWidget {
           children: [
             Text(
               'Taux de remplacement : ',
-              style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
             ),
             Text(
               '${replacementRate.toStringAsFixed(0)}%',
-              style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: rateColor),
+              style: MintTextStyles.bodySmall(color: rateColor).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
             ),
             Text(
               ' (cible : 60-80%)',
-              style: GoogleFonts.inter(fontSize: 12, color: MintColors.textMuted),
+              style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12),
             ),
           ],
         ),
@@ -117,12 +117,7 @@ class RetirementProjectionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   tip,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textPrimary,
-                    height: 1.4,
-                    fontWeight: tip == tips.first ? FontWeight.w600 : FontWeight.w400,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4, fontWeight: tip == tips.first ? FontWeight.w600 : FontWeight.w400),
                 ),
               ),
             ],
@@ -149,7 +144,7 @@ class RetirementProjectionCard extends StatelessWidget {
             child: Text(
               'Commande ton extrait de compte individuel (CI) gratuit sur inforegister.ch pour v\u00e9rifier tes lacunes AVS. '
               'Chaque ann\u00e9e manquante = \u22122.3% de rente \u00e0 vie.',
-              style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary, height: 1.4),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
             ),
           ),
         ],
@@ -163,19 +158,11 @@ class RetirementProjectionCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
-            color: isBold ? MintColors.textPrimary : MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodySmall(color: isBold ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontWeight: isBold ? FontWeight.w700 : FontWeight.w400),
         ),
         Text(
           value,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: isBold ? FontWeight.w700 : FontWeight.w500),
         ),
       ],
     );

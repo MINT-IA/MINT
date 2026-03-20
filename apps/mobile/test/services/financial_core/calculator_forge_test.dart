@@ -273,14 +273,14 @@ void main() {
 
     test('S6.3 — independant sans LPP, revenue 100000: 20% = 20000 (under max)', () {
       // OPP3 art. 7: 20% of 100000 = 20000, max 36288 → 20000
-      final amount = (100000.0 * pilier3aTauxRevenuSansLpp);
+      const amount = (100000.0 * pilier3aTauxRevenuSansLpp);
       final effective = amount.clamp(0, pilier3aPlafondSansLpp);
       expect(effective, closeTo(20000.0, 0.01));
     });
 
     test('S6.4 — independant sans LPP, revenue 200000: 20% = 40000 → capped at 36288', () {
       // OPP3 art. 7: 20% of 200000 = 40000 > 36288 → capped
-      final amount = (200000.0 * pilier3aTauxRevenuSansLpp);
+      const amount = (200000.0 * pilier3aTauxRevenuSansLpp);
       final effective = amount.clamp(0, pilier3aPlafondSansLpp);
       expect(effective, closeTo(36288.0, 0.01));
     });
@@ -307,19 +307,19 @@ void main() {
 
     test('S7.3 — buyback within 3 years of EPL → should be flagged', () {
       // Simulate: EPL at age 45, buyback attempted at age 47 (2 years later)
-      final eplYear = 2024;
-      final buybackYear = 2026;
-      final yearsSinceEpl = buybackYear - eplYear;
-      final isBlocked = yearsSinceEpl < eplBlocageRachatAnnees;
+      const eplYear = 2024;
+      const buybackYear = 2026;
+      const yearsSinceEpl = buybackYear - eplYear;
+      const isBlocked = yearsSinceEpl < eplBlocageRachatAnnees;
       expect(isBlocked, isTrue);
     });
 
     test('S7.4 — buyback at exactly 3 years after EPL → allowed', () {
       // Simulate: EPL at age 45, buyback at age 48 (3 years later)
-      final eplYear = 2023;
-      final buybackYear = 2026;
-      final yearsSinceEpl = buybackYear - eplYear;
-      final isBlocked = yearsSinceEpl < eplBlocageRachatAnnees;
+      const eplYear = 2023;
+      const buybackYear = 2026;
+      const yearsSinceEpl = buybackYear - eplYear;
+      const isBlocked = yearsSinceEpl < eplBlocageRachatAnnees;
       expect(isBlocked, isFalse);
     });
 
@@ -384,11 +384,11 @@ void main() {
       // This is a mathematical property test.
       // geo_mean(1/101, x, y, z) where x,y,z < 1 → very small
       // Verify the formula is geometrically consistent:
-      final c = (0.0 + 1.0) / 101.0; // completeness = 0
-      final a = (100.0 + 1.0) / 101.0; // accuracy = 100
-      final f = (100.0 + 1.0) / 101.0; // freshness = 100
-      final u = (100.0 + 1.0) / 101.0; // understanding = 100
-      final product = c * a * f * u;
+      const c = (0.0 + 1.0) / 101.0; // completeness = 0
+      const a = (100.0 + 1.0) / 101.0; // accuracy = 100
+      const f = (100.0 + 1.0) / 101.0; // freshness = 100
+      const u = (100.0 + 1.0) / 101.0; // understanding = 100
+      const product = c * a * f * u;
       // product = (1/101) × 1 × 1 × 1 = 1/101
       // geoMean = (1/101)^0.25 ≈ 0.316
       // combined = 0.316 × 101 - 1 ≈ 30.9
@@ -467,8 +467,8 @@ void main() {
       // But Lauren has fewer contribution years (expat arrived later).
       // For this test, just verify RAMD interpolation.
       final rente = AvsCalculator.renteFromRAMD(67000);
-      final expectedFraction = (67000 - 14700) / (88200 - 14700);
-      final expectedRente = 1260 + (2520 - 1260) * expectedFraction;
+      const expectedFraction = (67000 - 14700) / (88200 - 14700);
+      const expectedRente = 1260 + (2520 - 1260) * expectedFraction;
       expect(rente, closeTo(expectedRente, 1.0));
     });
 

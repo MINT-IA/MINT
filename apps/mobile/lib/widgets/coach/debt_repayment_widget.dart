@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'dart:math' as math;
 
@@ -179,16 +179,12 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
               children: [
                 Text(
                   'Avalanche vs Boule de neige',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   '${formatChfWithPrefix(_totalDebt)} de dettes · quelle stratégie ?',
-                  style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                 ),
               ],
             ),
@@ -239,15 +235,11 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
           children: [
             Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: isActive ? MintColors.scoreCritique : MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: isActive ? MintColors.scoreCritique : MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             ),
             Text(
               subtitle,
-              style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+              style: MintTextStyles.micro(color: MintColors.textSecondary),
             ),
           ],
         ),
@@ -268,11 +260,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
       children: [
         Text(
           'Ordre de remboursement',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 10),
         ...sorted.asMap().entries.map((e) => Padding(
@@ -291,11 +279,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
                 ),
                 child: Text(
                   '${e.key + 1}',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: e.key == 0 ? MintColors.white : MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.labelSmall(color: e.key == 0 ? MintColors.white : MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
                 ),
               ),
               const SizedBox(width: 10),
@@ -304,7 +288,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
               Expanded(
                 child: Text(
                   e.value.label,
-                  style: GoogleFonts.inter(fontSize: 13, color: MintColors.textPrimary),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                 ),
               ),
               Column(
@@ -312,15 +296,11 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
                 children: [
                   Text(
                     formatChfWithPrefix(e.value.balance),
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   ),
                   Text(
                     '${(e.value.monthlyRate * 12 * 100).toStringAsFixed(1)}%/an',
-                    style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                    style: MintTextStyles.micro(color: MintColors.textSecondary),
                   ),
                 ],
               ),
@@ -351,19 +331,15 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                 ),
                 Text(
                   '${years > 0 ? '${years}a ' : ''}${months > 0 ? '${months}m' : ''}',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.primary,
-                  ),
+                  style: MintTextStyles.headlineMedium(color: MintColors.primary).copyWith(fontSize: 22, fontWeight: FontWeight.w800),
                 ),
                 Text(
                   'pour solder toutes les dettes',
-                  style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -373,15 +349,11 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
             children: [
               Text(
                 'Intérêts payés',
-                style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
+                style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
               ),
               Text(
                 formatChfWithPrefix(result.totalInterest),
-                style: GoogleFonts.montserrat(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.scoreCritique,
-                ),
+                style: MintTextStyles.titleMedium(color: MintColors.scoreCritique).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
               ),
             ],
           ),
@@ -413,11 +385,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
                   saved > 0
                       ? 'L\'avalanche économise ${formatChfWithPrefix(saved)}'
                       : 'Les deux stratégies ont le même coût',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.scoreExcellent,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -425,11 +393,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
                       ? 'La boule de neige prend $monthsDiff mois de plus, '
                         'mais elle est plus motivante (petites victoires rapides).'
                       : 'Choisis la stratégie qui te motive le plus à tenir.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
             ),
@@ -444,11 +408,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Simulation de remboursement basée sur des versements mensuels constants. '
       'Source : LP (Loi fédérale sur la poursuite pour dettes et la faillite).',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

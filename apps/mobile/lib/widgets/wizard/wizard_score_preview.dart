@@ -1,9 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────────────────────
 //  WIZARD SCORE PREVIEW — Progressive Financial Fitness Score
@@ -286,12 +286,7 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
             child: Text(
               _contextualLabel,
               key: ValueKey(_contextualLabel),
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textSecondary,
-                height: 1.2,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500, height: 1.2),
             ),
           ),
         ),
@@ -406,22 +401,12 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
           // Animated score number
           Text(
             '$displayScore',
-            style: GoogleFonts.outfit(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: _currentScore > 0 ? _scoreColor : MintColors.textMuted,
-              height: 1.0,
-            ),
+            style: MintTextStyles.headlineMedium(color: _currentScore > 0 ? _scoreColor : MintColors.textMuted).copyWith(fontSize: 18, height: 1.0),
           ),
           const SizedBox(width: 2),
           Text(
             '/100',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textMuted,
-              height: 1.0,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w500, height: 1.0),
           ),
         ],
       ),

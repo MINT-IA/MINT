@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Micro-disclaimer inline pour le dashboard Pulse.
 ///
@@ -32,11 +32,7 @@ class PulseDisclaimer extends StatelessWidget {
           Expanded(
             child: Text(
               l.pulseDisclaimer,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.textMuted,
-                height: 1.4,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.4),
             ),
           ),
         ],

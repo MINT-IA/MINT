@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/micro_action_engine.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// Card widget for a single [MicroAction].
@@ -69,22 +69,14 @@ class MicroActionCard extends StatelessWidget {
                     children: [
                       Text(
                         action.title,
-                        style: GoogleFonts.montserrat(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 3),
                       Text(
                         action.description,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: MintColors.textSecondary,
-                          height: 1.3,
-                        ),
+                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.3),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -118,10 +110,7 @@ class MicroActionCard extends StatelessWidget {
         const SizedBox(width: 3),
         Text(
           '${action.estimatedMinutes} min',
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted),
         ),
 
         // Impact CHF
@@ -131,11 +120,7 @@ class MicroActionCard extends StatelessWidget {
           const SizedBox(width: 3),
           Text(
             '~CHF ${action.estimatedImpactChf!.round()}/an',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: MintColors.success,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
           ),
         ],
 
@@ -144,10 +129,7 @@ class MicroActionCard extends StatelessWidget {
           const SizedBox(width: 12),
           Text(
             action.source!,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textMuted),
           ),
         ],
       ],
@@ -188,11 +170,7 @@ class MicroActionSection extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 8),
           child: Text(
             title,
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
         ),
         ...actions.map((a) => MicroActionCard(action: a)),

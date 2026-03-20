@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/plan_tracking_service.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -55,11 +55,7 @@ class PlanRealityCard extends StatelessWidget {
               children: [
                 Text(
                   'Mon plan',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                 ),
                 Container(
                   padding:
@@ -70,11 +66,7 @@ class PlanRealityCard extends StatelessWidget {
                   ),
                   child: Text(
                     badgeLabel,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: badgeColor,
-                    ),
+                    style: MintTextStyles.labelSmall(color: badgeColor).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -98,21 +90,14 @@ class PlanRealityCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Text(
                   '${(adherence * 100).round()}%',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
             ),
             const SizedBox(height: 4),
             Text(
               '${status.completedActions} / ${status.totalActions} actions complétées',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
             ),
             const SizedBox(height: 16),
 
@@ -120,11 +105,7 @@ class PlanRealityCard extends StatelessWidget {
             if (status.nextActions.isNotEmpty) ...[
               Text(
                 'Prochaines actions',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 8),
               ...status.nextActions.map((action) => Padding(
@@ -137,10 +118,7 @@ class PlanRealityCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             action,
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              color: MintColors.textPrimary,
-                            ),
+                            style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                           ),
                         ),
                       ],
@@ -163,27 +141,17 @@ class PlanRealityCard extends StatelessWidget {
                   children: [
                     Text(
                       'Impact composé estimé sur ${(monthsToRetirement / 12).round()} ans',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textSecondary,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       formatChf(compoundImpact),
-                      style: GoogleFonts.montserrat(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.primary,
-                      ),
+                      style: MintTextStyles.headlineMedium(color: MintColors.primary).copyWith(fontSize: 20, fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'Rendement conservateur 2% réel / an. Outil éducatif.',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        color: MintColors.textMuted,
-                      ),
+                      style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
                     ),
                   ],
                 ),

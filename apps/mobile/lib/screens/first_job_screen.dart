@@ -1,10 +1,11 @@
 import 'dart:math' show pow;
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/first_job_service.dart';
 import 'package:mint_mobile/widgets/educational/salary_breakdown_widget.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -20,9 +21,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 // ────────────────────────────────────────────────────────────
 //
 // Interactive first job salary analyzer.
-// Inputs: salary, age, canton, activity rate.
-// Outputs: salary breakdown, 3a recommendation, LAMal franchise
-//          comparison, checklist.
+// Category C — Life Event (DESIGN_SYSTEM §2C).
 // ────────────────────────────────────────────────────────────
 
 class FirstJobScreen extends StatefulWidget {
@@ -63,7 +62,6 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     final profile = context.read<CoachProfileProvider>().profile;
     if (profile == null) return;
     final age = DateTime.now().year - profile.birthYear;
-    // Don't seed a 45+ year-old's salary into a "premier emploi" screen
     if (age > 30) return;
     _seededFromProfile = true;
     setState(() {
@@ -93,28 +91,28 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
         slivers: [
           _buildAppBar(context),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+            padding: const EdgeInsets.fromLTRB(
+                MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildHeader(),
-                const SizedBox(height: 20),
+                const SizedBox(height: MintSpacing.md + 4),
                 _buildSalaireSlider(),
-                const SizedBox(height: 20),
+                const SizedBox(height: MintSpacing.md + 4),
                 _buildAgeSlider(),
-                const SizedBox(height: 20),
+                const SizedBox(height: MintSpacing.md + 4),
                 _buildCantonAndActivity(),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
                 if (_result != null) ...[
                   _buildChiffreChoc(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: MintSpacing.lg),
                   SalaryBreakdownWidget(
                     brut: _result!.brut,
                     netEstime: _result!.netEstime,
                     cotisationsEmployeur: _result!.cotisationsEmployeur,
                     deductions: _result!.deductionItems,
                   ),
-                  const SizedBox(height: 24),
-                  // ── P5-C : Radiographie fiche de paie ──────────
+                  const SizedBox(height: MintSpacing.lg),
                   PayslipXRayWidget(
                     grossSalary: _salaire,
                     netSalary: _salaire * 0.76,
@@ -122,92 +120,91 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                     deductions: [
                       PayslipLine(
                         label: 'AVS/AI/APG',
-                        emoji: '🛡️',
+                        emoji: '\u{1F6E1}\u{FE0F}',
                         amount: _salaire * 0.053,
                         percentage: 5.3,
                         explanation:
-                            'Cotisation salarié·e : 5.3% du brut. '
+                            'Cotisation salari\u00e9\u00b7e\u00a0: 5.3% du brut. '
                             'Ton employeur paie aussi 5.3% en plus.',
                         legalRef: 'LAVS art. 5',
                       ),
                       PayslipLine(
                         label: 'LPP (2e pilier)',
-                        emoji: '🏦',
+                        emoji: '\u{1F3E6}',
                         amount: _salaire * 0.08,
                         percentage: 8.0,
                         explanation:
-                            'Épargne vieillesse obligatoire dès 25 ans. '
-                            'Le taux exact dépend de ta caisse et ton âge.',
+                            '\u00c9pargne vieillesse obligatoire d\u00e8s 25 ans. '
+                            'Le taux exact d\u00e9pend de ta caisse et ton \u00e2ge.',
                         legalRef: 'LPP art. 16',
                       ),
                       PayslipLine(
-                        label: 'Impôt à la source (estimation)',
-                        emoji: '🏛️',
+                        label: 'Imp\u00f4t \u00e0 la source (estimation)',
+                        emoji: '\u{1F3DB}\u{FE0F}',
                         amount: _salaire * 0.09,
                         percentage: 9.0,
                         explanation:
-                            'Retenu directement sur le salaire si tu es imposé·e '
-                            'à la source. Le taux varie selon canton, statut et revenu.',
+                            'Retenu directement sur le salaire si tu es impos\u00e9\u00b7e '
+                            '\u00e0 la source. Le taux varie selon canton, statut et revenu.',
                         legalRef: 'LIFD art. 83',
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: MintSpacing.lg),
                   _build3aRecommendation(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: MintSpacing.lg),
                   _build3aWarning(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: MintSpacing.lg),
                   _buildLamalComparison(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: MintSpacing.lg),
                   _buildChecklist(),
-                  const SizedBox(height: 24),
-                  // ── P11-C : Checklist changement de job ────────
+                  const SizedBox(height: MintSpacing.lg),
                   const JobChangeChecklistWidget(
                     items: [
                       ChecklistItem(
                         deadline: 'Avant de quitter',
-                        emoji: '📄',
+                        emoji: '\u{1F4C4}',
                         action:
-                            'Demande ton certificat LPP à ton employeur actuel.',
+                            'Demande ton certificat LPP \u00e0 ton employeur actuel.',
                         legalRef: 'LPP art. 3 — libre passage',
                         consequence:
-                            'Sans certificat, tu ne peux pas vérifier que le '
-                            'montant transféré est correct.',
+                            'Sans certificat, tu ne peux pas v\u00e9rifier que le '
+                            'montant transf\u00e9r\u00e9 est correct.',
                       ),
                       ChecklistItem(
                         deadline: '30 jours',
-                        emoji: '🏦',
+                        emoji: '\u{1F3E6}',
                         action:
-                            'Vérifie que ton avoir LPP a été transféré à la '
+                            'V\u00e9rifie que ton avoir LPP a \u00e9t\u00e9 transf\u00e9r\u00e9 \u00e0 la '
                             'caisse de ton nouvel employeur.',
-                        legalRef: 'OLP art. 3 — délai de transfert',
+                        legalRef: 'OLP art. 3 — d\u00e9lai de transfert',
                         consequence:
-                            'Sans transfert, ton capital va à la Fondation '
-                            'supplétive à un taux de 0.05%.',
+                            'Sans transfert, ton capital va \u00e0 la Fondation '
+                            'suppl\u00e9tive \u00e0 un taux de 0.05%.',
                       ),
                       ChecklistItem(
                         deadline: '1 mois',
-                        emoji: '🛡️',
+                        emoji: '\u{1F6E1}\u{FE0F}',
                         action:
                             'Informe ton assurance-maladie LAMal du changement '
-                            'd\'employeur si tu bénéficiais d\'une couverture collective.',
+                            'd\'employeur si tu b\u00e9n\u00e9ficiais d\'une couverture collective.',
                         legalRef: 'LAMal art. 3',
                       ),
                       ChecklistItem(
-                        deadline: 'Dès le premier salaire',
-                        emoji: '🏦',
+                        deadline: 'D\u00e8s le premier salaire',
+                        emoji: '\u{1F3E6}',
                         action:
                             'Continue tes versements au pilier 3a — '
-                            'l\'interruption te coûte des déductions fiscales.',
+                            'l\'interruption te co\u00fbte des d\u00e9ductions fiscales.',
                         legalRef: 'OPP3 art. 1',
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: MintSpacing.lg),
                   _buildEducation(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: MintSpacing.lg),
                   _buildMintAnalysisSection(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: MintSpacing.lg),
                 ],
                 _buildDisclaimer(),
                 const SizedBox(height: 100),
@@ -219,39 +216,25 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     );
   }
 
-  // ── App Bar ────────────────────────────────────────────────
+  // ── App Bar (white standard per DESIGN_SYSTEM §4.5) ──────
 
   Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
       pinned: true,
-      expandedHeight: 120,
-      backgroundColor: MintColors.primary,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.white),
-        onPressed: () => context.pop(),
+      backgroundColor: MintColors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0.5,
+      leading: Semantics(
+        label: 'Retour',
+        button: true,
+        child: IconButton(
+          icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
+          onPressed: () => context.pop(),
+        ),
       ),
-      flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 56, bottom: 16, right: 16),
-        title: Text(
-          S.of(context)!.firstJobTitle,
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-            color: MintColors.white,
-          ),
-        ),
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                MintColors.primary,
-                MintColors.primary.withValues(alpha: 0.85),
-              ],
-            ),
-          ),
-        ),
+      title: Text(
+        S.of(context)!.firstJobTitle,
+        style: MintTextStyles.headlineMedium(),
       ),
     );
   }
@@ -260,25 +243,23 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.appleSurface,
+        color: MintColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.celebration_outlined, color: MintColors.info, size: 20),
-          const SizedBox(width: 12),
+          const Icon(Icons.celebration_outlined,
+              color: MintColors.info, size: 20),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
               S.of(context)!.firstJobHeaderDesc,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              style:
+                  MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
         ],
@@ -292,8 +273,8 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     return _buildSliderCard(
       title: S.of(context)!.firstJobSalaryTitle,
       valueLabel: FirstJobService.formatChf(_salaire),
-      minLabel: "CHF 2'000",
-      maxLabel: "CHF 15'000",
+      minLabel: S.of(context)!.firstJobSalaryMin,
+      maxLabel: S.of(context)!.firstJobSalaryMax,
       value: _salaire,
       min: 2000,
       max: 15000,
@@ -334,7 +315,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     required ValueChanged<double> onChanged,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
@@ -350,49 +331,44 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
               Expanded(
                 child: Text(
                   title,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(
+                      color: MintColors.textPrimary),
                 ),
               ),
               Text(
                 valueLabel,
-                style: GoogleFonts.montserrat(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.primary,
-                ),
+                style: MintTextStyles.headlineMedium(
+                        color: MintColors.primary)
+                    .copyWith(fontSize: 20),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
               activeTrackColor: MintColors.primary,
               inactiveTrackColor: MintColors.border,
               thumbColor: MintColors.primary,
               overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 6,
+              trackHeight: 4,
             ),
-            child: Slider(
-              value: value,
-              min: min,
-              max: max,
-              divisions: divisions,
-              onChanged: onChanged,
+            child: Semantics(
+              label: title,
+              slider: true,
+              child: Slider(
+                value: value,
+                min: min,
+                max: max,
+                divisions: divisions,
+                onChanged: onChanged,
+              ),
             ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(minLabel,
-                  style: GoogleFonts.inter(
-                      fontSize: 11, color: MintColors.textMuted)),
-              Text(maxLabel,
-                  style: GoogleFonts.inter(
-                      fontSize: 11, color: MintColors.textMuted)),
+              Text(minLabel, style: MintTextStyles.labelSmall()),
+              Text(maxLabel, style: MintTextStyles.labelSmall()),
             ],
           ),
         ],
@@ -404,7 +380,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   Widget _buildCantonAndActivity() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
@@ -419,42 +395,41 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Canton',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+                S.of(context)!.firstJobCantonLabel,
+                style:
+                    MintTextStyles.titleMedium(color: MintColors.textPrimary),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: MintColors.appleSurface,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: MintColors.border),
-                ),
-                child: DropdownButton<String>(
-                  value: _canton,
-                  underline: const SizedBox.shrink(),
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.primary,
+              Semantics(
+                label: S.of(context)!.firstJobCantonLabel,
+                button: true,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: MintSpacing.sm + 4),
+                  decoration: BoxDecoration(
+                    color: MintColors.surface,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: MintColors.border),
                   ),
-                  items: _cantons.map((c) {
-                    return DropdownMenuItem(value: c, child: Text(c));
-                  }).toList(),
-                  onChanged: (v) {
-                    if (v != null) {
-                      _canton = v;
-                      _calculate();
-                    }
-                  },
+                  child: DropdownButton<String>(
+                    value: _canton,
+                    underline: const SizedBox.shrink(),
+                    style: MintTextStyles.titleMedium(
+                        color: MintColors.primary),
+                    items: _cantons.map((c) {
+                      return DropdownMenuItem(value: c, child: Text(c));
+                    }).toList(),
+                    onChanged: (v) {
+                      if (v != null) {
+                        _canton = v;
+                        _calculate();
+                      }
+                    },
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md + 4),
 
           // Activity rate slider
           Row(
@@ -462,51 +437,48 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
             children: [
               Text(
                 S.of(context)!.firstJobActivityRate,
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+                style:
+                    MintTextStyles.titleMedium(color: MintColors.textPrimary),
               ),
               Text(
-                '${_tauxActivite.toStringAsFixed(0)}%',
-                style: GoogleFonts.montserrat(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.primary,
-                ),
+                '${_tauxActivite.toStringAsFixed(0)}\u00a0%',
+                style: MintTextStyles.headlineMedium(
+                        color: MintColors.primary)
+                    .copyWith(fontSize: 20),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
               activeTrackColor: MintColors.primary,
               inactiveTrackColor: MintColors.border,
               thumbColor: MintColors.primary,
               overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 6,
+              trackHeight: 4,
             ),
-            child: Slider(
-              value: _tauxActivite,
-              min: 10,
-              max: 100,
-              divisions: 18,
-              onChanged: (v) {
-                _tauxActivite = v;
-                _calculate();
-              },
+            child: Semantics(
+              label: S.of(context)!.firstJobActivityRate,
+              slider: true,
+              child: Slider(
+                value: _tauxActivite,
+                min: 10,
+                max: 100,
+                divisions: 18,
+                onChanged: (v) {
+                  _tauxActivite = v;
+                  _calculate();
+                },
+              ),
             ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('10%',
-                  style: GoogleFonts.inter(
-                      fontSize: 11, color: MintColors.textMuted)),
-              Text('100%',
-                  style: GoogleFonts.inter(
-                      fontSize: 11, color: MintColors.textMuted)),
+              Text(S.of(context)!.firstJobActivityMin,
+                  style: MintTextStyles.labelSmall()),
+              Text(S.of(context)!.firstJobActivityMax,
+                  style: MintTextStyles.labelSmall()),
             ],
           ),
         ],
@@ -519,7 +491,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   Widget _buildChiffreChoc() {
     final r = _result!;
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.primary,
         borderRadius: BorderRadius.circular(20),
@@ -528,20 +500,14 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
         children: [
           Text(
             FirstJobService.formatChf(r.cotisationsEmployeur),
-            style: GoogleFonts.montserrat(
-              fontSize: 36,
-              fontWeight: FontWeight.w800,
-              color: MintColors.white,
-            ),
+            style: MintTextStyles.displayMedium(color: MintColors.white)
+                .copyWith(fontSize: 36),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             r.chiffreChoc,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.white.withValues(alpha: 0.9),
-              height: 1.5,
-            ),
+            style: MintTextStyles.bodyMedium(
+                color: MintColors.white.withValues(alpha: 0.9)),
             textAlign: TextAlign.center,
           ),
         ],
@@ -554,11 +520,11 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   Widget _build3aRecommendation() {
     final r = _result!;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -567,19 +533,14 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
             children: [
               const Icon(Icons.savings_outlined,
                   size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
+              const SizedBox(width: MintSpacing.sm),
               Text(
                 S.of(context)!.firstJob3aHeader,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           Row(
             children: [
               Expanded(
@@ -588,7 +549,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   FirstJobService.formatChf(r.plafondAnnuel3a),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: MintSpacing.sm + 4),
               Expanded(
                 child: _buildMiniMetric(
                   S.of(context)!.firstJob3aMonthlySuggestion,
@@ -597,26 +558,24 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(MintSpacing.sm + 4),
             decoration: BoxDecoration(
-              color: MintColors.success.withValues(alpha: 0.08),
+              color: MintColors.success.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               children: [
                 const Icon(Icons.trending_up,
                     size: 16, color: MintColors.success),
-                const SizedBox(width: 8),
+                const SizedBox(width: MintSpacing.sm),
                 Expanded(
                   child: Text(
-                    'Économie fiscale estimée : ~${FirstJobService.formatChf(r.economieFiscaleEstimee3a)}/an',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.success,
-                    ),
+                    S.of(context)!.firstJobFiscalSavings(
+                        FirstJobService.formatChf(r.economieFiscaleEstimee3a)),
+                    style: MintTextStyles.bodySmall(color: MintColors.success)
+                        .copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -629,9 +588,9 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   Widget _buildMiniMetric(String label, String value) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(MintSpacing.sm + 6),
       decoration: BoxDecoration(
-        color: MintColors.appleSurface,
+        color: MintColors.surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -639,19 +598,14 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
         children: [
           Text(
             value,
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: MintColors.primary,
-            ),
+            style:
+                MintTextStyles.titleMedium(color: MintColors.primary)
+                    .copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 2),
           Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
           ),
         ],
       ),
@@ -662,39 +616,33 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   Widget _build3aWarning() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.error.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.error.withValues(alpha: 0.4), width: 1.5),
+        border:
+            Border.all(color: MintColors.error.withValues(alpha: 0.15), width: 1.5),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.warning_amber_rounded,
               color: MintColors.error, size: 24),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   S.of(context)!.firstJob3aWarningTitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.error,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.error)
+                      .copyWith(fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: MintSpacing.xs + 2),
                 Text(
                   _result!.alerte3a,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textPrimary,
-                    fontWeight: FontWeight.w500,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(
+                      color: MintColors.textPrimary),
                 ),
               ],
             ),
@@ -709,11 +657,11 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   Widget _buildLamalComparison() {
     final r = _result!;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -722,27 +670,24 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
             children: [
               const Icon(Icons.health_and_safety_outlined,
                   size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
+              const SizedBox(width: MintSpacing.sm),
               Text(
                 S.of(context)!.firstJobLamalHeader,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Franchise cards
           ...r.franchiseOptions.map((option) {
             final isRecommended =
                 option.franchise == r.franchiseRecommandee;
             return Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              margin: const EdgeInsets.only(bottom: MintSpacing.sm),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: MintSpacing.sm + 6,
+                  vertical: MintSpacing.sm + 4),
               decoration: BoxDecoration(
                 color: isRecommended
                     ? MintColors.success.withValues(alpha: 0.06)
@@ -750,105 +695,92 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 borderRadius: BorderRadius.circular(12),
                 border: isRecommended
                     ? Border.all(
-                        color: MintColors.success.withValues(alpha: 0.4))
+                        color: MintColors.success.withValues(alpha: 0.15))
                     : Border.all(
-                        color: MintColors.lightBorder.withValues(alpha: 0.5)),
+                        color:
+                            MintColors.border.withValues(alpha: 0.5)),
               ),
               child: Row(
                 children: [
                   if (isRecommended)
                     Container(
-                      margin: const EdgeInsets.only(right: 8),
+                      margin: const EdgeInsets.only(right: MintSpacing.sm),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
+                          horizontal: MintSpacing.xs + 2, vertical: 2),
                       decoration: BoxDecoration(
                         color: MintColors.success,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        'TOP',
-                        style: GoogleFonts.inter(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          color: MintColors.white,
-                        ),
+                        S.of(context)!.firstJobTopBadge,
+                        style: MintTextStyles.labelSmall(
+                                color: MintColors.white)
+                            .copyWith(
+                                fontSize: 9, fontWeight: FontWeight.w700),
                       ),
                     ),
                   Expanded(
                     flex: 2,
                     child: Text(
-                      'CHF ${option.franchise}',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 14,
-                        fontWeight:
-                            isRecommended ? FontWeight.w700 : FontWeight.w500,
+                      'CHF\u00a0${option.franchise}',
+                      style: MintTextStyles.bodyMedium(
                         color: isRecommended
                             ? MintColors.success
                             : MintColors.textPrimary,
-                      ),
+                      ).copyWith(
+                          fontWeight: isRecommended
+                              ? FontWeight.w700
+                              : FontWeight.w500),
                     ),
                   ),
                   Expanded(
                     flex: 3,
                     child: Text(
                       '${FirstJobService.formatChf(option.primeMensuelle)}/mois',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textSecondary,
-                      ),
+                      style: MintTextStyles.labelSmall(
+                          color: MintColors.textSecondary),
                     ),
                   ),
                   Text(
                     'Max ${FirstJobService.formatChf(option.coutAnnuelMax)}/an',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      color: MintColors.textMuted,
-                    ),
+                    style: MintTextStyles.labelSmall(),
                   ),
                 ],
               ),
             );
           }),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
 
           // Savings highlight
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(MintSpacing.sm + 4),
             decoration: BoxDecoration(
-              color: MintColors.success.withValues(alpha: 0.08),
+              color: MintColors.success.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               children: [
                 const Icon(Icons.savings_outlined,
                     size: 16, color: MintColors.success),
-                const SizedBox(width: 8),
+                const SizedBox(width: MintSpacing.sm),
                 Expanded(
                   child: Text(
-                    'Franchise 2500 vs 300 : économie estimée de ~'
-                    '${FirstJobService.formatChf(r.economieAnnuelleVs300)}/an en primes',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.success,
-                    ),
+                    S.of(context)!.firstJobFranchiseSavings(
+                        FirstJobService.formatChf(r.economieAnnuelleVs300)),
+                    style: MintTextStyles.bodySmall(color: MintColors.success)
+                        .copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
 
           // Note
           Text(
             r.noteLamal,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
           ),
         ],
       ),
@@ -860,11 +792,11 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   Widget _buildChecklist() {
     final items = _result?.checklist ?? [];
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -873,88 +805,79 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
             children: [
               const Icon(Icons.checklist,
                   size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
+              const SizedBox(width: MintSpacing.sm),
               Text(
                 S.of(context)!.firstJobChecklistHeader,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           ...List.generate(items.length, (index) {
             final checked = _checkedItems.contains(index);
             return Semantics(
-              label: 'Checklist item ${index + 1}',
+              label: '${S.of(context)!.firstJobChecklistHeader} ${index + 1}',
               button: true,
               child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  if (checked) {
-                    _checkedItems.remove(index);
-                  } else {
-                    _checkedItems.add(index);
-                  }
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Step number or check
-                    Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: checked
-                            ? MintColors.success
-                            : MintColors.appleSurface,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
+                onTap: () {
+                  setState(() {
+                    if (checked) {
+                      _checkedItems.remove(index);
+                    } else {
+                      _checkedItems.add(index);
+                    }
+                  });
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: MintSpacing.sm + 2),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
                           color: checked
                               ? MintColors.success
-                              : MintColors.border,
-                          width: 1.5,
+                              : MintColors.surface,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: checked
+                                ? MintColors.success
+                                : MintColors.border,
+                            width: 1.5,
+                          ),
                         ),
-                      ),
-                      alignment: Alignment.center,
-                      child: checked
-                          ? const Icon(Icons.check,
-                              size: 16, color: MintColors.white)
-                          : Text(
-                              '${index + 1}',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: MintColors.textSecondary,
+                        alignment: Alignment.center,
+                        child: checked
+                            ? const Icon(Icons.check,
+                                size: 16, color: MintColors.white)
+                            : Text(
+                                '${index + 1}',
+                                style: MintTextStyles.labelSmall(
+                                    color: MintColors.textSecondary),
                               ),
-                            ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        items[index],
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          color: checked
-                              ? MintColors.textMuted
-                              : MintColors.textPrimary,
-                          decoration: checked
-                              ? TextDecoration.lineThrough
-                              : null,
-                          height: 1.4,
+                      ),
+                      const SizedBox(width: MintSpacing.sm + 4),
+                      Expanded(
+                        child: Text(
+                          items[index],
+                          style: MintTextStyles.bodyMedium(
+                            color: checked
+                                ? MintColors.textMuted
+                                : MintColors.textPrimary,
+                          ).copyWith(
+                            decoration: checked
+                                ? TextDecoration.lineThrough
+                                : null,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
             );
           }),
         ],
@@ -972,19 +895,14 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
           children: [
             const Icon(Icons.lightbulb_outline,
                 size: 16, color: MintColors.textMuted),
-            const SizedBox(width: 8),
+            const SizedBox(width: MintSpacing.sm),
             Text(
               S.of(context)!.unemploymentGoodToKnow,
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textMuted,
-                letterSpacing: 1,
-              ),
+              style: MintTextStyles.labelSmall(),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm + 4),
         _buildEduCard(
           Icons.account_balance_outlined,
           S.of(context)!.firstJobEduLppTitle,
@@ -1011,45 +929,40 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   Widget _buildEduCard(IconData icon, String title, String body) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(MintSpacing.md),
         decoration: BoxDecoration(
-          color: MintColors.appleSurface,
+          color: MintColors.surface,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(MintSpacing.sm),
               decoration: BoxDecoration(
                 color: MintColors.white,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, size: 18, color: MintColors.primary),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: MintSpacing.sm + 4),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(
+                            color: MintColors.textPrimary)
+                        .copyWith(fontWeight: FontWeight.w600),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: MintSpacing.xs),
                   Text(
                     body,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MintColors.textSecondary,
-                      height: 1.5,
-                    ),
+                    style: MintTextStyles.bodySmall(
+                        color: MintColors.textSecondary),
                   ),
                 ],
               ),
@@ -1067,19 +980,19 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader(),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm + 4),
         _buildScenarioChips(),
-        const SizedBox(height: 16),
+        const SizedBox(height: MintSpacing.md),
         FirstSalaryFilmWidget(grossMonthly: _salaire),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.md + 4),
         _buildBudget503020(),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.md + 4),
         _buildCareerTimeLapse(),
       ],
     );
   }
 
-  /// Future Value of annuity: annual × ((1+r)^n - 1) / r
+  /// Future Value of annuity: annual * ((1+r)^n - 1) / r
   static double _fvAnnuity(double annual, int years, {double r = 0.04}) {
     if (years <= 0) return 0;
     return annual * ((pow(1 + r, years) - 1) / r);
@@ -1095,28 +1008,29 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       categories: [
         BudgetCategory(
           label: 'Besoins',
-          emoji: '🏠',
+          emoji: '\u{1F3E0}',
           percent: 50,
           amount: net * 0.50,
           examples: const ['Loyer', 'LAMal', 'Transport', 'Alimentation'],
         ),
         BudgetCategory(
           label: 'Envies',
-          emoji: '✨',
+          emoji: '\u2728',
           percent: 30,
           amount: net * 0.30,
           examples: const ['Loisirs', 'Restaurants', 'Voyages', 'Shopping'],
         ),
         BudgetCategory(
-          label: 'Épargne & 3a',
-          emoji: '🏦',
+          label: '\u00c9pargne & 3a',
+          emoji: '\u{1F3E6}',
           percent: 20,
           amount: net * 0.20,
-          examples: const ['Pilier 3a', 'Épargne', 'Fonds d\'urgence'],
+          examples: const ['Pilier 3a', '\u00c9pargne', 'Fonds d\'urgence'],
         ),
       ],
-      chiffreChoc: 'Si tu épargnes ${(annualSavings.round() ~/ 1000)}\'000 CHF/an '
-          'dès maintenant, tu auras ~${(fv.round() ~/ 1000)}\'000 CHF à 65 ans.',
+      chiffreChoc:
+          'Si tu \u00e9pargnes ${(annualSavings.round() ~/ 1000)}\'000 CHF/an '
+          'd\u00e8s maintenant, tu auras ~${(fv.round() ~/ 1000)}\'000 CHF \u00e0 65 ans.',
     );
   }
 
@@ -1124,7 +1038,8 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     const monthly3a = pilier3aPlafondAvecLpp / 12;
     const annual3a = monthly3a * 12;
 
-    final candidateAges = [22, 25, 30, 35].where((a) => a <= _age + 5).toList();
+    final candidateAges =
+        [22, 25, 30, 35].where((a) => a <= _age + 5).toList();
     final scenarioAges = candidateAges.isEmpty ? [_age] : candidateAges;
     final scenarios = scenarioAges
         .map((a) => TimeLapseScenario(
@@ -1146,35 +1061,33 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
         Expanded(
           child: Text(
             S.of(context)!.firstJobAnalysisHeader,
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w800),
           ),
         ),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          padding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.sm + 2, vertical: MintSpacing.xs),
           decoration: BoxDecoration(
             color: _seededFromProfile
-                ? MintColors.scoreExcellent.withValues(alpha: 0.1)
-                : MintColors.scoreAttention.withValues(alpha: 0.1),
+                ? MintColors.success.withValues(alpha: 0.1)
+                : MintColors.warning.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: _seededFromProfile
-                  ? MintColors.scoreExcellent.withValues(alpha: 0.4)
-                  : MintColors.scoreAttention.withValues(alpha: 0.4),
+                  ? MintColors.success.withValues(alpha: 0.15)
+                  : MintColors.warning.withValues(alpha: 0.15),
             ),
           ),
           child: Text(
-            _seededFromProfile ? '📍 ${S.of(context)!.firstJobProfileBadge}' : '💡 ${S.of(context)!.firstJobIllustrativeBadge}',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
+            _seededFromProfile
+                ? '\u{1F4CD} ${S.of(context)!.firstJobProfileBadge}'
+                : '\u{1F4A1} ${S.of(context)!.firstJobIllustrativeBadge}',
+            style: MintTextStyles.labelSmall(
               color: _seededFromProfile
-                  ? MintColors.scoreExcellent
-                  : MintColors.scoreAttention,
-            ),
+                  ? MintColors.success
+                  : MintColors.warning,
+            ).copyWith(fontWeight: FontWeight.w700),
           ),
         ),
       ],
@@ -1184,23 +1097,30 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   Widget _buildScenarioChips() {
     const median = 6500.0;
     final profileVal = _seededFromProfile
-        ? context.read<CoachProfileProvider>().profile?.salaireBrutMensuel ?? 5000.0
+        ? context
+                .read<CoachProfileProvider>()
+                .profile
+                ?.salaireBrutMensuel ??
+            5000.0
         : 5000.0;
     final boosted = (profileVal * 1.20).clamp(2000.0, 15000.0);
 
     final scenarios = [
       (
-        label: _seededFromProfile ? '📍 Mon salaire' : '📍 Défaut',
+        label: _seededFromProfile
+            ? '\u{1F4CD} Mon salaire'
+            : '\u{1F4CD} D\u00e9faut',
         value: profileVal.clamp(2000.0, 15000.0),
-        active: (_salaire - profileVal.clamp(2000.0, 15000.0)).abs() < 50,
+        active:
+            (_salaire - profileVal.clamp(2000.0, 15000.0)).abs() < 50,
       ),
       (
-        label: '🇨🇭 Médian CH',
+        label: '\u{1F1E8}\u{1F1ED} M\u00e9dian CH',
         value: median,
         active: (_salaire - median).abs() < 50,
       ),
       (
-        label: '✨ +20%',
+        label: '\u2728 +20%',
         value: boosted,
         active: (_salaire - boosted).abs() < 50,
       ),
@@ -1211,38 +1131,40 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       child: Row(
         children: scenarios.map((s) {
           return Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.only(right: MintSpacing.sm),
             child: Semantics(
-              label: 'Scénario salaire : ${s.label}',
+              label: 'Sc\u00e9nario salaire\u00a0: ${s.label}',
               button: true,
               child: GestureDetector(
-              onTap: () {
-                setState(() => _salaire = s.value);
-                _calculate();
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: s.active
-                      ? MintColors.primary
-                      : MintColors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: s.active ? MintColors.primary : MintColors.lightBorder,
-                    width: s.active ? 2 : 1,
+                onTap: () {
+                  setState(() => _salaire = s.value);
+                  _calculate();
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: MintSpacing.sm + 6,
+                      vertical: MintSpacing.sm),
+                  decoration: BoxDecoration(
+                    color: s.active ? MintColors.primary : MintColors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: s.active
+                          ? MintColors.primary
+                          : MintColors.border,
+                      width: s.active ? 2 : 1,
+                    ),
                   ),
-                ),
-                child: Text(
-                  '${s.label}  CHF ${FirstJobService.formatChf(s.value)}',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: s.active ? MintColors.white : MintColors.textPrimary,
+                  child: Text(
+                    '${s.label}  CHF ${FirstJobService.formatChf(s.value)}',
+                    style: MintTextStyles.labelSmall(
+                      color: s.active
+                          ? MintColors.white
+                          : MintColors.textPrimary,
+                    ).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
-            ),
             ),
           );
         }).toList(),
@@ -1254,25 +1176,21 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   Widget _buildDisclaimer() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.warningBg,
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.orangeRetroWarm),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
               S.of(context)!.firstJobDisclaimer,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.deepOrange,
-                height: 1.5,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ),
         ],

@@ -20,7 +20,7 @@ class ResponseCardService {
   ResponseCardService._();
 
   static const _disclaimer =
-      'Outil educatif — ne constitue pas un conseil financier (LSFin art. 3).';
+      'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin art. 3).';
 
   /// Genere les cartes prioritaires pour le dashboard Pulse.
   /// Max [limit] cartes, triees par urgence puis impact.
@@ -125,13 +125,16 @@ class ResponseCardService {
     }
 
     // ── Fiscalite ────────────────────────────────────────
-    if (lower.contains('impot') || lower.contains('fiscal') ||
+    if (lower.contains('impot') ||
+        lower.contains('fiscal') ||
         lower.contains('deduction')) {
       final c = _tryTaxOptimization(profile);
       if (c != null) cards.add(c);
     }
-    if (lower.contains('canton') && (lower.contains('compar') ||
-        lower.contains('demenag') || lower.contains('moins cher'))) {
+    if (lower.contains('canton') &&
+        (lower.contains('compar') ||
+            lower.contains('demenag') ||
+            lower.contains('moins cher'))) {
       cards.add(_buildSimpleCard(
         id: 'fiscal_comparator',
         title: 'Comparateur cantonal',
@@ -144,24 +147,25 @@ class ResponseCardService {
         (lower.contains('retrait 3a') && lower.contains('plusieur'))) {
       cards.add(_buildSimpleCard(
         id: 'staggered_withdrawal',
-        title: 'Retrait 3a echelonne',
-        subtitle: 'Etaler les retraits pour reduire l\'impot',
+        title: 'Retrait 3a \u00e9chelonn\u00e9',
+        subtitle: '\u00c9taler les retraits pour r\u00e9duire l\'imp\u00f4t',
         route: '/3a-deep/staggered-withdrawal',
         sources: ['LIFD art. 38', 'OPP3 art. 3'],
       ));
     }
     if ((lower.contains('rendement') && lower.contains('3a')) ||
-        lower.contains('rendement reel')) {
+        lower.contains('rendement r\u00e9el')) {
       cards.add(_buildSimpleCard(
         id: 'real_return_3a',
-        title: 'Rendement reel 3a',
-        subtitle: 'Rendement apres frais, inflation et fiscal',
+        title: 'Rendement r\u00e9el 3a',
+        subtitle: 'Rendement apr\u00e8s frais, inflation et fiscal',
         route: '/3a-deep/real-return',
         sources: ['OPP3 art. 7'],
       ));
     }
     if ((lower.contains('prestataire') && lower.contains('3a')) ||
-        lower.contains('viac') || lower.contains('finpension') ||
+        lower.contains('viac') ||
+        lower.contains('finpension') ||
         lower.contains('frankly')) {
       cards.add(_buildSimpleCard(
         id: 'comparator_3a',
@@ -173,8 +177,10 @@ class ResponseCardService {
     }
 
     // ── Immobilier ───────────────────────────────────────
-    if (lower.contains('hypothe') || lower.contains('immobili') ||
-        lower.contains('acheter') || lower.contains('maison')) {
+    if (lower.contains('hypothe') ||
+        lower.contains('immobili') ||
+        lower.contains('acheter') ||
+        lower.contains('maison')) {
       final c = _tryMortgage(profile);
       if (c != null) cards.add(c);
     }
@@ -183,7 +189,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'rent_vs_buy',
         title: 'Louer ou acheter',
-        subtitle: 'Compare les deux scenarios sur le long terme',
+        subtitle: 'Compare les deux sc\u00e9narios sur le long terme',
         route: '/arbitrage/location-vs-propriete',
         sources: ['CO art. 253ss', 'FINMA circ.'],
       ));
@@ -211,12 +217,13 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'saron_vs_fixed',
         title: 'SARON vs taux fixe',
-        subtitle: 'Quel type d\'hypotheque choisir',
+        subtitle: 'Quel type d\'hypoth\u00e8que choisir',
         route: '/mortgage/saron-vs-fixed',
         sources: ['FINMA circ.', 'ASB directives'],
       ));
     }
-    if (lower.contains('epl') || lower.contains('retrait anticip') ||
+    if (lower.contains('epl') ||
+        lower.contains('retrait anticip') ||
         lower.contains('2e pilier') && lower.contains('achet')) {
       cards.add(_buildSimpleCard(
         id: 'epl',
@@ -226,12 +233,14 @@ class ResponseCardService {
         sources: ['OPP2 art. 5', 'LPP art. 30c-30g'],
       ));
     }
-    if (lower.contains('vend') && (lower.contains('maison') ||
-        lower.contains('appartement') || lower.contains('immob'))) {
+    if (lower.contains('vend') &&
+        (lower.contains('maison') ||
+            lower.contains('appartement') ||
+            lower.contains('immob'))) {
       cards.add(_buildSimpleCard(
         id: 'housing_sale',
-        title: 'Vente immobiliere',
-        subtitle: 'Impot sur le gain immobilier + remploi',
+        title: 'Vente immobili\u00e8re',
+        subtitle: 'Imp\u00f4t sur le gain immobilier + remploi',
         route: '/life-event/housing-sale',
         sources: ['LHID art. 12'],
       ));
@@ -242,7 +251,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'mariage',
         title: 'Impact du mariage',
-        subtitle: 'Impots, AVS, LPP, succession',
+        subtitle: 'Imp\u00f4ts, AVS, LPP, succession',
         route: '/mariage',
         sources: ['CC art. 159', 'LAVS art. 35'],
       ));
@@ -251,17 +260,18 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'divorce',
         title: 'Simulateur divorce',
-        subtitle: 'Partage LPP, pension, impots',
+        subtitle: 'Partage LPP, pension, imp\u00f4ts',
         route: '/divorce',
         sources: ['CC art. 122-124', 'LPP art. 22'],
       ));
     }
-    if (lower.contains('enfant') || lower.contains('naissance') ||
+    if (lower.contains('enfant') ||
+        lower.contains('naissance') ||
         lower.contains('bebe')) {
       cards.add(_buildSimpleCard(
         id: 'naissance',
         title: 'Impact d\'une naissance',
-        subtitle: 'Allocations, deductions, budget',
+        subtitle: 'Allocations, d\u00e9ductions, budget',
         route: '/naissance',
         sources: ['LAFam art. 3', 'LIFD art. 35'],
       ));
@@ -275,7 +285,8 @@ class ResponseCardService {
         sources: ['CC art. 462', 'LPP art. 20a'],
       ));
     }
-    if (lower.contains('succession') || lower.contains('herit') ||
+    if (lower.contains('succession') ||
+        lower.contains('herit') ||
         lower.contains('deces') && lower.contains('proche')) {
       cards.add(_buildSimpleCard(
         id: 'succession',
@@ -297,17 +308,19 @@ class ResponseCardService {
     }
 
     // ── Emploi & Statut ──────────────────────────────────
-    if (lower.contains('independant') || lower.contains('indep') ||
+    if (lower.contains('independant') ||
+        lower.contains('indep') ||
         lower.contains('mon compte')) {
       final c = _tryIndependant(profile);
       if (c != null) cards.add(c);
     }
-    if (lower.contains('chomage') || lower.contains('emploi') &&
-        lower.contains('perdu') || lower.contains('licenci')) {
+    if (lower.contains('chomage') ||
+        lower.contains('emploi') && lower.contains('perdu') ||
+        lower.contains('licenci')) {
       cards.add(_buildSimpleCard(
         id: 'unemployment',
         title: 'Perte d\'emploi',
-        subtitle: 'Indemnites, duree, demarches',
+        subtitle: 'Indemnit\u00e9s, dur\u00e9e, d\u00e9marches',
         route: '/unemployment',
         sources: ['LACI art. 8-27'],
       ));
@@ -318,27 +331,29 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'first_job',
         title: 'Premier emploi',
-        subtitle: 'Tout comprendre des le depart',
+        subtitle: 'Tout comprendre d\u00e8s le d\u00e9part',
         route: '/first-job',
         sources: ['LAVS art. 3', 'LPP art. 7'],
       ));
     }
-    if (lower.contains('expat') || lower.contains('etranger') ||
+    if (lower.contains('expat') ||
+        lower.contains('etranger') ||
         lower.contains('quitt') && lower.contains('suisse')) {
       cards.add(_buildSimpleCard(
         id: 'expatriation',
         title: 'Expatriation',
-        subtitle: 'Impact sur AVS, LPP, 3a et impots',
+        subtitle: 'Impact sur AVS, LPP, 3a et imp\u00f4ts',
         route: '/expatriation',
         sources: ['LAVS art. 1a', 'ALCP', 'CDI'],
       ));
     }
-    if (lower.contains('frontalier') || lower.contains('permis g') ||
+    if (lower.contains('frontalier') ||
+        lower.contains('permis g') ||
         lower.contains('travail') && lower.contains('france')) {
       cards.add(_buildSimpleCard(
         id: 'frontalier',
         title: 'Frontalier',
-        subtitle: 'Impot source et particularites',
+        subtitle: 'Imp\u00f4t source et particularit\u00e9s',
         route: '/segments/frontalier',
         sources: ['CDI CH-FR art. 17', 'LIFD art. 83-101'],
       ));
@@ -349,59 +364,61 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'job_comparison',
         title: 'Comparateur d\'offres',
-        subtitle: 'Compare deux offres d\'emploi (net + prevoyance)',
+        subtitle: 'Compare deux offres d\'emploi (net + pr\u00e9voyance)',
         route: '/simulator/job-comparison',
         sources: ['CO art. 319ss'],
       ));
     }
-    if (lower.contains('dividende') || lower.contains('salaire') &&
-        lower.contains('sarl')) {
+    if (lower.contains('dividende') ||
+        lower.contains('salaire') && lower.contains('sarl')) {
       cards.add(_buildSimpleCard(
         id: 'dividende_vs_salaire',
         title: 'Dividende vs Salaire',
-        subtitle: 'Optimiser la remuneration en SARL/SA',
+        subtitle: 'Optimiser la r\u00e9mun\u00e9ration en SARL/SA',
         route: '/independants/dividende-salaire',
         sources: ['LIFD art. 20', 'LAVS art. 4'],
       ));
     }
 
     // ── Assurance & Sante ────────────────────────────────
-    if (lower.contains('lamal') || lower.contains('franchise') ||
+    if (lower.contains('lamal') ||
+        lower.contains('franchise') ||
         lower.contains('caisse maladie')) {
       cards.add(_buildSimpleCard(
         id: 'lamal_franchise',
         title: 'Franchise LAMal',
-        subtitle: 'Quelle franchise choisir ?',
+        subtitle: 'Quelle franchise choisir\u00a0?',
         route: '/assurances/lamal',
         sources: ['LAMal art. 64', 'OAMal art. 103'],
       ));
     }
     if (lower.contains('assur') && lower.contains('couvert') ||
-        lower.contains('bien assur') || lower.contains('lacune') &&
-        lower.contains('assur')) {
+        lower.contains('bien assur') ||
+        lower.contains('lacune') && lower.contains('assur')) {
       cards.add(_buildSimpleCard(
         id: 'coverage_check',
         title: 'Check de couverture',
-        subtitle: 'Verifier tes couvertures',
+        subtitle: 'V\u00e9rifier tes couvertures',
         route: '/assurances/coverage',
         sources: ['LAMal', 'LCA'],
       ));
     }
-    if (lower.contains('invalid') || lower.contains('incapacit') ||
+    if (lower.contains('invalid') ||
+        lower.contains('incapacit') ||
         lower.contains('accident')) {
       cards.add(_buildSimpleCard(
         id: 'disability',
-        title: 'Invalidite — lacune de revenu',
+        title: 'Invalidit\u00e9 \u2014 lacune de revenu',
         subtitle: 'Gap entre revenu actuel et rentes AI/LPP',
         route: '/invalidite',
         sources: ['LAI art. 28-28a', 'LPP art. 23-26'],
       ));
     }
-    if (lower.contains('gender') || lower.contains('ecart') &&
-        lower.contains('femme')) {
+    if (lower.contains('gender') ||
+        lower.contains('ecart') && lower.contains('femme')) {
       cards.add(_buildSimpleCard(
         id: 'gender_gap',
-        title: 'Ecart femmes/hommes',
+        title: '\u00c9cart femmes/hommes',
         subtitle: 'Impact du temps partiel sur la retraite',
         route: '/segments/gender-gap',
         sources: ['LAVS art. 29', 'LPP art. 7-8'],
@@ -413,7 +430,8 @@ class ResponseCardService {
       final c = _tryPatrimoine(profile);
       if (c != null) cards.add(c);
     }
-    if (lower.contains('budget') || lower.contains('reste a vivre') ||
+    if (lower.contains('budget') ||
+        lower.contains('reste a vivre') ||
         lower.contains('depense')) {
       cards.add(_buildSimpleCard(
         id: 'budget',
@@ -423,8 +441,8 @@ class ResponseCardService {
         sources: [],
       ));
     }
-    if (lower.contains('dette') || lower.contains('credit') &&
-        !lower.contains('credit conso')) {
+    if (lower.contains('dette') ||
+        lower.contains('credit') && !lower.contains('credit conso')) {
       cards.add(_buildSimpleCard(
         id: 'debt_ratio',
         title: 'Ratio d\'endettement',
@@ -435,12 +453,13 @@ class ResponseCardService {
     }
 
     // ── Simulateurs divers ───────────────────────────────
-    if (lower.contains('interet compose') || lower.contains('interets composes') ||
+    if (lower.contains('interet compose') ||
+        lower.contains('interets composes') ||
         lower.contains('combien rapport')) {
       cards.add(_buildSimpleCard(
         id: 'compound_interest',
-        title: 'Interets composes',
-        subtitle: 'Simuler la croissance de ton epargne',
+        title: 'Int\u00e9r\u00eats compos\u00e9s',
+        subtitle: 'Simuler la croissance de ton \u00e9pargne',
         route: '/simulator/compound',
         sources: [],
       ));
@@ -449,7 +468,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'leasing',
         title: 'Simulateur leasing',
-        subtitle: 'Cout reel d\'un leasing auto',
+        subtitle: 'Co\u00fbt r\u00e9el d\'un leasing auto',
         route: '/simulator/leasing',
         sources: [],
       ));
@@ -458,7 +477,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'consumer_credit',
         title: 'Credit consommation',
-        subtitle: 'Cout total d\'un credit conso',
+        subtitle: 'Co\u00fbt total d\'un cr\u00e9dit conso',
         route: '/simulator/credit',
         sources: ['LCC art. 1'],
       ));
@@ -468,7 +487,7 @@ class ResponseCardService {
       cards.add(_buildSimpleCard(
         id: 'allocation_annuelle',
         title: 'Allocation annuelle',
-        subtitle: 'Ou placer ton epargne cette annee',
+        subtitle: 'O\u00f9 placer ton \u00e9pargne cette ann\u00e9e',
         route: '/arbitrage/allocation-annuelle',
         sources: ['LSFin art. 3'],
       ));
@@ -481,7 +500,7 @@ class ResponseCardService {
   }
 
   /// Suggested prompts personnalises selon le profil.
-  /// Un 50+ voit "Quand partir a la retraite?" au lieu de "Mon score Fitness".
+  /// Un 50+ voit "Quand partir \u00e0 la retraite\u00a0?" au lieu de "Mon score Fitness".
   static List<String> suggestedPrompts(CoachProfile profile) {
     final age = profile.age;
     final isIndep = profile.employmentStatus == 'independant';
@@ -492,27 +511,32 @@ class ResponseCardService {
 
     // Age-driven priorities
     if (age >= 50) {
-      prompts.add('Quand partir a la retraite ?');
-      prompts.add('Rente ou capital : que choisir ?');
-      if (!hasLpp) prompts.add('Combien racheter en LPP ?');
+      prompts.add('Quand la retraite devient-elle tenable\u00a0?');
+      prompts.add(
+          'Rente ou capital\u00a0: qu\'est-ce qui me laisse le plus d\'air\u00a0?');
+      if (!hasLpp) prompts.add('Que vaut un rachat LPP dans mon cas\u00a0?');
     } else if (age >= 35) {
-      prompts.add('Comment reduire mes impots ?');
-      prompts.add('Combien verser en 3a cette annee ?');
-      if (!hasLpp) prompts.add('Simuler un rachat LPP');
+      prompts
+          .add('O\u00f9 all\u00e9ger mes imp\u00f4ts cette ann\u00e9e\u00a0?');
+      prompts.add('Combien verser en 3a cette ann\u00e9e\u00a0?');
+      if (!hasLpp) prompts.add('Que vaut un rachat LPP dans mon cas\u00a0?');
     } else {
       prompts.add('Pourquoi commencer le 3a maintenant ?');
-      prompts.add('Comment fonctionne le 2e pilier ?');
+      prompts.add('Le 2e pilier, concr\u00e8tement, \u00e7a fait quoi\u00a0?');
     }
 
     // Archetype-driven
     if (isIndep) {
-      prompts.add('Quelles options de prevoyance pour independant ?');
+      prompts.add(
+          'Ind\u00e9pendant\u00a0: qu\'est-ce que je dois reconstruire\u00a0?');
     }
     if (isCouple) {
-      prompts.add('Comment coordonner notre prevoyance de couple ?');
+      prompts
+          .add('O\u00f9 notre pr\u00e9voyance de couple boite-t-elle\u00a0?');
     }
     if (profile.archetype == FinancialArchetype.expatUs) {
-      prompts.add('Quelles contraintes FATCA sur mon 3a ?');
+      prompts
+          .add('FATCA\u00a0: qu\'est-ce que \u00e7a change pour mon 3a\u00a0?');
     }
 
     return prompts.take(3).toList();
@@ -545,12 +569,12 @@ class ResponseCardService {
       id: 'pillar_3a_${now.year}',
       type: ResponseCardType.pillar3a,
       title: 'Versement 3a ${now.year}',
-      subtitle: 'Economie fiscale estimee',
+      subtitle: '\u00c9conomie fiscale estim\u00e9e',
       chiffreChoc: ChiffreChoc(
         value: taxSaving,
         unit: 'CHF',
         explanation:
-            'Economie d\'impot estimee si tu verses le plafond de ${plafond.round()} CHF',
+            '\u00c9conomie d\'imp\u00f4t estim\u00e9e si tu verses le plafond de ${plafond.round()} CHF',
       ),
       cta: const CardCta(
         label: 'Simuler mon 3a',
@@ -592,7 +616,7 @@ class ResponseCardService {
         value: rachatMax,
         unit: 'CHF',
         explanation:
-            'Rachat possible. Economie fiscale estimee de ${taxSaving.round()} CHF sur ${rachatSimule.round()} CHF',
+            'Rachat possible. \u00c9conomie fiscale estim\u00e9e de ${taxSaving.round()} CHF sur ${rachatSimule.round()} CHF',
       ),
       cta: const CardCta(
         label: 'Simuler un rachat',
@@ -608,6 +632,7 @@ class ResponseCardService {
 
   static ResponseCard? _tryReplacementRate(CoachProfile profile) {
     if (profile.age < 45) return null;
+    if (profile.age >= profile.effectiveRetirementAge) return null;
     if (profile.salaireBrutMensuel <= 0) return null;
 
     // Use ForecasterService-style projection
@@ -624,7 +649,12 @@ class ResponseCardService {
         : 0.0;
 
     final totalMonthly = monthlyAvs + lppMonthly;
-    final currentMonthly = profile.salaireBrutMensuel * 0.78; // net approx
+    // Use NetIncomeBreakdown for consistent net calculation (same as Pulse)
+    final currentMonthly = NetIncomeBreakdown.compute(
+      grossSalary: profile.revenuBrutAnnuel,
+      canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+      age: profile.age,
+    ).monthlyNetPayslip;
     final replacementRate =
         currentMonthly > 0 ? (totalMonthly / currentMonthly * 100) : 0.0;
 
@@ -632,16 +662,16 @@ class ResponseCardService {
       id: 'replacement_rate',
       type: ResponseCardType.replacementRate,
       title: 'Taux de remplacement',
-      subtitle: 'Projection a ${profile.effectiveRetirementAge} ans',
+      subtitle: 'Projection \u00e0 ${profile.effectiveRetirementAge} ans',
       chiffreChoc: ChiffreChoc(
         value: replacementRate,
         unit: '%',
         explanation:
-            'Revenu estime a la retraite: ${totalMonthly.round()} CHF/mois '
+            'Revenu estim\u00e9 \u00e0 la retraite\u00a0: ${totalMonthly.round()} CHF/mois '
             'vs ${currentMonthly.round()} CHF/mois actuellement',
       ),
       cta: const CardCta(
-        label: 'Explorer mes scenarios',
+        label: 'Explorer mes sc\u00e9narios',
         route: '/rente-vs-capital',
         icon: 'trending_up',
       ),
@@ -650,7 +680,7 @@ class ResponseCardService {
       sources: const ['LAVS art. 29-40', 'LPP art. 14'],
       alertes: [
         if (replacementRate < 60)
-          'Taux inferieur au seuil recommande de 60%. Explore les options.',
+          'Taux inf\u00e9rieur au seuil recommand\u00e9 de 60\u00a0%. Explore les options.',
       ],
       impactPoints: 22,
     );
@@ -672,12 +702,12 @@ class ResponseCardService {
       id: 'avs_gap',
       type: ResponseCardType.avsGap,
       title: 'Lacune AVS',
-      subtitle: '$lacunes annees de cotisation manquantes',
+      subtitle: '$lacunes ann\u00e9es de cotisation manquantes',
       chiffreChoc: ChiffreChoc(
         value: monthlyLoss * 12,
         unit: 'CHF/an',
         explanation:
-            'Reduction estimee de ta rente AVS annuelle due aux lacunes',
+            'R\u00e9duction estim\u00e9e de ta rente AVS annuelle due aux lacunes',
       ),
       cta: const CardCta(
         label: 'Voir mon extrait AVS',
@@ -706,14 +736,15 @@ class ResponseCardService {
     return ResponseCard(
       id: 'couple_alert',
       type: ResponseCardType.coupleAlert,
-      title: 'Ecart de visibilite couple',
-      subtitle: '${score.coupleWeakName} a ${score.coupleWeakScore!.round()}%',
+      title: '\u00c9cart de visibilit\u00e9 couple',
+      subtitle:
+          '${score.coupleWeakName} \u00e0 ${score.coupleWeakScore!.round()}\u00a0%',
       chiffreChoc: ChiffreChoc(
         value: gap,
         unit: 'pts',
         explanation:
-            'Ecart de ${gap.round()} points entre vos deux profils. '
-            'Equilibrer ameliore la projection couple.',
+            '\u00c9cart de ${gap.round()} points entre vos deux profils. '
+            '\u00c9quilibrer am\u00e9liore la projection couple.',
       ),
       cta: const CardCta(
         label: 'Enrichir le profil couple',
@@ -739,13 +770,12 @@ class ResponseCardService {
     return ResponseCard(
       id: 'independant_coverage',
       type: ResponseCardType.independant,
-      title: 'Prevoyance independant',
-      subtitle: 'Sans LPP, ton 3a est ta prevoyance principale',
+      title: 'Pr\u00e9voyance ind\u00e9pendant',
+      subtitle: 'Sans LPP, ton 3a est ta pr\u00e9voyance principale',
       chiffreChoc: ChiffreChoc(
         value: max3a,
         unit: 'CHF/an',
-        explanation:
-            'Plafond 3a sans LPP: ${max3a.round()} CHF/an. '
+        explanation: 'Plafond 3a sans LPP: ${max3a.round()} CHF/an. '
             'Capital 3a actuel: ${current3a.round()} CHF',
       ),
       cta: const CardCta(
@@ -784,16 +814,16 @@ class ResponseCardService {
       id: 'tax_optimization',
       type: ResponseCardType.taxOptimization,
       title: 'Optimisation fiscale',
-      subtitle: 'Deductions estimees disponibles',
+      subtitle: 'D\u00e9ductions estim\u00e9es disponibles',
       chiffreChoc: ChiffreChoc(
         value: totalSaving,
         unit: 'CHF',
         explanation:
-            'Economie d\'impot estimee via 3a (${plafond3a.round()} CHF) '
+            '\u00c9conomie d\'imp\u00f4t estim\u00e9e via 3a (${plafond3a.round()} CHF) '
             '+ rachat LPP',
       ),
       cta: const CardCta(
-        label: 'Decouvrir mes deductions',
+        label: 'D\u00e9couvrir mes d\u00e9ductions',
         route: '/fiscal',
         icon: 'receipt_long',
       ),
@@ -824,15 +854,15 @@ class ResponseCardService {
       type: ResponseCardType.patrimoine,
       title: 'Patrimoine',
       subtitle: isUnderCushion
-          ? 'Coussin de securite insuffisant'
+          ? 'Coussin de s\u00e9curit\u00e9 insuffisant'
           : 'Vue d\'ensemble',
       chiffreChoc: ChiffreChoc(
         value: total,
         unit: 'CHF',
         explanation: isUnderCushion
-            ? 'Epargne liquide (${epargne.round()} CHF) inferieure '
-                'a 3 mois de charges (${coussinMin.round()} CHF)'
-            : 'Epargne ${epargne.round()} CHF + '
+            ? '\u00c9pargne liquide (${epargne.round()} CHF) inf\u00e9rieure '
+                '\u00e0 3 mois de charges (${coussinMin.round()} CHF)'
+            : '\u00c9pargne ${epargne.round()} CHF + '
                 'investissements ${investissements.round()} CHF',
       ),
       cta: CardCta(
@@ -845,7 +875,7 @@ class ResponseCardService {
       sources: const [],
       alertes: [
         if (isUnderCushion)
-          'Coussin de securite recommande: ${coussinMin.round()} CHF (3 mois de charges)',
+          'Coussin de s\u00e9curit\u00e9 recommand\u00e9\u00a0: ${coussinMin.round()} CHF (3 mois de charges)',
       ],
       impactPoints: 12,
     );
@@ -862,7 +892,8 @@ class ResponseCardService {
   }) {
     return ResponseCard(
       id: id,
-      type: ResponseCardType.pillar3a, // generic — type is secondary for simple cards
+      type: ResponseCardType
+          .pillar3a, // generic — type is secondary for simple cards
       title: title,
       subtitle: subtitle,
       chiffreChoc: const ChiffreChoc(
@@ -893,16 +924,16 @@ class ResponseCardService {
     return ResponseCard(
       id: 'mortgage_overview',
       type: ResponseCardType.mortgage,
-      title: 'Hypotheque',
-      subtitle: 'Ratio LTV: ${ltv.toStringAsFixed(0)}%',
+      title: 'Hypoth\u00e8que',
+      subtitle: 'Ratio LTV\u00a0: ${ltv.toStringAsFixed(0)}\u00a0%',
       chiffreChoc: ChiffreChoc(
         value: mortgage,
         unit: 'CHF',
-        explanation: 'Solde hypothecaire. Valeur du bien: '
+        explanation: 'Solde hypoth\u00e9caire. Valeur du bien\u00a0: '
             '${propertyValue.round()} CHF',
       ),
       cta: const CardCta(
-        label: 'Simuler la capacite',
+        label: 'Simuler la capacit\u00e9',
         route: '/hypotheque',
         icon: 'home',
       ),

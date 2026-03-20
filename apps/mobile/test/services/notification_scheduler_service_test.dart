@@ -229,7 +229,7 @@ void main() {
       );
 
       // Within each category, dates should be unique
-      final categories = NotificationCategory.values;
+      const categories = NotificationCategory.values;
       for (final cat in categories) {
         final catNotifs = notifications.where((n) => n.category == cat).toList();
         final dates = catNotifs.map((n) => n.scheduledDate.toIso8601String()).toSet();
@@ -296,7 +296,7 @@ void main() {
     });
 
     test('off-track plan notification when adherence < 80%', () {
-      final planStatus = PlanStatus(
+      const planStatus = PlanStatus(
         score: 50,
         completedActions: 2,
         totalActions: 5,
@@ -381,7 +381,7 @@ void main() {
     });
 
     test('off-track not triggered when adherence >= 80%', () {
-      final planStatus = PlanStatus(
+      const planStatus = PlanStatus(
         score: 85,
         completedActions: 4,
         totalActions: 5,
@@ -404,7 +404,7 @@ void main() {
     });
 
     test('off-track not triggered when totalActions = 0', () {
-      final planStatus = const PlanStatus(
+      const planStatus = PlanStatus(
         score: 0,
         completedActions: 0,
         totalActions: 0,
@@ -425,7 +425,7 @@ void main() {
     });
 
     test('multiple events can fire simultaneously', () {
-      final planStatus = PlanStatus(
+      const planStatus = PlanStatus(
         score: 30,
         completedActions: 1,
         totalActions: 5,

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  ARBITRAGE TEASER CARDS — Chantier 2 / Retirement Cockpit
@@ -45,11 +45,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
             Expanded(
               child: Text(
                 'Pistes d\u2019arbitrage',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
             ),
             Semantics(
@@ -59,11 +55,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
                 onTap: () => context.push('/arbitrage/bilan'),
                 child: Text(
                 'Voir tout \u2192',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.primary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
               ),
               ),
             ),
@@ -72,10 +64,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           'Estimations rapides \u2014 appuie pour explorer en d\u00e9tail',
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12),
         ),
         const SizedBox(height: 12),
         ...teasers.map((t) => Padding(
@@ -259,29 +248,17 @@ class _ArbitrageTeaserTile extends StatelessWidget {
                 children: [
                   Text(
                     teaser.title,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     teaser.chiffreChoc,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                      height: 1.3,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.3),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Dans ce sc\u00e9nario simul\u00e9 \u2014 \u00e0 explorer en d\u00e9tail',
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      color: MintColors.textMuted,
-                      fontStyle: FontStyle.italic,
-                    ),
+                    style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.italic),
                   ),
                 ],
               ),

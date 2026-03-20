@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -122,11 +122,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
               Expanded(
                 child: Text(
                   'Si tu mourais ce soir…',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -134,10 +130,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
           const SizedBox(height: 6),
           Text(
             'Distribution légale automatique vs avec testament · CC art. 457-462',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
           ),
         ],
       ),
@@ -157,11 +150,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
       children: [
         Text(
           'Ta situation',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -183,11 +172,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
                 ),
                 child: Text(
                   e.value,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: isSelected ? MintColors.white : MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.labelSmall(color: isSelected ? MintColors.white : MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                 ),
               ),
             );
@@ -207,11 +192,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
       children: [
         Text(
           'Patrimoine : ${formatChfWithPrefix(widget.patrimoine)}',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
         Row(
@@ -261,33 +242,21 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
         children: [
           Text(
             '$emoji $label',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
+            style: MintTextStyles.labelSmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
             'Partenaire reçoit',
-            style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+            style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
           ),
           Text(
             isOptimized ? formatChfWithPrefix(partnerGets) : (partnerGets > 0 ? formatChfWithPrefix(partnerGets) : '0 CHF'),
-            style: GoogleFonts.montserrat(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
+            style: MintTextStyles.headlineMedium(color: color).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 8),
           Text(
             note,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
         ],
       ),
@@ -307,21 +276,13 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
         children: [
           Text(
             '💰 Concubin·e : 0% d\'héritage + impôt jusqu\'à 24%',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: MintColors.scoreCritique,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Text(
             'Sans testament ni clause 3a, ton partenaire ne reçoit rien. '
             'Un testament coûte ~500 CHF. Le silence peut coûter ${formatChfWithPrefix(taxAmount)} d\'impôts.',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textPrimary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
           ),
         ],
       ),
@@ -333,11 +294,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : CC art. 457-462, OPP3 art. 2. '
       'Taux successoral concubin·e illustratif (ex. VD) — varie de 0 % à 40 % selon canton et lien de parenté.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
     );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -102,17 +102,13 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
               children: [
                 Text(
                   'Chrono du remploi',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
                 Text(
                   isExpired
                       ? 'Délai écoulé — l\'impôt est dû.'
                       : 'Tu as $_remploidDeadlineYears ans pour racheter une résidence principale.',
-                  style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
             ),
@@ -136,24 +132,16 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
           children: [
             Text(
               '0',
-              style: GoogleFonts.montserrat(
-                fontSize: 48,
-                fontWeight: FontWeight.w900,
-                color: MintColors.scoreCritique,
-              ),
+              style: MintTextStyles.displayLarge(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w900, height: 1.0),
             ),
             Text(
               'jours restants',
-              style: GoogleFonts.inter(fontSize: 14, color: MintColors.textSecondary),
+              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
             ),
             const SizedBox(height: 8),
             Text(
               'Impôt dû : ${formatChfWithPrefix(widget.deferredTax)}',
-              style: GoogleFonts.montserrat(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: MintColors.scoreCritique,
-              ),
+              style: MintTextStyles.headlineMedium(color: MintColors.scoreCritique).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
             ),
           ],
         ),
@@ -187,16 +175,12 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
         children: [
           Text(
             value,
-            style: GoogleFonts.montserrat(
-              fontSize: value.length > 6 ? 14 : 22,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
+            style: MintTextStyles.headlineMedium(color: color).copyWith(fontSize: value.length > 6 ? 14 : 22, fontWeight: FontWeight.w800),
             textAlign: TextAlign.center,
           ),
           Text(
             label,
-            style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+            style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
             textAlign: TextAlign.center,
           ),
         ],
@@ -213,15 +197,11 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
           children: [
             Text(
               'Vente : ${_formatDate(widget.saleDate)}',
-              style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
             ),
             Text(
               'Délai : ${_formatDate(_deadline)}',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: _urgencyColor,
-              ),
+              style: MintTextStyles.labelSmall(color: _urgencyColor).copyWith(fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -238,7 +218,7 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
         const SizedBox(height: 4),
         Text(
           '$_daysElapsed jours écoulés sur $_totalDays',
-          style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+          style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
         ),
       ],
     );
@@ -267,7 +247,7 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
                   : 'Si tu achètes une nouvelle résidence principale avant le ${_formatDate(_deadline)}, '
                     'l\'impôt de ${formatChfWithPrefix(widget.deferredTax)} est différé. '
                     'LIFD art. 12 al. 3.',
-              style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary, height: 1.4),
+              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
             ),
           ),
         ],
@@ -284,11 +264,7 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
       'Outil éducatif · ne constitue pas un conseil fiscal au sens de la LSFin. '
       'Source : LIFD art. 12 al. 3 (remploi résidence principale). '
       'Délai de 2 ans — vérifier les règles cantonales spécifiques.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
     );
   }
 }

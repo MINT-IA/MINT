@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/models/circle_score.dart';
+import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Widget d'affichage d'un score de cercle financier
 class CircleScoreCard extends StatelessWidget {
@@ -71,11 +71,7 @@ class CircleScoreCard extends StatelessWidget {
                       children: [
                         Text(
                           score.circleName,
-                          style: GoogleFonts.montserrat(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: MintColors.textPrimary,
-                          ),
+                          style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.bold),
                         ),
                         Row(
                           children: [
@@ -100,11 +96,7 @@ class CircleScoreCard extends StatelessWidget {
                   // Score %
                   Text(
                     '${score.percentage.toInt()}%',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
+                    style: MintTextStyles.displayMedium(color: color).copyWith(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),

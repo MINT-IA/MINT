@@ -1,23 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/screens/pulse/pulse_screen.dart' show NavigationShellState;
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Quick Start — single-screen onboarding that gets the user to the dashboard
-/// in under 20 seconds.
+/// in under 30 seconds.
 ///
-/// Collects 3 fields: firstName, age, canton.
-/// Salary is collected later in the profile enrichment flow (behind AuthGate).
-/// Shows a live retirement preview using the Swiss median salary as default.
+/// Collects 4 fields: firstName (optional), age, revenu brut annuel, canton.
+/// Shows a live retirement preview based on the user's actual inputs.
 /// Saves via [CoachProfileProvider.updateFromSmartFlow] and navigates to /home.
+///
+/// Design System category: D (Form) — progressive disclosure, preview live,
+/// validation inline, 1 CTA sticky.
 class QuickStartScreen extends StatefulWidget {
   /// Optional section to highlight when navigating from profile edit buttons.
   /// Values: 'identity', 'income', 'pension', 'property'.
@@ -33,21 +37,9 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
   final _analytics = AnalyticsService();
   final _nameController = TextEditingController();
   double _age = 45;
+  double _salary = 85000;
   String _canton = 'VD';
   bool _saving = false;
-
-  /// Default salary used for the preview estimation (Swiss median).
-  /// Actual salary is collected later in the profile enrichment flow
-  /// (behind AuthGate, since it is sensitive financial data).
-  static const double _defaultSalary = 85000;
-
-  /// Maps section parameter to a user-friendly label for the guidance snackbar.
-  static const _sectionLabels = {
-    'identity': 'Identité & Foyer',
-    'income': 'Revenus & Épargne',
-    'pension': 'Prévoyance (LPP)',
-    'property': 'Immobilier & Dettes',
-  };
 
   @override
   void initState() {
@@ -73,22 +65,30 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
       if (profile.firstName != null && profile.firstName!.isNotEmpty) {
         _nameController.text = profile.firstName!;
       }
-      if (profile.age != null) {
-        _age = profile.age!.toDouble().clamp(22, 67);
-      }
+      _age = profile.age.toDouble().clamp(22, 67);
       if (profile.canton.isNotEmpty) {
         _canton = profile.canton;
+      }
+      if (profile.revenuBrutAnnuel > 0) {
+        _salary = profile.revenuBrutAnnuel.clamp(20000, 300000);
       }
     });
   }
 
   /// Show a guidance snackbar indicating which section the user should edit.
   void _showSectionGuidance() {
-    final label = _sectionLabels[widget.initialSection];
+    final l = S.of(context)!;
+    final sectionLabels = {
+      'identity': l.quickStartSectionIdentity,
+      'income': l.quickStartSectionIncome,
+      'pension': l.quickStartSectionPension,
+      'property': l.quickStartSectionProperty,
+    };
+    final label = sectionLabels[widget.initialSection];
     if (label == null || !mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Section\u00a0: $label — mets à jour tes informations ci-dessous.'),
+        content: Text(l.quickStartSectionGuidance(label)),
         duration: const Duration(seconds: 4),
         behavior: SnackBarBehavior.floating,
       ),
@@ -117,19 +117,20 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
 
   Map<String, double> _estimate() {
     final age = _age.round();
-    final avs = AvsCalculator.renteFromRAMD(_defaultSalary);
-    final lppBalance = _estimateLppBalance(age, _defaultSalary);
+    final gross = _salary;
+    final avs = AvsCalculator.renteFromRAMD(gross);
+    final lppBalance = _estimateLppBalance(age, gross);
     final lppAnnual = LppCalculator.projectToRetirement(
       currentBalance: lppBalance,
       currentAge: age,
       retirementAge: 65,
-      grossAnnualSalary: _defaultSalary,
+      grossAnnualSalary: gross,
       caisseReturn: 0.01,
       conversionRate: lppTauxConversionMinDecimal,
     );
     final lppMonthly = lppAnnual / 12;
     final total = avs + lppMonthly;
-    final current = _defaultSalary / 12;
+    final current = gross / 12;
     final ratio = current > 0 ? total / current : 0.0;
     return {'total': total, 'current': current, 'ratio': ratio};
   }
@@ -141,19 +142,18 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     final provider = context.read<CoachProfileProvider>();
     provider.updateFromSmartFlow(
       age: _age.round(),
-      grossSalary: _defaultSalary,
+      grossSalary: _salary,
       canton: _canton,
       firstName: _nameController.text.trim().isNotEmpty
           ? _nameController.text.trim()
           : null,
     );
 
-    _analytics.trackCTAClick('quick_start_completed', screenName: '/onboarding/quick');
+    _analytics.trackCTAClick('quick_start_completed',
+        screenName: '/onboarding/quick');
 
     if (mounted) {
-      // Navigate to home and ensure Pulse tab (index 0) is active
       context.go('/home');
-      // Reset tab to Pulse after onboarding (avoid returning to coach empty state)
       NavigationShellState.switchTab(0);
     }
   }
@@ -162,175 +162,239 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     final est = _estimate();
     final total = est['total']!;
     final current = est['current']!;
     final ratio = est['ratio']!;
     final gap = (current - total).clamp(0.0, double.infinity);
-    final dropPct = current > 0 ? ((current - total) / current * 100).round() : 0;
+    final dropPctRaw =
+        current > 0 ? ((current - total) / current * 100).round() : 0;
+    // Clamp to 0: if projection > current, no drop to show
+    final dropPct = dropPctRaw.clamp(0, 100);
 
     return Scaffold(
       backgroundColor: MintColors.white,
+      appBar: AppBar(
+        backgroundColor: MintColors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        leading: BackButton(
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/');
+            }
+          },
+        ),
+      ),
       body: SafeArea(
+        top: false,
         child: Column(
           children: [
             // ── Scrollable form ──
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+                padding: const EdgeInsets.fromLTRB(
+                  MintSpacing.lg,
+                  MintSpacing.md,
+                  MintSpacing.lg,
+                  MintSpacing.sm,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Header
                     Text(
-                      'Ta situation financière\nen 30 secondes',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w800,
-                        color: MintColors.textPrimary,
-                        height: 1.15,
-                      ),
+                      l.quickStartTitle,
+                      style: MintTextStyles.headlineLarge(),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      '3 infos suffisent. Tu pourras affiner plus tard.',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        color: MintColors.textSecondary,
-                      ),
+                      l.quickStartSubtitle,
+                      style: MintTextStyles.bodyMedium(),
                     ),
                     const SizedBox(height: 28),
 
                     // ── Prenom ──
                     Text(
-                      'Ton prenom',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
+                      l.quickStartFirstName,
+                      style: MintTextStyles.bodySmall(
                         color: MintColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 6),
-                    TextField(
-                      controller: _nameController,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: InputDecoration(
-                        hintText: 'Facultatif',
-                        hintStyle: GoogleFonts.inter(
-                          fontSize: 14,
-                          color: MintColors.textMuted,
+                    Semantics(
+                      label: l.quickStartFirstName,
+                      textField: true,
+                      child: TextField(
+                        controller: _nameController,
+                        textCapitalization: TextCapitalization.words,
+                        decoration: InputDecoration(
+                          hintText: l.quickStartFirstNameHint,
+                          hintStyle: MintTextStyles.bodyMedium(
+                            color: MintColors.textMuted,
+                          ),
+                          filled: true,
+                          fillColor: MintColors.surface,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide:
+                                const BorderSide(color: MintColors.border),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide:
+                                const BorderSide(color: MintColors.border),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
                         ),
-                        filled: true,
-                        fillColor: MintColors.surface,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: MintColors.border),
+                        style: MintTextStyles.bodyMedium(
+                          color: MintColors.textPrimary,
                         ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: MintColors.border),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 12),
                       ),
-                      style: GoogleFonts.inter(fontSize: 15),
                     ),
                     const SizedBox(height: 22),
 
                     // ── Age slider ──
-                    _buildSliderLabel('Ton age', '${_age.round()} ans'),
-                    SliderTheme(
-                      data: _sliderTheme(),
-                      child: Slider(
-                        value: _age,
-                        min: 22,
-                        max: 67,
-                        divisions: 45,
-                        onChanged: (v) => setState(() => _age = v),
+                    _buildSliderLabel(
+                      l.quickStartAge,
+                      l.quickStartAgeValue(_age.round().toString()),
+                    ),
+                    Semantics(
+                      label: l.quickStartAge,
+                      slider: true,
+                      value:
+                          l.quickStartAgeValue(_age.round().toString()),
+                      child: SliderTheme(
+                        data: _sliderTheme(),
+                        child: Slider(
+                          value: _age,
+                          min: 22,
+                          max: 67,
+                          divisions: 45,
+                          onChanged: (v) => setState(() => _age = v),
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: MintSpacing.md),
+
+                    // ── Revenu brut annuel slider ──
+                    _buildSliderLabel(
+                      l.quickStartSalary,
+                      l.quickStartSalaryValue(
+                          formatChfWithPrefix(_salary)),
+                    ),
+                    Semantics(
+                      label: l.quickStartSalary,
+                      slider: true,
+                      value: l.quickStartSalaryValue(
+                          formatChfWithPrefix(_salary)),
+                      child: SliderTheme(
+                        data: _sliderTheme(),
+                        child: Slider(
+                          value: _salary,
+                          min: 20000,
+                          max: 300000,
+                          divisions: 56,
+                          onChanged: (v) => setState(() => _salary = v),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: MintSpacing.md),
 
                     // ── Canton dropdown ──
-                    _buildSliderLabel('Canton', ''),
-                    const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: MintColors.surface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: MintColors.border),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: _canton,
-                          isExpanded: true,
-                          style: GoogleFonts.inter(
-                              fontSize: 15, color: MintColors.textPrimary),
-                          items: sortedCantonCodes.map((code) {
-                            final name = cantonFullNames[code] ?? code;
-                            return DropdownMenuItem(
-                              value: code,
-                              child: Text('$code — $name'),
-                            );
-                          }).toList(),
-                          onChanged: (v) {
-                            if (v != null) setState(() => _canton = v);
-                          },
+                    _buildSliderLabel(l.quickStartCanton, ''),
+                    const SizedBox(height: MintSpacing.xs),
+                    Semantics(
+                      label: l.quickStartCanton,
+                      button: true,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        decoration: BoxDecoration(
+                          color: MintColors.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: MintColors.border),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: _canton,
+                            isExpanded: true,
+                            style: MintTextStyles.bodyMedium(
+                              color: MintColors.textPrimary,
+                            ),
+                            items: sortedCantonCodes.map((code) {
+                              final name = cantonFullNames[code] ?? code;
+                              return DropdownMenuItem(
+                                value: code,
+                                child: Text('$code — $name'),
+                              );
+                            }).toList(),
+                            onChanged: (v) {
+                              if (v != null) setState(() => _canton = v);
+                            },
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 28),
 
                     // ── Live preview card ──
-                    _buildPreviewCard(total, current, ratio, gap, dropPct),
+                    _buildPreviewCard(l, total, current, ratio, gap, dropPct),
 
                     const SizedBox(height: 12),
                     Text(
-                      'Estimation indicative (1er + 2e pilier). '
-                      'Ne constitue pas un conseil financier (LSFin).',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        color: MintColors.textMuted,
-                        fontStyle: FontStyle.italic,
-                      ),
+                      l.quickStartDisclaimer,
+                      style: MintTextStyles.micro(),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: MintSpacing.md),
                   ],
                 ),
               ),
             ),
 
-            // ── CTA button ──
+            // ── CTA button (sticky) ──
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+              padding: const EdgeInsets.fromLTRB(
+                MintSpacing.lg,
+                MintSpacing.sm,
+                MintSpacing.lg,
+                MintSpacing.md,
+              ),
               child: SizedBox(
                 width: double.infinity,
                 height: 52,
-                child: FilledButton(
-                  onPressed: _saving ? null : _onContinue,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: MintColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                child: Semantics(
+                  button: true,
+                  label: l.quickStartCta,
+                  child: FilledButton(
+                    onPressed: _saving ? null : _onContinue,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: MintColors.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
+                    child: _saving
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: MintColors.white,
+                            ),
+                          )
+                        : Text(
+                            l.quickStartCta,
+                            style: MintTextStyles.titleMedium(
+                              color: MintColors.white,
+                            ),
+                          ),
                   ),
-                  child: _saving
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: MintColors.white,
-                          ),
-                        )
-                      : Text(
-                          'Voir mon tableau de bord',
-                          style: GoogleFonts.inter(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
                 ),
               ),
             ),
@@ -343,25 +407,31 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
   // ── Preview card with live numbers ──
 
   Widget _buildPreviewCard(
-      double total, double current, double ratio, double gap, int dropPct) {
+    S l,
+    double total,
+    double current,
+    double ratio,
+    double gap,
+    int dropPct,
+  ) {
     final Color accentColor;
     final String verdict;
     if (ratio >= 0.7) {
       accentColor = MintColors.success;
-      verdict = 'Bonne posture';
+      verdict = l.quickStartVerdictGood;
     } else if (ratio >= 0.5) {
       accentColor = MintColors.warning;
-      verdict = 'A surveiller';
+      verdict = l.quickStartVerdictWatch;
     } else {
       accentColor = MintColors.scoreAttention;
-      verdict = 'Ecart significatif';
+      verdict = l.quickStartVerdictGap;
     }
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
@@ -370,12 +440,10 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
           Row(
             children: [
               Icon(Icons.show_chart, size: 18, color: accentColor),
-              const SizedBox(width: 8),
+              const SizedBox(width: MintSpacing.sm),
               Text(
-                'Apercu retraite',
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
+                l.quickStartPreviewTitle,
+                style: MintTextStyles.bodySmall(
                   color: MintColors.textPrimary,
                 ),
               ),
@@ -389,23 +457,19 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                 ),
                 child: Text(
                   verdict,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: accentColor,
-                  ),
+                  style: MintTextStyles.labelSmall(color: accentColor),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Avant / Apres
           Row(
             children: [
               Expanded(
                 child: _buildAmountColumn(
-                  "Aujourd'hui",
+                  l.quickStartToday,
                   current,
                   MintColors.textPrimary,
                 ),
@@ -417,7 +481,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
               ),
               Expanded(
                 child: _buildAmountColumn(
-                  'A la retraite',
+                  l.quickStartAtRetirement,
                   total,
                   accentColor,
                 ),
@@ -436,7 +500,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
               minHeight: 8,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
 
           // Drop percentage
           TweenAnimationBuilder<double>(
@@ -444,13 +508,11 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
             duration: const Duration(milliseconds: 400),
             curve: Curves.easeOutCubic,
             builder: (_, value, __) => Text(
-              '-${value.round()}% de pouvoir d\'achat '
-              '(${formatChfWithPrefix(gap)}/mois)',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: accentColor,
+              l.quickStartDropPct(
+                value.round().toString(),
+                formatChfWithPrefix(gap),
               ),
+              style: MintTextStyles.bodySmall(color: accentColor),
             ),
           ),
         ],
@@ -463,31 +525,23 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.labelSmall(),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: MintSpacing.xs),
         TweenAnimationBuilder<double>(
           tween: Tween(end: amount),
           duration: const Duration(milliseconds: 400),
           curve: Curves.easeOutCubic,
           builder: (_, value, __) => Text(
             '${formatChf(value)} CHF',
-            style: GoogleFonts.montserrat(
+            style: MintTextStyles.displayMedium(color: color).copyWith(
               fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: color,
             ),
           ),
         ),
         Text(
-          '/mois',
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            color: MintColors.textMuted,
-          ),
+          S.of(context)!.quickStartPerMonth,
+          style: MintTextStyles.labelSmall(),
         ),
       ],
     );
@@ -499,18 +553,12 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
         ),
         Text(
           value,
-          style: GoogleFonts.montserrat(
-            fontSize: 14,
+          style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(
             fontWeight: FontWeight.w700,
-            color: MintColors.primary,
           ),
         ),
       ],

@@ -2,8 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 
@@ -33,78 +34,61 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final result = _result;
 
     return Scaffold(
       backgroundColor: MintColors.surface,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 100,
-            pinned: true,
-            backgroundColor: MintColors.primary,
-            foregroundColor: MintColors.white,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'DIRECT VS INDIRECT',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ),
+      appBar: AppBar(
+        backgroundColor: MintColors.white,
+        foregroundColor: MintColors.textPrimary,
+        elevation: 0,
+        title: Text(
+          s.amortizationAppBarTitle,
+          style: MintTextStyles.headlineMedium(),
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        children: [
+          // Intro pedagogique
+          _buildIntroCard(s),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Chiffre choc
+          _buildChiffreChocCard(s, result),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Graphique
+          _buildChartSection(s, result),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Sliders
+          _buildSlidersSection(s),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Comparaison detaillee
+          _buildComparisonSection(s, result),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Disclaimer
+          _buildDisclaimer(result.disclaimer),
+          const SizedBox(height: MintSpacing.sm),
+
+          // Source legale
+          Text(
+            s.amortizationSource,
+            style: MintTextStyles.micro(),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // Intro pedagogique
-                _buildIntroCard(),
-                const SizedBox(height: 24),
-
-                // Chiffre choc
-                _buildChiffreChocCard(result),
-                const SizedBox(height: 24),
-
-                // Graphique
-                _buildChartSection(result),
-                const SizedBox(height: 24),
-
-                // Sliders
-                _buildSlidersSection(),
-                const SizedBox(height: 24),
-
-                // Comparaison detaillee
-                _buildComparisonSection(result),
-                const SizedBox(height: 24),
-
-                // Disclaimer
-                _buildDisclaimer(result.disclaimer),
-                const SizedBox(height: 12),
-
-                // Source legale
-                Text(
-                  S.of(context)!.amortizationSource,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontStyle: FontStyle.italic,
-                    color: MintColors.textMuted,
-                  ),
-                ),
-                const SizedBox(height: 40),
-              ]),
-            ),
-          ),
+          const SizedBox(height: MintSpacing.xl),
         ],
       ),
     );
   }
 
-  Widget _buildIntroCard() {
+  Widget _buildIntroCard(S s) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -114,37 +98,30 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            S.of(context)!.amortizationIntroTitle,
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
+            s.amortizationIntroTitle,
+            style: MintTextStyles.titleMedium(),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
-            S.of(context)!.amortizationIntroBody,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.5,
-            ),
+            s.amortizationIntroBody,
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           Row(
             children: [
               Expanded(
                 child: _buildMethodCard(
-                  title: S.of(context)!.amortizationDirect,
-                  description: S.of(context)!.amortizationDirectDesc,
+                  title: s.amortizationDirect,
+                  description: s.amortizationDirectDesc,
                   icon: Icons.trending_down,
                   color: MintColors.info,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: MintSpacing.sm + 4),
               Expanded(
                 child: _buildMethodCard(
-                  title: S.of(context)!.amortizationIndirect,
-                  description: S.of(context)!.amortizationIndirectDesc,
+                  title: s.amortizationIndirect,
+                  description: s.amortizationIndirectDesc,
                   icon: Icons.savings_outlined,
                   color: MintColors.success,
                 ),
@@ -163,7 +140,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(MintSpacing.sm + 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
@@ -173,70 +150,57 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             title,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
+            style: MintTextStyles.bodySmall(color: color),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Text(
             description,
-            style: const TextStyle(
-              fontSize: 11,
-              color: MintColors.textSecondary,
-              height: 1.3,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildChiffreChocCard(AmortizationResult result) {
+  Widget _buildChiffreChocCard(S s, AmortizationResult result) {
     final isPositive = result.chiffreChocPositif;
     final color = isPositive ? MintColors.success : MintColors.info;
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
-      ),
-      child: Column(
-        children: [
-          Icon(Icons.compare_arrows, color: color, size: 40),
-          const SizedBox(height: 12),
-          Text(
-            'CHF ${formatChf(result.economieIndirect.abs())}',
-            style: GoogleFonts.montserrat(
-              fontSize: 32,
-              fontWeight: FontWeight.w800,
-              color: color,
+    return Semantics(
+      label: 'CHF ${formatChf(result.economieIndirect.abs())}',
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
+        ),
+        child: Column(
+          children: [
+            Icon(Icons.compare_arrows, color: color, size: 40),
+            const SizedBox(height: MintSpacing.sm + 4),
+            Text(
+              'CHF ${formatChf(result.economieIndirect.abs())}',
+              style: MintTextStyles.displayMedium(color: color),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            result.chiffreChocTexte,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-              height: 1.4,
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              result.chiffreChocTexte,
+              textAlign: TextAlign.center,
+              style: MintTextStyles.bodyMedium(),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildChartSection(AmortizationResult result) {
+  Widget _buildChartSection(S s, AmortizationResult result) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -246,15 +210,10 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            S.of(context)!.amortizationEvolutionTitle(_dureeAns),
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            s.amortizationEvolutionTitle(_dureeAns),
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           SizedBox(
             height: 220,
             child: CustomPaint(
@@ -267,16 +226,16 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           // Legende
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegendItem(MintColors.info, S.of(context)!.amortizationLegendDebtDirect),
-              const SizedBox(width: 12),
-              _buildLegendItem(MintColors.textPrimary, S.of(context)!.amortizationLegendDebtIndirect),
-              const SizedBox(width: 12),
-              _buildLegendItem(MintColors.success, S.of(context)!.amortizationLegendCapital3a),
+              _buildLegendItem(MintColors.info, s.amortizationLegendDebtDirect),
+              const SizedBox(width: MintSpacing.sm + 4),
+              _buildLegendItem(MintColors.textPrimary, s.amortizationLegendDebtIndirect),
+              const SizedBox(width: MintSpacing.sm + 4),
+              _buildLegendItem(MintColors.success, s.amortizationLegendCapital3a),
             ],
           ),
         ],
@@ -295,18 +254,18 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        const SizedBox(width: 4),
+        const SizedBox(width: MintSpacing.xs),
         Text(
           label,
-          style: const TextStyle(fontSize: 10, color: MintColors.textMuted),
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted),
         ),
       ],
     );
   }
 
-  Widget _buildSlidersSection() {
+  Widget _buildSlidersSection(S s) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -316,19 +275,14 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            S.of(context)!.amortizationParameters,
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            s.amortizationParameters,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Montant hypothecaire
           _buildSliderRow(
-            label: S.of(context)!.amortizationMortgageAmount,
+            label: s.amortizationMortgageAmount,
             value: _montantHypothecaire,
             min: 200000,
             max: 2000000,
@@ -336,11 +290,11 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
             format: 'CHF ${formatChf(_montantHypothecaire)}',
             onChanged: (v) => setState(() => _montantHypothecaire = v),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
 
           // Taux d'interet
           _buildSliderRow(
-            label: S.of(context)!.amortizationInterestRate,
+            label: s.amortizationInterestRate,
             value: _tauxInteret,
             min: 0.01,
             max: 0.05,
@@ -348,11 +302,11 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
             format: '${(_tauxInteret * 100).toStringAsFixed(2)}%',
             onChanged: (v) => setState(() => _tauxInteret = v),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
 
           // Duree
           _buildSliderRow(
-            label: S.of(context)!.amortizationDuration,
+            label: s.amortizationDuration,
             value: _dureeAns.toDouble(),
             min: 5,
             max: 30,
@@ -360,11 +314,11 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
             format: '$_dureeAns ans',
             onChanged: (v) => setState(() => _dureeAns = v.round()),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
 
           // Taux marginal
           _buildSliderRow(
-            label: S.of(context)!.amortizationMarginalRate,
+            label: s.amortizationMarginalRate,
             value: _tauxMarginal,
             min: 0.15,
             max: 0.45,
@@ -386,47 +340,42 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
     required String format,
     required ValueChanged<double> onChanged,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textPrimary,
+    return Semantics(
+      label: '$label: $format',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                 ),
               ),
-            ),
-            Text(
-              format,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
+              Text(
+                format,
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
               ),
-            ),
-          ],
-        ),
-        Slider(
-          value: value,
-          min: min,
-          max: max,
-          divisions: divisions,
-          activeColor: MintColors.primary,
-          onChanged: onChanged,
-        ),
-      ],
+            ],
+          ),
+          Slider(
+            value: value,
+            min: min,
+            max: max,
+            divisions: divisions,
+            activeColor: MintColors.primary,
+            onChanged: onChanged,
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildComparisonSection(AmortizationResult result) {
+  Widget _buildComparisonSection(S s, AmortizationResult result) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -436,39 +385,34 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            S.of(context)!.amortizationDetailedComparison,
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            s.amortizationDetailedComparison,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Direct
           _buildComparisonCard(
-            title: S.of(context)!.amortizationDirectTitle,
+            title: s.amortizationDirectTitle,
             color: MintColors.info,
             rows: [
-              _compRow(S.of(context)!.amortizationTotalInterest,
+              _compRow(s.amortizationTotalInterest,
                   'CHF ${formatChf(result.totalInteretsDirect)}'),
-              _compRow(S.of(context)!.amortizationNetCost,
+              _compRow(s.amortizationNetCost,
                   'CHF ${formatChf(result.coutNetDirect)}'),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Indirect
           _buildComparisonCard(
-            title: S.of(context)!.amortizationIndirectTitle,
+            title: s.amortizationIndirectTitle,
             color: MintColors.success,
             rows: [
-              _compRow(S.of(context)!.amortizationTotalInterest,
+              _compRow(s.amortizationTotalInterest,
                   'CHF ${formatChf(result.totalInteretsIndirect)}'),
-              _compRow(S.of(context)!.amortizationCapital3aAccumulated,
+              _compRow(s.amortizationCapital3aAccumulated,
                   'CHF ${formatChf(result.capital3aFinal)}'),
-              _compRow(S.of(context)!.amortizationNetCost,
+              _compRow(s.amortizationNetCost,
                   'CHF ${formatChf(result.coutNetIndirect)}'),
             ],
           ),
@@ -483,7 +427,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
     required List<Widget> rows,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
@@ -494,13 +438,9 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
         children: [
           Text(
             title,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
+            style: MintTextStyles.bodySmall(color: color),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           ...rows,
         ],
       ),
@@ -509,18 +449,14 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
 
   Widget _compRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label,
-              style: const TextStyle(fontSize: 12)),
+          Text(label, style: MintTextStyles.labelSmall()),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textPrimary),
           ),
         ],
       ),
@@ -529,26 +465,21 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
 
   Widget _buildDisclaimer(String disclaimer) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.warningBg,
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.orangeRetroWarm),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
               disclaimer,
-              style: const TextStyle(
-                fontSize: 11,
-                fontStyle: FontStyle.italic,
-                color: MintColors.deepOrange,
-                height: 1.4,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textSecondary),
             ),
           ),
         ],
@@ -591,7 +522,7 @@ class _AmortizationChartPainter extends CustomPainter {
 
     // Grid lines
     final gridPaint = Paint()
-      ..color = MintColors.lightBorder
+      ..color = MintColors.border
       ..strokeWidth = 1;
 
     const gridSteps = 4;

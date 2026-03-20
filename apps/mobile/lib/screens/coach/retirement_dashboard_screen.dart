@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -19,6 +18,8 @@ import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/reengagement_engine.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/services/slm/slm_auto_prompt_service.dart';
 import 'package:mint_mobile/widgets/coach/retirement_hero_zone.dart';
@@ -27,25 +28,28 @@ import 'package:mint_mobile/widgets/collapsible_section.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
-//  RETIREMENT DASHBOARD SCREEN — Hermeneutic Redesign
+//  RETIREMENT DASHBOARD SCREEN — Hero (Category A)
 // ────────────────────────────────────────────────────────────
 //
-//  5 positions (from 18 → 5, -72% scroll depth):
+//  Layout (max 2 above fold per DESIGN_SYSTEM §2A):
 //
-//  0. UrgentBanner — temporal deadline < 60 days (conditional)
-//  1. HeroZone — CHF/mois, replacement rate, pillar bar,
-//     sparkline, confidence chip, coach one-liner
-//  2. ActionCards — max 2 curated actions with CHF impact
-//  3. SmartShortcuts — filtered chips to arbitrage/tools +
-//     "Voir ton bilan détaillé" CTA
-//  4. Footer — disclaimer + sources
+//  ABOVE FOLD:
+//    0. UrgentBanner — temporal deadline < 60 days (conditional)
+//    1. HeroZone — CHF/mois, replacement rate, pillar bar,
+//       sparkline, confidence chip, coach one-liner
+//
+//  BELOW FOLD (scroll):
+//    2. ActionCards — max 2 curated actions with CHF impact
+//    3. SmartShortcuts — filtered chips to arbitrage/tools
+//    4. Related sections (collapsible hub)
+//    5. Footer — disclaimer + sources
 //
 //  STATE A (confiance >= 70%): Full hero, financial actions
 //  STATE B (confiance < 70%): ~prefix, wide band, data enrichment card
 //  STATE C (no profile): Onboarding CTA + educational card
 //
 //  Fallback chain: SLM → Templates → BYOK (privacy-first).
-//  Aucun terme banni (garanti, certain, optimal, meilleur…).
+//  Aucun terme banni (garanti, certain, optimal, meilleur...).
 // ────────────────────────────────────────────────────────────
 
 class RetirementDashboardScreen extends StatefulWidget {
@@ -332,23 +336,30 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
         .where((t) => t.daysUntil < 60)
         .toList();
 
+    final l = S.of(context)!;
+
     return Scaffold(
       backgroundColor: MintColors.background,
       body: CustomScrollView(
         slivers: [
           _buildAppBar(profile.firstName),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.lg,
+              vertical: MintSpacing.md,
+            ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
 
-                // ── Position 0: Urgent Banner (conditional) ──
+                // ── ABOVE FOLD: Banner + Hero (max 2 sections) ──
+
+                // Position 0: Urgent Banner (conditional)
                 if (urgentItem.isNotEmpty) ...[
                   _UrgentBanner(item: urgentItem.first),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
                 ],
 
-                // ── Position 1: Hero Zone ──
+                // Position 1: Hero Zone
                 RetirementHeroZone(
                   monthlyIncome: isCouple && partnerMonthly != null
                       ? monthlyBase + partnerMonthly
@@ -368,25 +379,27 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   partnerMonthlyIncome: partnerMonthly,
                   onConfidenceTap: () => _showEnrichmentSheet(context),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: MintSpacing.md),
 
-                // ── Position 2: Action Cards (max 2) ──
-                ..._buildActionCards(isApproximate),
+                // ── BELOW FOLD ──
 
-                // ── Position 3: Smart Shortcuts ──
+                // Position 2: Action Cards (max 2)
+                ..._buildActionCards(isApproximate, l),
+
+                // Position 3: Smart Shortcuts
                 SmartShortcuts(
                   profile: profile,
                   confidenceScore: _confidenceScore,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
-                // ── Related sections (hub) ──
-                _buildRelatedSections(),
-                const SizedBox(height: 24),
+                // Position 4: Related sections (hub)
+                _buildRelatedSections(l),
+                const SizedBox(height: MintSpacing.lg),
 
-                // ── Position 4: Footer ──
+                // Position 5: Footer — disclaimer
                 _buildDisclaimer(),
-                const SizedBox(height: 32),
+                const SizedBox(height: MintSpacing.xl),
               ]),
             ),
           ),
@@ -406,15 +419,18 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
         slivers: [
           _buildAppBar(null),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.lg,
+              vertical: MintSpacing.md,
+            ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildOnboardingHero(),
-                const SizedBox(height: 16),
+                const SizedBox(height: MintSpacing.md),
                 _buildEducationalCard(),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
                 _buildDisclaimer(),
-                const SizedBox(height: 32),
+                const SizedBox(height: MintSpacing.xl),
               ]),
             ),
           ),
@@ -424,7 +440,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   }
 
   // ────────────────────────────────────────────────────────────
-  //  APPBAR
+  //  APPBAR — White standard (not Pulse gradient per §4.5)
   // ────────────────────────────────────────────────────────────
 
   SliverAppBar _buildAppBar(String? firstName) {
@@ -436,28 +452,31 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       expandedHeight: 80,
       floating: true,
       snap: true,
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.white,
       surfaceTintColor: MintColors.transparent,
       elevation: 0,
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
           title,
-          style: GoogleFonts.montserrat(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
         ),
-        titlePadding: const EdgeInsets.only(left: 20, bottom: 12),
+        titlePadding: const EdgeInsets.only(
+          left: MintSpacing.lg,
+          bottom: MintSpacing.sm + MintSpacing.xs,
+        ),
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.edit_note_outlined,
-              color: MintColors.textSecondary),
-          onPressed: () => context.push('/profile/bilan'),
-          tooltip: S.of(context)!.dashboardMyData,
+        Semantics(
+          label: S.of(context)!.dashboardMyData,
+          button: true,
+          child: IconButton(
+            icon: const Icon(Icons.edit_note_outlined,
+                color: MintColors.textSecondary),
+            onPressed: () => context.push('/profile/bilan'),
+            tooltip: S.of(context)!.dashboardMyData,
+          ),
         ),
-        const SizedBox(width: 4),
+        const SizedBox(width: MintSpacing.xs),
       ],
     );
   }
@@ -466,41 +485,37 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   //  ACTION CARDS — max 2, with CHF impact
   // ────────────────────────────────────────────────────────────
 
-  List<Widget> _buildActionCards(bool isApproximate) {
+  List<Widget> _buildActionCards(bool isApproximate, S l) {
     if (_curatedCards.isEmpty) return [];
 
     // Pick max 2 cards:
     // - Card 1: highest impact financial action
-    // - Card 2: if low confidence → data enrichment, else second action
+    // - Card 2: if low confidence -> data enrichment, else second action
     final cards = _curatedCards.take(2).toList();
 
     return [
       Padding(
-        padding: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.only(bottom: MintSpacing.sm),
         child: Text(
-          'Tes prochaines actions',
-          style: GoogleFonts.montserrat(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          l.dashboardNextActionsTitle,
+          style: MintTextStyles.titleMedium(),
         ),
       ),
       ...cards.map((card) => Padding(
-            padding: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.only(bottom: MintSpacing.sm + 2),
             child: _ActionCard(card: card),
           )),
       // Show data enrichment cards if low confidence (up to 3)
       if (isApproximate && _confidence?.prompts.isNotEmpty == true) ...[
         ..._confidence!.prompts.take(3).map((prompt) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.only(bottom: MintSpacing.sm + 2),
               child: _DataEnrichmentCard(
                 prompt: prompt,
                 confidenceScore: _confidenceScore,
               ),
             )),
       ],
-      const SizedBox(height: 6),
+      const SizedBox(height: MintSpacing.sm - 2),
     ];
   }
 
@@ -509,14 +524,15 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   // ────────────────────────────────────────────────────────────
 
   String _buildDefaultOneLiner(CoachProfile profile, ProjectionResult proj) {
+    final l = S.of(context)!;
     final rate = proj.tauxRemplacementBase;
     if (rate >= 70) {
-      return 'Tu es en bonne voie pour maintenir ton niveau de vie.';
+      return l.dashboardOneLinerGoodTrack;
     }
     if (rate >= 50) {
-      return 'Des leviers existent pour améliorer ta projection.';
+      return l.dashboardOneLinerLevers;
     }
-    return 'Chaque action compte — explore les pistes disponibles.';
+    return l.dashboardOneLinerEveryAction;
   }
 
   double? _computeDelta() {
@@ -540,6 +556,8 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     final prompts = _confidence?.prompts ?? [];
     if (prompts.isEmpty) return;
 
+    final l = S.of(context)!;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -552,7 +570,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           color: MintColors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(MintSpacing.lg),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -567,26 +585,19 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
             Text(
-              'Améliore ta précision',
-              style: GoogleFonts.montserrat(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              l.dashboardImproveAccuracyTitle,
+              style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: MintSpacing.xs),
             Text(
-              'Confiance actuelle : ${_confidenceScore.round()}%',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-              ),
+              l.dashboardCurrentConfidence(_confidenceScore.round()),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
             ...prompts.take(5).map((p) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.only(bottom: MintSpacing.sm + 2),
                   child: Semantics(
                     label: p.label,
                     button: true,
@@ -608,7 +619,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                       child: Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(MintSpacing.sm),
                             decoration: BoxDecoration(
                               color: MintColors.primary.withValues(alpha: 0.10),
                               borderRadius: BorderRadius.circular(8),
@@ -619,23 +630,20 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                               color: MintColors.primary,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: MintSpacing.sm + MintSpacing.xs),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   p.label,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
+                                  style: MintTextStyles.bodySmall(
                                     color: MintColors.textPrimary,
-                                  ),
+                                  ).copyWith(fontWeight: FontWeight.w600),
                                 ),
                                 Text(
-                                  '+${p.impact} pts de précision',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 11,
+                                  l.dashboardPrecisionPtsGain(p.impact),
+                                  style: MintTextStyles.labelSmall(
                                     color: MintColors.success,
                                   ),
                                 ),
@@ -674,8 +682,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   // ────────────────────────────────────────────────────────────
 
   Widget _buildOnboardingHero() {
+    final l = S.of(context)!;
+
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -690,57 +700,50 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       ),
       child: Column(
         children: [
-          const Icon(Icons.beach_access_outlined,
-              size: 48, color: MintColors.primary),
-          const SizedBox(height: 16),
-          Text(
-            'Ta retraite en un coup d\'œil',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.montserrat(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+          Semantics(
+            label: l.dashboardOnboardingHeroTitle,
+            child: const Icon(Icons.beach_access_outlined,
+                size: 48, color: MintColors.primary),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.md),
           Text(
-            S.of(context)!.dashboardQuickStartBody,
+            l.dashboardOnboardingHeroTitle,
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-              height: 1.5,
-            ),
+            style: MintTextStyles.headlineMedium().copyWith(fontSize: 20),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.sm),
+          Text(
+            l.dashboardQuickStartBody,
+            textAlign: TextAlign.center,
+            style: MintTextStyles.bodyMedium().copyWith(height: 1.5),
+          ),
+          const SizedBox(height: MintSpacing.lg - MintSpacing.xs),
           SizedBox(
             width: double.infinity,
-            child: FilledButton(
-              onPressed: () => context.push('/onboarding/quick'),
-              style: FilledButton.styleFrom(
-                backgroundColor: MintColors.primary,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+            child: Semantics(
+              button: true,
+              label: l.dashboardOnboardingCta,
+              child: FilledButton(
+                onPressed: () => context.push('/onboarding/quick'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: MintColors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
-              ),
-              child: Text(
-                'Commencer — 2 min',
-                style: GoogleFonts.inter(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
+                child: Text(
+                  l.dashboardOnboardingCta,
+                  style: MintTextStyles.titleMedium(color: MintColors.white)
+                      .copyWith(fontSize: 15),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: MintSpacing.sm + 2),
           Text(
-            'Aucune donnée stockée sans ton accord.',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textMuted,
-              fontStyle: FontStyle.italic,
-            ),
+            l.dashboardOnboardingConsent,
+            style: MintTextStyles.micro(),
           ),
         ],
       ),
@@ -748,13 +751,15 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   }
 
   Widget _buildEducationalCard() {
+    final l = S.of(context)!;
+
     return Semantics(
-      label: 'Education hub',
+      label: l.dashboardEducationTitle,
       button: true,
       child: GestureDetector(
         onTap: () => context.push('/education/hub'),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(MintSpacing.md),
           decoration: BoxDecoration(
             color: MintColors.surface,
             borderRadius: BorderRadius.circular(14),
@@ -763,7 +768,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(MintSpacing.sm + 2),
                 decoration: BoxDecoration(
                   color: MintColors.info.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(10),
@@ -777,19 +782,16 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Comment fonctionne la retraite en Suisse ?',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                      l.dashboardEducationTitle,
+                      style: MintTextStyles.bodyMedium(
                         color: MintColors.textPrimary,
-                      ),
+                      ).copyWith(fontWeight: FontWeight.w600),
                     ),
                     Text(
-                      'AVS, LPP, 3a — les bases en 5 minutes',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
+                      l.dashboardEducationSubtitle,
+                      style: MintTextStyles.bodySmall(
                         color: MintColors.textSecondary,
-                      ),
+                      ).copyWith(fontSize: 12),
                     ),
                   ],
                 ),
@@ -804,33 +806,36 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   }
 
   // ────────────────────────────────────────────────────────────
-  //  RELATED SECTIONS (HUB)
+  //  RELATED SECTIONS (HUB) — below fold
   // ────────────────────────────────────────────────────────────
 
-  Widget _buildRelatedSections() {
+  Widget _buildRelatedSections(S l) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Explorer aussi',
-          style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
-        const SizedBox(height: 12),
+        Text(
+          l.dashboardExploreAlsoTitle,
+          style: MintTextStyles.titleMedium(),
+        ),
+        const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
         CollapsibleSection(
-          title: 'Cockpit de détail',
-          subtitle: 'Décomposition par pilier',
+          title: l.dashboardCockpitTitle,
+          subtitle: l.dashboardCockpitSubtitle,
           icon: Icons.dashboard_outlined,
-          child: _buildSectionCta('Ouvrir', '/coach/cockpit'),
+          child: _buildSectionCta(l.dashboardCockpitCta, '/coach/cockpit'),
         ),
         CollapsibleSection(
-          title: 'Rente vs Capital',
-          subtitle: 'Explorer le point d\'équilibre',
+          title: l.dashboardRenteVsCapitalTitle,
+          subtitle: l.dashboardRenteVsCapitalSubtitle,
           icon: Icons.balance,
-          child: _buildSectionCta('Simuler', '/rente-vs-capital'),
+          child: _buildSectionCta(
+              l.dashboardRenteVsCapitalCta, '/rente-vs-capital'),
         ),
         CollapsibleSection(
-          title: 'Rachat LPP',
-          subtitle: 'Simuler l\'impact fiscal',
+          title: l.dashboardRachatLppTitle,
+          subtitle: l.dashboardRachatLppSubtitle,
           icon: Icons.add_chart,
-          child: _buildSectionCta('Calculer', '/rachat-lpp'),
+          child: _buildSectionCta(l.dashboardRachatLppCta, '/rachat-lpp'),
         ),
       ],
     );
@@ -839,9 +844,13 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   Widget _buildSectionCta(String label, String route) {
     return SizedBox(
       width: double.infinity,
-      child: OutlinedButton(
-        onPressed: () => context.push(route),
-        child: Text(label),
+      child: Semantics(
+        button: true,
+        label: label,
+        child: OutlinedButton(
+          onPressed: () => context.push(route),
+          child: Text(label),
+        ),
       ),
     );
   }
@@ -854,11 +863,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     return Text(
       S.of(context)!.dashboardDisclaimer,
       textAlign: TextAlign.center,
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textMuted,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(),
     );
   }
 }
@@ -875,32 +880,40 @@ class _UrgentBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final days = item.daysUntil;
-    return GestureDetector(
-      onTap: () => context.push(item.deeplink),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: MintColors.warning.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: MintColors.warning.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.schedule, size: 18, color: MintColors.warning),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                '${item.title} — J-$days',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
+    final l = S.of(context)!;
+
+    return Semantics(
+      label: l.dashboardBannerDeadline(item.title, days),
+      button: true,
+      child: GestureDetector(
+        onTap: () => context.push(item.deeplink),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: MintSpacing.sm + 2,
+          ),
+          decoration: BoxDecoration(
+            color: MintColors.warning.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+            border:
+                Border.all(color: MintColors.warning.withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.schedule, size: 18, color: MintColors.warning),
+              const SizedBox(width: MintSpacing.sm + 2),
+              Expanded(
+                child: Text(
+                  l.dashboardBannerDeadline(item.title, days),
+                  style: MintTextStyles.bodySmall(
+                    color: MintColors.textPrimary,
+                  ).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
-            ),
-            const Icon(Icons.arrow_forward_ios,
-                size: 12, color: MintColors.warning),
-          ],
+              const Icon(Icons.arrow_forward_ios,
+                  size: 12, color: MintColors.warning),
+            ],
+          ),
         ),
       ),
     );
@@ -924,103 +937,106 @@ class _ActionCard extends StatelessWidget {
       AlertUrgency.info => MintColors.primary,
     };
 
-    return GestureDetector(
-      onTap: card.deeplink != null ? () => context.push(card.deeplink!) : null,
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: urgencyColor.withValues(alpha: 0.15),
+    final l = S.of(context)!;
+
+    return Semantics(
+      label: card.title,
+      button: card.deeplink != null,
+      child: GestureDetector(
+        onTap:
+            card.deeplink != null ? () => context.push(card.deeplink!) : null,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: MintColors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: urgencyColor.withValues(alpha: 0.15),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: MintColors.black.withValues(alpha: 0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          boxShadow: [
-            BoxShadow(
-              color: MintColors.black.withValues(alpha: 0.03),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: urgencyColor.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(10),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(MintSpacing.sm),
+                decoration: BoxDecoration(
+                  color: urgencyColor.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  switch (card.urgency) {
+                    AlertUrgency.urgent => Icons.warning_amber_rounded,
+                    AlertUrgency.active => Icons.trending_up,
+                    AlertUrgency.info => Icons.lightbulb_outline,
+                  },
+                  size: 16,
+                  color: urgencyColor,
+                ),
               ),
-              child: Icon(
-                switch (card.urgency) {
-                  AlertUrgency.urgent => Icons.warning_amber_rounded,
-                  AlertUrgency.active => Icons.trending_up,
-                  AlertUrgency.info => Icons.lightbulb_outline,
-                },
-                size: 16,
-                color: urgencyColor,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    card.title,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
+              const SizedBox(width: MintSpacing.sm + MintSpacing.xs),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      card.title,
+                      style: MintTextStyles.bodyMedium(
+                        color: MintColors.textPrimary,
+                      ).copyWith(fontWeight: FontWeight.w600),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    card.message,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                      height: 1.4,
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(
+                      card.message,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textSecondary,
+                      ).copyWith(fontSize: 12, height: 1.4),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (card.impactChf != null && card.impactChf! > 0) ...[
-                    const SizedBox(height: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: MintColors.success.withValues(alpha: 0.10),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        '+CHF ${formatChf(card.impactChf!)}',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: MintColors.success,
+                    if (card.impactChf != null && card.impactChf! > 0) ...[
+                      const SizedBox(height: MintSpacing.sm - 2),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: MintSpacing.sm, vertical: MintSpacing.xs),
+                        decoration: BoxDecoration(
+                          color: MintColors.success.withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          l.dashboardImpactChf(formatChf(card.impactChf!)),
+                          style: MintTextStyles.bodySmall(
+                            color: MintColors.success,
+                          ).copyWith(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                  if (card.deadlineDays != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      'J-${card.deadlineDays}',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: urgencyColor,
+                    ],
+                    if (card.deadlineDays != null) ...[
+                      const SizedBox(height: MintSpacing.xs),
+                      Text(
+                        l.dashboardDeadlineDays(card.deadlineDays!),
+                        style: MintTextStyles.labelSmall(
+                          color: urgencyColor,
+                        ).copyWith(fontWeight: FontWeight.w600),
                       ),
-                    ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
-            if (card.deeplink != null)
-              const Icon(Icons.chevron_right, size: 18, color: MintColors.textMuted),
-          ],
+              if (card.deeplink != null)
+                const Icon(Icons.chevron_right,
+                    size: 18, color: MintColors.textMuted),
+            ],
+          ),
         ),
       ),
     );
@@ -1042,55 +1058,57 @@ class _DataEnrichmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => context.push('/data-block/${prompt.category}'),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: MintColors.primary.withValues(alpha: 0.04),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: MintColors.primary.withValues(alpha: 0.15),
+    final l = S.of(context)!;
+
+    return Semantics(
+      label: prompt.label,
+      button: true,
+      child: GestureDetector(
+        onTap: () => context.push('/data-block/${prompt.category}'),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: MintColors.primary.withValues(alpha: 0.04),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: MintColors.primary.withValues(alpha: 0.15),
+            ),
           ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: MintColors.primary.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(10),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(MintSpacing.sm),
+                decoration: BoxDecoration(
+                  color: MintColors.primary.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.document_scanner_outlined,
+                    size: 16, color: MintColors.primary),
               ),
-              child: const Icon(Icons.document_scanner_outlined,
-                  size: 16, color: MintColors.primary),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    prompt.label,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
+              const SizedBox(width: MintSpacing.sm + MintSpacing.xs),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      prompt.label,
+                      style: MintTextStyles.bodyMedium(
+                        color: MintColors.textPrimary,
+                      ).copyWith(fontWeight: FontWeight.w600),
                     ),
-                  ),
-                  Text(
-                    'Précision +${prompt.impact}%',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.success,
+                    Text(
+                      l.dashboardPrecisionGainPercent(prompt.impact),
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.success,
+                      ).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const Icon(Icons.arrow_forward_ios,
-                size: 14, color: MintColors.primary),
-          ],
+              const Icon(Icons.arrow_forward_ios,
+                  size: 14, color: MintColors.primary),
+            ],
+          ),
         ),
       ),
     );

@@ -8,9 +8,10 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
 
 class OptimisationDecaissementScreen extends StatelessWidget {
@@ -18,144 +19,110 @@ class OptimisationDecaissementScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
+
     return Scaffold(
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.white,
       body: CustomScrollView(
         slivers: [
-          // ── AppBar gradient ──────────────────────────────────
+          // ── AppBar white standard ──────────────────────────────
           SliverAppBar(
-            expandedHeight: 140,
+            expandedHeight: 100,
             pinned: true,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: MintColors.white),
-              onPressed: () => context.pop(),
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding:
-                  const EdgeInsets.only(left: 56, bottom: 16, right: 24),
-              title: Text(
-                'Ordre de retrait 3a',
-                style: GoogleFonts.montserrat(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
-                  color: MintColors.white,
-                  height: 1.25,
-                ),
-                maxLines: 2,
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [MintColors.primary, MintColors.accent],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-              ),
+            backgroundColor: MintColors.white,
+            surfaceTintColor: MintColors.white,
+            foregroundColor: MintColors.textPrimary,
+            title: Text(
+              l.optimDecaissementTitle,
+              style: MintTextStyles.headlineMedium(),
             ),
           ),
 
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            padding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.lg,
+              vertical: MintSpacing.lg,
+            ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── Chiffre choc ─────────────────────────────
-                const _ChiffreChocCard(
-                  chiffre: '+CHF 3\'500',
-                  explication:
-                      'C\'est l\'impôt supplémentaire payé quand on retire 2 comptes 3a la même année plutôt que de les étaler sur 2 ans fiscales différentes — selon LIFD art. 38.',
+                _ChiffreChocCard(
+                  chiffre: l.optimDecaissementChiffre,
+                  explication: l.optimDecaissementChiffreExplication,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // ── Principe ─────────────────────────────────
-                const EduSectionTitle(text: 'Le principe de l\'échelonnement'),
-                const SizedBox(height: 12),
-                const _InfoCard(
+                EduSectionTitle(text: l.optimDecaissementPrincipe),
+                const SizedBox(height: MintSpacing.sm + 4),
+                _InfoCard(
                   icon: Icons.calendar_today_outlined,
-                  title: '1 compte 3a par année fiscale',
-                  body:
-                      'Le retrait du 3a est imposé séparément du revenu ordinaire (LIFD art. 38), mais le taux augmente avec le montant retiré. En fractionnant sur plusieurs années, chaque retrait reste dans une tranche basse.',
+                  title: l.optimDecaissementInfo1Title,
+                  body: l.optimDecaissementInfo1Body,
                 ),
-                const SizedBox(height: 10),
-                const _InfoCard(
+                const SizedBox(height: MintSpacing.sm + 2),
+                _InfoCard(
                   icon: Icons.account_tree_outlined,
-                  title: 'Jusqu\'à 10 comptes 3a simultanés',
-                  body:
-                      'Depuis 2026, tu peux détenir plusieurs comptes 3a simultanément (révision OPP3 2026). En les ouvrant progressivement, tu peux échelonner les retraits sur 3 à 10 ans selon ton plan.',
+                  title: l.optimDecaissementInfo2Title,
+                  body: l.optimDecaissementInfo2Body,
                 ),
-                const SizedBox(height: 10),
-                const _InfoCard(
+                const SizedBox(height: MintSpacing.sm + 2),
+                _InfoCard(
                   icon: Icons.map_outlined,
-                  title: 'La fiscalité varie par canton',
-                  body:
-                      'Plusieurs cantons offrent des abattements supplémentaires. Le choix du canton de résidence au moment du retrait influence directement l\'imposition.',
+                  title: l.optimDecaissementInfo3Title,
+                  body: l.optimDecaissementInfo3Body,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // ── Tableau illustratif ───────────────────────
-                const EduSectionTitle(text: 'Illustration : CHF 150\'000 en 3a'),
-                const SizedBox(height: 12),
-                const _WithdrawalTable(),
-                const SizedBox(height: 8),
+                EduSectionTitle(text: l.optimDecaissementIllustration),
+                const SizedBox(height: MintSpacing.sm + 4),
+                _WithdrawalTable(l: l),
+                const SizedBox(height: MintSpacing.sm),
                 Text(
-                  '* Estimations indicatives basées sur un taux cantonal moyen (ZH). Varie selon le canton et la situation fiscale individuelle.',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: MintColors.textMuted,
-                    fontStyle: FontStyle.italic,
-                  ),
+                  l.optimDecaissementTableFootnote,
+                  style: MintTextStyles.micro(),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // ── Plan d'action ────────────────────────────
-                const EduSectionTitle(text: 'Comment planifier ton décaissement'),
-                const SizedBox(height: 12),
-                const _StepCard(
+                EduSectionTitle(text: l.optimDecaissementPlanTitle),
+                const SizedBox(height: MintSpacing.sm + 4),
+                _StepCard(
                   number: '1',
-                  title: 'Inventaire de tes comptes 3a',
-                  body:
-                      'Liste chaque compte 3a avec son solde et son établissement. Note les années prévues de retraite pour chaque retrait.',
+                  title: l.optimDecaissementStep1Title,
+                  body: l.optimDecaissementStep1Body,
                 ),
-                const SizedBox(height: 10),
-                const _StepCard(
+                const SizedBox(height: MintSpacing.sm + 2),
+                _StepCard(
                   number: '2',
-                  title: 'Simule l\'impact fiscal par scénario',
-                  body:
-                      'Compare : tout retirer en 1 an vs. étaler sur 3, 5 ou 7 ans. L\'écart peut représenter plusieurs milliers de francs.',
+                  title: l.optimDecaissementStep2Title,
+                  body: l.optimDecaissementStep2Body,
                 ),
-                const SizedBox(height: 10),
-                const _StepCard(
+                const SizedBox(height: MintSpacing.sm + 2),
+                _StepCard(
                   number: '3',
-                  title: 'Coordinate avec ta retraite LPP',
-                  body:
-                      'Attendre 1 à 2 ans après le retrait du capital LPP pour le premier 3a réduit la charge fiscale totale sur l\'année de départ.',
+                  title: l.optimDecaissementStep3Title,
+                  body: l.optimDecaissementStep3Body,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // ── CTA spécialiste ───────────────────────────
-                const EduSpecialistCta(
+                EduSpecialistCta(
                   icon: Icons.person_outline,
                   color: MintColors.withdrawalOptim,
-                  title: 'Consulter un·e spécialiste',
-                  body: 'Un·e spécialiste en prévoyance peut modéliser ton plan de décaissement précis selon ta situation.',
+                  title: l.optimDecaissementSpecialisteTitle,
+                  body: l.optimDecaissementSpecialisteBody,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // ── Sources légales ───────────────────────────
-                const EduLegalSources(
-                  sources: '• LIFD art. 38 — Imposition séparée des prestations en capital\n'
-                      '• OPP3 art. 3 — Conditions de retrait anticipé du pilier 3a\n'
-                      '• OPP3 art. 7 — Plafonds de déduction\n'
-                      '• OPP3 (révision 2026) — Possibilité de détenir plusieurs comptes 3a',
-                ),
-                const SizedBox(height: 16),
+                EduLegalSources(sources: l.optimDecaissementSources),
+                const SizedBox(height: MintSpacing.md),
 
                 // ── Disclaimer LSFin ──────────────────────────
-                const EduDisclaimer(
-                  text:
-                      'Information à caractère éducatif, ne constitue pas un conseil fiscal au sens de la LSFin. Les montants illustrés sont indicatifs. L\'impact exact dépend de ton canton de résidence, de tes autres revenus et de ta situation fiscale individuelle. Consulte un·e spécialiste avant toute décision de retrait.',
-                ),
-                const SizedBox(height: 32),
+                EduDisclaimer(text: l.optimDecaissementDisclaimer),
+                const SizedBox(height: MintSpacing.xl),
               ]),
             ),
           ),
@@ -182,29 +149,23 @@ class _ChiffreChocCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
       ),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             chiffre,
-            style: GoogleFonts.montserrat(
+            style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(
               fontSize: 40,
               fontWeight: FontWeight.w800,
-              color: MintColors.white,
-              height: 1.0,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           Text(
             explication,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.white.withAlpha(220),
-              height: 1.5,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.white.withAlpha(220)).copyWith(height: 1.5),
           ),
         ],
       ),
@@ -221,57 +182,47 @@ class _InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: MintColors.border),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: MintColors.primary, size: 22),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  body,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
-                ),
-              ],
+    return Semantics(
+      container: true,
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        decoration: BoxDecoration(
+          color: MintColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: MintColors.border),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: MintColors.primary, size: 22),
+            const SizedBox(width: MintSpacing.sm + 4),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
+                  const SizedBox(height: MintSpacing.xs),
+                  Text(body, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, height: 1.5)),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
 class _WithdrawalTable extends StatelessWidget {
-  const _WithdrawalTable();
+  final S l;
+  const _WithdrawalTable({required this.l});
 
   @override
   Widget build(BuildContext context) {
-    const rows = [
-      ('1 an', 'CHF 150\'000', '~CHF 12\'500'),
-      ('3 ans', 'CHF 50\'000/an', '~CHF 3\'200/an'),
-      ('5 ans', 'CHF 30\'000/an', '~CHF 1\'700/an'),
+    final rows = [
+      (l.optimDecaissementTableRow1Spread, l.optimDecaissementTableRow1Amount, l.optimDecaissementTableRow1Tax),
+      (l.optimDecaissementTableRow2Spread, l.optimDecaissementTableRow2Amount, l.optimDecaissementTableRow2Tax),
+      (l.optimDecaissementTableRow3Spread, l.optimDecaissementTableRow3Amount, l.optimDecaissementTableRow3Tax),
     ];
 
     return Container(
@@ -284,45 +235,16 @@ class _WithdrawalTable extends StatelessWidget {
         children: [
           // Header
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md, vertical: 10),
             decoration: BoxDecoration(
               color: MintColors.primary.withAlpha(15),
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(14)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
             ),
             child: Row(
               children: [
-                Expanded(
-                  child: Text(
-                    'Étalement',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textSecondary,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    'Montant/retrait',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textSecondary,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    'Impôt est.*',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textSecondary,
-                    ),
-                    textAlign: TextAlign.right,
-                  ),
-                ),
+                Expanded(child: Text(l.optimDecaissementTableSpread, style: MintTextStyles.labelSmall())),
+                Expanded(child: Text(l.optimDecaissementTableAmount, style: MintTextStyles.labelSmall())),
+                Expanded(child: Text(l.optimDecaissementTableTax, style: MintTextStyles.labelSmall(), textAlign: TextAlign.right)),
               ],
             ),
           ),
@@ -331,44 +253,21 @@ class _WithdrawalTable extends StatelessWidget {
             final isLast = entry.key == rows.length - 1;
             final (etalement, montant, impot) = entry.value;
             return Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md, vertical: MintSpacing.sm + 4),
               decoration: BoxDecoration(
-                border: isLast
-                    ? null
-                    : const Border(
-                        bottom: BorderSide(color: MintColors.border)),
+                border: isLast ? null : const Border(bottom: BorderSide(color: MintColors.border)),
               ),
               child: Row(
                 children: [
-                  Expanded(
-                    child: Text(
-                      etalement,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.textPrimary,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      montant,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textSecondary,
-                      ),
-                    ),
-                  ),
+                  Expanded(child: Text(etalement, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600))),
+                  Expanded(child: Text(montant, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12))),
                   Expanded(
                     child: Text(
                       impot,
-                      style: GoogleFonts.inter(
+                      style: MintTextStyles.bodyMedium().copyWith(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: entry.key == 0
-                            ? MintColors.redMedium
-                            : MintColors.primary,
+                        color: entry.key == 0 ? MintColors.error : MintColors.primary,
                       ),
                       textAlign: TextAlign.right,
                     ),
@@ -388,65 +287,49 @@ class _StepCard extends StatelessWidget {
   final String title;
   final String body;
 
-  const _StepCard(
-      {required this.number, required this.title, required this.body});
+  const _StepCard({required this.number, required this.title, required this.body});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: MintColors.border),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: const BoxDecoration(
-              color: MintColors.primary,
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                number,
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
+    return Semantics(
+      container: true,
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        decoration: BoxDecoration(
+          color: MintColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: MintColors.border),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: const BoxDecoration(
+                color: MintColors.primary,
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Text(
+                  number,
+                  style: MintTextStyles.bodySmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w800, fontSize: 14),
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  body,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
-                ),
-              ],
+            const SizedBox(width: MintSpacing.sm + 4),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
+                  const SizedBox(height: MintSpacing.xs),
+                  Text(body, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, height: 1.5)),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

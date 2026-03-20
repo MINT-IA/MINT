@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 class BudgetWaterfall extends StatelessWidget {
   final double income;
@@ -83,22 +83,13 @@ class BudgetWaterfall extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
-                color:
-                    isBold ? MintColors.textPrimary : MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: isBold ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontWeight: isBold ? FontWeight.w700 : FontWeight.w400),
             ),
           ],
         ),
         Text(
           '$sign CHF ${amount.toStringAsFixed(0)}',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
-            color: color,
-          ),
+          style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: isBold ? FontWeight.w700 : FontWeight.w500),
         ),
       ],
     );

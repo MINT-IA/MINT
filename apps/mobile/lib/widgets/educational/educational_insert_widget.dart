@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Widget de base pour tous les inserts éducatifs
 /// Affiche un contenu didactique avec disclaimer obligatoire
@@ -70,21 +70,13 @@ class EducationalInsertWidget extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: GoogleFonts.outfit(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                       ),
                       if (subtitle != null) ...[
                         const SizedBox(height: 2),
                         Text(
                           subtitle!,
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            color: MintColors.textSecondary,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
                         ),
                       ],
                     ],
@@ -103,11 +95,7 @@ class EducationalInsertWidget extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             child: DefaultTextStyle(
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: MintColors.textPrimary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
               child: content,
             ),
           ),
@@ -119,7 +107,7 @@ class EducationalInsertWidget extends StatelessWidget {
               child: ExpansionTile(
                 title: Text(
                   'Hypothèses de calcul',
-                  style: GoogleFonts.inter(fontSize: 12, color: MintColors.textMuted, fontWeight: FontWeight.w500),
+                  style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
                 ),
                 tilePadding: EdgeInsets.zero,
                 childrenPadding: EdgeInsets.zero,
@@ -131,7 +119,7 @@ class EducationalInsertWidget extends StatelessWidget {
                     children: [
                       const Text('• ', style: TextStyle(fontSize: 12, color: MintColors.textMuted)),
                       Expanded(
-                        child: Text(h, style: GoogleFonts.inter(fontSize: 12, color: MintColors.textMuted, height: 1.4)),
+                        child: Text(h, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12, height: 1.4)),
                       ),
                     ],
                   ),
@@ -156,11 +144,7 @@ class EducationalInsertWidget extends StatelessWidget {
                 Expanded(
                   child: Text(
                     disclaimer,
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      color: MintColors.textMuted,
-                      fontStyle: FontStyle.italic,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.italic),
                   ),
                 ),
               ],

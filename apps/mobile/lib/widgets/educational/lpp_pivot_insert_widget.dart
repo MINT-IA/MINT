@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/educational/educational_insert_widget.dart';
 
 /// Insert didactique pour q_has_pension_fund
@@ -67,11 +67,7 @@ class LppPivotInsertWidget extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Le 3a reste l\'un des outils les plus efficaces de défiscalisation en Suisse, quel que soit ton statut.',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MintColors.textPrimary,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
                   ),
                 ),
               ],

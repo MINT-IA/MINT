@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -103,11 +103,7 @@ class JobChangeComparisonWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Le prix du changement',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -115,7 +111,7 @@ class JobChangeComparisonWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             '$currentJobLabel → $newJobLabel',
-            style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
         ],
       ),
@@ -130,11 +126,7 @@ class JobChangeComparisonWidget extends StatelessWidget {
           flex: 2,
           child: Text(
             'Actuel',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
         ),
@@ -142,11 +134,7 @@ class JobChangeComparisonWidget extends StatelessWidget {
           flex: 2,
           child: Text(
             'Nouveau',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: MintColors.primary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
         ),
@@ -154,11 +142,7 @@ class JobChangeComparisonWidget extends StatelessWidget {
           flex: 2,
           child: Text(
             'Delta',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
         ),
@@ -197,12 +181,12 @@ class JobChangeComparisonWidget extends StatelessWidget {
                     children: [
                       Text(
                         a.label,
-                        style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary),
+                        style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
                       ),
                       if (a.note != null)
                         Text(
                           a.note!,
-                          style: GoogleFonts.inter(fontSize: 9, color: MintColors.textSecondary),
+                          style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontSize: 9),
                         ),
                     ],
                   ),
@@ -214,10 +198,7 @@ class JobChangeComparisonWidget extends StatelessWidget {
             flex: 2,
             child: Text(
               '${formatChf(a.currentValue)} ${a.unit.replaceAll('CHF/', '')}',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
               textAlign: TextAlign.center,
             ),
           ),
@@ -225,11 +206,7 @@ class JobChangeComparisonWidget extends StatelessWidget {
             flex: 2,
             child: Text(
               '${formatChf(a.newValue)} ${a.unit.replaceAll('CHF/', '')}',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.primary,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
               textAlign: TextAlign.center,
             ),
           ),
@@ -237,11 +214,7 @@ class JobChangeComparisonWidget extends StatelessWidget {
             flex: 2,
             child: Text(
               '$sign${formatChf(delta)} ${a.unit.replaceAll('CHF/', '')}',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-                color: color,
-              ),
+              style: MintTextStyles.labelSmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w800),
               textAlign: TextAlign.center,
             ),
           ),
@@ -275,22 +248,14 @@ class JobChangeComparisonWidget extends StatelessWidget {
               children: [
                 Text(
                   'Impact réel : $sign ${formatChfWithPrefix(netMonthly.abs())}/mois',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: positive ? MintColors.scoreExcellent : MintColors.scoreCritique,
-                  ),
+                  style: MintTextStyles.titleMedium(color: positive ? MintColors.scoreExcellent : MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   positive
                       ? 'Ton nouveau job est financièrement avantageux — négocie fort !'
                       : 'Pense à négocier pour compenser. Chaque CHF compte sur 20 ans de LPP.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
             ),
@@ -304,11 +269,7 @@ class JobChangeComparisonWidget extends StatelessWidget {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : CO art. 335, LPP art. 14-16.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

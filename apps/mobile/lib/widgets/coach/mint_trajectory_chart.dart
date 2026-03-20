@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
@@ -260,12 +260,11 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildHeader() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final yearsToTarget = _yearsToTarget();
     final subtitle = _isDebtGoal
         ? 'Dette restante · $yearsToTarget ans'
-        : (s?.trajectorySubtitle(yearsToTarget.toString()) ??
-            '3 scénarios · $yearsToTarget ans');
+        : s.trajectorySubtitle(yearsToTarget.toString());
     return Row(
       children: [
         Container(
@@ -287,19 +286,12 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                s?.trajectoryTitle ?? 'Ta trajectoire',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                s.trajectoryTitle,
+                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               Text(
                 subtitle,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
               ),
             ],
           ),
@@ -315,11 +307,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
             _formatChf(_isDebtGoal
                 ? _displayBaseFinal
                 : widget.result.base.capitalFinal),
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: MintColors.trajectoryBase,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.trajectoryBase).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -351,11 +339,10 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
                   progress: _drawAnimation.value,
                   goalALabel: widget.goalALabel,
                   selectedIndex: _selectedPointIndex,
-                  prudentLabel: S.of(context)?.trajectoryPrudent ?? 'Prudent',
-                  baseLabel: S.of(context)?.trajectoryBase ?? 'Base',
-                  optimisteLabel:
-                      S.of(context)?.trajectoryOptimiste ?? 'Optimiste',
-                  goalLabel: S.of(context)?.trajectoryGoalLabel ?? 'Cible',
+                  prudentLabel: S.of(context)!.trajectoryPrudent,
+                  baseLabel: S.of(context)!.trajectoryBase,
+                  optimisteLabel: S.of(context)!.trajectoryOptimiste,
+                  goalLabel: S.of(context)!.trajectoryGoalLabel,
                 ),
                 size: Size(availableWidth, chartHeight),
               ),
@@ -394,10 +381,10 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
 
     final dateLabel = _formatDate(basePoint.date);
 
-    final s = S.of(context);
-    final optimisteLabel = s?.trajectoryOptimiste ?? 'Optimiste';
-    final baseLabel = s?.trajectoryBase ?? 'Base';
-    final prudentLabel = s?.trajectoryPrudent ?? 'Prudent';
+    final s = S.of(context)!;
+    final optimisteLabel = s.trajectoryOptimiste;
+    final baseLabel = s.trajectoryBase;
+    final prudentLabel = s.trajectoryPrudent;
 
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 120),
@@ -424,11 +411,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           children: [
             Text(
               dateLabel,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: MintColors.white.withValues(alpha: 0.7),
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.white.withValues(alpha: 0.7)).copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 4),
             if (optimistePoint != null)
@@ -470,19 +453,12 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           const SizedBox(width: 6),
           Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.white.withValues(alpha: 0.6),
-            ),
+            style: MintTextStyles.micro(color: MintColors.white.withValues(alpha: 0.6)).copyWith(fontStyle: FontStyle.normal),
           ),
           const Spacer(),
           Text(
             value,
-            style: GoogleFonts.montserrat(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: MintColors.white,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -494,24 +470,24 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildLegend() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _buildLegendItem(
-          s?.trajectoryOptimiste ?? 'Optimiste',
+          s.trajectoryOptimiste,
           MintColors.trajectoryOptimiste,
           dashed: true,
         ),
         const SizedBox(width: 16),
         _buildLegendItem(
-          s?.trajectoryBase ?? 'Base',
+          s.trajectoryBase,
           MintColors.trajectoryBase,
           dashed: false,
         ),
         const SizedBox(width: 16),
         _buildLegendItem(
-          s?.trajectoryPrudent ?? 'Prudent',
+          s.trajectoryPrudent,
           MintColors.trajectoryPrudent,
           dashed: true,
         ),
@@ -533,11 +509,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
         const SizedBox(width: 6),
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
         ),
       ],
     );
@@ -548,16 +520,12 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildScrubHint() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Padding(
       padding: const EdgeInsets.only(top: 6),
       child: Text(
-        s?.trajectoryDragHint ?? 'Glisse pour explorer',
-        style: GoogleFonts.inter(
-          fontSize: 10,
-          color: MintColors.textMuted.withValues(alpha: 0.6),
-          fontStyle: FontStyle.italic,
-        ),
+        s.trajectoryDragHint,
+        style: MintTextStyles.micro(color: MintColors.textMuted.withValues(alpha: 0.6)),
         textAlign: TextAlign.center,
       ),
     );
@@ -568,7 +536,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildTauxRemplacement() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final taux = widget.result.tauxRemplacementBase.clamp(0.0, 200.0);
     final isGood = taux >= 60;
     final icon = isGood ? Icons.check_circle_outline : Icons.warning_amber;
@@ -596,21 +564,13 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
                 Expanded(
                   child: RichText(
                     text: TextSpan(
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                       children: [
                         TextSpan(
-                            text: s?.trajectoryTauxRemplacement ??
-                                'Taux de remplacement estimé : '),
+                            text: s.trajectoryTauxRemplacement),
                         TextSpan(
                           text: '${taux.round()}%',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: color,
-                          ),
+                          style: MintTextStyles.bodyMedium(color: color).copyWith(fontWeight: FontWeight.w700),
                         ),
                       ],
                     ),
@@ -652,10 +612,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
                   ? 'Objectif dette zéro atteint sur cet horizon.'
                   : 'Dette restante estimée : ${_formatChf(debtLeft)} '
                       '(${(paidRatio * 100).round()}% remboursée).',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
           ),
         ],
@@ -668,7 +625,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildEmptyState() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Container(
       height: 200,
       alignment: Alignment.center,
@@ -682,20 +639,13 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           ),
           const SizedBox(height: 12),
           Text(
-            s?.trajectoryEmpty ?? 'Pas encore de projection disponible',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textMuted,
-            ),
+            s.trajectoryEmpty,
+            style: MintTextStyles.bodyMedium(color: MintColors.textMuted),
           ),
           const SizedBox(height: 4),
           Text(
-            s?.trajectoryEmptySub ??
-                'Complète ton profil pour voir ta trajectoire',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textMuted.withValues(alpha: 0.7),
-            ),
+            s.trajectoryEmptySub,
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted.withValues(alpha: 0.7)).copyWith(fontSize: 12),
           ),
         ],
       ),
@@ -707,16 +657,11 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildDisclaimer() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Text(
-      s?.trajectoryDisclaimer ??
-          'Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier.',
+      s.trajectoryDisclaimer,
       textAlign: TextAlign.center,
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textMuted,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textMuted),
     );
   }
 
@@ -1008,10 +953,7 @@ class _TrajectoryPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: label,
-          style: GoogleFonts.inter(
-            fontSize: 9,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 9, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       );
@@ -1045,10 +987,7 @@ class _TrajectoryPainter extends CustomPainter {
         final tp = TextPainter(
           text: TextSpan(
             text: '$year',
-            style: GoogleFonts.inter(
-              fontSize: 9,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 9, fontStyle: FontStyle.normal),
           ),
           textDirection: TextDirection.ltr,
         );
@@ -1060,11 +999,7 @@ class _TrajectoryPainter extends CustomPainter {
       final lastXTp = TextPainter(
         text: TextSpan(
           text: '$lastYear',
-          style: GoogleFonts.inter(
-            fontSize: 9,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontSize: 9, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       );
@@ -1273,11 +1208,7 @@ class _TrajectoryPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: label,
-        style: GoogleFonts.inter(
-          fontSize: 9,
-          fontWeight: FontWeight.w600,
-          color: MintColors.textSecondary,
-        ),
+        style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontSize: 9, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
       ),
       textDirection: TextDirection.ltr,
     );
@@ -1346,11 +1277,7 @@ class _TrajectoryPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: label,
-          style: GoogleFonts.montserrat(
-            fontSize: 9,
-            fontWeight: FontWeight.w700,
-            color: color,
-          ),
+          style: MintTextStyles.micro(color: color).copyWith(fontSize: 9, fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       );

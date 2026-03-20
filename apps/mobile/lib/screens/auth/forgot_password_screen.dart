@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -33,14 +34,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Future<void> _requestReset() async {
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            l10n?.authEmailInvalidPrompt ?? 'Entre une adresse e-mail valide.',
-          ),
+          content: Text(l10n.authEmailInvalidPrompt),
         ),
       );
       return;
@@ -56,16 +55,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          l10n?.authForgotRequestAccepted ??
-              'Si un compte existe, un lien de réinitialisation a été envoyé.',
-        ),
+        content: Text(l10n.authForgotRequestAccepted),
       ),
     );
   }
 
   Future<void> _confirmReset() async {
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     if (!_formKey.currentState!.validate()) return;
     final auth = context.read<AuthProvider>();
     final success = await auth.confirmPasswordReset(
@@ -75,10 +71,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     if (!mounted || !success) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          l10n?.authForgotResetSuccess ??
-              'Mot de passe mis à jour. Connecte-toi.',
-        ),
+        content: Text(l10n.authForgotResetSuccess),
       ),
     );
     context.go('/auth/login');
@@ -87,144 +80,161 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     return Scaffold(
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.white,
       appBar: AppBar(
-        backgroundColor: MintColors.background,
+        backgroundColor: MintColors.white,
+        surfaceTintColor: MintColors.white,
         elevation: 0,
         title: Text(
-          l10n?.authForgotTitle ?? 'Réinitialiser le mot de passe',
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          l10n.authForgotTitle,
+          style: MintTextStyles.headlineMedium(),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(MintSpacing.lg),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  l10n?.authForgotSteps ??
-                      '1) Demande un lien  2) Colle le token  3) Choisis un nouveau mot de passe',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: MintColors.textSecondary,
+                  l10n.authForgotSteps,
+                  style: MintTextStyles.bodyMedium(),
+                ),
+                const SizedBox(height: MintSpacing.lg - 4),
+                Semantics(
+                  label: l10n.authEmail,
+                  textField: true,
+                  child: TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: l10n.authEmail,
+                      prefixIcon: const Icon(Icons.email_outlined),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: l10n?.authEmail ?? 'Adresse e-mail',
-                    prefixIcon: const Icon(Icons.email_outlined),
-                  ),
-                ),
-                const SizedBox(height: 12),
+                const SizedBox(height: MintSpacing.sm + 4),
                 FilledButton.tonal(
                   onPressed: auth.isLoading ? null : _requestReset,
-                  child: Text(
-                    l10n?.authForgotSendLink ??
-                        'Envoyer le lien de réinitialisation',
-                  ),
+                  child: Text(l10n.authForgotSendLink),
                 ),
                 if (_debugToken != null) ...[
-                  const SizedBox(height: 12),
+                  const SizedBox(height: MintSpacing.sm + 4),
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(MintSpacing.sm + 4),
                     decoration: BoxDecoration(
                       color: MintColors.info.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      '${l10n?.authDebugTokenLabel ?? 'Token debug (tests)'}: $_debugToken',
-                      style: GoogleFonts.inter(
+                      '${l10n.authDebugTokenLabel}: $_debugToken',
+                      style: MintTextStyles.labelSmall(
                         color: MintColors.info,
-                        fontSize: 12,
                       ),
                     ),
                   ),
                 ],
-                const SizedBox(height: 24),
-                TextFormField(
-                  controller: _tokenController,
-                  decoration: InputDecoration(
-                    labelText:
-                        l10n?.authForgotResetTokenLabel ?? 'Token de réinitialisation',
-                    prefixIcon: const Icon(Icons.key_outlined),
+                const SizedBox(height: MintSpacing.lg),
+                Semantics(
+                  label: l10n.authForgotResetTokenLabel,
+                  textField: true,
+                  child: TextFormField(
+                    controller: _tokenController,
+                    decoration: InputDecoration(
+                      labelText: l10n.authForgotResetTokenLabel,
+                      prefixIcon: const Icon(Icons.key_outlined),
+                    ),
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? l10n.authTokenRequired
+                        : null,
                   ),
-                  validator: (v) => (v == null || v.trim().isEmpty)
-                      ? (l10n?.authTokenRequired ?? 'Token requis')
-                      : null,
                 ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: l10n?.authForgotNewPasswordLabel ?? 'Nouveau mot de passe',
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                      ),
-                      onPressed: () => setState(
-                        () => _obscurePassword = !_obscurePassword,
+                const SizedBox(height: MintSpacing.sm + 4),
+                Semantics(
+                  label: l10n.authForgotNewPasswordLabel,
+                  textField: true,
+                  child: TextFormField(
+                    controller: _passwordController,
+                    obscureText: _obscurePassword,
+                    decoration: InputDecoration(
+                      labelText: l10n.authForgotNewPasswordLabel,
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      suffixIcon: Semantics(
+                        label: _obscurePassword
+                            ? 'Afficher le mot de passe'
+                            : 'Masquer le mot de passe',
+                        button: true,
+                        child: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
+                          onPressed: () => setState(
+                            () => _obscurePassword = !_obscurePassword,
+                          ),
+                        ),
                       ),
                     ),
+                    validator: (v) {
+                      if (v == null || v.length < 8) {
+                        return l10n.authPasswordHint;
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (v) {
-                    if (v == null || v.length < 8) {
-                      return l10n?.authPasswordHint ?? 'Minimum 8 caractères';
-                    }
-                    return null;
-                  },
                 ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  obscureText: _obscureConfirmPassword,
-                  decoration: InputDecoration(
-                    labelText: l10n?.authConfirmPassword ?? 'Confirmer le mot de passe',
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureConfirmPassword
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                      ),
-                      onPressed: () => setState(
-                        () => _obscureConfirmPassword = !_obscureConfirmPassword,
+                const SizedBox(height: MintSpacing.sm + 4),
+                Semantics(
+                  label: l10n.authConfirmPassword,
+                  textField: true,
+                  child: TextFormField(
+                    controller: _confirmPasswordController,
+                    obscureText: _obscureConfirmPassword,
+                    decoration: InputDecoration(
+                      labelText: l10n.authConfirmPassword,
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      suffixIcon: Semantics(
+                        label: _obscureConfirmPassword
+                            ? 'Afficher le mot de passe'
+                            : 'Masquer le mot de passe',
+                        button: true,
+                        child: IconButton(
+                          icon: Icon(
+                            _obscureConfirmPassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
+                          onPressed: () => setState(
+                            () => _obscureConfirmPassword = !_obscureConfirmPassword,
+                          ),
+                        ),
                       ),
                     ),
+                    validator: (v) => v == _passwordController.text
+                        ? null
+                        : l10n.authPasswordMismatch,
                   ),
-                  validator: (v) => v == _passwordController.text
-                      ? null
-                      : (l10n?.authPasswordMismatch ??
-                          'Les mots de passe ne correspondent pas'),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: MintSpacing.lg - 4),
                 if (auth.error != null)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
                     child: Text(
                       auth.error!,
-                      style: GoogleFonts.inter(color: MintColors.error),
+                      style: MintTextStyles.bodyMedium(color: MintColors.error),
                     ),
                   ),
-                FilledButton(
-                  onPressed: auth.isLoading ? null : _confirmReset,
-                  child: Text(
-                    l10n?.authForgotSubmitNewPassword ??
-                        'Valider le nouveau mot de passe',
+                Semantics(
+                  label: l10n.authForgotSubmitNewPassword,
+                  button: true,
+                  child: FilledButton(
+                    onPressed: auth.isLoading ? null : _confirmReset,
+                    child: Text(l10n.authForgotSubmitNewPassword),
                   ),
                 ),
               ],

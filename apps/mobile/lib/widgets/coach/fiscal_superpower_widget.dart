@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P9-C  Le Super-pouvoir fiscal enfant
@@ -109,11 +109,7 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
               Expanded(
                 child: Text(
                   'Le super-pouvoir fiscal',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -121,11 +117,7 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
           const SizedBox(height: 8),
           Text(
             "L'État te rend de l'argent pour avoir un enfant.",
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
         ],
       ),
@@ -141,11 +133,7 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
           children: [
             Text(
               'Nombre d\'enfants',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -155,11 +143,7 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
               ),
               child: Text(
                 '$_children enfant${_children > 1 ? 's' : ''}',
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.info,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.info).copyWith(fontWeight: FontWeight.w800),
               ),
             ),
           ],
@@ -182,11 +166,7 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
       children: [
         Text(
           'Tes avantages fiscaux',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 10),
         ...widget.superpowers.map((p) => Padding(
@@ -208,27 +188,16 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
                     children: [
                       Text(
                         p.label,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                       ),
                       Text(
                         'Déduction : CHF ${_fmt(p.annualDeduction * _children)}/an · ${p.legalRef}',
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          color: MintColors.textSecondary,
-                        ),
+                        style: MintTextStyles.micro(color: MintColors.textSecondary),
                       ),
                       if (p.note != null)
                         Text(
                           p.note!,
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            color: MintColors.textSecondary,
-                            fontStyle: FontStyle.italic,
-                          ),
+                          style: MintTextStyles.micro(color: MintColors.textSecondary),
                         ),
                     ],
                   ),
@@ -238,19 +207,15 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
                   children: [
                     Text(
                       '− CHF',
-                      style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                      style: MintTextStyles.micro(color: MintColors.textSecondary),
                     ),
                     Text(
                       _fmt(p.taxSaving * _children),
-                      style: GoogleFonts.montserrat(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: MintColors.scoreExcellent,
-                      ),
+                      style: MintTextStyles.titleMedium(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w800),
                     ),
                     Text(
                       'd\'impôts/an',
-                      style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                      style: MintTextStyles.micro(color: MintColors.textSecondary),
                     ),
                   ],
                 ),
@@ -281,27 +246,16 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
               children: [
                 Text(
                   'Économie totale avec $_children enfant${_children > 1 ? 's' : ''}',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   'CHF ${_fmt(_totalSaving)}/an',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.scoreExcellent,
-                  ),
+                  style: MintTextStyles.headlineMedium(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w800),
                 ),
                 Text(
                   'soit CHF ${_fmt(monthly)}/mois remis dans ta poche',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
             ),
@@ -316,11 +270,7 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
       'Outil éducatif · ne constitue pas un conseil fiscal au sens de la LSFin. '
       'Source : LIFD art. 213 (déductions enfants), OPP3 art. 1. '
       'Taux simulé à ${(widget.taxRate * 100).round()}% — varie selon commune et revenu.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

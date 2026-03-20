@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/debt_prevention_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/widgets/coach/debt_survival_widget.dart';
+import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 
 /// Ecran de planification du remboursement de dettes.
 ///
@@ -57,28 +61,27 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     final result = _result;
 
     return Scaffold(
-      backgroundColor: MintColors.surface,
+      backgroundColor: MintColors.white,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 100,
             pinned: true,
-            backgroundColor: MintColors.primary,
-            foregroundColor: MintColors.white,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'PLAN DE REMBOURSEMENT',
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
-                  letterSpacing: 0.5,
-                ),
-              ),
+            backgroundColor: MintColors.white,
+            surfaceTintColor: MintColors.white,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            foregroundColor: MintColors.textPrimary,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
+              onPressed: () => context.pop(),
+            ),
+            title: Text(
+              S.of(context)!.repaymentTitle,
+              style: MintTextStyles.titleMedium(),
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── P10-F : Mode survie MINT ──────────────────────
@@ -89,37 +92,43 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                   daysSinceLastLate: 0,
                   monthlyIncome: 6000,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Chiffre choc
                 if (result != null) ...[
                   _buildChiffreChoc(result),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: MintSpacing.lg),
                 ],
 
                 // Liste des dettes
                 _buildDettesSection(),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Budget mensuel
                 _buildBudgetSection(),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Comparaison strategies
                 if (result != null) ...[
                   _buildComparisonSection(result),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: MintSpacing.sm + 4),
+                  _buildStrategyNote(),
+                  const SizedBox(height: MintSpacing.lg),
 
                   // Timeline
                   _buildTimelineSection(result),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: MintSpacing.lg),
 
                   // Disclaimer
                   _buildDisclaimer(result.disclaimer),
                 ] else
                   _buildEmptyState(),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: MintSpacing.lg),
+
+                // Navigation croisée dette
+                const DebtToolsNav(currentRoute: '/debt/repayment'),
+                const SizedBox(height: MintSpacing.xxl),
               ]),
             ),
           ),
@@ -135,8 +144,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       DebtRiskLevel.rouge => MintColors.error,
     };
 
-    final meilleur = result.avalanche.interetsTotaux <=
-            result.bouleDeNeige.interetsTotaux
+    // Show the shorter duration between both strategies (no ranking)
+    final strategiePrioritaire = result.avalanche.moisJusquaLiberation <=
+            result.bouleDeNeige.moisJusquaLiberation
         ? result.avalanche
         : result.bouleDeNeige;
 
@@ -152,26 +162,19 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       child: Column(
         children: [
           Text(
-            'Libere dans',
-            style: GoogleFonts.montserrat(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
+            S.of(context)!.repaymentLibereDans,
+            style: MintTextStyles.bodySmall(color: color)
+                .copyWith(fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
-            '${meilleur.moisJusquaLiberation} mois',
-            style: GoogleFonts.montserrat(
-              fontSize: 36,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
+            '${strategiePrioritaire.moisJusquaLiberation} mois',
+            style: MintTextStyles.displayMedium(color: color),
           ),
           const SizedBox(height: 4),
           if (result.economieInterets > 0)
             Text(
-              'CHF ${formatChf(result.economieInterets)} d\'interets economises avec avalanche',
+              S.of(context)!.repaymentDiffStrategies(formatChf(result.economieInterets)),
               style: TextStyle(
                 fontSize: 12,
                 color: color,
@@ -197,19 +200,14 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'MES DETTES',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                S.of(context)!.repaymentMesDettes,
+                style: MintTextStyles.bodySmall(color: MintColors.textMuted),
               ),
               IconButton(
                 icon: const Icon(Icons.add_circle_outline,
                     color: MintColors.primary),
                 onPressed: _addDebt,
-                tooltip: 'Ajouter une dette',
+                tooltip: S.of(context)!.repaymentAddDebtTooltip,
               ),
             ],
           ),
@@ -221,12 +219,12 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           ],
 
           if (_dettes.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(20),
+            Padding(
+              padding: const EdgeInsets.all(20),
               child: Center(
                 child: Text(
-                  'Ajoutez vos dettes pour generer un plan de remboursement.',
-                  style: TextStyle(
+                  S.of(context)!.repaymentAddDebtHint,
+                  style: const TextStyle(
                     fontSize: 13,
                     color: MintColors.textMuted,
                   ),
@@ -243,139 +241,286 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     final dette = _dettes[index];
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header: nom éditable + supprimer
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
                 child: TextFormField(
                   initialValue: dette.nom,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  decoration: const InputDecoration(
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                      .copyWith(fontWeight: FontWeight.w700),
+                  decoration: InputDecoration(
                     isDense: true,
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.zero,
-                    hintText: 'Nom de la dette',
+                    hintText: S.of(context)!.repaymentDebtNameHint,
+                    hintStyle: TextStyle(
+                      color: MintColors.textMuted.withValues(alpha: 0.5),
+                    ),
                   ),
                   onChanged: (v) => setState(() => dette.nom = v),
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.delete_outline,
-                    color: MintColors.redMaterial, size: 20),
-                onPressed: () => setState(() => _dettes.removeAt(index)),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
+              GestureDetector(
+                onTap: () => setState(() => _dettes.removeAt(index)),
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: MintColors.redBg,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.close,
+                      color: MintColors.redMedium, size: 14),
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 14),
 
-          // Montant
-          _buildMiniSlider(
-            label: 'Montant',
-            value: dette.montant,
-            min: 500,
-            max: 100000,
-            divisions: 199,
-            format: 'CHF ${formatChf(dette.montant)}',
-            onChanged: (v) => setState(() => dette.montant = v),
-          ),
-          const SizedBox(height: 4),
-
-          // Taux
-          _buildMiniSlider(
-            label: 'Taux annuel',
-            value: dette.tauxAnnuel,
-            min: 0.5,
-            max: 20.0,
-            divisions: 39,
-            format: '${dette.tauxAnnuel.toStringAsFixed(1)}%',
-            onChanged: (v) => setState(() => dette.tauxAnnuel = v),
-          ),
-          const SizedBox(height: 4),
-
-          // Mensualite min
-          _buildMiniSlider(
-            label: 'Mensualite min',
-            value: dette.mensualiteMin,
-            min: 50,
-            max: 3000,
-            divisions: 59,
-            format: 'CHF ${formatChf(dette.mensualiteMin)}',
-            onChanged: (v) => setState(() => dette.mensualiteMin = v),
+          // 3 inline value fields
+          Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: _buildInlineValue(
+                  label: S.of(context)!.repaymentFieldAmount,
+                  display: 'CHF\u00a0${formatChf(dette.montant)}',
+                  onTap: () => _showValueEditor(
+                    label: S.of(context)!.repaymentFieldAmountLabel,
+                    currentValue: dette.montant,
+                    min: 500,
+                    max: 100000,
+                    prefix: 'CHF',
+                    onChanged: (v) => setState(() => dette.montant = v),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 2,
+                child: _buildInlineValue(
+                  label: S.of(context)!.repaymentFieldRate,
+                  display: '${dette.tauxAnnuel.toStringAsFixed(1)}\u00a0%',
+                  onTap: () => _showValueEditor(
+                    label: S.of(context)!.repaymentFieldRateLabel,
+                    currentValue: dette.tauxAnnuel,
+                    min: 0.5,
+                    max: 20.0,
+                    prefix: '',
+                    suffix: '%',
+                    decimals: true,
+                    onChanged: (v) => setState(() => dette.tauxAnnuel = v),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 3,
+                child: _buildInlineValue(
+                  label: S.of(context)!.repaymentFieldInstallment,
+                  display: 'CHF\u00a0${formatChf(dette.mensualiteMin)}',
+                  onTap: () => _showValueEditor(
+                    label: S.of(context)!.repaymentFieldInstallmentLabel,
+                    currentValue: dette.mensualiteMin,
+                    min: 50,
+                    max: 3000,
+                    prefix: 'CHF',
+                    onChanged: (v) =>
+                        setState(() => dette.mensualiteMin = v),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildMiniSlider({
+  /// Champ inline tappable — label + valeur.
+  Widget _buildInlineValue({
     required String label,
-    required double value,
+    required String display,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: MintColors.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.w600,
+                color: MintColors.textMuted,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              display,
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                  .copyWith(fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Bottom sheet pour saisie précise au clavier.
+  void _showValueEditor({
+    required String label,
+    required double currentValue,
     required double min,
     required double max,
-    required int divisions,
-    required String format,
+    required String prefix,
+    String? suffix,
+    bool decimals = false,
     required ValueChanged<double> onChanged,
   }) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 90,
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 11, color: MintColors.textMuted),
+    final controller = TextEditingController(
+      text: decimals
+          ? currentValue.toStringAsFixed(1)
+          : currentValue.toInt().toString(),
+    );
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(ctx).viewInsets.bottom,
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: const BoxDecoration(
+            color: MintColors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: MintColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                label,
+                style: MintTextStyles.bodyMedium(color: MintColors.textSecondary)
+                    .copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: MintSpacing.md),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (prefix.isNotEmpty)
+                    Text(
+                      '$prefix ',
+                      style: MintTextStyles.headlineMedium(color: MintColors.textMuted)
+                          .copyWith(fontSize: 28),
+                    ),
+                  SizedBox(
+                    width: 150,
+                    child: TextField(
+                      controller: controller,
+                      keyboardType: TextInputType.numberWithOptions(
+                        decimal: decimals,
+                      ),
+                      autofocus: true,
+                      textAlign: TextAlign.center,
+                      style: MintTextStyles.displayMedium(color: MintColors.textPrimary),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ),
+                  if (suffix != null)
+                    Text(
+                      ' $suffix',
+                      style: MintTextStyles.headlineMedium(color: MintColors.textMuted)
+                          .copyWith(fontSize: 28),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                S.of(context)!.repaymentMinMax(
+                  decimals ? min.toStringAsFixed(1) : formatChf(min),
+                  decimals ? max.toStringAsFixed(1) : formatChf(max),
+                ),
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: MintColors.textMuted,
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () {
+                    final parsed = double.tryParse(
+                      controller.text
+                          .replaceAll("'", '')
+                          .replaceAll(',', '.')
+                          .replaceAll(RegExp(r"[^0-9.]"), ''),
+                    );
+                    if (parsed != null) {
+                      onChanged(parsed.clamp(min, max));
+                    }
+                    Navigator.pop(ctx);
+                  },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MintColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    S.of(context)!.repaymentValidate,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
           ),
         ),
-        Expanded(
-          child: SliderTheme(
-            data: const SliderThemeData(
-              trackHeight: 2,
-              thumbShape: RoundSliderThumbShape(enabledThumbRadius: 6),
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayShape: RoundSliderOverlayShape(overlayRadius: 14),
-            ),
-            child: Slider(
-              value: value.clamp(min, max),
-              min: min,
-              max: max,
-              divisions: divisions,
-              onChanged: onChanged,
-            ),
-          ),
-        ),
-        SizedBox(
-          width: 80,
-          child: Text(
-            format,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
-            textAlign: TextAlign.right,
-          ),
-        ),
-      ],
+      ),
     );
   }
 
   void _addDebt() {
     setState(() {
       _dettes.add(_DebtInput(
-        nom: 'Nouvelle dette',
+        nom: S.of(context)!.repaymentNewDebt,
         montant: 5000,
         tauxAnnuel: 5.0,
         mensualiteMin: 100,
@@ -384,82 +529,55 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   }
 
   Widget _buildBudgetSection() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
+    return GestureDetector(
+      onTap: () => _showValueEditor(
+        label: S.of(context)!.repaymentBudgetEditorLabel,
+        currentValue: _budgetMensuel,
+        min: 200,
+        max: 5000,
+        prefix: 'CHF',
+        onChanged: (v) => setState(() => _budgetMensuel = v),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'BUDGET MENSUEL REMBOURSEMENT',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _buildSliderRow(
-            label: 'Budget total / mois',
-            value: _budgetMensuel,
-            min: 200,
-            max: 5000,
-            divisions: 48,
-            format: 'CHF ${formatChf(_budgetMensuel)}',
-            onChanged: (v) => setState(() => _budgetMensuel = v),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSliderRow({
-    required String label,
-    required double value,
-    required double min,
-    required double max,
-    required int divisions,
-    required String format,
-    required ValueChanged<double> onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: MintColors.primary.withValues(alpha: 0.2)),
+        ),
+        child: Row(
           children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textPrimary,
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: MintColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.payments_outlined,
+                  color: MintColors.primary, size: 22),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    S.of(context)!.repaymentBudgetLabel,
+                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    S.of(context)!.repaymentBudgetDisplay(formatChf(_budgetMensuel)),
+                    style: MintTextStyles.headlineMedium(color: MintColors.primary),
+                  ),
+                ],
               ),
             ),
-            Text(
-              format,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
-            ),
+            const Icon(Icons.edit_outlined,
+                color: MintColors.textMuted, size: 18),
           ],
         ),
-        Slider(
-          value: value,
-          min: min,
-          max: max,
-          divisions: divisions,
-          activeColor: MintColors.primary,
-          onChanged: onChanged,
-        ),
-      ],
+      ),
     );
   }
 
@@ -468,37 +586,30 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'COMPARAISON DES STRATEGIES',
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
-            letterSpacing: 1,
-          ),
+          S.of(context)!.repaymentComparaisonStrategies,
+          style: MintTextStyles.bodySmall(color: MintColors.textMuted),
         ),
         const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
               child: _buildStrategyCard(
-                title: 'AVALANCHE',
-                subtitle: 'Taux haut d\'abord',
+                title: S.of(context)!.repaymentAvalancheTitle,
+                subtitle: S.of(context)!.repaymentAvalancheSubtitle,
+                pro: S.of(context)!.repaymentAvalanchePro,
                 mois: result.avalanche.moisJusquaLiberation,
                 interets: result.avalanche.interetsTotaux,
-                isWinner: result.avalanche.interetsTotaux <=
-                    result.bouleDeNeige.interetsTotaux,
                 icon: Icons.trending_down,
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: _buildStrategyCard(
-                title: 'BOULE DE NEIGE',
-                subtitle: 'Petit solde d\'abord',
+                title: S.of(context)!.repaymentSnowballTitle,
+                subtitle: S.of(context)!.repaymentSnowballSubtitle,
+                pro: S.of(context)!.repaymentSnowballPro,
                 mois: result.bouleDeNeige.moisJusquaLiberation,
                 interets: result.bouleDeNeige.interetsTotaux,
-                isWinner: result.bouleDeNeige.interetsTotaux <
-                    result.avalanche.interetsTotaux,
                 icon: Icons.ac_unit,
               ),
             ),
@@ -514,20 +625,20 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           child: Column(
             children: [
               _buildComparisonRow(
-                'Date liberation',
-                '${result.avalanche.moisJusquaLiberation} mois',
-                '${result.bouleDeNeige.moisJusquaLiberation} mois',
+                S.of(context)!.repaymentRowLiberation,
+                S.of(context)!.repaymentDurationDisplay(result.avalanche.moisJusquaLiberation),
+                S.of(context)!.repaymentDurationDisplay(result.bouleDeNeige.moisJusquaLiberation),
               ),
               const SizedBox(height: 8),
               _buildComparisonRow(
-                'Interets totaux',
-                'CHF ${formatChf(result.avalanche.interetsTotaux)}',
-                'CHF ${formatChf(result.bouleDeNeige.interetsTotaux)}',
+                S.of(context)!.repaymentRowInterets,
+                S.of(context)!.repaymentInteretsDisplay(formatChf(result.avalanche.interetsTotaux)),
+                S.of(context)!.repaymentInteretsDisplay(formatChf(result.bouleDeNeige.interetsTotaux)),
               ),
               if (result.economieInterets > 0) ...[
                 const Divider(height: 16),
                 Text(
-                  'Difference : CHF ${formatChf(result.economieInterets)}',
+                  S.of(context)!.repaymentDifference(formatChf(result.economieInterets)),
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -545,9 +656,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   Widget _buildStrategyCard({
     required String title,
     required String subtitle,
+    required String pro,
     required int mois,
     required double interets,
-    required bool isWinner,
     required IconData icon,
   }) {
     return Container(
@@ -556,8 +667,8 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isWinner ? MintColors.success : MintColors.border,
-          width: isWinner ? 2 : 1,
+          color: MintColors.border,
+          width: 1,
         ),
       ),
       child: Column(
@@ -569,38 +680,35 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
               const SizedBox(width: 6),
               Text(
                 title,
-                style: GoogleFonts.montserrat(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 0.5,
-                ),
+                style: MintTextStyles.micro(color: MintColors.textMuted)
+                    .copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
               ),
             ],
           ),
           const SizedBox(height: 2),
           Text(
             subtitle,
-            style: const TextStyle(
-              fontSize: 11,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           Text(
-            '$mois mois',
-            style: GoogleFonts.montserrat(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              color: isWinner ? MintColors.success : MintColors.textPrimary,
-            ),
+            S.of(context)!.repaymentDurationDisplay(mois),
+            style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
           ),
           const SizedBox(height: 4),
           Text(
-            'CHF ${formatChf(interets)} interets',
+            S.of(context)!.repaymentInteretsDisplay(formatChf(interets)),
             style: const TextStyle(
               fontSize: 11,
               color: MintColors.redDeep,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '✓ $pro',
+            style: const TextStyle(
+              fontSize: 10,
+              color: MintColors.textSecondary,
             ),
           ),
         ],
@@ -616,20 +724,22 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           flex: 2,
           child: Text(
             label,
-            style: const TextStyle(fontSize: 12, color: MintColors.textMuted),
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted),
           ),
         ),
         Expanded(
           child: Text(
             valueA,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            style: MintTextStyles.labelSmall(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
           ),
         ),
         Expanded(
           child: Text(
             valueB,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            style: MintTextStyles.labelSmall(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
           ),
         ),
@@ -637,8 +747,24 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     );
   }
 
+  Widget _buildStrategyNote() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.appleSurface,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        S.of(context)!.repaymentStrategyNote,
+        style: MintTextStyles.labelSmall(color: MintColors.textSecondary)
+            .copyWith(fontStyle: FontStyle.italic),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
   Widget _buildTimelineSection(RepaymentComparisonResult result) {
-    // Show avalanche timeline (generally better)
+    // Show avalanche timeline as example
     final timeline = result.avalanche.timeline;
     if (timeline.isEmpty) return const SizedBox.shrink();
 
@@ -664,33 +790,30 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'TIMELINE (AVALANCHE)',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            S.of(context)!.repaymentTimelineTitle,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: 16),
 
           // Header
-          const Row(
+          Row(
             children: [
               SizedBox(
                 width: 50,
-                child: Text('Mois',
-                    style:
-                        TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                child: Text(S.of(context)!.repaymentTimelineMois,
+                    style: MintTextStyles.labelSmall(color: MintColors.textPrimary)
+                        .copyWith(fontWeight: FontWeight.bold)),
               ),
               Expanded(
-                child: Text('Paiement',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                child: Text(S.of(context)!.repaymentTimelinePaiement,
+                    style: MintTextStyles.labelSmall(color: MintColors.textPrimary)
+                        .copyWith(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.right),
               ),
               Expanded(
-                child: Text('Solde restant',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                child: Text(S.of(context)!.repaymentTimelineSolde,
+                    style: MintTextStyles.labelSmall(color: MintColors.textPrimary)
+                        .copyWith(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.right),
               ),
             ],
@@ -713,26 +836,24 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                         width: 50,
                         child: Text(
                           '${month.mois}',
-                          style: const TextStyle(fontSize: 12),
+                          style: MintTextStyles.labelSmall(color: MintColors.textPrimary),
                         ),
                       ),
                       Expanded(
                         child: Text(
                           'CHF ${formatChf(month.paiementTotal)}',
-                          style: const TextStyle(fontSize: 12),
+                          style: MintTextStyles.labelSmall(color: MintColors.textPrimary),
                           textAlign: TextAlign.right,
                         ),
                       ),
                       Expanded(
                         child: Text(
                           'CHF ${formatChf(month.soldeTotal)}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                          style: MintTextStyles.labelSmall(
                             color: month.soldeTotal <= 0.01
                                 ? MintColors.success
                                 : MintColors.textPrimary,
-                          ),
+                          ).copyWith(fontWeight: FontWeight.w600),
                           textAlign: TextAlign.right,
                         ),
                       ),
@@ -755,15 +876,14 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
-      child: const Column(
+      child: Column(
         children: [
-          Icon(Icons.account_balance_wallet_outlined,
+          const Icon(Icons.account_balance_wallet_outlined,
               color: MintColors.textMuted, size: 48),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
-            'Ajoutez vos dettes et definissez votre budget mensuel '
-            'de remboursement pour voir le plan.',
-            style: TextStyle(
+            S.of(context)!.repaymentEmptyState,
+            style: const TextStyle(
               fontSize: 14,
               color: MintColors.textSecondary,
             ),
@@ -776,25 +896,21 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
 
   Widget _buildDisclaimer(String disclaimer) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.warningBg,
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.orangeRetroWarm),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
               disclaimer,
-              style: const TextStyle(
-                fontSize: 11,
-                color: MintColors.deepOrange,
-                height: 1.4,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ),
         ],

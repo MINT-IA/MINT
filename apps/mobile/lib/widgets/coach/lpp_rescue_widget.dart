@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P7-D  Opération sauvetage 2e pilier — 30 jours chrono
@@ -116,11 +116,7 @@ class LppRescueWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Opération sauvetage 2e pilier',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -140,11 +136,7 @@ class LppRescueWidget extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   'Il te reste $daysLeft jours pour agir',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: urgencyColor,
-                  ),
+                  style: MintTextStyles.bodySmall(color: urgencyColor).copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -168,11 +160,7 @@ class LppRescueWidget extends StatelessWidget {
           const SizedBox(width: 10),
           Text(
             'Ton avoir LPP : CHF ${_fmt(lppBalance)}',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: MintColors.info,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -216,11 +204,7 @@ class LppRescueWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Option ${index + 1} : ${option.label}',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
               if (option.recommended)
@@ -232,11 +216,7 @@ class LppRescueWidget extends StatelessWidget {
                   ),
                   child: Text(
                     'Recommandé',
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.white,
-                    ),
+                    style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
             ],
@@ -244,11 +224,7 @@ class LppRescueWidget extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             option.description,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.5,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.5),
           ),
           if (option.fiveYearGain != 0) ...[
             const SizedBox(height: 8),
@@ -256,21 +232,14 @@ class LppRescueWidget extends StatelessWidget {
               option.fiveYearGain > 0
                   ? '+CHF ${_fmt(option.fiveYearGain)} sur 5 ans'
                   : '-CHF ${_fmt(option.fiveYearGain.abs())} sur 5 ans',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: option.fiveYearGain > 0 ? MintColors.scoreExcellent : MintColors.scoreCritique,
-              ),
+              style: MintTextStyles.bodySmall(color: option.fiveYearGain > 0 ? MintColors.scoreExcellent : MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
             ),
           ],
           if (option.legalRef != null) ...[
             const SizedBox(height: 4),
             Text(
               option.legalRef!,
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textSecondary),
             ),
           ],
         ],
@@ -301,22 +270,14 @@ class LppRescueWidget extends StatelessWidget {
               children: [
                 Text(
                   'Ne rien faire = institution supplétive',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.scoreCritique,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Le taux technique est bas et les frais élevés. '
                   'Un avoir de CHF ${_fmt(lppBalance)} peut perdre jusqu\'à '
                   'CHF ${_fmt(estimatedLoss)} sur 5 ans vs un compte libre passage optimisé.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.5),
                 ),
               ],
             ),
@@ -331,11 +292,7 @@ class LppRescueWidget extends StatelessWidget {
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : LFLP art. 3-4, OPP2 art. 10. Délai légal de transfert : 6 mois (LFLP art. 4). '
       'Avoirs oubliés : sfbvg.ch.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

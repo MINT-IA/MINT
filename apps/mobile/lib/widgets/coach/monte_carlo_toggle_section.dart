@@ -1,8 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_models.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/retirement/monte_carlo_chart.dart';
 
@@ -72,11 +72,7 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
                     _showMonteCarlo
                         ? 'Probabilit\u00e9s'
                         : '3 Sc\u00e9narios',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
                 _buildToggle(),
@@ -149,15 +145,11 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
             ),
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: isSelected
+              style: MintTextStyles.labelSmall(color: isSelected
                     ? MintColors.white
                     : enabled
                         ? MintColors.textSecondary
-                        : MintColors.textMuted,
-              ),
+                        : MintColors.textMuted).copyWith(fontWeight: FontWeight.w600),
             ),
           ),
         ),
@@ -172,10 +164,7 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Text(
           'Simulation en cours\u2026',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
         ),
       );
     }
@@ -206,11 +195,7 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
             'Dans ces simulations, ${result.numSimulations} trajectoires '
             'ind\u00e9pendantes sont g\u00e9n\u00e9r\u00e9es. '
             'Outil \u00e9ducatif (LSFin).',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.textMuted,
-              fontStyle: FontStyle.italic,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textMuted),
           ),
         ),
       ],
@@ -253,11 +238,7 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
           const SizedBox(width: 6),
           Text(
             '$label\u00a0: $pct\u00a0%',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: badgeColor,
-            ),
+            style: MintTextStyles.labelSmall(color: badgeColor).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -299,11 +280,7 @@ class MonteCarloTeaser extends StatelessWidget {
           children: [
             Text(
               'Probabilit\u00e9s Monte Carlo',
-              style: GoogleFonts.montserrat(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
 
@@ -324,11 +301,7 @@ class MonteCarloTeaser extends StatelessWidget {
             Text(
               'Les probabilit\u00e9s Monte Carlo te montrent '
               'l\'\u00e9ventail de tes futurs possibles.',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.4,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
             ),
             // ── Missing category chips (categories only, no values) ──
             if (missingCategories.isNotEmpty) ...[
@@ -353,11 +326,7 @@ class MonteCarloTeaser extends StatelessWidget {
                     ),
                     child: Text(
                       displayName,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.primary,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
                     ),
                   );
                 }).toList(),
@@ -386,11 +355,7 @@ class MonteCarloTeaser extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     'Compl\u00e8te ton profil pour d\u00e9bloquer',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.primary,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -400,11 +365,7 @@ class MonteCarloTeaser extends StatelessWidget {
             Text(
               'Outil \u00e9ducatif simplifi\u00e9 (LSFin). '
               'Ne constitue pas un conseil financier.',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ],
         ),

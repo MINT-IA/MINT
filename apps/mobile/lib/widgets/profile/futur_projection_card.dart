@@ -3,9 +3,9 @@
 // sont des estimations (LAVS art. 21-40, LPP art. 14-16).
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// "Futur" panel of the triptyque layout — retirement income projection.
@@ -143,11 +143,7 @@ class FuturProjectionCard extends StatelessWidget {
           Expanded(
             child: Text(
               l.futurHorizonTitle,
-              style: GoogleFonts.montserrat(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           if (_isCouple)
@@ -159,11 +155,7 @@ class FuturProjectionCard extends StatelessWidget {
               ),
               child: Text(
                 l.futurCoupleLabel,
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.info,
-                ),
+                style: MintTextStyles.micro(color: MintColors.info).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
               ),
             ),
         ],
@@ -221,21 +213,13 @@ class FuturProjectionCard extends StatelessWidget {
           children: [
             Text(
               value,
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: color,
-              ),
+              style: MintTextStyles.bodyLarge(color: color).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 2),
             Text(
               label,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 9,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w500, fontStyle: FontStyle.normal),
             ),
           ],
         ),
@@ -307,12 +291,7 @@ class FuturProjectionCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Text(
             text,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.5, fontStyle: FontStyle.normal),
           ),
         ),
         const Expanded(child: Divider(height: 1)),
@@ -346,19 +325,12 @@ class FuturProjectionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12),
                 ),
               ),
               Text(
                 'CHF ${_fmtChf(monthly)}/mois',
-                style: GoogleFonts.montserrat(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -367,11 +339,7 @@ class FuturProjectionCard extends StatelessWidget {
               padding: const EdgeInsets.only(left: 16, top: 1),
               child: Text(
                 detail ?? hint!,
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  color: MintColors.textMuted,
-                  fontStyle: hint != null ? FontStyle.italic : FontStyle.normal,
-                ),
+                style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: hint != null ? FontStyle.italic : FontStyle.normal),
               ),
             ),
         ],
@@ -394,20 +362,12 @@ class FuturProjectionCard extends StatelessWidget {
               _isCouple
                   ? l.futurTotalCoupleProjecte
                   : l.futurTotalMensuelProjecte,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: MintColors.primary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
             ),
           ),
           Text(
             'CHF ${_fmtChf(_totalMonthlyProjected)}/mois',
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: MintColors.primary,
-            ),
+            style: MintTextStyles.bodyLarge(color: MintColors.primary).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -429,20 +389,12 @@ class FuturProjectionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   l.futurCapitalTotal,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                 ),
               ),
               Text(
                 'CHF ${_fmtChf(_totalCapitalRetraite)}',
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -455,12 +407,7 @@ class FuturProjectionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   l.futurCapitalTaxHint,
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontStyle: FontStyle.italic,
-                    color: MintColors.textMuted,
-                    height: 1.3,
-                  ),
+                  style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(height: 1.3),
                 ),
               ),
             ],
@@ -497,28 +444,17 @@ class FuturProjectionCard extends StatelessWidget {
               children: [
                 Text(
                   l.futurMargeIncertitude(uncertaintyPct.toStringAsFixed(0)),
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.warning,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.warning).copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   l.futurFourchette(_fmtChf(low), _fmtChf(high)),
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   l.futurCompleterProfil,
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontStyle: FontStyle.italic,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.micro(color: MintColors.textMuted),
                 ),
               ],
             ),
@@ -535,11 +471,7 @@ class FuturProjectionCard extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       child: Text(
         l.futurDisclaimer,
-        style: GoogleFonts.inter(
-          fontSize: 10,
-          color: MintColors.textMuted,
-          height: 1.3,
-        ),
+        style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal, height: 1.3),
       ),
     );
   }
@@ -569,11 +501,7 @@ class FuturProjectionCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   l.futurExplorerDetails,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.info,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.info).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                 ),
               ],
             ),

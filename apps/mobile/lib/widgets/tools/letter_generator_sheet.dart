@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/factory/letter_generator_service.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -29,14 +29,12 @@ class LetterGeneratorSheet extends StatelessWidget {
         children: [
           Text(
             s.letterGenTitle,
-            style:
-                GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold),
+            style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 20),
           ),
           const SizedBox(height: 8),
           Text(
             s.letterGenSubtitle,
-            style: GoogleFonts.inter(
-                fontSize: 14, color: MintColors.textSecondary),
+            style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 24),
           _buildActionItem(
@@ -70,7 +68,7 @@ class LetterGeneratorSheet extends StatelessWidget {
           const SizedBox(height: 30),
           Text(
             s.letterGenDisclaimer,
-            style: GoogleFonts.inter(fontSize: 10, color: MintColors.textMuted),
+            style: MintTextStyles.micro(color: MintColors.textMuted),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
@@ -110,11 +108,9 @@ class LetterGeneratorSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title,
-                      style: GoogleFonts.outfit(
-                          fontSize: 16, fontWeight: FontWeight.w600)),
+                      style: MintTextStyles.titleMedium(color: MintColors.textPrimary)),
                   Text(subtitle,
-                      style: GoogleFonts.inter(
-                          fontSize: 12, color: MintColors.textSecondary)),
+                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12)),
                 ],
               ),
             ),

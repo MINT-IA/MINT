@@ -400,8 +400,9 @@ Sur la base de la recherche et des pratiques des leaders :
 | **Free** | 0 CHF | Fiscal Mirror, 4 questions d'or, 1 JIT card/jour, ConfidenceScore basique, contenu éducatif |
 | **Plus** | 9.90 CHF/mois | Chat AI illimité, tous simulateurs, Financial Health Score, streaks & gamification, Open Banking, rapports PDF |
 | **Pro** | 29.90 CHF/mois | Voice AI, mémoire longue durée, alertes proactives avancées, benchmarks cantonaux, scan OCR illimité |
-| **Expert** | 49.90 CHF/mois | Accès conseiller humain (2 sessions/mois), planification successorale, arbitrages complexes |
 | **B2B** | 5-15 CHF/employé/an | Marque blanche pour caisses/employeurs (déjà prévu) |
+
+**Session Expert (add-on)** : 129 CHF/session avec spécialiste certifié (planificateur, fiscaliste, notaire). Dossier IA pré-rempli inclus. Commission MINT 10-20%. Pas de tier "Expert" à 49.90 CHF — économiquement intenable (coût spécialiste > 150 CHF/h).
 
 ---
 
