@@ -120,6 +120,7 @@ Prepare    = un événement ou horizon justifie une préparation
 - âge
 - canton
 - statut marital
+- mode couple / ménage si actif
 - enfants
 - revenu
 - patrimoine
@@ -157,6 +158,7 @@ Prepare    = un événement ou horizon justifie une préparation
 - dernier cap servi
 - derniers prompts coach
 - flows abandonnés récemment
+- contexte ménage vs individuel de la dernière décision
 
 ## 6.5 Time triggers
 
@@ -165,6 +167,27 @@ Prepare    = un événement ou horizon justifie une préparation
 - refresh annuel
 - document périmé
 - échéance de couple / invitation / consentement
+
+## 6.6 Caps ménage
+
+Dans certains cas, le `CapEngine` ne doit pas raisonner seulement au niveau individuel.
+
+Le moteur peut produire un cap ménage quand:
+- l'impact réel porte sur les deux personnes,
+- la décision modifie AVS, fiscalité, logement, succession ou retraite à l'échelle du ménage,
+- un arbitrage croisé entre deux profils est plus utile qu'une optimisation isolée.
+
+Exemples de caps ménage:
+- `Voir ce qui change à deux`
+- `Prioriser le rachat LPP le plus utile pour votre ménage`
+- `Comparer l'impact fiscal couple vs individuel`
+- `Clarifier le prochain levier logement à deux`
+
+Règles:
+- un cap ménage doit rester lisible comme un seul levier principal;
+- il ne doit pas fusionner deux problèmes sans lien;
+- il doit expliciter ce qui concerne le ménage et ce qui reste individuel;
+- il ne doit jamais masquer les asymétries fortes entre les deux profils.
 
 ---
 
@@ -201,6 +224,9 @@ score = impact * urgency * confidence_penalty * readiness * recency_modifier
 - si deadline fiscale < 30 jours et levier 3a / fiscal existe
   favoriser `Optimize`
 
+- si opportunité `3a rétroactif` existe
+  favoriser `Optimize` avec urgence modérée, jamais `Secure`
+
 - si budget négatif ou dette critique
   favoriser `Correct`
 
@@ -216,6 +242,21 @@ Si le budget est en déficit:
 - le cap doit montrer d'abord la marge à retrouver
 - puis l'action la plus proche (ajuster une enveloppe, couper un poste, simuler)
 - jamais un chiffre rouge seul sans levier
+
+### Clause d'honnêteté
+
+Si aucun levier réaliste n'existe à horizon utile:
+- le `CapEngine` ne doit pas fabriquer une fausse solution;
+- il doit dire la vérité avec tact;
+- il peut basculer vers un cap de clarification, de protection ou d'orientation humaine;
+- l'UX montre alors les limites de manœuvre, pas un faux espoir.
+
+### Règle LPP / certificat
+
+Si `avoirLppTotal == null` ou si le certificat LPP manque:
+- les projections retraite détaillées doivent être considérées comme indicatives;
+- le moteur doit favoriser un cap `Complete` ou un `why_now` centré sur le certificat LPP;
+- les écrans détaillés doivent afficher des fourchettes larges plutôt qu'une précision artificielle.
 
 ---
 
@@ -424,6 +465,40 @@ Le `CapEngine` pourra ensuite intégrer:
 - preferences explicites
 - saisonnalité
 - segmentation comportementale
+- caps ménage explicites quand la décision réelle porte sur le couple
+- distinction plus fine obligatoire / surobligatoire dans les caps LPP et décaissement
+
+### Séquences de caps (V2)
+
+Le V1 choisit le meilleur cap indépendamment. Le V2 introduit le concept de **séquence** : un cap peut avoir des prérequis (données ou actions) et un cap suivant.
+
+Cas d'usage principal : le plan retraite.
+
+```text
+Phase 1: Complete (certificat LPP → extrait AVS → recensement 3a)
+Phase 2: Prepare (rente vs capital → timing 3a → hypothèque)
+Phase 3: Optimize (rachat LPP → LAMal → succession → budget post)
+Phase 4: Prepare (déclaration retrait → vérification rente AVS)
+```
+
+Règles de séquencement:
+- un cap de Phase N+1 ne s'active que si les données de Phase N sont présentes
+- un cap sans ses prérequis data affiche des fourchettes indicatives + CTA vers la capture manquante
+- la progression est visible dans Aujourd'hui : "X/Y étapes clarifiées"
+- le recalcul après action complétée peut changer l'ordre des caps restants
+
+Interface V2 (cible):
+```dart
+class CapSequence {
+  final String sequenceId;       // ex: "retirement_plan"
+  final List<String> phases;     // ex: ["clarify", "arbitrate", "prepare", "accompany"]
+  final Map<String, List<String>> prereqs; // capId → required completedActions
+  final int completedCount;
+  final int totalCount;
+}
+```
+
+Le V2 n'ajoute pas de nouvelle UI obligatoire — la séquence est invisible. Le CapEngine choisit toujours 1 cap, mais il le choisit en tenant compte de l'avancement dans la séquence.
 
 Mais pas en V1.
 

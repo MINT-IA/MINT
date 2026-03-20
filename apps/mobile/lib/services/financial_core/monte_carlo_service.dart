@@ -180,16 +180,38 @@ class MonteCarloProjectionService {
       // ── LPP utilisateur : rente et/ou capital ─────────────
       double lppMonthly;
       double lppCapitalNet = 0;
-      // Adjusted conversion rate for early retirement (LPP art. 13 al. 2)
-      final conversionRate = LppCalculator.adjustedConversionRate(
-        baseRate: profile.prevoyance.tauxConversion,
+      // Split oblig/suroblig conversion rates (LPP art. 14)
+      final convRateOblig = LppCalculator.adjustedConversionRate(
+        baseRate: lppTauxConversionMinDecimal,
         retirementAge: retirementAgeUser,
       );
+      final convRateSurob = LppCalculator.adjustedConversionRate(
+        baseRate: profile.prevoyance.tauxConversionSuroblig
+            ?? lppTauxConversionSurobligDecimal,
+        retirementAge: retirementAgeUser,
+      );
+      final userOblig = profile.prevoyance.avoirLppObligatoire;
+      final userSurob = profile.prevoyance.avoirLppSurobligatoire;
+
+      double blendedRente(double balance) {
+        if (userOblig != null && userSurob != null) {
+          final total = userOblig + userSurob;
+          final ratio = total > 0 ? userOblig / total : 0.5;
+          return balance * ratio * convRateOblig +
+              balance * (1 - ratio) * convRateSurob;
+        }
+        // No certificate split: use profile enveloping rate
+        final envRate = LppCalculator.adjustedConversionRate(
+          baseRate: profile.prevoyance.tauxConversion,
+          retirementAge: retirementAgeUser,
+        );
+        return balance * envRate;
+      }
 
       if (lppCapitalPct > 0 && lppBalance > 0) {
         final capitalPortion = lppBalance * lppCapitalPct;
         final rentePortion = lppBalance * (1 - lppCapitalPct);
-        lppMonthly = rentePortion * conversionRate / 12;
+        lppMonthly = blendedRente(rentePortion) / 12;
         final tax = RetirementTaxCalculator.capitalWithdrawalTax(
           capitalBrut: capitalPortion,
           canton: canton,
@@ -197,7 +219,7 @@ class MonteCarloProjectionService {
         );
         lppCapitalNet = capitalPortion - tax;
       } else {
-        lppMonthly = lppBalance * conversionRate / 12;
+        lppMonthly = blendedRente(lppBalance) / 12;
       }
 
       // ── LPP conjoint : projection avec rachats planifies ──

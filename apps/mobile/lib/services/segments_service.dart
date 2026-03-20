@@ -99,8 +99,8 @@ class GenderGapService {
   /// Minimum coordinated salary (LPP).
   static const double minSalaireCoordonne = lppSalaireCoordMin;
 
-  /// Conversion rate at retirement (LPP art. 14).
-  static const double tauxConversion = 0.068;
+  /// Conversion rate at retirement — minimum legal, obligatoire only (LPP art. 14).
+  static const double tauxConversion = lppTauxConversionMinDecimal;
 
   /// Swiss legal retirement age (post-AVS21).
   static const int ageRetraite = 65;

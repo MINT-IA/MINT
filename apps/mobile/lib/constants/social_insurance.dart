@@ -36,8 +36,14 @@ const double lppSalaireMax = 90720.0;
 const double lppTauxConversionMin = 6.8;
 
 /// Taux de conversion minimum LPP en fraction decimale (0.068 = 6.8%).
-/// Utiliser cette valeur dans les calculs (pas lppTauxConversionMin / 100).
+/// S'applique UNIQUEMENT a la part obligatoire (LPP art. 14 al. 2).
+/// Ne jamais appliquer implicitement sur tout le capital LPP.
 const double lppTauxConversionMinDecimal = 0.068;
+
+/// Taux de conversion estime pour la part surobligatoire LPP.
+/// Estimation mediane 2025/2026 des caisses suisses (fourchette 4.8%-6.0%).
+/// Utilise comme fallback quand le certificat LPP ne precise pas le taux enveloppant.
+const double lppTauxConversionSurobligDecimal = 0.054;
 
 /// Reduction du taux de conversion par annee de retraite anticipee.
 /// Pratique standard des caisses suisses: ~0.2 points de % par annee

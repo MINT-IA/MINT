@@ -302,8 +302,11 @@ class FinancialReportService {
 
     // Rentes
     final monthlyAvsRent = _estimateAvsRent(profile);
-    const lppConversionRate = lppTauxConversionMin / 100; // LPP art. 14: 6.8% minimum légal
-    final monthlyLppRent = (lppCapital * lppConversionRate) / 12;
+    // LPP art. 14: 6.8% minimum légal sur part obligatoire uniquement.
+    // Financial report is a simplified view without certificate data access.
+    // Use surobligatoire estimate (5.4%) as conservative educational default
+    // rather than 6.8% which overstates for most caisses.
+    final monthlyLppRent = (lppCapital * lppTauxConversionSurobligDecimal) / 12;
 
     return RetirementProjection(
       yearsUntilRetirement: profile.yearsToRetirement,

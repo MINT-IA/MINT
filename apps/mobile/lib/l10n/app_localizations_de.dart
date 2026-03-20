@@ -17873,4 +17873,130 @@ class SDe extends S {
   @override
   String get chiffreChocSectionDisclaimer =>
       'Nur zu Bildungszwecken. Keine Anlage- oder Vorsorgeberatung (FIDLEG). Annahmen anpassbar — Ergebnisse nicht garantiert.';
+
+  @override
+  String get concubinageTabProtection => 'Schutz';
+
+  @override
+  String concubinageHeroChiffreChoc(String montant) {
+    return 'CHF $montant gefährdetes Vermögen';
+  }
+
+  @override
+  String get concubinageHeroChiffreChocDesc =>
+      'Im Konkubinat ist dein Partner kein gesetzlicher Erbe. Ohne Testament geht dieser Betrag vollständig an andere.';
+
+  @override
+  String get concubinageEducationalAvs =>
+      'In der Schweiz gilt die 150 %-Plafonierung der AHV-Ehepaarrenten (AHVG Art. 35) nur für Verheiratete. Konkubinatspartner erhalten je ihre volle Einzelrente — ein echter Vorteil, wenn beide maximal eingezahlt haben.';
+
+  @override
+  String get concubinageEducationalLpp =>
+      'Die BVG-Hinterlassenenrente (60 % der Rente des Verstorbenen, BVG Art. 19) steht nur Ehegatten zu. Im Konkubinat kann nur das Kassenreglement ein Todesfallkapital vorsehen — und es muss beantragt werden.';
+
+  @override
+  String get concubinageEducationalSuccession =>
+      'Ein verheirateter Ehegatte ist in den meisten Kantonen von der Erbschaftssteuer befreit (ZGB Art. 462). Ein Konkubinatspartner zahlt Steuern zum Drittsatz, oft zwischen 20 % und 40 %.';
+
+  @override
+  String get concubinageProtectionIntro =>
+      'Im Konkubinat schützt die Schweiz nicht wie bei der Ehe. Hier siehst du, was sich ändert und was du vorausplanen kannst.';
+
+  @override
+  String get concubinageProtectionAvsSurvivor => 'AHV-Hinterlassenenrente';
+
+  @override
+  String get concubinageProtectionAvsSurvivorMarried =>
+      '80 % der Rente des Verstorbenen (AHVG Art. 23)';
+
+  @override
+  String get concubinageProtectionAvsSurvivorConcubin =>
+      'Keine Rente — CHF 0/Monat';
+
+  @override
+  String get concubinageProtectionLppSurvivor => 'BVG-Hinterlassenenrente';
+
+  @override
+  String get concubinageProtectionLppSurvivorMarried =>
+      '60 % der Rente des Verstorbenen (BVG Art. 19)';
+
+  @override
+  String get concubinageProtectionLppSurvivorConcubin =>
+      'Nur gemäss Kassenreglement';
+
+  @override
+  String get concubinageProtectionHeritage => 'Gesetzliches Erbrecht';
+
+  @override
+  String get concubinageProtectionHeritageMarried =>
+      'Steuerbefreit (ZGB Art. 462)';
+
+  @override
+  String get concubinageProtectionHeritageConcubin =>
+      'Kantonale Steuer (20-40 %)';
+
+  @override
+  String get concubinageProtectionPension => 'Unterhaltszahlungen';
+
+  @override
+  String get concubinageProtectionPensionMarried => 'Gerichtlich geschützt';
+
+  @override
+  String get concubinageProtectionPensionConcubin =>
+      'Keine gesetzliche Pflicht';
+
+  @override
+  String get concubinageProtectionAvsPlafond => 'AHV-Ehepaarplafonierung';
+
+  @override
+  String get concubinageProtectionAvsPlafondMarried =>
+      'Max. 150 % (AHVG Art. 35)';
+
+  @override
+  String get concubinageProtectionAvsPlafondConcubin =>
+      'Keine Plafonierung — 2×100 %';
+
+  @override
+  String get concubinageProtectionMaried => 'Verheiratet';
+
+  @override
+  String get concubinageProtectionConcubinLabel => 'Konkubinat';
+
+  @override
+  String get concubinageProtectionWarning =>
+      'Im Konkubinat erhältst du bei Tod des Partners keine AHV-Rente, keine automatische BVG-Rente und bist kein gesetzlicher Erbe. Jeder Schutz muss vorausgeplant werden.';
+
+  @override
+  String get concubinageProtectionLppSlider =>
+      'Monatliche BVG-Rente des Partners';
+
+  @override
+  String concubinageProtectionSurvivorTotal(String montant) {
+    return '$montant/Monat für den verheirateten überlebenden Ehegatten';
+  }
+
+  @override
+  String get concubinageProtectionSurvivorZero =>
+      'CHF 0/Monat für den überlebenden Konkubinatspartner ohne Massnahmen';
+
+  @override
+  String get concubinageDecisionMatrixTitle => 'Ehe vs Konkubinat';
+
+  @override
+  String get concubinageDecisionMatrixSubtitle =>
+      'Vergleich der Rechte und Pflichten';
+
+  @override
+  String get concubinageDecisionMatrixColumnMarriage => 'Ehe';
+
+  @override
+  String get concubinageDecisionMatrixColumnConcubinage => 'Konkubinat';
+
+  @override
+  String get concubinageDecisionMatrixConclusionTitle =>
+      'Neutrale Schlussfolgerung';
+
+  @override
+  String get concubinageDecisionMatrixConclusionDesc =>
+      'Die Wahl hängt von deiner persönlichen Situation ab. Konsultiere einen Notar für eine vollständige Analyse.';
 }

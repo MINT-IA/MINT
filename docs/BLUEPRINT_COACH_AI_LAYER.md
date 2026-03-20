@@ -3,7 +3,7 @@
 > **Scope**: Architecture technique du Coach AI (services, data flow, cache, guardrails).
 > **Companions**: UX_REDESIGN_COACH.md (ce que l'utilisateur voit), MINT_COACH_VIVANT_ROADMAP.md (plan d'execution sprint).
 
-> **Objectif** : Transformer MINT d'un conseiller financier reactif en une couche coach plus proactive, narrative et utile.
+> **Objectif** : Transformer MINT d'une couche coach reactive en une couche coach plus proactive, narrative et utile, au service du plan.
 > **Principe** : Le LLM (BYOK) ne repond plus seulement aux questions. Il enrichit la narration, la personnalisation et l'orchestration du coach. Le coach n'est pas le produit: il sert le plan, les flows structures et les ecrans de preuve. Sans BYOK, l'app fonctionne exactement comme aujourd'hui (zero degradation).
 > **Source de vérité** : partielle. Référence technique pour la couche coach IA, subordonnée au `MINT_UX_GRAAL_MASTERPLAN.md`.
 > **Ne couvre pas** : vision umbrella, navigation globale, design system, taxonomie écran par écran.
@@ -760,7 +760,7 @@ Apres chaque tache :
 - Plafond 3a salarie : **7'258 CHF/an**
 - Plafond 3a independant : **36'288 CHF/an** (20% du revenu net)
 - Seuil LPP : **22'680 CHF/an**
-- Taux conversion LPP minimum : **6.8%**
+- Taux conversion LPP minimum : **6.8%** sur la part obligatoire uniquement, jamais implicite sur tout le capital
 - Emergency fund objectif : **3-6 mois** de charges fixes
 - Ratio dettes max : **33%** du revenu brut
 - Taux theorique hypothecaire : **5%**

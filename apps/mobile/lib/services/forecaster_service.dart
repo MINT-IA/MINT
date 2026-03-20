@@ -837,17 +837,77 @@ class ForecasterService {
     );
     final renteAvsAnnuelle = AvsCalculator.annualRente(coupleAvs.total);
 
-    // LPP rente — adjust conversion rate for early retirement (LPP art. 13)
-    final userConvRate = LppCalculator.adjustedConversionRate(
-      baseRate: profile.prevoyance.tauxConversion,
+    // LPP rente — split obligatoire/surobligatoire conversion rates.
+    //
+    // The legal minimum conversion rate (6.8%, LPP art. 14) applies ONLY to
+    // the obligatoire portion. Most caisses apply a lower enveloping rate
+    // (typically 5.0–5.8%) to the surobligatoire portion.
+    //
+    // When we have the oblig/suroblig split from a certificate, we apply
+    // separate rates. Otherwise, we use a conservative blended estimate
+    // (fallback: 5.4% on surobligatoire) to avoid overstating projections.
+    //
+    // See: CLAUDE.md §5, arbitrage_engine.dart for reference implementation.
+    final userConvRateOblig = LppCalculator.adjustedConversionRate(
+      baseRate: lppTauxConversionMinDecimal, // 6.8% — obligatoire only
       retirementAge: retirementAge,
     );
-    final renteLppUser = lppBalance * userConvRate;
-    final conjConvRate = LppCalculator.adjustedConversionRate(
-      baseRate: profile.conjoint?.prevoyance?.tauxConversion ?? lppTauxConversionMinDecimal,
+    final userConvRateSurob = LppCalculator.adjustedConversionRate(
+      baseRate: profile.prevoyance.tauxConversionSuroblig ?? lppTauxConversionSurobligDecimal,
+      retirementAge: retirementAge,
+    );
+    final double renteLppUser;
+    final userOblig = profile.prevoyance.avoirLppObligatoire;
+    final userSurob = profile.prevoyance.avoirLppSurobligatoire;
+    if (userOblig != null && userSurob != null) {
+      // Certificate data available: project each part with its own rate ratio.
+      // The projected lppBalance grew from the total initial balance.
+      // Split proportionally based on the original oblig/suroblig ratio.
+      final totalInitial = userOblig + userSurob;
+      final obligRatio = totalInitial > 0 ? userOblig / totalInitial : 0.5;
+      final projectedOblig = lppBalance * obligRatio;
+      final projectedSurob = lppBalance * (1 - obligRatio);
+      renteLppUser =
+          projectedOblig * userConvRateOblig + projectedSurob * userConvRateSurob;
+    } else {
+      // No certificate split: apply the profile's tauxConversion as the
+      // enveloping rate (defaults to 6.8% if never set, but if the user
+      // or parser set a lower enveloping rate, honour it).
+      final envelopingRate = LppCalculator.adjustedConversionRate(
+        baseRate: profile.prevoyance.tauxConversion,
+        retirementAge: retirementAge,
+      );
+      renteLppUser = lppBalance * envelopingRate;
+    }
+
+    // Conjoint LPP — same oblig/suroblig logic
+    final conjConvRateOblig = LppCalculator.adjustedConversionRate(
+      baseRate: lppTauxConversionMinDecimal,
       retirementAge: conjRetirementAge,
     );
-    final renteLppConjoint = conjLppBalance * conjConvRate;
+    final conjConvRateSurob = LppCalculator.adjustedConversionRate(
+      baseRate: profile.conjoint?.prevoyance?.tauxConversionSuroblig ?? lppTauxConversionSurobligDecimal,
+      retirementAge: conjRetirementAge,
+    );
+    final double renteLppConjoint;
+    final conjOblig = profile.conjoint?.prevoyance?.avoirLppObligatoire;
+    final conjSurob = profile.conjoint?.prevoyance?.avoirLppSurobligatoire;
+    if (conjOblig != null && conjSurob != null) {
+      final conjTotalInitial = conjOblig + conjSurob;
+      final conjObligRatio =
+          conjTotalInitial > 0 ? conjOblig / conjTotalInitial : 0.5;
+      final projectedConjOblig = conjLppBalance * conjObligRatio;
+      final projectedConjSurob = conjLppBalance * (1 - conjObligRatio);
+      renteLppConjoint = projectedConjOblig * conjConvRateOblig +
+          projectedConjSurob * conjConvRateSurob;
+    } else {
+      final conjEnvelopingRate = LppCalculator.adjustedConversionRate(
+        baseRate: profile.conjoint?.prevoyance?.tauxConversion ??
+            lppTauxConversionMinDecimal,
+        retirementAge: conjRetirementAge,
+      );
+      renteLppConjoint = conjLppBalance * conjEnvelopingRate;
+    }
 
     // 3a: annualize over 20 years AFTER capital withdrawal tax (LIFD art. 38)
     final threeATotal = threeABalance + partner3aBalance;

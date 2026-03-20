@@ -28,6 +28,8 @@ class RetirementService {
   static int get avsRetirementAge => avsAgeReferenceHomme;
   static double get avsAnticipationPenaltyPerYear => avsReductionAnticipation;
   static int get maxContributionYears => avsDureeCotisationComplete;
+  /// Minimum legal conversion rate — obligatoire part only (LPP art. 14).
+  /// For full capital projections, use blended oblig/suroblig rates.
   static double get lppConversionRate => lppTauxConversionMinDecimal;
   static Map<String, String> get cantonNames => cantonFullNames;
 
@@ -118,14 +120,21 @@ class RetirementService {
   // ════════════════════════════════════════════════════════════
 
   /// Compare LPP capital vs rente withdrawal options.
+  ///
+  /// Note: applies [lppConversionRate] (6.8% minimum legal, part obligatoire)
+  /// on the full capital. For profiles with a certificate showing
+  /// oblig/suroblig split, callers should use the blended rate from
+  /// ForecasterService instead. This is a simplified educational comparison.
   static Map<String, dynamic> compareLpp({
     required double capitalLpp,
+    double? conversionRate,
     String canton = 'ZH',
     int ageRetraite = 65,
     int esperanceVie = 87,
   }) {
-    // Rente
-    final renteAnnuelle = capitalLpp * lppConversionRate;
+    // Rente — use provided blended rate or minimum legal fallback
+    final effectiveRate = conversionRate ?? lppConversionRate;
+    final renteAnnuelle = capitalLpp * effectiveRate;
     final renteMensuelle = renteAnnuelle / 12;
 
     // Capital tax

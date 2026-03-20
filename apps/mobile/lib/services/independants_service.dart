@@ -233,8 +233,10 @@ class IndependantsService {
   /// AVS combined employer+employee rate for salary calculations.
   static const double _avsCombinedRate = 0.1250;
 
-  /// LPP conversion rate at retirement — use centralized constant.
-  static const double _tauxConversion = lppTauxConversionMin / 100;
+  /// LPP conversion rate at retirement — minimum legal, obligatoire only.
+  /// For independants with voluntary LPP, most plans have only obligatoire
+  /// part, so 6.8% is a reasonable default (no surobligatoire split needed).
+  static const double _tauxConversion = lppTauxConversionMinDecimal;
 
   /// LPP maximum coordinated salary (LPP art. 8).
   /// Uses centralized constant from social_insurance.dart.

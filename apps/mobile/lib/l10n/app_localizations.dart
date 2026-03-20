@@ -31660,6 +31660,210 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Simulation à titre éducatif uniquement. Ne constitue pas un conseil en placement ou prévoyance (LSFin). Hypothèses modifiables — résultats non garantis.'**
   String get chiffreChocSectionDisclaimer;
+
+  /// No description provided for @concubinageTabProtection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protection'**
+  String get concubinageTabProtection;
+
+  /// No description provided for @concubinageHeroChiffreChoc.
+  ///
+  /// In fr, this message translates to:
+  /// **'CHF {montant} de patrimoine exposé'**
+  String concubinageHeroChiffreChoc(String montant);
+
+  /// No description provided for @concubinageHeroChiffreChocDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'En concubinage, ton partenaire n’est pas héritier légal. Sans testament, ce montant lui échappe entièrement.'**
+  String get concubinageHeroChiffreChocDesc;
+
+  /// No description provided for @concubinageEducationalAvs.
+  ///
+  /// In fr, this message translates to:
+  /// **'En Suisse, le plafond de 150 % sur les rentes AVS de couple (LAVS art. 35) ne s’applique qu’aux mariés. Les concubins touchent chacun leur rente individuelle complète — un avantage réel quand les deux ont cotisé au maximum.'**
+  String get concubinageEducationalAvs;
+
+  /// No description provided for @concubinageEducationalLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'La rente LPP de survivant (60 % de la rente du défunt, LPP art. 19) est réservée aux époux. En concubinage, seul le règlement de la caisse peut prévoir un capital décès — et il faut en faire la demande.'**
+  String get concubinageEducationalLpp;
+
+  /// No description provided for @concubinageEducationalSuccession.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un conjoint marié est exonéré d’impôt successoral dans la plupart des cantons (CC art. 462). Un concubin paie l’impôt au taux des tiers, souvent entre 20 % et 40 %.'**
+  String get concubinageEducationalSuccession;
+
+  /// No description provided for @concubinageProtectionIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'En concubinage, la Suisse ne protège pas comme le mariage. Voici ce qui change et ce que tu peux anticiper.'**
+  String get concubinageProtectionIntro;
+
+  /// No description provided for @concubinageProtectionAvsSurvivor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente AVS de survivant'**
+  String get concubinageProtectionAvsSurvivor;
+
+  /// No description provided for @concubinageProtectionAvsSurvivorMarried.
+  ///
+  /// In fr, this message translates to:
+  /// **'80 % de la rente du défunt (LAVS art. 23)'**
+  String get concubinageProtectionAvsSurvivorMarried;
+
+  /// No description provided for @concubinageProtectionAvsSurvivorConcubin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune rente — 0 CHF/mois'**
+  String get concubinageProtectionAvsSurvivorConcubin;
+
+  /// No description provided for @concubinageProtectionLppSurvivor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente LPP de survivant'**
+  String get concubinageProtectionLppSurvivor;
+
+  /// No description provided for @concubinageProtectionLppSurvivorMarried.
+  ///
+  /// In fr, this message translates to:
+  /// **'60 % de la rente du défunt (LPP art. 19)'**
+  String get concubinageProtectionLppSurvivorMarried;
+
+  /// No description provided for @concubinageProtectionLppSurvivorConcubin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Selon règlement caisse uniquement'**
+  String get concubinageProtectionLppSurvivorConcubin;
+
+  /// No description provided for @concubinageProtectionHeritage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Héritage légal'**
+  String get concubinageProtectionHeritage;
+
+  /// No description provided for @concubinageProtectionHeritageMarried.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exonéré (CC art. 462)'**
+  String get concubinageProtectionHeritageMarried;
+
+  /// No description provided for @concubinageProtectionHeritageConcubin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôt cantonal (20-40 %)'**
+  String get concubinageProtectionHeritageConcubin;
+
+  /// No description provided for @concubinageProtectionPension.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pension alimentaire'**
+  String get concubinageProtectionPension;
+
+  /// No description provided for @concubinageProtectionPensionMarried.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protégée par le juge'**
+  String get concubinageProtectionPensionMarried;
+
+  /// No description provided for @concubinageProtectionPensionConcubin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune obligation légale'**
+  String get concubinageProtectionPensionConcubin;
+
+  /// No description provided for @concubinageProtectionAvsPlafond.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plafond AVS couple'**
+  String get concubinageProtectionAvsPlafond;
+
+  /// No description provided for @concubinageProtectionAvsPlafondMarried.
+  ///
+  /// In fr, this message translates to:
+  /// **'150 % max (LAVS art. 35)'**
+  String get concubinageProtectionAvsPlafondMarried;
+
+  /// No description provided for @concubinageProtectionAvsPlafondConcubin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de plafond — 2×100 %'**
+  String get concubinageProtectionAvsPlafondConcubin;
+
+  /// No description provided for @concubinageProtectionMaried.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marié'**
+  String get concubinageProtectionMaried;
+
+  /// No description provided for @concubinageProtectionConcubinLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Concubin'**
+  String get concubinageProtectionConcubinLabel;
+
+  /// No description provided for @concubinageProtectionWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'En concubinage, si ton partenaire décède, tu ne reçois ni rente AVS, ni rente LPP automatique, et tu n’es pas héritier légal. Chaque protection doit être anticipée.'**
+  String get concubinageProtectionWarning;
+
+  /// No description provided for @concubinageProtectionLppSlider.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente LPP mensuelle du partenaire'**
+  String get concubinageProtectionLppSlider;
+
+  /// No description provided for @concubinageProtectionSurvivorTotal.
+  ///
+  /// In fr, this message translates to:
+  /// **'{montant}/mois pour le conjoint survivant marié'**
+  String concubinageProtectionSurvivorTotal(String montant);
+
+  /// No description provided for @concubinageProtectionSurvivorZero.
+  ///
+  /// In fr, this message translates to:
+  /// **'CHF 0/mois pour le concubin survivant sans démarche'**
+  String get concubinageProtectionSurvivorZero;
+
+  /// No description provided for @concubinageDecisionMatrixTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mariage vs Concubinage'**
+  String get concubinageDecisionMatrixTitle;
+
+  /// No description provided for @concubinageDecisionMatrixSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparaison des droits et obligations'**
+  String get concubinageDecisionMatrixSubtitle;
+
+  /// No description provided for @concubinageDecisionMatrixColumnMarriage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mariage'**
+  String get concubinageDecisionMatrixColumnMarriage;
+
+  /// No description provided for @concubinageDecisionMatrixColumnConcubinage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Concubinage'**
+  String get concubinageDecisionMatrixColumnConcubinage;
+
+  /// No description provided for @concubinageDecisionMatrixConclusionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conclusion neutre'**
+  String get concubinageDecisionMatrixConclusionTitle;
+
+  /// No description provided for @concubinageDecisionMatrixConclusionDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le choix dépend de ta situation personnelle. Consulte un·e notaire pour une analyse complète.'**
+  String get concubinageDecisionMatrixConclusionDesc;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
