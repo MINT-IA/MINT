@@ -227,7 +227,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
           title: Text(s.decesProchTestament,
               style: MintTextStyles.bodyMedium()),
           value: _testamentExiste,
-          activeThumbColor: MintColors.primary,
+          activeColor: MintColors.primary,
           onChanged: (v) => setState(() => _testamentExiste = v),
         ),
       ],

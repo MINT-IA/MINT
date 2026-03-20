@@ -1212,7 +1212,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 trackHeight: 6,
                 thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
                 valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
-                showValueIndicator: ShowValueIndicator.onDrag,
+                showValueIndicator: ShowValueIndicator.always,
               ),
               child: Slider(
                 value: _lifeExpectancy,
