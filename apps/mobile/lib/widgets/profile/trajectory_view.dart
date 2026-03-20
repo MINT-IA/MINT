@@ -32,42 +32,40 @@ class TrajectoryView extends StatelessWidget {
 
     return Container(
       color: MintColors.porcelaine,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: MintSpacing.lg,
-          vertical: MintSpacing.xl,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── 1. Ton objectif ──
-            _GoalSection(profile: profile, s: s),
+      padding: const EdgeInsets.symmetric(
+        horizontal: MintSpacing.lg,
+        vertical: MintSpacing.xl,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── 1. Ton objectif ──
+          _GoalSection(profile: profile, s: s),
 
+          const SizedBox(height: MintSpacing.xxl),
+
+          // ── 2. Ce que MINT sait ──
+          _KnownDataSection(profile: profile, s: s),
+
+          const SizedBox(height: MintSpacing.xxl),
+
+          // ── 3. Tes décisions ──
+          if (capMemory.completedActions.isNotEmpty) ...[
+            _DecisionsSection(capMemory: capMemory, s: s),
             const SizedBox(height: MintSpacing.xxl),
-
-            // ── 2. Ce que MINT sait ──
-            _KnownDataSection(profile: profile, s: s),
-
-            const SizedBox(height: MintSpacing.xxl),
-
-            // ── 3. Tes décisions ──
-            if (capMemory.completedActions.isNotEmpty) ...[
-              _DecisionsSection(capMemory: capMemory, s: s),
-              const SizedBox(height: MintSpacing.xxl),
-            ],
-
-            // ── 4. Prochaine étape ──
-            if (capMemory.lastCapServed != null) ...[
-              _NextStepSection(capMemory: capMemory, s: s),
-              const SizedBox(height: MintSpacing.xxl),
-            ],
-
-            // ── 5. Confiance ──
-            _ConfidenceSection(profile: profile, s: s),
-
-            const SizedBox(height: MintSpacing.xl),
           ],
-        ),
+
+          // ── 4. Prochaine étape ──
+          if (capMemory.lastCapServed != null) ...[
+            _NextStepSection(capMemory: capMemory, s: s),
+            const SizedBox(height: MintSpacing.xxl),
+          ],
+
+          // ── 5. Confiance ──
+          _ConfidenceSection(profile: profile, s: s),
+
+          const SizedBox(height: MintSpacing.xl),
+        ],
       ),
     );
   }

@@ -18242,4 +18242,38 @@ class SPt extends S {
 
   @override
   String get trajectoryConfidenceCta => 'Melhorar a precisão';
+
+  @override
+  String get settingsSheetTitle => 'Definições';
+
+  @override
+  String get settingsConsentsTitle => 'Consentimentos';
+
+  @override
+  String get settingsConsentsSubtitle => 'Privacidade e partilha de dados';
+
+  @override
+  String get settingsSlmTitle => 'IA no dispositivo';
+
+  @override
+  String get settingsSlmSubtitle =>
+      'Funciona no teu dispositivo, mesmo offline';
+
+  @override
+  String get settingsByokTitle => 'Chave IA pessoal';
+
+  @override
+  String get settingsByokSubtitle => 'Conecta o teu próprio modelo IA';
+
+  @override
+  String get settingsLangueTitle => 'Idioma';
+
+  @override
+  String get settingsLangueSubtitle => 'Escolher o idioma da app';
+
+  @override
+  String get settingsAboutTitle => 'Sobre';
+
+  @override
+  String get settingsAboutSubtitle => 'Versão, avisos legais, contacto';
 }

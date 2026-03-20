@@ -18208,4 +18208,37 @@ class SEn extends S {
 
   @override
   String get trajectoryConfidenceCta => 'Improve precision';
+
+  @override
+  String get settingsSheetTitle => 'Settings';
+
+  @override
+  String get settingsConsentsTitle => 'Consents';
+
+  @override
+  String get settingsConsentsSubtitle => 'Privacy and data sharing';
+
+  @override
+  String get settingsSlmTitle => 'On-device AI';
+
+  @override
+  String get settingsSlmSubtitle => 'Runs on your device, even offline';
+
+  @override
+  String get settingsByokTitle => 'Personal AI key';
+
+  @override
+  String get settingsByokSubtitle => 'Connect your own AI model';
+
+  @override
+  String get settingsLangueTitle => 'Language';
+
+  @override
+  String get settingsLangueSubtitle => 'Choose app language';
+
+  @override
+  String get settingsAboutTitle => 'About';
+
+  @override
+  String get settingsAboutSubtitle => 'Version, legal notices, contact';
 }

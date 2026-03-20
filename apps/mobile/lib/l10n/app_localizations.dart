@@ -32440,6 +32440,72 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Améliorer la précision'**
   String get trajectoryConfidenceCta;
+
+  /// No description provided for @settingsSheetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réglages'**
+  String get settingsSheetTitle;
+
+  /// No description provided for @settingsConsentsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consentements'**
+  String get settingsConsentsTitle;
+
+  /// No description provided for @settingsConsentsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vie privée et partage de données'**
+  String get settingsConsentsSubtitle;
+
+  /// No description provided for @settingsSlmTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'IA embarquée'**
+  String get settingsSlmTitle;
+
+  /// No description provided for @settingsSlmSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tourne sur ton appareil, même hors ligne'**
+  String get settingsSlmSubtitle;
+
+  /// No description provided for @settingsByokTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Clé IA perso'**
+  String get settingsByokTitle;
+
+  /// No description provided for @settingsByokSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Branche ton propre modèle IA'**
+  String get settingsByokSubtitle;
+
+  /// No description provided for @settingsLangueTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Langue'**
+  String get settingsLangueTitle;
+
+  /// No description provided for @settingsLangueSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir la langue de l’app'**
+  String get settingsLangueSubtitle;
+
+  /// No description provided for @settingsAboutTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À propos'**
+  String get settingsAboutTitle;
+
+  /// No description provided for @settingsAboutSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version, mentions légales, contact'**
+  String get settingsAboutSubtitle;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

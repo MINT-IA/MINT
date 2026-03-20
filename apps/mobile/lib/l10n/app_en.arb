@@ -8274,5 +8274,16 @@
   "trajectoryConfidenceSectionTitle": "Confidence",
   "trajectoryConfidenceLowMessage": "Your data is still partial \u2014 each additional piece of information refines your trajectory.",
   "trajectoryConfidenceHighMessage": "Well-documented profile \u2014 your projections are reliable.",
-  "trajectoryConfidenceCta": "Improve precision"
+  "trajectoryConfidenceCta": "Improve precision",
+  "settingsSheetTitle": "Settings",
+  "settingsConsentsTitle": "Consents",
+  "settingsConsentsSubtitle": "Privacy and data sharing",
+  "settingsSlmTitle": "On-device AI",
+  "settingsSlmSubtitle": "Runs on your device, even offline",
+  "settingsByokTitle": "Personal AI key",
+  "settingsByokSubtitle": "Connect your own AI model",
+  "settingsLangueTitle": "Language",
+  "settingsLangueSubtitle": "Choose app language",
+  "settingsAboutTitle": "About",
+  "settingsAboutSubtitle": "Version, legal notices, contact"
 }
