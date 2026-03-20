@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  SMART SHORTCUTS — Raccourcis contextuels vers outils/arbitrages
@@ -64,11 +64,7 @@ class SmartShortcuts extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Voir ton bilan détaillé',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.primary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
                 const Icon(Icons.arrow_forward_ios,
@@ -109,11 +105,7 @@ class SmartShortcuts extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               s.label,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: s.color,
-              ),
+              style: MintTextStyles.labelSmall(color: s.color).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ],
         ),

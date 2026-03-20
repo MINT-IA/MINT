@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Privacy-first analytics consent banner
 ///
@@ -151,12 +151,7 @@ class _AnalyticsConsentBannerState extends State<AnalyticsConsentBanner>
                       Expanded(
                         child: Text(
                           s?.analyticsConsentTitle ?? 'Statistiques anonymes',
-                          style: GoogleFonts.outfit(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                            color: MintColors.textPrimary,
-                            letterSpacing: -0.3,
-                          ),
+                          style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, letterSpacing: -0.3),
                         ),
                       ),
                     ],
@@ -168,12 +163,7 @@ class _AnalyticsConsentBannerState extends State<AnalyticsConsentBanner>
                   Text(
                     s?.analyticsConsentMessage ??
                         'MINT utilise des statistiques anonymes pour améliorer l\'expérience. Aucune donnée personnelle n\'est collectée.',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: MintColors.textSecondary,
-                      height: 1.5,
-                      letterSpacing: -0.1,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(height: 1.5, letterSpacing: -0.1),
                   ),
 
                   const SizedBox(height: 20),
@@ -197,11 +187,7 @@ class _AnalyticsConsentBannerState extends State<AnalyticsConsentBanner>
                           ),
                           child: Text(
                             s?.analyticsRefuse ?? 'Refuser',
-                            style: GoogleFonts.inter(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: -0.2,
-                            ),
+                            style: MintTextStyles.bodyLarge(color: MintColors.textSecondary).copyWith(fontSize: 15, fontWeight: FontWeight.w600, letterSpacing: -0.2),
                           ),
                         ),
                       ),
@@ -220,11 +206,7 @@ class _AnalyticsConsentBannerState extends State<AnalyticsConsentBanner>
                           ),
                           child: Text(
                             s?.analyticsAccept ?? 'Accepter',
-                            style: GoogleFonts.inter(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: -0.2,
-                            ),
+                            style: MintTextStyles.bodyLarge(color: MintColors.white).copyWith(fontSize: 15, fontWeight: FontWeight.w600, letterSpacing: -0.2),
                           ),
                         ),
                       ),

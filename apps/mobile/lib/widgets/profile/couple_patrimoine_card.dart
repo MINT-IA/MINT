@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -96,11 +96,7 @@ class CouplePatrimoineCard extends StatelessWidget {
                     _isCouple
                         ? l.patrimoineCoupleTitleCouple(firstName, conjointFirstName!)
                         : l.patrimoineCoupleTitleSolo(firstName),
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -175,11 +171,7 @@ class CouplePatrimoineCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(
               l.patrimoineAucunBien,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.italic),
             ),
           )
         else ...[
@@ -188,11 +180,7 @@ class CouplePatrimoineCard extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 4),
               child: Text(
                 propertyDescription!,
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  color: MintColors.textMuted,
-                  fontStyle: FontStyle.italic,
-                ),
+                style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.italic),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -262,20 +250,12 @@ class CouplePatrimoineCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   l.patrimoineNetLabel,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.primary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontSize: 13, fontWeight: FontWeight.w700),
                 ),
               ),
               Text(
                 formatChfWithPrefix(patrimoineNet),
-                style: GoogleFonts.montserrat(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.primary,
-                ),
+                style: MintTextStyles.headlineMedium(color: MintColors.primary).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
               ),
             ],
           ),
@@ -284,10 +264,7 @@ class CouplePatrimoineCard extends StatelessWidget {
             Text(
               '${l.patrimoineDont(firstName, _fmt(partUser!))} '
               '| ${l.patrimoineDont(conjointFirstName!, _fmt(partConjoint!))}',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
               textAlign: TextAlign.center,
             ),
           ],
@@ -315,12 +292,7 @@ class CouplePatrimoineCard extends StatelessWidget {
   Widget _columnHeader(String label) {
     return Text(
       label,
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        fontWeight: FontWeight.w700,
-        letterSpacing: 0.8,
-        color: MintColors.textMuted,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.8, fontStyle: FontStyle.normal),
     );
   }
 
@@ -334,19 +306,12 @@ class CouplePatrimoineCard extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
             ),
           ),
           Text(
             _fmt(value),
-            style: GoogleFonts.montserrat(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -390,19 +355,12 @@ class CouplePatrimoineCard extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
             ),
           ),
           Text(
             value,
-            style: GoogleFonts.montserrat(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: valueColor ?? MintColors.textPrimary,
-            ),
+            style: MintTextStyles.labelSmall(color: valueColor ?? MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -415,20 +373,12 @@ class CouplePatrimoineCard extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
         ),
         Text(
           _fmt(value),
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
         ),
       ],
     );
@@ -442,19 +392,12 @@ class CouplePatrimoineCard extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12),
             ),
           ),
           Text(
             formatChfWithPrefix(amount),
-            style: GoogleFonts.montserrat(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: valueColor ?? MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodySmall(color: valueColor ?? MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -485,21 +428,14 @@ class CouplePatrimoineCard extends StatelessWidget {
           ),
           child: Text(
             l.patrimoineLtvDisplay('$ltvPercent'),
-            style: GoogleFonts.montserrat(
-              fontSize: 9,
-              fontWeight: FontWeight.w700,
-              color: ltvColor,
-            ),
+            style: MintTextStyles.micro(color: ltvColor).copyWith(fontSize: 9, fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
           ),
         ),
         const SizedBox(width: 4),
         Expanded(
           child: Text(
             advice,
-            style: GoogleFonts.inter(
-              fontSize: 9,
-              color: ltvColor,
-            ),
+            style: MintTextStyles.micro(color: ltvColor).copyWith(fontSize: 9, fontStyle: FontStyle.normal),
             overflow: TextOverflow.ellipsis,
           ),
         ),

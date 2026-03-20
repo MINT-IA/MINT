@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P13-A  Les 5 choses que tu perds en partant
@@ -93,11 +93,7 @@ class ExpatRightsLossWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   '5 choses que tu perds en partant',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -105,7 +101,7 @@ class ExpatRightsLossWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Suisse → $destination · Avant de partir, vérifie chaque point.',
-            style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
           ),
         ],
       ),
@@ -128,7 +124,7 @@ class ExpatRightsLossWidget extends StatelessWidget {
           Flexible(
             child: Text(
               'Destination UE — totalisation des périodes d\'assurance possible',
-              style: GoogleFonts.inter(fontSize: 11, color: MintColors.info),
+              style: MintTextStyles.labelSmall(color: MintColors.info),
             ),
           ),
         ],
@@ -169,11 +165,7 @@ class ExpatRightsLossWidget extends StatelessWidget {
                           Expanded(
                             child: Text(
                               r.label,
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: MintColors.textPrimary,
-                              ),
+                              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                             ),
                           ),
                           if (r.isIrreversible)
@@ -185,18 +177,14 @@ class ExpatRightsLossWidget extends StatelessWidget {
                               ),
                               child: Text(
                                 'IRRÉVERSIBLE',
-                                style: GoogleFonts.inter(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w800,
-                                  color: MintColors.white,
-                                ),
+                                style: MintTextStyles.micro(color: MintColors.white).copyWith(fontSize: 9, fontWeight: FontWeight.w800),
                               ),
                             ),
                         ],
                       ),
                       Text(
                         r.legalRef,
-                        style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                        style: MintTextStyles.micro(color: MintColors.textSecondary),
                       ),
                     ],
                   ),
@@ -229,12 +217,7 @@ class ExpatRightsLossWidget extends StatelessWidget {
                   ),
                   child: Text(
                     '💥 ${r.impact}',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.scoreCritique,
-                      height: 1.4,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w600, height: 1.4),
                   ),
                 ),
               ],
@@ -248,15 +231,11 @@ class ExpatRightsLossWidget extends StatelessWidget {
   Widget _buildBeforeAfter(String label, String value, Color color) {
     return Column(
       children: [
-        Text(label, style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary)),
+        Text(label, style: MintTextStyles.micro(color: MintColors.textSecondary)),
         const SizedBox(height: 4),
         Text(
           value,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: color,
-          ),
+          style: MintTextStyles.labelSmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
           textAlign: TextAlign.center,
         ),
       ],
@@ -267,11 +246,7 @@ class ExpatRightsLossWidget extends StatelessWidget {
     return Text(
       'Outil éducatif · ne constitue pas un conseil juridique ou financier au sens de la LSFin. '
       'Source : LAVS art. 1a, LPP art. 5, OPP3 art. 1, LAMal art. 3.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

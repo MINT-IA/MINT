@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  SPENDING METER — Sprint 2 UX Rewrite
@@ -108,10 +108,7 @@ class _SpendingMeterState extends State<SpendingMeter>
         child: Center(
           child: Text(
             l.spendingMeterBudgetUnavailable,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textMuted),
           ),
         ),
       );
@@ -148,19 +145,12 @@ class _SpendingMeterState extends State<SpendingMeter>
                     children: [
                       Text(
                         l.spendingMeterDisponible,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: MintColors.textMuted,
-                        ),
+                        style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         _formatAmount(displayAmount),
-                        style: GoogleFonts.montserrat(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w800,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.displayMedium(color: MintColors.textPrimary).copyWith(fontSize: 24),
                       ),
                     ],
                   ),
@@ -205,11 +195,7 @@ class _SpendingMeterState extends State<SpendingMeter>
         const SizedBox(width: 6),
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
         ),
       ],
     );

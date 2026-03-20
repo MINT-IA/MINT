@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/retirement_projection_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Stacked bar chart showing retirement income by source.
 ///
@@ -199,10 +199,7 @@ class _IncomeStackedBarChartState extends State<IncomeStackedBarChart>
         const SizedBox(width: 6),
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
         ),
       ],
     );
@@ -239,18 +236,11 @@ class _IncomeStackedBarChartState extends State<IncomeStackedBarChart>
               children: [
                 Text(
                   source.label,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w700),
                 ),
                 Text(
                   '${RetirementProjectionService.formatChf(source.monthlyAmount)}/mois — ${pct.toStringAsFixed(1)}%',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12),
                 ),
               ],
             ),
@@ -315,7 +305,7 @@ class _IncomeBarPainter extends CustomPainter {
       // Label
       yLabelPaint.text = TextSpan(
         text: _formatK(val),
-        style: GoogleFonts.inter(fontSize: 10, color: MintColors.textMuted),
+        style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 10, fontStyle: FontStyle.normal),
       );
       yLabelPaint.layout();
       yLabelPaint.paint(canvas, Offset(chartLeft - yLabelPaint.width - 6, y - 6));
@@ -415,11 +405,7 @@ class _IncomeBarPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: 'Depenses ${_formatK(monthlyExpenses!)}',
-          style: GoogleFonts.inter(
-            fontSize: 9,
-            fontWeight: FontWeight.w600,
-            color: MintColors.error.withValues(alpha: 0.8),
-          ),
+          style: MintTextStyles.micro(color: MintColors.error.withValues(alpha: 0.8)).copyWith(fontSize: 9, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
@@ -431,11 +417,7 @@ class _IncomeBarPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: text,
-        style: GoogleFonts.inter(
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-          color: MintColors.textSecondary,
-        ),
+        style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontSize: 10, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
@@ -446,11 +428,7 @@ class _IncomeBarPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: _formatK(amount),
-        style: GoogleFonts.montserrat(
-          fontSize: 12,
-          fontWeight: FontWeight.w800,
-          color: MintColors.textPrimary,
-        ),
+        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w800),
       ),
       textDirection: TextDirection.ltr,
     )..layout();

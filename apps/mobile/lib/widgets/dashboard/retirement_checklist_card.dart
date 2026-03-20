@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RETIREMENT CHECKLIST CARD — Chantier 2 / Retirement Cockpit
@@ -74,18 +74,11 @@ class RetirementChecklistCard extends StatelessWidget {
                   children: [
                     Text(
                       'Prochaines \u00e9tapes',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                     ),
                     Text(
                       'Actions personnalis\u00e9es pour ta situation',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textMuted,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12),
                     ),
                   ],
                 ),
@@ -144,21 +137,13 @@ class RetirementChecklistCard extends StatelessWidget {
                   children: [
                     Text(
                       item.title,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                     ),
                     if (item.subtitle != null) ...[
                       const SizedBox(height: 2),
                       Text(
                         item.subtitle!,
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: MintColors.textSecondary,
-                          height: 1.3,
-                        ),
+                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(height: 1.3),
                       ),
                     ],
                     if (item.timeline != null) ...[
@@ -172,11 +157,7 @@ class RetirementChecklistCard extends StatelessWidget {
                         ),
                         child: Text(
                           item.timeline!,
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: item.color,
-                          ),
+                          style: MintTextStyles.micro(color: item.color).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
                         ),
                       ),
                     ],

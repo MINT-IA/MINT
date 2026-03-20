@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 class MintSelectableCard extends StatelessWidget {
   final IconData icon;
@@ -54,21 +54,13 @@ class MintSelectableCard extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color:
-                          isSelected ? selectedColor : MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: isSelected ? selectedColor : MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                   ),
                   if (description != null && description!.isNotEmpty) ...[
                     const SizedBox(height: 2),
                     Text(
                       description!,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textSecondary,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                     ),
                   ],
                 ],
@@ -125,12 +117,7 @@ class MintQuickPickChips<T> extends StatelessWidget {
             ),
             child: Text(
               labelBuilder(option),
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color:
-                    isSelected ? MintColors.primary : MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: isSelected ? MintColors.primary : MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ),
         ),
@@ -163,11 +150,7 @@ class MintChfInputField extends StatelessWidget {
       children: [
         Text(
           optional ? '$label (optionnel)' : label,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 6),
         TextField(
@@ -179,11 +162,7 @@ class MintChfInputField extends StatelessWidget {
           decoration: InputDecoration(
             hintText: hint,
             prefixText: 'CHF  ',
-            prefixStyle: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textMuted,
-            ),
+            prefixStyle: MintTextStyles.bodyMedium(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w500),
             filled: true,
             fillColor: MintColors.surface,
             contentPadding:
@@ -202,11 +181,7 @@ class MintChfInputField extends StatelessWidget {
                   const BorderSide(color: MintColors.primary, width: 1.8),
             ),
           ),
-          style: GoogleFonts.inter(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -247,11 +222,7 @@ class OnboardingInsightCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -259,11 +230,7 @@ class OnboardingInsightCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             body,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.35,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.35),
           ),
           if (footer != null) ...[
             const SizedBox(height: 8),
@@ -292,22 +259,12 @@ class OnboardingStepHeader extends StatelessWidget {
       children: [
         Text(
           title,
-          style: GoogleFonts.montserrat(
-            fontSize: 26,
-            fontWeight: FontWeight.w800,
-            color: MintColors.textPrimary,
-            letterSpacing: -0.5,
-            height: 1.2,
-          ),
+          style: MintTextStyles.headlineLarge(color: MintColors.textPrimary).copyWith(letterSpacing: -0.5, height: 1.2),
         ),
         const SizedBox(height: 8),
         Text(
           subtitle,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            color: MintColors.textSecondary,
-            height: 1.4,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
         ),
       ],
     );
@@ -348,10 +305,7 @@ class OnboardingContinueButton extends StatelessWidget {
           children: [
             Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
+              style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(width: 8),
             Icon(icon, size: 18),
@@ -396,11 +350,7 @@ class CoachDeductionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Voici ce que ton coach a déduit',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15),
                 ),
               ),
             ],
@@ -422,29 +372,18 @@ class CoachDeductionCard extends StatelessWidget {
                     children: [
                       Text(
                         item.label,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                       ),
                       Text(
                         item.value,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: MintColors.textSecondary,
-                        ),
+                        style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                       ),
                     ],
                   ),
                 ),
                 Text(
                   item.source,
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    color: MintColors.textMuted,
-                    fontStyle: FontStyle.italic,
-                  ),
+                  style: MintTextStyles.micro(color: MintColors.textMuted),
                 ),
               ],
             ),
@@ -464,11 +403,7 @@ class CoachDeductionCard extends StatelessWidget {
                   ),
                   child: Text(
                     'Corriger',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textSecondary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -486,10 +421,7 @@ class CoachDeductionCard extends StatelessWidget {
                   ),
                   child: Text(
                     'C\'est correct',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ),

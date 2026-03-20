@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -108,11 +108,7 @@ class FinancialWeatherWidget extends StatelessWidget {
             // ── Header ──
             Text(
               'Ta m\u00e9t\u00e9o financi\u00e8re \u00e0 la retraite',
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
             ),
             const SizedBox(height: 16),
 
@@ -127,11 +123,7 @@ class FinancialWeatherWidget extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               'Bas\u00e9 sur des sc\u00e9narios de march\u00e9 \u2014 outil \u00e9ducatif, pas un conseil (LSFin).',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ],
         ),
@@ -171,39 +163,24 @@ class FinancialWeatherWidget extends StatelessWidget {
                     children: [
                       Text(
                         _weatherLabel(scenario.weather),
-                        style: GoogleFonts.montserrat(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: color,
-                        ),
+                        style: MintTextStyles.bodyMedium(color: color).copyWith(fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         '(${scenario.probabilityPercent.toStringAsFixed(0)}% des cas)',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: MintColors.textMuted,
-                        ),
+                        style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
                       ),
                     ],
                   ),
                   const SizedBox(height: 2),
                   Text(
                     scenario.description,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                      height: 1.3,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.3),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     '${formatChfWithPrefix(scenario.monthlyIncomeMin)}\u2013${formatChfWithPrefix(scenario.monthlyIncomeMax)}/mois',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -233,20 +210,13 @@ class FinancialWeatherWidget extends StatelessWidget {
         children: [
           Text(
             'Aujourd\u2019hui\u00a0: ${_weatherEmoji(currentOutlook)} ${_weatherLabel(currentOutlook)}$trendText',
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
+            style: MintTextStyles.bodyMedium(color: color).copyWith(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),
           Text(
             'Chaque action d\u00e9place le curseur',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
             textAlign: TextAlign.center,
           ),
         ],

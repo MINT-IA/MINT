@@ -22,9 +22,9 @@ library;
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/fhs_daily_score.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/pulse/fhs_delta_badge.dart';
 
 /// Circular arc gauge showing the daily FHS score (0-100).
@@ -162,22 +162,13 @@ class _FhsThermometerState extends State<FhsThermometer>
                             // Large score number
                             Text(
                               '$displayScore',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 52,
-                                fontWeight: FontWeight.w800,
-                                color: _scoreColor,
-                                height: 1.0,
-                              ),
+                              style: MintTextStyles.displayLarge(color: _scoreColor).copyWith(fontSize: 52, height: 1.0),
                             ),
                             const SizedBox(height: 4),
                             // Level label
                             Text(
                               _levelLabel,
-                              style: GoogleFonts.inter(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: MintColors.textSecondary,
-                              ),
+                              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                             ),
                             const SizedBox(height: 8),
                             // Delta badge

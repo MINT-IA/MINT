@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/visibility_score_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Carte principale du score de visibilite financiere.
 ///
@@ -41,11 +41,7 @@ class VisibilityScoreCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   l.pulseVisibilityTitle,
-                  style: GoogleFonts.outfit(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
                 ),
               ),
               _buildScoreBadge(),
@@ -54,11 +50,7 @@ class VisibilityScoreCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             score.narrative,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
           const SizedBox(height: 20),
 
@@ -85,11 +77,7 @@ class VisibilityScoreCard extends StatelessWidget {
       ),
       child: Text(
         '${score.percentage}%',
-        style: GoogleFonts.outfit(
-          fontSize: 22,
-          fontWeight: FontWeight.w700,
-          color: color,
-        ),
+        style: MintTextStyles.headlineMedium(color: color),
       ),
     );
   }
@@ -114,19 +102,12 @@ class VisibilityScoreCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   axis.label,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
                 ),
               ),
               Text(
                 '${axis.score.round()}/${axis.maxScore.round()}',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12),
               ),
             ],
           ),
@@ -167,10 +148,7 @@ class VisibilityScoreCard extends StatelessWidget {
                 score.coupleWeakName ?? '',
                 '${score.coupleWeakScore?.round() ?? 0}',
               ),
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
             ),
           ),
         ],

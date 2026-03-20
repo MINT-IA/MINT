@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:intl/intl.dart';
 import 'dart:math' as math;
@@ -79,11 +79,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                   children: [
                     Text(
                       S.of(context)!.pillar3aComparator,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
                     ),
                     Text(
                       S.of(context)!.pillar3aProjection(yearsUntilRetirement),
@@ -111,8 +107,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
               children: [
                 Text(
                   S.of(context)!.pillar3aScenarioTitle,
-                  style: GoogleFonts.montserrat(
-                      fontSize: 13, fontWeight: FontWeight.w600),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -235,11 +230,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                             const SizedBox(height: 4),
                             Text(
                               '+${currencyFormat.format(gainVsBank)}',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: MintColors.success,
-                              ),
+                              style: MintTextStyles.displayMedium(color: MintColors.success).copyWith(fontSize: 28),
                             ),
                             Text(
                               S.of(context)!.pillar3aMoreAtRetirement,
@@ -350,10 +341,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
         children: [
           Text(
             '📊 ${S.of(context)!.pillar3aCapitalEvolution}',
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
           ),
           const SizedBox(height: 12),
           // Header
@@ -500,9 +488,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                   children: [
                     Text(
                       name,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
@@ -566,13 +552,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                           TextStyle(fontSize: 10, color: MintColors.textMuted)),
                   Text(
                     currencyFormat.format(capital),
-                    style: GoogleFonts.montserrat(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: isRecommended
-                          ? MintColors.success
-                          : MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.titleMedium(color: isRecommended ? MintColors.success : MintColors.textPrimary).copyWith(fontSize: 15),
                   ),
                 ],
               ),

@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  DONATION RESERVE DONUT CHART
@@ -186,18 +186,11 @@ class _DonationReserveDonutState extends State<DonationReserveDonut>
               children: [
                 Text(
                   'Reserves successorales',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(),
                 ),
                 Text(
                   'CC art. 470-471 (revision 2023)',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
                 ),
               ],
             ),
@@ -231,22 +224,16 @@ class _DonationReserveDonutState extends State<DonationReserveDonut>
                     Text(
                       'Quotite\ndisponible',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        color: MintColors.textSecondary,
+                      style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(
+                        fontStyle: FontStyle.normal,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       _formatChf(widget.quotiteDisponible),
-                      style: GoogleFonts.montserrat(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: widget.depasseQuotite
+                      style: MintTextStyles.titleMedium(color: widget.depasseQuotite
                             ? MintColors.error
-                            : MintColors.success,
-                      ),
+                            : MintColors.success).copyWith(fontWeight: FontWeight.w800),
                     ),
                   ],
                 ),
@@ -280,18 +267,14 @@ class _DonationReserveDonutState extends State<DonationReserveDonut>
                   Expanded(
                     child: Text(
                       segment.label,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textSecondary,
-                      ),
+                      style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
                     ),
                   ),
                   Text(
                     _formatChf(segment.amount),
-                    style: GoogleFonts.montserrat(
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
                     ),
                   ),
                 ],
@@ -320,24 +303,18 @@ class _DonationReserveDonutState extends State<DonationReserveDonut>
                   Expanded(
                     child: Text(
                       'Donation envisagee',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: widget.depasseQuotite
-                            ? MintColors.error
-                            : MintColors.textSecondary,
-                      ),
+                      style: MintTextStyles.bodyMedium(
+                        color: widget.depasseQuotite ? MintColors.error : MintColors.textSecondary,
+                      ).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                     ),
                   ),
                   Text(
                     _formatChf(widget.montantDonation),
-                    style: GoogleFonts.montserrat(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                    style: MintTextStyles.bodyMedium(
                       color: widget.depasseQuotite
                           ? MintColors.error
                           : MintColors.warning,
-                    ),
+                    ).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
                   ),
                 ],
               ),
@@ -380,11 +357,7 @@ class _DonationReserveDonutState extends State<DonationReserveDonut>
                   child: Text(
                     'Cette donation depasse la quotite disponible. '
                     'Les heritiers reserves peuvent la contester.',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: MintColors.error,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.error).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
                   ),
                 ),
               ],

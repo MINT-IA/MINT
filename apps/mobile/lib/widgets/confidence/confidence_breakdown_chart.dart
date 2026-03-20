@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Horizontal 3-axis confidence visualization used by S46 dashboard.
 class ConfidenceBreakdownChart extends StatelessWidget {
@@ -69,20 +69,13 @@ class _AxisRow extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600,
                 ),
               ),
             ),
             Text(
               '${pct.toStringAsFixed(0)}%',
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: color,
-              ),
+              style: MintTextStyles.bodySmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
             ),
           ],
         ),

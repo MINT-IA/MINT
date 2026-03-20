@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  REGIME MATRIMONIAL PIE CHART (ANIMATED DONUT)
@@ -259,18 +259,11 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
               children: [
                 Text(
                   'Regime matrimonial',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(),
                 ),
                 Text(
                   'Repartition des biens',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
                 ),
               ],
             ),
@@ -320,13 +313,11 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
                   child: Text(
                     regime.shortLabel,
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.montserrat(
+                    style: MintTextStyles.labelSmall(
+                      color: isSelected ? MintColors.textPrimary : MintColors.textMuted,
+                    ).copyWith(
                       fontSize: 12,
-                      fontWeight:
-                          isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: isSelected
-                          ? MintColors.textPrimary
-                          : MintColors.textMuted,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                     ),
                   ),
                 ),
@@ -386,19 +377,15 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
                   children: [
                     Text(
                       _formatChf(_total),
-                      style: GoogleFonts.montserrat(
+                      style: MintTextStyles.headlineMedium().copyWith(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
-                        color: MintColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'Total',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textMuted,
-                      ),
+                      style: MintTextStyles.bodyMedium(color: MintColors.textMuted).copyWith(fontSize: 12),
                     ),
                     if (_highlightedSegment != null) ...[
                       const SizedBox(height: 6),
@@ -409,7 +396,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
                               ? _formatChf(amount1)
                               : _formatChf(amount2),
                           key: ValueKey(_highlightedSegment),
-                          style: GoogleFonts.montserrat(
+                          style: MintTextStyles.bodyMedium().copyWith(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                             color: _highlightedSegment == 0
@@ -486,10 +473,9 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
             const SizedBox(width: 6),
             Text(
               label,
-              style: GoogleFonts.inter(
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
               ),
             ),
           ],
@@ -497,11 +483,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
         const SizedBox(height: 4),
         Text(
           '$percentage% — ${_formatChf(amount)}',
-          style: GoogleFonts.montserrat(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: color,
-          ),
+          style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w700),
         ),
       ],
     );
@@ -531,9 +513,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
               Expanded(
                 child: Text(
                   widget.regime.description,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
+                  style: MintTextStyles.bodyMedium().copyWith(fontSize: 12,
                     height: 1.4,
                   ),
                 ),

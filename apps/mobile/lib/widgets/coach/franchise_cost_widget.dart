@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -125,11 +125,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
               Expanded(
                 child: Text(
                   'Ta franchise en cas de pépin long',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -137,10 +133,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
           const SizedBox(height: 6),
           Text(
             'Scénario : maladie ou accident nécessitant 2 ans de soins',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
           ),
         ],
       ),
@@ -153,11 +146,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
       children: [
         Text(
           'Combien de fois vas-tu chez le médecin/an ?',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
         ),
         Slider(
           value: _consultationsPerYear.toDouble(),
@@ -170,11 +159,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
         ),
         Text(
           '$_consultationsPerYear consultation${_consultationsPerYear > 1 ? 's' : ''} / an',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: MintColors.primary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
         ),
       ],
     );
@@ -189,11 +174,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
       children: [
         Text(
           'Comparaison des franchises',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 10),
         Container(
@@ -227,15 +208,15 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
       child: Row(
         children: [
           Expanded(
-            child: Text('Franchise', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary)),
+            child: Text('Franchise', style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w700)),
           ),
           SizedBox(
             width: 90,
-            child: Text('Éco. prime', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary), textAlign: TextAlign.center),
+            child: Text('Éco. prime', style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w700), textAlign: TextAlign.center),
           ),
           SizedBox(
             width: 90,
-            child: Text('Coût net/an', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary), textAlign: TextAlign.center),
+            child: Text('Coût net/an', style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w700), textAlign: TextAlign.center),
           ),
         ],
       ),
@@ -258,11 +239,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
                 ],
                 Text(
                   'CHF ${_fmt(opt.franchiseAmount)}',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: isLowest ? FontWeight.w700 : FontWeight.w400,
-                    color: isLowest ? MintColors.scoreExcellent : MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: isLowest ? MintColors.scoreExcellent : MintColors.textPrimary).copyWith(fontWeight: isLowest ? FontWeight.w700 : FontWeight.w400),
                 ),
               ],
             ),
@@ -272,11 +249,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
             child: Text(
               '-${_fmt(savings)}/an',
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.scoreExcellent,
-                fontWeight: FontWeight.w600,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.scoreExcellent).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ),
           SizedBox(
@@ -284,11 +257,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
             child: Text(
               normalCost >= 0 ? '+${_fmt(normalCost)}' : '-${_fmt(normalCost.abs())}',
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: normalCost <= 0 ? MintColors.scoreExcellent : MintColors.scoreAttention,
-              ),
+              style: MintTextStyles.labelSmall(color: normalCost <= 0 ? MintColors.scoreExcellent : MintColors.scoreAttention).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -309,11 +278,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
         children: [
           Text(
             'Si maladie longue (2 ans de soins) :',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 10),
           ...widget.options.map((opt) {
@@ -325,16 +290,12 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
                   Expanded(
                     child: Text(
                       'Franchise CHF ${_fmt(opt.franchiseAmount)}',
-                      style: GoogleFonts.inter(fontSize: 13, color: MintColors.textPrimary),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                     ),
                   ),
                   Text(
                     'CHF ${_fmt(cost)}/an',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.scoreAttention,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.scoreAttention).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ],
               ),
@@ -344,12 +305,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
           Text(
             'Règle : si tu vas chez le médecin plus de 2× par an,\n'
             'la franchise basse te coûte moins cher.',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              fontWeight: FontWeight.w600,
-              height: 1.5,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w600, height: 1.5),
           ),
         ],
       ),
@@ -360,11 +316,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : LAMal art. 64-64a. Changement de franchise : avant le 30.11.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/precision/precision_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Card prompting the user to provide a more precise value
 /// for a specific field, shown contextually when precision matters.
@@ -83,11 +83,7 @@ class PrecisionPromptCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     s.precisionPromptTitle,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15),
                   ),
                 ),
               ],
@@ -98,11 +94,7 @@ class PrecisionPromptCard extends StatelessWidget {
             // Prompt text
             Text(
               prompt.promptText,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: MintColors.textPrimary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(height: 1.5),
             ),
 
             const SizedBox(height: 10),
@@ -126,11 +118,7 @@ class PrecisionPromptCard extends StatelessWidget {
                   Flexible(
                     child: Text(
                       prompt.impactText,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.info,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -149,10 +137,7 @@ class PrecisionPromptCard extends StatelessWidget {
                     icon: const Icon(Icons.edit_outlined, size: 16),
                     label: Text(
                       s.precisionPromptPreciser,
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
                     ),
                     style: FilledButton.styleFrom(
                       backgroundColor: MintColors.info,
@@ -182,10 +167,7 @@ class PrecisionPromptCard extends StatelessWidget {
                     ),
                     child: Text(
                       s.precisionPromptContinuer,
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 13,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
                     ),
                   ),
                 ),

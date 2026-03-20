@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  PROPERTY SALE WATERFALL CHART
@@ -232,18 +232,11 @@ class _PropertySaleWaterfallState extends State<PropertySaleWaterfall>
               children: [
                 Text(
                   'Decomposition de la vente',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(),
                 ),
                 Text(
                   'Detention : ${widget.dureeDetention} ans',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
                 ),
               ],
             ),
@@ -327,20 +320,15 @@ class _PropertySaleWaterfallState extends State<PropertySaleWaterfall>
                     children: [
                       Text(
                         'Produit net',
-                        style: GoogleFonts.inter(
+                        style: MintTextStyles.bodyMedium(color: badgeColor).copyWith(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: badgeColor,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         _formatChf(widget.produitNet),
-                        style: GoogleFonts.montserrat(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color: badgeColor,
-                        ),
+                        style: MintTextStyles.headlineMedium(color: badgeColor).copyWith(fontWeight: FontWeight.w800),
                       ),
                     ],
                   ),
@@ -478,10 +466,9 @@ class _SaleWaterfallPainter extends CustomPainter {
       final amountPainter = TextPainter(
         text: TextSpan(
           text: amountText,
-          style: GoogleFonts.montserrat(
-            fontSize: 10,
+          style: MintTextStyles.micro(color: barColor).copyWith(
             fontWeight: FontWeight.w700,
-            color: barColor,
+            fontStyle: FontStyle.normal,
           ),
         ),
         textDirection: TextDirection.ltr,
@@ -499,10 +486,9 @@ class _SaleWaterfallPainter extends CustomPainter {
       final labelPainter = TextPainter(
         text: TextSpan(
           text: step.label,
-          style: GoogleFonts.inter(
+          style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(
             fontSize: 9,
-            fontWeight: FontWeight.w500,
-            color: MintColors.textSecondary,
+            fontStyle: FontStyle.normal,
           ),
         ),
         textDirection: TextDirection.ltr,

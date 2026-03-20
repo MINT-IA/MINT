@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Carte avec effet de verre dépoli (Glassmorphism).
 ///
@@ -91,24 +91,13 @@ class MintHeader extends StatelessWidget {
         if (subtitle != null) ...[
           Text(
             subtitle!.toUpperCase(),
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textSecondary,
-              letterSpacing: 1.5,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600, letterSpacing: 1.5),
           ),
           const SizedBox(height: 8),
         ],
         Text(
           title,
-          style: GoogleFonts.outfit(
-            fontSize: isLarge ? 34 : 24,
-            fontWeight: FontWeight.w600,
-            color: textColor ?? MintColors.textPrimary,
-            letterSpacing: -1.0,
-            height: 1.1,
-          ),
+          style: MintTextStyles.headlineLarge(color: textColor ?? MintColors.textPrimary).copyWith(fontSize: isLarge ? 34 : 24, fontWeight: FontWeight.w600, letterSpacing: -1.0, height: 1.1),
         ),
       ],
     );
@@ -280,22 +269,13 @@ class MintPremiumButton extends StatelessWidget {
                       children: [
                         Text(
                           title,
-                          style: GoogleFonts.outfit(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
-                            color: MintColors.white,
-                            letterSpacing: -0.5,
-                          ),
+                          style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontSize: 17, fontWeight: FontWeight.w700, letterSpacing: -0.5),
                         ),
                         if (subtitle != null) ...[
                           const SizedBox(height: 2),
                           Text(
                             subtitle!,
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: MintColors.white.withValues(alpha: 0.6),
-                            ),
+                            style: MintTextStyles.bodySmall(color: MintColors.white.withValues(alpha: 0.6)).copyWith(fontWeight: FontWeight.w500),
                           ),
                         ],
                       ],

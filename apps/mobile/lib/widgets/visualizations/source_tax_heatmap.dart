@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  SOURCE TAX HEATMAP — Expatriation & Frontaliers Module
@@ -222,18 +222,11 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
             children: [
               Text(
                 'Taux d\'imposition à la source',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(),
               ),
               Text(
                 '26 cantons  ·  Célibataire, CHF 80\'000',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
               ),
             ],
           ),
@@ -302,18 +295,14 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
                           children: [
                             Text(
                               canton.abbreviation,
-                              style: GoogleFonts.montserrat(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: MintColors.textPrimary,
-                              ),
+                              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
                             ),
                             Text(
                               _formatPct(canton.rate),
-                              style: GoogleFonts.inter(
+                              style: MintTextStyles.micro(color: _colorForRate(canton.rate)).copyWith(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w600,
-                                color: _colorForRate(canton.rate),
+                                fontStyle: FontStyle.normal,
                               ),
                             ),
                           ],
@@ -352,25 +341,20 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
           children: [
             Text(
               _formatPct(_minRate),
-              style: GoogleFonts.inter(
-                fontSize: 10,
+              style: MintTextStyles.micro(color: MintColors.success).copyWith(
                 fontWeight: FontWeight.w600,
-                color: MintColors.success,
+                fontStyle: FontStyle.normal,
               ),
             ),
             Text(
               'Taux moyen',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
             ),
             Text(
               _formatPct(_maxRate),
-              style: GoogleFonts.inter(
-                fontSize: 10,
+              style: MintTextStyles.micro(color: MintColors.error).copyWith(
                 fontWeight: FontWeight.w600,
-                color: MintColors.error,
+                fontStyle: FontStyle.normal,
               ),
             ),
           ],
@@ -405,10 +389,8 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
             child: Center(
               child: Text(
                 canton.abbreviation,
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
+                style: MintTextStyles.bodyMedium(color: _colorForRate(canton.rate)).copyWith(
                   fontWeight: FontWeight.w800,
-                  color: _colorForRate(canton.rate),
                 ),
               ),
             ),
@@ -420,29 +402,18 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
               children: [
                 Text(
                   canton.name,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
                 Text(
                   'Taux indicatif d\'imposition à la source',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                 ),
               ],
             ),
           ),
           Text(
             _formatPct(canton.rate),
-            style: GoogleFonts.montserrat(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              color: _colorForRate(canton.rate),
-            ),
+            style: MintTextStyles.headlineMedium(color: _colorForRate(canton.rate)).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),

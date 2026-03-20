@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P4-F  Le Compte à rebours du délai de carence AI
@@ -113,11 +113,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
               Expanded(
                 child: Text(
                   'Combien de temps tu tiens ?',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -125,10 +121,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
           const SizedBox(height: 6),
           Text(
             'Délai moyen de décision AI : $_aiDelayMonths mois (LAI art. 28)',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
         ],
       ),
@@ -145,19 +138,11 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
           children: [
             Text(
               'Ton épargne disponible',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
             ),
             Text(
               'CHF ${_fmt(_savings)}',
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
-                color: MintColors.primary,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w800),
             ),
           ],
         ),
@@ -172,10 +157,10 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('CHF 0', style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary)),
+            Text('CHF 0', style: MintTextStyles.micro(color: MintColors.textSecondary)),
             Text(
               'CHF ${_fmt(maxSavings)}',
-              style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+              style: MintTextStyles.micro(color: MintColors.textSecondary),
             ),
           ],
         ),
@@ -189,11 +174,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
       children: [
         Text(
           'Durée de tenir vs délai AI',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 12),
         Stack(
@@ -229,15 +210,11 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
               children: [
                 Text(
                   '◄── ${hold.toStringAsFixed(1)} mois ──►',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: color,
-                  ),
+                  style: MintTextStyles.labelSmall(color: color).copyWith(fontWeight: FontWeight.w700),
                 ),
                 Text(
                   'Tu tiens',
-                  style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                  style: MintTextStyles.micro(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -247,15 +224,11 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
                 children: [
                   Text(
                     '◄── ${gap.toStringAsFixed(1)} mois ──►',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.scoreCritique,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
                   ),
                   Text(
                     'Le vide',
-                    style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                    style: MintTextStyles.micro(color: MintColors.textSecondary),
                   ),
                 ],
               ),
@@ -266,7 +239,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
           alignment: Alignment.centerRight,
           child: Text(
             'Jour J → Décision AI : $_aiDelayMonths mois',
-            style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+            style: MintTextStyles.micro(color: MintColors.textSecondary),
           ),
         ),
       ],
@@ -287,34 +260,22 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
           if (isOk) ...[
             Text(
               '✅ Tes réserves couvrent tout le délai AI.',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.scoreExcellent,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             Text(
               'Tu tiens ${hold.toStringAsFixed(1)} mois, soit plus que le délai moyen de $_aiDelayMonths mois.',
-              style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
             ),
           ] else ...[
             Text(
               '💰 Chiffre-choc : après ${hold.toStringAsFixed(1)} mois, tu dois emprunter ou vendre pour survivre.',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.scoreCritique,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 6),
             Text(
               'Il te manque CHF ${_fmt(_gapAmount)} pour tenir jusqu\'à la décision AI.',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textPrimary,
-                height: 1.4,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
             ),
           ],
         ],
@@ -348,11 +309,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
       ),
       child: Text(
         label,
-        style: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-          color: color,
-        ),
+        style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w700),
       ),
     );
   }
@@ -361,11 +318,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : LAI art. 28, LPGA art. 19.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  90-DAY RULE CIRCULAR GAUGE — Expatriation & Frontaliers
@@ -189,18 +189,11 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
             children: [
               Text(
                 l.ninetyDayGaugeTitle,
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(),
               ),
               Text(
                 l.ninetyDayGaugeSubtitle,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
               ),
             ],
           ),
@@ -223,22 +216,13 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
                     (widget.currentDays * _needleAnimation.value).round();
                 return Text(
                   '$displayDays',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 48,
-                    fontWeight: FontWeight.w800,
-                    color: _statusColor,
-                    height: 1.0,
-                  ),
+                  style: MintTextStyles.displayLarge(color: _statusColor).copyWith(height: 1.0),
                 );
               },
             ),
             Text(
               l.ninetyDayGaugeDaysOf90,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -264,10 +248,9 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
           Flexible(
             child: Text(
               statusText,
-              style: GoogleFonts.inter(
+              style: MintTextStyles.bodyMedium(color: _statusColor).copyWith(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: _statusColor,
               ),
               textAlign: TextAlign.center,
             ),
@@ -388,10 +371,10 @@ class _NinetyDayGaugePainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: text,
-        style: GoogleFonts.inter(
+        style: MintTextStyles.micro(color: color).copyWith(
           fontSize: 8,
           fontWeight: FontWeight.w700,
-          color: color,
+          fontStyle: FontStyle.normal,
         ),
       ),
       textDirection: TextDirection.ltr,
@@ -432,10 +415,10 @@ class _NinetyDayGaugePainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: '$days',
-          style: GoogleFonts.montserrat(
+          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(
             fontSize: 9,
             fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
+            fontStyle: FontStyle.normal,
           ),
         ),
         textDirection: TextDirection.ltr,

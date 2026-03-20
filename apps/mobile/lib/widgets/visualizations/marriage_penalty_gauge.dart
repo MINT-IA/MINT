@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  MARRIAGE PENALTY / BONUS THERMOMETER GAUGE
@@ -131,11 +131,7 @@ class _MarriagePenaltyGaugeState extends State<MarriagePenaltyGauge>
                   // Title
                   Text(
                     'Impact fiscal du mariage',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.titleMedium(),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -144,15 +140,13 @@ class _MarriagePenaltyGaugeState extends State<MarriagePenaltyGauge>
                         : _difference < 0
                             ? 'Bonus du mariage'
                             : 'Aucun impact',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                    style: MintTextStyles.bodySmall(
                       color: _isPenalty
                           ? MintColors.error
                           : _difference < 0
                               ? MintColors.success
                               : MintColors.textMuted,
-                    ),
+                    ).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 24),
 
@@ -248,15 +242,13 @@ class _MarriagePenaltyGaugeState extends State<MarriagePenaltyGauge>
                                 _difference == 0
                                     ? 'Aucune différence'
                                     : '${_isPenalty ? '+' : ''}${_formatChf(_difference)}/an',
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w800,
+                                style: MintTextStyles.headlineMedium(
                                   color: _isPenalty
                                       ? MintColors.error
                                       : _difference < 0
                                           ? MintColors.success
                                           : MintColors.textMuted,
-                                ),
+                                ).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
                               ),
                             ],
                           ),
@@ -284,28 +276,17 @@ class _MarriagePenaltyGaugeState extends State<MarriagePenaltyGauge>
       children: [
         Text(
           title,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 4),
         Text(
           _formatChf(amount),
-          style: GoogleFonts.montserrat(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 2),
         Text(
           'par an',
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted),
         ),
       ],
     );
@@ -364,11 +345,7 @@ class _ThermometerPainter extends CustomPainter {
     final zeroPainter = TextPainter(
       text: TextSpan(
         text: '0',
-        style: GoogleFonts.montserrat(
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-          color: MintColors.textMuted,
-        ),
+        style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700),
       ),
       textDirection: TextDirection.ltr,
     );
@@ -383,11 +360,7 @@ class _ThermometerPainter extends CustomPainter {
     final penaltyPainter = TextPainter(
       text: TextSpan(
         text: '+',
-        style: GoogleFonts.montserrat(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          color: MintColors.error.withValues(alpha: 0.6),
-        ),
+        style: MintTextStyles.micro(color: MintColors.error.withValues(alpha: 0.6)).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
       ),
       textDirection: TextDirection.ltr,
     );
@@ -401,11 +374,7 @@ class _ThermometerPainter extends CustomPainter {
     final bonusPainter = TextPainter(
       text: TextSpan(
         text: '-',
-        style: GoogleFonts.montserrat(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          color: MintColors.success.withValues(alpha: 0.6),
-        ),
+        style: MintTextStyles.micro(color: MintColors.success.withValues(alpha: 0.6)).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
       ),
       textDirection: TextDirection.ltr,
     );

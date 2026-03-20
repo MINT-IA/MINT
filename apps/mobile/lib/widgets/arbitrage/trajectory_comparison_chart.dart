@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// CustomPainter-based chart that displays 2-4 trajectory lines on the same
 /// axes, with a crossover indicator, legend, and tap-to-inspect popup.
@@ -159,11 +159,7 @@ class _TrajectoryComparisonChartState extends State<TrajectoryComparisonChart> {
             children: [
               Text(
                 'A $age ans',
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               if (lifeHint != null) ...[
                 const SizedBox(width: 8),
@@ -175,11 +171,7 @@ class _TrajectoryComparisonChartState extends State<TrajectoryComparisonChart> {
                   ),
                   child: Text(
                     lifeHint,
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                      color: MintColors.info,
-                    ),
+                    style: MintTextStyles.micro(color: MintColors.info).copyWith(fontWeight: FontWeight.w500),
                   ),
                 ),
               ],
@@ -206,20 +198,13 @@ class _TrajectoryComparisonChartState extends State<TrajectoryComparisonChart> {
                     Expanded(
                       child: Text(
                         widget.options[i].label,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: MintColors.textSecondary,
-                        ),
+                        style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                       ),
                     ),
                     Text(
                       _formatChf(
                           widget.options[i].trajectory[idx].netPatrimony),
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -265,10 +250,7 @@ class _LegendItem extends StatelessWidget {
         Flexible(
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
             overflow: TextOverflow.ellipsis,
           ),
         ),

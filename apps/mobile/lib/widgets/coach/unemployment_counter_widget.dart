@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P7-C  Compteur de jours — Capital temps (sablier)
@@ -104,11 +104,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Ton capital temps',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -116,10 +112,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             '${_ageLabel(age)} → $maxDays indemnités journalières',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 10),
           Row(
@@ -149,11 +142,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: GoogleFonts.inter(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-          color: color,
-        ),
+        style: MintTextStyles.labelSmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
       ),
     );
   }
@@ -173,18 +162,11 @@ class UnemploymentCounterWidget extends StatelessWidget {
           children: [
             Text(
               'Jours utilisés : $daysConsumed',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
             ),
             Text(
               'Restants : $remaining',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: color,
-              ),
+              style: MintTextStyles.labelSmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -204,15 +186,11 @@ class UnemploymentCounterWidget extends StatelessWidget {
           children: [
             Text(
               'Jour 0',
-              style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+              style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
             ),
             Text(
               'Jour $maxDays → 0 CHF',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: MintColors.scoreCritique,
-              ),
+              style: MintTextStyles.micro(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
             ),
           ],
         ),
@@ -251,19 +229,12 @@ class UnemploymentCounterWidget extends StatelessWidget {
         children: [
           Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 4),
           Text(
             value,
-            style: GoogleFonts.montserrat(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
+            style: MintTextStyles.headlineMedium(color: color).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -292,12 +263,12 @@ class UnemploymentCounterWidget extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Tranche d\'âge',
-                    style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary),
+                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
                 Text(
                   'Indemnités max',
-                  style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -316,20 +287,12 @@ class UnemploymentCounterWidget extends StatelessWidget {
                   Expanded(
                     child: Text(
                       r.label,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
-                        color: isActive ? MintColors.primary : MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.bodySmall(color: isActive ? MintColors.primary : MintColors.textPrimary).copyWith(fontWeight: isActive ? FontWeight.w700 : FontWeight.w400),
                     ),
                   ),
                   Text(
                     '${r.days} jours',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
-                      color: isActive ? MintColors.primary : MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodySmall(color: isActive ? MintColors.primary : MintColors.textPrimary).copyWith(fontWeight: isActive ? FontWeight.w700 : FontWeight.w400),
                   ),
                 ],
               ),
@@ -359,20 +322,12 @@ class UnemploymentCounterWidget extends StatelessWidget {
               children: [
                 Text(
                   'Après le dernier jour : 0 CHF',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.scoreCritique,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Pas de prolongation. Tu passes à l\'aide sociale — sans délai de grâce.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.5),
                 ),
               ],
             ),
@@ -386,11 +341,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : LACI art. 27-30.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
     );
   }
 }

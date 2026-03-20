@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
@@ -118,20 +118,13 @@ class ChiffreChocSection extends StatelessWidget {
       children: [
         Text(
           l10n?.coachShockTitle ?? 'Tes chiffres-chocs',
-          style: GoogleFonts.montserrat(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 4),
         Text(
           l10n?.coachShockSubtitle ??
               'Des montants personnalis\u00e9s pour \u00e9clairer tes d\u00e9cisions',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
         ),
         const SizedBox(height: 14),
         ...cards.expand((card) => [card, const SizedBox(height: 12)]),
@@ -139,11 +132,7 @@ class ChiffreChocSection extends StatelessWidget {
           'Simulation \u00e0 titre \u00e9ducatif uniquement. '
           'Ne constitue pas un conseil en placement ou pr\u00e9voyance (LSFin). '
           'Hypoth\u00e8ses modifiables \u2014 r\u00e9sultats non garantis.',
-          style: GoogleFonts.inter(
-            fontSize: 10,
-            color: MintColors.textMuted,
-            fontStyle: FontStyle.italic,
-          ),
+          style: MintTextStyles.micro(color: MintColors.textMuted),
         ),
       ],
     );

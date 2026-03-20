@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/retirement_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -86,11 +86,7 @@ class LppComparisonCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 'Rente',
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -99,29 +95,19 @@ class LppComparisonCard extends StatelessWidget {
           // Monthly amount
           Text(
             RetirementService.formatChf(renteMensuelle),
-            style: GoogleFonts.montserrat(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: MintColors.info,
-            ),
+            style: MintTextStyles.headlineMedium(color: MintColors.info).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 2),
           Text(
             'par mois',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textMuted).copyWith(fontSize: 12),
           ),
           const SizedBox(height: 8),
 
           // Annual
           Text(
             '${RetirementService.formatChf(renteAnnuelle)}/an',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 13),
           ),
           const SizedBox(height: 12),
 
@@ -140,11 +126,7 @@ class LppComparisonCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text(
                   'a vie',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.info,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -184,11 +166,7 @@ class LppComparisonCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 'Capital',
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -197,19 +175,12 @@ class LppComparisonCard extends StatelessWidget {
           // Net amount
           Text(
             RetirementService.formatChf(capitalNet),
-            style: GoogleFonts.montserrat(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: MintColors.success,
-            ),
+            style: MintTextStyles.headlineMedium(color: MintColors.success).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 2),
           Text(
             'net (une fois)',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textMuted).copyWith(fontSize: 12),
           ),
           const SizedBox(height: 8),
 
@@ -222,10 +193,7 @@ class LppComparisonCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Impot: ${RetirementService.formatChf(capitalImpot)}',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.error,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.error).copyWith(fontSize: 12),
                 ),
               ),
             ],
@@ -246,11 +214,7 @@ class LppComparisonCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text(
                   'unique',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.success,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -289,20 +253,12 @@ class LppComparisonCard extends StatelessWidget {
               children: [
                 Text(
                   'Point d\'equilibre',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   'Si tu vis au-dela de $breakevenAge ans, la rente est plus avantageuse',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
             ),
@@ -316,11 +272,7 @@ class LppComparisonCard extends StatelessWidget {
             ),
             child: Text(
               '$breakevenAge',
-              style: GoogleFonts.montserrat(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: MintColors.white,
-              ),
+              style: MintTextStyles.headlineMedium(color: MintColors.white).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
             ),
           ),
         ],

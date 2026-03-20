@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/streak_service.dart';
+import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Compact streak counter displayed in the Agir tab header.
 ///
@@ -54,12 +54,7 @@ class StreakBadgeWidget extends StatelessWidget {
                 ),
                 Text(
                   '${streak.currentStreak}',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: _streakColor,
-                    height: 1.1,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: _streakColor).copyWith(fontWeight: FontWeight.w800, height: 1.1),
                 ),
               ],
             ),
@@ -73,20 +68,12 @@ class StreakBadgeWidget extends StatelessWidget {
               children: [
                 Text(
                   _title,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   _subtitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.3,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.3),
                 ),
                 if (streak.nextBadge != null) ...[
                   const SizedBox(height: 8),
@@ -106,11 +93,7 @@ class StreakBadgeWidget extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     '${streak.monthsToNextBadge} mois → ${streak.nextBadge!.label}',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      color: MintColors.textMuted,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w500),
                   ),
                 ],
               ],
@@ -185,11 +168,7 @@ class EarnedBadgesRow extends StatelessWidget {
       children: [
         Text(
           'Badges obtenus',
-          style: GoogleFonts.montserrat(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 10),
         Wrap(
@@ -212,11 +191,7 @@ class EarnedBadgesRow extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     badge.label,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -108,18 +108,11 @@ class HeroCoupleCard extends StatelessWidget {
             children: [
               Text(
                 'Nous Deux',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
               ),
               Text(
                 'Revenus combin\u00e9s \u00e0 la retraite',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
               ),
             ],
           ),
@@ -186,11 +179,7 @@ class HeroCoupleCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   name,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w700),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -199,28 +188,17 @@ class HeroCoupleCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             formatChfWithPrefix(monthlyIncome),
-            style: GoogleFonts.montserrat(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: MintColors.textPrimary,
-              height: 1.0,
-            ),
+            style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 20, fontWeight: FontWeight.w800, height: 1.0),
           ),
           const SizedBox(height: 2),
           Text(
             'par mois',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 8),
           Text(
             'Retraite \u00e0 $retirementAge ans',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted),
           ),
           if (replacementRatio != null && replacementRatio > 0) ...[
             const SizedBox(height: 4),
@@ -253,11 +231,7 @@ class HeroCoupleCard extends StatelessWidget {
         Expanded(
           child: Text(
             '${ratio.toStringAsFixed(0)}\u00a0% remplacement',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: indicatorColor,
-            ),
+            style: MintTextStyles.micro(color: indicatorColor).copyWith(fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -288,29 +262,17 @@ class HeroCoupleCard extends StatelessWidget {
               children: [
                 Text(
                   'Total m\u00e9nage',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   formatChfWithPrefix(_householdTotal),
-                  style: GoogleFonts.montserrat(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.primary,
-                    height: 1.0,
-                  ),
+                  style: MintTextStyles.headlineLarge(color: MintColors.primary).copyWith(fontSize: 28, fontWeight: FontWeight.w800, height: 1.0),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   'par mois (les deux \u00e0 la retraite)',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                 ),
               ],
             ),
@@ -328,11 +290,7 @@ class HeroCoupleCard extends StatelessWidget {
   Widget _buildDisclaimer() {
     return Text(
       'Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin).',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textMuted,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textMuted),
     );
   }
 }

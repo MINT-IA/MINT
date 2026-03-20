@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Diagramme Tornado — analyse de sensibilite du revenu de retraite.
@@ -72,20 +72,12 @@ class TornadoChart extends StatelessWidget {
         // ── Titre ─────────────────────────────────────────────
         Text(
           title,
-          style: GoogleFonts.montserrat(
-            fontSize: 17,
-            fontWeight: FontWeight.w800,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 4),
         Text(
           subtitle,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: MintColors.textSecondary,
-            height: 1.4,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 13, height: 1.4),
         ),
         const SizedBox(height: 16),
 
@@ -114,11 +106,7 @@ class TornadoChart extends StatelessWidget {
         // ── Disclaimer ────────────────────────────────────────
         Text(
           disclaimerText,
-          style: GoogleFonts.inter(
-            fontSize: 10,
-            color: MintColors.textMuted,
-            height: 1.4,
-          ),
+          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 10, fontStyle: FontStyle.normal, height: 1.4),
         ),
       ],
     );
@@ -151,10 +139,7 @@ class TornadoChart extends StatelessWidget {
         const SizedBox(width: 5),
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
         ),
       ],
     );
@@ -336,11 +321,7 @@ class _TornadoPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: text,
-        style: GoogleFonts.montserrat(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-          color: MintColors.textPrimary,
-        ),
+        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w800),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
@@ -393,11 +374,7 @@ class _TornadoPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: label,
-        style: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.w500,
-          color: MintColors.textPrimary,
-        ),
+        style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w500),
       ),
       textDirection: TextDirection.ltr,
       maxLines: 2,
@@ -482,18 +459,11 @@ class _TornadoPainter extends CustomPainter {
         children: [
           TextSpan(
             text: v.lowLabel,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontSize: 10, fontStyle: FontStyle.normal),
           ),
           TextSpan(
             text: '  $lowDeltaText',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: lowDelta < 0 ? MintColors.danger : MintColors.success,
-            ),
+            style: MintTextStyles.micro(color: lowDelta < 0 ? MintColors.danger : MintColors.success).copyWith(fontSize: 10, fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
           ),
         ],
       ),
@@ -519,18 +489,11 @@ class _TornadoPainter extends CustomPainter {
         children: [
           TextSpan(
             text: highDeltaText,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: highDelta >= 0 ? MintColors.success : MintColors.danger,
-            ),
+            style: MintTextStyles.micro(color: highDelta >= 0 ? MintColors.success : MintColors.danger).copyWith(fontSize: 10, fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
           ),
           TextSpan(
             text: '  ${v.highLabel}',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontSize: 10, fontStyle: FontStyle.normal),
           ),
         ],
       ),

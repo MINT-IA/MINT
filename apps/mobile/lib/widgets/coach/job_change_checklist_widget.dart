@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P11-C  La Checklist 48h — nouveau job
@@ -103,20 +103,12 @@ class _JobChangeChecklistWidgetState extends State<JobChangeChecklistWidget> {
               children: [
                 Text(
                   'Checklist changement de job',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Tu as 30 jours pour vérifier que ton LPP a été transféré.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
             ),
@@ -135,19 +127,11 @@ class _JobChangeChecklistWidgetState extends State<JobChangeChecklistWidget> {
           children: [
             Text(
               '$_completedCount / ${widget.items.length} actions complétées',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
             ),
             Text(
               '${(_progress * 100).round()}%',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                color: _progress == 1 ? MintColors.scoreExcellent : MintColors.primary,
-              ),
+              style: MintTextStyles.bodySmall(color: _progress == 1 ? MintColors.scoreExcellent : MintColors.primary).copyWith(fontWeight: FontWeight.w800),
             ),
           ],
         ),
@@ -218,11 +202,7 @@ class _JobChangeChecklistWidgetState extends State<JobChangeChecklistWidget> {
                         ),
                         child: Text(
                           item.deadline,
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: MintColors.primary,
-                          ),
+                          style: MintTextStyles.micro(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -232,27 +212,18 @@ class _JobChangeChecklistWidgetState extends State<JobChangeChecklistWidget> {
                   const SizedBox(height: 4),
                   Text(
                     item.action,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: isDone ? MintColors.textSecondary : MintColors.textPrimary,
-                      decoration: isDone ? TextDecoration.lineThrough : null,
-                      height: 1.4,
-                    ),
+                    style: MintTextStyles.bodySmall(color: isDone ? MintColors.textSecondary : MintColors.textPrimary).copyWith(decoration: isDone ? TextDecoration.lineThrough : null, height: 1.4),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     item.legalRef,
-                    style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                    style: MintTextStyles.micro(color: MintColors.textSecondary),
                   ),
                   if (item.consequence != null && !isDone) ...[
                     const SizedBox(height: 4),
                     Text(
                       '⚠️ ${item.consequence}',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        color: MintColors.scoreAttention,
-                        fontStyle: FontStyle.italic,
-                      ),
+                      style: MintTextStyles.micro(color: MintColors.scoreAttention),
                     ),
                   ],
                 ],
@@ -283,21 +254,13 @@ class _JobChangeChecklistWidgetState extends State<JobChangeChecklistWidget> {
               children: [
                 Text(
                   'Demande TOUJOURS le certificat LPP avant de signer',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.scoreCritique,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Sans transfert du libre passage dans les délais, '
                   'ton capital LPP peut finir à la Fondation supplétive à 0.05%.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
             ),
@@ -311,11 +274,7 @@ class _JobChangeChecklistWidgetState extends State<JobChangeChecklistWidget> {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : LPP art. 3 (libre passage), OLP art. 1-3.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

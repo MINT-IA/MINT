@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  DOCUMENT SCAN CTA — Chantier 2 / Retirement Cockpit
@@ -89,19 +89,12 @@ class DocumentScanCta extends StatelessWidget {
                         children: [
                           Text(
                             'Affine ta projection',
-                            style: GoogleFonts.montserrat(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: MintColors.white,
-                            ),
+                            style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             'Scanne ton certificat de pr\u00e9voyance LPP',
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              color: MintColors.white.withValues(alpha: 0.75),
-                            ),
+                            style: MintTextStyles.bodySmall(color: MintColors.white.withValues(alpha: 0.75)),
                           ),
                         ],
                       ),
@@ -164,11 +157,7 @@ class DocumentScanCta extends StatelessWidget {
                       const SizedBox(width: 8),
                       Text(
                         'Scanner mon certificat LPP',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: MintColors.primary,
-                        ),
+                        style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                       ),
                     ],
                   ),
@@ -192,21 +181,12 @@ class DocumentScanCta extends StatelessWidget {
         children: [
           Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.white.withValues(alpha: 0.6),
-            ),
+            style: MintTextStyles.micro(color: MintColors.white.withValues(alpha: 0.6)).copyWith(fontStyle: FontStyle.normal),
           ),
           const SizedBox(height: 4),
           Text(
             '${score.round()}%',
-            style: GoogleFonts.montserrat(
-              fontSize: isActive ? 22 : 18,
-              fontWeight: FontWeight.w800,
-              color: isActive
-                  ? MintColors.success
-                  : MintColors.white.withValues(alpha: 0.7),
-            ),
+            style: MintTextStyles.headlineMedium(color: isActive ? MintColors.success : MintColors.white.withValues(alpha: 0.7)).copyWith(fontSize: isActive ? 22 : 18, fontWeight: FontWeight.w800),
           ),
         ],
       ),

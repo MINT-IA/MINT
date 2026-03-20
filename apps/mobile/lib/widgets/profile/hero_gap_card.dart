@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Hero card showing the GAP between current income and projected retirement.
@@ -52,11 +52,7 @@ class HeroGapCard extends StatelessWidget {
           // Title
           Text(
             hasGap ? s.heroGapTitle : s.heroGapCovered,
-            style: GoogleFonts.inter(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: MintColors.white70,
-            ),
+            style: MintTextStyles.bodyLarge(color: MintColors.white70).copyWith(fontSize: 15, fontWeight: FontWeight.w500),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
@@ -72,11 +68,7 @@ class HeroGapCard extends StatelessWidget {
           // Metaphor
           Text(
             _metaphor(s, gap),
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontStyle: FontStyle.italic,
-              color: MintColors.white70,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.white70).copyWith(fontSize: 13, fontStyle: FontStyle.italic),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
@@ -105,18 +97,11 @@ class HeroGapCard extends StatelessWidget {
         children: [
           Text(
             'CHF\u00a0${formatChf(displayValue)}',
-            style: GoogleFonts.montserrat(
-              fontSize: 36,
-              fontWeight: FontWeight.w900,
-              color: MintColors.white,
-            ),
+            style: MintTextStyles.displayLarge(color: MintColors.white).copyWith(fontSize: 36, fontWeight: FontWeight.w900),
           ),
           Text(
             s.heroGapPerMonth,
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              color: MintColors.white70,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.white70),
           ),
         ],
       ),
@@ -148,20 +133,12 @@ class HeroGapCard extends StatelessWidget {
         children: [
           Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: MintColors.white70,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.white70).copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
           Text(
             '$amount${s.heroGapPerMonth}',
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: MintColors.white,
-            ),
+            style: MintTextStyles.bodyLarge(color: MintColors.white).copyWith(fontSize: 16, fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -183,11 +160,7 @@ class HeroGapCard extends StatelessWidget {
       children: [
         Text(
           '${s.heroGapConfidence} ${pct.toStringAsFixed(0)}\u00a0%',
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: MintColors.white70,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.white70).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 6),
         ClipRRect(
@@ -216,13 +189,7 @@ class HeroGapCard extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             s.heroGapScanCta,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: MintColors.white,
-              decoration: TextDecoration.underline,
-              decorationColor: MintColors.white70,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.white).copyWith(fontSize: 13, fontWeight: FontWeight.w500, decoration: TextDecoration.underline, decorationColor: MintColors.white70),
           ),
           if (confidenceBoostPercent != null) ...[
             const SizedBox(width: 8),
@@ -234,11 +201,7 @@ class HeroGapCard extends StatelessWidget {
               ),
               child: Text(
                 '+$confidenceBoostPercent\u00a0%',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.white,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
               ),
             ),
           ],

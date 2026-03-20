@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 class NarrativeHeader extends StatelessWidget {
@@ -88,12 +88,7 @@ class NarrativeHeader extends StatelessWidget {
           // Narrative phrase
           Text(
             _buildNarrative(l),
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textPrimary,
-              height: 1.5,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500, height: 1.5),
           ),
           const SizedBox(height: 14),
 
@@ -117,10 +112,7 @@ class NarrativeHeader extends StatelessWidget {
             children: [
               Text(
                 l.narrativeConfidenceLabel('${clampedScore.round()}'),
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textMuted).copyWith(fontSize: 12),
               ),
               if (boostAction != null &&
                   confidenceBoostAvailable != null) ...[
@@ -132,11 +124,7 @@ class NarrativeHeader extends StatelessWidget {
                     onTap: onBoostTap,
                     child: Text(
                     '\u{1F4C4} $boostAction (+$confidenceBoostAvailable%)',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.info,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.info).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
                   ),
                 ),
                 ),

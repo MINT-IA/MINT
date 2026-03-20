@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -134,21 +134,13 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
                 // Title
                 Text(
                   'Configuration API',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 20, fontWeight: FontWeight.w700),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Bring Your Own Key (BYOK)',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
@@ -197,11 +189,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
   Widget _buildSectionLabel(String text) {
     return Text(
       text,
-      style: GoogleFonts.inter(
-        fontSize: 13,
-        fontWeight: FontWeight.w600,
-        color: MintColors.textSecondary,
-      ),
+      style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
     );
   }
 
@@ -246,11 +234,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
           ),
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: isSelected ? MintColors.white : MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodyMedium(color: isSelected ? MintColors.white : MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
           ),
         ),
@@ -263,18 +247,12 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
     return TextField(
       controller: _apiKeyController,
       obscureText: true,
-      style: GoogleFonts.inter(
-        fontSize: 14,
-        color: MintColors.textPrimary,
-      ),
+      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
       decoration: InputDecoration(
         hintText: _provider == LlmProvider.openai
             ? 'sk-...'
             : 'sk-ant-...',
-        hintStyle: GoogleFonts.inter(
-          fontSize: 14,
-          color: MintColors.textMuted,
-        ),
+        hintStyle: MintTextStyles.bodyMedium(color: MintColors.textMuted),
         filled: true,
         fillColor: MintColors.surface,
         contentPadding: const EdgeInsets.symmetric(
@@ -317,10 +295,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
         child: DropdownButton<String>(
           value: _selectedModel,
           isExpanded: true,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
           dropdownColor: MintColors.background,
           items: _availableModels.map((model) {
             return DropdownMenuItem(
@@ -359,11 +334,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
             ),
       label: Text(
         _isTesting ? 'Test en cours...' : 'Tester la connexion',
-        style: GoogleFonts.inter(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: MintColors.coachAccent,
-        ),
+        style: MintTextStyles.bodyMedium(color: MintColors.coachAccent).copyWith(fontWeight: FontWeight.w500),
       ),
       style: OutlinedButton.styleFrom(
         side: BorderSide(color: MintColors.coachAccent.withValues(alpha: 0.3)),
@@ -384,11 +355,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
       ),
       child: Text(
         _testResult!,
-        style: GoogleFonts.inter(
-          fontSize: 12,
-          fontWeight: FontWeight.w400,
-          color: MintColors.textSecondary,
-        ),
+        style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
       ),
     );
   }
@@ -407,10 +374,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
       ),
       child: Text(
         'Sauvegarder',
-        style: GoogleFonts.inter(
-          fontSize: 15,
-          fontWeight: FontWeight.w600,
-        ),
+        style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -436,11 +400,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
           Expanded(
             child: Text(
               'Ta cl\u00e9 API est chiffr\u00e9e localement. Elle transite via HTTPS pour communiquer avec le fournisseur IA, jamais stock\u00e9e c\u00f4t\u00e9 serveur.',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w400,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
             ),
           ),
         ],

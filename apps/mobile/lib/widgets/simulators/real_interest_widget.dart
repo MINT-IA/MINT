@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/simulators/real_interest_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
@@ -87,10 +87,7 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
             l.simRealInterestHypotheses(
               (widget.marginalTaxRate * 100).toStringAsFixed(1),
             ),
-            style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic),
+            style: MintTextStyles.micro(color: MintColors.textMuted),
             textAlign: TextAlign.center,
           ),
 
@@ -114,11 +111,7 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
                     const SizedBox(width: 8),
                     Text(
                       l.simRealInterestEducTitle,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: MintColors.info,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -155,11 +148,7 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
         Expanded(
           child: Text(
             text,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
           ),
         ),
       ],
@@ -180,22 +169,16 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
         child: Column(
           children: [
             Text(title,
-                style: GoogleFonts.outfit(
-                    fontSize: 12, color: MintColors.textSecondary)),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12)),
             const SizedBox(height: 8),
             Text(
               "CHF ${(scenario.totalCapital / 1000).toStringAsFixed(1)}k",
-              style: GoogleFonts.outfit(
-                fontSize: isMain ? 18 : 16,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
+              style: MintTextStyles.headlineMedium(color: color).copyWith(fontSize: isMain ? 18 : 16),
             ),
             const SizedBox(height: 4),
             Text(
               "+${(scenario.effectiveYield * 100).toStringAsFixed(1)}%",
-              style: GoogleFonts.inter(
-                  fontSize: 10, color: color, fontWeight: FontWeight.w600),
+              style: MintTextStyles.micro(color: color).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -219,14 +202,10 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(label,
-                style: GoogleFonts.inter(
-                    fontSize: 12, fontWeight: FontWeight.w500)),
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 12)),
             Text(
               "${value.toInt()} $unit",
-              style: GoogleFonts.outfit(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: MintColors.primary),
+              style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.bold),
             ),
           ],
         ),

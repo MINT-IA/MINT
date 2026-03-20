@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/simulators/buyback_simulator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
@@ -60,7 +60,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
             children: [
               Expanded(
                   child: Text(l.simBuybackDuration,
-                      style: GoogleFonts.inter(fontSize: 14))),
+                      style: MintTextStyles.bodyMedium())),
               DropdownButton<int>(
                 value: _years,
                 items: [2, 3, 4, 5]
@@ -69,10 +69,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                     .toList(),
                 onChanged: (v) => setState(() => _years = v!),
                 underline: Container(), // clean look
-                style: GoogleFonts.outfit(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: MintColors.primary),
+                style: MintTextStyles.titleMedium(color: MintColors.primary),
               ),
             ],
           ),
@@ -109,10 +106,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                 const SizedBox(width: 8),
                 Text(
                   l.simBuybackEstimatedGain(result.delta.toStringAsFixed(0)),
-                  style: GoogleFonts.outfit(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: MintColors.success),
+                  style: MintTextStyles.titleMedium(color: MintColors.success),
                 ),
               ],
             ),
@@ -141,11 +135,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                   Expanded(
                     child: Text(
                       l.simBuybackMarginalRateQuestion,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.info,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontSize: 12),
                     ),
                   ),
                   const Icon(Icons.chevron_right,
@@ -159,8 +149,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
           const SizedBox(height: 12),
           Text(
             result.disclaimer,
-            style: GoogleFonts.inter(
-                fontSize: 10, color: MintColors.textMuted, height: 1.2),
+            style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(height: 1.2),
             textAlign: TextAlign.justify,
           ),
         ],
@@ -197,20 +186,12 @@ class _BuybackWidgetState extends State<BuybackWidget> {
               const SizedBox(height: 24),
               Text(
                 l.simBuybackMarginalRateTitle,
-                style: GoogleFonts.montserrat(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: MintColors.primary,
-                ),
+                style: MintTextStyles.headlineMedium(color: MintColors.primary).copyWith(fontSize: 18),
               ),
               const SizedBox(height: 16),
               Text(
                 l.simBuybackMarginalRateExplanation,
-                style: GoogleFonts.inter(
-                  fontSize: 15,
-                  color: MintColors.textPrimary,
-                  height: 1.5,
-                ),
+                style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontSize: 15),
               ),
               const SizedBox(height: 16),
               Container(
@@ -227,11 +208,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                     Expanded(
                       child: Text(
                         l.simBuybackMarginalRateTip,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: MintColors.primary,
-                          fontStyle: FontStyle.italic,
-                        ),
+                        style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontStyle: FontStyle.italic),
                       ),
                     ),
                   ],
@@ -251,8 +228,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
       child: Column(
         children: [
           Text(label,
-              style: GoogleFonts.inter(
-                  fontSize: 10, color: MintColors.textSecondary)),
+              style: MintTextStyles.micro(color: MintColors.textSecondary)),
           const SizedBox(height: 4),
           Container(
             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -274,28 +250,17 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                 children: [
                   Text(
                     l.simBuybackSavingsLabel,
-                    style: GoogleFonts.inter(
-                        fontSize: 10,
-                        color:
-                            highlight ? MintColors.white70 : MintColors.textMuted),
+                    style: MintTextStyles.micro(color: highlight ? MintColors.white70 : MintColors.textMuted),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     "${(amount / 1000).toStringAsFixed(1)}k",
-                    style: GoogleFonts.outfit(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color:
-                            highlight ? MintColors.white : MintColors.textPrimary),
+                    style: MintTextStyles.headlineMedium(color: highlight ? MintColors.white : MintColors.textPrimary).copyWith(fontSize: 18),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     sublabel,
-                    style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: highlight
-                            ? MintColors.white70
-                            : MintColors.textSecondary),
+                    style: MintTextStyles.labelSmall(color: highlight ? MintColors.white70 : MintColors.textSecondary),
                   ),
                 ],
               ),

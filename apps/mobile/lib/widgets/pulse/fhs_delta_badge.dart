@@ -9,9 +9,9 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/fhs_daily_score.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Compact badge displaying the FHS delta vs yesterday.
 ///
@@ -82,11 +82,7 @@ class FhsDeltaBadge extends StatelessWidget {
             const SizedBox(width: 3),
             Text(
               '$_deltaText vs hier', // TODO: i18n
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: _color,
-              ),
+              style: MintTextStyles.bodySmall(color: _color).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
             ),
           ],
         ),
