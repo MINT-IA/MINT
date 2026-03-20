@@ -24,7 +24,7 @@ class ChiffreChocSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     final revenuBrutAnnuel = profile.revenuBrutAnnuel;
     final cards = <Widget>[];
 
@@ -117,13 +117,12 @@ class ChiffreChocSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          l10n?.coachShockTitle ?? 'Tes chiffres-chocs',
+          S.of(context)!.coachShockTitle,
           style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 4),
         Text(
-          l10n?.coachShockSubtitle ??
-              'Des montants personnalis\u00e9s pour \u00e9clairer tes d\u00e9cisions',
+          l10n.coachShockSubtitle,
           style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
         ),
         const SizedBox(height: 14),

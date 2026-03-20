@@ -260,12 +260,11 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildHeader() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final yearsToTarget = _yearsToTarget();
     final subtitle = _isDebtGoal
         ? 'Dette restante · $yearsToTarget ans'
-        : (s?.trajectorySubtitle(yearsToTarget.toString()) ??
-            '3 scénarios · $yearsToTarget ans');
+        : s.trajectorySubtitle(yearsToTarget.toString());
     return Row(
       children: [
         Container(
@@ -287,7 +286,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                s?.trajectoryTitle ?? 'Ta trajectoire',
+                s.trajectoryTitle,
                 style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               Text(
@@ -340,11 +339,10 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
                   progress: _drawAnimation.value,
                   goalALabel: widget.goalALabel,
                   selectedIndex: _selectedPointIndex,
-                  prudentLabel: S.of(context)?.trajectoryPrudent ?? 'Prudent',
-                  baseLabel: S.of(context)?.trajectoryBase ?? 'Base',
-                  optimisteLabel:
-                      S.of(context)?.trajectoryOptimiste ?? 'Optimiste',
-                  goalLabel: S.of(context)?.trajectoryGoalLabel ?? 'Cible',
+                  prudentLabel: S.of(context)!.trajectoryPrudent,
+                  baseLabel: S.of(context)!.trajectoryBase,
+                  optimisteLabel: S.of(context)!.trajectoryOptimiste,
+                  goalLabel: S.of(context)!.trajectoryGoalLabel,
                 ),
                 size: Size(availableWidth, chartHeight),
               ),
@@ -383,10 +381,10 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
 
     final dateLabel = _formatDate(basePoint.date);
 
-    final s = S.of(context);
-    final optimisteLabel = s?.trajectoryOptimiste ?? 'Optimiste';
-    final baseLabel = s?.trajectoryBase ?? 'Base';
-    final prudentLabel = s?.trajectoryPrudent ?? 'Prudent';
+    final s = S.of(context)!;
+    final optimisteLabel = s.trajectoryOptimiste;
+    final baseLabel = s.trajectoryBase;
+    final prudentLabel = s.trajectoryPrudent;
 
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 120),
@@ -472,24 +470,24 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildLegend() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _buildLegendItem(
-          s?.trajectoryOptimiste ?? 'Optimiste',
+          s.trajectoryOptimiste,
           MintColors.trajectoryOptimiste,
           dashed: true,
         ),
         const SizedBox(width: 16),
         _buildLegendItem(
-          s?.trajectoryBase ?? 'Base',
+          s.trajectoryBase,
           MintColors.trajectoryBase,
           dashed: false,
         ),
         const SizedBox(width: 16),
         _buildLegendItem(
-          s?.trajectoryPrudent ?? 'Prudent',
+          s.trajectoryPrudent,
           MintColors.trajectoryPrudent,
           dashed: true,
         ),
@@ -522,11 +520,11 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildScrubHint() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Padding(
       padding: const EdgeInsets.only(top: 6),
       child: Text(
-        s?.trajectoryDragHint ?? 'Glisse pour explorer',
+        s.trajectoryDragHint,
         style: MintTextStyles.micro(color: MintColors.textMuted.withValues(alpha: 0.6)),
         textAlign: TextAlign.center,
       ),
@@ -538,7 +536,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildTauxRemplacement() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final taux = widget.result.tauxRemplacementBase.clamp(0.0, 200.0);
     final isGood = taux >= 60;
     final icon = isGood ? Icons.check_circle_outline : Icons.warning_amber;
@@ -569,8 +567,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
                       style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                       children: [
                         TextSpan(
-                            text: s?.trajectoryTauxRemplacement ??
-                                'Taux de remplacement estimé : '),
+                            text: s.trajectoryTauxRemplacement),
                         TextSpan(
                           text: '${taux.round()}%',
                           style: MintTextStyles.bodyMedium(color: color).copyWith(fontWeight: FontWeight.w700),
@@ -628,7 +625,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildEmptyState() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Container(
       height: 200,
       alignment: Alignment.center,
@@ -642,13 +639,12 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           ),
           const SizedBox(height: 12),
           Text(
-            s?.trajectoryEmpty ?? 'Pas encore de projection disponible',
+            s.trajectoryEmpty,
             style: MintTextStyles.bodyMedium(color: MintColors.textMuted),
           ),
           const SizedBox(height: 4),
           Text(
-            s?.trajectoryEmptySub ??
-                'Complète ton profil pour voir ta trajectoire',
+            s.trajectoryEmptySub,
             style: MintTextStyles.labelSmall(color: MintColors.textMuted.withValues(alpha: 0.7)).copyWith(fontSize: 12),
           ),
         ],
@@ -661,10 +657,9 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildDisclaimer() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     return Text(
-      s?.trajectoryDisclaimer ??
-          'Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier.',
+      s.trajectoryDisclaimer,
       textAlign: TextAlign.center,
       style: MintTextStyles.micro(color: MintColors.textMuted),
     );

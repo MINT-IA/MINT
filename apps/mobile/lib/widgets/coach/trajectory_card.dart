@@ -24,12 +24,12 @@ class TrajectoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          l10n?.coachTrajectory ?? 'Ta trajectoire',
+          l10n.coachTrajectory,
           style: MintTextStyles.headlineLarge(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 12),

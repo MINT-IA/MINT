@@ -99,7 +99,7 @@ class _AnalyticsConsentBannerState extends State<AnalyticsConsentBanner>
       return const SizedBox.shrink();
     }
 
-    final s = S.of(context);
+    final s = S.of(context)!;
 
     return Positioned(
       left: 0,
@@ -150,7 +150,7 @@ class _AnalyticsConsentBannerState extends State<AnalyticsConsentBanner>
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          s?.analyticsConsentTitle ?? 'Statistiques anonymes',
+                          s.analyticsConsentTitle,
                           style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, letterSpacing: -0.3),
                         ),
                       ),
@@ -161,8 +161,7 @@ class _AnalyticsConsentBannerState extends State<AnalyticsConsentBanner>
 
                   // Message
                   Text(
-                    s?.analyticsConsentMessage ??
-                        'MINT utilise des statistiques anonymes pour améliorer l\'expérience. Aucune donnée personnelle n\'est collectée.',
+                    s.analyticsConsentMessage,
                     style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(height: 1.5, letterSpacing: -0.1),
                   ),
 
@@ -186,7 +185,7 @@ class _AnalyticsConsentBannerState extends State<AnalyticsConsentBanner>
                             padding: const EdgeInsets.symmetric(vertical: 14),
                           ),
                           child: Text(
-                            s?.analyticsRefuse ?? 'Refuser',
+                            s.analyticsRefuse,
                             style: MintTextStyles.bodyLarge(color: MintColors.textSecondary).copyWith(fontSize: 15, fontWeight: FontWeight.w600, letterSpacing: -0.2),
                           ),
                         ),
@@ -205,7 +204,7 @@ class _AnalyticsConsentBannerState extends State<AnalyticsConsentBanner>
                             elevation: 0,
                           ),
                           child: Text(
-                            s?.analyticsAccept ?? 'Accepter',
+                            s.analyticsAccept,
                             style: MintTextStyles.bodyLarge(color: MintColors.white).copyWith(fontSize: 15, fontWeight: FontWeight.w600, letterSpacing: -0.2),
                           ),
                         ),

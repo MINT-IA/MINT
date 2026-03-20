@@ -420,7 +420,7 @@ class ResponseCardWidget extends StatelessWidget {
 
             // Sources
             if (card.sources.isNotEmpty) ...[
-              Text(S.of(context)?.proofSheetSources ?? 'Sources',
+              Text(S.of(context)!.proofSheetSources,
                   style: MintTextStyles.bodySmall()),
               const SizedBox(height: MintSpacing.xs),
               ...card.sources.map(
