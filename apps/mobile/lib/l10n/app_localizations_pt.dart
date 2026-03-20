@@ -17780,4 +17780,7 @@ class SPt extends S {
   @override
   String get chiffreChocRenteCalculation =>
       '(cálculo: pensão mensal × 13 meses/ano, 13.ª pensão incluída).';
+
+  @override
+  String get coachBriefingFallbackGreeting => 'Olá';
 }

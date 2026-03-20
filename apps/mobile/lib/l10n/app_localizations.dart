@@ -31618,6 +31618,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'(calcul : rente mensuelle × 13 mois/an, 13ᵉ rente incluse).'**
   String get chiffreChocRenteCalculation;
+
+  /// No description provided for @coachBriefingFallbackGreeting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonjour'**
+  String get coachBriefingFallbackGreeting;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

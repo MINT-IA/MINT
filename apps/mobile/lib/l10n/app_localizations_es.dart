@@ -17833,4 +17833,7 @@ class SEs extends S {
   @override
   String get chiffreChocRenteCalculation =>
       '(cálculo: pensión mensual × 13 meses/año, 13.ª pensión incluida).';
+
+  @override
+  String get coachBriefingFallbackGreeting => 'Hola';
 }

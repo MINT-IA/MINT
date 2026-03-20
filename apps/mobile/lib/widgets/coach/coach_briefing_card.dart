@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/dashboard_curator_service.dart';
@@ -61,7 +62,7 @@ class CoachBriefingCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  narr?.greeting ?? 'Bonjour',
+                  narr?.greeting ?? S.of(context)!.coachBriefingFallbackGreeting,
                   style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 19, fontWeight: FontWeight.w700),
                 ),
               ),

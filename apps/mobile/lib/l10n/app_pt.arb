@@ -7786,4 +7786,6 @@
   "avsGapLifetimeLoss": "Em 20 anos de reforma, são {amount} a menos — definitivamente.",
   "avsGapCalculation": "Cálculo: pensão mensal × 13 meses/ano (13.ª pensão AVS desde dez. 2026)",
   "chiffreChocRenteCalculation": "(cálculo: pensão mensal × 13 meses/ano, 13.ª pensão incluída)."
+,
+  "coachBriefingFallbackGreeting": "Olá"
 }

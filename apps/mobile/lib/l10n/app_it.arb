@@ -7786,4 +7786,6 @@
   "avsGapLifetimeLoss": "In 20 anni di pensione, sono {amount} in meno — definitivamente.",
   "avsGapCalculation": "Calcolo: rendita mensile × 13 mesi/anno (13ª rendita AVS da dic. 2026)",
   "chiffreChocRenteCalculation": "(calcolo: rendita mensile × 13 mesi/anno, 13ª rendita inclusa)."
+,
+  "coachBriefingFallbackGreeting": "Ciao"
 }

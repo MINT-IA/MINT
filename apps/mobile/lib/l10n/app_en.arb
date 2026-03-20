@@ -8114,4 +8114,6 @@
   "avsGapLifetimeLoss": "Over 20 years of retirement, that's {amount} less — permanently.",
   "avsGapCalculation": "Calculation: monthly pension × 13 months/year (13th AVS pension from Dec. 2026)",
   "chiffreChocRenteCalculation": "(calculation: monthly pension × 13 months/year, 13th pension included)."
+,
+  "coachBriefingFallbackGreeting": "Hello"
 }

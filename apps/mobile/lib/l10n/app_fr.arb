@@ -8408,4 +8408,6 @@
   "@fhsDeltaLabel": {"placeholders": {"delta": {"type": "String"}}},
   "@fhsDeltaText": {"placeholders": {"delta": {"type": "String"}}},
   "@avsGapLifetimeLoss": {"placeholders": {"amount": {"type": "String"}}}
+,
+  "coachBriefingFallbackGreeting": "Bonjour"
 }

@@ -17845,4 +17845,7 @@ class SIt extends S {
   @override
   String get chiffreChocRenteCalculation =>
       '(calcolo: rendita mensile × 13 mesi/anno, 13ª rendita inclusa).';
+
+  @override
+  String get coachBriefingFallbackGreeting => 'Ciao';
 }

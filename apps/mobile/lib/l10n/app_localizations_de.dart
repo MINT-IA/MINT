@@ -17846,4 +17846,7 @@ class SDe extends S {
   @override
   String get chiffreChocRenteCalculation =>
       '(Berechnung: Monatsrente × 13 Monate/Jahr, 13. Rente inklusive).';
+
+  @override
+  String get coachBriefingFallbackGreeting => 'Hallo';
 }

@@ -17828,4 +17828,7 @@ class SFr extends S {
   @override
   String get chiffreChocRenteCalculation =>
       '(calcul : rente mensuelle × 13 mois/an, 13ᵉ rente incluse).';
+
+  @override
+  String get coachBriefingFallbackGreeting => 'Bonjour';
 }

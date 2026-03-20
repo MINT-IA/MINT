@@ -17748,4 +17748,7 @@ class SEn extends S {
   @override
   String get chiffreChocRenteCalculation =>
       '(calculation: monthly pension × 13 months/year, 13th pension included).';
+
+  @override
+  String get coachBriefingFallbackGreeting => 'Hello';
 }

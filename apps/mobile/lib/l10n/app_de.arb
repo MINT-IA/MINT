@@ -8084,4 +8084,6 @@
   "avsGapLifetimeLoss": "Über 20 Rentenjahre sind das {amount} weniger — endgültig.",
   "avsGapCalculation": "Berechnung: Monatsrente × 13 Monate/Jahr (13. AHV-Rente ab Dez. 2026)",
   "chiffreChocRenteCalculation": "(Berechnung: Monatsrente × 13 Monate/Jahr, 13. Rente inklusive)."
+,
+  "coachBriefingFallbackGreeting": "Hallo"
 }

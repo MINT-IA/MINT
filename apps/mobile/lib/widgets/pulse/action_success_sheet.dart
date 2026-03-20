@@ -86,7 +86,7 @@ class _ActionSuccessContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = S.of(context)!;
 
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(MintSpacing.lg),
       child: Column(
         mainAxisSize: MainAxisSize.min,
