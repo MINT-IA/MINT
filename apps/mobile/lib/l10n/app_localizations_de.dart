@@ -13274,10 +13274,10 @@ class SDe extends S {
   }
 
   @override
-  String get quickStartTitle => 'Drei Fragen, eine erste Zahl.';
+  String get quickStartTitle => 'Drei Zahlen, eine erste Wahrheit.';
 
   @override
-  String get quickStartSubtitle => 'Den Rest bestimmst du, wann du willst.';
+  String get quickStartSubtitle => 'Der Rest kommt später.';
 
   @override
   String get quickStartFirstName => 'Dein Vorname';
@@ -13332,10 +13332,10 @@ class SDe extends S {
 
   @override
   String get quickStartDisclaimer =>
-      'Lehrreiche Schätzung. Keine Finanzberatung (FIDLEG).';
+      'Lehrreiche Schätzung basierend auf Alter, Einkommen und Kanton.';
 
   @override
-  String get quickStartCta => 'Meine Übersicht';
+  String get quickStartCta => 'Sehen, was sich ändert';
 
   @override
   String get quickStartSectionIdentity => 'Identität & Haushalt';
@@ -13353,6 +13353,28 @@ class SDe extends S {
   String quickStartSectionGuidance(String label) {
     return 'Bereich: $label — aktualisiere deine Angaben unten.';
   }
+
+  @override
+  String quickStartNarrative(String pct) {
+    return 'Du behältst ~$pct % deines Lebensstandards.';
+  }
+
+  @override
+  String get quickStartNarrativeLow =>
+      'Eine erste Grössenordnung, noch zu präzisieren.';
+
+  @override
+  String get quickStartCtaSecondary => 'Ich ergänze später weitere Details';
+
+  @override
+  String get quickStartConfidenceMsg =>
+      'Ohne BVG-Ausweis bleibt es eine grobe Schätzung.';
+
+  @override
+  String get quickStartHeroSecondaryLabel => 'heute';
+
+  @override
+  String get quickStartHeroLabel => 'bei der Pensionierung';
 
   @override
   String profileCompletionHint(int pct, String missing) {
@@ -17999,4 +18021,103 @@ class SDe extends S {
   @override
   String get concubinageDecisionMatrixConclusionDesc =>
       'Die Wahl hängt von deiner persönlichen Situation ab. Konsultiere einen Notar für eine vollständige Analyse.';
+
+  @override
+  String get landingHiddenAmount => 'CHF ····';
+
+  @override
+  String get landingHiddenSubtitle => 'Deine erste Zahl in 30 Sekunden';
+
+  @override
+  String get renteVsCapitalV2Title => 'Rente oder Kapital.';
+
+  @override
+  String get renteVsCapitalV2Subtitle =>
+      'Dasselbe Geld. Zwei verschiedene Leben.';
+
+  @override
+  String get renteVsCapitalChoiceRenteSubtitle => 'Stabiler, weniger flexibel';
+
+  @override
+  String get renteVsCapitalChoiceCapitalSubtitle => 'Freier, anspruchsvoller';
+
+  @override
+  String get renteVsCapitalChoiceMixteSubtitle =>
+      'Ein Gleichgewicht zum Aufbauen';
+
+  @override
+  String get renteVsCapitalConsequenceRenteEyebrow =>
+      'Wenn du die Rente wählst';
+
+  @override
+  String get renteVsCapitalConsequenceCapitalEyebrow =>
+      'Wenn du das Kapital wählst';
+
+  @override
+  String get renteVsCapitalConsequenceMixteEyebrow =>
+      'Wenn du die Mischform wählst';
+
+  @override
+  String get renteVsCapitalConsequenceRenteNarrative =>
+      'Ein festes Einkommen jeden Monat, unabhängig von den Märkten. Im Gegenzug gehört dir dein Kapital nicht mehr.';
+
+  @override
+  String get renteVsCapitalConsequenceCapitalNarrative =>
+      'Du verwaltest dein Geld frei, aber es kann aufgebraucht werden. Jedes Jahr zählt.';
+
+  @override
+  String get renteVsCapitalConsequenceMixteNarrative =>
+      'Der obligatorische Teil als Rente für die Sicherheit, der überobligatorische als Kapital für die Flexibilität.';
+
+  @override
+  String get renteVsCapitalConsequenceMixteRenteLabel =>
+      'Rente (obligatorisch)';
+
+  @override
+  String get renteVsCapitalConsequenceMixteCapitalLabel =>
+      'Kapital (überobligatorisch)';
+
+  @override
+  String get renteVsCapitalSignalRevenu => 'Monatliches Einkommen';
+
+  @override
+  String get renteVsCapitalSignalFiscalite => 'Kumulative Besteuerung';
+
+  @override
+  String get renteVsCapitalSignalTransmission => 'Vererbung';
+
+  @override
+  String get renteVsCapitalConfidenceNoticeLow =>
+      'Ohne BVG-Ausweis bleibt dies eine grobe Schätzung.';
+
+  @override
+  String get renteVsCapitalConfidenceNoticeHigh =>
+      'Vollständige Daten — zuverlässige Ergebnisse.';
+
+  @override
+  String get renteVsCapitalConfidenceCta => 'Meine Daten präzisieren';
+
+  @override
+  String get renteVsCapitalFastEstimateTitle => 'Erste Schätzung machen';
+
+  @override
+  String get renteVsCapitalCtaCompare => 'Für mich vergleichen';
+
+  @override
+  String get renteVsCapitalAdvancedDisclosure => 'Ich habe meinen BVG-Ausweis';
+
+  @override
+  String get renteVsCapitalPerMonthForLife => '/Monat, lebenslang';
+
+  @override
+  String get renteVsCapitalNetAfterTax => 'netto nach Steuern';
+
+  @override
+  String get renteVsCapitalTransmissionRenteMarried => '60 % an Ehepartner';
+
+  @override
+  String get renteVsCapitalTransmissionRenteSingle => 'Nichts an Erben';
+
+  @override
+  String get renteVsCapitalTransmissionCapitalValue => '100 % an Erben';
 }

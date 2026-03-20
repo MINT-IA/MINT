@@ -13266,10 +13266,10 @@ class SIt extends S {
   }
 
   @override
-  String get quickStartTitle => 'Tre domande, un primo numero.';
+  String get quickStartTitle => 'Tre cifre, una prima verità.';
 
   @override
-  String get quickStartSubtitle => 'Il resto lo decidi tu, quando vuoi.';
+  String get quickStartSubtitle => 'Il resto verrà dopo.';
 
   @override
   String get quickStartFirstName => 'Il tuo nome';
@@ -13324,10 +13324,10 @@ class SIt extends S {
 
   @override
   String get quickStartDisclaimer =>
-      'Stima educativa. Non costituisce consulenza finanziaria (LSFin).';
+      'Stima educativa basata sulla tua età, reddito e cantone.';
 
   @override
-  String get quickStartCta => 'Vedi la mia panoramica';
+  String get quickStartCta => 'Scopri cosa cambia';
 
   @override
   String get quickStartSectionIdentity => 'Identità & Nucleo familiare';
@@ -13345,6 +13345,28 @@ class SIt extends S {
   String quickStartSectionGuidance(String label) {
     return 'Sezione: $label — aggiorna le tue informazioni qui sotto.';
   }
+
+  @override
+  String quickStartNarrative(String pct) {
+    return 'Mantieni ~$pct % del tuo tenore di vita.';
+  }
+
+  @override
+  String get quickStartNarrativeLow =>
+      'Un primo ordine di grandezza, da precisare.';
+
+  @override
+  String get quickStartCtaSecondary => 'Aggiungerò più dettagli più tardi';
+
+  @override
+  String get quickStartConfidenceMsg =>
+      'Senza certificato LPP, è una stima approssimativa.';
+
+  @override
+  String get quickStartHeroSecondaryLabel => 'oggi';
+
+  @override
+  String get quickStartHeroLabel => 'alla pensione';
 
   @override
   String profileCompletionHint(int pct, String missing) {
@@ -17995,4 +18017,101 @@ class SIt extends S {
   @override
   String get concubinageDecisionMatrixConclusionDesc =>
       'La scelta dipende dalla tua situazione personale. Consulta un notaio per un’analisi completa.';
+
+  @override
+  String get landingHiddenAmount => 'CHF ····';
+
+  @override
+  String get landingHiddenSubtitle => 'Il tuo primo numero in 30 secondi';
+
+  @override
+  String get renteVsCapitalV2Title => 'Rendita o capitale.';
+
+  @override
+  String get renteVsCapitalV2Subtitle => 'Lo stesso denaro. Due vite diverse.';
+
+  @override
+  String get renteVsCapitalChoiceRenteSubtitle =>
+      'Più stabile, meno flessibile';
+
+  @override
+  String get renteVsCapitalChoiceCapitalSubtitle =>
+      'Più libero, più impegnativo';
+
+  @override
+  String get renteVsCapitalChoiceMixteSubtitle => 'Un equilibrio da costruire';
+
+  @override
+  String get renteVsCapitalConsequenceRenteEyebrow => 'Se scegli la rendita';
+
+  @override
+  String get renteVsCapitalConsequenceCapitalEyebrow => 'Se scegli il capitale';
+
+  @override
+  String get renteVsCapitalConsequenceMixteEyebrow =>
+      'Se scegli l’opzione mista';
+
+  @override
+  String get renteVsCapitalConsequenceRenteNarrative =>
+      'Un reddito fisso ogni mese, indipendente dai mercati. In cambio, il tuo capitale non ti appartiene più.';
+
+  @override
+  String get renteVsCapitalConsequenceCapitalNarrative =>
+      'Gestisci il tuo denaro liberamente, ma può esaurirsi. Ogni anno conta.';
+
+  @override
+  String get renteVsCapitalConsequenceMixteNarrative =>
+      'La parte obbligatoria come rendita per la sicurezza, la sovraobbligatoria come capitale per la flessibilità.';
+
+  @override
+  String get renteVsCapitalConsequenceMixteRenteLabel =>
+      'Rendita (obbligatoria)';
+
+  @override
+  String get renteVsCapitalConsequenceMixteCapitalLabel =>
+      'Capitale (sovraobbligatorio)';
+
+  @override
+  String get renteVsCapitalSignalRevenu => 'Reddito mensile';
+
+  @override
+  String get renteVsCapitalSignalFiscalite => 'Fiscalità cumulata';
+
+  @override
+  String get renteVsCapitalSignalTransmission => 'Trasmissione';
+
+  @override
+  String get renteVsCapitalConfidenceNoticeLow =>
+      'Senza certificato LPP, questa rimane una stima approssimativa.';
+
+  @override
+  String get renteVsCapitalConfidenceNoticeHigh =>
+      'Dati completi — risultati affidabili.';
+
+  @override
+  String get renteVsCapitalConfidenceCta => 'Precisare i miei dati';
+
+  @override
+  String get renteVsCapitalFastEstimateTitle => 'Fare una prima stima';
+
+  @override
+  String get renteVsCapitalCtaCompare => 'Confronta per me';
+
+  @override
+  String get renteVsCapitalAdvancedDisclosure => 'Ho il mio certificato LPP';
+
+  @override
+  String get renteVsCapitalPerMonthForLife => '/mese, a vita';
+
+  @override
+  String get renteVsCapitalNetAfterTax => 'netto dopo le tasse';
+
+  @override
+  String get renteVsCapitalTransmissionRenteMarried => '60 % al coniuge';
+
+  @override
+  String get renteVsCapitalTransmissionRenteSingle => 'Niente agli eredi';
+
+  @override
+  String get renteVsCapitalTransmissionCapitalValue => '100 % agli eredi';
 }

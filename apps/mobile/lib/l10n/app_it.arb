@@ -6214,8 +6214,8 @@
       "count": { "type": "String" }
     }
   },
-  "quickStartTitle": "Tre domande, un primo numero.",
-  "quickStartSubtitle": "Il resto lo decidi tu, quando vuoi.",
+  "quickStartTitle": "Tre cifre, una prima verit\u00e0.",
+  "quickStartSubtitle": "Il resto verr\u00e0 dopo.",
   "quickStartFirstName": "Il tuo nome",
   "quickStartFirstNameHint": "Facoltativo",
   "quickStartAge": "La tua età",
@@ -6231,13 +6231,24 @@
   "quickStartAtRetirement": "Alla pensione",
   "quickStartPerMonth": "/mese",
   "quickStartDropPct": "-{pct} % di potere d'acquisto ({gap}/mese)",
-  "quickStartDisclaimer": "Stima educativa. Non costituisce consulenza finanziaria (LSFin).",
-  "quickStartCta": "Vedi la mia panoramica",
+  "quickStartDisclaimer": "Stima educativa basata sulla tua et\u00e0, reddito e cantone.",
+  "quickStartCta": "Scopri cosa cambia",
   "quickStartSectionIdentity": "Identità & Nucleo familiare",
   "quickStartSectionIncome": "Reddito & Risparmio",
   "quickStartSectionPension": "Previdenza (LPP)",
   "quickStartSectionProperty": "Immobili & Debiti",
   "quickStartSectionGuidance": "Sezione: {label} — aggiorna le tue informazioni qui sotto.",
+  "quickStartNarrative": "Mantieni ~{pct}\u00a0% del tuo tenore di vita.",
+  "@quickStartNarrative": {
+    "placeholders": {
+      "pct": { "type": "String" }
+    }
+  },
+  "quickStartNarrativeLow": "Un primo ordine di grandezza, da precisare.",
+  "quickStartCtaSecondary": "Aggiunger\u00f2 pi\u00f9 dettagli pi\u00f9 tardi",
+  "quickStartConfidenceMsg": "Senza certificato LPP, \u00e8 una stima approssimativa.",
+  "quickStartHeroSecondaryLabel": "oggi",
+  "quickStartHeroLabel": "alla pensione",
   "profileCompletionHint": "{pct}\u00a0% — manca {missing}",
   "@profileCompletionHint": {
     "placeholders": {
@@ -7833,5 +7844,34 @@
   "concubinageDecisionMatrixColumnMarriage": "Matrimonio",
   "concubinageDecisionMatrixColumnConcubinage": "Concubinato",
   "concubinageDecisionMatrixConclusionTitle": "Conclusione neutra",
-  "concubinageDecisionMatrixConclusionDesc": "La scelta dipende dalla tua situazione personale. Consulta un notaio per un\u2019analisi completa."
+  "concubinageDecisionMatrixConclusionDesc": "La scelta dipende dalla tua situazione personale. Consulta un notaio per un\u2019analisi completa.",
+  "landingHiddenAmount": "CHF\u00a0\u00b7\u00b7\u00b7\u00b7",
+  "landingHiddenSubtitle": "Il tuo primo numero in 30\u00a0secondi",
+  "renteVsCapitalV2Title": "Rendita o capitale.",
+  "renteVsCapitalV2Subtitle": "Lo stesso denaro. Due vite diverse.",
+  "renteVsCapitalChoiceRenteSubtitle": "Pi\u00f9 stabile, meno flessibile",
+  "renteVsCapitalChoiceCapitalSubtitle": "Pi\u00f9 libero, pi\u00f9 impegnativo",
+  "renteVsCapitalChoiceMixteSubtitle": "Un equilibrio da costruire",
+  "renteVsCapitalConsequenceRenteEyebrow": "Se scegli la rendita",
+  "renteVsCapitalConsequenceCapitalEyebrow": "Se scegli il capitale",
+  "renteVsCapitalConsequenceMixteEyebrow": "Se scegli l\u2019opzione mista",
+  "renteVsCapitalConsequenceRenteNarrative": "Un reddito fisso ogni mese, indipendente dai mercati. In cambio, il tuo capitale non ti appartiene pi\u00f9.",
+  "renteVsCapitalConsequenceCapitalNarrative": "Gestisci il tuo denaro liberamente, ma pu\u00f2 esaurirsi. Ogni anno conta.",
+  "renteVsCapitalConsequenceMixteNarrative": "La parte obbligatoria come rendita per la sicurezza, la sovraobbligatoria come capitale per la flessibilit\u00e0.",
+  "renteVsCapitalConsequenceMixteRenteLabel": "Rendita (obbligatoria)",
+  "renteVsCapitalConsequenceMixteCapitalLabel": "Capitale (sovraobbligatorio)",
+  "renteVsCapitalSignalRevenu": "Reddito mensile",
+  "renteVsCapitalSignalFiscalite": "Fiscalit\u00e0 cumulata",
+  "renteVsCapitalSignalTransmission": "Trasmissione",
+  "renteVsCapitalConfidenceNoticeLow": "Senza certificato LPP, questa rimane una stima approssimativa.",
+  "renteVsCapitalConfidenceNoticeHigh": "Dati completi \u2014 risultati affidabili.",
+  "renteVsCapitalConfidenceCta": "Precisare i miei dati",
+  "renteVsCapitalFastEstimateTitle": "Fare una prima stima",
+  "renteVsCapitalCtaCompare": "Confronta per me",
+  "renteVsCapitalAdvancedDisclosure": "Ho il mio certificato LPP",
+  "renteVsCapitalPerMonthForLife": "/mese, a vita",
+  "renteVsCapitalNetAfterTax": "netto dopo le tasse",
+  "renteVsCapitalTransmissionRenteMarried": "60\u00a0% al coniuge",
+  "renteVsCapitalTransmissionRenteSingle": "Niente agli eredi",
+  "renteVsCapitalTransmissionCapitalValue": "100\u00a0% agli eredi"
 }
