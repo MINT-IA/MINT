@@ -6214,8 +6214,8 @@
       "count": { "type": "String" }
     }
   },
-  "quickStartTitle": "Tres perguntas, um primeiro numero.",
-  "quickStartSubtitle": "O resto decides tu, quando quiseres.",
+  "quickStartTitle": "Tr\u00eas n\u00fameros, uma primeira verdade.",
+  "quickStartSubtitle": "O resto vir\u00e1 depois.",
   "quickStartFirstName": "O teu nome",
   "quickStartFirstNameHint": "Opcional",
   "quickStartAge": "A tua idade",
@@ -6231,13 +6231,24 @@
   "quickStartAtRetirement": "Na reforma",
   "quickStartPerMonth": "/mes",
   "quickStartDropPct": "-{pct} % de poder de compra ({gap}/mes)",
-  "quickStartDisclaimer": "Estimativa educativa. Nao constitui aconselhamento financeiro (LSFin).",
-  "quickStartCta": "Ver o meu resumo",
+  "quickStartDisclaimer": "Estimativa educativa baseada na tua idade, rendimento e cant\u00e3o.",
+  "quickStartCta": "Ver o que muda",
   "quickStartSectionIdentity": "Identidade & Agregado",
   "quickStartSectionIncome": "Rendimento & Poupanca",
   "quickStartSectionPension": "Previdencia (LPP)",
   "quickStartSectionProperty": "Imoveis & Dividas",
   "quickStartSectionGuidance": "Secao: {label} — atualiza as tuas informacoes abaixo.",
+  "quickStartNarrative": "Mant\u00e9ns ~{pct}\u00a0% do teu n\u00edvel de vida.",
+  "@quickStartNarrative": {
+    "placeholders": {
+      "pct": { "type": "String" }
+    }
+  },
+  "quickStartNarrativeLow": "Uma primeira ordem de grandeza, a precisar.",
+  "quickStartCtaSecondary": "Acrescentarei mais detalhes depois",
+  "quickStartConfidenceMsg": "Sem certificado LPP, \u00e9 uma estimativa ampla.",
+  "quickStartHeroSecondaryLabel": "hoje",
+  "quickStartHeroLabel": "na reforma",
   "profileCompletionHint": "{pct}\u00a0% — falta {missing}",
   "@profileCompletionHint": {
     "placeholders": {
@@ -7833,5 +7844,34 @@
   "concubinageDecisionMatrixColumnMarriage": "Casamento",
   "concubinageDecisionMatrixColumnConcubinage": "Concubinato",
   "concubinageDecisionMatrixConclusionTitle": "Conclus\u00e3o neutra",
-  "concubinageDecisionMatrixConclusionDesc": "A escolha depende da tua situa\u00e7\u00e3o pessoal. Consulta um not\u00e1rio para uma an\u00e1lise completa."
+  "concubinageDecisionMatrixConclusionDesc": "A escolha depende da tua situa\u00e7\u00e3o pessoal. Consulta um not\u00e1rio para uma an\u00e1lise completa.",
+  "landingHiddenAmount": "CHF\u00a0\u00b7\u00b7\u00b7\u00b7",
+  "landingHiddenSubtitle": "O teu primeiro n\u00famero em 30\u00a0segundos",
+  "renteVsCapitalV2Title": "Renda ou capital.",
+  "renteVsCapitalV2Subtitle": "O mesmo dinheiro. Duas vidas diferentes.",
+  "renteVsCapitalChoiceRenteSubtitle": "Mais est\u00e1vel, menos flex\u00edvel",
+  "renteVsCapitalChoiceCapitalSubtitle": "Mais livre, mais exigente",
+  "renteVsCapitalChoiceMixteSubtitle": "Um equil\u00edbrio a construir",
+  "renteVsCapitalConsequenceRenteEyebrow": "Se escolheres a renda",
+  "renteVsCapitalConsequenceCapitalEyebrow": "Se escolheres o capital",
+  "renteVsCapitalConsequenceMixteEyebrow": "Se escolheres a op\u00e7\u00e3o mista",
+  "renteVsCapitalConsequenceRenteNarrative": "Um rendimento fixo todos os meses, sem te preocupares com os mercados. Em troca, o teu capital j\u00e1 n\u00e3o te pertence.",
+  "renteVsCapitalConsequenceCapitalNarrative": "Geres o teu dinheiro livremente, mas pode esgotar-se. Cada ano conta.",
+  "renteVsCapitalConsequenceMixteNarrative": "A parte obrigat\u00f3ria como renda para a seguran\u00e7a, a suplementar como capital para a flexibilidade.",
+  "renteVsCapitalConsequenceMixteRenteLabel": "Renda (obrigat\u00f3ria)",
+  "renteVsCapitalConsequenceMixteCapitalLabel": "Capital (suplementar)",
+  "renteVsCapitalSignalRevenu": "Rendimento mensal",
+  "renteVsCapitalSignalFiscalite": "Fiscalidade acumulada",
+  "renteVsCapitalSignalTransmission": "Transmiss\u00e3o",
+  "renteVsCapitalConfidenceNoticeLow": "Sem certificado LPP, isto continua a ser uma estimativa aproximada.",
+  "renteVsCapitalConfidenceNoticeHigh": "Dados completos \u2014 resultados fi\u00e1veis.",
+  "renteVsCapitalConfidenceCta": "Precisar os meus dados",
+  "renteVsCapitalFastEstimateTitle": "Fazer uma primeira estimativa",
+  "renteVsCapitalCtaCompare": "Comparar para mim",
+  "renteVsCapitalAdvancedDisclosure": "Tenho o meu certificado LPP",
+  "renteVsCapitalPerMonthForLife": "/m\u00eas, vital\u00edcio",
+  "renteVsCapitalNetAfterTax": "l\u00edquido de impostos",
+  "renteVsCapitalTransmissionRenteMarried": "60\u00a0% ao c\u00f4njuge",
+  "renteVsCapitalTransmissionRenteSingle": "Nada aos herdeiros",
+  "renteVsCapitalTransmissionCapitalValue": "100\u00a0% aos herdeiros"
 }

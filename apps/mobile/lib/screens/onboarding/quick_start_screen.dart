@@ -10,18 +10,25 @@ import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
-import 'package:mint_mobile/screens/pulse/pulse_screen.dart' show NavigationShellState;
+import 'package:mint_mobile/screens/pulse/pulse_screen.dart'
+    show NavigationShellState;
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_inline_input_chip.dart';
+import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
-/// Quick Start — single-screen onboarding that gets the user to the dashboard
-/// in under 30 seconds.
+/// Quick Start V2 — revelation-first onboarding.
 ///
-/// Collects 4 fields: firstName (optional), age, revenu brut annuel, canton.
+/// The result dominates. Inputs are compact chips that open bottom sheets.
+/// Structure: Hero intro > Result hero card > Input chips > Micro proof > CTA.
+///
+/// Collects 4 fields: firstName (secondary), age, revenu brut annuel, canton.
 /// Shows a live retirement preview based on the user's actual inputs.
 /// Saves via [CoachProfileProvider.updateFromSmartFlow] and navigates to /home.
 ///
-/// Design System category: D (Form) — progressive disclosure, preview live,
-/// validation inline, 1 CTA sticky.
+/// Design System category: D (Form) — progressive disclosure, preview live.
 class QuickStartScreen extends StatefulWidget {
   /// Optional section to highlight when navigating from profile edit buttons.
   /// Values: 'identity', 'income', 'pension', 'property'.
@@ -158,6 +165,172 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     }
   }
 
+  // ── Bottom sheets for editing ──
+
+  void _showAgeSheet() {
+    final l = S.of(context)!;
+    double tempAge = _age;
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: MintColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) => Padding(
+          padding: const EdgeInsets.fromLTRB(
+            MintSpacing.lg,
+            MintSpacing.xl,
+            MintSpacing.lg,
+            MintSpacing.xxl,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              MintPremiumSlider(
+                label: l.quickStartAge,
+                value: tempAge,
+                min: 22,
+                max: 67,
+                divisions: 45,
+                formatValue: (v) =>
+                    l.quickStartAgeValue(v.round().toString()),
+                onChanged: (v) => setSheetState(() => tempAge = v),
+              ),
+              const SizedBox(height: MintSpacing.lg),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: FilledButton(
+                  onPressed: () {
+                    setState(() => _age = tempAge);
+                    Navigator.pop(ctx);
+                  },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MintColors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    'OK',
+                    style:
+                        MintTextStyles.titleMedium(color: MintColors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showSalarySheet() {
+    final l = S.of(context)!;
+    double tempSalary = _salary;
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: MintColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) => Padding(
+          padding: const EdgeInsets.fromLTRB(
+            MintSpacing.lg,
+            MintSpacing.xl,
+            MintSpacing.lg,
+            MintSpacing.xxl,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              MintPremiumSlider(
+                label: l.quickStartSalary,
+                value: tempSalary,
+                min: 20000,
+                max: 300000,
+                divisions: 56,
+                formatValue: (v) => formatChfWithPrefix(v),
+                onChanged: (v) => setSheetState(() => tempSalary = v),
+              ),
+              const SizedBox(height: MintSpacing.lg),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: FilledButton(
+                  onPressed: () {
+                    setState(() => _salary = tempSalary);
+                    Navigator.pop(ctx);
+                  },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MintColors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    'OK',
+                    style:
+                        MintTextStyles.titleMedium(color: MintColors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showCantonSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: MintColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      isScrollControlled: true,
+      builder: (ctx) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.55,
+        maxChildSize: 0.8,
+        minChildSize: 0.3,
+        builder: (ctx, scrollController) => ListView.builder(
+          controller: scrollController,
+          padding: const EdgeInsets.symmetric(vertical: MintSpacing.md),
+          itemCount: sortedCantonCodes.length,
+          itemBuilder: (ctx, i) {
+            final code = sortedCantonCodes[i];
+            final name = cantonFullNames[code] ?? code;
+            final selected = code == _canton;
+            return ListTile(
+              title: Text(
+                '$code \u2014 $name',
+                style: MintTextStyles.bodyMedium(
+                  color: selected
+                      ? MintColors.primary
+                      : MintColors.textPrimary,
+                ).copyWith(
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+                ),
+              ),
+              trailing: selected
+                  ? const Icon(Icons.check_rounded,
+                      size: 20, color: MintColors.primary)
+                  : null,
+              onTap: () {
+                setState(() => _canton = code);
+                Navigator.pop(ctx);
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   // ── Build ──
 
   @override
@@ -167,16 +340,27 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     final total = est['total']!;
     final current = est['current']!;
     final ratio = est['ratio']!;
-    final gap = (current - total).clamp(0.0, double.infinity);
-    final dropPctRaw =
-        current > 0 ? ((current - total) / current * 100).round() : 0;
-    // Clamp to 0: if projection > current, no drop to show
-    final dropPct = dropPctRaw.clamp(0, 100);
+    final ratioPct = (ratio * 100).round();
+
+    // Accent color for hero
+    final Color accentColor;
+    if (ratio >= 0.7) {
+      accentColor = MintColors.success;
+    } else if (ratio >= 0.5) {
+      accentColor = MintColors.warning;
+    } else {
+      accentColor = MintColors.error;
+    }
+
+    // Narrative text
+    final narrative = ratio >= 0.3
+        ? l.quickStartNarrative(ratioPct.toString())
+        : l.quickStartNarrativeLow;
 
     return Scaffold(
-      backgroundColor: MintColors.white,
+      backgroundColor: MintColors.porcelaine,
       appBar: AppBar(
-        backgroundColor: MintColors.white,
+        backgroundColor: MintColors.porcelaine,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: BackButton(
@@ -193,38 +377,76 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
         top: false,
         child: Column(
           children: [
-            // ── Scrollable form ──
+            // ── Scrollable content ──
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(
                   MintSpacing.lg,
-                  MintSpacing.md,
-                  MintSpacing.lg,
                   MintSpacing.sm,
+                  MintSpacing.lg,
+                  MintSpacing.md,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header
+                    // ── Bloc 1: Hero intro ──
                     Text(
                       l.quickStartTitle,
                       style: MintTextStyles.headlineLarge(),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: MintSpacing.sm),
                     Text(
                       l.quickStartSubtitle,
-                      style: MintTextStyles.bodyMedium(),
-                    ),
-                    const SizedBox(height: 28),
-
-                    // ── Prenom ──
-                    Text(
-                      l.quickStartFirstName,
-                      style: MintTextStyles.bodySmall(
-                        color: MintColors.textPrimary,
+                      style: MintTextStyles.bodyMedium(
+                        color: MintColors.textSecondary,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: MintSpacing.xxl),
+
+                    // ── Bloc 3: Result hero card (THE STAR) ──
+                    MintResultHeroCard(
+                      eyebrow: l.quickStartPreviewTitle,
+                      primaryValue:
+                          '${formatChfWithPrefix(total)}${l.quickStartPerMonth}',
+                      primaryLabel: l.quickStartHeroLabel,
+                      secondaryValue:
+                          '${formatChfWithPrefix(current)}${l.quickStartPerMonth}',
+                      secondaryLabel: l.quickStartHeroSecondaryLabel,
+                      narrative: narrative,
+                      accentColor: accentColor,
+                      tone: MintSurfaceTone.porcelaine,
+                    ),
+                    const SizedBox(height: MintSpacing.xl),
+
+                    // ── Bloc 2: Input chips (compact) ──
+                    Wrap(
+                      spacing: MintSpacing.sm,
+                      runSpacing: MintSpacing.sm,
+                      children: [
+                        MintInlineInputChip(
+                          label: l.quickStartAge,
+                          value: l.quickStartAgeValue(
+                              _age.round().toString()),
+                          onTap: _showAgeSheet,
+                          icon: Icons.cake_outlined,
+                        ),
+                        MintInlineInputChip(
+                          label: l.quickStartSalary,
+                          value: formatChfWithPrefix(_salary),
+                          onTap: _showSalarySheet,
+                          icon: Icons.work_outline,
+                        ),
+                        MintInlineInputChip(
+                          label: l.quickStartCanton,
+                          value: _canton,
+                          onTap: _showCantonSheet,
+                          icon: Icons.location_on_outlined,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: MintSpacing.lg),
+
+                    // ── Prenom (secondary, discrete) ──
                     Semantics(
                       label: l.quickStartFirstName,
                       textField: true,
@@ -233,20 +455,22 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                         textCapitalization: TextCapitalization.words,
                         decoration: InputDecoration(
                           hintText: l.quickStartFirstNameHint,
+                          labelText: l.quickStartFirstName,
+                          labelStyle: MintTextStyles.bodySmall(
+                            color: MintColors.textMuted,
+                          ),
                           hintStyle: MintTextStyles.bodyMedium(
                             color: MintColors.textMuted,
                           ),
                           filled: true,
-                          fillColor: MintColors.surface,
+                          fillColor: MintColors.craie,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide:
-                                const BorderSide(color: MintColors.border),
+                            borderSide: BorderSide.none,
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide:
-                                const BorderSide(color: MintColors.border),
+                            borderSide: BorderSide.none,
                           ),
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 14,
@@ -258,95 +482,16 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: MintSpacing.xl),
 
-                    // ── Age slider ──
-                    _buildSliderLabel(
-                      l.quickStartAge,
-                      l.quickStartAgeValue(_age.round().toString()),
-                    ),
-                    Semantics(
-                      label: l.quickStartAge,
-                      slider: true,
-                      value:
-                          l.quickStartAgeValue(_age.round().toString()),
-                      child: SliderTheme(
-                        data: _sliderTheme(),
-                        child: Slider(
-                          value: _age,
-                          min: 22,
-                          max: 67,
-                          divisions: 45,
-                          onChanged: (v) => setState(() => _age = v),
-                        ),
-                      ),
+                    // ── Bloc 4: Confidence notice ──
+                    MintConfidenceNotice(
+                      percent: 30,
+                      message: l.quickStartConfidenceMsg,
                     ),
                     const SizedBox(height: MintSpacing.md),
 
-                    // ── Revenu brut annuel slider ──
-                    _buildSliderLabel(
-                      l.quickStartSalary,
-                      l.quickStartSalaryValue(
-                          formatChfWithPrefix(_salary)),
-                    ),
-                    Semantics(
-                      label: l.quickStartSalary,
-                      slider: true,
-                      value: l.quickStartSalaryValue(
-                          formatChfWithPrefix(_salary)),
-                      child: SliderTheme(
-                        data: _sliderTheme(),
-                        child: Slider(
-                          value: _salary,
-                          min: 20000,
-                          max: 300000,
-                          divisions: 56,
-                          onChanged: (v) => setState(() => _salary = v),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: MintSpacing.md),
-
-                    // ── Canton dropdown ──
-                    _buildSliderLabel(l.quickStartCanton, ''),
-                    const SizedBox(height: MintSpacing.xs),
-                    Semantics(
-                      label: l.quickStartCanton,
-                      button: true,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
-                        decoration: BoxDecoration(
-                          color: MintColors.surface,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: MintColors.border),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _canton,
-                            isExpanded: true,
-                            style: MintTextStyles.bodyMedium(
-                              color: MintColors.textPrimary,
-                            ),
-                            items: sortedCantonCodes.map((code) {
-                              final name = cantonFullNames[code] ?? code;
-                              return DropdownMenuItem(
-                                value: code,
-                                child: Text('$code — $name'),
-                              );
-                            }).toList(),
-                            onChanged: (v) {
-                              if (v != null) setState(() => _canton = v);
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 28),
-
-                    // ── Live preview card ──
-                    _buildPreviewCard(l, total, current, ratio, gap, dropPct),
-
-                    const SizedBox(height: 12),
+                    // ── Bloc 5: Micro proof ──
                     Text(
                       l.quickStartDisclaimer,
                       style: MintTextStyles.micro(),
@@ -357,222 +502,65 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
               ),
             ),
 
-            // ── CTA button (sticky) ──
-            Padding(
+            // ── Bloc 6 + 7: CTA pill + secondary link (sticky) ──
+            MintSurface(
+              tone: MintSurfaceTone.porcelaine,
+              radius: 0,
               padding: const EdgeInsets.fromLTRB(
                 MintSpacing.lg,
-                MintSpacing.sm,
+                MintSpacing.md,
                 MintSpacing.lg,
                 MintSpacing.md,
               ),
-              child: SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: Semantics(
-                  button: true,
-                  label: l.quickStartCta,
-                  child: FilledButton(
-                    onPressed: _saving ? null : _onContinue,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: MintColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: Semantics(
+                      button: true,
+                      label: l.quickStartCta,
+                      child: FilledButton(
+                        onPressed: _saving ? null : _onContinue,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: MintColors.primary,
+                          shape: const StadiumBorder(),
+                        ),
+                        child: _saving
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: MintColors.white,
+                                ),
+                              )
+                            : Text(
+                                l.quickStartCta,
+                                style: MintTextStyles.titleMedium(
+                                  color: MintColors.white,
+                                ),
+                              ),
                       ),
                     ),
-                    child: _saving
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: MintColors.white,
-                            ),
-                          )
-                        : Text(
-                            l.quickStartCta,
-                            style: MintTextStyles.titleMedium(
-                              color: MintColors.white,
-                            ),
-                          ),
                   ),
-                ),
+                  const SizedBox(height: MintSpacing.sm),
+                  TextButton(
+                    onPressed: _saving ? null : _onContinue,
+                    child: Text(
+                      l.quickStartCtaSecondary,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textMuted,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
       ),
-    );
-  }
-
-  // ── Preview card with live numbers ──
-
-  Widget _buildPreviewCard(
-    S l,
-    double total,
-    double current,
-    double ratio,
-    double gap,
-    int dropPct,
-  ) {
-    final Color accentColor;
-    final String verdict;
-    if (ratio >= 0.7) {
-      accentColor = MintColors.success;
-      verdict = l.quickStartVerdictGood;
-    } else if (ratio >= 0.5) {
-      accentColor = MintColors.warning;
-      verdict = l.quickStartVerdictWatch;
-    } else {
-      accentColor = MintColors.scoreAttention;
-      verdict = l.quickStartVerdictGap;
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
-      child: Column(
-        children: [
-          // Title
-          Row(
-            children: [
-              Icon(Icons.show_chart, size: 18, color: accentColor),
-              const SizedBox(width: MintSpacing.sm),
-              Text(
-                l.quickStartPreviewTitle,
-                style: MintTextStyles.bodySmall(
-                  color: MintColors.textPrimary,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  verdict,
-                  style: MintTextStyles.labelSmall(color: accentColor),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.md),
-
-          // Avant / Apres
-          Row(
-            children: [
-              Expanded(
-                child: _buildAmountColumn(
-                  l.quickStartToday,
-                  current,
-                  MintColors.textPrimary,
-                ),
-              ),
-              Container(
-                width: 1,
-                height: 40,
-                color: MintColors.border,
-              ),
-              Expanded(
-                child: _buildAmountColumn(
-                  l.quickStartAtRetirement,
-                  total,
-                  accentColor,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-
-          // Gap bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: ratio.clamp(0.0, 1.0),
-              backgroundColor: MintColors.border,
-              valueColor: AlwaysStoppedAnimation(accentColor),
-              minHeight: 8,
-            ),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-
-          // Drop percentage
-          TweenAnimationBuilder<double>(
-            tween: Tween(end: dropPct.toDouble()),
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeOutCubic,
-            builder: (_, value, __) => Text(
-              l.quickStartDropPct(
-                value.round().toString(),
-                formatChfWithPrefix(gap),
-              ),
-              style: MintTextStyles.bodySmall(color: accentColor),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAmountColumn(String label, double amount, Color color) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: MintTextStyles.labelSmall(),
-        ),
-        const SizedBox(height: MintSpacing.xs),
-        TweenAnimationBuilder<double>(
-          tween: Tween(end: amount),
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeOutCubic,
-          builder: (_, value, __) => Text(
-            '${formatChf(value)} CHF',
-            style: MintTextStyles.displayMedium(color: color).copyWith(
-              fontSize: 20,
-            ),
-          ),
-        ),
-        Text(
-          S.of(context)!.quickStartPerMonth,
-          style: MintTextStyles.labelSmall(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSliderLabel(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
-        ),
-        Text(
-          value,
-          style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
-    );
-  }
-
-  SliderThemeData _sliderTheme() {
-    return SliderThemeData(
-      activeTrackColor: MintColors.primary,
-      inactiveTrackColor: MintColors.border,
-      thumbColor: MintColors.primary,
-      overlayColor: MintColors.primary.withValues(alpha: 0.12),
-      trackHeight: 4,
-      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
     );
   }
 }

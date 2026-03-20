@@ -23516,13 +23516,13 @@ abstract class S {
   /// No description provided for @quickStartTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Trois questions, un premier chiffre.'**
+  /// **'Trois chiffres, une première vérité.'**
   String get quickStartTitle;
 
   /// No description provided for @quickStartSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Le reste, c\'est toi qui décides quand.'**
+  /// **'La suite viendra après.'**
   String get quickStartSubtitle;
 
   /// No description provided for @quickStartFirstName.
@@ -23618,13 +23618,13 @@ abstract class S {
   /// No description provided for @quickStartDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Estimation éducative. Pas un conseil financier (LSFin).'**
+  /// **'Estimation éducative basée sur ton âge, ton revenu et ton canton.'**
   String get quickStartDisclaimer;
 
   /// No description provided for @quickStartCta.
   ///
   /// In fr, this message translates to:
-  /// **'Voir mon aperçu'**
+  /// **'Voir ce qui change'**
   String get quickStartCta;
 
   /// No description provided for @quickStartSectionIdentity.
@@ -23656,6 +23656,42 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Section : {label} — mets à jour tes informations ci-dessous.'**
   String quickStartSectionGuidance(String label);
+
+  /// No description provided for @quickStartNarrative.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu gardes ~{pct} % de ton niveau de vie.'**
+  String quickStartNarrative(String pct);
+
+  /// No description provided for @quickStartNarrativeLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premier ordre de grandeur, à préciser.'**
+  String get quickStartNarrativeLow;
+
+  /// No description provided for @quickStartCtaSecondary.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ajouterai plus de détails plus tard'**
+  String get quickStartCtaSecondary;
+
+  /// No description provided for @quickStartConfidenceMsg.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans certificat LPP, on reste sur une estimation large.'**
+  String get quickStartConfidenceMsg;
+
+  /// No description provided for @quickStartHeroSecondaryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'aujourd’hui'**
+  String get quickStartHeroSecondaryLabel;
+
+  /// No description provided for @quickStartHeroLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'à la retraite'**
+  String get quickStartHeroLabel;
 
   /// Profile completion with missing sections hint. Tone: factual, inviting.
   ///
@@ -31864,6 +31900,180 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Le choix dépend de ta situation personnelle. Consulte un·e notaire pour une analyse complète.'**
   String get concubinageDecisionMatrixConclusionDesc;
+
+  /// No description provided for @landingHiddenAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'CHF ····'**
+  String get landingHiddenAmount;
+
+  /// No description provided for @landingHiddenSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton premier chiffre en 30 secondes'**
+  String get landingHiddenSubtitle;
+
+  /// No description provided for @renteVsCapitalV2Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente ou capital.'**
+  String get renteVsCapitalV2Title;
+
+  /// No description provided for @renteVsCapitalV2Subtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le même argent. Deux vies différentes.'**
+  String get renteVsCapitalV2Subtitle;
+
+  /// No description provided for @renteVsCapitalChoiceRenteSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus stable, moins flexible'**
+  String get renteVsCapitalChoiceRenteSubtitle;
+
+  /// No description provided for @renteVsCapitalChoiceCapitalSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus libre, plus exigeant'**
+  String get renteVsCapitalChoiceCapitalSubtitle;
+
+  /// No description provided for @renteVsCapitalChoiceMixteSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un équilibre à construire'**
+  String get renteVsCapitalChoiceMixteSubtitle;
+
+  /// No description provided for @renteVsCapitalConsequenceRenteEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu choisis la rente'**
+  String get renteVsCapitalConsequenceRenteEyebrow;
+
+  /// No description provided for @renteVsCapitalConsequenceCapitalEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu choisis le capital'**
+  String get renteVsCapitalConsequenceCapitalEyebrow;
+
+  /// No description provided for @renteVsCapitalConsequenceMixteEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu choisis le mixte'**
+  String get renteVsCapitalConsequenceMixteEyebrow;
+
+  /// No description provided for @renteVsCapitalConsequenceRenteNarrative.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un revenu fixe chaque mois, sans te soucier des marchés. En échange, ton capital ne t’appartient plus.'**
+  String get renteVsCapitalConsequenceRenteNarrative;
+
+  /// No description provided for @renteVsCapitalConsequenceCapitalNarrative.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu gères ton argent librement, mais il peut s’épuiser. Chaque année compte.'**
+  String get renteVsCapitalConsequenceCapitalNarrative;
+
+  /// No description provided for @renteVsCapitalConsequenceMixteNarrative.
+  ///
+  /// In fr, this message translates to:
+  /// **'La partie obligatoire en rente pour la sécurité, le surobligatoire en capital pour la flexibilité.'**
+  String get renteVsCapitalConsequenceMixteNarrative;
+
+  /// No description provided for @renteVsCapitalConsequenceMixteRenteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente (obligatoire)'**
+  String get renteVsCapitalConsequenceMixteRenteLabel;
+
+  /// No description provided for @renteVsCapitalConsequenceMixteCapitalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital (surobligatoire)'**
+  String get renteVsCapitalConsequenceMixteCapitalLabel;
+
+  /// No description provided for @renteVsCapitalSignalRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu mensuel'**
+  String get renteVsCapitalSignalRevenu;
+
+  /// No description provided for @renteVsCapitalSignalFiscalite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiscalité cumulée'**
+  String get renteVsCapitalSignalFiscalite;
+
+  /// No description provided for @renteVsCapitalSignalTransmission.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transmission'**
+  String get renteVsCapitalSignalTransmission;
+
+  /// No description provided for @renteVsCapitalConfidenceNoticeLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans certificat LPP, on reste sur une estimation large.'**
+  String get renteVsCapitalConfidenceNoticeLow;
+
+  /// No description provided for @renteVsCapitalConfidenceNoticeHigh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données complètes — résultats fiables.'**
+  String get renteVsCapitalConfidenceNoticeHigh;
+
+  /// No description provided for @renteVsCapitalConfidenceCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préciser mes données'**
+  String get renteVsCapitalConfidenceCta;
+
+  /// No description provided for @renteVsCapitalFastEstimateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faire une première estimation'**
+  String get renteVsCapitalFastEstimateTitle;
+
+  /// No description provided for @renteVsCapitalCtaCompare.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparer pour moi'**
+  String get renteVsCapitalCtaCompare;
+
+  /// No description provided for @renteVsCapitalAdvancedDisclosure.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai mon certificat LPP'**
+  String get renteVsCapitalAdvancedDisclosure;
+
+  /// No description provided for @renteVsCapitalPerMonthForLife.
+  ///
+  /// In fr, this message translates to:
+  /// **'/mois, à vie'**
+  String get renteVsCapitalPerMonthForLife;
+
+  /// No description provided for @renteVsCapitalNetAfterTax.
+  ///
+  /// In fr, this message translates to:
+  /// **'net d’impôt'**
+  String get renteVsCapitalNetAfterTax;
+
+  /// No description provided for @renteVsCapitalTransmissionRenteMarried.
+  ///
+  /// In fr, this message translates to:
+  /// **'60 % au conjoint'**
+  String get renteVsCapitalTransmissionRenteMarried;
+
+  /// No description provided for @renteVsCapitalTransmissionRenteSingle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien aux héritiers'**
+  String get renteVsCapitalTransmissionRenteSingle;
+
+  /// No description provided for @renteVsCapitalTransmissionCapitalValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'100 % aux héritiers'**
+  String get renteVsCapitalTransmissionCapitalValue;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

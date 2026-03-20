@@ -14,27 +14,36 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/pulse/action_success_sheet.dart';
 import 'package:mint_mobile/widgets/pulse/cap_card.dart';
 import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
 
 // ────────────────────────────────────────────────────────
-//  AUJOURD'HUI — V5 "Plan-first"
+//  AUJOURD'HUI — V6 "Premium Calm" (Cleo-inspired)
 // ────────────────────────────────────────────────────────
 //
-//  Contrat UX (MINT_UX_GRAAL_MASTERPLAN.md §10 + §12):
-//  - 1 phrase personnalisée (from Cap headline or narrative)
-//  - 1 chiffre dominant (displayLarge)
-//  - 1 Cap du jour (CapCard — the single priority)
-//  - 2 signaux secondaires max
-//  - Rien d'autre au-dessus du fold
+//  Contrat UX (MINT_UX_GRAAL_MASTERPLAN.md §10 + §12 + §6 Visual Graal):
+//  - Fond porcelaine chaud (#F7F4EE), JAMAIS blanc froid
+//  - 1 phrase narrative (cap.whyNow)
+//  - 1 MintHeroNumber (56pt+), maximum d'air
+//  - 1 MintNarrativeCard sauge (Cap du jour)
+//  - 2 MintSignalRow (budget libre, patrimoine)
+//  - Disclaimer presque invisible en bas
+//  - AppBar: porcelaine, texte textPrimary, pas de gradient
 //
-//  V5 changes from V4:
-//  - CapEngine replaces ResponseCardService + PulseHeroEngine glue
-//  - CapCard replaces _buildMinimalActionCard
-//  - CapMemory loaded async, markServed on display
-//  - Narrative can come from Cap.headline (fallback: legacy)
-//  - PulseHeroEngine kept only as narrative fallback
+//  V6 changes from V5:
+//  - Premium widgets: MintHeroNumber, MintNarrativeCard, MintSignalRow, MintSurface
+//  - AppBar: porcelaine bg, no gradient (was primary→primaryLight)
+//  - Background: porcelaine (was white)
+//  - CapCard replaced by MintNarrativeCard with sauge tone
+//  - _SignalRow replaced by MintSignalRow (shared widget)
+//  - Fallback action uses MintNarrativeCard bleu tone
+//  - Empty state: porcelaine bg
+//  - All business logic (CapEngine, projections, FRI) unchanged
 // ────────────────────────────────────────────────────────
 
 class PulseScreen extends StatefulWidget {
@@ -191,73 +200,137 @@ class _PulseScreenState extends State<PulseScreen> {
     // Recent action feedback
     final recentAction = _recentActionLabel();
 
-    return CustomScrollView(
-      slivers: [
-        // ── AppBar (Pulse exception: gradient) ──
-        _buildAppBar(context, profile),
+    return Container(
+      color: MintColors.porcelaine,
+      child: CustomScrollView(
+        slivers: [
+          // ── AppBar — warm porcelaine, no gradient ──
+          _buildAppBar(context, profile),
 
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: MintSpacing.xxl),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: MintSpacing.xxl + MintSpacing.lg),
 
-                // ── 1. PHRASE PERSONNALISÉE ──
-                Text(
-                  narrativePhrase,
-                  style: MintTextStyles.bodyLarge(
-                    color: MintColors.textSecondary,
+                  // ── 1. NARRATIVE PHRASE ──
+                  Text(
+                    narrativePhrase,
+                    style: MintTextStyles.bodyLarge(
+                      color: MintColors.textSecondary,
+                    ),
                   ),
-                ),
-                const SizedBox(height: MintSpacing.lg),
+                  const SizedBox(height: MintSpacing.lg),
 
-                // ── 2. CHIFFRE DOMINANT ──
-                TweenAnimationBuilder<double>(
-                  tween: Tween(end: dominantNumber.value),
-                  duration: const Duration(milliseconds: 600),
-                  curve: Curves.easeOutCubic,
-                  builder: (_, value, __) => Text(
-                    dominantNumber.format(value),
-                    style: MintTextStyles.displayLarge(
+                  // ── 2. HERO NUMBER (56pt, Cleo-style) ──
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(end: dominantNumber.value),
+                    duration: const Duration(milliseconds: 600),
+                    curve: Curves.easeOutCubic,
+                    builder: (_, value, __) => MintHeroNumber(
+                      value: dominantNumber.format(value),
+                      caption: dominantLabel,
                       color: dominantColor,
                     ),
                   ),
-                ),
-                const SizedBox(height: MintSpacing.xs),
-                Text(
-                  dominantLabel,
-                  style: MintTextStyles.bodySmall(),
-                ),
 
-                const SizedBox(height: MintSpacing.xxl),
+                  const SizedBox(height: MintSpacing.xxl + MintSpacing.md),
 
-                // ── 3. CAP DU JOUR ──
-                if (cap != null)
-                  CapCard(
-                    cap: cap,
-                    recentActionLabel: recentAction,
-                  )
-                else
-                  _buildFallbackAction(context),
+                  // ── 3. CAP DU JOUR (MintNarrativeCard) ──
+                  if (cap != null)
+                    _buildCapNarrativeCard(context, cap, recentAction, l)
+                  else
+                    _buildFallbackAction(context),
 
-                const SizedBox(height: MintSpacing.xl),
+                  const SizedBox(height: MintSpacing.xl),
 
-                // ── 4. DEUX SIGNAUX SECONDAIRES ──
-                _buildSecondarySignals(profile, l),
+                  // ── 4. SECONDARY SIGNALS (MintSignalRow) ──
+                  _buildSecondarySignals(profile, l),
 
-                const SizedBox(height: MintSpacing.xxl),
+                  const SizedBox(height: MintSpacing.xxl + MintSpacing.lg),
 
-                // ── Disclaimer ──
-                const PulseDisclaimer(),
-                const SizedBox(height: MintSpacing.xl),
-              ],
+                  // ── Disclaimer — almost invisible ──
+                  const PulseDisclaimer(),
+                  const SizedBox(height: MintSpacing.xl),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
+  }
+
+  // ── CAP NARRATIVE CARD (premium) ──
+
+  Widget _buildCapNarrativeCard(
+    BuildContext context,
+    CapDecision cap,
+    String? recentAction,
+    S l,
+  ) {
+    final kindLabel = switch (cap.kind) {
+      CapKind.complete => l.capKindComplete,
+      CapKind.correct => l.capKindCorrect,
+      CapKind.optimize => l.capKindOptimize,
+      CapKind.secure => l.capKindSecure,
+      CapKind.prepare => l.capKindPrepare,
+    };
+
+    return MintNarrativeCard(
+      headline: cap.headline,
+      body: cap.whyNow,
+      ctaLabel: cap.ctaLabel,
+      tone: MintSurfaceTone.sauge,
+      badge: recentAction ?? kindLabel,
+      leading: cap.expectedImpact != null
+          ? Row(
+              children: [
+                Icon(
+                  Icons.trending_up_rounded,
+                  size: 16,
+                  color: MintColors.success.withValues(alpha: 0.8),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    cap.expectedImpact!,
+                    style: MintTextStyles.bodySmall(
+                      color: MintColors.success,
+                    ).copyWith(fontWeight: FontWeight.w600),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            )
+          : null,
+      onTap: () => _handleCapTap(context, cap),
+    );
+  }
+
+  void _handleCapTap(BuildContext context, CapDecision cap) {
+    switch (cap.ctaMode) {
+      case CtaMode.route:
+        if (cap.ctaRoute != null) {
+          context.push<void>(cap.ctaRoute!);
+        }
+      case CtaMode.coach:
+        if (cap.coachPrompt != null && cap.coachPrompt!.isNotEmpty) {
+          CapCoachBridge.pendingPrompt = cap.coachPrompt;
+        }
+        NavigationShellState.switchTab(1);
+      case CtaMode.capture:
+        final route = switch (cap.captureType) {
+          'lpp' => '/document-scan',
+          'avs' => '/document-scan/avs',
+          'profile' => '/onboarding/enrichment',
+          _ => '/onboarding/enrichment',
+        };
+        context.push<void>(route);
+    }
   }
 
   // ── DOMINANT NUMBER ──
@@ -358,61 +431,12 @@ class _PulseScreenState extends State<PulseScreen> {
   // ── FALLBACK ACTION (no cap) ──
 
   Widget _buildFallbackAction(BuildContext context) {
-    return GestureDetector(
+    return MintNarrativeCard(
+      headline: S.of(context)!.pulseEmptyCtaStart,
+      body: S.of(context)!.pulseNarrativeDefault,
+      ctaLabel: S.of(context)!.pulseEmptyCtaStart,
+      tone: MintSurfaceTone.bleu,
       onTap: () => NavigationShellState.switchTab(1),
-      child: Container(
-        padding: const EdgeInsets.all(MintSpacing.lg),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.5),
-          ),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: MintColors.primary.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(
-                Icons.arrow_forward_rounded,
-                color: MintColors.primary,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: MintSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    S.of(context)!.pulseEmptyCtaStart,
-                    style: MintTextStyles.titleMedium(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    S.of(context)!.pulseNarrativeDefault,
-                    style: MintTextStyles.bodySmall(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: MintSpacing.sm),
-            const Icon(
-              Icons.chevron_right_rounded,
-              color: MintColors.textMuted,
-              size: 20,
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -445,12 +469,12 @@ class _PulseScreenState extends State<PulseScreen> {
     if (revenuNet > 0) {
       final dep = profile.totalDepensesMensuelles;
       final libre = revenuNet - dep;
-      signals.add(_SignalRow(
+      signals.add(MintSignalRow(
         label: l.pulseKeyFigBudgetLibre,
         value: libre >= 0
             ? '+${formatChfWithPrefix(libre)}/mois'
             : '${formatChfWithPrefix(libre)}/mois',
-        color: libre >= 0 ? MintColors.success : MintColors.warning,
+        valueColor: libre >= 0 ? MintColors.success : MintColors.warning,
         onTap: () => context.push('/budget'),
       ));
     }
@@ -460,10 +484,10 @@ class _PulseScreenState extends State<PulseScreen> {
         (profile.prevoyance.avoirLppTotal ?? 0) +
         profile.prevoyance.totalEpargne3a;
     if (patrimoine > 0) {
-      signals.add(_SignalRow(
+      signals.add(MintSignalRow(
         label: l.pulseKeyFigPatrimoine,
         value: formatChfCompact(patrimoine),
-        color: MintColors.textPrimary,
+        valueColor: MintColors.textPrimary,
         onTap: () => context.push('/profile/bilan'),
       ));
     }
@@ -476,7 +500,7 @@ class _PulseScreenState extends State<PulseScreen> {
           signals[i],
           if (i < signals.length - 1 && i < 1)
             Divider(
-              color: MintColors.border.withValues(alpha: 0.5),
+              color: MintColors.border.withValues(alpha: 0.2),
               height: 1,
             ),
         ],
@@ -484,7 +508,7 @@ class _PulseScreenState extends State<PulseScreen> {
     );
   }
 
-  // ── APP BAR (Pulse exception: gradient) ──
+  // ── APP BAR (porcelaine, no gradient — premium calm) ──
 
   SliverAppBar _buildAppBar(BuildContext context, CoachProfile profile) {
     final l = S.of(context)!;
@@ -495,11 +519,13 @@ class _PulseScreenState extends State<PulseScreen> {
     return SliverAppBar(
       floating: false,
       pinned: true,
-      backgroundColor: MintColors.primary,
-      surfaceTintColor: MintColors.primary,
+      backgroundColor: MintColors.porcelaine,
+      surfaceTintColor: MintColors.porcelaine,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       title: Text(
         greeting,
-        style: MintTextStyles.titleMedium(color: MintColors.white)
+        style: MintTextStyles.titleMedium(color: MintColors.textPrimary)
             .copyWith(fontSize: 20),
       ),
       centerTitle: false,
@@ -511,23 +537,15 @@ class _PulseScreenState extends State<PulseScreen> {
               label: 'Solo / Duo',
               button: true,
               child: IconButton(
-                icon: const Icon(Icons.people_outline, color: MintColors.white),
+                icon: const Icon(
+                  Icons.people_outline,
+                  color: MintColors.textPrimary,
+                ),
                 onPressed: () => context.push('/couple'),
               ),
             ),
           ),
       ],
-      flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [MintColors.primary, MintColors.primaryLight],
-            ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -536,7 +554,7 @@ class _PulseScreenState extends State<PulseScreen> {
   Widget _buildEmptyState(BuildContext context) {
     final l = S.of(context)!;
     return Scaffold(
-      backgroundColor: MintColors.white,
+      backgroundColor: MintColors.porcelaine,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(MintSpacing.lg),
@@ -597,66 +615,6 @@ class _PulseScreenState extends State<PulseScreen> {
       canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
       age: profile.age,
     ).monthlyNetPayslip;
-  }
-}
-
-// ── SIGNAL ROW ──
-
-class _SignalRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-  final VoidCallback? onTap;
-
-  const _SignalRow({
-    required this.label,
-    required this.value,
-    required this.color,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      label: '$label: $value',
-      button: onTap != null,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: MintSpacing.md,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                label,
-                style: MintTextStyles.bodyMedium(),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    value,
-                    style: MintTextStyles.titleMedium(color: color)
-                        .copyWith(fontWeight: FontWeight.w700),
-                  ),
-                  if (onTap != null) ...[
-                    const SizedBox(width: 4),
-                    const Icon(
-                      Icons.chevron_right_rounded,
-                      size: 16,
-                      color: MintColors.textMuted,
-                    ),
-                  ],
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }
 

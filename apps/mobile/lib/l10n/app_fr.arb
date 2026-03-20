@@ -6472,8 +6472,8 @@
       "count": { "type": "String" }
     }
   },
-  "quickStartTitle": "Trois questions, un premier chiffre.",
-  "quickStartSubtitle": "Le reste, c'est toi qui décides quand.",
+  "quickStartTitle": "Trois chiffres, une premi\u00e8re v\u00e9rit\u00e9.",
+  "quickStartSubtitle": "La suite viendra apr\u00e8s.",
   "quickStartFirstName": "Ton prénom",
   "quickStartFirstNameHint": "Facultatif",
   "quickStartAge": "Ton âge",
@@ -6505,8 +6505,8 @@
       "gap": { "type": "String" }
     }
   },
-  "quickStartDisclaimer": "Estimation éducative. Pas un conseil financier (LSFin).",
-  "quickStartCta": "Voir mon aperçu",
+  "quickStartDisclaimer": "Estimation \u00e9ducative bas\u00e9e sur ton \u00e2ge, ton revenu et ton canton.",
+  "quickStartCta": "Voir ce qui change",
   "quickStartSectionIdentity": "Identité & Foyer",
   "quickStartSectionIncome": "Revenus & Épargne",
   "quickStartSectionPension": "Prévoyance (LPP)",
@@ -6517,6 +6517,17 @@
       "label": { "type": "String" }
     }
   },
+  "quickStartNarrative": "Tu gardes ~{pct}\u00a0% de ton niveau de vie.",
+  "@quickStartNarrative": {
+    "placeholders": {
+      "pct": { "type": "String" }
+    }
+  },
+  "quickStartNarrativeLow": "Premier ordre de grandeur, \u00e0 pr\u00e9ciser.",
+  "quickStartCtaSecondary": "J\u2019ajouterai plus de d\u00e9tails plus tard",
+  "quickStartConfidenceMsg": "Sans certificat LPP, on reste sur une estimation large.",
+  "quickStartHeroSecondaryLabel": "aujourd\u2019hui",
+  "quickStartHeroLabel": "\u00e0 la retraite",
   "profileCompletionHint": "{pct}\u00a0% — il manque {missing}",
   "@profileCompletionHint": {
     "description": "Profile completion with missing sections hint. Tone: factual, inviting.",
@@ -8455,5 +8466,34 @@
   "concubinageDecisionMatrixColumnMarriage": "Mariage",
   "concubinageDecisionMatrixColumnConcubinage": "Concubinage",
   "concubinageDecisionMatrixConclusionTitle": "Conclusion neutre",
-  "concubinageDecisionMatrixConclusionDesc": "Le choix d\u00e9pend de ta situation personnelle. Consulte un\u00b7e notaire pour une analyse compl\u00e8te."
+  "concubinageDecisionMatrixConclusionDesc": "Le choix d\u00e9pend de ta situation personnelle. Consulte un\u00b7e notaire pour une analyse compl\u00e8te.",
+  "landingHiddenAmount": "CHF\u00a0\u00b7\u00b7\u00b7\u00b7",
+  "landingHiddenSubtitle": "Ton premier chiffre en 30\u00a0secondes",
+  "renteVsCapitalV2Title": "Rente ou capital.",
+  "renteVsCapitalV2Subtitle": "Le m\u00eame argent. Deux vies diff\u00e9rentes.",
+  "renteVsCapitalChoiceRenteSubtitle": "Plus stable, moins flexible",
+  "renteVsCapitalChoiceCapitalSubtitle": "Plus libre, plus exigeant",
+  "renteVsCapitalChoiceMixteSubtitle": "Un \u00e9quilibre \u00e0 construire",
+  "renteVsCapitalConsequenceRenteEyebrow": "Si tu choisis la rente",
+  "renteVsCapitalConsequenceCapitalEyebrow": "Si tu choisis le capital",
+  "renteVsCapitalConsequenceMixteEyebrow": "Si tu choisis le mixte",
+  "renteVsCapitalConsequenceRenteNarrative": "Un revenu fixe chaque mois, sans te soucier des march\u00e9s. En \u00e9change, ton capital ne t\u2019appartient plus.",
+  "renteVsCapitalConsequenceCapitalNarrative": "Tu g\u00e8res ton argent librement, mais il peut s\u2019\u00e9puiser. Chaque ann\u00e9e compte.",
+  "renteVsCapitalConsequenceMixteNarrative": "La partie obligatoire en rente pour la s\u00e9curit\u00e9, le surobligatoire en capital pour la flexibilit\u00e9.",
+  "renteVsCapitalConsequenceMixteRenteLabel": "Rente (obligatoire)",
+  "renteVsCapitalConsequenceMixteCapitalLabel": "Capital (surobligatoire)",
+  "renteVsCapitalSignalRevenu": "Revenu mensuel",
+  "renteVsCapitalSignalFiscalite": "Fiscalit\u00e9 cumul\u00e9e",
+  "renteVsCapitalSignalTransmission": "Transmission",
+  "renteVsCapitalConfidenceNoticeLow": "Sans certificat LPP, on reste sur une estimation large.",
+  "renteVsCapitalConfidenceNoticeHigh": "Donn\u00e9es compl\u00e8tes \u2014 r\u00e9sultats fiables.",
+  "renteVsCapitalConfidenceCta": "Pr\u00e9ciser mes donn\u00e9es",
+  "renteVsCapitalFastEstimateTitle": "Faire une premi\u00e8re estimation",
+  "renteVsCapitalCtaCompare": "Comparer pour moi",
+  "renteVsCapitalAdvancedDisclosure": "J\u2019ai mon certificat LPP",
+  "renteVsCapitalPerMonthForLife": "/mois, \u00e0 vie",
+  "renteVsCapitalNetAfterTax": "net d\u2019imp\u00f4t",
+  "renteVsCapitalTransmissionRenteMarried": "60\u00a0% au conjoint",
+  "renteVsCapitalTransmissionRenteSingle": "Rien aux h\u00e9ritiers",
+  "renteVsCapitalTransmissionCapitalValue": "100\u00a0% aux h\u00e9ritiers"
 }
