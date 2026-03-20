@@ -12,6 +12,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/screens/pulse/pulse_screen.dart' show NavigationShellState;
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
 /// Quick Start — single-screen onboarding that gets the user to the dashboard
 /// in under 30 seconds.
@@ -261,49 +262,26 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                     const SizedBox(height: 22),
 
                     // ── Age slider ──
-                    _buildSliderLabel(
-                      l.quickStartAge,
-                      l.quickStartAgeValue(_age.round().toString()),
-                    ),
-                    Semantics(
+                    MintPremiumSlider(
                       label: l.quickStartAge,
-                      slider: true,
-                      value:
-                          l.quickStartAgeValue(_age.round().toString()),
-                      child: SliderTheme(
-                        data: _sliderTheme(),
-                        child: Slider(
-                          value: _age,
-                          min: 22,
-                          max: 67,
-                          divisions: 45,
-                          onChanged: (v) => setState(() => _age = v),
-                        ),
-                      ),
+                      value: _age,
+                      min: 22,
+                      max: 67,
+                      divisions: 45,
+                      formatValue: (v) => l.quickStartAgeValue(v.round().toString()),
+                      onChanged: (v) => setState(() => _age = v),
                     ),
                     const SizedBox(height: MintSpacing.md),
 
                     // ── Revenu brut annuel slider ──
-                    _buildSliderLabel(
-                      l.quickStartSalary,
-                      l.quickStartSalaryValue(
-                          formatChfWithPrefix(_salary)),
-                    ),
-                    Semantics(
+                    MintPremiumSlider(
                       label: l.quickStartSalary,
-                      slider: true,
-                      value: l.quickStartSalaryValue(
-                          formatChfWithPrefix(_salary)),
-                      child: SliderTheme(
-                        data: _sliderTheme(),
-                        child: Slider(
-                          value: _salary,
-                          min: 20000,
-                          max: 300000,
-                          divisions: 56,
-                          onChanged: (v) => setState(() => _salary = v),
-                        ),
-                      ),
+                      value: _salary,
+                      min: 20000,
+                      max: 300000,
+                      divisions: 56,
+                      formatValue: (v) => formatChfWithPrefix(v),
+                      onChanged: (v) => setState(() => _salary = v),
                     ),
                     const SizedBox(height: MintSpacing.md),
 
@@ -562,17 +540,6 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  SliderThemeData _sliderTheme() {
-    return SliderThemeData(
-      activeTrackColor: MintColors.primary,
-      inactiveTrackColor: MintColors.border,
-      thumbColor: MintColors.primary,
-      overlayColor: MintColors.primary.withValues(alpha: 0.12),
-      trackHeight: 4,
-      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
     );
   }
 }

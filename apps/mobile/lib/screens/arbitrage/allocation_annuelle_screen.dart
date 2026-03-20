@@ -16,6 +16,7 @@ import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
 import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
 /// Allocation annuelle arbitrage screen — compare 3a, rachat LPP,
 /// amortissement indirect, and investissement libre.
@@ -321,104 +322,32 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
           const SizedBox(height: MintSpacing.md),
 
           // Taux marginal slider
-          Semantics(
+          MintPremiumSlider(
             label: l.allocAnnuelleTauxMarginal,
-            value: '${_tauxMarginal.toStringAsFixed(0)}\u00a0%',
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        l.allocAnnuelleTauxMarginal,
-                        style: MintTextStyles.bodySmall(
-                          color: MintColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      '${_tauxMarginal.toStringAsFixed(0)}\u00a0%',
-                      style: MintTextStyles.bodySmall(
-                        color: MintColors.primary,
-                      ),
-                    ),
-                  ],
-                ),
-                SliderTheme(
-                  data: SliderThemeData(
-                    activeTrackColor: MintColors.primary,
-                    inactiveTrackColor: MintColors.border,
-                    thumbColor: MintColors.primary,
-                    overlayColor: MintColors.primary.withAlpha(30),
-                    trackHeight: 4,
-                    thumbShape:
-                        const RoundSliderThumbShape(enabledThumbRadius: 8),
-                  ),
-                  child: Slider(
-                    value: _tauxMarginal,
-                    min: 10,
-                    max: 50,
-                    divisions: 8,
-                    onChanged: (v) {
-                      setState(() => _tauxMarginal = v);
-                      _recalculate();
-                    },
-                  ),
-                ),
-              ],
-            ),
+            value: _tauxMarginal,
+            min: 10,
+            max: 50,
+            divisions: 8,
+            formatValue: (v) => '${v.toStringAsFixed(0)}\u00a0%',
+            onChanged: (v) {
+              setState(() => _tauxMarginal = v);
+              _recalculate();
+            },
           ),
           const SizedBox(height: MintSpacing.sm),
 
           // Annees avant retraite slider
-          Semantics(
+          MintPremiumSlider(
             label: l.allocAnnuelleAnneesRetraite,
-            value: l.allocAnnuelleAnneesValue(_anneesAvantRetraite),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        l.allocAnnuelleAnneesRetraite,
-                        style: MintTextStyles.bodySmall(
-                          color: MintColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      l.allocAnnuelleAnneesValue(_anneesAvantRetraite),
-                      style: MintTextStyles.bodySmall(
-                        color: MintColors.primary,
-                      ),
-                    ),
-                  ],
-                ),
-                SliderTheme(
-                  data: SliderThemeData(
-                    activeTrackColor: MintColors.primary,
-                    inactiveTrackColor: MintColors.border,
-                    thumbColor: MintColors.primary,
-                    overlayColor: MintColors.primary.withAlpha(30),
-                    trackHeight: 4,
-                    thumbShape:
-                        const RoundSliderThumbShape(enabledThumbRadius: 8),
-                  ),
-                  child: Slider(
-                    value: _anneesAvantRetraite.toDouble(),
-                    min: 5,
-                    max: 40,
-                    divisions: 35,
-                    onChanged: (v) {
-                      setState(() => _anneesAvantRetraite = v.round());
-                      _recalculate();
-                    },
-                  ),
-                ),
-              ],
-            ),
+            value: _anneesAvantRetraite.toDouble(),
+            min: 5,
+            max: 40,
+            divisions: 35,
+            formatValue: (v) => l.allocAnnuelleAnneesValue(v.round()),
+            onChanged: (v) {
+              setState(() => _anneesAvantRetraite = v.round());
+              _recalculate();
+            },
           ),
           const SizedBox(height: MintSpacing.sm),
 

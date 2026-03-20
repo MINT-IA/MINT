@@ -9,7 +9,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/budget/spending_meter.dart';
-import 'package:mint_mobile/widgets/budget/envelope_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/budget/stop_rule_callout.dart';
 import 'package:mint_mobile/widgets/budget/emergency_fund_ring.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -574,32 +574,28 @@ class _BudgetScreenState extends State<BudgetScreen>
       BuildContext context, BudgetProvider provider, BudgetPlan plan, S l) {
     return Column(
       children: [
-        Semantics(
+        MintPremiumSlider(
           label: l.budgetEnvelopeFuture,
-          slider: true,
-          child: EnvelopeSlider(
-            label: l.budgetEnvelopeFuture,
-            value: plan.future,
-            max: plan.available,
-            activeColor: MintColors.info,
-            onChanged: (val) {
-              provider.updateOverride('future', val);
-            },
-          ),
+          value: plan.future,
+          min: 0,
+          max: plan.available,
+          formatValue: (v) => 'CHF\u00a0${v.toInt()}',
+          activeColor: MintColors.info,
+          onChanged: (val) {
+            provider.updateOverride('future', val);
+          },
         ),
         const SizedBox(height: MintSpacing.md),
-        Semantics(
+        MintPremiumSlider(
           label: l.budgetEnvelopeVariables,
-          slider: true,
-          child: EnvelopeSlider(
-            label: l.budgetEnvelopeVariables,
-            value: plan.variables,
-            max: plan.available,
-            activeColor: MintColors.success,
-            onChanged: (val) {
-              provider.updateOverride('variables', val);
-            },
-          ),
+          value: plan.variables,
+          min: 0,
+          max: plan.available,
+          formatValue: (v) => 'CHF\u00a0${v.toInt()}',
+          activeColor: MintColors.success,
+          onChanged: (val) {
+            provider.updateOverride('variables', val);
+          },
         ),
       ],
     );

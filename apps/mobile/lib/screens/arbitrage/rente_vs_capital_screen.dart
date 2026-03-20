@@ -18,6 +18,7 @@ import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
 import 'package:mint_mobile/widgets/precision/field_help_tooltip.dart';
 import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
@@ -846,47 +847,17 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   Widget _buildRetirementAgeSlider() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(S.of(context)!.renteVsCapitalRetirementAge, style: _labelStyle),
-            const Spacer(),
-            ValueListenableBuilder<double>(
-              valueListenable: _ageRetraiteSlider,
-              builder: (_, v, __) => Text(
-                S.of(context)!.renteVsCapitalAgeYears(v.round()),
-                style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        Semantics(
-          label: S.of(context)!.renteVsCapitalRetirementAge,
-          slider: true,
-          child: SliderTheme(
-            data: SliderThemeData(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.textMuted.withAlpha(40),
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withAlpha(30),
-              trackHeight: 4,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-            ),
-            child: Slider(
-              value: _ageRetraiteSlider.value,
-              min: 58, max: 70, divisions: 12,
-              onChanged: (v) {
-                _ageRetraiteSlider.value = v;
-                _recalculate();
-              },
-            ),
-          ),
-        ),
-      ],
+    return MintPremiumSlider(
+      label: S.of(context)!.renteVsCapitalRetirementAge,
+      value: _ageRetraiteSlider.value,
+      min: 58,
+      max: 70,
+      divisions: 12,
+      formatValue: (v) => S.of(context)!.renteVsCapitalAgeYears(v.round()),
+      onChanged: (v) {
+        _ageRetraiteSlider.value = v;
+        _recalculate();
+      },
     );
   }
 
@@ -1195,35 +1166,17 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ── Slider: "Et si je vis jusqu'a..." ──
-          Text(
-            S.of(context)!.renteVsCapitalLifeExpectancy,
-            style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Semantics(
+          MintPremiumSlider(
             label: S.of(context)!.renteVsCapitalLifeExpectancy,
-            slider: true,
-            child: SliderTheme(
-              data: SliderThemeData(
-                activeTrackColor: MintColors.primary,
-                inactiveTrackColor: MintColors.textMuted.withAlpha(40),
-                thumbColor: MintColors.primary,
-                overlayColor: MintColors.primary.withAlpha(30),
-                trackHeight: 6,
-                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
-                valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
-                showValueIndicator: ShowValueIndicator.always,
-              ),
-              child: Slider(
-                value: _lifeExpectancy,
-                min: 70, max: 100, divisions: 30,
-                label: S.of(context)!.renteVsCapitalAgeYears(_lifeExpectancy.round()),
-                onChanged: (v) {
-                  setState(() => _lifeExpectancy = v);
-                  _recalculate();
-                },
-              ),
-            ),
+            value: _lifeExpectancy,
+            min: 70,
+            max: 100,
+            divisions: 30,
+            formatValue: (v) => S.of(context)!.renteVsCapitalAgeYears(v.round()),
+            onChanged: (v) {
+              setState(() => _lifeExpectancy = v);
+              _recalculate();
+            },
           ),
           _buildDeltaAtAge(_lifeExpectancy.round()),
           const SizedBox(height: MintSpacing.xs),
