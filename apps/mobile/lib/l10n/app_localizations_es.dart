@@ -17786,4 +17786,51 @@ class SEs extends S {
 
   @override
   String get indepOptiFiscale => 'Optimización fiscal';
+
+  @override
+  String get fhsLevelExcellent => 'Excelente';
+
+  @override
+  String get fhsLevelBon => 'Bueno';
+
+  @override
+  String get fhsLevelAmeliorer => 'A mejorar';
+
+  @override
+  String get fhsLevelCritique => 'Crítico';
+
+  @override
+  String fhsDeltaLabel(String delta) {
+    return 'Tendencia: $delta vs ayer';
+  }
+
+  @override
+  String fhsDeltaText(String delta) {
+    return '$delta vs ayer';
+  }
+
+  @override
+  String get fhsBreakdownLiquidite => 'Liquidez';
+
+  @override
+  String get fhsBreakdownFiscalite => 'Fiscalidad';
+
+  @override
+  String get fhsBreakdownRetraite => 'Jubilación';
+
+  @override
+  String get fhsBreakdownRisque => 'Riesgo';
+
+  @override
+  String avsGapLifetimeLoss(String amount) {
+    return 'En 20 años de jubilación, eso son $amount menos — definitivamente.';
+  }
+
+  @override
+  String get avsGapCalculation =>
+      'Cálculo: pensión mensual × 13 meses/año (13.ª pensión AVS desde dic. 2026)';
+
+  @override
+  String get chiffreChocRenteCalculation =>
+      '(cálculo: pensión mensual × 13 meses/año, 13.ª pensión incluida).';
 }

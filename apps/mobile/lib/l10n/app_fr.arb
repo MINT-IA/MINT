@@ -8390,4 +8390,22 @@
   "indepAdminUrgent": "Administratif urgent",
   "indepPrevoyance": "Prévoyance",
   "indepOptiFiscale": "Optimisation fiscale"
+,
+  "fhsLevelExcellent": "Excellent",
+  "fhsLevelBon": "Bon",
+  "fhsLevelAmeliorer": "À améliorer",
+  "fhsLevelCritique": "Critique",
+  "fhsDeltaLabel": "Tendance : {delta} vs hier",
+  "fhsDeltaText": "{delta} vs hier",
+  "fhsBreakdownLiquidite": "Liquidité",
+  "fhsBreakdownFiscalite": "Fiscalité",
+  "fhsBreakdownRetraite": "Retraite",
+  "fhsBreakdownRisque": "Risque",
+  "avsGapLifetimeLoss": "Sur 20 ans de retraite, c'est {amount} de moins — définitivement.",
+  "avsGapCalculation": "Calcul : rente mensuelle × 13 mois/an (13ᵉ rente AVS dès déc. 2026)",
+  "chiffreChocRenteCalculation": "(calcul : rente mensuelle × 13 mois/an, 13ᵉ rente incluse)."
+,
+  "@fhsDeltaLabel": {"placeholders": {"delta": {"type": "String"}}},
+  "@fhsDeltaText": {"placeholders": {"delta": {"type": "String"}}},
+  "@avsGapLifetimeLoss": {"placeholders": {"amount": {"type": "String"}}}
 }

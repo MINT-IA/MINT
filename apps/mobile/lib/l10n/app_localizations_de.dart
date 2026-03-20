@@ -17799,4 +17799,51 @@ class SDe extends S {
 
   @override
   String get indepOptiFiscale => 'Steueroptimierung';
+
+  @override
+  String get fhsLevelExcellent => 'Ausgezeichnet';
+
+  @override
+  String get fhsLevelBon => 'Gut';
+
+  @override
+  String get fhsLevelAmeliorer => 'Verbesserungsbedarf';
+
+  @override
+  String get fhsLevelCritique => 'Kritisch';
+
+  @override
+  String fhsDeltaLabel(String delta) {
+    return 'Trend: $delta vs gestern';
+  }
+
+  @override
+  String fhsDeltaText(String delta) {
+    return '$delta vs gestern';
+  }
+
+  @override
+  String get fhsBreakdownLiquidite => 'Liquidität';
+
+  @override
+  String get fhsBreakdownFiscalite => 'Steuern';
+
+  @override
+  String get fhsBreakdownRetraite => 'Rente';
+
+  @override
+  String get fhsBreakdownRisque => 'Risiko';
+
+  @override
+  String avsGapLifetimeLoss(String amount) {
+    return 'Über 20 Rentenjahre sind das $amount weniger — endgültig.';
+  }
+
+  @override
+  String get avsGapCalculation =>
+      'Berechnung: Monatsrente × 13 Monate/Jahr (13. AHV-Rente ab Dez. 2026)';
+
+  @override
+  String get chiffreChocRenteCalculation =>
+      '(Berechnung: Monatsrente × 13 Monate/Jahr, 13. Rente inklusive).';
 }

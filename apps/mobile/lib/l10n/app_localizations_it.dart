@@ -17798,4 +17798,51 @@ class SIt extends S {
 
   @override
   String get indepOptiFiscale => 'Ottimizzazione fiscale';
+
+  @override
+  String get fhsLevelExcellent => 'Eccellente';
+
+  @override
+  String get fhsLevelBon => 'Buono';
+
+  @override
+  String get fhsLevelAmeliorer => 'Da migliorare';
+
+  @override
+  String get fhsLevelCritique => 'Critico';
+
+  @override
+  String fhsDeltaLabel(String delta) {
+    return 'Tendenza: $delta vs ieri';
+  }
+
+  @override
+  String fhsDeltaText(String delta) {
+    return '$delta vs ieri';
+  }
+
+  @override
+  String get fhsBreakdownLiquidite => 'Liquidità';
+
+  @override
+  String get fhsBreakdownFiscalite => 'Fiscalità';
+
+  @override
+  String get fhsBreakdownRetraite => 'Pensione';
+
+  @override
+  String get fhsBreakdownRisque => 'Rischio';
+
+  @override
+  String avsGapLifetimeLoss(String amount) {
+    return 'In 20 anni di pensione, sono $amount in meno — definitivamente.';
+  }
+
+  @override
+  String get avsGapCalculation =>
+      'Calcolo: rendita mensile × 13 mesi/anno (13ª rendita AVS da dic. 2026)';
+
+  @override
+  String get chiffreChocRenteCalculation =>
+      '(calcolo: rendita mensile × 13 mesi/anno, 13ª rendita inclusa).';
 }

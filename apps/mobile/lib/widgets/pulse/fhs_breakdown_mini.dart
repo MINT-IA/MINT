@@ -20,6 +20,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -61,28 +62,28 @@ class FhsBreakdownMini extends StatelessWidget {
         children: [
           _MiniBar(
             shortLabel: 'L',
-            label: 'Liquidit\u00e9', // TODO: i18n
+            label: S.of(context)!.fhsBreakdownLiquidite,
             value: liquidite,
             color: MintColors.info,
           ),
           const SizedBox(height: 8),
           _MiniBar(
             shortLabel: 'F',
-            label: 'Fiscalit\u00e9', // TODO: i18n
+            label: S.of(context)!.fhsBreakdownFiscalite,
             value: fiscalite,
             color: MintColors.categoryPurple,
           ),
           const SizedBox(height: 8),
           _MiniBar(
             shortLabel: 'R',
-            label: 'Retraite', // TODO: i18n
+            label: S.of(context)!.fhsBreakdownRetraite,
             value: retraite,
             color: MintColors.teal,
           ),
           const SizedBox(height: 8),
           _MiniBar(
             shortLabel: 'S',
-            label: 'Risque', // TODO: i18n
+            label: S.of(context)!.fhsBreakdownRisque,
             value: risque,
             color: MintColors.warning,
           ),

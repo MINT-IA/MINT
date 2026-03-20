@@ -7855,4 +7855,18 @@
   "indepAdminUrgent": "Administrativo urgente",
   "indepPrevoyance": "Previsión",
   "indepOptiFiscale": "Optimización fiscal"
+,
+  "fhsLevelExcellent": "Excelente",
+  "fhsLevelBon": "Bueno",
+  "fhsLevelAmeliorer": "A mejorar",
+  "fhsLevelCritique": "Crítico",
+  "fhsDeltaLabel": "Tendencia: {delta} vs ayer",
+  "fhsDeltaText": "{delta} vs ayer",
+  "fhsBreakdownLiquidite": "Liquidez",
+  "fhsBreakdownFiscalite": "Fiscalidad",
+  "fhsBreakdownRetraite": "Jubilación",
+  "fhsBreakdownRisque": "Riesgo",
+  "avsGapLifetimeLoss": "En 20 años de jubilación, eso son {amount} menos — definitivamente.",
+  "avsGapCalculation": "Cálculo: pensión mensual × 13 meses/año (13.ª pensión AVS desde dic. 2026)",
+  "chiffreChocRenteCalculation": "(cálculo: pensión mensual × 13 meses/año, 13.ª pensión incluida)."
 }

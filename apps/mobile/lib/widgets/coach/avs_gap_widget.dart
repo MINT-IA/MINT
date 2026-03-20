@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -241,12 +242,12 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Sur 20 ans de retraite, c\'est ${formatChfWithPrefix(_lifetimeLoss)} de moins\u00a0— d\u00e9finitivement.', // TODO: i18n
+            S.of(context)!.avsGapLifetimeLoss(formatChfWithPrefix(_lifetimeLoss)),
             style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
           ),
           const SizedBox(height: 4),
           Text(
-            'Calcul\u00a0: rente mensuelle \u00d7 13 mois/an (13\u1d49 rente AVS d\u00e8s d\u00e9c.\u00a02026)', // TODO: i18n
+            S.of(context)!.avsGapCalculation,
             style: MintTextStyles.micro(color: MintColors.textMuted),
           ),
           const SizedBox(height: 8),

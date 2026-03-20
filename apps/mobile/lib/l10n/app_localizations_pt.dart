@@ -17733,4 +17733,51 @@ class SPt extends S {
 
   @override
   String get indepOptiFiscale => 'Otimização fiscal';
+
+  @override
+  String get fhsLevelExcellent => 'Excelente';
+
+  @override
+  String get fhsLevelBon => 'Bom';
+
+  @override
+  String get fhsLevelAmeliorer => 'A melhorar';
+
+  @override
+  String get fhsLevelCritique => 'Crítico';
+
+  @override
+  String fhsDeltaLabel(String delta) {
+    return 'Tendência: $delta vs ontem';
+  }
+
+  @override
+  String fhsDeltaText(String delta) {
+    return '$delta vs ontem';
+  }
+
+  @override
+  String get fhsBreakdownLiquidite => 'Liquidez';
+
+  @override
+  String get fhsBreakdownFiscalite => 'Fiscalidade';
+
+  @override
+  String get fhsBreakdownRetraite => 'Reforma';
+
+  @override
+  String get fhsBreakdownRisque => 'Risco';
+
+  @override
+  String avsGapLifetimeLoss(String amount) {
+    return 'Em 20 anos de reforma, são $amount a menos — definitivamente.';
+  }
+
+  @override
+  String get avsGapCalculation =>
+      'Cálculo: pensão mensal × 13 meses/ano (13.ª pensão AVS desde dez. 2026)';
+
+  @override
+  String get chiffreChocRenteCalculation =>
+      '(cálculo: pensão mensal × 13 meses/ano, 13.ª pensão incluída).';
 }

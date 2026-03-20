@@ -8100,4 +8100,18 @@
   "indepAdminUrgent": "Urgent administrative",
   "indepPrevoyance": "Pension planning",
   "indepOptiFiscale": "Tax optimisation"
+,
+  "fhsLevelExcellent": "Excellent",
+  "fhsLevelBon": "Good",
+  "fhsLevelAmeliorer": "Needs improvement",
+  "fhsLevelCritique": "Critical",
+  "fhsDeltaLabel": "Trend: {delta} vs yesterday",
+  "fhsDeltaText": "{delta} vs yesterday",
+  "fhsBreakdownLiquidite": "Liquidity",
+  "fhsBreakdownFiscalite": "Taxes",
+  "fhsBreakdownRetraite": "Retirement",
+  "fhsBreakdownRisque": "Risk",
+  "avsGapLifetimeLoss": "Over 20 years of retirement, that's {amount} less — permanently.",
+  "avsGapCalculation": "Calculation: monthly pension × 13 months/year (13th AVS pension from Dec. 2026)",
+  "chiffreChocRenteCalculation": "(calculation: monthly pension × 13 months/year, 13th pension included)."
 }

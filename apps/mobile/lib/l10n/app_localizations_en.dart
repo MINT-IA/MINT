@@ -17701,4 +17701,51 @@ class SEn extends S {
 
   @override
   String get indepOptiFiscale => 'Tax optimisation';
+
+  @override
+  String get fhsLevelExcellent => 'Excellent';
+
+  @override
+  String get fhsLevelBon => 'Good';
+
+  @override
+  String get fhsLevelAmeliorer => 'Needs improvement';
+
+  @override
+  String get fhsLevelCritique => 'Critical';
+
+  @override
+  String fhsDeltaLabel(String delta) {
+    return 'Trend: $delta vs yesterday';
+  }
+
+  @override
+  String fhsDeltaText(String delta) {
+    return '$delta vs yesterday';
+  }
+
+  @override
+  String get fhsBreakdownLiquidite => 'Liquidity';
+
+  @override
+  String get fhsBreakdownFiscalite => 'Taxes';
+
+  @override
+  String get fhsBreakdownRetraite => 'Retirement';
+
+  @override
+  String get fhsBreakdownRisque => 'Risk';
+
+  @override
+  String avsGapLifetimeLoss(String amount) {
+    return 'Over 20 years of retirement, that\'s $amount less — permanently.';
+  }
+
+  @override
+  String get avsGapCalculation =>
+      'Calculation: monthly pension × 13 months/year (13th AVS pension from Dec. 2026)';
+
+  @override
+  String get chiffreChocRenteCalculation =>
+      '(calculation: monthly pension × 13 months/year, 13th pension included).';
 }

@@ -8070,4 +8070,18 @@
   "indepAdminUrgent": "Dringend administrative Aufgaben",
   "indepPrevoyance": "Vorsorge",
   "indepOptiFiscale": "Steueroptimierung"
+,
+  "fhsLevelExcellent": "Ausgezeichnet",
+  "fhsLevelBon": "Gut",
+  "fhsLevelAmeliorer": "Verbesserungsbedarf",
+  "fhsLevelCritique": "Kritisch",
+  "fhsDeltaLabel": "Trend: {delta} vs gestern",
+  "fhsDeltaText": "{delta} vs gestern",
+  "fhsBreakdownLiquidite": "Liquidität",
+  "fhsBreakdownFiscalite": "Steuern",
+  "fhsBreakdownRetraite": "Rente",
+  "fhsBreakdownRisque": "Risiko",
+  "avsGapLifetimeLoss": "Über 20 Rentenjahre sind das {amount} weniger — endgültig.",
+  "avsGapCalculation": "Berechnung: Monatsrente × 13 Monate/Jahr (13. AHV-Rente ab Dez. 2026)",
+  "chiffreChocRenteCalculation": "(Berechnung: Monatsrente × 13 Monate/Jahr, 13. Rente inklusive)."
 }

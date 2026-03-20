@@ -31540,6 +31540,84 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Optimisation fiscale'**
   String get indepOptiFiscale;
+
+  /// No description provided for @fhsLevelExcellent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Excellent'**
+  String get fhsLevelExcellent;
+
+  /// No description provided for @fhsLevelBon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bon'**
+  String get fhsLevelBon;
+
+  /// No description provided for @fhsLevelAmeliorer.
+  ///
+  /// In fr, this message translates to:
+  /// **'À améliorer'**
+  String get fhsLevelAmeliorer;
+
+  /// No description provided for @fhsLevelCritique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Critique'**
+  String get fhsLevelCritique;
+
+  /// No description provided for @fhsDeltaLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tendance : {delta} vs hier'**
+  String fhsDeltaLabel(String delta);
+
+  /// No description provided for @fhsDeltaText.
+  ///
+  /// In fr, this message translates to:
+  /// **'{delta} vs hier'**
+  String fhsDeltaText(String delta);
+
+  /// No description provided for @fhsBreakdownLiquidite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Liquidité'**
+  String get fhsBreakdownLiquidite;
+
+  /// No description provided for @fhsBreakdownFiscalite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiscalité'**
+  String get fhsBreakdownFiscalite;
+
+  /// No description provided for @fhsBreakdownRetraite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite'**
+  String get fhsBreakdownRetraite;
+
+  /// No description provided for @fhsBreakdownRisque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Risque'**
+  String get fhsBreakdownRisque;
+
+  /// No description provided for @avsGapLifetimeLoss.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sur 20 ans de retraite, c\'est {amount} de moins — définitivement.'**
+  String avsGapLifetimeLoss(String amount);
+
+  /// No description provided for @avsGapCalculation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calcul : rente mensuelle × 13 mois/an (13ᵉ rente AVS dès déc. 2026)'**
+  String get avsGapCalculation;
+
+  /// No description provided for @chiffreChocRenteCalculation.
+  ///
+  /// In fr, this message translates to:
+  /// **'(calcul : rente mensuelle × 13 mois/an, 13ᵉ rente incluse).'**
+  String get chiffreChocRenteCalculation;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

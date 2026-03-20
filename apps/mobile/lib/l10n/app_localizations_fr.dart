@@ -17781,4 +17781,51 @@ class SFr extends S {
 
   @override
   String get indepOptiFiscale => 'Optimisation fiscale';
+
+  @override
+  String get fhsLevelExcellent => 'Excellent';
+
+  @override
+  String get fhsLevelBon => 'Bon';
+
+  @override
+  String get fhsLevelAmeliorer => 'À améliorer';
+
+  @override
+  String get fhsLevelCritique => 'Critique';
+
+  @override
+  String fhsDeltaLabel(String delta) {
+    return 'Tendance : $delta vs hier';
+  }
+
+  @override
+  String fhsDeltaText(String delta) {
+    return '$delta vs hier';
+  }
+
+  @override
+  String get fhsBreakdownLiquidite => 'Liquidité';
+
+  @override
+  String get fhsBreakdownFiscalite => 'Fiscalité';
+
+  @override
+  String get fhsBreakdownRetraite => 'Retraite';
+
+  @override
+  String get fhsBreakdownRisque => 'Risque';
+
+  @override
+  String avsGapLifetimeLoss(String amount) {
+    return 'Sur 20 ans de retraite, c\'est $amount de moins — définitivement.';
+  }
+
+  @override
+  String get avsGapCalculation =>
+      'Calcul : rente mensuelle × 13 mois/an (13ᵉ rente AVS dès déc. 2026)';
+
+  @override
+  String get chiffreChocRenteCalculation =>
+      '(calcul : rente mensuelle × 13 mois/an, 13ᵉ rente incluse).';
 }
