@@ -125,3 +125,49 @@ class _AnnularThumbShape extends SliderComponentShape {
     );
   }
 }
+
+/// A compact slider variant for inline use (no label row).
+class MintCompactSlider extends StatelessWidget {
+  final double value;
+  final double min;
+  final double max;
+  final int? divisions;
+  final ValueChanged<double> onChanged;
+  final Color? activeColor;
+
+  const MintCompactSlider({
+    super.key,
+    required this.value,
+    required this.min,
+    required this.max,
+    this.divisions,
+    required this.onChanged,
+    this.activeColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final effectiveColor = activeColor ?? MintColors.primary;
+    return SliderTheme(
+      data: SliderThemeData(
+        activeTrackColor: effectiveColor,
+        inactiveTrackColor: MintColors.porcelaine,
+        thumbColor: MintColors.white,
+        overlayColor: effectiveColor.withValues(alpha: 0.08),
+        trackHeight: 6,
+        thumbShape: _AnnularThumbShape(color: effectiveColor),
+        trackShape: const RoundedRectSliderTrackShape(),
+        overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
+        tickMarkShape: SliderTickMarkShape.noTickMark,
+        showValueIndicator: ShowValueIndicator.never,
+      ),
+      child: Slider(
+        value: value,
+        min: min,
+        max: max,
+        divisions: divisions,
+        onChanged: onChanged,
+      ),
+    );
+  }
+}
