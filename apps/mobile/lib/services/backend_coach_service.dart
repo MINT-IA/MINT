@@ -17,12 +17,19 @@ import 'package:mint_mobile/services/cap_memory_store.dart';
 //  caller can fall back to SLM or templates.
 // ────────────────────────────────────────────────────────────
 
+class WidgetCall {
+  final String tool;
+  final Map<String, dynamic> params;
+  const WidgetCall({required this.tool, required this.params});
+}
+
 class BackendCoachResponse {
   final String reply;
   final String disclaimer;
   final String model;
   final int tokensUsed;
   final int remainingQuota;
+  final WidgetCall? widget;
 
   const BackendCoachResponse({
     required this.reply,
@@ -30,6 +37,7 @@ class BackendCoachResponse {
     required this.model,
     required this.tokensUsed,
     required this.remainingQuota,
+    this.widget,
   });
 }
 
@@ -90,12 +98,24 @@ class BackendCoachService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+
+        // Parse widget tool call if Claude chose one
+        WidgetCall? widget;
+        if (data['widget'] != null) {
+          final w = data['widget'];
+          widget = WidgetCall(
+            tool: w['tool'] ?? '',
+            params: Map<String, dynamic>.from(w['params'] ?? {}),
+          );
+        }
+
         return BackendCoachResponse(
           reply: data['reply'] ?? '',
           disclaimer: data['disclaimer'] ?? '',
           model: data['usedModel'] ?? '',
           tokensUsed: data['tokensUsed'] ?? 0,
           remainingQuota: data['remainingQuota'] ?? -1,
+          widget: widget,
         );
       }
 
