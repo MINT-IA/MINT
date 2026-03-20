@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Coach MINT FAB — always-accessible entry point to the coach.
 ///
@@ -131,11 +131,7 @@ class _CoachQuickSheet extends StatelessWidget {
                   Expanded(
                     child: Text(
                       'Coach MINT',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17),
                     ),
                   ),
                   GestureDetector(
@@ -191,19 +187,12 @@ class _CoachQuickSheet extends StatelessWidget {
                   children: [
                     Text(
                       action.title,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       action.subtitle,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textSecondary,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                     ),
                   ],
                 ),

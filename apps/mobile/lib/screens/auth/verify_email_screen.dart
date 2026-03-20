@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
   const VerifyEmailScreen({super.key});
@@ -26,14 +27,12 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   }
 
   Future<void> _requestToken() async {
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            l10n?.authEmailInvalidPrompt ?? 'Entre une adresse e-mail valide.',
-          ),
+          content: Text(l10n.authEmailInvalidPrompt),
         ),
       );
       return;
@@ -49,23 +48,18 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          l10n?.authVerifyRequestAccepted ??
-              'Lien de vérification envoyé (si compte existant).',
-        ),
+        content: Text(l10n.authVerifyRequestAccepted),
       ),
     );
   }
 
   Future<void> _confirm() async {
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     final token = _tokenController.text.trim();
     if (token.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            l10n?.authTokenRequired ?? 'Token requis.',
-          ),
+          content: Text(l10n.authTokenRequired),
         ),
       );
       return;
@@ -75,9 +69,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     if (!mounted || !ok) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          l10n?.authVerifySuccess ?? 'E-mail vérifié. Tu peux te connecter.',
-        ),
+        content: Text(l10n.authVerifySuccess),
       ),
     );
     context.go('/auth/login');
@@ -86,89 +78,89 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     return Scaffold(
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.white,
       appBar: AppBar(
-        backgroundColor: MintColors.background,
+        backgroundColor: MintColors.white,
+        surfaceTintColor: MintColors.white,
         elevation: 0,
         title: Text(
-          l10n?.authVerifyTitle ?? 'Vérifier mon e-mail',
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          l10n.authVerifyTitle,
+          style: MintTextStyles.headlineMedium(),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(MintSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                l10n?.authVerifyInstructions ??
-                    'Demande un nouveau lien puis colle le token de vérification.',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: MintColors.textSecondary,
+                l10n.authVerifyInstructions,
+                style: MintTextStyles.bodyMedium(),
+              ),
+              const SizedBox(height: MintSpacing.md),
+              Semantics(
+                label: l10n.authEmail,
+                textField: true,
+                child: TextField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    labelText: l10n.authEmail,
+                    prefixIcon: const Icon(Icons.email_outlined),
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: l10n?.authEmail ?? 'Adresse e-mail',
-                  prefixIcon: const Icon(Icons.email_outlined),
-                ),
-              ),
-              const SizedBox(height: 12),
+              const SizedBox(height: MintSpacing.sm + 4),
               FilledButton.tonal(
                 onPressed: auth.isLoading ? null : _requestToken,
-                child: Text(
-                  l10n?.authVerifySendLink ?? 'Envoyer le lien de vérification',
-                ),
+                child: Text(l10n.authVerifySendLink),
               ),
               if (_debugToken != null) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: MintSpacing.sm + 4),
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(MintSpacing.sm + 4),
                   decoration: BoxDecoration(
                     color: MintColors.info.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    '${l10n?.authDebugTokenLabel ?? 'Token debug (tests)'}: $_debugToken',
-                    style: GoogleFonts.inter(
+                    '${l10n.authDebugTokenLabel}: $_debugToken',
+                    style: MintTextStyles.labelSmall(
                       color: MintColors.info,
-                      fontSize: 12,
                     ),
                   ),
                 ),
               ],
-              const SizedBox(height: 16),
-              TextField(
-                controller: _tokenController,
-                decoration: InputDecoration(
-                  labelText:
-                      l10n?.authVerifyTokenLabel ?? 'Token de vérification',
-                  prefixIcon: const Icon(Icons.key_outlined),
-                ),
-              ),
-              const SizedBox(height: 16),
-              if (auth.error != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(
-                    auth.error!,
-                    style: GoogleFonts.inter(color: MintColors.error),
+              const SizedBox(height: MintSpacing.md),
+              Semantics(
+                label: l10n.authVerifyTokenLabel,
+                textField: true,
+                child: TextField(
+                  controller: _tokenController,
+                  decoration: InputDecoration(
+                    labelText: l10n.authVerifyTokenLabel,
+                    prefixIcon: const Icon(Icons.key_outlined),
                   ),
                 ),
-              FilledButton(
-                onPressed: auth.isLoading ? null : _confirm,
-                child: Text(
-                  l10n?.authVerifySubmit ?? 'Valider la vérification',
+              ),
+              const SizedBox(height: MintSpacing.md),
+              if (auth.error != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: MintSpacing.sm),
+                  child: Text(
+                    auth.error!,
+                    style: MintTextStyles.bodyMedium(color: MintColors.error),
+                  ),
+                ),
+              Semantics(
+                label: l10n.authVerifySubmit,
+                button: true,
+                child: FilledButton(
+                  onPressed: auth.isLoading ? null : _confirm,
+                  child: Text(l10n.authVerifySubmit),
                 ),
               ),
             ],

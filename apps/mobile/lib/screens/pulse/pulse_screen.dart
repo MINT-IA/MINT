@@ -1,39 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/services/cap_engine.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
-import 'package:mint_mobile/services/pulse_hero_engine.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
-import 'package:mint_mobile/widgets/pulse/focus_selector.dart';
+import 'package:mint_mobile/widgets/pulse/action_success_sheet.dart';
+import 'package:mint_mobile/widgets/pulse/cap_card.dart';
 import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
-import 'package:mint_mobile/services/response_card_service.dart';
-import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
+
 // ────────────────────────────────────────────────────────
-//  PULSE SCREEN — V3 "Le Thermomètre"
+//  AUJOURD'HUI — V5 "Plan-first"
 // ────────────────────────────────────────────────────────
 //
-//  1 hero adaptatif + 3 pastilles + 1 score de préparation
-//  + 1 signal action
+//  Contrat UX (MINT_UX_GRAAL_MASTERPLAN.md §10 + §12):
+//  - 1 phrase personnalisée (from Cap headline or narrative)
+//  - 1 chiffre dominant (displayLarge)
+//  - 1 Cap du jour (CapCard — the single priority)
+//  - 2 signaux secondaires max
+//  - Rien d'autre au-dessus du fold
 //
-//  Propriété exclusive de Pulse :
-//  - Le hero adaptatif (PulseHeroEngine)
-//  - Le delta temporel (vs dernier check-in)
-//  - Les 3 pastilles (retraite, budget, patrimoine)
-//  - Le score de préparation (FRI compact)
-//
-//  Tout le reste vit ailleurs :
-//  - Actions → Agir tab
-//  - Enrichment/Data quality → Profil tab
-//  - Coach insight → Agir tab
-//  - Couple détail → Profil tab
+//  V5 changes from V4:
+//  - CapEngine replaces ResponseCardService + PulseHeroEngine glue
+//  - CapCard replaces _buildMinimalActionCard
+//  - CapMemory loaded async, markServed on display
+//  - Narrative can come from Cap.headline (fallback: legacy)
+//  - PulseHeroEngine kept only as narrative fallback
 // ────────────────────────────────────────────────────────
 
 class PulseScreen extends StatefulWidget {
@@ -47,7 +48,16 @@ class _PulseScreenState extends State<PulseScreen> {
   ProjectionResult? _cachedProjection;
   FinancialFitnessScore? _cachedFri;
   CoachProfile? _lastProfile;
-  bool _showCoupleView = false;
+
+  /// CapEngine memory — loaded async on first build.
+  CapMemory _capMemory = const CapMemory();
+  bool _capMemoryLoaded = false;
+
+  /// The current cap decision. Recomputed when profile changes.
+  CapDecision? _cachedCap;
+
+  /// Tracks when we last showed ActionSuccess to avoid repeat.
+  DateTime? _lastSeenCompletedDate;
 
   @override
   void didChangeDependencies() {
@@ -58,6 +68,11 @@ class _PulseScreenState extends State<PulseScreen> {
         _lastProfile = null;
         _cachedProjection = null;
         _cachedFri = null;
+        _cachedCap = null;
+        // H1 fix: reset CapMemory on profile disappearance
+        // so a new profile doesn't inherit stale cap history.
+        _capMemory = const CapMemory();
+        _capMemoryLoaded = false;
       }
       return;
     }
@@ -65,6 +80,18 @@ class _PulseScreenState extends State<PulseScreen> {
     final profile = provider.profile!;
     if (_lastProfile == profile) return;
     _lastProfile = profile;
+
+    // Load CapMemory once
+    if (!_capMemoryLoaded) {
+      _capMemoryLoaded = true;
+      CapMemoryStore.load().then((mem) {
+        if (mounted) {
+          setState(() => _capMemory = mem);
+          _recomputeCap(profile);
+          _checkForCompletionFeedback(profile);
+        }
+      });
+    }
 
     try {
       _cachedProjection = ForecasterService.project(profile: profile);
@@ -80,11 +107,68 @@ class _PulseScreenState extends State<PulseScreen> {
     } catch (_) {
       _cachedFri = null;
     }
+
+    _recomputeCap(profile);
   }
 
-  // ────────────────────────────────────────────────────────
-  //  BUILD
-  // ────────────────────────────────────────────────────────
+  void _recomputeCap(CoachProfile profile) {
+    try {
+      final cap = CapEngine.compute(
+        profile: profile,
+        now: DateTime.now(),
+        memory: _capMemory,
+      );
+      _cachedCap = cap;
+
+      // Mark served — setState so feedback pill reflects updated memory.
+      CapMemoryStore.markServed(_capMemory, cap.id).then((updated) {
+        if (mounted) setState(() => _capMemory = updated);
+      });
+    } catch (_) {
+      _cachedCap = null;
+    }
+  }
+
+  /// Show ActionSuccess sheet if the user just completed a cap action
+  /// and we haven't shown feedback yet.
+  void _checkForCompletionFeedback(CoachProfile profile) {
+    final completedDate = _capMemory.lastCompletedDate;
+    if (completedDate == null) return;
+    if (_lastSeenCompletedDate == completedDate) return;
+
+    // Only show if completed within the last 5 minutes (fresh return)
+    final minutesSince = DateTime.now().difference(completedDate).inMinutes;
+    if (minutesSince > 5) {
+      _lastSeenCompletedDate = completedDate;
+      return;
+    }
+
+    _lastSeenCompletedDate = completedDate;
+
+    // Show feedback after build completes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final completedCap = _cachedCap;
+      if (completedCap == null) return;
+
+      // Compute next cap for the "what's next" section
+      final nextCap = CapEngine.compute(
+        profile: profile,
+        now: DateTime.now(),
+        memory: _capMemory,
+      );
+
+      showActionSuccessSheet(
+        context,
+        ActionSuccessData.fromCap(
+          completedCap: completedCap,
+          nextCap: nextCap.id != completedCap.id ? nextCap : null,
+        ),
+      );
+    });
+  }
+
+  // ── BUILD ──
 
   @override
   Widget build(BuildContext context) {
@@ -95,54 +179,79 @@ class _PulseScreenState extends State<PulseScreen> {
     }
 
     final profile = coachProvider.profile!;
-    final hero = PulseHeroEngine.compute(profile);
+    final cap = _cachedCap;
+    final l = S.of(context)!;
+
+    // Compute the dominant number
+    final dominantNumber = _computeDominantNumber(profile);
+    final dominantLabel = _computeDominantLabel(profile, l);
+    final dominantColor = _computeDominantColor(dominantNumber);
+    final narrativePhrase = _computeNarrative(profile, cap, l);
+
+    // Recent action feedback
+    final recentAction = _recentActionLabel();
 
     return CustomScrollView(
       slivers: [
+        // ── AppBar (Pulse exception: gradient) ──
         _buildAppBar(context, profile),
+
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 20),
+                const SizedBox(height: MintSpacing.xxl),
 
-                // Hero card OR FocusSelector
-                if (hero != null)
-                  _HeroCard(
-                    hero: hero,
-                    onChangeFocus: () => _showFocusPicker(context, profile),
+                // ── 1. PHRASE PERSONNALISÉE ──
+                Text(
+                  narrativePhrase,
+                  style: MintTextStyles.bodyLarge(
+                    color: MintColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: MintSpacing.lg),
+
+                // ── 2. CHIFFRE DOMINANT ──
+                TweenAnimationBuilder<double>(
+                  tween: Tween(end: dominantNumber.value),
+                  duration: const Duration(milliseconds: 600),
+                  curve: Curves.easeOutCubic,
+                  builder: (_, value, __) => Text(
+                    dominantNumber.format(value),
+                    style: MintTextStyles.displayLarge(
+                      color: dominantColor,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: MintSpacing.xs),
+                Text(
+                  dominantLabel,
+                  style: MintTextStyles.bodySmall(),
+                ),
+
+                const SizedBox(height: MintSpacing.xxl),
+
+                // ── 3. CAP DU JOUR ──
+                if (cap != null)
+                  CapCard(
+                    cap: cap,
+                    recentActionLabel: recentAction,
                   )
                 else
-                  FocusSelector(
-                    profile: profile,
-                    onFocusSelected: (focus) => _setFocus(context, focus),
-                  ),
-                const SizedBox(height: 20),
+                  _buildFallbackAction(context),
 
-                // Priority #1 contextual card
-                _buildPriorityCard(profile),
+                const SizedBox(height: MintSpacing.xl),
 
-                // 3 pastilles
-                _buildPastilles(profile),
-                const SizedBox(height: 20),
+                // ── 4. DEUX SIGNAUX SECONDAIRES ──
+                _buildSecondarySignals(profile, l),
 
-                // Score de préparation (FRI compact)
-                _buildReadinessScore(profile),
-                const SizedBox(height: 16),
+                const SizedBox(height: MintSpacing.xxl),
 
-                // Action signal → Coach
-                _buildActionSignal(profile),
-                const SizedBox(height: 16),
-
-                // Enrichir — scan CTA + confidence nudge
-                _buildEnrichirSection(profile, coachProvider),
-                const SizedBox(height: 20),
-
-                // Disclaimer (1 line)
+                // ── Disclaimer ──
                 const PulseDisclaimer(),
-                const SizedBox(height: 80), // FAB clearance
+                const SizedBox(height: MintSpacing.xl),
               ],
             ),
           ),
@@ -151,449 +260,264 @@ class _PulseScreenState extends State<PulseScreen> {
     );
   }
 
-  // ────────────────────────────────────────────────────────
-  //  PRIORITY #1 — Contextual action card
-  // ────────────────────────────────────────────────────────
+  // ── DOMINANT NUMBER ──
 
-  Widget _buildPriorityCard(CoachProfile profile) {
-    final cards = ResponseCardService.generateForPulse(profile, limit: 1);
-    if (cards.isEmpty) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: ResponseCardWidget(card: cards.first),
-    );
-  }
-
-  // ────────────────────────────────────────────────────────
-  //  ENRICHIR — Confidence nudge + scan CTA
-  // ────────────────────────────────────────────────────────
-
-  Widget _buildEnrichirSection(
-      CoachProfile profile, CoachProfileProvider coachProvider) {
-    final confidence =
-        (coachProvider.profileCompleteness * 100).round().clamp(0, 100);
-
-    // Don't show if confidence is already high
-    if (confidence >= 85) return const SizedBox.shrink();
-
-    final l = S.of(context)!;
-    final gainEstimate = (85 - confidence).clamp(5, 30);
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.info.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.document_scanner_outlined,
-                  size: 20, color: MintColors.info),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  l.pulseEnrichirTitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l.pulseEnrichirSubtitle('$gainEstimate'),
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => context.push('/scan'),
-              icon: const Icon(Icons.camera_alt_outlined, size: 16),
-              label: Text(l.pulseEnrichirCta),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: MintColors.info,
-                side: BorderSide(color: MintColors.info.withValues(alpha: 0.4)),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ────────────────────────────────────────────────────────
-  //  3 PASTILLES
-  // ────────────────────────────────────────────────────────
-
-  Widget _buildPastilles(CoachProfile profile) {
-    final l = S.of(context)!;
-    final conjoint = profile.conjoint;
-    final isCoupleView = _showCoupleView && conjoint != null;
-
-    // Retirement
-    double? retraiteEstimee;
-    double? tauxRemplacement;
+  _DominantNumber _computeDominantNumber(CoachProfile profile) {
     if (_cachedProjection != null) {
-      retraiteEstimee = _cachedProjection!.base.revenuAnnuelRetraite / 12;
-      final revenuActuel = _computeRevenuNet(profile) +
-          (isCoupleView ? _computeConjointRevenuNet(conjoint) : 0);
-      if (revenuActuel > 0) {
-        tauxRemplacement = (retraiteEstimee / revenuActuel * 100);
+      final retraite = _cachedProjection!.base.revenuAnnuelRetraite / 12;
+      final revenuNet = _computeRevenuNet(profile);
+      if (revenuNet > 0) {
+        final taux = (retraite / revenuNet * 100);
+        return _DominantNumber(
+          value: taux,
+          format: (v) => '${v.round()}%',
+          type: _NumberType.percentage,
+        );
+      }
+      if (retraite > 0) {
+        return _DominantNumber(
+          value: retraite,
+          format: (v) => '${formatChf(v)} CHF',
+          type: _NumberType.chf,
+        );
       }
     }
+    final fri = _cachedFri;
+    if (fri != null) {
+      return _DominantNumber(
+        value: fri.global.toDouble(),
+        format: (v) => '${v.round()}/100',
+        type: _NumberType.score,
+      );
+    }
+    return _DominantNumber(
+      value: 0,
+      format: (_) => '—',
+      type: _NumberType.score,
+    );
+  }
 
-    // Budget libre (household if couple view)
-    final revenuNet = _computeRevenuNet(profile) +
-        (isCoupleView ? _computeConjointRevenuNet(conjoint) : 0);
-    final depMensuelles = profile.totalDepensesMensuelles;
-    final budgetLibre = revenuNet - depMensuelles;
+  String _computeDominantLabel(CoachProfile profile, S l) {
+    if (_cachedProjection != null) {
+      final revenuNet = _computeRevenuNet(profile);
+      if (revenuNet > 0) {
+        return l.pulseLabelReplacementRate;
+      }
+      return l.pulseLabelRetirementIncome;
+    }
+    return l.pulseLabelFinancialScore;
+  }
 
-    // Patrimoine total (household if couple view)
-    double patrimoine = profile.patrimoine.totalPatrimoine +
-        (profile.prevoyance.avoirLppTotal ?? 0) +
-        profile.prevoyance.totalEpargne3a;
-    if (isCoupleView) {
-      patrimoine += (conjoint.prevoyance?.avoirLppTotal ?? 0) +
-          (conjoint.prevoyance?.totalEpargne3a ?? 0);
+  Color _computeDominantColor(_DominantNumber n) {
+    if (n.type == _NumberType.percentage) {
+      if (n.value >= 70) return MintColors.success;
+      if (n.value >= 50) return MintColors.warning;
+      return MintColors.error;
+    }
+    if (n.type == _NumberType.score) {
+      if (n.value >= 70) return MintColors.success;
+      if (n.value >= 40) return MintColors.warning;
+      return MintColors.error;
+    }
+    return MintColors.textPrimary;
+  }
+
+  // ── NARRATIVE ──
+
+  String _computeNarrative(
+      CoachProfile profile, CapDecision? cap, S l) {
+    final firstName = profile.firstName;
+    final yearsToRetire = profile.effectiveRetirementAge - profile.age;
+    final hasName = firstName != null && firstName.trim().isNotEmpty;
+
+    String prefix(String msg) => hasName ? '$firstName, $msg' : msg;
+
+    // Cap whyNow as narrative source (plan-first).
+    // headline is shown in CapCard below — using whyNow here avoids
+    // duplicating the same text above the fold (M3 fix).
+    if (cap != null) {
+      final w = cap.whyNow;
+      return hasName
+          ? '$firstName, ${w[0].toLowerCase()}${w.substring(1)}'
+          : w;
     }
 
-    return Row(
+    // Fallback: time-based narrative
+    if (yearsToRetire <= 5) {
+      return prefix(l.pulseNarrativeRetirementClose);
+    }
+    if (yearsToRetire <= 15) {
+      return prefix(l.pulseNarrativeYearsToAct(yearsToRetire));
+    }
+    if (yearsToRetire <= 25) {
+      return prefix(l.pulseNarrativeTimeToBuild);
+    }
+    return prefix(l.pulseNarrativeDefault);
+  }
+
+  // ── FALLBACK ACTION (no cap) ──
+
+  Widget _buildFallbackAction(BuildContext context) {
+    return GestureDetector(
+      onTap: () => NavigationShellState.switchTab(1),
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          border: Border.all(
+            color: MintColors.border.withValues(alpha: 0.5),
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: MintColors.primary.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.arrow_forward_rounded,
+                color: MintColors.primary,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: MintSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    S.of(context)!.pulseEmptyCtaStart,
+                    style: MintTextStyles.titleMedium(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    S.of(context)!.pulseNarrativeDefault,
+                    style: MintTextStyles.bodySmall(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: MintSpacing.sm),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: MintColors.textMuted,
+              size: 20,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── RECENT ACTION FEEDBACK ──
+
+  String? _recentActionLabel() {
+    if (_capMemory.completedActions.isEmpty) return null;
+    // H2 fix: use lastCompletedDate (stamped on actual action completion),
+    // not lastCapDate (stamped on cap served).
+    if (_capMemory.lastCompletedDate == null) return null;
+
+    final hoursSince =
+        DateTime.now().difference(_capMemory.lastCompletedDate!).inHours;
+    if (hoursSince > 48) return null;
+
+    // M4 fix: use l10n keys instead of hardcoded FR strings.
+    final l = S.of(context)!;
+    return hoursSince < 24
+        ? l.pulseFeedbackRecalculated
+        : l.pulseFeedbackAddedRecently;
+  }
+
+  // ── SECONDARY SIGNALS (max 2) ──
+
+  Widget _buildSecondarySignals(CoachProfile profile, S l) {
+    final signals = <Widget>[];
+
+    // Signal 1: Budget libre
+    final revenuNet = _computeRevenuNet(profile);
+    if (revenuNet > 0) {
+      final dep = profile.totalDepensesMensuelles;
+      final libre = revenuNet - dep;
+      signals.add(_SignalRow(
+        label: l.pulseKeyFigBudgetLibre,
+        value: libre >= 0
+            ? '+${formatChfWithPrefix(libre)}/mois'
+            : '${formatChfWithPrefix(libre)}/mois',
+        color: libre >= 0 ? MintColors.success : MintColors.warning,
+        onTap: () => context.push('/budget'),
+      ));
+    }
+
+    // Signal 2: Patrimoine
+    final patrimoine = profile.patrimoine.totalPatrimoine +
+        (profile.prevoyance.avoirLppTotal ?? 0) +
+        profile.prevoyance.totalEpargne3a;
+    if (patrimoine > 0) {
+      signals.add(_SignalRow(
+        label: l.pulseKeyFigPatrimoine,
+        value: formatChfCompact(patrimoine),
+        color: MintColors.textPrimary,
+        onTap: () => context.push('/profile/bilan'),
+      ));
+    }
+
+    if (signals.isEmpty) return const SizedBox.shrink();
+
+    return Column(
       children: [
-        Expanded(
-          child: _PastilleCard(
-            label: l.pulseKeyFigRetraite,
-            value: retraiteEstimee != null
-                ? formatChfWithPrefix(retraiteEstimee)
-                : '\u2014',
-            subtitle: tauxRemplacement != null
-                ? l.pulseKeyFigRetraitePct('${tauxRemplacement.round()}')
-                : null,
-            icon: Icons.beach_access_outlined,
-            color: MintColors.primary,
-            onTap: () => context.push('/retraite'),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _PastilleCard(
-            label: l.pulseKeyFigBudgetLibre,
-            value: budgetLibre > 0
-                ? '+${formatChfWithPrefix(budgetLibre)}'
-                : formatChfWithPrefix(budgetLibre),
-            icon: Icons.account_balance_wallet_outlined,
-            color: budgetLibre >= 0 ? MintColors.success : MintColors.warning,
-            onTap: () => context.push('/budget'),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _PastilleCard(
-            label: l.pulseKeyFigPatrimoine,
-            value: formatChfCompact(patrimoine),
-            icon: Icons.trending_up_outlined,
-            color: MintColors.info,
-            onTap: () => context.push('/profile/bilan'),
-          ),
-        ),
+        for (int i = 0; i < signals.length && i < 2; i++) ...[
+          signals[i],
+          if (i < signals.length - 1 && i < 1)
+            Divider(
+              color: MintColors.border.withValues(alpha: 0.5),
+              height: 1,
+            ),
+        ],
       ],
     );
   }
 
-  // ────────────────────────────────────────────────────────
-  //  SCORE DE PRÉPARATION (FRI compact)
-  // ────────────────────────────────────────────────────────
-
-  Widget _buildReadinessScore(CoachProfile profile) {
-    final fri = _cachedFri;
-    if (fri == null) return const SizedBox.shrink();
-
-    final score = fri.global;
-    final color = score >= 70
-        ? MintColors.success
-        : score >= 40
-            ? MintColors.warning
-            : MintColors.error;
-    final l = S.of(context)!;
-    final label = score >= 70
-        ? l.pulseReadinessGood
-        : score >= 40
-            ? l.pulseReadinessProgress
-            : l.pulseReadinessWeak;
-
-    return Semantics(
-      label: l.pulseReadinessTitle,
-      button: true,
-      child: GestureDetector(
-        onTap: () => context.push('/coach/cockpit'),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: MintColors.surface,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 48,
-                height: 48,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CircularProgressIndicator(
-                      value: score / 100,
-                      strokeWidth: 4,
-                      backgroundColor: color.withValues(alpha: 0.15),
-                      valueColor: AlwaysStoppedAnimation<Color>(color),
-                    ),
-                    Text(
-                      '${score.round()}',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: color,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l.pulseReadinessTitle,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '$label · ${_readinessDetail(profile)}',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textSecondary,
-                        height: 1.3,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(Icons.arrow_forward_ios_rounded,
-                  size: 14, color: MintColors.textMuted),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _readinessDetail(CoachProfile profile) {
-    final l = S.of(context)!;
-    final age = profile.age;
-    final yearsToRetire = profile.effectiveRetirementAge - age;
-    if (yearsToRetire <= 5) return l.pulseReadinessRetireIn(yearsToRetire);
-    if (yearsToRetire <= 15) return l.pulseReadinessYearsToAct(yearsToRetire);
-    return l.pulseReadinessActNow;
-  }
-
-  // ────────────────────────────────────────────────────────
-  //  ACTION SIGNAL → Agir tab
-  // ────────────────────────────────────────────────────────
-
-  Widget _buildActionSignal(CoachProfile profile) {
-    int urgentCount;
-    try {
-      final tips = CoachingService.generateTips(
-        profile: profile.toCoachingProfile(),
-      );
-      urgentCount = tips
-          .where((t) => t.priority == CoachingPriority.haute)
-          .length;
-    } catch (_) {
-      urgentCount = 0;
-    }
-
-    if (urgentCount == 0) return const SizedBox.shrink();
-
-    return Semantics(
-      label: 'Urgent actions: $urgentCount',
-      button: true,
-      child: GestureDetector(
-        onTap: () {
-          NavigationShellState.switchTab(1);
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: MintColors.error.withValues(alpha: 0.06),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: MintColors.error.withValues(alpha: 0.15),
-            ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: const BoxDecoration(
-                  color: MintColors.error,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    '$urgentCount',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.white,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  urgentCount == 1
-                      ? S.of(context)!.pulseActionSignalSingular
-                      : S.of(context)!.pulseActionSignalPlural('$urgentCount'),
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
-                ),
-              ),
-              const Icon(Icons.arrow_forward_rounded,
-                  size: 18, color: MintColors.error),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ────────────────────────────────────────────────────────
-  //  HELPERS
-  // ────────────────────────────────────────────────────────
-
-  double _computeRevenuNet(CoachProfile profile) {
-    if (profile.salaireBrutMensuel <= 0) return 0.0;
-    return NetIncomeBreakdown.compute(
-      grossSalary: profile.salaireBrutMensuel * 12,
-      canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-      age: DateTime.now().year - profile.birthYear,
-    ).monthlyNetPayslip;
-  }
-
-  double _computeConjointRevenuNet(ConjointProfile conjoint) {
-    final brut = conjoint.salaireBrutMensuel;
-    final age = conjoint.age;
-    if (brut == null || brut <= 0 || age == null) return 0.0;
-    return NetIncomeBreakdown.compute(
-      grossSalary: brut * 12,
-      canton: _lastProfile?.canton ?? 'ZH',
-      age: age,
-    ).monthlyNetPayslip;
-  }
-
-  // ────────────────────────────────────────────────────────
-  //  FOCUS PICKER
-  // ────────────────────────────────────────────────────────
-
-  void _showFocusPicker(BuildContext context, CoachProfile profile) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: MintColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.7,
-          minChildSize: 0.4,
-          maxChildSize: 0.85,
-          expand: false,
-          builder: (_, scrollController) {
-            return SingleChildScrollView(
-              controller: scrollController,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 16, bottom: 32),
-                child: FocusSelector(
-                  profile: profile,
-                  onFocusSelected: (focus) {
-                    Navigator.of(ctx).pop();
-                    _setFocus(context, focus);
-                  },
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void _setFocus(BuildContext context, String focus) {
-    context.read<CoachProfileProvider>().updatePrimaryFocus(focus);
-  }
-
-  // ────────────────────────────────────────────────────────
-  //  APP BAR
-  // ────────────────────────────────────────────────────────
+  // ── APP BAR (Pulse exception: gradient) ──
 
   SliverAppBar _buildAppBar(BuildContext context, CoachProfile profile) {
     final l = S.of(context)!;
-    final firstName = profile.firstName ?? 'toi';
-    final greeting = profile.isCouple && profile.conjoint?.firstName != null
-        ? l.pulseGreetingCouple(firstName, profile.conjoint!.firstName!)
-        : l.pulseGreeting(firstName);
+    final firstName = profile.firstName ?? '';
+    final greeting =
+        firstName.isNotEmpty ? l.pulseGreeting(firstName) : l.tabToday;
 
     return SliverAppBar(
-      expandedHeight: 100,
       floating: false,
       pinned: true,
       backgroundColor: MintColors.primary,
+      surfaceTintColor: MintColors.primary,
+      title: Text(
+        greeting,
+        style: MintTextStyles.titleMedium(color: MintColors.white)
+            .copyWith(fontSize: 20),
+      ),
+      centerTitle: false,
       actions: [
-        // Couple switcher (Solo / Duo) — only visible for couples
         if (profile.isCouple)
-          _CoupleSwitch(
-            isCouple: _showCoupleView,
-            onToggle: () => setState(() => _showCoupleView = !_showCoupleView),
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Semantics(
+              label: 'Solo / Duo',
+              button: true,
+              child: IconButton(
+                icon: const Icon(Icons.people_outline, color: MintColors.white),
+                onPressed: () => context.push('/couple'),
+              ),
+            ),
           ),
-        const SizedBox(width: 8),
       ],
       flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 20, bottom: 14),
-        title: Text(
-          greeting,
-          style: GoogleFonts.montserrat(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: MintColors.white,
-          ),
-        ),
         background: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -607,361 +531,126 @@ class _PulseScreenState extends State<PulseScreen> {
     );
   }
 
-  // ────────────────────────────────────────────────────────
-  //  EMPTY STATE
-  // ────────────────────────────────────────────────────────
+  // ── EMPTY STATE ──
 
   Widget _buildEmptyState(BuildContext context) {
     final l = S.of(context)!;
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          expandedHeight: 100,
-          floating: false,
-          pinned: true,
-          backgroundColor: MintColors.primary,
-          flexibleSpace: FlexibleSpaceBar(
-            titlePadding: const EdgeInsets.only(left: 20, bottom: 14),
-            title: Text(
-              l.pulseWelcome,
-              style: GoogleFonts.outfit(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: MintColors.white,
-              ),
-            ),
-            background: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [MintColors.primary, MintColors.primaryLight],
-                ),
-              ),
-            ),
-          ),
-        ),
-        SliverFillRemaining(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(40),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.visibility_outlined,
-                    size: 64,
-                    color: MintColors.textMuted.withValues(alpha: 0.4),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    l.pulseEmptyTitle,
-                    style: GoogleFonts.outfit(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    l.pulseEmptySubtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: MintColors.textSecondary,
-                      height: 1.5,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 28),
-                  FilledButton.icon(
-                    onPressed: () => context.push('/onboarding/quick'),
-                    icon: const Icon(Icons.arrow_forward),
-                    label: Text(l.pulseEmptyCtaStart),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: MintColors.primary,
-                      foregroundColor: MintColors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 28, vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  const PulseDisclaimer(),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ────────────────────────────────────────────────────────
-//  HERO CARD — Adaptive, focus-driven
-// ────────────────────────────────────────────────────────
-
-class _HeroCard extends StatelessWidget {
-  final PulseHero hero;
-  final VoidCallback onChangeFocus;
-
-  const _HeroCard({required this.hero, required this.onChangeFocus});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [hero.color, hero.color.withValues(alpha: 0.85)],
-        ),
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: hero.color.withValues(alpha: 0.25),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Scaffold(
+      backgroundColor: MintColors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(MintSpacing.lg),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(hero.icon,
-                  size: 22, color: MintColors.white.withValues(alpha: 0.9)),
-              const Spacer(),
-              Semantics(
-                label: S.of(context)!.pulseHeroChangeBtn,
-                button: true,
-                child: GestureDetector(
-                  onTap: onChangeFocus,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: MintColors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(20),
+              const Spacer(flex: 2),
+              Icon(
+                Icons.visibility_outlined,
+                size: 56,
+                color: MintColors.textMuted.withValues(alpha: 0.3),
+              ),
+              const SizedBox(height: MintSpacing.lg),
+              Text(
+                l.pulseEmptyTitle,
+                style: MintTextStyles.headlineLarge(),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                l.pulseEmptySubtitle,
+                style: MintTextStyles.bodyMedium(),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: MintSpacing.xl),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: FilledButton(
+                  onPressed: () => context.push('/onboarding/quick'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MintColors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.tune_rounded,
-                            size: 14,
-                            color: MintColors.white.withValues(alpha: 0.9)),
-                        const SizedBox(width: 4),
-                        Text(
-                          S.of(context)!.pulseHeroChangeBtn,
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            color: MintColors.white.withValues(alpha: 0.9),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
+                  ),
+                  child: Text(
+                    l.pulseEmptyCtaStart,
+                    style: MintTextStyles.titleMedium(),
                   ),
                 ),
               ),
+              const Spacer(flex: 3),
+              const PulseDisclaimer(),
             ],
           ),
-          const SizedBox(height: 14),
-          Text(
-            hero.title,
-            style: GoogleFonts.outfit(
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              color: MintColors.white,
-              height: 1.1,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            hero.subtitle,
-            style: GoogleFonts.inter(
-              fontSize: 15,
-              color: MintColors.white.withValues(alpha: 0.9),
-              height: 1.3,
-            ),
-          ),
-          if (hero.detail != null) ...[
-            const SizedBox(height: 8),
-            Text(
-              hero.detail!,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.white.withValues(alpha: 0.7),
-                height: 1.3,
-              ),
-            ),
-          ],
-          const SizedBox(height: 16),
-          Semantics(
-            label: hero.ctaLabel,
-            button: true,
-            child: GestureDetector(
-              onTap: () => context.push(hero.ctaRoute),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                decoration: BoxDecoration(
-                  color: MintColors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  hero.ctaLabel,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: hero.color,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
+
+  // ── HELPERS ──
+
+  double _computeRevenuNet(CoachProfile profile) {
+    if (profile.salaireBrutMensuel <= 0) return 0.0;
+    return NetIncomeBreakdown.compute(
+      grossSalary: profile.salaireBrutMensuel * 12,
+      canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+      age: profile.age,
+    ).monthlyNetPayslip;
+  }
 }
 
-// ────────────────────────────────────────────────────────
-//  PASTILLE CARD (compact key figure)
-// ────────────────────────────────────────────────────────
+// ── SIGNAL ROW ──
 
-class _PastilleCard extends StatelessWidget {
+class _SignalRow extends StatelessWidget {
   final String label;
   final String value;
-  final String? subtitle;
-  final IconData icon;
   final Color color;
   final VoidCallback? onTap;
 
-  const _PastilleCard({
+  const _SignalRow({
     required this.label,
     required this.value,
-    required this.icon,
     required this.color,
-    this.subtitle,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: label,
-      button: true,
-      child: GestureDetector(
+      label: '$label: $value',
+      button: onTap != null,
+      child: InkWell(
         onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-          boxShadow: [
-            BoxShadow(
-              color: MintColors.black.withValues(alpha: 0.03),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, size: 18, color: color),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: GoogleFonts.outfit(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.textSecondary,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            if (subtitle != null) ...[
-              const SizedBox(height: 2),
-              Text(
-                subtitle!,
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  color: color,
-                  fontWeight: FontWeight.w600,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ],
-        ),
-      ),
-      ),
-    );
-  }
-}
-
-// ────────────────────────────────────────────────────────
-//  COUPLE SWITCH — Solo / Duo toggle in AppBar
-// ────────────────────────────────────────────────────────
-
-class _CoupleSwitch extends StatelessWidget {
-  final bool isCouple;
-  final VoidCallback onToggle;
-
-  const _CoupleSwitch({required this.isCouple, required this.onToggle});
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      label: isCouple
-          ? S.of(context)!.coupleSwitchDuo
-          : S.of(context)!.coupleSwitchSolo,
-      toggled: isCouple,
-      child: GestureDetector(
-        onTap: onToggle,
-        child: Container(
-          margin: const EdgeInsets.only(right: 4),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: MintColors.white.withValues(alpha: 0.18),
-            borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: MintSpacing.md,
           ),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                isCouple
-                    ? S.of(context)!.coupleSwitchDuo
-                    : S.of(context)!.coupleSwitchSolo,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.white,
-                ),
+                label,
+                style: MintTextStyles.bodyMedium(),
               ),
-              const SizedBox(width: 4),
-              Icon(
-                isCouple ? Icons.people : Icons.person,
-                size: 16,
-                color: MintColors.white,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    value,
+                    style: MintTextStyles.titleMedium(color: color)
+                        .copyWith(fontWeight: FontWeight.w700),
+                  ),
+                  if (onTap != null) ...[
+                    const SizedBox(width: 4),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      size: 16,
+                      color: MintColors.textMuted,
+                    ),
+                  ],
+                ],
               ),
             ],
           ),
@@ -971,28 +660,36 @@ class _CoupleSwitch extends StatelessWidget {
   }
 }
 
-// ────────────────────────────────────────────────────────
-//  NAVIGATION SHELL STATE (for tab switching)
-// ────────────────────────────────────────────────────────
+// ── DOMINANT NUMBER MODEL ──
 
-/// Mixin interface for the MainNavigationShell to allow child
-/// tabs to programmatically switch tabs via ancestor lookup.
-/// Callback for tab switching — set by MainNavigationShell.
+enum _NumberType { percentage, chf, score }
+
+class _DominantNumber {
+  final double value;
+  final String Function(double) format;
+  final _NumberType type;
+
+  const _DominantNumber({
+    required this.value,
+    required this.format,
+    required this.type,
+  });
+}
+
+// ── NAVIGATION SHELL STATE (kept here for import compatibility) ──
+
 class NavigationShellState {
   NavigationShellState._();
   static void Function(int index)? _switchTab;
 
-  /// Register the tab switcher (called by MainNavigationShell).
   static void register(void Function(int index) callback) {
     _switchTab = callback;
   }
 
-  /// Unregister the callback (called in MainNavigationShell.dispose).
   static void unregister() {
     _switchTab = null;
   }
 
-  /// Switch to a specific tab index.
   static void switchTab(int index) {
     _switchTab?.call(index);
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -113,11 +114,7 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
               Expanded(
                 child: Text(
                   'Le trou AVS',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -125,7 +122,7 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
           const SizedBox(height: 8),
           Text(
             'Chaque année hors Suisse réduit ta rente. Pour toujours.',
-            style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary, height: 1.4),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
         ],
       ),
@@ -141,11 +138,7 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
           children: [
             Text(
               'Années à l\'étranger',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -155,11 +148,7 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
               ),
               child: Text(
                 '$_yearsAbroad an${_yearsAbroad > 1 ? 's' : ''}',
-                style: GoogleFonts.montserrat(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.scoreCritique,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
               ),
             ),
           ],
@@ -219,21 +208,17 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
           const SizedBox(height: 6),
           Text(
             label,
-            style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary, height: 1.3),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(height: 1.3),
           ),
           const SizedBox(height: 4),
           Text(
             '$years / $avsDureeCotisationComplete ans',
-            style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 6),
           Text(
             '${formatChfWithPrefix(rente)}/mois',
-            style: GoogleFonts.montserrat(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
+            style: MintTextStyles.titleMedium(color: color).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -253,38 +238,22 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
         children: [
           Text(
             '⚠️ ${formatChfWithPrefix(_perYearAbroad)}/mois de rente perdu par année à l\'étranger',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: MintColors.scoreCritique,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Text(
-            'Sur 20 ans de retraite, c\'est ${formatChfWithPrefix(_lifetimeLoss)} de moins\u00a0— d\u00e9finitivement.', // TODO: i18n
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            S.of(context)!.avsGapLifetimeLoss(formatChfWithPrefix(_lifetimeLoss)),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
           ),
           const SizedBox(height: 4),
           Text(
-            'Calcul\u00a0: rente mensuelle \u00d7 13 mois/an (13\u1d49 rente AVS d\u00e8s d\u00e9c.\u00a02026)', // TODO: i18n
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.textMuted,
-              fontStyle: FontStyle.italic,
-            ),
+            S.of(context)!.avsGapCalculation,
+            style: MintTextStyles.micro(color: MintColors.textMuted),
           ),
           const SizedBox(height: 8),
           Text(
             '💡 Possibilité de cotiser volontairement à l\'AVS si hors UE — voir LAVS art. 2.',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.info,
-              height: 1.4,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.info).copyWith(height: 1.4),
           ),
         ],
       ),
@@ -296,11 +265,7 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : LAVS art. 29bis-29quater (années cotisation). '
       'Durée complète : $avsDureeCotisationComplete ans. Rente max : ${formatChfWithPrefix(avsRenteMaxMensuelle)}/mois.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

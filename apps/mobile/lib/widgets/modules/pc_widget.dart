@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/modules/pc_module.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 
 class PCWidget extends StatefulWidget {
@@ -83,11 +83,7 @@ class _PCWidgetState extends State<PCWidget> {
                     isEligible
                         ? s.pcWidgetEligible
                         : s.pcWidgetNotEligible,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -117,10 +113,7 @@ class _PCWidgetState extends State<PCWidget> {
             const SizedBox(height: 16),
             Text(
               result.disclaimer,
-              style: GoogleFonts.inter(
-                  fontSize: 10,
-                  color: MintColors.textMuted,
-                  fontStyle: FontStyle.italic),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ]
         ],
@@ -133,14 +126,10 @@ class _PCWidgetState extends State<PCWidget> {
       child: Column(
         children: [
           Text(label,
-              style: GoogleFonts.inter(
-                  fontSize: 11, color: MintColors.textSecondary)),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
           Text(
             "${(value).toInt()}",
-            style: GoogleFonts.outfit(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: MintColors.textPrimary),
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
           ),
         ],
       ),

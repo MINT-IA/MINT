@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/models/wizard_question.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/interactive_simulations.dart';
@@ -54,13 +54,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
               Expanded(
                 child: Text(
                   widget.question.title,
-                  style: GoogleFonts.outfit(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                    height: 1.1,
-                    letterSpacing: -0.5,
-                  ),
+                  style: MintTextStyles.headlineLarge(color: MintColors.textPrimary).copyWith(fontSize: 28, fontWeight: FontWeight.w600, height: 1.1, letterSpacing: -0.5),
                 ),
               ),
               if (widget.question.explanation != null)
@@ -106,11 +100,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
                       const SizedBox(width: 8),
                       Text(
                         S.of(context)!.wizardExplanation,
-                        style: GoogleFonts.outfit(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
                       ),
                     ],
                   ),
@@ -314,12 +304,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
                 children: [
                   Text(
                     option.label,
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: -0.2,
-                      color: isSelected ? MintColors.primary : MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyLarge(color: isSelected ? MintColors.primary : MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600, letterSpacing: -0.2),
                   ),
                   if (option.description != null) ...[
                     const SizedBox(height: 4),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P13-B  Compte à rebours 90 jours expatriation
@@ -120,11 +120,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
               Expanded(
                 child: Text(
                   'Checklist départ — deadlines légales',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -142,7 +138,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
           const SizedBox(height: 6),
           Text(
             '$_completedCount / $count actions complétées',
-            style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
           ),
         ],
       ),
@@ -211,12 +207,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
                       Expanded(
                         child: Text(
                           d.label,
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: isDone ? MintColors.textSecondary : MintColors.textPrimary,
-                            decoration: isDone ? TextDecoration.lineThrough : null,
-                          ),
+                          style: MintTextStyles.bodySmall(color: isDone ? MintColors.textSecondary : MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700, decoration: isDone ? TextDecoration.lineThrough : null),
                         ),
                       ),
                       _buildDaysBadge(daysRemaining, isDone),
@@ -225,26 +216,18 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
                   const SizedBox(height: 4),
                   Text(
                     d.action,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                      height: 1.4,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     d.legalRef,
-                    style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                    style: MintTextStyles.micro(color: MintColors.textSecondary),
                   ),
                   if (d.consequence != null && !isDone) ...[
                     const SizedBox(height: 4),
                     Text(
                       '⚠️ ${d.consequence}',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        color: MintColors.scoreAttention,
-                        fontStyle: FontStyle.italic,
-                      ),
+                      style: MintTextStyles.micro(color: MintColors.scoreAttention),
                     ),
                   ],
                 ],
@@ -266,7 +249,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
         ),
         child: Text(
           '✓ Fait',
-          style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: MintColors.scoreExcellent),
+          style: MintTextStyles.micro(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w700),
         ),
       );
     }
@@ -279,7 +262,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
         ),
         child: Text(
           'En retard',
-          style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: MintColors.white),
+          style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
         ),
       );
     }
@@ -292,7 +275,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
       ),
       child: Text(
         'J${days >= 0 ? '+' : ''}$days',
-        style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: color),
+        style: MintTextStyles.micro(color: color).copyWith(fontWeight: FontWeight.w700),
       ),
     );
   }
@@ -314,7 +297,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
             child: Text(
               'Chaque jour de retard peut te coûter un formulaire de plus '
               'ou des droits irréversibles. Le libre passage LPP doit être transféré avant ton départ.',
-              style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary, height: 1.4),
+              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
             ),
           ),
         ],
@@ -326,11 +309,7 @@ class _ExpatCountdownWidgetState extends State<ExpatCountdownWidget> {
     return Text(
       'Outil éducatif · ne constitue pas un conseil juridique au sens de la LSFin. '
       'Source : LAVS art. 2, LPP art. 5 (libre passage), OPP3 art. 1.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

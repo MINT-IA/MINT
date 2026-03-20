@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/precision/precision_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Dismissible banner showing a cross-validation alert.
 ///
@@ -105,12 +105,7 @@ class _CrossValidationBannerState extends State<CrossValidationBanner>
                 Expanded(
                   child: Text(
                     widget.alert.message,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                      height: 1.4,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600, height: 1.4),
                   ),
                 ),
                 Semantics(
@@ -152,11 +147,7 @@ class _CrossValidationBannerState extends State<CrossValidationBanner>
                   Expanded(
                     child: Text(
                       widget.alert.suggestion,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textSecondary,
-                        height: 1.4,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                     ),
                   ),
                   if (widget.onAction != null)

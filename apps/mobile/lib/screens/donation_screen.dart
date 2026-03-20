@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/donation_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -195,19 +196,12 @@ class _DonationScreenState extends State<DonationScreen> {
               children: [
                 Text(
                   S.of(context)!.donationHeaderTitle,
-                  style: GoogleFonts.outfit(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.headlineMedium(),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   S.of(context)!.donationHeaderSubtitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -237,11 +231,7 @@ class _DonationScreenState extends State<DonationScreen> {
           Expanded(
             child: Text(
               S.of(context)!.donationIntroText,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
             ),
           ),
         ],
@@ -349,15 +339,12 @@ class _DonationScreenState extends State<DonationScreen> {
       children: [
         Text(
           S.of(context)!.donationLienParente,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: MintSpacing.sm),
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: MintSpacing.sm,
+          runSpacing: MintSpacing.sm,
           children: _liensParente.map((lien) {
             final selected = _lienParente == lien;
             return Semantics(
@@ -383,13 +370,9 @@ class _DonationScreenState extends State<DonationScreen> {
                 ),
                 child: Text(
                   DonationService.lienParenteLabels[lien] ?? lien,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                    color: selected
-                        ? MintColors.indigo
-                        : MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.labelSmall(
+                    color: selected ? MintColors.indigo : MintColors.textSecondary,
+                  ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
                 ),
               ),
             ),
@@ -407,15 +390,12 @@ class _DonationScreenState extends State<DonationScreen> {
       children: [
         Text(
           S.of(context)!.donationTypeDonation,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: MintSpacing.sm),
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: MintSpacing.sm,
+          runSpacing: MintSpacing.sm,
           children: _typesDonation.map((type) {
             final selected = _typeDonation == type;
             return Semantics(
@@ -441,13 +421,9 @@ class _DonationScreenState extends State<DonationScreen> {
                 ),
                 child: Text(
                   _typesDonationLabels[type] ?? type,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                    color: selected
-                        ? MintColors.indigo
-                        : MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.labelSmall(
+                    color: selected ? MintColors.indigo : MintColors.textSecondary,
+                  ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
                 ),
               ),
             ),
@@ -467,15 +443,12 @@ class _DonationScreenState extends State<DonationScreen> {
       children: [
         Text(
           S.of(context)!.donationRegimeMatrimonial,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: MintSpacing.sm),
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: MintSpacing.sm,
+          runSpacing: MintSpacing.sm,
           children: regimes.map((regime) {
             final selected = _regimeMatrimonial == regime;
             return Semantics(
@@ -501,13 +474,9 @@ class _DonationScreenState extends State<DonationScreen> {
                 ),
                 child: Text(
                   _regimesLabels[regime] ?? regime,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                    color: selected
-                        ? MintColors.indigo
-                        : MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.labelSmall(
+                    color: selected ? MintColors.indigo : MintColors.textSecondary,
+                  ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
                 ),
               ),
             ),
@@ -527,10 +496,7 @@ class _DonationScreenState extends State<DonationScreen> {
         icon: const Icon(Icons.calculate_outlined, size: 20),
         label: Text(
           S.of(context)!.donationCalculer,
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          style: MintTextStyles.titleMedium(color: MintColors.white),
         ),
         style: FilledButton.styleFrom(
           backgroundColor: MintColors.primary,
@@ -563,21 +529,15 @@ class _DonationScreenState extends State<DonationScreen> {
         children: [
           Text(
             S.of(context)!.donationImpotTitle,
-            style: GoogleFonts.montserrat(
-              fontSize: 11,
+            style: MintTextStyles.micro(color: hasTax ? MintColors.indigo : MintColors.success).copyWith(
               fontWeight: FontWeight.w700,
-              color: hasTax ? MintColors.indigo : MintColors.success,
               letterSpacing: 1,
             ),
           ),
           const SizedBox(height: 12),
           Text(
             hasTax ? _chfFmt(r.impotDonation) : S.of(context)!.donationExoneree,
-            style: GoogleFonts.outfit(
-              fontSize: 36,
-              fontWeight: FontWeight.w700,
-              color: hasTax ? MintColors.indigo : MintColors.success,
-            ),
+            style: MintTextStyles.displayMedium(color: hasTax ? MintColors.indigo : MintColors.success),
           ),
           if (hasTax) ...[
             const SizedBox(height: 4),
@@ -586,13 +546,10 @@ class _DonationScreenState extends State<DonationScreen> {
                 (r.tauxImposition * 100).toStringAsFixed(0),
                 _canton,
               ),
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
             ),
           ],
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildResultRow(
             S.of(context)!.donationMontantRow,
             _chfFmt(r.montantDonation),
@@ -627,10 +584,8 @@ class _DonationScreenState extends State<DonationScreen> {
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.donationReserveTitle,
-                style: GoogleFonts.montserrat(
-                  fontSize: 11,
+                style: MintTextStyles.micro(color: MintColors.warning).copyWith(
                   fontWeight: FontWeight.w700,
-                  color: MintColors.warning,
                   letterSpacing: 1,
                 ),
               ),
@@ -639,19 +594,12 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(height: 16),
           Text(
             _chfFmt(r.reserveHereditaireTotale),
-            style: GoogleFonts.outfit(
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.headlineMedium(),
           ),
           const SizedBox(height: 4),
           Text(
             S.of(context)!.donationReserveProtege,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 12),
           // Visual bar: reserve vs quotite
@@ -659,11 +607,7 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(height: 12),
           Text(
             S.of(context)!.donationReserveNote,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textMuted,
-              height: 1.5,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.5),
           ),
         ],
       ),
@@ -698,11 +642,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   child: reservePct > 0.15
                       ? Text(
                           'Réserve ${(reservePct * 100).toStringAsFixed(0)}%',
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: MintColors.white,
-                          ),
+                          style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
                         )
                       : null,
                 ),
@@ -716,11 +656,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   child: quotitePct > 0.15
                       ? Text(
                           'Disponible ${(quotitePct * 100).toStringAsFixed(0)}%',
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: MintColors.white,
-                          ),
+                          style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
                         )
                       : null,
                 ),
@@ -764,12 +700,10 @@ class _DonationScreenState extends State<DonationScreen> {
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.donationQuotiteTitle,
-                style: GoogleFonts.montserrat(
-                  fontSize: 11,
+                style: MintTextStyles.micro(
+                  color: r.donationDepasseQuotite ? MintColors.error : MintColors.success,
+                ).copyWith(
                   fontWeight: FontWeight.w700,
-                  color: r.donationDepasseQuotite
-                      ? MintColors.error
-                      : MintColors.success,
                   letterSpacing: 1,
                 ),
               ),
@@ -778,19 +712,12 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(height: 16),
           Text(
             _chfFmt(r.quotiteDisponible),
-            style: GoogleFonts.outfit(
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.headlineMedium(),
           ),
           const SizedBox(height: 4),
           Text(
             S.of(context)!.donationQuotiteDesc,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
           if (r.donationDepasseQuotite) ...[
             const SizedBox(height: 12),
@@ -808,11 +735,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   Expanded(
                     child: Text(
                       S.of(context)!.donationDepassement(_chfFmt(r.montantDepassement)),
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.error,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -843,10 +766,8 @@ class _DonationScreenState extends State<DonationScreen> {
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.donationImpactTitle,
-                style: GoogleFonts.montserrat(
-                  fontSize: 11,
+                style: MintTextStyles.micro(color: MintColors.info).copyWith(
                   fontWeight: FontWeight.w700,
-                  color: MintColors.info,
                   letterSpacing: 1,
                 ),
               ),
@@ -855,11 +776,7 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(height: 16),
           Text(
             r.impactSuccession,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.5,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
           ),
           const SizedBox(height: 12),
           Container(
@@ -878,10 +795,7 @@ class _DonationScreenState extends State<DonationScreen> {
                     _avancementHoirie
                         ? S.of(context)!.donationAvancementNote
                         : S.of(context)!.donationHorsPartNote,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.info,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.info),
                   ),
                 ),
               ],
@@ -900,10 +814,8 @@ class _DonationScreenState extends State<DonationScreen> {
       children: [
         Text(
           S.of(context)!.lifeEventPointsAttention,
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
             fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
             letterSpacing: 1,
           ),
         ),
@@ -928,11 +840,7 @@ class _DonationScreenState extends State<DonationScreen> {
                     Expanded(
                       child: Text(
                         alert,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: MintColors.textSecondary,
-                          height: 1.4,
-                        ),
+                        style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
                       ),
                     ),
                   ],
@@ -997,11 +905,11 @@ class _DonationScreenState extends State<DonationScreen> {
                       Expanded(
                         child: Text(
                           r.checklist[index],
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
+                          style: MintTextStyles.bodySmall(
                             color: _checklistState[index]
                                 ? MintColors.textSecondary
                                 : MintColors.textPrimary,
+                          ).copyWith(
                             decoration: _checklistState[index]
                                 ? TextDecoration.lineThrough
                                 : null,
@@ -1027,10 +935,8 @@ class _DonationScreenState extends State<DonationScreen> {
       children: [
         Text(
           S.of(context)!.lifeEventComprendre,
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
             fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
             letterSpacing: 1,
           ),
         ),
@@ -1069,20 +975,12 @@ class _DonationScreenState extends State<DonationScreen> {
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           title: Text(
             title,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
           ),
           children: [
             Text(
               content,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
             ),
           ],
         ),
@@ -1111,11 +1009,7 @@ class _DonationScreenState extends State<DonationScreen> {
                       'ne constitue pas un conseil juridique, fiscal ou notarial '
                       'personnalisé au sens de la LSFin. Consulte un·e spécialiste '
                       '(notaire) pour ta situation.',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.deepOrange,
-                height: 1.5,
-              ),
+              style: MintTextStyles.micro(color: MintColors.deepOrange).copyWith(height: 1.5),
             ),
           ),
         ],
@@ -1130,12 +1024,9 @@ class _DonationScreenState extends State<DonationScreen> {
       children: [
         Text(
           S.of(context)!.donationCanton,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: MintSpacing.sm),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
@@ -1147,10 +1038,7 @@ class _DonationScreenState extends State<DonationScreen> {
             child: DropdownButton<String>(
               value: _canton,
               isExpanded: true,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
               dropdownColor: MintColors.white,
               items: _cantons.map((c) {
                 return DropdownMenuItem(
@@ -1178,19 +1066,12 @@ class _DonationScreenState extends State<DonationScreen> {
           Flexible(
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
           Text(
             value,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -1209,10 +1090,7 @@ class _DonationScreenState extends State<DonationScreen> {
         Flexible(
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
           ),
         ),
         Switch(
@@ -1243,19 +1121,12 @@ class _DonationScreenState extends State<DonationScreen> {
             Flexible(
               child: Text(
                 label,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
               ),
             ),
             Text(
               format(value),
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-                color: MintColors.primary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),

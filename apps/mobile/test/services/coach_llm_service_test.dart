@@ -271,7 +271,7 @@ void main() {
       final prompt = CoachLlmService.buildSystemPrompt(profile);
 
       expect(prompt, contains('STRUCTURE DE TA REPONSE'));
-      expect(prompt, contains('synthese en 1-2 phrases'));
+      expect(prompt, contains('Commence par le chiffre ou le fait'));
       expect(prompt, contains('risques et points d\'attention'));
       expect(prompt, contains('sources legales'));
     });
@@ -385,16 +385,17 @@ void main() {
       expect(greeting, contains('Julien'));
     });
 
-    test('initial greeting contains coach identity', () {
+    test('initial greeting uses MINT voice (direct, no jargon)', () {
       final greeting = CoachLlmService.initialGreeting(profile);
 
-      expect(greeting, contains('coach financier MINT'));
+      // V5 voice: "Salut {name}. Pose ta question..."
+      expect(greeting, contains('Pose ta question'));
     });
 
-    test('initial greeting asks what to explore', () {
+    test('initial greeting mentions chiffres as anchor', () {
       final greeting = CoachLlmService.initialGreeting(profile);
 
-      expect(greeting, contains('explorer'));
+      expect(greeting, contains('chiffres'));
     });
 
     test('initial suggestions are not empty', () {

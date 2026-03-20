@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/retroactive_3a_calculator.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -34,66 +37,56 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
     final result = _result;
 
     return Scaffold(
-      backgroundColor: MintColors.surface,
+      backgroundColor: MintColors.white,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 100,
             pinned: true,
-            backgroundColor: MintColors.primary,
-            foregroundColor: MintColors.white,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'RATTRAPAGE 3A', // TODO: i18n
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [MintColors.primary, MintColors.primaryLight],
-                  ),
-                ),
-              ),
+            backgroundColor: MintColors.white,
+            surfaceTintColor: MintColors.white,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            foregroundColor: MintColors.textPrimary,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
+              onPressed: () => context.pop(),
+            ),
+            title: Text(
+              S.of(context)!.retroactive3aTitle,
+              style: MintTextStyles.titleMedium(),
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // 1. Hero Card
                 _buildHeroCard(),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // 2. Input Section
                 _buildInputSection(),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // 3. Chiffre Choc
                 _buildChiffreChocCard(result),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // 4. Breakdown
                 _buildBreakdownSection(result),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // 5. Avant / Apres
                 _buildImpactComparison(result),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // 6. Action Cards
                 _buildActionCards(),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // 7. Disclaimer & Sources
                 _buildDisclaimerSection(result),
-                const SizedBox(height: 40),
+                const SizedBox(height: MintSpacing.xxl),
               ]),
             ),
           ),
@@ -106,7 +99,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
 
   Widget _buildHeroCard() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -115,7 +108,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(MintSpacing.md - 4),
             decoration: BoxDecoration(
               color: MintColors.accentPastel,
               borderRadius: BorderRadius.circular(12),
@@ -126,27 +119,19 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
               color: MintColors.accent,
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: MintSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Rattrapage 3a \u2014 Nouveaut\u00e9 2026', // TODO: i18n
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  S.of(context)!.retroactive3aHeroTitle,
+                  style: MintTextStyles.titleMedium(),
                 ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Rattrape jusqu\u2019\u00e0 10 ans de cotisations manqu\u00e9es', // TODO: i18n
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                const SizedBox(height: MintSpacing.xs),
+                Text(
+                  S.of(context)!.retroactive3aHeroSubtitle,
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -160,7 +145,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
 
   Widget _buildInputSection() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -170,19 +155,14 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAM\u00c8TRES', // TODO: i18n
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            S.of(context)!.retroactive3aParametres,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Gap years slider
           _buildSliderRow(
-            label: 'Ann\u00e9es \u00e0 rattraper', // TODO: i18n
+            label: S.of(context)!.retroactive3aAnneesARattraper,
             value: _gapYears.toDouble(),
             min: 1,
             max: 10,
@@ -190,22 +170,18 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
             format: '$_gapYears an${_gapYears > 1 ? "s" : ""}',
             onChanged: (v) => setState(() => _gapYears = v.round()),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Marginal tax rate picker
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Taux marginal d\u2019imposition', // TODO: i18n
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textPrimary,
-                ),
+              Text(
+                S.of(context)!.retroactive3aTauxMarginal,
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm + 4, vertical: MintSpacing.xs),
                 decoration: BoxDecoration(
                   border: Border.all(color: MintColors.border),
                   borderRadius: BorderRadius.circular(8),
@@ -214,11 +190,8 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
                   child: DropdownButton<double>(
                     value: _tauxMarginal,
                     isDense: true,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                        .copyWith(fontWeight: FontWeight.w700),
                     items: _taxRates
                         .map((r) => DropdownMenuItem(
                               value: r,
@@ -233,7 +206,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Has LPP toggle
           Row(
@@ -243,30 +216,23 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Affili\u00e9\u00b7e \u00e0 une caisse LPP', // TODO: i18n
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: MintColors.textPrimary,
-                      ),
+                    Text(
+                      S.of(context)!.retroactive3aAffilieLpp,
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       _hasLpp
-                          ? 'Petit 3a\u00a0: CHF\u00a07\u2019258/an' // TODO: i18n
-                          : 'Grand 3a\u00a0: 20\u00a0% du revenu net, max CHF\u00a036\u2019288/an', // TODO: i18n
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: MintColors.textMuted,
-                      ),
+                          ? S.of(context)!.retroactive3aPetit3a
+                          : S.of(context)!.retroactive3aGrand3a,
+                      style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                     ),
                   ],
                 ),
               ),
               Switch(
                 value: _hasLpp,
-                activeColor: MintColors.primary,
+                activeTrackColor: MintColors.primary,
                 onChanged: (v) => setState(() => _hasLpp = v),
               ),
             ],
@@ -281,7 +247,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
   Widget _buildChiffreChocCard(Retroactive3aResult result) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.xl - 4),
       decoration: BoxDecoration(
         color: MintColors.primary,
         borderRadius: BorderRadius.circular(16),
@@ -289,32 +255,20 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
       child: Column(
         children: [
           Text(
-            '\u00c9CONOMIES FISCALES ESTIM\u00c9ES', // TODO: i18n
-            style: GoogleFonts.montserrat(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: MintColors.white60,
-              letterSpacing: 1.5,
-            ),
+            S.of(context)!.retroactive3aEconomiesFiscales,
+            style: MintTextStyles.labelSmall(color: MintColors.white60)
+                .copyWith(fontWeight: FontWeight.w700, letterSpacing: 1.0),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           Text(
             'CHF\u00a0${formatChf(result.economiesFiscales)}',
-            style: GoogleFonts.montserrat(
-              fontSize: 36,
-              fontWeight: FontWeight.w800,
-              color: MintColors.white,
-            ),
+            style: MintTextStyles.displayMedium(color: MintColors.white),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           Text(
             result.chiffreChoc,
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.white70,
-              height: 1.5,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.white70),
           ),
         ],
       ),
@@ -325,7 +279,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
 
   Widget _buildBreakdownSection(Retroactive3aResult result) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -335,62 +289,60 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'D\u00c9TAIL PAR ANN\u00c9E', // TODO: i18n
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            S.of(context)!.retroactive3aDetailParAnnee,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Header
           Row(
             children: [
-              const SizedBox(
+              SizedBox(
                 width: 60,
                 child: Text(
-                  'Ann\u00e9e', // TODO: i18n
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                  S.of(context)!.retroactive3aHeaderAnnee,
+                  style: MintTextStyles.labelSmall(color: MintColors.textPrimary)
+                      .copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Plafond', // TODO: i18n
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                  S.of(context)!.retroactive3aHeaderPlafond,
+                  style: MintTextStyles.labelSmall(color: MintColors.textPrimary)
+                      .copyWith(fontWeight: FontWeight.bold),
                   textAlign: TextAlign.right,
                 ),
               ),
-              const SizedBox(
+              SizedBox(
                 width: 80,
                 child: Text(
-                  'D\u00e9ductible', // TODO: i18n
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                  S.of(context)!.retroactive3aHeaderDeductible,
+                  style: MintTextStyles.labelSmall(color: MintColors.textPrimary)
+                      .copyWith(fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
               ),
             ],
           ),
-          const Divider(height: 16),
+          const Divider(height: MintSpacing.md),
 
           // Retroactive year rows
           for (final entry in result.breakdown)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
+              padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs + 1),
               child: Row(
                 children: [
                   SizedBox(
                     width: 60,
                     child: Text(
                       '${entry.year}',
-                      style: const TextStyle(fontSize: 12),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                     ),
                   ),
                   Expanded(
                     child: Text(
                       'CHF\u00a0${formatChf(entry.limit)}',
-                      style: const TextStyle(fontSize: 12),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                       textAlign: TextAlign.right,
                     ),
                   ),
@@ -410,7 +362,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
               ),
             ),
 
-          const Divider(height: 16),
+          const Divider(height: MintSpacing.md),
 
           // Total retroactive row
           Row(
@@ -418,32 +370,27 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
               SizedBox(
                 width: 60,
                 child: Text(
-                  'Total', // TODO: i18n
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  S.of(context)!.retroactive3aTotal,
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                      .copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
               Expanded(
                 child: Text(
                   'CHF\u00a0${formatChf(result.totalRetroactive)}',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.primary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.primary)
+                      .copyWith(fontWeight: FontWeight.w700),
                   textAlign: TextAlign.right,
                 ),
               ),
               const SizedBox(width: 80),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
 
           // Current year row (separate)
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(MintSpacing.sm + 4),
             decoration: BoxDecoration(
               color: MintColors.appleSurface,
               borderRadius: BorderRadius.circular(8),
@@ -453,34 +400,30 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
                 SizedBox(
                   width: 48,
                   child: Text(
-                    '${DateTime.now().year}', // TODO: i18n (referenceYear)
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                    '${DateTime.now().year}',
+                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                        .copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Ann\u00e9e en cours', // TODO: i18n
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: MintColors.textSecondary,
-                    ),
+                    S.of(context)!.retroactive3aAnneeCourante,
+                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                   ),
                 ),
                 Text(
                   'CHF\u00a0${formatChf(result.totalCurrentYear)}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                      .copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
 
           // Grand total row
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(MintSpacing.sm + 4),
             decoration: BoxDecoration(
               color: MintColors.primary,
               borderRadius: BorderRadius.circular(8),
@@ -489,21 +432,13 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'TOTAL D\u00c9DUCTIBLE EN ${DateTime.now().year}', // TODO: i18n
-                  style: GoogleFonts.montserrat(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.white70,
-                    letterSpacing: 0.5,
-                  ),
+                  '${S.of(context)!.retroactive3aTotal} ${S.of(context)!.retroactive3aHeaderDeductible} ${DateTime.now().year}',
+                  style: MintTextStyles.labelSmall(color: MintColors.white70)
+                      .copyWith(fontWeight: FontWeight.w700),
                 ),
                 Text(
                   'CHF\u00a0${formatChf(result.totalContribution)}',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.white,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.white),
                 ),
               ],
             ),
@@ -525,31 +460,26 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'IMPACT AVANT / APR\u00c8S', // TODO: i18n
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
-            letterSpacing: 1,
-          ),
+          S.of(context)!.retroactive3aImpactAvantApres,
+          style: MintTextStyles.bodySmall(color: MintColors.textMuted),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm + 4),
         Row(
           children: [
             Expanded(
               child: _buildComparisonCard(
-                title: 'SANS RATTRAPAGE', // TODO: i18n
-                subtitle: 'Ann\u00e9e courante seule', // TODO: i18n
+                title: S.of(context)!.retroactive3aSansRattrapage,
+                subtitle: S.of(context)!.retroactive3aAnneeCouranteSeule,
                 amount: sansRattrapage,
                 color: MintColors.warning,
                 isHighlighted: false,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: MintSpacing.sm + 4),
             Expanded(
               child: _buildComparisonCard(
-                title: 'AVEC RATTRAPAGE', // TODO: i18n
-                subtitle: '+ $_gapYears an${_gapYears > 1 ? "s" : ""} r\u00e9troactifs', // TODO: i18n
+                title: S.of(context)!.retroactive3aAvecRattrapage,
+                subtitle: '+ $_gapYears an${_gapYears > 1 ? "s" : ""} r\u00e9troactifs',
                 amount: avecRattrapage,
                 color: MintColors.success,
                 isHighlighted: true,
@@ -558,9 +488,9 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
           ],
         ),
         if (difference > 0) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MintSpacing.md),
             decoration: BoxDecoration(
               color: MintColors.successBg,
               borderRadius: BorderRadius.circular(12),
@@ -569,16 +499,13 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
             child: Row(
               children: [
                 const Icon(Icons.trending_up, color: MintColors.greenDark, size: 24),
-                const SizedBox(width: 12),
+                const SizedBox(width: MintSpacing.sm + 4),
                 Expanded(
                   child: Text(
                     'Le rattrapage te fait \u00e9conomiser '
-                    'CHF\u00a0${formatChf(difference)} de plus en imp\u00f4ts\u00a0!', // TODO: i18n
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.greenForest,
-                    ),
+                    'CHF\u00a0${formatChf(difference)} de plus en imp\u00f4ts\u00a0!',
+                    style: MintTextStyles.bodyMedium(color: MintColors.greenForest)
+                        .copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -597,7 +524,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
     required bool isHighlighted,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -611,35 +538,23 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
         children: [
           Text(
             title,
-            style: GoogleFonts.montserrat(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 0.5,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted)
+                .copyWith(fontWeight: FontWeight.w700),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Text(
             subtitle,
-            style: const TextStyle(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           Text(
             'CHF\u00a0${formatChf(amount)}',
-            style: GoogleFonts.montserrat(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
+            style: MintTextStyles.headlineMedium(color: color),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Text(
-            'd\u2019\u00e9conomie fiscale', // TODO: i18n
-            style: TextStyle(
-              fontSize: 11,
+            S.of(context)!.retroactive3aEconomieFiscale,
+            style: MintTextStyles.labelSmall(
               color: isHighlighted ? color : MintColors.textMuted,
             ),
           ),
@@ -655,38 +570,28 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'PROCHAINES \u00c9TAPES', // TODO: i18n
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
-            letterSpacing: 1,
-          ),
+          S.of(context)!.retroactive3aProchainesEtapes,
+          style: MintTextStyles.bodySmall(color: MintColors.textMuted),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm + 4),
         _buildActionTile(
           icon: Icons.account_balance,
-          title: 'Ouvrir un compte 3a', // TODO: i18n
-          subtitle:
-              'Compare les prestataires et ouvre un compte d\u00e9di\u00e9 au rattrapage.', // TODO: i18n
+          title: S.of(context)!.retroactive3aOuvrirCompte,
+          subtitle: S.of(context)!.retroactive3aOuvrirCompteSubtitle,
           color: MintColors.info,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: MintSpacing.sm),
         _buildActionTile(
           icon: Icons.checklist,
-          title: 'Pr\u00e9parer les documents', // TODO: i18n
-          subtitle:
-              'Certificat de salaire, attestation de cotisations AVS, '
-              'justificatif d\u2019absence de 3a pour chaque ann\u00e9e.', // TODO: i18n
+          title: S.of(context)!.retroactive3aPrepDocuments,
+          subtitle: S.of(context)!.retroactive3aPrepDocumentsSubtitle,
           color: MintColors.categoryAmber,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: MintSpacing.sm),
         _buildActionTile(
           icon: Icons.person_search,
-          title: 'Consulter un\u00b7e sp\u00e9cialiste', // TODO: i18n
-          subtitle:
-              'Un\u00b7e expert\u00b7e fiscal\u00b7e peut confirmer ton taux marginal '
-              'et optimiser le calendrier de versement.', // TODO: i18n
+          title: S.of(context)!.retroactive3aConsulterSpecialiste,
+          subtitle: S.of(context)!.retroactive3aConsulterSpecialisteSubtitle,
           color: MintColors.categoryPurple,
         ),
       ],
@@ -700,7 +605,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(12),
@@ -710,34 +615,27 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(MintSpacing.sm),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, size: 20, color: color),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                      .copyWith(fontWeight: FontWeight.w600),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
                   subtitle,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -756,11 +654,11 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
 
   Widget _buildDisclaimerSection(Retroactive3aResult result) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.warningBg,
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.orangeRetroWarm),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -769,50 +667,38 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
-              const SizedBox(width: 12),
+              const SizedBox(width: MintSpacing.sm + 4),
               Expanded(
                 child: Text(
                   result.disclaimer,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: MintColors.deepOrange,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.micro(color: MintColors.textMuted),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          const Divider(color: MintColors.orangeRetroWarm, height: 1),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
+          const Divider(height: 1),
+          const SizedBox(height: MintSpacing.sm + 4),
           Text(
-            'SOURCES', // TODO: i18n
-            style: GoogleFonts.montserrat(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: MintColors.deepOrange,
-              letterSpacing: 0.5,
-            ),
+            S.of(context)!.retroactive3aSources,
+            style: MintTextStyles.micro(color: MintColors.textMuted)
+                .copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: MintSpacing.xs + 2),
           for (final source in result.sources)
             Padding(
               padding: const EdgeInsets.only(bottom: 3),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     '\u2022 ',
-                    style: TextStyle(fontSize: 11, color: MintColors.deepOrange),
+                    style: MintTextStyles.micro(color: MintColors.textMuted),
                   ),
                   Expanded(
                     child: Text(
                       source,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: MintColors.deepOrange,
-                        height: 1.3,
-                      ),
+                      style: MintTextStyles.micro(color: MintColors.textMuted),
                     ),
                   ),
                 ],
@@ -842,19 +728,12 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
           children: [
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
             Text(
               format,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                  .copyWith(fontWeight: FontWeight.w700),
             ),
           ],
         ),

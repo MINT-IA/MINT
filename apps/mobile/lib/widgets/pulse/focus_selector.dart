@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 
 // TODO: add Semantics for accessibility
@@ -70,12 +70,7 @@ class _FocusSelectorState extends State<FocusSelector> {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
             "Qu'est-ce qui t'occupe ?",
-            style: GoogleFonts.outfit(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-              height: 1.3,
-            ),
+            style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, height: 1.3),
           ),
         ),
         const SizedBox(height: 12),
@@ -156,18 +151,11 @@ class _FocusSelectorState extends State<FocusSelector> {
             const SizedBox(height: 8),
             Text(
               cat.label,
-              style: GoogleFonts.outfit(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
             ),
             Text(
               cat.subtitle,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
             ),
           ],
         ),
@@ -320,18 +308,11 @@ class _FocusSelectorState extends State<FocusSelector> {
                 children: [
                   Text(
                     opt.label,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                   ),
                   Text(
                     opt.apercu,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                   ),
                 ],
               ),

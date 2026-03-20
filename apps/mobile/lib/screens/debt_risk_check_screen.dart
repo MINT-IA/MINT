@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 
 class DebtRiskCheckScreen extends StatefulWidget {
   const DebtRiskCheckScreen({super.key});
@@ -39,35 +42,18 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
     });
   }
 
-  Future<void> _exportPdf() async {
-    if (_result == null) return;
-    
-    // TODO: Implement PDF export for debt risk check
-    // await PdfService.generateBilanPdf(
-    //   title: 'Bilan Risque d\'Endettement',
-    //   results: results,
-    //   recommendations: recommendations,
-    // );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
-        title: Text(S.of(context)!.debtCheckTitle),
-        actions: [
-          if (_showResults)
-            IconButton(
-              icon: const Icon(Icons.picture_as_pdf_outlined),
-              onPressed: _exportPdf,
-              tooltip: S.of(context)!.debtCheckExportTooltip,
-            ),
-          const SizedBox(width: 8),
-        ],
+        backgroundColor: MintColors.white,
+        surfaceTintColor: MintColors.white,
+        title: Text(S.of(context)!.debtCheckTitle, style: MintTextStyles.headlineMedium()),
+        actions: const [],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.sm),
         child: _showResults ? _buildResults() : _buildQuestionnaire(),
       ),
     );
@@ -78,7 +64,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildMentorIntro(),
-        const SizedBox(height: 32),
+        const SizedBox(height: MintSpacing.xl),
         _buildQuestionSection(
           S.of(context)!.debtCheckSectionDaily,
           [
@@ -96,7 +82,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: MintSpacing.lg),
         _buildQuestionSection(
           S.of(context)!.debtCheckSectionObligations,
           [
@@ -114,7 +100,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: MintSpacing.lg),
         _buildQuestionSection(
           S.of(context)!.debtCheckSectionBehaviors,
           [
@@ -132,7 +118,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: MintSpacing.xl),
         SizedBox(
           width: double.infinity,
           child: FilledButton(
@@ -140,8 +126,10 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
             child: Text(S.of(context)!.debtCheckAnalyzeButton),
           ),
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: MintSpacing.xl),
         _buildPrivacyNote(),
+        const SizedBox(height: MintSpacing.lg),
+        const DebtToolsNav(currentRoute: '/check/debt'),
         const SizedBox(height: 40),
       ],
     );
@@ -157,7 +145,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
 
   Widget _buildMentorIntro() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.surface,
         borderRadius: BorderRadius.circular(20),
@@ -168,14 +156,14 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
           Row(
             children: [
               const Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
-              const SizedBox(width: 12),
-              Text(S.of(context)!.debtCheckMentorTitle, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+              const SizedBox(width: MintSpacing.sm),
+              Text(S.of(context)!.debtCheckMentorTitle, style: MintTextStyles.titleMedium()),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             S.of(context)!.debtCheckMentorBody,
-            style: const TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
+            style: MintTextStyles.bodyMedium(),
           ),
         ],
       ),
@@ -188,9 +176,9 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
       children: [
         Text(
           title.toUpperCase(),
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: MintColors.textMuted, letterSpacing: 1.2),
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(letterSpacing: 1.2, fontWeight: FontWeight.w700),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: MintSpacing.md),
         ...children,
       ],
     );
@@ -198,8 +186,8 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
 
   Widget _buildQuestionCard(String question, String sub, bool? value, Function(bool?) onChanged) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.only(bottom: MintSpacing.sm),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.card,
         borderRadius: BorderRadius.circular(16),
@@ -208,14 +196,14 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(question, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-          const SizedBox(height: 4),
-          Text(sub, style: const TextStyle(fontSize: 13, color: MintColors.textSecondary)),
-          const SizedBox(height: 16),
+          Text(question, style: MintTextStyles.titleMedium()),
+          const SizedBox(height: MintSpacing.xs),
+          Text(sub, style: MintTextStyles.bodySmall()),
+          const SizedBox(height: MintSpacing.md),
           Row(
             children: [
               _buildChoiceButton(S.of(context)!.debtCheckYes, true, value == true, () => onChanged(true)),
-              const SizedBox(width: 12),
+              const SizedBox(width: MintSpacing.sm),
               _buildChoiceButton(S.of(context)!.debtCheckNo, false, value == false, () => onChanged(false)),
             ],
           ),
@@ -233,7 +221,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
         onTap: onSelected,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: MintSpacing.sm),
           decoration: BoxDecoration(
             color: isSelected ? MintColors.primary : MintColors.surface,
             borderRadius: BorderRadius.circular(12),
@@ -241,11 +229,9 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
           alignment: Alignment.center,
           child: Text(
             label,
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 12,
+            style: MintTextStyles.bodySmall(
               color: isSelected ? MintColors.white : MintColors.textSecondary,
-            ),
+            ).copyWith(fontWeight: FontWeight.w700),
           ),
         ),
       ),
@@ -270,7 +256,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Container(
-          padding: const EdgeInsets.all(32),
+          padding: const EdgeInsets.all(MintSpacing.xl),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(24),
@@ -279,25 +265,25 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
           child: Column(
             children: [
               Icon(icon, color: color, size: 48),
-              const SizedBox(height: 16),
-              Text(label, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: color)),
-              const SizedBox(height: 8),
-              Text(S.of(context)!.debtCheckFactorsDetected(riskScore), style: const TextStyle(color: MintColors.textSecondary)),
+              const SizedBox(height: MintSpacing.md),
+              Text(label, style: MintTextStyles.headlineMedium(color: color)),
+              const SizedBox(height: MintSpacing.sm),
+              Text(S.of(context)!.debtCheckFactorsDetected(riskScore), style: MintTextStyles.bodyMedium()),
             ],
           ),
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: MintSpacing.xl),
         Text(
           S.of(context)!.debtCheckRecommendationsTitle,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: MintColors.textMuted, letterSpacing: 1.2),
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(letterSpacing: 1.2, fontWeight: FontWeight.w700),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: MintSpacing.md),
         ...recommendations.map((r) => _buildGuidanceItem(Icons.lightbulb_outline, r)),
         if (hasGamblingRisk) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           _buildSpecialAidCard(),
         ],
-        const SizedBox(height: 32),
+        const SizedBox(height: MintSpacing.xl),
         SizedBox(
           width: double.infinity,
           child: FilledButton.icon(
@@ -306,7 +292,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
             label: Text(S.of(context)!.debtCheckValidateButton),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm),
         SizedBox(
           width: double.infinity,
           child: OutlinedButton(
@@ -314,28 +300,28 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
             child: Text(S.of(context)!.debtCheckRedoButton),
           ),
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: MintSpacing.xl),
         Center(
           child: Text(
             S.of(context)!.debtCheckHonestyQuote,
-            style: const TextStyle(fontStyle: FontStyle.italic, color: MintColors.textMuted, fontSize: 13),
+            style: MintTextStyles.bodySmall().copyWith(fontStyle: FontStyle.italic),
             textAlign: TextAlign.center,
           ),
         ),
-        const SizedBox(height: 48),
+        const SizedBox(height: MintSpacing.xxl),
       ],
     );
   }
 
   Widget _buildGuidanceItem(IconData icon, String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: MintSpacing.md),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.arrow_forward, color: MintColors.primary, size: 18),
-          const SizedBox(width: 12),
-          Expanded(child: Text(text, style: const TextStyle(fontSize: 14, height: 1.5))),
+          const SizedBox(width: MintSpacing.sm),
+          Expanded(child: Text(text, style: MintTextStyles.bodyMedium())),
         ],
       ),
     );
@@ -343,7 +329,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
 
   Widget _buildSpecialAidCard() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.purple.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
@@ -355,13 +341,13 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
           Row(
             children: [
               const Icon(Icons.support_agent_outlined, color: MintColors.purple),
-              const SizedBox(width: 12),
-              Text(S.of(context)!.debtCheckGamblingSupportTitle, style: const TextStyle(fontWeight: FontWeight.w600, color: MintColors.purple)),
+              const SizedBox(width: MintSpacing.sm),
+              Text(S.of(context)!.debtCheckGamblingSupportTitle, style: MintTextStyles.titleMedium(color: MintColors.purple)),
             ],
           ),
-          const SizedBox(height: 12),
-          Text(S.of(context)!.debtCheckGamblingSupportBody, style: const TextStyle(fontSize: 13)),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.sm),
+          Text(S.of(context)!.debtCheckGamblingSupportBody, style: MintTextStyles.bodySmall()),
+          const SizedBox(height: MintSpacing.md),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
@@ -379,7 +365,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
     return Center(
       child: Text(
         S.of(context)!.debtCheckPrivacyNote,
-        style: const TextStyle(color: MintColors.textMuted, fontSize: 11),
+        style: MintTextStyles.micro(),
       ),
     );
   }

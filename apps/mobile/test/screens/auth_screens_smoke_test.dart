@@ -83,10 +83,8 @@ void main() {
       await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
       await tester.pump();
 
-      expect(
-        find.textContaining('Financial OS'),
-        findsOneWidget,
-      );
+      // i18n: authLoginSubtitle = "Accede a ton espace financier personnel"
+      expect(find.textContaining('espace financier'), findsOneWidget);
     });
 
     testWidgets('shows email input field', (tester) async {
@@ -130,7 +128,8 @@ void main() {
       await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
       await tester.pump();
 
-      expect(find.text('Mot de passe oublié ?'), findsOneWidget);
+      // i18n: uses non-breaking space before ?
+      expect(find.textContaining('ot de passe oubli'), findsOneWidget);
     });
 
     testWidgets('shows verify email link', (tester) async {
@@ -378,7 +377,7 @@ void main() {
       await tester.pump();
 
       // Scroll to API key input
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -200));
+      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -200));
       await tester.pump();
 
       expect(find.byType(TextField), findsOneWidget);
@@ -388,8 +387,7 @@ void main() {
       await tester.pumpWidget(buildByokTestable(const ByokSettingsScreen()));
       await tester.pump();
 
-      // Scroll down
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
+      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -300));
       await tester.pump();
 
       expect(find.textContaining('Tester'), findsOneWidget);
@@ -400,8 +398,7 @@ void main() {
       await tester.pumpWidget(buildByokTestable(const ByokSettingsScreen()));
       await tester.pump();
 
-      // Scroll down to educational section
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -600));
+      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -600));
       await tester.pump();
 
       expect(find.textContaining('BYOK'), findsWidgets);
@@ -411,8 +408,7 @@ void main() {
       await tester.pumpWidget(buildByokTestable(const ByokSettingsScreen()));
       await tester.pump();
 
-      // Scroll down
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -200));
+      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -200));
       await tester.pump();
 
       expect(find.textContaining('Obtenir une cl'), findsOneWidget);
@@ -436,7 +432,7 @@ void main() {
       await tester.pump();
 
       // Scroll down
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -200));
+      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -200));
       await tester.pump();
 
       expect(find.byIcon(Icons.visibility_off_outlined), findsOneWidget);

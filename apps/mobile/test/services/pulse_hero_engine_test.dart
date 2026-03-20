@@ -10,7 +10,7 @@ import 'package:mint_mobile/theme/colors.dart';
 /// legacy stress mapping, and age-based fallback.
 void main() {
   /// Helper to build a minimal CoachProfile for testing.
-  CoachProfile _profile({
+  CoachProfile profile0({
     int birthYear = 1980,
     double salaireBrutMensuel = 8000,
     String employmentStatus = 'salarie',
@@ -45,13 +45,13 @@ void main() {
 
   group('PulseHeroEngine — priority 0: no focus', () {
     test('returns null when primaryFocus is null (show FocusSelector)', () {
-      final profile = _profile(primaryFocus: null);
+      final profile = profile0(primaryFocus: null);
       final hero = PulseHeroEngine.compute(profile);
       expect(hero, isNull);
     });
 
     test('returns null when primaryFocus is empty string', () {
-      final profile = _profile(primaryFocus: '');
+      final profile = profile0(primaryFocus: '');
       final hero = PulseHeroEngine.compute(profile);
       expect(hero, isNull);
     });
@@ -59,7 +59,7 @@ void main() {
 
   group('PulseHeroEngine — priority 1: critical alerts', () {
     test('independent with zero LPP triggers critical alert', () {
-      final profile = _profile(
+      final profile = profile0(
         employmentStatus: 'independant',
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 0),
         primaryFocus: 'proteger_retraite',
@@ -74,7 +74,7 @@ void main() {
     });
 
     test('independent with null LPP triggers critical alert', () {
-      final profile = _profile(
+      final profile = profile0(
         employmentStatus: 'independant',
         prevoyance: const PrevoyanceProfile(avoirLppTotal: null),
         primaryFocus: 'proteger_retraite',
@@ -87,7 +87,7 @@ void main() {
     });
 
     test('debt > 10k triggers critical alert over focus', () {
-      final profile = _profile(
+      final profile = profile0(
         dettes: const DetteProfile(creditConsommation: 15000),
         primaryFocus: 'optimiser_fiscal',
       );
@@ -100,7 +100,7 @@ void main() {
     });
 
     test('debt <= 10k does NOT trigger critical alert', () {
-      final profile = _profile(
+      final profile = profile0(
         dettes: const DetteProfile(creditConsommation: 5000),
         primaryFocus: 'optimiser_fiscal',
       );
@@ -113,7 +113,7 @@ void main() {
     });
 
     test('independant critical alert overrides debt alert', () {
-      final profile = _profile(
+      final profile = profile0(
         employmentStatus: 'independant',
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 0),
         dettes: const DetteProfile(creditConsommation: 20000),
@@ -130,7 +130,7 @@ void main() {
 
   group('PulseHeroEngine — priority 2: focus-based', () {
     test('proteger_retraite for age > 55 shows Capital vs Rente', () {
-      final profile = _profile(
+      final profile = profile0(
         birthYear: 1968, // ~58 years old
         primaryFocus: 'proteger_retraite',
       );
@@ -143,7 +143,7 @@ void main() {
     });
 
     test('proteger_retraite for age <= 55 shows replacement rate', () {
-      final profile = _profile(
+      final profile = profile0(
         birthYear: 1985, // ~41 years old
         primaryFocus: 'proteger_retraite',
       );
@@ -156,7 +156,7 @@ void main() {
     });
 
     test('comprendre_salaire shows deduction amount', () {
-      final profile = _profile(
+      final profile = profile0(
         salaireBrutMensuel: 8000,
         primaryFocus: 'comprendre_salaire',
       );
@@ -169,7 +169,7 @@ void main() {
     });
 
     test('optimiser_fiscal shows tax saving estimate', () {
-      final profile = _profile(primaryFocus: 'optimiser_fiscal');
+      final profile = profile0(primaryFocus: 'optimiser_fiscal');
 
       final hero = PulseHeroEngine.compute(profile);
 
@@ -179,7 +179,7 @@ void main() {
     });
 
     test('naviguer_achat with salary shows capacity estimate', () {
-      final profile = _profile(
+      final profile = profile0(
         salaireBrutMensuel: 8000,
         primaryFocus: 'naviguer_achat',
       );
@@ -193,7 +193,7 @@ void main() {
     });
 
     test('naviguer_achat without salary shows generic message', () {
-      final profile = _profile(
+      final profile = profile0(
         salaireBrutMensuel: 0,
         primaryFocus: 'naviguer_achat',
       );
@@ -205,7 +205,7 @@ void main() {
     });
 
     test('naviguer_expat with arrivalAge shows gap years', () {
-      final profile = _profile(
+      final profile = profile0(
         primaryFocus: 'naviguer_expat',
         arrivalAge: 30,
       );
@@ -219,7 +219,7 @@ void main() {
     });
 
     test('naviguer_expat without arrivalAge shows generic', () {
-      final profile = _profile(
+      final profile = profile0(
         primaryFocus: 'naviguer_expat',
         arrivalAge: null,
       );
@@ -231,7 +231,7 @@ void main() {
     });
 
     test('proteger_famille shows conjoint name', () {
-      final profile = _profile(
+      final profile = profile0(
         primaryFocus: 'proteger_famille',
         conjoint: const ConjointProfile(firstName: 'Lauren'),
       );
@@ -243,7 +243,7 @@ void main() {
     });
 
     test('proteger_urgence with debt shows debt amount', () {
-      final profile = _profile(
+      final profile = profile0(
         primaryFocus: 'proteger_urgence',
         dettes: const DetteProfile(creditConsommation: 5000),
       );
@@ -255,7 +255,7 @@ void main() {
     });
 
     test('proteger_urgence without debt shows safety net', () {
-      final profile = _profile(
+      final profile = profile0(
         primaryFocus: 'proteger_urgence',
       );
 
@@ -268,7 +268,7 @@ void main() {
 
   group('PulseHeroEngine — legacy stress mapping', () {
     test('stress_retraite maps to proteger_retraite', () {
-      final profile = _profile(
+      final profile = profile0(
         birthYear: 1985,
         primaryFocus: 'stress_retraite',
       );
@@ -280,7 +280,7 @@ void main() {
     });
 
     test('stress_impots maps to optimiser_fiscal', () {
-      final profile = _profile(primaryFocus: 'stress_impots');
+      final profile = profile0(primaryFocus: 'stress_impots');
 
       final hero = PulseHeroEngine.compute(profile);
 
@@ -289,7 +289,7 @@ void main() {
     });
 
     test('stress_budget maps to comprendre_salaire', () {
-      final profile = _profile(primaryFocus: 'stress_budget');
+      final profile = profile0(primaryFocus: 'stress_budget');
 
       final hero = PulseHeroEngine.compute(profile);
 
@@ -298,7 +298,7 @@ void main() {
     });
 
     test('unknown focus falls through to age-based fallback', () {
-      final profile = _profile(
+      final profile = profile0(
         birthYear: 2000, // ~26 years old
         primaryFocus: 'stress_general',
       );
@@ -313,7 +313,7 @@ void main() {
 
   group('PulseHeroEngine — priority 3: fallback by age', () {
     test('age < 28 falls back to comprendre_salaire', () {
-      final profile = _profile(
+      final profile = profile0(
         birthYear: 2001, // ~25 years old
         primaryFocus: 'unknown_focus',
       );
@@ -325,7 +325,7 @@ void main() {
     });
 
     test('age 28-34 falls back to naviguer_achat', () {
-      final profile = _profile(
+      final profile = profile0(
         birthYear: 1994, // ~32 years old
         primaryFocus: 'unknown_focus',
       );
@@ -337,7 +337,7 @@ void main() {
     });
 
     test('age 35-44 falls back to optimiser_fiscal', () {
-      final profile = _profile(
+      final profile = profile0(
         birthYear: 1986, // ~40 years old
         primaryFocus: 'unknown_focus',
       );
@@ -349,7 +349,7 @@ void main() {
     });
 
     test('age 45-54 falls back to proteger_retraite', () {
-      final profile = _profile(
+      final profile = profile0(
         birthYear: 1976, // ~50 years old
         primaryFocus: 'unknown_focus',
       );
@@ -361,7 +361,7 @@ void main() {
     });
 
     test('age >= 55 falls back to capital vs rente', () {
-      final profile = _profile(
+      final profile = profile0(
         birthYear: 1966, // ~60 years old
         primaryFocus: 'unknown_focus',
       );
@@ -375,7 +375,7 @@ void main() {
 
   group('PulseHeroEngine — output structure', () {
     test('every hero has required fields', () {
-      final profile = _profile(primaryFocus: 'comprendre_systeme');
+      final profile = profile0(primaryFocus: 'comprendre_systeme');
 
       final hero = PulseHeroEngine.compute(profile);
 
@@ -389,7 +389,7 @@ void main() {
     });
 
     test('optimiser_patrimoine shows total patrimoine', () {
-      final profile = _profile(
+      final profile = profile0(
         primaryFocus: 'optimiser_patrimoine',
         patrimoine: const PatrimoineProfile(
           epargneLiquide: 50000,

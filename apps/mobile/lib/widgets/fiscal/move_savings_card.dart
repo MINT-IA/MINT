@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/fiscal_service.dart';
+import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  MOVE SAVINGS CARD — Sprint S20 / Comparateur 26 cantons
@@ -68,20 +68,12 @@ class MoveSavingsCard extends StatelessWidget {
                     : _isSaving
                         ? '+${FiscalService.formatChf(economieAnnuelle)}/an'
                         : '-${FiscalService.formatChf(-economieAnnuelle)}/an',
-                style: GoogleFonts.montserrat(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
-                ),
+                style: MintTextStyles.displayMedium(color: MintColors.white),
               ),
               const SizedBox(height: 8),
               Text(
                 chiffreChoc,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: MintColors.white.withValues(alpha: 0.9),
-                  height: 1.5,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.9)).copyWith(height: 1.5),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -181,20 +173,13 @@ class MoveSavingsCard extends StatelessWidget {
           ),
           child: Text(
             code,
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
           ),
         ),
         const SizedBox(height: 6),
         Text(
           name,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ],
@@ -206,19 +191,12 @@ class MoveSavingsCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12),
         ),
         const SizedBox(height: 4),
         Text(
           FiscalService.formatChf(amount),
-          style: GoogleFonts.montserrat(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
         ),
       ],
     );
@@ -239,19 +217,11 @@ class MoveSavingsCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: isBold ? 14 : 13,
-            fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: isBold ? 14 : 13, fontWeight: isBold ? FontWeight.w600 : FontWeight.w400),
         ),
         Text(
           '$prefix${FiscalService.formatChf(displayAmount)}',
-          style: GoogleFonts.montserrat(
-            fontSize: isBold ? 16 : 14,
-            fontWeight: isBold ? FontWeight.w700 : FontWeight.w600,
-            color: color,
-          ),
+          style: MintTextStyles.titleMedium(color: color).copyWith(fontSize: isBold ? 16 : 14, fontWeight: isBold ? FontWeight.w700 : FontWeight.w600),
         ),
       ],
     );

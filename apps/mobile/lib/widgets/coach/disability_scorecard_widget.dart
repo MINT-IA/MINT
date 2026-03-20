@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P4-E  Le Bulletin scolaire de ta couverture invalidité
@@ -122,19 +122,12 @@ class DisabilityScorecardWidget extends StatelessWidget {
               children: [
                 Text(
                   'Ton bulletin de couverture invalidité',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Note A–F sur chaque pilier de ta protection',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                 ),
               ],
             ),
@@ -176,7 +169,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
           Expanded(
             child: Text(
               'Couverture',
-              style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           SizedBox(
@@ -184,14 +177,14 @@ class DisabilityScorecardWidget extends StatelessWidget {
             child: Text(
               'Note',
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               'Détail',
-              style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w700),
             ),
           ),
         ],
@@ -215,10 +208,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
                 Expanded(
                   child: Text(
                     item.label,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                   ),
                 ),
               ],
@@ -235,11 +225,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
               child: Text(
                 item.grade,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.montserrat(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  color: gradeColor,
-                ),
+                style: MintTextStyles.bodySmall(color: gradeColor).copyWith(fontWeight: FontWeight.w800),
               ),
             ),
           ),
@@ -247,11 +233,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
           Expanded(
             child: Text(
               item.detail,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.textSecondary,
-                height: 1.4,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(height: 1.4),
             ),
           ),
         ],
@@ -274,15 +256,11 @@ class DisabilityScorecardWidget extends StatelessWidget {
             children: [
               Text(
                 'Moyenne',
-                style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
+                style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
               ),
               Text(
                 grade,
-                style: GoogleFonts.montserrat(
-                  fontSize: 36,
-                  fontWeight: FontWeight.w900,
-                  color: color,
-                ),
+                style: MintTextStyles.displayMedium(color: color).copyWith(fontSize: 36, fontWeight: FontWeight.w900),
               ),
             ],
           ),
@@ -293,12 +271,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
               children: [
                 Text(
                   'Tu survivrais, mais ton niveau de vie baisserait de ${lifeDropPercent.toStringAsFixed(0)}%.',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textPrimary,
-                    fontWeight: FontWeight.w600,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600, height: 1.4),
                 ),
               ],
             ),
@@ -322,26 +295,18 @@ class DisabilityScorecardWidget extends StatelessWidget {
         children: [
           Text(
             'Matière la plus faible : ${worst.label}',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: worstColor,
-            ),
+            style: MintTextStyles.bodySmall(color: worstColor).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Text(
             worst.detail,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
           ),
           if (worst.legalRef != null) ...[
             const SizedBox(height: 4),
             Text(
               worst.legalRef!,
-              style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+              style: MintTextStyles.micro(color: MintColors.textSecondary),
             ),
           ],
         ],
@@ -353,11 +318,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : LAMal, LAVS, LPP art. 23-26.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

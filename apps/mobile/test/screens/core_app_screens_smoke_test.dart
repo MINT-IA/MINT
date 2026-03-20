@@ -107,11 +107,12 @@ void main() {
       expect(find.text('Moi'), findsWidgets);
     });
 
-    testWidgets('shows Precision Index card', (tester) async {
+    testWidgets('shows profile completion progress', (tester) async {
       await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('Precision Index'), findsOneWidget);
+      // Phase 2: Precision Index replaced by inline completion progress
+      expect(find.textContaining('Compl'), findsWidgets);
       expect(find.byType(LinearProgressIndicator), findsWidgets);
     });
 
@@ -124,11 +125,12 @@ void main() {
       expect(find.textContaining('LPP'), findsWidgets);
     });
 
-    testWidgets('shows security and data section', (tester) async {
+    testWidgets('shows settings section', (tester) async {
       await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('Data'), findsOneWidget);
+      // Phase 2: settings section header
+      expect(find.textContaining('glages'), findsWidgets);
     });
 
     testWidgets('shows delete data button', (tester) async {
@@ -213,11 +215,12 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      final identityLabel = find.textContaining('Identité & Foyer').last;
+      // Phase 2: completion rows use GestureDetector, not InkWell
+      final identityLabel = find.textContaining('Foyer').last;
       await tester.ensureVisible(identityLabel);
       final identitySection = find.ancestor(
         of: identityLabel,
-        matching: find.byType(InkWell),
+        matching: find.byType(GestureDetector),
       );
       await tester.tap(identitySection.first);
       await tester.pump();
@@ -482,33 +485,26 @@ void main() {
       expect(find.byType(MainNavigationShell), findsOneWidget);
     });
 
-    testWidgets('shows bottom navigation with 3 tabs', (tester) async {
+    testWidgets('shows bottom navigation with 4 tabs', (tester) async {
       await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
       await tester.pump(const Duration(seconds: 1));
 
-      // Tab labels appear in the bottom nav (S49: 3-tab layout)
-      expect(find.text('Pulse'), findsOneWidget);
-      expect(find.text('Mint'), findsOneWidget);
-      expect(find.text('Moi'), findsOneWidget);
+      // S52: 4-tab layout — Aujourd'hui, Coach, Explorer, Dossier
+      expect(find.textContaining('ujourd'), findsWidgets);
+      expect(find.text('Coach'), findsOneWidget);
+      expect(find.text('Explorer'), findsOneWidget);
+      expect(find.text('Dossier'), findsOneWidget);
     });
 
     testWidgets('shows tab icons', (tester) async {
       await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
       await tester.pump(const Duration(seconds: 1));
 
-      // Active tab shows filled icon (Pulse = show_chart), others show outlined
-      // S49: 3 tabs — Pulse, Mint (chat_bubble), Moi (person)
-      expect(find.byIcon(Icons.show_chart), findsOneWidget); // Active (Pulse)
+      // S52: 4 tabs — today (active), coach, explore, dossier
+      expect(find.byIcon(Icons.today), findsOneWidget); // Active
       expect(find.byIcon(Icons.chat_bubble_outline), findsOneWidget);
-      expect(find.byIcon(Icons.person_outline), findsOneWidget);
-    });
-
-    testWidgets('shows floating mentor FAB', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
-      await tester.pump(const Duration(seconds: 1));
-
-      expect(find.byType(FloatingActionButton), findsOneWidget);
-      expect(find.byIcon(Icons.auto_awesome), findsWidgets);
+      expect(find.byIcon(Icons.explore_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.folder_outlined), findsOneWidget);
     });
   });
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
@@ -94,11 +94,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       ),
       title: Text(
         S.of(context)!.extractionReviewAppBar,
-        style: GoogleFonts.montserrat(
+        style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
           fontWeight: FontWeight.w800,
-          fontSize: 13,
           letterSpacing: 1.5,
-          color: MintColors.textMuted,
         ),
       ),
     );
@@ -113,21 +111,12 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       children: [
         Text(
           S.of(context)!.extractionReviewTitle,
-          style: GoogleFonts.montserrat(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-            height: 1.3,
-          ),
+          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(height: 1.3),
         ),
         const SizedBox(height: 8),
         Text(
           S.of(context)!.extractionReviewSubtitle(_fields.length, reviewCount > 0 ? S.of(context)!.extractionReviewNeedsReview(reviewCount) : ''),
-          style: GoogleFonts.inter(
-            fontSize: 15,
-            color: MintColors.textSecondary,
-            height: 1.5,
-          ),
+          style: MintTextStyles.bodyLarge(color: MintColors.textSecondary).copyWith(fontSize: 15, height: 1.5),
         ),
       ],
     );
@@ -164,11 +153,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           const SizedBox(width: 6),
           Text(
             S.of(context)!.extractionReviewConfidence(pct),
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
+            style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -198,11 +183,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
               Expanded(
                 child: Text(
                   w,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textPrimary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
                 ),
               ),
             ],
@@ -261,11 +242,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
               Expanded(
                 child: Text(
                   field.label,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
                 ),
               ),
               Container(
@@ -277,11 +254,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                 ),
                 child: Text(
                   '$confidencePct%',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: badgeColor,
-                  ),
+                  style: MintTextStyles.micro(color: badgeColor).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -294,11 +267,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
               Expanded(
                 child: Text(
                   _formatValue(field),
-                  style: GoogleFonts.montserrat(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 20),
                 ),
               ),
               // Edit button
@@ -322,11 +291,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
             const SizedBox(height: 6),
             Text(
               S.of(context)!.extractionReviewSourcePrefix(_truncateSource(field.sourceText)),
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.italic),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -347,10 +312,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         icon: const Icon(Icons.check_circle_outline, size: 22),
         label: Text(
           S.of(context)!.extractionReviewConfirmAll,
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          style: MintTextStyles.titleMedium(color: MintColors.white),
         ),
         style: FilledButton.styleFrom(
           backgroundColor: MintColors.primary,
@@ -378,21 +340,14 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         children: [
           Text(
             widget.result.disclaimer,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textMuted,
-              height: 1.5,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.5),
           ),
           const SizedBox(height: 8),
           ...widget.result.sources.map((s) => Padding(
                 padding: const EdgeInsets.only(bottom: 2),
                 child: Text(
                   s,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.micro(color: MintColors.textMuted),
                 ),
               )),
         ],
@@ -447,10 +402,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       builder: (ctx) => AlertDialog(
         title: Text(
           S.of(context)!.extractionReviewEditTitle(field.label),
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
+          style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w600),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -458,10 +410,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           children: [
             Text(
               S.of(context)!.extractionReviewCurrentValue(_formatValue(field)),
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -471,7 +420,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
               onTapOutside: (_) => FocusScope.of(context).unfocus(),
               decoration: InputDecoration(
                 labelText: S.of(context)!.extractionReviewNewValue,
-                labelStyle: GoogleFonts.inter(fontSize: 14),
+                labelStyle: MintTextStyles.bodyMedium(),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -480,7 +429,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                   borderSide: const BorderSide(color: MintColors.primary),
                 ),
               ),
-              style: GoogleFonts.inter(fontSize: 16),
+              style: MintTextStyles.bodyLarge(),
             ),
           ],
         ),
@@ -490,7 +439,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
             onPressed: () => Navigator.of(ctx).pop(),
             child: Text(
               S.of(context)!.extractionReviewCancel,
-              style: GoogleFonts.inter(color: MintColors.textSecondary),
+              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
             ),
           ),
           FilledButton(
@@ -515,7 +464,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
             ),
             child: Text(
               S.of(context)!.extractionReviewValidate,
-              style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+              style: MintTextStyles.bodyMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
             ),
           ),
         ],

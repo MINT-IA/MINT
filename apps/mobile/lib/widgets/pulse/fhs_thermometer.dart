@@ -22,9 +22,10 @@ library;
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/fhs_daily_score.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/pulse/fhs_delta_badge.dart';
 
 /// Circular arc gauge showing the daily FHS score (0-100).
@@ -98,18 +99,14 @@ class _FhsThermometerState extends State<FhsThermometer>
     return MintColors.scoreCritique;
   }
 
-  /// French level label for display. // TODO: i18n
-  String get _levelLabel {
-    switch (widget.level) {
-      case FhsLevel.excellent:
-        return 'Excellent'; // TODO: i18n
-      case FhsLevel.good:
-        return 'Bon'; // TODO: i18n
-      case FhsLevel.needsImprovement:
-        return '\u00c0 am\u00e9liorer'; // TODO: i18n
-      case FhsLevel.critical:
-        return 'Critique'; // TODO: i18n
-    }
+  String _levelLabel(BuildContext context) {
+    final l = S.of(context)!;
+    return switch (widget.level) {
+      FhsLevel.excellent => l.fhsLevelExcellent,
+      FhsLevel.good => l.fhsLevelBon,
+      FhsLevel.needsImprovement => l.fhsLevelAmeliorer,
+      FhsLevel.critical => l.fhsLevelCritique,
+    };
   }
 
   /// Derive [FhsTrend] from the delta value.
@@ -126,7 +123,7 @@ class _FhsThermometerState extends State<FhsThermometer>
     return Semantics(
       label: 'Score de sant\u00e9 financi\u00e8re\u00a0: '
           '${widget.score.round()} sur 100. '
-          'Niveau\u00a0: $_levelLabel.',
+          'Niveau\u00a0: ${_levelLabel(context)}.',
       child: GestureDetector(
         onTap: widget.onTap,
         child: SizedBox(
@@ -162,22 +159,13 @@ class _FhsThermometerState extends State<FhsThermometer>
                             // Large score number
                             Text(
                               '$displayScore',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 52,
-                                fontWeight: FontWeight.w800,
-                                color: _scoreColor,
-                                height: 1.0,
-                              ),
+                              style: MintTextStyles.displayLarge(color: _scoreColor).copyWith(fontSize: 52, height: 1.0),
                             ),
                             const SizedBox(height: 4),
                             // Level label
                             Text(
-                              _levelLabel,
-                              style: GoogleFonts.inter(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: MintColors.textSecondary,
-                              ),
+                              _levelLabel(context),
+                              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                             ),
                             const SizedBox(height: 8),
                             // Delta badge

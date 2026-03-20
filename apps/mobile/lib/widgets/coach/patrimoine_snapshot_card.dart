@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -60,20 +60,12 @@ class PatrimoineSnapshotCard extends StatelessWidget {
           children: [
             Text(
               'Patrimoine total estimé',
-              style: GoogleFonts.montserrat(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 4),
             Text(
               formatChf(total),
-              style: GoogleFonts.montserrat(
-                fontSize: 28,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.displayMedium(color: MintColors.textPrimary).copyWith(fontSize: 28, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 16),
 
@@ -114,10 +106,7 @@ class PatrimoineSnapshotCard extends StatelessWidget {
                     const SizedBox(width: 6),
                     Text(
                       '${s.label} ${formatChf(s.value)}',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textSecondary,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                     ),
                   ],
                 );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -135,19 +135,11 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
               children: [
                 Text(
                   'Ton net réel',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
                 Text(
                   '"30% en dessous de ce que tu imagines."',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    fontStyle: FontStyle.italic,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                 ),
               ],
             ),
@@ -168,15 +160,11 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
           children: [
             Text(
               'Prix de vente : ${formatChfWithPrefix(widget.salePrice)}',
-              style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
             ),
             Text(
               'Net : ${formatChfWithPrefix(_netProceeds)}',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                color: MintColors.scoreExcellent,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w800),
             ),
           ],
         ),
@@ -203,11 +191,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
                   alignment: Alignment.center,
                   child: Text(
                     '${(ratio * 100).round()}%',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
-                      color: MintColors.white,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
                   ),
                 ),
               ),
@@ -220,15 +204,11 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
           children: [
             Text(
               'CHF 0',
-              style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+              style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
             ),
             Text(
               'Déductions : ${formatChfWithPrefix(_totalDeductions)}',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.scoreCritique,
-                fontWeight: FontWeight.w600,
-              ),
+              style: MintTextStyles.micro(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
             ),
           ],
         ),
@@ -254,15 +234,11 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
               children: [
                 Text(
                   'Surprise : − ${formatChfWithPrefix(_surprise)}',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.scoreCritique,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w800),
                 ),
                 Text(
                   'Tu croyais toucher ${formatChfWithPrefix(_perceivedNet)} — tu touches ${formatChfWithPrefix(_netProceeds)}.',
-                  style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
             ),
@@ -279,11 +255,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
         children: [
           Text(
             _showDetails ? 'Masquer le détail' : 'Voir le détail des déductions',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: MintColors.primary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
           ),
           Icon(
             _showDetails ? Icons.expand_less : Icons.expand_more,
@@ -318,22 +290,18 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
                         children: [
                           Text(
                             d.label,
-                            style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary),
+                            style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
                           ),
                           Text(
                             d.ref,
-                            style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                            style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
                           ),
                         ],
                       ),
                     ),
                     Text(
                       '− ${formatChfWithPrefix(d.amount)}',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: d.color,
-                      ),
+                      style: MintTextStyles.bodySmall(color: d.color).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -349,11 +317,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
     return Text(
       'Outil éducatif · ne constitue pas un conseil fiscal au sens de la LSFin. '
       'Source : LIFD art. 12 (gain), LPP art. 30c (EPL). Chiffres indicatifs.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
     );
   }
 }

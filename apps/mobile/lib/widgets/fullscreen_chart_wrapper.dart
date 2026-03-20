@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Reusable wrapper that adds a fullscreen expand button to any chart widget.
 ///
@@ -135,11 +135,7 @@ class _FullscreenChartPageState extends State<_FullscreenChartPage> {
       appBar: AppBar(
         title: Text(
           widget.title,
-          style: GoogleFonts.montserrat(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17),
         ),
         backgroundColor: MintColors.background,
         elevation: 0,
@@ -173,11 +169,7 @@ class _FullscreenChartPageState extends State<_FullscreenChartPage> {
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
                 child: Text(
                   widget.disclaimer!,
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    color: MintColors.textMuted,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(height: 1.4),
                   textAlign: TextAlign.center,
                 ),
               ),

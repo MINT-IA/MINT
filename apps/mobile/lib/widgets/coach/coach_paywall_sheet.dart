@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
@@ -174,20 +174,12 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
           const SizedBox(height: 16),
           Text(
             'Debloque MINT Coach',
-            style: GoogleFonts.montserrat(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: MintColors.white,
-            ),
+            style: MintTextStyles.headlineMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 4),
           Text(
             'Ton coach financier personnel',
-            style: GoogleFonts.inter(
-              fontSize: 15,
-              fontWeight: FontWeight.w400,
-              color: MintColors.white.withValues(alpha: 0.8),
-            ),
+            style: MintTextStyles.bodyLarge(color: MintColors.white.withValues(alpha: 0.8)).copyWith(fontSize: 15),
           ),
         ],
       ),
@@ -293,11 +285,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                 Expanded(
                   child: Text(
                     name,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
                 if (isRecommended)
@@ -312,11 +300,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                     ),
                     child: Text(
                       'Top',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.white,
-                      ),
+                      style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),
               ],
@@ -330,19 +314,11 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                 children: [
                   TextSpan(
                     text: '$price CHF',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: MintColors.primary,
-                    ),
+                    style: MintTextStyles.titleMedium(color: MintColors.primary).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
                   ),
                   TextSpan(
                     text: ' /mois',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: MintColors.textSecondary,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
@@ -366,12 +342,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
                     Expanded(
                       child: Text(
                         f,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: MintColors.textPrimary,
-                          height: 1.3,
-                        ),
+                        style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w500, height: 1.3),
                       ),
                     ),
                   ],
@@ -430,11 +401,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
           const SizedBox(width: 8),
           Text(
             'Essai gratuit 14 jours',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: MintColors.scoreExcellent,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -506,10 +473,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
           isIosIap
               ? 'Choisir $tierLabel'
               : 'Commencer l\'essai gratuit',
-          style: GoogleFonts.montserrat(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
+          style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w700),
         ),
       ),
     );
@@ -544,12 +508,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
       },
       child: Text(
         'Restaurer un achat',
-        style: GoogleFonts.inter(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: MintColors.textSecondary,
-          decoration: TextDecoration.underline,
-        ),
+        style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500, decoration: TextDecoration.underline),
       ),
     );
   }
@@ -563,11 +522,7 @@ class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
       'Outil educatif — ne constitue pas un conseil financier. LSFin. '
       'Tu peux annuler a tout moment depuis les reglages de ton compte.',
       textAlign: TextAlign.center,
-      style: GoogleFonts.inter(
-        fontSize: 11,
-        color: MintColors.textMuted,
-        height: 1.4,
-      ),
+      style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.4),
     );
   }
 }

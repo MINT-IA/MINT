@@ -1,9 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/widgets/coach/baby_cost_widget.dart';
 import 'package:mint_mobile/widgets/coach/budget_bebe_widget.dart';
@@ -11,16 +12,17 @@ import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
 import 'package:mint_mobile/widgets/visualizations/fiscal_impact_waterfall.dart';
 
 // ────────────────────────────────────────────────────────────
-//  NAISSANCE SCREEN — Sprint S22 / Famille & Concubinage
+//  NAISSANCE SCREEN — Category C (Life Event)
 // ────────────────────────────────────────────────────────────
 //
-// Three-tab interactive screen:
+// Four-tab interactive screen:
 //   Tab 1: "Conge"       — Parental leave APG calculator
 //   Tab 2: "Allocations" — Family allowances by canton
 //   Tab 3: "Impact"      — Financial impact of having children
+//   Tab 4: "Checklist"   — Essential steps for new parents
 //
-// All text in French (informal "tu").
-// Material 3, MintColors theme, GoogleFonts.
+// Design System: MintTextStyles + MintSpacing tokens.
+// AppBar: white standard (Life Event screen).
 // Ne constitue pas un conseil en prevoyance (LSFin).
 // ────────────────────────────────────────────────────────────
 
@@ -117,55 +119,35 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     );
   }
 
-  // ── App Bar with Tabs ──────────────────────────────────
+  // ── App Bar with Tabs (white standard — Life Event) ──
 
   Widget _buildAppBar(BuildContext context, bool innerBoxIsScrolled) {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      expandedHeight: 160,
-      backgroundColor: MintColors.primary,
+      expandedHeight: 120,
+      backgroundColor: MintColors.white,
+      elevation: 0,
+      surfaceTintColor: MintColors.white,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: 16),
+        titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: MintSpacing.md),
         title: Text(
           S.of(context)!.naissanceTitle,
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-            color: MintColors.white,
-          ),
-        ),
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                MintColors.primary,
-                MintColors.primary.withValues(alpha: 0.85),
-              ],
-            ),
-          ),
+          style: MintTextStyles.headlineMedium(),
         ),
       ),
       bottom: TabBar(
         controller: _tabController,
-        indicatorColor: MintColors.white,
+        indicatorColor: MintColors.primary,
         indicatorWeight: 3,
-        labelColor: MintColors.white,
-        unselectedLabelColor: MintColors.white60,
-        labelStyle: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-        ),
-        unselectedLabelStyle: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.w400,
-        ),
+        labelColor: MintColors.textPrimary,
+        unselectedLabelColor: MintColors.textMuted,
+        labelStyle: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+        unselectedLabelStyle: MintTextStyles.bodySmall(color: MintColors.textMuted),
         tabs: [
           Tab(text: S.of(context)!.naissanceTabConge),
           Tab(text: S.of(context)!.naissanceTabAllocations),
@@ -182,32 +164,30 @@ class _NaissanceScreenState extends State<NaissanceScreen>
 
   Widget _buildTab1Conge() {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Toggle + salary
         _buildCongeInputsCard(),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         if (_congeResult != null) ...[
           // Hero timeline
           _buildCongeTimeline(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
 
           // Daily breakdown
           _buildCongeBreakdown(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
 
           // Chiffre choc
           _buildCongeChiffreChoc(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
         ],
 
         _buildEducationalInsert(
-          'La Suisse a introduit le conge paternite en 2021 seulement. '
-          'A 2 semaines, il reste l\'un des plus courts d\'Europe. '
-          'Le conge maternite (14 semaines) existe depuis 2005.',
+          S.of(context)!.naissanceCongeEducational,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         _buildDisclaimer(),
       ],
@@ -216,10 +196,10 @@ class _NaissanceScreenState extends State<NaissanceScreen>
 
   Widget _buildCongeInputsCard() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -232,18 +212,14 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.naissanceLeaveType,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
                 ),
               ),
               SegmentedButton<bool>(
                 style: SegmentedButton.styleFrom(
                   selectedBackgroundColor: MintColors.primary,
                   selectedForegroundColor: MintColors.white,
-                  textStyle: GoogleFonts.inter(fontSize: 12),
+                  textStyle: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
                 ),
                 segments: [
                   ButtonSegment(
@@ -267,7 +243,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
 
           // Salary slider
           _buildSlider(
@@ -295,10 +271,10 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     final type = result['type'] as String;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -307,19 +283,14 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           Row(
             children: [
               const Icon(Icons.timeline, size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
+              const SizedBox(width: MintSpacing.sm),
               Text(
-                'CONGE $type'.toUpperCase(),
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                S.of(context)!.naissanceCongeLabel(type),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Timeline bar
           ClipRRect(
@@ -342,12 +313,8 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        '$weeks semaines',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: MintColors.white,
-                        ),
+                        S.of(context)!.naissanceWeeks(weeks),
+                        style: MintTextStyles.bodyMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                       ),
                     ),
                   ),
@@ -355,33 +322,29 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Details
           _buildResultRow(
             S.of(context)!.naissanceApgPerDay,
             FamilyService.formatChf(apgDaily),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           _buildResultRow(
             S.of(context)!.naissanceTotalApg,
             FamilyService.formatChf(totalApg),
           ),
           if (isCapped) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm, vertical: MintSpacing.xs),
               decoration: BoxDecoration(
                 color: MintColors.warning.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                'Plafonne a CHF\u00A0${FamilyService.apgDailyMax.toStringAsFixed(0)}/jour',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.warning,
-                ),
+                S.of(context)!.naissanceCappedAt(FamilyService.apgDailyMax.toStringAsFixed(0)),
+                style: MintTextStyles.labelSmall(color: MintColors.warning).copyWith(fontWeight: FontWeight.w600, fontSize: 12),
               ),
             ),
           ],
@@ -398,10 +361,10 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     final diffJour = salaireJour - apgJour;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -411,66 +374,49 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             children: [
               const Icon(Icons.receipt_long_outlined,
                   size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
+              const SizedBox(width: MintSpacing.sm),
               Text(
                 S.of(context)!.naissanceDailyDetail,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildBarComparison(
             label: S.of(context)!.naissanceSalaryPerDay,
             value: salaireJour,
             maxValue: max(salaireJour, apgJour),
             color: MintColors.primary,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           _buildBarComparison(
             label: S.of(context)!.naissanceApgDay,
             value: apgJour,
             maxValue: max(salaireJour, apgJour),
             color: MintColors.success,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           Divider(color: MintColors.border.withValues(alpha: 0.5)),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 diffJour > 0 ? S.of(context)!.naissanceDiffPerDay : S.of(context)!.naissanceNoLoss,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
               ),
               if (diffJour > 0)
                 Text(
                   '-${FamilyService.formatChf(diffJour)}',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.error,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.error).copyWith(fontWeight: FontWeight.w700),
                 ),
             ],
           ),
           if (perte > 0) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             Text(
-              'Perte totale estimée sur le congé : ${FamilyService.formatChf(perte)}',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.4,
-              ),
+              S.of(context)!.naissanceTotalLossEstimated(FamilyService.formatChf(perte)),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
             ),
           ],
         ],
@@ -482,33 +428,26 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     final result = _congeResult!;
     final totalApg = result['totalApg'] as double;
     final weeks = result['dureeSemaines'] as int;
+    final typeLabel = _isMother
+        ? S.of(context)!.naissanceMaternite
+        : S.of(context)!.naissancePaternite;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.primary,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
           Text(
             FamilyService.formatChf(totalApg),
-            style: GoogleFonts.montserrat(
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              color: MintColors.white,
-            ),
+            style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(fontSize: 28, fontWeight: FontWeight.w800),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: MintSpacing.xs + 2),
           Text(
-            'Ton conge ${_isMother ? "maternite" : "paternite"} '
-            'represente ${FamilyService.formatChf(totalApg)} d\'APG '
-            'sur $weeks semaines',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.white70,
-              height: 1.4,
-            ),
+            S.of(context)!.naissanceChiffreChocText(typeLabel, FamilyService.formatChf(totalApg), weeks),
+            style: MintTextStyles.bodySmall(color: MintColors.white70).copyWith(height: 1.4),
             textAlign: TextAlign.center,
           ),
         ],
@@ -522,24 +461,24 @@ class _NaissanceScreenState extends State<NaissanceScreen>
 
   Widget _buildTab2Allocations() {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Inputs
         _buildAllocInputsCard(),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         if (_allocResult != null) ...[
           // Hero card
           _buildAllocHeroCard(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
 
           // Canton ranking
           _buildAllocRanking(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
 
           // Chiffre choc
           _buildAllocChiffreChoc(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
         ],
 
         _buildDisclaimer(),
@@ -551,10 +490,10 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     final sortedCodes = FamilyService.sortedCantonCodes;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -566,11 +505,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.naissanceCanton,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
                 ),
               ),
               Container(
@@ -582,10 +517,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _cantonAlloc,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                     items: sortedCodes.map((code) {
                       return DropdownMenuItem(
                         value: code,
@@ -606,7 +538,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Children stepper
           Row(
@@ -614,11 +546,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.naissanceNbEnfants,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
                 ),
               ),
               _buildStepper(
@@ -641,41 +569,30 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     final result = _allocResult!;
     final mensuel = result['mensuelTotal'] as double;
     final annuel = result['annuelTotal'] as double;
+    final cantonNom = FamilyService.cantonNames[_cantonAlloc] ?? _cantonAlloc;
+    final plural = _nbEnfantsAlloc > 1 ? 's' : '';
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.primary,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
           Text(
             '${FamilyService.formatChf(mensuel)}/mois',
-            style: GoogleFonts.montserrat(
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              color: MintColors.white,
-            ),
+            style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(fontSize: 28, fontWeight: FontWeight.w800),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: MintSpacing.xs + 2),
           Text(
             '${FamilyService.formatChf(annuel)}/an',
-            style: GoogleFonts.montserrat(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: MintColors.white70,
-            ),
+            style: MintTextStyles.headlineMedium(color: MintColors.white70).copyWith(fontSize: 18),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: MintSpacing.xs + 2),
           Text(
-            'Allocations familiales a ${FamilyService.cantonNames[_cantonAlloc]} '
-            'pour $_nbEnfantsAlloc enfant${_nbEnfantsAlloc > 1 ? "s" : ""}',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.white60,
-              height: 1.4,
-            ),
+            S.of(context)!.naissanceAllocForCanton(cantonNom, _nbEnfantsAlloc, plural),
+            style: MintTextStyles.bodySmall(color: MintColors.white60).copyWith(height: 1.4),
             textAlign: TextAlign.center,
           ),
         ],
@@ -689,30 +606,25 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     final maxMensuel = _allocRanking.first['mensuelTotal'] as double;
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: MintSpacing.sm + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+            padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.sm, MintSpacing.lg, MintSpacing.sm + 4),
             child: Row(
               children: [
                 const Icon(Icons.leaderboard_outlined,
                     size: 16, color: MintColors.textMuted),
-                const SizedBox(width: 8),
+                const SizedBox(width: MintSpacing.sm),
                 Text(
                   S.of(context)!.naissanceRanking26,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textMuted,
-                    letterSpacing: 1,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                 ),
               ],
             ),
@@ -724,7 +636,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             final ratio = maxMensuel > 0 ? mensuel / maxMensuel : 0.0;
 
             return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.xs + 2),
               color: isHighlighted
                   ? MintColors.primary.withValues(alpha: 0.06)
                   : null,
@@ -734,30 +646,28 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                     width: 28,
                     child: Text(
                       '${c['rank']}',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                      style: MintTextStyles.labelSmall(
                         color: isHighlighted
                             ? MintColors.primary
                             : MintColors.textMuted,
-                      ),
+                      ).copyWith(fontWeight: FontWeight.w600, fontSize: 12),
                     ),
                   ),
                   SizedBox(
                     width: 32,
                     child: Text(
                       canton,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight:
-                            isHighlighted ? FontWeight.w700 : FontWeight.w500,
+                      style: MintTextStyles.bodySmall(
                         color: isHighlighted
                             ? MintColors.primary
                             : MintColors.textPrimary,
+                      ).copyWith(
+                        fontWeight:
+                            isHighlighted ? FontWeight.w700 : FontWeight.w500,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: MintSpacing.sm),
                   Expanded(
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(3),
@@ -771,18 +681,16 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: MintSpacing.sm + 2),
                   SizedBox(
                     width: 70,
                     child: Text(
                       FamilyService.formatChf(mensuel),
-                      style: GoogleFonts.montserrat(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                      style: MintTextStyles.labelSmall(
                         color: isHighlighted
                             ? MintColors.primary
                             : MintColors.textPrimary,
-                      ),
+                      ).copyWith(fontWeight: FontWeight.w600, fontSize: 12),
                       textAlign: TextAlign.right,
                     ),
                   ),
@@ -803,7 +711,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
 
     if (diff <= 0) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(MintSpacing.md),
         decoration: BoxDecoration(
           color: MintColors.success.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(16),
@@ -814,16 +722,11 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           children: [
             const Icon(Icons.emoji_events_outlined,
                 size: 20, color: MintColors.success),
-            const SizedBox(width: 12),
+            const SizedBox(width: MintSpacing.sm + 4),
             Expanded(
               child: Text(
-                '$cantonNom offre parmi les allocations familiales les plus avantageuses de Suisse !',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.success,
-                  height: 1.4,
-                ),
+                S.of(context)!.naissanceBestCanton(cantonNom),
+                style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600, height: 1.4),
               ),
             ),
           ],
@@ -832,8 +735,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     }
 
     return _buildEducationalInsert(
-      'En habitant a $bestCanton au lieu de $cantonNom, '
-      'tu recevrais ${FamilyService.formatChf(diff)} de plus par an en allocations familiales.',
+      S.of(context)!.naissanceAllocDiff(bestCanton, cantonNom, FamilyService.formatChf(diff)),
     );
   }
 
@@ -866,15 +768,18 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     final interruptionMois = _isMother ? 12 : 2;
     final lppPerteEstimee = _revenuImpact * 0.07 * interruptionMois / 12;
 
+    final cantonNom = FamilyService.cantonNames[_cantonAlloc] ?? _cantonAlloc;
+    final plural = _nbEnfantsImpact > 1 ? 's' : '';
+
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Inputs
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(MintSpacing.lg),
           decoration: BoxDecoration(
             color: MintColors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
                 color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
           ),
@@ -892,17 +797,13 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                   });
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: MintSpacing.md),
               Row(
                 children: [
                   Expanded(
                     child: Text(
                       S.of(context)!.naissanceNbEnfants,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
                     ),
                   ),
                   _buildStepper(
@@ -917,7 +818,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: MintSpacing.md),
               _buildSlider(
                 label: S.of(context)!.naissanceFraisGarde,
                 value: _fraisGarde,
@@ -933,7 +834,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         // 1. Tax savings
         _buildImpactSection(
@@ -945,20 +846,20 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               S.of(context)!.naissanceDeductionPerChild,
               '$_nbEnfantsImpact x ${FamilyService.formatChf(FamilyService.deductionParEnfant)}',
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: MintSpacing.xs + 2),
             _buildResultRow(
               S.of(context)!.naissanceDeductionChildcare,
               FamilyService.formatChf(
                   fiscalResult['deductionGarde'] as double),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: MintSpacing.xs + 2),
             _buildResultRow(
               S.of(context)!.naissanceEstimatedTaxSaving,
               FamilyService.formatChf(economieFiscale),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm + 4),
 
         // 2. Allocations income
         _buildImpactSection(
@@ -970,18 +871,14 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               S.of(context)!.naissanceAnnualAllowances,
               FamilyService.formatChf(allocAnnuel),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: MintSpacing.xs),
             Text(
-              '(${FamilyService.cantonNames[_cantonAlloc]}, '
-              '$_nbEnfantsImpact enfant${_nbEnfantsImpact > 1 ? "s" : ""})',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textMuted,
-              ),
+              S.of(context)!.naissanceAllocContextNote(cantonNom, _nbEnfantsImpact, plural),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm + 4),
 
         // 3. Career gap warning
         _buildImpactSection(
@@ -993,33 +890,29 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               S.of(context)!.naissanceEstimatedInterruption,
               S.of(context)!.naissanceMonths(interruptionMois),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: MintSpacing.xs + 2),
             _buildResultRow(
               S.of(context)!.naissanceLppLossEstimated,
               '-${FamilyService.formatChf(lppPerteEstimee)}',
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: MintSpacing.xs),
             Text(
               S.of(context)!.naissanceLppLessContributions,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textMuted,
-                height: 1.4,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12, height: 1.4),
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         // Net impact
         AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(MintSpacing.lg),
           decoration: BoxDecoration(
             color: netImpact >= 0
                 ? MintColors.success.withValues(alpha: 0.08)
                 : MintColors.error.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: netImpact >= 0
                   ? MintColors.success.withValues(alpha: 0.3)
@@ -1030,39 +923,30 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             children: [
               Text(
                 S.of(context)!.naissanceNetAnnualImpact,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: MintSpacing.sm),
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 child: Text(
                   '${netImpact >= 0 ? "+" : ""}${FamilyService.formatChf(netImpact)}',
                   key: ValueKey(netImpact),
-                  style: GoogleFonts.montserrat(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w800,
+                  style: MintTextStyles.displayMedium(
                     color: netImpact >= 0
                         ? MintColors.success
                         : MintColors.error,
-                  ),
+                  ).copyWith(fontSize: 28, fontWeight: FontWeight.w800),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: MintSpacing.sm),
               Text(
                 S.of(context)!.naissanceNetFormula,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         // Waterfall — fiscal impact breakdown (child tax deductions)
         FiscalImpactWaterfall(
@@ -1096,65 +980,65 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           ],
           totalSavings: economieFiscale + allocAnnuel,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         _buildEducationalInsert(
           S.of(context)!.naissanceChildCostEducational,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         BudgetBebeWidget(
           monthlyIncome: _revenuImpact / 12,
           costPerChild: 1200,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
-        // ── P9-A : Coût du bonheur — décomposition mensuelle ──
+        // ── P9-A : Cout du bonheur — decomposition mensuelle ──
         BabyCostWidget(
           yearsOfDependency: 25,
           items: [
             BabyCostItem(
               label: S.of(context)!.naissanceBabyCostCreche,
-              emoji: '🏫',
+              emoji: '\u{1F3EB}',
               monthlyCost: 1800,
               note: S.of(context)!.naissanceBabyCostCrecheNote,
             ),
             BabyCostItem(
               label: S.of(context)!.naissanceBabyCostAlimentation,
-              emoji: '🍼',
+              emoji: '\u{1F37C}',
               monthlyCost: 250,
             ),
             BabyCostItem(
               label: S.of(context)!.naissanceBabyCostVetements,
-              emoji: '👕',
+              emoji: '\u{1F455}',
               monthlyCost: 150,
             ),
             BabyCostItem(
               label: S.of(context)!.naissanceBabyCostLamal,
-              emoji: '🏥',
+              emoji: '\u{1F3E5}',
               monthlyCost: 120,
               note: S.of(context)!.naissanceBabyCostLamalNote,
             ),
             BabyCostItem(
               label: S.of(context)!.naissanceBabyCostActivites,
-              emoji: '⚽',
+              emoji: '\u26BD',
               monthlyCost: 100,
             ),
             BabyCostItem(
               label: S.of(context)!.naissanceBabyCostDivers,
-              emoji: '🎁',
+              emoji: '\u{1F381}',
               monthlyCost: 80,
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
-        // ── P8-C : Clause 3a bénéficiaire (OPP3 art. 2) ──
+        // ── P8-C : Clause 3a beneficiaire (OPP3 art. 2) ──
         Clause3aWidget(
           balance3a: _revenuImpact * 0.3, // estimation ~30% du revenu
           hasClause: false,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         _buildDisclaimer(),
       ],
@@ -1168,7 +1052,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     required List<Widget> children,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -1188,18 +1072,14 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                 ),
                 child: Icon(icon, size: 16, color: color),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: MintSpacing.sm + 2),
               Text(
                 title,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           ...children,
         ],
       ),
@@ -1215,11 +1095,11 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     final nbChecked = _checkedItems.length;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Intro
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(MintSpacing.md),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
             borderRadius: BorderRadius.circular(16),
@@ -1230,28 +1110,24 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             children: [
               const Icon(Icons.child_care,
                   color: MintColors.info, size: 20),
-              const SizedBox(width: 12),
+              const SizedBox(width: MintSpacing.sm + 4),
               Expanded(
                 child: Text(
                   S.of(context)!.naissanceChecklistIntro,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         // Progress bar
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(MintSpacing.lg),
           decoration: BoxDecoration(
             color: MintColors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(color: MintColors.lightBorder),
           ),
           child: Column(
@@ -1261,25 +1137,19 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                 children: [
                   Text(
                     S.of(context)!.naissanceStepsCompleted(nbChecked, items.length),
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                   ),
                   Text(
                     '${(nbChecked / items.length * 100).toStringAsFixed(0)}%',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
+                    style: MintTextStyles.titleMedium(
                       color: nbChecked == items.length
                           ? MintColors.success
                           : MintColors.primary,
-                    ),
+                    ).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: MintSpacing.sm + 4),
               ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: AnimatedContainer(
@@ -1297,7 +1167,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         // Checklist items
         ...items.asMap().entries.map((entry) {
@@ -1309,7 +1179,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             description: item['description'] as String,
           );
         }),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         _buildDisclaimer(),
       ],
@@ -1325,7 +1195,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     final isExpanded = _expandedItems[index] ?? false;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: MintSpacing.sm + 2),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
@@ -1342,7 +1212,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         child: Column(
           children: [
             Semantics(
-              label: 'Détails de $title',
+              label: title,
               button: true,
               child: GestureDetector(
                 onTap: () {
@@ -1351,12 +1221,12 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                   });
                 },
                 child: Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(MintSpacing.md),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Semantics(
-                        label: 'Cocher $title',
+                        label: title,
                         button: true,
                         toggled: isChecked,
                         child: GestureDetector(
@@ -1392,16 +1262,16 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                           ),
                         ),
                       ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: MintSpacing.sm + 4),
                     Expanded(
                       child: Text(
                         title,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                        style: MintTextStyles.bodyMedium(
                           color: isChecked
                               ? MintColors.textMuted
                               : MintColors.textPrimary,
+                        ).copyWith(
+                          fontWeight: FontWeight.w600,
                           decoration:
                               isChecked ? TextDecoration.lineThrough : null,
                         ),
@@ -1422,14 +1292,10 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             AnimatedCrossFade(
               firstChild: const SizedBox.shrink(),
               secondChild: Container(
-                padding: const EdgeInsets.fromLTRB(52, 0, 16, 16),
+                padding: const EdgeInsets.fromLTRB(52, 0, MintSpacing.md, MintSpacing.md),
                 child: Text(
                   description,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
                 ),
               ),
               crossFadeState: isExpanded
@@ -1482,20 +1348,12 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             Expanded(
               child: Text(
                 label,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
               ),
             ),
             Text(
               FamilyService.formatChf(value),
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: MintColors.primary,
-              ),
+              style: MintTextStyles.titleMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -1508,16 +1366,20 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             trackHeight: 4,
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
           ),
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions > 0 ? divisions : 1,
-            onChanged: (v) {
-              setState(() {
-                onChanged((v / step).round() * step);
-              });
-            },
+          child: Semantics(
+            label: label,
+            value: FamilyService.formatChf(value),
+            child: Slider(
+              value: value,
+              min: min,
+              max: max,
+              divisions: divisions > 0 ? divisions : 1,
+              onChanged: (v) {
+                setState(() {
+                  onChanged((v / step).round() * step);
+                });
+              },
+            ),
           ),
         ),
       ],
@@ -1532,35 +1394,39 @@ class _NaissanceScreenState extends State<NaissanceScreen>
   }) {
     return Row(
       children: [
-        IconButton(
-          onPressed: value > minVal
-              ? () {
-                  setState(() => onChanged(value - 1));
-                }
-              : null,
-          icon: const Icon(Icons.remove_circle_outline, size: 24),
-          color: MintColors.primary,
+        Semantics(
+          label: S.of(context)!.naissanceNbEnfants,
+          button: true,
+          child: IconButton(
+            onPressed: value > minVal
+                ? () {
+                    setState(() => onChanged(value - 1));
+                  }
+                : null,
+            icon: const Icon(Icons.remove_circle_outline, size: 24),
+            color: MintColors.primary,
+          ),
         ),
         SizedBox(
-          width: 32,
+          width: MintSpacing.xl,
           child: Text(
             '$value',
-            style: GoogleFonts.montserrat(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
         ),
-        IconButton(
-          onPressed: value < maxVal
-              ? () {
-                  setState(() => onChanged(value + 1));
-                }
-              : null,
-          icon: const Icon(Icons.add_circle_outline, size: 24),
-          color: MintColors.primary,
+        Semantics(
+          label: S.of(context)!.naissanceNbEnfants,
+          button: true,
+          child: IconButton(
+            onPressed: value < maxVal
+                ? () {
+                    setState(() => onChanged(value + 1));
+                  }
+                : null,
+            icon: const Icon(Icons.add_circle_outline, size: 24),
+            color: MintColors.primary,
+          ),
         ),
       ],
     );
@@ -1572,18 +1438,11 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
         ),
         Text(
           value,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -1605,22 +1464,15 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           children: [
             Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
             Text(
               FamilyService.formatChf(value),
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: MintSpacing.xs + 2),
         ClipRRect(
           borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
@@ -1636,7 +1488,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
 
   Widget _buildEducationalInsert(String text) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.info.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
@@ -1646,7 +1498,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(MintSpacing.xs + 2),
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
@@ -1654,27 +1506,19 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             child: const Icon(Icons.lightbulb_outline,
                 size: 18, color: MintColors.info),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   S.of(context)!.naissanceDidYouKnow,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.info,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
                   text,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
                 ),
               ],
             ),
@@ -1686,7 +1530,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
 
   Widget _buildDisclaimer() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
@@ -1696,15 +1540,11 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
               S.of(context)!.naissanceDisclaimer,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.deepOrange,
-                height: 1.5,
-              ),
+              style: MintTextStyles.micro(color: MintColors.deepOrange).copyWith(fontSize: 12, height: 1.5, fontStyle: FontStyle.normal),
             ),
           ),
         ],

@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Graphique en eventail (fan/ribbon chart) — projection stochastique
@@ -43,20 +43,12 @@ class MonteCarloChart extends StatelessWidget {
         // ── Titre ─────────────────────────────────────────────
         Text(
           'Projection stochastique',
-          style: GoogleFonts.montserrat(
-            fontSize: 17,
-            fontWeight: FontWeight.w800,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 4),
         Text(
           '${result.numSimulations} simulations avec rendements al\u00e9atoires',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: MintColors.textSecondary,
-            height: 1.4,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 13, height: 1.4),
         ),
         const SizedBox(height: 16),
 
@@ -89,11 +81,7 @@ class MonteCarloChart extends StatelessWidget {
         Text(
           'Les rendements pass\u00e9s ne pr\u00e9sagent pas les rendements '
           'futurs. Simulation \u00e0 titre p\u00e9dagogique (LSFin).',
-          style: GoogleFonts.inter(
-            fontSize: 10,
-            color: MintColors.textMuted,
-            height: 1.4,
-          ),
+          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 10, fontStyle: FontStyle.normal, height: 1.4),
         ),
       ],
     );
@@ -166,10 +154,7 @@ class MonteCarloChart extends StatelessWidget {
         const SizedBox(width: 5),
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
         ),
       ],
     );
@@ -225,11 +210,7 @@ class MonteCarloChart extends StatelessWidget {
                   flex: 5,
                   child: Text(
                     "Risque d'\u00e9puisement du\ncapital avant 90 ans",
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                      height: 1.35,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.35),
                   ),
                 ),
                 Expanded(
@@ -239,11 +220,7 @@ class MonteCarloChart extends StatelessWidget {
                     children: [
                       Text(
                         '$ruinPct%',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: ruinColor,
-                        ),
+                        style: MintTextStyles.bodyLarge(color: ruinColor).copyWith(fontSize: 16, fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(width: 10),
                       SizedBox(
@@ -269,11 +246,7 @@ class MonteCarloChart extends StatelessWidget {
           flex: 5,
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.35,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.35),
           ),
         ),
         Expanded(
@@ -281,12 +254,7 @@ class MonteCarloChart extends StatelessWidget {
           child: Text(
             value,
             textAlign: TextAlign.right,
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-              height: 1.35,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700, height: 1.35),
           ),
         ),
       ],
@@ -488,10 +456,7 @@ class _MonteCarloFanPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: label,
-          style: GoogleFonts.inter(
-            fontSize: 10,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 10, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
@@ -589,11 +554,7 @@ class _MonteCarloFanPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: label,
-        style: GoogleFonts.inter(
-          fontSize: 9,
-          fontWeight: FontWeight.w600,
-          color: color,
-        ),
+        style: MintTextStyles.micro(color: color).copyWith(fontSize: 9, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
@@ -638,10 +599,7 @@ class _MonteCarloFanPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: '$age',
-          style: GoogleFonts.inter(
-            fontSize: 10,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 10, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
@@ -661,11 +619,7 @@ class _MonteCarloFanPainter extends CustomPainter {
     final ansTp = TextPainter(
       text: TextSpan(
         text: 'ans',
-        style: GoogleFonts.inter(
-          fontSize: 9,
-          color: MintColors.textMuted,
-          fontStyle: FontStyle.italic,
-        ),
+        style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 9),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
@@ -703,13 +657,7 @@ class _MonteCarloFanPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: label,
-          style: GoogleFonts.inter(
-            fontSize: 9,
-            fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
-            color: isBold
-                ? MintColors.primary
-                : MintColors.textMuted,
-          ),
+          style: MintTextStyles.micro(color: isBold ? MintColors.primary : MintColors.textMuted).copyWith(fontSize: 9, fontWeight: isBold ? FontWeight.w700 : FontWeight.w500, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       )..layout();

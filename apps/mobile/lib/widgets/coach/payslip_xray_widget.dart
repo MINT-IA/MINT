@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -73,19 +73,12 @@ class _PayslipXRayWidgetState extends State<PayslipXRayWidget> {
           children: [
             Text(
               'Radiographie de ta fiche de paie',
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             Text(
               'Tape sur chaque ligne pour comprendre',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
             ),
             const SizedBox(height: 16),
 
@@ -125,11 +118,7 @@ class _PayslipXRayWidgetState extends State<PayslipXRayWidget> {
                         'Ton vrai salaire\u00a0: '
                         '${formatChfWithPrefix(widget.employerHiddenCost!)} '
                         '(cotisations employeur incluses)',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.primary,
-                        ),
+                        style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
@@ -140,11 +129,7 @@ class _PayslipXRayWidgetState extends State<PayslipXRayWidget> {
             const SizedBox(height: 12),
             Text(
               'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin).',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ],
         ),
@@ -158,20 +143,12 @@ class _PayslipXRayWidgetState extends State<PayslipXRayWidget> {
         Expanded(
           child: Text(
             label,
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
         ),
         Text(
           formatChfWithPrefix(amount),
-          style: GoogleFonts.montserrat(
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-            color: isGross ? MintColors.textPrimary : MintColors.scoreExcellent,
-          ),
+          style: MintTextStyles.titleMedium(color: isGross ? MintColors.textPrimary : MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w800),
         ),
       ],
     );
@@ -204,19 +181,12 @@ class _PayslipXRayWidgetState extends State<PayslipXRayWidget> {
                 Expanded(
                   child: Text(
                     '${line.label} (${line.percentage.toStringAsFixed(1)}%)',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                   ),
                 ),
                 Text(
                   '-${formatChfWithPrefix(line.amount)}',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.scoreCritique,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(width: 4),
                 Icon(
@@ -233,11 +203,7 @@ class _PayslipXRayWidgetState extends State<PayslipXRayWidget> {
                 child: Text(
                   line.explanation +
                       (line.legalRef != null ? ' (${line.legalRef})' : ''),
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ),
             ],

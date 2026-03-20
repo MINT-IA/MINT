@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 class DebtAlertBanner extends StatelessWidget {
   final double? monthlyPayment;
@@ -36,11 +36,7 @@ class DebtAlertBanner extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Priorit\u00e9 : r\u00e9duire tes dettes',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.error,
-                  ),
+                  style: MintTextStyles.headlineMedium(color: MintColors.error).copyWith(fontSize: 15),
                 ),
               ),
             ],
@@ -49,13 +45,13 @@ class DebtAlertBanner extends StatelessWidget {
           if (totalBalance != null && totalBalance! > 0)
             Text(
               'Solde restant : CHF ${totalBalance!.toStringAsFixed(0)}',
-              style: GoogleFonts.inter(fontSize: 13, color: MintColors.textPrimary),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
           if (monthlyPayment != null && monthlyPayment! > 0) ...[
             const SizedBox(height: 4),
             Text(
               'Remboursement : CHF ${monthlyPayment!.toStringAsFixed(0)}/mois',
-              style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ],
           const SizedBox(height: 12),
@@ -66,7 +62,7 @@ class DebtAlertBanner extends StatelessWidget {
               icon: const Icon(Icons.arrow_forward, size: 16),
               label: Text(
                 'Voir le plan de sortie',
-                style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
               ),
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.error,

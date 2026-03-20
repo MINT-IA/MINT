@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/subscription_service.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
@@ -109,19 +109,12 @@ class CoachGate extends StatelessWidget {
                     // Label
                     Text(
                       'Fonctionnalite Coach',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Disponible avec MINT Coach',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textMuted,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
                     ),
                     const SizedBox(height: 16),
 
@@ -131,10 +124,7 @@ class CoachGate extends StatelessWidget {
                       icon: const Icon(Icons.lock_open_rounded, size: 16),
                       label: Text(
                         'Debloquer',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: MintColors.primary,

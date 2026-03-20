@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -66,19 +66,12 @@ class DoublePriceFreedomWidget extends StatelessWidget {
           children: [
             Text(
               'Le double prix de ta libert\u00e9',
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             Text(
               'Charges totales \u00e0 ${formatChfWithPrefix(grossIncome)} brut/an',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
             ),
             const SizedBox(height: 16),
 
@@ -108,12 +101,7 @@ class DoublePriceFreedomWidget extends StatelessWidget {
                 'de plus (\u00d7${_multiplier.toStringAsFixed(1)}).\n'
                 'Pour garder le m\u00eame net, facture '
                 '+${((_multiplier - 1) * 100).toStringAsFixed(0)}%.',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.scoreCritique,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w500, height: 1.4),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -122,11 +110,7 @@ class DoublePriceFreedomWidget extends StatelessWidget {
             Text(
               'Cotisations sociales\u00a0: LAVS art. 4-14, LAA art. 1a, LACI art. 2. '
               'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin).',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ],
         ),
@@ -143,11 +127,7 @@ class DoublePriceFreedomWidget extends StatelessWidget {
           child: Text(
             'Salari\u00e9\u00b7e',
             textAlign: TextAlign.right,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: MintColors.scoreExcellent,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w600),
           ),
         ),
         Expanded(
@@ -155,11 +135,7 @@ class DoublePriceFreedomWidget extends StatelessWidget {
           child: Text(
             'Ind\u00e9p.',
             textAlign: TextAlign.right,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: MintColors.scoreCritique,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -175,10 +151,7 @@ class DoublePriceFreedomWidget extends StatelessWidget {
             flex: 3,
             child: Text(
               line.label,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
             ),
           ),
           Expanded(
@@ -186,11 +159,7 @@ class DoublePriceFreedomWidget extends StatelessWidget {
             child: Text(
               formatChfWithPrefix(line.employeeAmount),
               textAlign: TextAlign.right,
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
             ),
           ),
           Expanded(
@@ -198,13 +167,7 @@ class DoublePriceFreedomWidget extends StatelessWidget {
             child: Text(
               formatChfWithPrefix(line.selfEmployedAmount),
               textAlign: TextAlign.right,
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: line.selfEmployedAmount > line.employeeAmount
-                    ? MintColors.scoreCritique
-                    : MintColors.textSecondary,
-              ),
+              style: MintTextStyles.labelSmall(color: line.selfEmployedAmount > line.employeeAmount ? MintColors.scoreCritique : MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
             ),
           ),
         ],
@@ -219,11 +182,7 @@ class DoublePriceFreedomWidget extends StatelessWidget {
           flex: 3,
           child: Text(
             'TOTAL /an',
-            style: GoogleFonts.montserrat(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
         ),
         Expanded(
@@ -231,11 +190,7 @@ class DoublePriceFreedomWidget extends StatelessWidget {
           child: Text(
             formatChfWithPrefix(totalEmployee),
             textAlign: TextAlign.right,
-            style: GoogleFonts.montserrat(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: MintColors.scoreExcellent,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w700),
           ),
         ),
         Expanded(
@@ -243,11 +198,7 @@ class DoublePriceFreedomWidget extends StatelessWidget {
           child: Text(
             formatChfWithPrefix(totalSelfEmployed),
             textAlign: TextAlign.right,
-            style: GoogleFonts.montserrat(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: MintColors.scoreCritique,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
           ),
         ),
       ],

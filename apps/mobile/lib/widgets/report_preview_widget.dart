@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/clarity_state.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 class ReportPreviewWidget extends StatelessWidget {
   final ClarityState state;
@@ -34,10 +34,7 @@ class ReportPreviewWidget extends StatelessWidget {
                     Expanded(
                       child: Text(
                         'Aperçu de ton Plan Mint',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: MintTextStyles.headlineLarge(color: MintColors.textPrimary).copyWith(fontSize: 24),
                       ),
                     ),
                   ],
@@ -147,10 +144,7 @@ class ReportPreviewWidget extends StatelessWidget {
                 // Actions prêtes
                 Text(
                   'Actions prêtes : ${state.actionsReady}/${state.totalActions}',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
                 ),
 
                 const SizedBox(height: 16),
@@ -222,10 +216,7 @@ class ReportPreviewWidget extends StatelessWidget {
                 if (state.unlockedBadges.isNotEmpty) ...[
                   Text(
                     'Badges débloqués',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
                   ),
                   const SizedBox(height: 12),
                   Wrap(

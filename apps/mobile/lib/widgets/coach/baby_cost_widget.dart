@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P9-A  Le Coût du bonheur — 1'200 CHF/mois × 25 ans
@@ -108,11 +108,7 @@ class BabyCostWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Le coût du bonheur',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -148,10 +144,10 @@ class BabyCostWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary)),
+          Text(label, style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
           Text(
             value,
-            style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w800, color: color),
+            style: MintTextStyles.titleMedium(color: color).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -164,11 +160,7 @@ class BabyCostWidget extends StatelessWidget {
       children: [
         Text(
           'Décomposition mensuelle',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 10),
         ...items.map((item) => Padding(
@@ -183,23 +175,19 @@ class BabyCostWidget extends StatelessWidget {
                   children: [
                     Text(
                       item.label,
-                      style: GoogleFonts.inter(fontSize: 13, color: MintColors.textPrimary),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                     ),
                     if (item.note != null)
                       Text(
                         item.note!,
-                        style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                        style: MintTextStyles.micro(color: MintColors.textSecondary),
                       ),
                   ],
                 ),
               ),
               Text(
                 'CHF ${_fmt(item.monthlyCost)}',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -221,11 +209,11 @@ class BabyCostWidget extends StatelessWidget {
         children: [
           Text(
             'Total / mois',
-            style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: MintColors.textPrimary),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
           Text(
             'CHF ${_fmt(totalMonthly)}',
-            style: GoogleFonts.montserrat(fontSize: 20, fontWeight: FontWeight.w800, color: MintColors.primary),
+            style: MintTextStyles.titleMedium(color: MintColors.primary).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -251,20 +239,12 @@ class BabyCostWidget extends StatelessWidget {
               children: [
                 Text(
                   'La crèche coûte plus cher que ton loyer.',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.scoreCritique,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   '${creche.emoji} ${creche.label} : CHF ${_fmt(creche.monthlyCost)}/mois${canton != null ? " à $canton" : ""}.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
             ),
@@ -278,11 +258,7 @@ class BabyCostWidget extends StatelessWidget {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : OFS, statistiques des ménages suisses.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

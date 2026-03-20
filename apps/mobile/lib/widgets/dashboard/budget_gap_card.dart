@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/retirement_projection_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  BUDGET GAP CARD — Chantier 2 / Retirement Cockpit
@@ -67,11 +67,7 @@ class BudgetGapCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Budget retraite estim\u00e9',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -109,20 +105,12 @@ class BudgetGapCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   isSurplus ? 'Exc\u00e9dent mensuel' : 'D\u00e9ficit mensuel',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
               Text(
                 '${isSurplus ? '+' : ''}${_formatChf(budgetGap.soldeMensuel)}',
-                style: GoogleFonts.montserrat(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: soldeColor,
-                ),
+                style: MintTextStyles.headlineMedium(color: soldeColor).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
               ),
             ],
           ),
@@ -144,11 +132,7 @@ class BudgetGapCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           alerte,
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            color: MintColors.textSecondary,
-                            height: 1.4,
-                          ),
+                          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(height: 1.4),
                         ),
                       ),
                     ],
@@ -171,19 +155,12 @@ class BudgetGapCard extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: color,
-            ),
+            style: MintTextStyles.bodySmall(color: color),
           ),
         ),
         Text(
           '${isDeduction ? '\u2212 ' : ''}${_formatChf(amount.abs())}',
-          style: GoogleFonts.montserrat(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: color,
-          ),
+          style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );

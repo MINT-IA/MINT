@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 class FinancialDrawer extends StatefulWidget {
   final String title;
@@ -111,11 +111,7 @@ class _FinancialDrawerState extends State<FinancialDrawer>
                 Expanded(
                   child: Text(
                     widget.title,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
                 Text.rich(
@@ -123,20 +119,12 @@ class _FinancialDrawerState extends State<FinancialDrawer>
                     children: [
                       TextSpan(
                         text: widget.heroValue,
-                        style: GoogleFonts.montserrat(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: widget.accentColor,
-                        ),
+                        style: MintTextStyles.headlineMedium(color: widget.accentColor).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
                       ),
                       if (widget.heroSuffix != null)
                         TextSpan(
                           text: widget.heroSuffix,
-                          style: GoogleFonts.montserrat(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: MintColors.textSecondary,
-                          ),
+                          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
                         ),
                     ],
                   ),
@@ -150,10 +138,7 @@ class _FinancialDrawerState extends State<FinancialDrawer>
                 Expanded(
                   child: Text(
                     widget.subtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12),
                   ),
                 ),
                 if (widget.onEdit != null)

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -24,17 +24,13 @@ class TrajectoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          l10n?.coachTrajectory ?? 'Ta trajectoire',
-          style: GoogleFonts.montserrat(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          l10n.coachTrajectory,
+          style: MintTextStyles.headlineLarge(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 12),
         Container(
@@ -63,11 +59,7 @@ class TrajectoryCard extends StatelessWidget {
           'Simulation \u00e0 titre \u00e9ducatif uniquement. '
           'Ne constitue pas un conseil en placement ou pr\u00e9voyance (LSFin). '
           'Hypoth\u00e8ses modifiables \u2014 r\u00e9sultats non garantis.',
-          style: GoogleFonts.inter(
-            fontSize: 10,
-            color: MintColors.textMuted,
-            fontStyle: FontStyle.italic,
-          ),
+          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
         ),
       ],
     );

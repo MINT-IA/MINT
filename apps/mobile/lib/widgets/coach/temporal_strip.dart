@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Temporal strip widget (P3).
 ///
@@ -37,12 +37,7 @@ class TemporalStrip extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 '\u00c0 ne pas manquer',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 0.3,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.3),
               ),
             ],
           ),
@@ -87,11 +82,7 @@ class TemporalStrip extends StatelessWidget {
             // Title
             Text(
               item.title,
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -105,11 +96,7 @@ class TemporalStrip extends StatelessWidget {
                 Expanded(
                   child: Text(
                     item.timeConstraint,
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: color,
-                    ),
+                    style: MintTextStyles.labelSmall(color: color).copyWith(fontWeight: FontWeight.w600),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -121,11 +108,7 @@ class TemporalStrip extends StatelessWidget {
             // Personal number
             Text(
               item.personalNumber,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

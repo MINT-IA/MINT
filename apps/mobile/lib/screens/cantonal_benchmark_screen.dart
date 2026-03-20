@@ -5,9 +5,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -69,31 +70,17 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 120,
             pinned: true,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
+              icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
               onPressed: () => context.canPop() ? context.pop() : context.go('/home'),
             ),
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                S.of(context)!.benchmarkAppBarTitle,
-                style: GoogleFonts.montserrat(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 18,
-                  color: MintColors.white,
-                ),
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [MintColors.primary, MintColors.primaryLight],
-                  ),
-                ),
-              ),
+            title: Text(
+              S.of(context)!.benchmarkAppBarTitle,
+              style: MintTextStyles.headlineMedium(),
             ),
+            backgroundColor: MintColors.white,
+            surfaceTintColor: MintColors.white,
           ),
           SliverToBoxAdapter(
             child: Padding(
@@ -119,7 +106,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
                               const SizedBox(width: 12),
                               Expanded(child: Text(
                                 'Une erreur est survenue. Réessaie plus tard.',
-                                style: GoogleFonts.inter(fontSize: 13, color: MintColors.error),
+                                style: MintTextStyles.bodySmall(color: MintColors.error),
                               )),
                             ],
                           ),
@@ -163,20 +150,12 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
               children: [
                 Text(
                   S.of(context)!.benchmarkOptInTitle,
-                  style: GoogleFonts.montserrat(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
                   S.of(context)!.benchmarkOptInSubtitle,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -210,21 +189,13 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
           const SizedBox(height: 16),
           Text(
             S.of(context)!.benchmarkExplanationTitle,
-            style: GoogleFonts.montserrat(
-              fontWeight: FontWeight.w600,
-              fontSize: 18,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.headlineMedium(),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             S.of(context)!.benchmarkExplanationBody,
-            style: const TextStyle(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-              height: 1.5,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
             textAlign: TextAlign.center,
           ),
         ],
@@ -241,11 +212,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
       ),
       child: Text(
         S.of(context)!.benchmarkNoProfile,
-        style: const TextStyle(
-          fontSize: 14,
-          color: MintColors.textSecondary,
-          height: 1.5,
-        ),
+        style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
         textAlign: TextAlign.center,
       ),
     );
@@ -266,11 +233,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
         ),
         child: Text(
           S.of(context)!.benchmarkNoData(profile.canton, CantonalBenchmarkService.ageGroupForAge(age)),
-          style: const TextStyle(
-            fontSize: 14,
-            color: MintColors.textSecondary,
-            height: 1.5,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
           textAlign: TextAlign.center,
         ),
       );
@@ -288,11 +251,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
       children: [
         Text(
           S.of(context)!.benchmarkSimilarProfiles(benchmark.canton, benchmark.ageGroup),
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.titleMedium(),
         ),
         const SizedBox(height: 16),
         ...comparison.metrics.map(_buildMetricCard),
@@ -309,20 +268,12 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
             children: [
               Text(
                 S.of(context)!.benchmarkSourceLabel(benchmark.source),
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: MintColors.textMuted,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textMuted),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: MintSpacing.sm),
               Text(
                 benchmark.disclaimer,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: MintColors.textMuted,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textMuted),
               ),
             ],
           ),
@@ -369,11 +320,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
                 Expanded(
                   child: Text(
                     metric.label,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -381,19 +328,12 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
             const SizedBox(height: 8),
             Text(
               text,
-              style: const TextStyle(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.4,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: MintSpacing.sm),
             Text(
               S.of(context)!.benchmarkTypicalRange(_fmt(metric.range.low), _fmt(metric.range.high)),
-              style: const TextStyle(
-                fontSize: 12,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textMuted),
             ),
           ],
         ),

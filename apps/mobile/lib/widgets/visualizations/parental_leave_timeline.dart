@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  PARENTAL LEAVE APG TIMELINE VISUALIZATION
@@ -208,19 +208,12 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
                   widget.leaveType == LeaveType.maternity
                       ? 'Conge maternite'
                       : 'Conge paternite',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   '${widget.weeks.length} semaines  ·  Allocations APG',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
                 ),
               ],
             ),
@@ -240,11 +233,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
                 ),
                 child: Text(
                   _formatChf(_totalApg * _progressAnimation.value),
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.white,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                 ),
               );
             },
@@ -304,13 +293,9 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
                         // Week number
                         Text(
                           'S${week.weekNumber}',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: isHighlighted
-                                ? _themeColor
-                                : MintColors.textPrimary,
-                          ),
+                          style: MintTextStyles.bodySmall(
+                            color: isHighlighted ? _themeColor : MintColors.textPrimary,
+                          ).copyWith(fontWeight: FontWeight.w700),
                         ),
                         const SizedBox(height: 4),
 
@@ -324,13 +309,9 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
                         // Daily amount
                         Text(
                           '${week.dailyApg.toStringAsFixed(0)}/j',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: week.isActive
-                                ? _themeColor
-                                : MintColors.textMuted,
-                          ),
+                          style: MintTextStyles.labelSmall(
+                            color: week.isActive ? _themeColor : MintColors.textMuted,
+                          ).copyWith(fontWeight: FontWeight.w600),
                         ),
 
                         // Running total
@@ -343,10 +324,10 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
                                   .where((w) => w.isActive)
                                   .fold(0.0, (s, w) => s + w.weeklyTotal),
                             ),
-                            style: GoogleFonts.montserrat(
+                            style: MintTextStyles.micro(color: _themeColor).copyWith(
                               fontSize: 9,
                               fontWeight: FontWeight.w700,
-                              color: _themeColor,
+                              fontStyle: FontStyle.normal,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -459,11 +440,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
         children: [
           Text(
             'Pont de revenu journalier',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
           // Salary bar
@@ -490,10 +467,9 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
                 const SizedBox(width: 6),
                 Text(
                   'Ecart: ${_formatChf(gap)}/jour',
-                  style: GoogleFonts.inter(
+                  style: MintTextStyles.bodyMedium(color: MintColors.warning).copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: MintColors.warning,
                   ),
                 ),
               ],
@@ -515,11 +491,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
                   const SizedBox(width: 6),
                   Text(
                     'Plafond APG: ${_formatChf(widget.apgDailyCap)}/jour',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.warning,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.warning).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -544,10 +516,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
           width: 52,
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.labelSmall(),
           ),
         ),
         Expanded(
@@ -564,10 +533,9 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
         const SizedBox(width: 8),
         Text(
           value.toStringAsFixed(0),
-          style: GoogleFonts.montserrat(
+          style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
           ),
         ),
       ],
@@ -616,18 +584,14 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.labelSmall(),
         ),
         const SizedBox(height: 4),
         Text(
           value,
-          style: GoogleFonts.montserrat(
+          style: MintTextStyles.bodyLarge(color: color).copyWith(
             fontSize: 15,
             fontWeight: FontWeight.w700,
-            color: color,
           ),
         ),
       ],

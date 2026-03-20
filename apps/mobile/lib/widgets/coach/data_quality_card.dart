@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  DATA QUALITY CARD — LOT 4 / Retirement Dashboard
@@ -134,20 +134,13 @@ class DataQualityCard extends StatelessWidget {
             children: [
               Text(
                 l.dataQualityTitle,
-                style: GoogleFonts.montserrat(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
               ),
               Text(
                 hasGaps
                     ? l.dataQualityMissingCount('${missingFields.length}')
                     : l.dataQualityComplete,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
               ),
             ],
           ),
@@ -162,11 +155,7 @@ class DataQualityCard extends StatelessWidget {
             ),
             child: Text(
               enrichImpact!,
-              style: GoogleFonts.montserrat(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: MintColors.primary,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
             ),
           ),
       ],
@@ -201,19 +190,11 @@ class DataQualityCard extends StatelessWidget {
               children: [
                 Text(
                   l.dataQualityCombined,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
                 ),
                 Text(
                   '${combinedScore!.round()}\u00a0%',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: _scoreColor(combinedScore!),
-                  ),
+                  style: MintTextStyles.bodyMedium(color: _scoreColor(combinedScore!)).copyWith(fontWeight: FontWeight.w800),
                 ),
               ],
             ),
@@ -230,11 +211,7 @@ class DataQualityCard extends StatelessWidget {
           width: 85,
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
           ),
         ),
         Expanded(
@@ -254,11 +231,7 @@ class DataQualityCard extends StatelessWidget {
           child: Text(
             '${value.round()}%',
             textAlign: TextAlign.right,
-            style: GoogleFonts.montserrat(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: _scoreColor(value),
-            ),
+            style: MintTextStyles.labelSmall(color: _scoreColor(value)).copyWith(fontWeight: FontWeight.w700),
           ),
         ),
       ],
@@ -288,12 +261,7 @@ class DataQualityCard extends StatelessWidget {
       children: [
         Text(
           title,
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textMuted,
-            letterSpacing: 0.3,
-          ),
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.3),
         ),
         const SizedBox(height: 8),
         Container(
@@ -335,12 +303,7 @@ class DataQualityCard extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: isKnown
-                    ? MintColors.textPrimary
-                    : MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: isKnown ? MintColors.textPrimary : MintColors.textSecondary),
             ),
           ),
         ],
@@ -362,7 +325,7 @@ class DataQualityCard extends StatelessWidget {
           enrichImpact != null
               ? l.dataQualityEnrichWithImpact(enrichImpact!)
               : l.dataQualityEnrich,
-          style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+          style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: MintColors.primary,

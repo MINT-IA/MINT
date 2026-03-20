@@ -68,12 +68,12 @@ void main() {
 
   /// Helper for a minimal ProjectionResult.
   ProjectionResult buildProjection({double tauxRemplacementBase = 0.6}) {
-    final scenario = ProjectionScenario(
+    const scenario = ProjectionScenario(
       label: 'Base',
-      points: const [],
+      points: [],
       capitalFinal: 500000,
       revenuAnnuelRetraite: 50000,
-      decomposition: const {'avs': 30000, 'lpp': 20000},
+      decomposition: {'avs': 30000, 'lpp': 20000},
     );
     return ProjectionResult(
       prudent: scenario,

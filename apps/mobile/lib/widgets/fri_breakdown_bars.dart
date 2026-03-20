@@ -18,8 +18,8 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Displays 4 horizontal progress bars for FRI component breakdown.
 ///
@@ -117,11 +117,7 @@ class _BarRow extends StatelessWidget {
             child: Center(
               child: Text(
                 shortLabel,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: color,
-                ),
+                style: MintTextStyles.bodySmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
               ),
             ),
           ),
@@ -132,10 +128,7 @@ class _BarRow extends StatelessWidget {
             width: 72,
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
 
@@ -161,11 +154,7 @@ class _BarRow extends StatelessWidget {
             child: Text(
               '${clamped.toStringAsFixed(0)}/25',
               textAlign: TextAlign.right,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
             ),
           ),
         ],

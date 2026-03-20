@@ -15,8 +15,8 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Card showing the top FRI improvement action with estimated delta.
 ///
@@ -80,21 +80,12 @@ class FriActionSuggestion extends StatelessWidget {
                   children: [
                     Text(
                       'Piste de progression',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.info,
-                        letterSpacing: 0.3,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.3),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       actionText,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: MintColors.textPrimary,
-                        height: 1.4,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
                     ),
                   ],
                 ),
@@ -126,11 +117,7 @@ class _DeltaBadge extends StatelessWidget {
       ),
       child: Text(
         '+${delta.toStringAsFixed(0)} pts',
-        style: GoogleFonts.inter(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-          color: MintColors.success,
-        ),
+        style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
       ),
     );
   }

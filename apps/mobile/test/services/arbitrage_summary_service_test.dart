@@ -159,7 +159,7 @@ void main() {
 
     // ── Test 8: Couple sequencing ─────────────────────────────
     test('couple_sequencing computed when married couple both have LPP', () {
-      final conjoint = const ConjointProfile(
+      const conjoint = ConjointProfile(
         birthYear: 1982,
         salaireBrutMensuel: 6000,
         prevoyance: PrevoyanceProfile(avoirLppTotal: 80000),

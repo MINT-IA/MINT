@@ -111,8 +111,14 @@ Each agent follows the Karpathy loop: modify code, execute tests, measure metric
 | **Free** | 0 CHF | Chiffre choc, 1 simulation/day, educational content, ConfidenceScore basique | Same |
 | **Plus** | 9.90 CHF/mo | Chat AI unlimited, all simulators, FHS, streaks & milestones, PDF reports | + Weekly Recap AI, micro-challenges |
 | **Pro** | 29.90 CHF/mo | Voice AI, long-term memory, proactive JITAI alerts, cantonal benchmarks, OCR unlimited | + JITAI nudges, lifecycle adaptation |
-| **Expert** | 49.90 CHF/mo | Human advisor (2 sessions/mo), succession planning, complex arbitrage dossiers | + Agent autonome, institutional APIs |
 | **B2B** | 5-15 CHF/employee/yr | White-label for employers/pension funds, aggregated wellness dashboard | Full platform, custom branding |
+
+**Expert Session (add-on, not a tier)**:
+- 129 CHF/session — consultation with a certified specialist (planificateur, fiscaliste, notaire)
+- AI pre-fills dossier (profile + projections + questions) → specialist productive from minute 1
+- Available to Pro subscribers as add-on
+- MINT earns commission (10-20%) on specialist marketplace — no loss-leader risk
+- Why not a tier: a 49.90 CHF/mo tier with 2 human sessions/mo is economically unviable (specialist costs 150-300 CHF/hr)
 
 **Revenue model validation** (from benchmark):
 - Cleo: $250M ARR on freemium chat model

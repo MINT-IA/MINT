@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/educational/educational_insert_widget.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Insert didactique pour q_mortgage_type
 /// Comparateur neutre Fixe vs SARON
@@ -51,11 +51,7 @@ class MortgageComparisonInsertWidget extends StatelessWidget {
                     const SizedBox(width: 12),
                     Text(
                       'Aucune option n\'est universellement meilleure',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),

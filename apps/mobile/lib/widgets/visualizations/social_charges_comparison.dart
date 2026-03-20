@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  SOCIAL CHARGES COMPARISON — Expatriation & Frontaliers
@@ -188,18 +188,11 @@ class _SocialChargesComparisonState extends State<SocialChargesComparison>
             children: [
               Text(
                 'Charges sociales comparées',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(),
               ),
               Text(
                 'Suisse vs ${widget.otherCountryName}',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
               ),
             ],
           ),
@@ -235,11 +228,7 @@ class _SocialChargesComparisonState extends State<SocialChargesComparison>
                   const SizedBox(width: 6),
                   Text(
                     'Suisse',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.primary,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ],
               ),
@@ -271,11 +260,7 @@ class _SocialChargesComparisonState extends State<SocialChargesComparison>
                   const SizedBox(width: 6),
                   Text(
                     widget.otherCountryName,
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.warning,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.warning).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ],
               ),
@@ -333,30 +318,21 @@ class _SocialChargesComparisonState extends State<SocialChargesComparison>
               children: [
                 Text(
                   '${_totalSwiss.toStringAsFixed(1)}%',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.primary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w800),
                 ),
                 const Spacer(),
                 Text(
                   'TOTAL',
-                  style: GoogleFonts.montserrat(
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: MintColors.textSecondary,
                     letterSpacing: 1.2,
                   ),
                 ),
                 const Spacer(),
                 Text(
                   '${_totalOther.toStringAsFixed(1)}%',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.warning,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.warning).copyWith(fontWeight: FontWeight.w800),
                 ),
               ],
             ),
@@ -409,19 +385,11 @@ class _SocialChargesComparisonState extends State<SocialChargesComparison>
                         isSaving
                             ? 'Économie en Suisse'
                             : 'Surcoût en Suisse',
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: color,
-                        ),
+                        style: MintTextStyles.labelSmall(color: color).copyWith(fontWeight: FontWeight.w600),
                       ),
                       Text(
                         '${isSaving ? '+' : ''}${_formatChf(_netDifferenceCHF.abs())}/an',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: color,
-                        ),
+                        style: MintTextStyles.titleMedium(color: color).copyWith(fontWeight: FontWeight.w800),
                       ),
                     ],
                   ),
@@ -488,10 +456,9 @@ class _MirrorBarPainter extends CustomPainter {
         final swissTp = TextPainter(
           text: TextSpan(
             text: '${charge.swissRate.toStringAsFixed(1)}%',
-            style: GoogleFonts.montserrat(
-              fontSize: 10,
+            style: MintTextStyles.micro(color: MintColors.primary).copyWith(
               fontWeight: FontWeight.w700,
-              color: MintColors.primary,
+              fontStyle: FontStyle.normal,
             ),
           ),
           textDirection: TextDirection.ltr,
@@ -525,10 +492,9 @@ class _MirrorBarPainter extends CustomPainter {
         final otherTp = TextPainter(
           text: TextSpan(
             text: '${charge.otherRate.toStringAsFixed(1)}%',
-            style: GoogleFonts.montserrat(
-              fontSize: 10,
+            style: MintTextStyles.micro(color: MintColors.warning).copyWith(
               fontWeight: FontWeight.w700,
-              color: MintColors.warning,
+              fontStyle: FontStyle.normal,
             ),
           ),
           textDirection: TextDirection.ltr,
@@ -547,10 +513,10 @@ class _MirrorBarPainter extends CustomPainter {
       final labelTp = TextPainter(
         text: TextSpan(
           text: charge.label,
-          style: GoogleFonts.inter(
+          style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(
             fontSize: 9,
             fontWeight: FontWeight.w600,
-            color: MintColors.textSecondary,
+            fontStyle: FontStyle.normal,
           ),
         ),
         textDirection: TextDirection.ltr,

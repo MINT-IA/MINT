@@ -2,10 +2,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  SCORE REVEAL SCREEN — Post-Wizard "Ta-Da" Moment
@@ -293,23 +294,23 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                         MediaQuery.of(context).padding.bottom,
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 28),
+                    padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const SizedBox(height: 40),
+                        const SizedBox(height: MintSpacing.xxl),
                         _buildPhase1Title(),
-                        const SizedBox(height: 36),
+                        const SizedBox(height: MintSpacing.xl + 4),
                         _buildPhase2Gauge(),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: MintSpacing.xl),
                         _buildPhase3SubScores(),
-                        const SizedBox(height: 28),
+                        const SizedBox(height: MintSpacing.lg + 4),
                         _buildPhase4CoachMessage(),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: MintSpacing.xl),
                         _buildPhase5Cta(),
-                        const SizedBox(height: 40),
+                        const SizedBox(height: MintSpacing.xxl),
                         _buildDisclaimer(),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: MintSpacing.lg),
                       ],
                     ),
                   ),
@@ -336,25 +337,18 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
             // Greeting with first name
             Text(
               S.of(context)!.scoreRevealGreeting(_firstName),
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+              style: MintTextStyles.titleMedium(
                 color: MintColors.white.withValues(alpha: 0.6),
-                letterSpacing: 0.5,
-              ),
+              ).copyWith(letterSpacing: 0.5),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             // Main title
             Text(
               S.of(context)!.scoreRevealTitle,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
-                fontSize: 34,
-                fontWeight: FontWeight.w700,
+              style: MintTextStyles.headlineLarge(
                 color: MintColors.white,
-                height: 1.15,
-                letterSpacing: -0.8,
-              ),
+              ).copyWith(fontSize: 34, letterSpacing: -0.8),
             ),
           ],
         ),
@@ -412,21 +406,16 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                 // Animated score number
                 Text(
                   '$displayScore',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 56,
-                    fontWeight: FontWeight.w800,
+                  style: MintTextStyles.displayLarge(
                     color: MintColors.white,
-                    height: 1.0,
-                  ),
+                  ).copyWith(fontSize: 56, height: 1.0),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
                   '/100',
-                  style: GoogleFonts.inter(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
+                  style: MintTextStyles.bodyLarge(
                     color: MintColors.white.withValues(alpha: 0.5),
-                  ),
+                  ).copyWith(fontSize: 15, fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 8),
                 // Level badge
@@ -435,8 +424,8 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                   duration: const Duration(milliseconds: 400),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
+                      horizontal: MintSpacing.md - 4,
+                      vertical: MintSpacing.xs,
                     ),
                     decoration: BoxDecoration(
                       color: _scoreColor.withValues(alpha: 0.20),
@@ -448,11 +437,9 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                     ),
                     child: Text(
                       _localizedLevelLabel(context),
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                      style: MintTextStyles.bodySmall(
                         color: _scoreColor,
-                      ),
+                      ).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
@@ -472,7 +459,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
     return Opacity(
       opacity: _subScoreOpacity.value,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(MintSpacing.md + 4),
         decoration: BoxDecoration(
           color: MintColors.white.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(20),
@@ -488,14 +475,14 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
               icon: Icons.account_balance_wallet_outlined,
               slideOffset: _subScoreBudgetSlide.value,
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: MintSpacing.md - 2),
             _buildSubScoreRow(
               label: S.of(context)!.scoreRevealPrevoyance,
               score: widget.score.prevoyance.score,
               icon: Icons.shield_outlined,
               slideOffset: _subScorePrevoyanceSlide.value,
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: MintSpacing.md - 2),
             _buildSubScoreRow(
               label: S.of(context)!.scoreRevealPatrimoine,
               score: widget.score.patrimoine.score,
@@ -532,9 +519,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
             width: 82,
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
+              style: MintTextStyles.bodySmall(
                 color: MintColors.white.withValues(alpha: 0.7),
               ),
             ),
@@ -587,11 +572,9 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
             child: Text(
               '$displayScore',
               textAlign: TextAlign.right,
-              style: GoogleFonts.montserrat(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
+              style: MintTextStyles.bodyMedium(
                 color: barColor,
-              ),
+              ).copyWith(fontWeight: FontWeight.w700),
             ),
           ),
         ],
@@ -623,7 +606,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
       opacity: _coachMessageOpacity.value,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(MintSpacing.md + 4),
         decoration: BoxDecoration(
           color: MintColors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
@@ -655,29 +638,23 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                 color: MintColors.white,
               ),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: MintSpacing.md - 2),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     S.of(context)!.scoreRevealCoachLabel,
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
+                    style: MintTextStyles.micro(
                       color: _scoreColor.withValues(alpha: 0.8),
-                      letterSpacing: 1.2,
-                    ),
+                    ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1.2),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: MintSpacing.sm - 2),
                   Text(
                     _displayedMessage.isEmpty ? ' ' : _displayedMessage,
-                    style: GoogleFonts.inter(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
+                    style: MintTextStyles.bodyLarge(
                       color: MintColors.white.withValues(alpha: 0.85),
-                      height: 1.5,
-                    ),
+                    ).copyWith(fontSize: 15, fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
@@ -706,7 +683,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
               style: FilledButton.styleFrom(
                 backgroundColor: _scoreColor,
                 foregroundColor: MintColors.white,
-                padding: const EdgeInsets.symmetric(vertical: 18),
+                padding: const EdgeInsets.symmetric(vertical: MintSpacing.md + 2),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -714,15 +691,13 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
               ),
               child: Text(
                 S.of(context)!.scoreRevealCtaDashboard,
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
+                style: MintTextStyles.titleMedium(
                   color: MintColors.white,
-                ),
+                ).copyWith(fontWeight: FontWeight.w700),
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.md - 4),
           // Secondary action
           TextButton(
             onPressed: _ctaOpacity.value > 0.5
@@ -730,11 +705,9 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                 : null,
             child: Text(
               S.of(context)!.scoreRevealCtaReport,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+              style: MintTextStyles.bodyMedium(
                 color: MintColors.white.withValues(alpha: 0.5),
-              ),
+              ).copyWith(fontWeight: FontWeight.w500),
             ),
           ),
         ],
@@ -752,10 +725,8 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
       child: Text(
         S.of(context)!.scoreRevealDisclaimer,
         textAlign: TextAlign.center,
-        style: GoogleFonts.inter(
-          fontSize: 10,
+        style: MintTextStyles.micro(
           color: MintColors.white.withValues(alpha: 0.25),
-          fontStyle: FontStyle.italic,
         ),
       ),
     );

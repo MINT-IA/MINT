@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  MINT SCORE GAUGE — Sprint C4 / MINT Coach
@@ -230,18 +230,11 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
             children: [
               Text(
                 'Forme financière',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               Text(
                 'Score composite  ·  3 piliers',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
               ),
             ],
           ),
@@ -255,11 +248,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
           ),
           child: Text(
             _levelLabel,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: _scoreColor,
-            ),
+            style: MintTextStyles.labelSmall(color: _scoreColor).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -301,21 +290,12 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                   // Score number
                   Text(
                     '$displayScore',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 48,
-                      fontWeight: FontWeight.w800,
-                      color: _scoreColor,
-                      height: 1.0,
-                    ),
+                    style: MintTextStyles.displayLarge(color: _scoreColor).copyWith(fontWeight: FontWeight.w800, height: 1.0),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     '/100',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: MintColors.textMuted,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w500),
                   ),
                   // Trend indicator
                   if (widget.previousScore != null) ...[
@@ -331,11 +311,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                       ),
                       child: Text(
                         '$_trendSymbol $_deltaText',
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: _trendColor,
-                        ),
+                        style: MintTextStyles.bodySmall(color: _trendColor).copyWith(fontWeight: FontWeight.w700),
                       ),
                     ),
                   ],
@@ -410,11 +386,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
           width: 80,
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
         ),
         const SizedBox(width: 8),
@@ -437,11 +409,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
           child: Text(
             '$animatedScore',
             textAlign: TextAlign.right,
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: barColor,
-            ),
+            style: MintTextStyles.bodyMedium(color: barColor).copyWith(fontWeight: FontWeight.w700),
           ),
         ),
       ],
@@ -472,11 +440,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
         children: [
           Text(
             'Ce qui t\u2019a fait monter',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: MintColors.scoreExcellent,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.scoreExcellent).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           ...widget.recentGains!.take(3).map((gain) => Padding(
@@ -489,19 +453,12 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                     Expanded(
                       child: Text(
                         gain['label'] as String? ?? '',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
                       ),
                     ),
                     Text(
                       '+${gain['points'] ?? 0} pts',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.scoreExcellent,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.scoreExcellent).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -527,11 +484,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
         children: [
           Text(
             'Pour monter encore',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: MintColors.primary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           ...widget.nextActions!.take(3).map((action) => Padding(
@@ -544,19 +497,12 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                     Expanded(
                       child: Text(
                         action['label'] as String? ?? '',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
                       ),
                     ),
                     Text(
                       '+${action['points'] ?? 0} pts',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.primary,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -574,11 +520,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
     return Text(
       'Estimations éducatives \u2014 ne constitue pas un conseil financier.',
       textAlign: TextAlign.center,
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textMuted,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textMuted),
     );
   }
 }
@@ -715,11 +657,7 @@ class _ScoreGaugePainter extends CustomPainter {
       final labelTp = TextPainter(
         text: TextSpan(
           text: '$labelValue',
-          style: GoogleFonts.inter(
-            fontSize: 9,
-            fontWeight: FontWeight.w500,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 9, fontWeight: FontWeight.w500, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       );

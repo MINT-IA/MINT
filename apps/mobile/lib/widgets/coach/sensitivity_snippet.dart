@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/financial_core/tornado_sensitivity_service.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -49,21 +49,13 @@ class SensitivitySnippet extends StatelessWidget {
           // ── Header ─────────────────────────────────
           Text(
             'Ce qui influence le plus ton revenu',
-            style: GoogleFonts.montserrat(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 4),
           Text(
             'Dans ces simulations, chaque variable est test\u00e9e '
             'ind\u00e9pendamment.',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
           ),
           const SizedBox(height: 14),
 
@@ -86,11 +78,7 @@ class SensitivitySnippet extends StatelessWidget {
                 children: [
                   Text(
                     'Voir l\'analyse compl\u00e8te',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.primary,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(width: 4),
                   const Icon(
@@ -110,11 +98,7 @@ class SensitivitySnippet extends StatelessWidget {
             'Outil \u00e9ducatif simplifi\u00e9 (LSFin). '
             'Sources\u00a0: LIFD art.\u00a038, LPP art.\u00a014, '
             'LAVS art.\u00a021-29.',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.textMuted,
-              fontStyle: FontStyle.italic,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
           ),
         ],
       ),
@@ -145,22 +129,14 @@ class SensitivitySnippet extends StatelessWidget {
             Expanded(
               child: Text(
                 variable.label,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
             Text(
               '\u00b1\u00a0CHF\u00a0${formatChf(swing / 2)}',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -230,11 +206,7 @@ class SensitivitySnippet extends StatelessWidget {
                     top: 5,
                     child: Text(
                       variable.lowLabel,
-                      style: GoogleFonts.inter(
-                        fontSize: 9,
-                        color: MintColors.error,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: MintTextStyles.micro(color: MintColors.error).copyWith(fontSize: 9, fontWeight: FontWeight.w500, fontStyle: FontStyle.normal),
                     ),
                   ),
                   Positioned(
@@ -242,11 +214,7 @@ class SensitivitySnippet extends StatelessWidget {
                     top: 5,
                     child: Text(
                       variable.highLabel,
-                      style: GoogleFonts.inter(
-                        fontSize: 9,
-                        color: MintColors.success,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: MintTextStyles.micro(color: MintColors.success).copyWith(fontSize: 9, fontWeight: FontWeight.w500, fontStyle: FontStyle.normal),
                     ),
                   ),
                 ],

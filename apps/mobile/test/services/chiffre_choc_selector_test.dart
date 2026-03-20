@@ -8,7 +8,7 @@ import 'package:mint_mobile/services/chiffre_choc_selector.dart';
 /// edge cases, and compliance with no-advice / no-promise rules.
 void main() {
   /// Helper to build a MinimalProfileResult with sensible defaults.
-  MinimalProfileResult _profile({
+  MinimalProfileResult profile0({
     double avsMonthlyRente = 1900,
     double lppAnnualRente = 24000,
     double lppMonthlyRente = 2000,
@@ -67,7 +67,7 @@ void main() {
 
     test('independent without LPP triggers archetype alert (highest priority)',
         () {
-      final profile = _profile(
+      final profile = profile0(
         employmentStatus: 'independant',
         lppMonthlyRente: 0,
         grossMonthlySalary: 8000,
@@ -83,7 +83,7 @@ void main() {
     });
 
     test('non-Swiss expat with low AVS triggers archetype alert', () {
-      final profile = _profile(
+      final profile = profile0(
         nationalityGroup: 'EU',
         avsMonthlyRente: 1200,
         liquidityMonths: 6, // No liquidity issue
@@ -98,7 +98,7 @@ void main() {
     });
 
     test('non-EU expat with low AVS gets different message than EU expat', () {
-      final profile = _profile(
+      final profile = profile0(
         nationalityGroup: 'OTHER',
         avsMonthlyRente: 1000,
         liquidityMonths: 6,
@@ -114,7 +114,7 @@ void main() {
     // ── Priority 1: Liquidity alert ──────────────────────────
 
     test('liquidity < 2 months triggers liquidity alert', () {
-      final profile = _profile(
+      final profile = profile0(
         liquidityMonths: 1.5,
         currentSavings: 7500,
         nationalityGroup: 'CH', // No archetype override
@@ -129,7 +129,7 @@ void main() {
     });
 
     test('liquidity < 1 month gets specific wording', () {
-      final profile = _profile(
+      final profile = profile0(
         liquidityMonths: 0.5,
         currentSavings: 2500,
         nationalityGroup: 'CH',
@@ -144,7 +144,7 @@ void main() {
     // ── Priority 2: Retirement gap ───────────────────────────
 
     test('replacement rate < 55% triggers retirement gap', () {
-      final profile = _profile(
+      final profile = profile0(
         replacementRate: 0.45,
         grossMonthlySalary: 10000,
         liquidityMonths: 6, // No liquidity issue
@@ -159,7 +159,7 @@ void main() {
     });
 
     test('independant with retirement gap gets specific 3a message', () {
-      final profile = _profile(
+      final profile = profile0(
         employmentStatus: 'independant',
         lppMonthlyRente: 500, // Has some LPP (so archetype alert skipped)
         replacementRate: 0.40,
@@ -177,7 +177,7 @@ void main() {
     // ── Priority 3: Tax saving 3a ────────────────────────────
 
     test('no existing 3a and saving > 1500 triggers tax saving', () {
-      final profile = _profile(
+      final profile = profile0(
         existing3a: 0,
         taxSaving3a: 2000,
         replacementRate: 0.60, // No retirement gap
@@ -193,7 +193,7 @@ void main() {
     });
 
     test('existing 3a > 0 skips tax saving, falls to retirement income', () {
-      final profile = _profile(
+      final profile = profile0(
         existing3a: 10000,
         taxSaving3a: 2000,
         replacementRate: 0.60,
@@ -209,7 +209,7 @@ void main() {
     // ── Fallback: Retirement income ──────────────────────────
 
     test('fallback returns retirement income with replacement percentage', () {
-      final profile = _profile(
+      final profile = profile0(
         existing3a: 5000,
         taxSaving3a: 500, // Below threshold
         replacementRate: 0.60,
@@ -230,7 +230,7 @@ void main() {
     // ── CHF formatting ───────────────────────────────────────
 
     test('CHF formatting uses Swiss apostrophe for thousands', () {
-      final profile = _profile(
+      final profile = profile0(
         replacementRate: 0.40,
         retirementGapMonthly: 4280,
         grossMonthlySalary: 10000,
@@ -247,7 +247,7 @@ void main() {
     // ── Edge cases ───────────────────────────────────────────
 
     test('zero salary returns fallback retirement income', () {
-      final profile = _profile(
+      final profile = profile0(
         grossMonthlySalary: 0,
         replacementRate: 0, // 0/0 edge
         liquidityMonths: 6,
@@ -263,7 +263,7 @@ void main() {
     });
 
     test('Swiss national with AVS >= 1500 skips archetype alert', () {
-      final profile = _profile(
+      final profile = profile0(
         nationalityGroup: 'CH',
         avsMonthlyRente: 2000,
         replacementRate: 0.60,

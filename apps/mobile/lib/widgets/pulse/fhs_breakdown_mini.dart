@@ -20,8 +20,9 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Compact 4-bar breakdown of FHS sub-scores (Liquidite, Fiscalite, Retraite, Risque).
 ///
@@ -61,28 +62,28 @@ class FhsBreakdownMini extends StatelessWidget {
         children: [
           _MiniBar(
             shortLabel: 'L',
-            label: 'Liquidit\u00e9', // TODO: i18n
+            label: S.of(context)!.fhsBreakdownLiquidite,
             value: liquidite,
             color: MintColors.info,
           ),
           const SizedBox(height: 8),
           _MiniBar(
             shortLabel: 'F',
-            label: 'Fiscalit\u00e9', // TODO: i18n
+            label: S.of(context)!.fhsBreakdownFiscalite,
             value: fiscalite,
             color: MintColors.categoryPurple,
           ),
           const SizedBox(height: 8),
           _MiniBar(
             shortLabel: 'R',
-            label: 'Retraite', // TODO: i18n
+            label: S.of(context)!.fhsBreakdownRetraite,
             value: retraite,
             color: MintColors.teal,
           ),
           const SizedBox(height: 8),
           _MiniBar(
             shortLabel: 'S',
-            label: 'Risque', // TODO: i18n
+            label: S.of(context)!.fhsBreakdownRisque,
             value: risque,
             color: MintColors.warning,
           ),
@@ -126,11 +127,7 @@ class _MiniBar extends StatelessWidget {
             child: Center(
               child: Text(
                 shortLabel,
-                style: GoogleFonts.montserrat(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: color,
-                ),
+                style: MintTextStyles.labelSmall(color: color).copyWith(fontWeight: FontWeight.w700),
               ),
             ),
           ),
@@ -141,10 +138,7 @@ class _MiniBar extends StatelessWidget {
             width: 64,
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
             ),
           ),
 
@@ -170,11 +164,7 @@ class _MiniBar extends StatelessWidget {
             child: Text(
               '${clamped.toStringAsFixed(0)}/25',
               textAlign: TextAlign.right,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ),
         ],

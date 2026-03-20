@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P10-F  Le Mode survie MINT — dashboard crise dette
@@ -98,11 +98,7 @@ class DebtSurvivalWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Mode survie MINT',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
               if (_isCritical)
@@ -114,11 +110,7 @@ class DebtSurvivalWidget extends StatelessWidget {
                   ),
                   child: Text(
                     'ACTIVÉ',
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                      color: MintColors.white,
-                    ),
+                    style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
                   ),
                 ),
             ],
@@ -128,11 +120,7 @@ class DebtSurvivalWidget extends StatelessWidget {
             _isCritical
                 ? 'Ton ratio dette/revenu est critique. 3 actions pour stabiliser.'
                 : 'Surveille ces 3 indicateurs. Agis avant que la situation empire.',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
           ),
         ],
       ),
@@ -209,24 +197,16 @@ class DebtSurvivalWidget extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             value,
-            style: GoogleFonts.montserrat(
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
+            style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w800),
           ),
           Text(
             sub,
-            style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+            style: MintTextStyles.micro(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 4),
           Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -260,11 +240,7 @@ class DebtSurvivalWidget extends StatelessWidget {
       children: [
         Text(
           'Tes 3 actions maintenant',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w800,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 10),
         ...actions.map((a) => Padding(
@@ -300,20 +276,12 @@ class DebtSurvivalWidget extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   detail,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ],
             ),
@@ -341,15 +309,11 @@ class DebtSurvivalWidget extends StatelessWidget {
               children: [
                 Text(
                   'Dettes Conseils Suisse',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.info,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w800),
                 ),
                 Text(
                   '0800 40 40 40 · Gratuit · Confidentiel · Sans jugement',
-                  style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                 ),
               ],
             ),
@@ -364,11 +328,7 @@ class DebtSurvivalWidget extends StatelessWidget {
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : LP art. 93 (minimum vital insaisissable). '
       'Ratio critique : dette > 30% du revenu annuel.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

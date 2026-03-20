@@ -201,22 +201,27 @@ Crise:         debtCrisis
 ### Swiss Law References
 LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral) | LAMal (assurance maladie) | CO (obligations) | CC (civil) | FINMA circulars
 
-### Language
+### Language & Voice
+- **Full spec**: `docs/VOICE_SYSTEM.md` — pillars, tone by context, audience adaptations, 50 avant/après
 - User-facing text in French (informal "tu"), inclusive ("un·e spécialiste")
 - Educational tone, never prescriptive. Conditional language ("pourrait", "envisager").
 - Non-breaking space (`\u00a0`) before `!`, `?`, `:`, `;`, `%`
+- Voice: calme, précis, fin, rassurant, net. Jamais générique, jamais infantilisant.
+- Adapt by context (discovery/stress/victory), mastery level, and product moment — NOT by age.
 
 ---
 
 ## 7. UX RULES
 
 ### Design System (Flutter)
-- **Fonts**: Montserrat (headings), Inter (body) via GoogleFonts
-- **Colors**: `MintColors.*` from `lib/theme/colors.dart` — NEVER hardcode hex
+- **Full spec**: `docs/DESIGN_SYSTEM.md` — tokens, components, screen categories, checklist
+- **Fonts**: Montserrat (headings), Inter (body) via GoogleFonts. Outfit is deprecated.
+- **Colors**: `MintColors.*` from `lib/theme/colors.dart` — NEVER hardcode hex. Core palette = 12 tokens (see DESIGN_SYSTEM.md §3.2).
 - **Navigation**: GoRouter — no `Navigator.push`
 - **State**: Provider — no raw StatefulWidget for shared data
 - **Material 3**, responsive layout, CustomPainter for charts
-- **AppBar**: SliverAppBar with gradient from MintColors.primary
+- **AppBar**: White background standard. Exception: Pulse only uses gradient primary.
+- **Deprecated**: `MintGlassCard`, `MintPremiumButton`, `Outfit` font — do not use in new code.
 
 ### i18n (NON-NEGOTIABLE)
 - **6 languages**: fr (template), en, de, es, it, pt — ARB files in `lib/l10n/`
@@ -225,11 +230,21 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 - **Run `flutter gen-l10n`** after modifying ARB files
 - **French diacritics mandatory**: é, è, ê, ô, ù, ç, à — ASCII "e" for accented = bug
 
+### Navigation Architecture (target — S52+)
+- **Full spec**: `docs/NAVIGATION_GRAAL_V10.md`
+- **Philosophy**: Coach-first, UI-assisted. AI-as-layer, NOT chatbot-first.
+- **Shell**: 4 tabs — Aujourd'hui | Coach | Explorer | Dossier
+- **Capture**: Contextual bottom sheet (scan, import, add data) — NOT a global FAB
+- **Explorer**: 7 hubs (Retraite, Famille, Travail & Statut, Logement, Fiscalité, Patrimoine & Succession, Santé & Protection)
+- **Screen types**: Destination (user mental map), Flow (triggered by intent), Tool (opened contextually), Alias (legacy compat)
+- **Internal taxonomies** (`arbitrage`, `lpp-deep`, `3a-deep`, `segments`) are NOT visible in user navigation
+- **All 67 canonical routes remain as deep links** — restructuring is UX surface, not route deletion
+
 ### UX Principles (from `rules.md`)
 - Progressive disclosure — no bank connection upfront
 - 1 screen = 1 intention
 - Each recommendation → 1-3 concrete next actions
-- Onboarding minimal: 3 questions max before first chiffre choc
+- Onboarding minimal: 3 questions + revenu before first chiffre choc
 - Precision progressive: ask data when it matters, not during onboarding
 - Score FRI: never "bon/mauvais", always "progression personnelle"
 
@@ -314,15 +329,17 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 ### Conflict resolution (priority order)
 1. `rules.md` — Non-negotiable technical + ethical rules
 2. `CLAUDE.md` (this file) — Project context, constants, compliance
-3. `.claude/skills/` — Agent-specific conventions
-4. `LEGAL_RELEASE_CHECK.md` — Wording compliance checklist
-5. `visions/` — Product vision + limits
-6. `decisions/` (ADR) — Architecture decisions
-7. `docs/` — Strategy specs
-8. `SOT.md` + OpenAPI — Data contracts
-9. Code — Implementation follows documents
+3. `docs/MINT_UX_GRAAL_MASTERPLAN.md` — UX/product umbrella: templates, CapEngine, screen board
+4. `docs/DOCUMENTATION_OPERATING_SYSTEM.md` — Which doc to read for which task
+5. `.claude/skills/` — Agent-specific conventions
+6. `LEGAL_RELEASE_CHECK.md` — Wording compliance checklist
+7. `visions/` — Product vision + limits
+8. `decisions/` (ADR) — Architecture decisions
+9. `docs/` — Strategy specs
+10. `SOT.md` + OpenAPI — Data contracts
+11. Code — Implementation follows documents
 
-If code contradicts 1-8: fix the code OR write an ADR.
+If code contradicts 1-9: fix the code OR write an ADR.
 
 ---
 
@@ -346,14 +363,20 @@ If code contradicts 1-8: fix the code OR write an ADR.
 | Document | Purpose |
 |----------|---------|
 | `rules.md` | Tier 1: fintech-grade principles, UX rules, workflow |
+| `docs/DOCUMENTATION_OPERATING_SYSTEM.md` | Task-based reading order + documentation hierarchy |
 | `SOT.md` | Data contracts: Profile, SessionReport, EnhancedConfidence |
 | `LEGAL_RELEASE_CHECK.md` | Pre-release compliance gate |
 | `DefinitionOfDone.md` | Sprint completion criteria |
 | `docs/ROADMAP_V2.md` | Strategic roadmap V2 (benchmark-driven, 4 phases) |
-| `docs/VISION_UNIFIEE_V1.md` | Unified V1 vision (7 hermeneutic principles, 3 tabs) |
+| `docs/VISION_UNIFIEE_V1.md` | Historical strategic vision; useful principles, obsolete IA |
 | `docs/CICD_ARCHITECTURE.md` | Full CI/CD pipeline reference |
 | `docs/ONBOARDING_ARBITRAGE_ENGINE.md` | Onboarding + arbitrage specs |
 | `docs/DATA_ACQUISITION_STRATEGY.md` | OCR, guided entry, Open Banking |
+| `docs/MINT_UX_GRAAL_MASTERPLAN.md` | UX/product umbrella: templates, visual graal, CapEngine, screen board |
+| `docs/DESIGN_SYSTEM.md` | Visual direction + tokens + components + screen categories + checklist |
+| `docs/VOICE_SYSTEM.md` | Editorial system: brand voice, tone by context, microcopy, 50 avant/après |
+| `docs/NAVIGATION_GRAAL_V10.md` | Detailed target IA; subordinate to masterplan for product direction |
+| `docs/BLUEPRINT_COACH_AI_LAYER.md` | Coach AI implementation blueprint; subordinate to masterplan |
 | `docs/UX_WIDGET_REDESIGN_MASTERPLAN.md` | UX 7 laws + 75 creative proposals |
 | `visions/MINT_Analyse_Strategique_Benchmark.md` | 40+ app benchmark + academic research |
 | `visions/MINT_Autoresearch_Dev_Agents.md` | 10 dev agents (build) — sprint execution method |

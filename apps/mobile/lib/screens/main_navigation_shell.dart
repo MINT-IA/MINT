@@ -6,21 +6,22 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/pulse/pulse_screen.dart'
     show PulseScreen, NavigationShellState;
 import 'package:mint_mobile/screens/main_tabs/mint_coach_tab.dart';
-import 'package:mint_mobile/screens/profile_screen.dart';
-import 'package:mint_mobile/widgets/mentor_fab.dart';
+import 'package:mint_mobile/screens/main_tabs/explore_tab.dart';
+import 'package:mint_mobile/screens/main_tabs/dossier_tab.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/providers/user_activity_provider.dart';
 
-/// Shell principal de navigation MINT V1
+/// Shell principal de navigation MINT — S52 UX Cohesion
 ///
-/// Architecture 3 tabs — S49 :
-/// - PULSE : Ou j'en suis (score + priorite + pastilles + FRI)
-/// - MINT  : Que faire (coach chat + Response Cards + simulations)
-/// - MOI   : Qui je suis (fiche resumee editable + conjoint + parametres)
-/// - FAB Mentor : visible sur Pulse et Moi, masque sur Mint
+/// Architecture 4 tabs (NAVIGATION_GRAAL_V10.md) :
+/// - AUJOURD'HUI : Où j'en suis (1 phrase + 1 chiffre + 1 action + 2 signaux)
+/// - COACH       : Aide-moi à décider (chat + voice + response cards)
+/// - EXPLORER    : Navigation autonome (7 hubs thématiques)
+/// - DOSSIER     : Mes données (profil + documents + couple + réglages)
+///
+/// Pas de FAB global — Capture est contextuel (bottom sheet depuis Aujourd'hui/Coach).
 class MainNavigationShell extends StatefulWidget {
   const MainNavigationShell({super.key});
 
@@ -33,21 +34,22 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   int _currentIndex = 0;
   final AnalyticsService _analytics = AnalyticsService();
   bool _budgetLoaded = false;
-  int _lastKnownSimulatorCount = 0;
 
-  /// Timestamp when the app was last paused (backgrounded)
+  /// Timestamp when the app was last paused (backgrounded).
   DateTime? _lastPauseTime;
 
   static const List<Widget> _tabs = [
-    PulseScreen(),
-    MintCoachTab(),
-    ProfileScreen(),
+    PulseScreen(),    // 0: Aujourd'hui
+    MintCoachTab(),   // 1: Coach
+    ExploreTab(),     // 2: Explorer
+    DossierTab(),     // 3: Dossier
   ];
 
   static const List<String> _tabNames = [
-    'pulse',
-    'mint',
-    'moi',
+    'today',
+    'coach',
+    'explore',
+    'dossier',
   ];
 
   @override
@@ -132,70 +134,66 @@ class _MainNavigationShellState extends State<MainNavigationShell>
 
   @override
   Widget build(BuildContext context) {
-    // Hide FAB on Mint tab (index 1) — already the coach
-    final showFab = _currentIndex != 1;
-
     return Scaffold(
-      body: Stack(
-        children: [
-          IndexedStack(
-            index: _currentIndex,
-            children: _tabs,
-          ),
-          if (showFab)
-            Positioned(
-              right: 20,
-              bottom: 90,
-              child: MentorFAB(currentTabIndex: _currentIndex),
-            ),
-        ],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _tabs,
       ),
       bottomNavigationBar: _buildBottomNav(),
     );
   }
 
   Widget _buildBottomNav() {
-    final isCompact = MediaQuery.of(context).size.height <= 760;
+    final l = S.of(context)!;
+
     return Container(
       decoration: BoxDecoration(
         color: MintColors.white,
         boxShadow: [
           BoxShadow(
-            color: MintColors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+            color: MintColors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, -1),
           ),
         ],
       ),
       child: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: 14,
-            vertical: isCompact ? 2 : 4,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(
+              _NavItem(
                 index: 0,
-                icon: Icons.show_chart_outlined,
-                activeIcon: Icons.show_chart,
-                label: S.of(context)!.tabPulse,
-                isCompact: isCompact,
+                currentIndex: _currentIndex,
+                icon: Icons.today_outlined,
+                activeIcon: Icons.today,
+                label: l.tabToday,
+                onTap: () => _onTap(0),
               ),
-              _buildNavItem(
+              _NavItem(
                 index: 1,
+                currentIndex: _currentIndex,
                 icon: Icons.chat_bubble_outline,
                 activeIcon: Icons.chat_bubble,
-                label: S.of(context)!.tabMint,
-                isCompact: isCompact,
+                label: l.tabCoach,
+                onTap: () => _onTap(1),
               ),
-              _buildNavItem(
+              _NavItem(
                 index: 2,
-                icon: Icons.person_outline,
-                activeIcon: Icons.person,
-                label: S.of(context)!.tabMoi,
-                isCompact: isCompact,
+                currentIndex: _currentIndex,
+                icon: Icons.explore_outlined,
+                activeIcon: Icons.explore,
+                label: l.tabExplore,
+                onTap: () => _onTap(2),
+              ),
+              _NavItem(
+                index: 3,
+                currentIndex: _currentIndex,
+                icon: Icons.folder_outlined,
+                activeIcon: Icons.folder,
+                label: l.tabDossier,
+                onTap: () => _onTap(3),
               ),
             ],
           ),
@@ -204,75 +202,67 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     );
   }
 
-  Widget _buildNavItem({
-    required int index,
-    required IconData icon,
-    required IconData activeIcon,
-    required String label,
-    required bool isCompact,
-  }) {
-    final isActive = _currentIndex == index;
+  void _onTap(int index) {
+    if (_currentIndex == index) return;
+    _analytics.trackTabSwitch(_tabNames[_currentIndex], _tabNames[index]);
+    setState(() => _currentIndex = index);
+  }
+}
 
+/// Single bottom nav item — minimal, clean.
+class _NavItem extends StatelessWidget {
+  final int index;
+  final int currentIndex;
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _NavItem({
+    required this.index,
+    required this.currentIndex,
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isActive = currentIndex == index;
     return Expanded(
       child: Semantics(
         label: label,
         button: true,
+        selected: isActive,
         child: InkWell(
-        onTap: () {
-          if (_currentIndex != index) {
-            _analytics.trackTabSwitch(
-                _tabNames[_currentIndex], _tabNames[index]);
-
-            // Feedback loop: snackbar on return to Pulse if new simulators explored
-            if (index == 0) {
-              final activity = context.read<UserActivityProvider>();
-              final currentCount = activity.exploredSimulators.length;
-              if (currentCount > _lastKnownSimulatorCount &&
-                  _lastKnownSimulatorCount > 0) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content:
-                            Text(S.of(context)!.shellRecommendationsUpdated),
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
-                  }
-                });
-              }
-              _lastKnownSimulatorCount = currentCount;
-            }
-
-            setState(() => _currentIndex = index);
-          }
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: isCompact ? 4 : 6),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                isActive ? activeIcon : icon,
-                color: isActive ? MintColors.primary : MintColors.textMuted,
-                size: isCompact ? 20 : 22,
-              ),
-              SizedBox(height: isCompact ? 1 : 2),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: isCompact ? 9 : 10,
-                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                  color:
-                      isActive ? MintColors.primary : MintColors.textMuted,
-                  letterSpacing: 0.5,
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  isActive ? activeIcon : icon,
+                  color: isActive ? MintColors.primary : MintColors.textMuted,
+                  size: 22,
                 ),
-              ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                    color: isActive
+                        ? MintColors.primary
+                        : MintColors.textMuted,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Horizontal confidence blocks bar showing per-category data completeness.
 ///
@@ -119,14 +119,7 @@ class ConfidenceBlocksBar extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       db.label,
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight:
-                            isComplete ? FontWeight.w600 : FontWeight.w400,
-                        color: isComplete
-                            ? MintColors.textPrimary
-                            : MintColors.textMuted,
-                      ),
+                      style: MintTextStyles.micro(color: isComplete ? MintColors.textPrimary : MintColors.textMuted).copyWith(fontWeight: isComplete ? FontWeight.w600 : FontWeight.w400),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

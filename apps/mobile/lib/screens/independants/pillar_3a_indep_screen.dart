@@ -1,8 +1,10 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/independants_service.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
@@ -89,35 +91,15 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
       pinned: true,
-      expandedHeight: 120,
-      backgroundColor: MintColors.primary,
+      backgroundColor: MintColors.white,
+      foregroundColor: MintColors.textPrimary,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
         onPressed: () => context.pop(),
       ),
-      flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 56, bottom: 16, right: 16),
-        title: Text(
-          '3e pilier indépendant',
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-            color: MintColors.white,
-          ),
-        ),
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                MintColors.primary,
-                MintColors.primary.withValues(alpha: 0.85),
-              ],
-            ),
-          ),
-        ),
-      ),
+      title: Text(S.of(context)!.pillar3aIndepTitle, style: MintTextStyles.headlineMedium()),
     );
   }
 
@@ -138,15 +120,8 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'En tant qu\'indépendant\u00B7e sans LPP, tu as accès au '
-              '"grand 3a" : tu peux déduire jusqu\'à 20% de ton revenu '
-              'net (max CHF 36\'288/an), au lieu de CHF 7\'258 pour '
-              'un\u00B7e salarié\u00B7e. C\'est un avantage fiscal majeur.',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              S.of(context)!.pillar3aIndepHeaderInfo,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
         ],
@@ -171,22 +146,15 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Affilié\u00B7e à une LPP volontaire ?',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  S.of(context)!.pillar3aIndepLppToggle,
+                  style: MintTextStyles.titleMedium(),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
                   _affilieLpp
-                      ? 'Plafond 3a : CHF 7\'258 (petit 3a)'
-                      : 'Plafond 3a : 20% du revenu, max CHF 36\'288 (grand 3a)',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
+                      ? S.of(context)!.pillar3aIndepPlafondPetit
+                      : S.of(context)!.pillar3aIndepPlafondGrand,
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -221,20 +189,12 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Revenu net annuel',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+                S.of(context)!.pillar3aIndepRevenuLabel,
+                style: MintTextStyles.titleMedium(),
               ),
               Text(
                 IndependantsService.formatChf(_revenuNet),
-                style: GoogleFonts.montserrat(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.primary,
-                ),
+                style: MintTextStyles.headlineMedium(color: MintColors.primary),
               ),
             ],
           ),
@@ -261,8 +221,8 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('CHF 0', style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
-              Text("CHF 300'000", style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
+              Text(S.of(context)!.pillar3aIndepCHF0, style: MintTextStyles.micro(color: MintColors.textMuted)),
+              Text(S.of(context)!.pillar3aIndepSliderMax300k, style: MintTextStyles.micro(color: MintColors.textMuted)),
             ],
           ),
         ],
@@ -287,20 +247,12 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Taux marginal d\'imposition',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+                S.of(context)!.pillar3aIndepTauxLabel,
+                style: MintTextStyles.titleMedium(),
               ),
               Text(
-                '${(_tauxMarginal * 100).toStringAsFixed(0)}%',
-                style: GoogleFonts.montserrat(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.primary,
-                ),
+                '${(_tauxMarginal * 100).toStringAsFixed(0)}\u00a0%',
+                style: MintTextStyles.headlineMedium(color: MintColors.primary),
               ),
             ],
           ),
@@ -327,8 +279,8 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('10%', style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
-              Text('45%', style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
+              Text(S.of(context)!.pillar3aIndepTaux10, style: MintTextStyles.micro(color: MintColors.textMuted)),
+              Text(S.of(context)!.pillar3aIndepTaux45, style: MintTextStyles.micro(color: MintColors.textMuted)),
             ],
           ),
         ],
@@ -351,20 +303,12 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
           children: [
             Text(
               IndependantsService.formatChf(r.economieFiscale),
-              style: GoogleFonts.montserrat(
-                fontSize: 32,
-                fontWeight: FontWeight.w800,
-                color: MintColors.primary,
-              ),
+              style: MintTextStyles.displayMedium(color: MintColors.primary),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             Text(
-              'd\'économie fiscale annuelle grâce au 3e pilier',
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              S.of(context)!.pillar3aIndepChiffreChocCaption,
+              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
               textAlign: TextAlign.center,
             ),
           ],
@@ -382,21 +326,12 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         children: [
           Text(
             IndependantsService.formatChf(r.avantageSurSalarie),
-            style: GoogleFonts.montserrat(
-              fontSize: 36,
-              fontWeight: FontWeight.w800,
-              color: MintColors.white,
-            ),
+            style: MintTextStyles.displayMedium(color: MintColors.white),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
-            'Tu économises ${IndependantsService.formatChf(r.avantageSurSalarie)}/an '
-            'd\'impôts de plus qu\'un\u00B7e salarié\u00B7e grâce au grand 3a',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.white.withValues(alpha: 0.9),
-              height: 1.5,
-            ),
+            S.of(context)!.pillar3aIndepChiffreChocAvantageSalarie(IndependantsService.formatChf(r.avantageSurSalarie)),
+            style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.9)),
             textAlign: TextAlign.center,
           ),
         ],
@@ -417,18 +352,18 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
       ),
       child: Column(
         children: [
-          _buildResultRow('Plafond applicable', IndependantsService.formatChf(r.plafond)),
+          _buildResultRow(S.of(context)!.pillar3aIndepPlafondApplicableLabel, IndependantsService.formatChf(r.plafond)),
           const SizedBox(height: 12),
-          _buildResultRow('Économie fiscale /an', IndependantsService.formatChf(r.economieFiscale)),
+          _buildResultRow(S.of(context)!.pillar3aIndepEconomieFiscaleAnLabel, IndependantsService.formatChf(r.economieFiscale)),
           const Divider(height: 24),
           _buildResultRow(
-            'Plafond salarié\u00B7e',
+            S.of(context)!.pillar3aIndepPlafondSalarieLabel,
             IndependantsService.formatChf(r.plafondSalarie),
             color: MintColors.textMuted,
           ),
           const SizedBox(height: 8),
           _buildResultRow(
-            'Économie salarié\u00B7e',
+            S.of(context)!.pillar3aIndepEconomieSalarieLabel,
             IndependantsService.formatChf(r.economieSalarie),
             color: MintColors.textMuted,
           ),
@@ -443,15 +378,11 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(fontSize: 14, color: color ?? MintColors.textSecondary),
+          style: MintTextStyles.bodyMedium(color: color ?? MintColors.textSecondary),
         ),
         Text(
           value,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: color ?? MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodyMedium(color: color ?? MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -485,13 +416,8 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
             children: [
               Expanded(
                 child: Text(
-                  'PLAFONDS COMPAR\u00c9S',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textMuted,
-                    letterSpacing: 1,
-                  ),
+                  S.of(context)!.pillar3aIndepPlafondsCompares,
+                  style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(letterSpacing: 1, fontWeight: FontWeight.w700),
                 ),
               ),
               if (!_affilieLpp)
@@ -503,12 +429,8 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    '\u00d7$multiplier ton super-pouvoir',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.white,
-                    ),
+                    S.of(context)!.pillar3aIndepSuperPouvoir(multiplier),
+                    style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
             ],
@@ -517,7 +439,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
 
           // Salarie bar
           _buildPlafondBar(
-            label: 'Salari\u00e9\u00B7e',
+            label: S.of(context)!.pillar3aIndepSalarie,
             value: petit,
             maxValue: grand,
             color: MintColors.info,
@@ -526,7 +448,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
 
           // Independant bar
           _buildPlafondBar(
-            label: 'Ind\u00e9pendant\u00B7e (toi)',
+            label: S.of(context)!.pillar3aIndepIndependantToi,
             value: plafondIndep,
             maxValue: grand,
             color: MintColors.success,
@@ -536,7 +458,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
 
           // Max bar
           _buildPlafondBar(
-            label: 'Grand 3a (max l\u00e9gal)',
+            label: S.of(context)!.pillar3aIndepGrand3aMax,
             value: grand,
             maxValue: grand,
             color: MintColors.textMuted.withValues(alpha: 0.3),
@@ -557,35 +479,27 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
               child: Column(
                 children: [
                   Text(
-                    'En 20 ans \u00e0 4%',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      color: MintColors.textMuted,
-                    ),
+                    S.of(context)!.pillar3aIndepEn20ans,
+                    style: MintTextStyles.micro(color: MintColors.textMuted),
                   ),
                   const SizedBox(height: 6),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       _buildProjectionColumn(
-                          'Salari\u00e9\u00b7e', proj20Salarie, MintColors.info),
+                          S.of(context)!.pillar3aIndepSalarie, proj20Salarie, MintColors.info),
                       Text(
-                        'vs',
-                        style: GoogleFonts.inter(
-                            fontSize: 14, color: MintColors.textMuted),
+                        S.of(context)!.pillar3aIndepVs,
+                        style: MintTextStyles.bodyMedium(color: MintColors.textMuted),
                       ),
                       _buildProjectionColumn(
-                          'Toi', proj20Indep, MintColors.success),
+                          S.of(context)!.pillar3aIndepToi, proj20Indep, MintColors.success),
                     ],
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Diff\u00e9rence\u00a0: +${IndependantsService.formatChf(proj20Indep - proj20Salarie)}',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.success,
-                    ),
+                    S.of(context)!.pillar3aIndepDifference(IndependantsService.formatChf(proj20Indep - proj20Salarie)),
+                    style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ],
               ),
@@ -605,15 +519,11 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
       children: [
         Text(
           'CHF\u00a0$display',
-          style: GoogleFonts.montserrat(
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
-            color: color,
-          ),
+          style: MintTextStyles.headlineMedium(color: color).copyWith(fontWeight: FontWeight.w800),
         ),
         Text(
           label,
-          style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted),
+          style: MintTextStyles.micro(color: MintColors.textMuted),
         ),
       ],
     );
@@ -635,19 +545,11 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
           children: [
             Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: highlight ? FontWeight.w600 : FontWeight.w400,
-                color: highlight ? MintColors.textPrimary : MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: highlight ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontWeight: highlight ? FontWeight.w600 : FontWeight.w400),
             ),
             Text(
               IndependantsService.formatChf(value),
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -676,37 +578,26 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
             const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'BON À SAVOIR',
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textMuted,
-                letterSpacing: 1,
-              ),
+              S.of(context)!.pillar3aIndepBonASavoir,
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(letterSpacing: 1, fontWeight: FontWeight.w700),
             ),
           ],
         ),
         const SizedBox(height: 12),
         _buildEduCard(
           Icons.layers_outlined,
-          'Ouvre plusieurs comptes 3a',
-          'Même avec le grand 3a, la stratégie des comptes '
-          'multiples (jusqu\'à 5) est recommandée pour optimiser '
-          'le retrait échelonné à la retraite.',
+          S.of(context)!.pillar3aIndepEduComptesTitle,
+          S.of(context)!.pillar3aIndepEduComptesBody,
         ),
         _buildEduCard(
           Icons.warning_amber_rounded,
-          'Condition : pas de LPP',
-          'Le grand 3a (20% du revenu, max 36\'288) n\'est '
-          'accessible que si tu n\'es pas affilié\u00B7e à une '
-          'LPP volontaire. Avec LPP, le plafond tombe à 7\'258.',
+          S.of(context)!.pillar3aIndepEduConditionTitle,
+          S.of(context)!.pillar3aIndepEduConditionBody,
         ),
         _buildEduCard(
           Icons.trending_up,
-          'Investir plutôt qu\'épargner',
-          'Pour un horizon long (>10 ans), un 3a investi en '
-          'actions peut offrir un rendement bien supérieur à un '
-          'compte d\'épargne 3a classique.',
+          S.of(context)!.pillar3aIndepEduInvestirTitle,
+          S.of(context)!.pillar3aIndepEduInvestirBody,
         ),
       ],
     );
@@ -739,20 +630,12 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: MintSpacing.xs),
                   Text(
                     body,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MintColors.textSecondary,
-                      height: 1.5,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                   ),
                 ],
               ),
@@ -780,15 +663,8 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Les économies fiscales sont calculées sur la base du '
-              'taux marginal indiqué. Le taux réel dépend de ton '
-              'canton, de ta commune et de ta situation familiale. '
-              'Consulte un\u00B7e spécialiste pour un calcul personnalisé.',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.deepOrange,
-                height: 1.5,
-              ),
+              S.of(context)!.pillar3aIndepDisclaimer,
+              style: MintTextStyles.bodySmall(color: MintColors.deepOrange),
             ),
           ),
         ],

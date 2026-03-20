@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -96,11 +96,7 @@ class SaleSurprisesWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Les 3 surprises de la vente',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -109,7 +105,7 @@ class SaleSurprisesWidget extends StatelessWidget {
           Text(
             'Tu vends ${formatChfWithPrefix(salePrice)}. Tu penses toucher ${formatChfWithPrefix(_netReal + _gainTax)}. '
             'Tu reçois ${formatChfWithPrefix(_netReal)}.',
-            style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary, height: 1.4),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
         ],
       ),
@@ -176,11 +172,7 @@ class SaleSurprisesWidget extends StatelessWidget {
                     ),
                     child: Text(
                       act.number,
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: MintColors.white,
-                      ),
+                      style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w800, fontStyle: FontStyle.normal),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -189,36 +181,24 @@ class SaleSurprisesWidget extends StatelessWidget {
                   Expanded(
                     child: Text(
                       act.title,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),
                   Text(
                     '− ${formatChfWithPrefix(act.amount)}',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: act.color,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: act.color).copyWith(fontWeight: FontWeight.w800),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
               Text(
                 act.detail,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
               ),
               const SizedBox(height: 4),
               Text(
                 act.ref,
-                style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
               ),
             ],
           ),
@@ -259,21 +239,15 @@ class SaleSurprisesWidget extends StatelessWidget {
         children: [
           Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: isTotal ? 14 : 12,
-              fontWeight: isTotal ? FontWeight.w800 : FontWeight.w400,
-              color: MintColors.textPrimary,
-            ),
+            style: isTotal
+                ? MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800)
+                : MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
           ),
           Text(
             formatChfWithPrefix(amount),
-            style: GoogleFonts.montserrat(
-              fontSize: isTotal ? 18 : 13,
-              fontWeight: FontWeight.w800,
-              color: isTotal
-                  ? (_netReal > 0 ? MintColors.scoreExcellent : MintColors.scoreCritique)
-                  : (isPositive ? MintColors.scoreExcellent : MintColors.scoreCritique),
-            ),
+            style: isTotal
+                ? MintTextStyles.headlineMedium(color: _netReal > 0 ? MintColors.scoreExcellent : MintColors.scoreCritique).copyWith(fontSize: 18, fontWeight: FontWeight.w800)
+                : MintTextStyles.bodySmall(color: isPositive ? MintColors.scoreExcellent : MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -285,11 +259,7 @@ class SaleSurprisesWidget extends StatelessWidget {
       'Outil éducatif · ne constitue pas un conseil fiscal au sens de la LSFin. '
       'Source : LIFD art. 12 (impôt gain immobilier), LPP art. 30c (EPL). '
       'Taux gain indicatif pour $canton, $holdingYears ans de détention.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
     );
   }
 }

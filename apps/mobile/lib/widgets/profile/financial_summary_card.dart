@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Generic card for displaying a financial summary section.
 ///
@@ -60,11 +60,7 @@ class FinancialSummaryCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
                 if (onEdit != null)
@@ -110,11 +106,7 @@ class FinancialSummaryCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: Text(
                 footnote!,
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  color: MintColors.textMuted,
-                  height: 1.3,
-                ),
+                style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal, height: 1.3),
               ),
             ),
           // Scan certificate CTA
@@ -140,11 +132,7 @@ class FinancialSummaryCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       Text(
                         scanLabel ?? 'Scanner un certificat',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.info,
-                        ),
+                        style: MintTextStyles.bodyMedium(color: MintColors.info).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
@@ -178,12 +166,7 @@ class FinancialSummaryCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
               line.label,
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.5,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.5, fontStyle: FontStyle.normal),
             ),
           ),
           const Expanded(child: Divider(height: 1)),
@@ -218,20 +201,12 @@ class FinancialSummaryCard extends StatelessWidget {
           Expanded(
             child: Text(
               line.label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: MintColors.primary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
             ),
           ),
           Text(
             line.formattedValue,
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: MintColors.primary,
-            ),
+            style: MintTextStyles.bodyLarge(color: MintColors.primary).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -247,17 +222,12 @@ class FinancialSummaryCard extends StatelessWidget {
         children: [
           Text(
             '\u{1F4A1} ',
-            style: GoogleFonts.inter(fontSize: 11),
+            style: MintTextStyles.labelSmall(color: MintColors.textPrimary),
           ),
           Expanded(
             child: Text(
               line.label,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontStyle: FontStyle.italic,
-                color: MintColors.textMuted,
-                height: 1.3,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.italic, height: 1.3),
             ),
           ),
         ],
@@ -280,23 +250,14 @@ class FinancialSummaryCard extends StatelessWidget {
               padding: const EdgeInsets.only(right: 4),
               child: Text(
                 line.isLast ? '\u2514 ' : '\u251C ',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: MintColors.textMuted,
-                  fontFamily: GoogleFonts.inter().fontFamily,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textMuted).copyWith(fontSize: 12),
               ),
             ),
           // Label
           Expanded(
             child: Text(
               line.label,
-              style: GoogleFonts.inter(
-                fontSize: isBold ? 13 : 12,
-                fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
-                color:
-                    isBold ? MintColors.textPrimary : MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodyMedium(color: isBold ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontSize: isBold ? 13 : 12, fontWeight: isBold ? FontWeight.w700 : FontWeight.w400),
             ),
           ),
           // Value + source indicator
@@ -306,13 +267,7 @@ class FinancialSummaryCard extends StatelessWidget {
               children: [
                 Text(
                   line.formattedValue,
-                  style: GoogleFonts.inter(
-                    fontSize: isBold ? 14 : 13,
-                    fontWeight: isBold ? FontWeight.w700 : FontWeight.w600,
-                    color: line.isDeduction
-                        ? MintColors.error
-                        : MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: line.isDeduction ? MintColors.error : MintColors.textPrimary).copyWith(fontSize: isBold ? 14 : 13, fontWeight: isBold ? FontWeight.w700 : FontWeight.w600),
                 ),
                 if (line.source != null) ...[
                   const SizedBox(width: 6),

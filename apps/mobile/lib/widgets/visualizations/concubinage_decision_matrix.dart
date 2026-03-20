@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONCUBINAGE vs MARRIAGE DECISION MATRIX
@@ -156,18 +156,11 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
               children: [
                 Text(
                   'Mariage vs Concubinage',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(),
                 ),
                 Text(
                   'Comparaison des droits et obligations',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
                 ),
               ],
             ),
@@ -194,10 +187,9 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                 ),
                 child: Text(
                   'Mariage',
-                  style: GoogleFonts.montserrat(
+                  style: MintTextStyles.labelSmall(color: MintColors.info).copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: MintColors.info,
                   ),
                 ),
               ),
@@ -215,10 +207,9 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                 ),
                 child: Text(
                   'Concubinage',
-                  style: GoogleFonts.montserrat(
+                  style: MintTextStyles.labelSmall(color: MintColors.warning).copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: MintColors.warning,
                   ),
                 ),
               ),
@@ -278,10 +269,9 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                         Expanded(
                           child: Text(
                             criteria.label,
-                            style: GoogleFonts.inter(
+                            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: MintColors.textPrimary,
                             ),
                           ),
                         ),
@@ -371,8 +361,8 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
         Text(
           label,
           textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
-            fontSize: 10,
+          style: MintTextStyles.micro().copyWith(
+            fontStyle: FontStyle.normal,
             fontWeight: isAdvantage ? FontWeight.w600 : FontWeight.w400,
             color:
                 isAdvantage ? MintColors.textPrimary : MintColors.textMuted,
@@ -432,18 +422,14 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                   children: [
                     Text(
                       '$mScore',
-                      style: GoogleFonts.montserrat(
+                      style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
-                        color: MintColors.white,
                       ),
                     ),
                     Text(
                       'Mariage',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: MintColors.white.withValues(alpha: 0.7),
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.white.withValues(alpha: 0.7)),
                     ),
                   ],
                 ),
@@ -460,18 +446,14 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                   children: [
                     Text(
                       '$cScore',
-                      style: GoogleFonts.montserrat(
+                      style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
-                        color: MintColors.white,
                       ),
                     ),
                     Text(
                       'Concubinage',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: MintColors.white.withValues(alpha: 0.7),
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.white.withValues(alpha: 0.7)),
                     ),
                   ],
                 ),
@@ -514,19 +496,17 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                 children: [
                   Text(
                     'Conclusion neutre',
-                    style: GoogleFonts.inter(
+                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     'Le choix depend de ta situation personnelle. '
                     'Consultez un notaire pour une analyse complete.',
-                    style: GoogleFonts.inter(
+                    style: MintTextStyles.bodyMedium().copyWith(
                       fontSize: 12,
-                      color: MintColors.textSecondary,
                       height: 1.4,
                     ),
                   ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Breakeven indicator card — shows when/if trajectories cross.
@@ -70,12 +70,7 @@ class BreakevenIndicatorWidget extends StatelessWidget {
           // Main text
           Text(
             crossoverText,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textPrimary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500, height: 1.4),
             textAlign: TextAlign.center,
           ),
 
@@ -86,11 +81,7 @@ class BreakevenIndicatorWidget extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               'Sensibilité du capital au rendement',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 6),
             if (sensitivity!.containsKey('rendement_plus_1') &&
@@ -98,10 +89,7 @@ class BreakevenIndicatorWidget extends StatelessWidget {
               Text(
                 'Rendement +1 % : ${formatChfWithPrefix(sensitivity!['rendement_plus_1']!)} | '
                 'Rendement -1 % : ${formatChfWithPrefix(sensitivity!['rendement_moins_1']!)}',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                 textAlign: TextAlign.center,
               ),
             if (sensitivity!.containsKey('rendement_marche_plus_1') &&
@@ -109,10 +97,7 @@ class BreakevenIndicatorWidget extends StatelessWidget {
               Text(
                 'Marché +1 % : ${formatChfWithPrefix(sensitivity!['rendement_marche_plus_1']!)} | '
                 'Marché -1 % : ${formatChfWithPrefix(sensitivity!['rendement_marche_moins_1']!)}',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                 textAlign: TextAlign.center,
               ),
           ],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
@@ -118,11 +118,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
               Expanded(
                 child: Text(
                   S.of(context)!.firstSalaryFilmTitle,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -130,7 +126,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
           const SizedBox(height: 8),
           Text(
             S.of(context)!.firstSalaryFilmSubtitle(_fmt(widget.grossMonthly)),
-            style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
           ),
         ],
       ),
@@ -166,11 +162,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
               ),
               child: Text(
                 actLabels[i],
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: selected ? MintColors.white : MintColors.textSecondary,
-                ),
+                style: MintTextStyles.labelSmall(color: selected ? MintColors.white : MintColors.textSecondary).copyWith(fontWeight: FontWeight.w700),
               ),
             ),
           );
@@ -185,12 +177,12 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
       children: [
         Text(
           S.of(context)!.firstSalaryAct1Title,
-          style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w800, color: MintColors.textPrimary),
+          style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 4),
         Text(
           S.of(context)!.firstSalaryAct1Quote(_fmt(_totalDeductions)),
-          style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4, fontStyle: FontStyle.italic),
+          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
         ),
         const SizedBox(height: 16),
         _buildSalaryBar(),
@@ -208,8 +200,8 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(S.of(context)!.firstSalaryGross(_fmt(widget.grossMonthly)), style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary)),
-            Text(S.of(context)!.firstSalaryNet(_fmt(_netMonthly)), style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w800, color: MintColors.scoreExcellent)),
+            Text(S.of(context)!.firstSalaryGross(_fmt(widget.grossMonthly)), style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12)),
+            Text(S.of(context)!.firstSalaryNet(_fmt(_netMonthly)), style: MintTextStyles.bodySmall(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w800)),
           ],
         ),
         const SizedBox(height: 6),
@@ -226,7 +218,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
                   alignment: Alignment.center,
                   child: Text(
                     S.of(context)!.firstSalaryNetPercent((netRatio * 100).round()),
-                    style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w800, color: MintColors.white),
+                    style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
                   ),
                 ),
               ),
@@ -250,10 +242,10 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(child: Text(r.$1, style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary))),
-            Text('− CHF ${_fmt(r.$2)}', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: MintColors.scoreCritique)),
+            Expanded(child: Text(r.$1, style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12))),
+            Text('− CHF ${_fmt(r.$2)}', style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w700)),
             const SizedBox(width: 8),
-            Text(r.$3, style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary)),
+            Text(r.$3, style: MintTextStyles.micro(color: MintColors.textSecondary)),
           ],
         ),
       )).toList(),
@@ -266,12 +258,12 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
       children: [
         Text(
           S.of(context)!.firstSalaryAct2Title,
-          style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w800, color: MintColors.textPrimary),
+          style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 4),
         Text(
           S.of(context)!.firstSalaryAct2Quote(_fmt(_totalEmployerCost)),
-          style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4, fontStyle: FontStyle.italic),
+          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
         ),
         const SizedBox(height: 16),
         _buildIcebergCards(),
@@ -297,10 +289,10 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(S.of(context)!.firstSalaryTotalEmployerCost, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
+              Text(S.of(context)!.firstSalaryTotalEmployerCost, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
               Text(
                 'CHF ${_fmt(_totalEmployerCost)}/mois',
-                style: GoogleFonts.montserrat(fontSize: 15, fontWeight: FontWeight.w800, color: MintColors.primary),
+                style: MintTextStyles.titleMedium(color: MintColors.primary).copyWith(fontSize: 15, fontWeight: FontWeight.w800),
               ),
             ],
           ),
@@ -324,14 +316,14 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: MintColors.textPrimary)),
-                Text(sub, style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary)),
+                Text(label, style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600)),
+                Text(sub, style: MintTextStyles.micro(color: MintColors.textSecondary)),
               ],
             ),
           ),
           Text(
             'CHF ${_fmt(amount)}',
-            style: GoogleFonts.montserrat(fontSize: 13, fontWeight: FontWeight.w800, color: color),
+            style: MintTextStyles.bodySmall(color: color).copyWith(fontSize: 13, fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -348,12 +340,12 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
       children: [
         Text(
           S.of(context)!.firstSalaryAct3Title,
-          style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w800, color: MintColors.textPrimary),
+          style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 4),
         Text(
           S.of(context)!.firstSalaryAct3Quote(_fmt(_monthly3a)),
-          style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4, fontStyle: FontStyle.italic),
+          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
         ),
         const SizedBox(height: 16),
         _buildProjectionBar(S.of(context)!.firstSalaryAt30, at30, at65),
@@ -370,7 +362,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
           ),
           child: Text(
             S.of(context)!.firstSalary3aInfo,
-            style: GoogleFonts.inter(fontSize: 11, color: MintColors.scoreExcellent, height: 1.4),
+            style: MintTextStyles.labelSmall(color: MintColors.scoreExcellent).copyWith(height: 1.4),
           ),
         ),
       ],
@@ -385,8 +377,8 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary)),
-            Text('CHF ${_fmt(value)}', style: GoogleFonts.montserrat(fontSize: 13, fontWeight: FontWeight.w800, color: MintColors.primary)),
+            Text(label, style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12)),
+            Text('CHF ${_fmt(value)}', style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontSize: 13, fontWeight: FontWeight.w800)),
           ],
         ),
         const SizedBox(height: 4),
@@ -415,12 +407,12 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
       children: [
         Text(
           S.of(context)!.firstSalaryAct4Title,
-          style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w800, color: MintColors.textPrimary),
+          style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 4),
         Text(
           S.of(context)!.firstSalaryAct4Quote,
-          style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4, fontStyle: FontStyle.italic),
+          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
         ),
         const SizedBox(height: 16),
         ...franchises.map((f) => Padding(
@@ -444,14 +436,14 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(S.of(context)!.firstSalaryFranchiseLabel(f.label), style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
-                      Text(f.advice, style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary)),
+                      Text(S.of(context)!.firstSalaryFranchiseLabel(f.label), style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w700)),
+                      Text(f.advice, style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
                     ],
                   ),
                 ),
                 Text(
                   S.of(context)!.firstSalaryFranchisePrime(_fmt(f.monthly)),
-                  style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.primary),
+                  style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -460,7 +452,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
         const SizedBox(height: 4),
         Text(
           S.of(context)!.firstSalaryLamalInfo,
-          style: GoogleFonts.inter(fontSize: 11, color: MintColors.info, height: 1.4),
+          style: MintTextStyles.labelSmall(color: MintColors.info).copyWith(height: 1.4),
         ),
       ],
     );
@@ -480,12 +472,12 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
       children: [
         Text(
           S.of(context)!.firstSalaryAct5Title,
-          style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w800, color: MintColors.textPrimary),
+          style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 4),
         Text(
           S.of(context)!.firstSalaryAct5Quote,
-          style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4, fontStyle: FontStyle.italic),
+          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
         ),
         const SizedBox(height: 16),
         ...checklist.map((item) => Padding(
@@ -501,7 +493,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
                 ),
                 child: Text(
                   item.week,
-                  style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: MintColors.primary),
+                  style: MintTextStyles.micro(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
               const SizedBox(width: 8),
@@ -510,7 +502,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
               Expanded(
                 child: Text(
                   item.task,
-                  style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary, height: 1.4),
+                  style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ),
             ],
@@ -531,8 +523,8 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(S.of(context)!.firstSalaryBadgeTitle, style: GoogleFonts.montserrat(fontSize: 14, fontWeight: FontWeight.w800, color: MintColors.scoreExcellent)),
-                    Text(S.of(context)!.firstSalaryBadgeSubtitle, style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary)),
+                    Text(S.of(context)!.firstSalaryBadgeTitle, style: MintTextStyles.bodyMedium(color: MintColors.scoreExcellent).copyWith(fontSize: 14, fontWeight: FontWeight.w800)),
+                    Text(S.of(context)!.firstSalaryBadgeSubtitle, style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12)),
                   ],
                 ),
               ),
@@ -546,11 +538,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
   Widget _buildDisclaimer() {
     return Text(
       S.of(context)!.firstSalaryDisclaimer,
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

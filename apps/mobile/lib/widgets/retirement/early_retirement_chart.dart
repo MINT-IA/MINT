@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/retirement_projection_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Stacked bar chart comparing retirement income at ages 63-70.
 ///
@@ -144,11 +144,7 @@ class _EarlyRetirementChartState extends State<EarlyRetirementChart>
               'différence cumulée de ${RetirementProjectionService.formatChf(diff.abs())} '
               'sur l\'espérance de vie. '
               '${isNeg ? "Tu reçois moins longtemps mais tu pars plus tôt." : "Tu reçois plus longtemps."}',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textSecondary,
-                height: 1.4,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
             ),
           ),
         ],
@@ -172,11 +168,7 @@ class _EarlyRetirementChartState extends State<EarlyRetirementChart>
           Text(
             'Retraite à ${scenario.retirementAge} ans — '
             '${RetirementProjectionService.formatChf(scenario.totalMonthly)}/mois',
-            style: GoogleFonts.montserrat(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           ...scenario.sources.map((s) => Padding(
@@ -195,19 +187,12 @@ class _EarlyRetirementChartState extends State<EarlyRetirementChart>
                     Expanded(
                       child: Text(
                         s.label,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: MintColors.textSecondary,
-                        ),
+                        style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12),
                       ),
                     ),
                     Text(
                       RetirementProjectionService.formatChf(s.monthlyAmount),
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -265,7 +250,7 @@ class _EarlyRetirementPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: _formatK(val),
-          style: GoogleFonts.inter(fontSize: 10, color: MintColors.textMuted),
+          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 10, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
@@ -330,10 +315,9 @@ class _EarlyRetirementPainter extends CustomPainter {
       final ageTP = TextPainter(
         text: TextSpan(
           text: '${scenario.retirementAge}',
-          style: GoogleFonts.montserrat(
+          style: MintTextStyles.bodyMedium(color: isRef ? MintColors.coachAccent : MintColors.textSecondary).copyWith(
             fontSize: 12,
             fontWeight: isRef ? FontWeight.w800 : FontWeight.w600,
-            color: isRef ? MintColors.coachAccent : MintColors.textSecondary,
           ),
         ),
         textDirection: TextDirection.ltr,
@@ -350,11 +334,7 @@ class _EarlyRetirementPainter extends CustomPainter {
         final badgeTP = TextPainter(
           text: TextSpan(
             text: '$sign${adjPct.toStringAsFixed(1)}%',
-            style: GoogleFonts.inter(
-              fontSize: 9,
-              fontWeight: FontWeight.w700,
-              color: adjPct < 0 ? MintColors.error : MintColors.success,
-            ),
+            style: MintTextStyles.micro(color: adjPct < 0 ? MintColors.error : MintColors.success).copyWith(fontSize: 9, fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
           ),
           textDirection: TextDirection.ltr,
         )..layout();
@@ -366,11 +346,7 @@ class _EarlyRetirementPainter extends CustomPainter {
         final refTP = TextPainter(
           text: TextSpan(
             text: 'ref.',
-            style: GoogleFonts.inter(
-              fontSize: 9,
-              fontWeight: FontWeight.w600,
-              color: MintColors.coachAccent,
-            ),
+            style: MintTextStyles.micro(color: MintColors.coachAccent).copyWith(fontSize: 9, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
           ),
           textDirection: TextDirection.ltr,
         )..layout();
@@ -385,11 +361,7 @@ class _EarlyRetirementPainter extends CustomPainter {
         final amtTP = TextPainter(
           text: TextSpan(
             text: _formatK(scenario.totalMonthly),
-            style: GoogleFonts.montserrat(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
           ),
           textDirection: TextDirection.ltr,
         )..layout();

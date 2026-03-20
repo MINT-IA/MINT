@@ -349,8 +349,8 @@ void main() {
       for (final card in cards) {
         expect(card.disclaimer, contains('LSFin'),
             reason: '${card.type.name} must have LSFin disclaimer');
-        expect(card.disclaimer, contains('educatif'),
-            reason: '${card.type.name} must mention educatif');
+        expect(card.disclaimer, contains('\u00e9ducatif'),
+            reason: '${card.type.name} must mention éducatif');
       }
     });
 
@@ -504,7 +504,7 @@ void main() {
       final prompts = ResponseCardService.suggestedPrompts(profile);
 
       expect(prompts, isNotEmpty);
-      expect(prompts.first, contains('impots'));
+      expect(prompts.first, contains('imp\u00f4ts'));
     });
 
     test('independant sees prevoyance prompt', () {
@@ -518,7 +518,7 @@ void main() {
       );
       final prompts = ResponseCardService.suggestedPrompts(profile);
 
-      expect(prompts.any((p) => p.contains('independant')), isTrue);
+      expect(prompts.any((p) => p.toLowerCase().contains('ind\u00e9pendant')), isTrue);
     });
 
     test('couple sees coordination prompt', () {

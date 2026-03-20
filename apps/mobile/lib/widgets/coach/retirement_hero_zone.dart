@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -199,11 +199,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
         const SizedBox(width: 4),
         Text(
           '${sign}CHF ${delta.abs().round()}/mois depuis ta dernière visite',
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: color,
-          ),
+          style: MintTextStyles.labelSmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -221,20 +217,12 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
         if (_scrubbedAge != null)
           Text(
             'Revenu estimé$ageLabel',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
           ),
         Center(
           child: Text(
             '${prefix}CHF ${formatChf(income)} / mois',
-            style: GoogleFonts.montserrat(
-              fontSize: 32,
-              fontWeight: FontWeight.w800,
-              color: MintColors.textPrimary,
-              height: 1.2,
-            ),
+            style: MintTextStyles.displayMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800, height: 1.2),
           ),
         ),
         if (widget.isCouple && widget.partnerMonthlyIncome != null)
@@ -242,10 +230,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
             padding: const EdgeInsets.only(top: 4),
             child: Text(
               'Ménage combiné${widget.partnerName != null ? ' (toi + ${widget.partnerName})' : ''}',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
             ),
           ),
       ],
@@ -288,18 +273,11 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
           children: [
             Text(
               '${rate.toStringAsFixed(0)}% de ton revenu actuel',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: _zoneColor,
-              ),
+              style: MintTextStyles.labelSmall(color: _zoneColor).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
             ),
             Text(
               'Taux de remplacement',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted),
             ),
           ],
         ),
@@ -346,11 +324,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
                     child: fraction > 0.12
                         ? Text(
                             s.label,
-                            style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: MintColors.white,
-                            ),
+                            style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
                           )
                         : null,
                   ),
@@ -379,10 +353,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
                 const SizedBox(width: 3),
                 Text(
                   formatChf(monthly),
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
                 ),
               ],
             );
@@ -448,19 +419,15 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
           children: [
             Text(
               '${widget.currentAge} ans',
-              style: GoogleFonts.inter(fontSize: 10, color: MintColors.textMuted),
+              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
             ),
             Text(
               'Glisse pour explorer →',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontStyle: FontStyle.italic,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
             Text(
               '${widget.retirementAge + 5} ans',
-              style: GoogleFonts.inter(fontSize: 10, color: MintColors.textMuted),
+              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
             ),
           ],
         ),
@@ -500,11 +467,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
               isGood
                   ? 'Confiance : ${score.round()}%'
                   : 'Confiance : ${score.round()}% — Améliorer',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: chipColor,
-              ),
+              style: MintTextStyles.labelSmall(color: chipColor).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
             ),
             if (!isGood) ...[
               const SizedBox(width: 4),
@@ -533,11 +496,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
           Expanded(
             child: Text(
               widget.coachOneLiner!,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textPrimary,
-                height: 1.4,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
             ),
           ),
         ],

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 
@@ -34,75 +36,57 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final result = _result;
 
     return Scaffold(
       backgroundColor: MintColors.surface,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 100,
-            pinned: true,
-            backgroundColor: MintColors.primary,
-            foregroundColor: MintColors.white,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'VALEUR LOCATIVE',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ),
+      appBar: AppBar(
+        backgroundColor: MintColors.white,
+        foregroundColor: MintColors.textPrimary,
+        elevation: 0,
+        title: Text(
+          s.imputedRentalAppBarTitle,
+          style: MintTextStyles.headlineMedium(),
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        children: [
+          // Intro
+          _buildIntroCard(s),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Chiffre choc
+          _buildChiffreChocCard(result),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Decomposition
+          _buildDecompositionCard(s, result),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Sliders
+          _buildSlidersSection(s),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Disclaimer
+          _buildDisclaimer(result.disclaimer),
+          const SizedBox(height: MintSpacing.sm),
+
+          // Source legale
+          Text(
+            s.imputedRentalSource,
+            style: MintTextStyles.micro(),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // Intro
-                _buildIntroCard(),
-                const SizedBox(height: 24),
-
-                // Chiffre choc
-                _buildChiffreChocCard(result),
-                const SizedBox(height: 24),
-
-                // Decomposition
-                _buildDecompositionCard(result),
-                const SizedBox(height: 24),
-
-                // Sliders
-                _buildSlidersSection(),
-                const SizedBox(height: 24),
-
-                // Disclaimer
-                _buildDisclaimer(result.disclaimer),
-                const SizedBox(height: 12),
-
-                // Source legale
-                const Text(
-                  'Source : LIFD art. 21 al. 1 let. b, art. 32. '
-                  'Taux cantonaux estimés à titre pédagogique.',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontStyle: FontStyle.italic,
-                    color: MintColors.textMuted,
-                  ),
-                ),
-                const SizedBox(height: 40),
-              ]),
-            ),
-          ),
+          const SizedBox(height: MintSpacing.xl),
         ],
       ),
     );
   }
 
-  Widget _buildIntroCard() {
+  Widget _buildIntroCard(S s) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -112,23 +96,13 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Qu\'est-ce que la valeur locative ?',
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
+            s.imputedRentalIntroTitle,
+            style: MintTextStyles.titleMedium(),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
-            'En Suisse, les propriétaires doivent déclarer un revenu fictif '
-            '(valeur locative) correspondant au loyer qu\'ils pourraient obtenir '
-            'en louant leur bien. En contrepartie, ils peuvent déduire les '
-            'intérêts hypothécaires et les frais d\'entretien.',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.5,
-            ),
+            s.imputedRentalIntroBody,
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
         ],
       ),
@@ -143,43 +117,38 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
         ? Icons.savings_outlined
         : Icons.trending_up;
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 40),
-          const SizedBox(height: 12),
-          Text(
-            'CHF ${formatChf(result.impotSupplementaire.abs())}/an',
-            style: GoogleFonts.montserrat(
-              fontSize: 32,
-              fontWeight: FontWeight.w800,
-              color: color,
+    return Semantics(
+      label: 'CHF ${formatChf(result.impotSupplementaire.abs())}/an',
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 40),
+            const SizedBox(height: MintSpacing.sm + 4),
+            Text(
+              'CHF ${formatChf(result.impotSupplementaire.abs())}/an',
+              style: MintTextStyles.displayMedium(color: color),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            result.chiffreChocTexte,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-              height: 1.4,
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              result.chiffreChocTexte,
+              textAlign: TextAlign.center,
+              style: MintTextStyles.bodyMedium(),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildDecompositionCard(ImputedRentalResult result) {
+  Widget _buildDecompositionCard(S s, ImputedRentalResult result) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -189,63 +158,58 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'DÉCOMPOSITION',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            s.imputedRentalDecomposition,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Visual bar
-          _buildComparisonBar(result),
-          const SizedBox(height: 20),
+          _buildComparisonBar(s, result),
+          const SizedBox(height: MintSpacing.md + 4),
 
           // Revenus ajoutes
-          _buildSectionLabel('Revenu imposable ajouté', MintColors.error),
+          _buildSectionLabel(s.imputedRentalAddedIncome, MintColors.error),
           _buildInfoRow(
-            'Valeur locative',
+            s.imputedRentalLocativeValue,
             '+CHF ${formatChf(result.valeurLocative)}',
             color: MintColors.error,
           ),
-          const Divider(height: 20),
+          const Divider(height: MintSpacing.md + 4),
 
           // Deductions
-          _buildSectionLabel('Déductions', MintColors.success),
+          _buildSectionLabel(s.imputedRentalDeductionsLabel, MintColors.success),
           _buildInfoRow(
-            'Intérêts hypothécaires',
+            s.imputedRentalMortgageInterest,
             '-CHF ${formatChf(result.deductionInterets)}',
             color: MintColors.success,
           ),
           _buildInfoRow(
-            'Frais d\'entretien',
+            s.imputedRentalMaintenanceCosts,
             '-CHF ${formatChf(result.deductionFraisEntretien)}',
             color: MintColors.success,
           ),
           _buildInfoRow(
-            'Assurance bâtiment (estimation)',
+            s.imputedRentalBuildingInsurance,
             '-CHF ${formatChf(result.deductionAssurance)}',
             color: MintColors.success,
           ),
           _buildInfoRow(
-            'Total déductions',
+            s.imputedRentalTotalDeductions,
             '-CHF ${formatChf(result.totalDeductions)}',
             isBold: true,
             color: MintColors.success,
           ),
-          const Divider(height: 20),
+          const Divider(height: MintSpacing.md + 4),
 
           // Impact net
           _buildInfoRow(
-            'Impact net sur le revenu imposable',
+            s.imputedRentalNetImpact,
             '${result.impactNet >= 0 ? "+" : "-"}CHF ${formatChf(result.impactNet.abs())}',
             isBold: true,
             color: result.impactNet > 0 ? MintColors.error : MintColors.success,
           ),
           _buildInfoRow(
-            'Impact fiscal estimé (taux marginal ${(_tauxMarginal * 100).toStringAsFixed(0)}%)',
+            s.imputedRentalFiscalImpact((_tauxMarginal * 100).toStringAsFixed(0)),
             '${result.impotSupplementaire >= 0 ? "+" : "-"}CHF ${formatChf(result.impotSupplementaire.abs())}/an',
             isBold: true,
             color: result.impotSupplementaire > 0
@@ -257,7 +221,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
     );
   }
 
-  Widget _buildComparisonBar(ImputedRentalResult result) {
+  Widget _buildComparisonBar(S s, ImputedRentalResult result) {
     final total = result.valeurLocative + result.totalDeductions;
     if (total <= 0) return const SizedBox.shrink();
 
@@ -279,9 +243,9 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
                   ),
                 ),
                 alignment: Alignment.center,
-                child: const Text(
-                  'Valeur locative',
-                  style: TextStyle(fontSize: 10, color: MintColors.error),
+                child: Text(
+                  s.imputedRentalBarLocative,
+                  style: MintTextStyles.micro(color: MintColors.error),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -297,9 +261,9 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
                   ),
                 ),
                 alignment: Alignment.center,
-                child: const Text(
-                  'Déductions',
-                  style: TextStyle(fontSize: 10, color: MintColors.success),
+                child: Text(
+                  s.imputedRentalBarDeductions,
+                  style: MintTextStyles.micro(color: MintColors.success),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -312,21 +276,17 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
 
   Widget _buildSectionLabel(String text, Color color) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: MintSpacing.sm),
       child: Text(
         text,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: color,
-        ),
+        style: MintTextStyles.labelSmall(color: color),
       ),
     );
   }
 
-  Widget _buildSlidersSection() {
+  Widget _buildSlidersSection(S s) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -336,57 +296,51 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAMÈTRES',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            s.imputedRentalParameters,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Canton
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Canton',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textPrimary,
+          Semantics(
+            label: s.imputedRentalCanton,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  s.imputedRentalCanton,
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: MintColors.border),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _canton,
-                    items: ImputedRentalCalculator.cantons
-                        .map((c) => DropdownMenuItem(
-                              value: c,
-                              child: Text(c,
-                                  style: const TextStyle(fontSize: 13)),
-                            ))
-                        .toList(),
-                    onChanged: (v) {
-                      if (v != null) setState(() => _canton = v);
-                    },
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm + 4),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: MintColors.border),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _canton,
+                      items: ImputedRentalCalculator.cantons
+                          .map((c) => DropdownMenuItem(
+                                value: c,
+                                child: Text(c,
+                                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
+                              ))
+                          .toList(),
+                      onChanged: (v) {
+                        if (v != null) setState(() => _canton = v);
+                      },
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Valeur venale
           _buildSliderRow(
-            label: 'Valeur vénale du bien',
+            label: s.imputedRentalPropertyValue,
             value: _valeurVenale,
             min: 200000,
             max: 3000000,
@@ -394,11 +348,11 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
             format: 'CHF ${formatChf(_valeurVenale)}',
             onChanged: (v) => setState(() => _valeurVenale = v),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
 
           // Interets annuels
           _buildSliderRow(
-            label: 'Intérêts hypothécaires annuels',
+            label: s.imputedRentalAnnualInterest,
             value: _interetsAnnuels,
             min: 0,
             max: 80000,
@@ -406,11 +360,11 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
             format: 'CHF ${formatChf(_interetsAnnuels)}',
             onChanged: (v) => setState(() => _interetsAnnuels = v),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
 
           // Frais d'entretien
           _buildSliderRow(
-            label: 'Frais d\'entretien effectifs',
+            label: s.imputedRentalEffectiveMaintenance,
             value: _fraisEntretien,
             min: 0,
             max: 30000,
@@ -418,47 +372,44 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
             format: 'CHF ${formatChf(_fraisEntretien)}',
             onChanged: (v) => setState(() => _fraisEntretien = v),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Age du bien
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Bien ancien (>= 10 ans)',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
+          Semantics(
+            label: s.imputedRentalOldProperty,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        s.imputedRentalOldProperty,
+                        style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                       ),
-                    ),
-                    Text(
-                      _bienAncien
-                          ? 'Forfait entretien : 20% de la valeur locative'
-                          : 'Forfait entretien : 10% de la valeur locative',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: MintColors.textSecondary,
+                      Text(
+                        _bienAncien
+                            ? s.imputedRentalForfaitOld
+                            : s.imputedRentalForfaitNew,
+                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Switch(
-                value: _bienAncien,
-                activeTrackColor: MintColors.primary,
-                onChanged: (v) => setState(() => _bienAncien = v),
-              ),
-            ],
+                Switch(
+                  value: _bienAncien,
+                  activeTrackColor: MintColors.primary,
+                  onChanged: (v) => setState(() => _bienAncien = v),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
 
           // Taux marginal
           _buildSliderRow(
-            label: 'Taux marginal estimé',
+            label: s.imputedRentalMarginalRate,
             value: _tauxMarginal,
             min: 0.15,
             max: 0.45,
@@ -480,67 +431,59 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
     required String format,
     required ValueChanged<double> onChanged,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textPrimary,
+    return Semantics(
+      label: '$label: $format',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                 ),
               ),
-            ),
-            Text(
-              format,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
+              Text(
+                format,
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
               ),
-            ),
-          ],
-        ),
-        Slider(
-          value: value,
-          min: min,
-          max: max,
-          divisions: divisions,
-          activeColor: MintColors.primary,
-          onChanged: onChanged,
-        ),
-      ],
+            ],
+          ),
+          Slider(
+            value: value,
+            min: min,
+            max: max,
+            divisions: divisions,
+            activeColor: MintColors.primary,
+            onChanged: onChanged,
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildInfoRow(String label, String value,
       {Color? color, bool isBold = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-              ),
+              style: isBold
+                  ? MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                  : MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
           Text(
             value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-              color: color ?? MintColors.textPrimary,
-            ),
+            style: isBold
+                ? MintTextStyles.bodySmall(color: color ?? MintColors.textPrimary)
+                : MintTextStyles.labelSmall(color: color ?? MintColors.textPrimary),
           ),
         ],
       ),
@@ -549,26 +492,21 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
 
   Widget _buildDisclaimer(String disclaimer) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.warningBg,
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.orangeRetroWarm),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
               disclaimer,
-              style: const TextStyle(
-                fontSize: 11,
-                fontStyle: FontStyle.italic,
-                color: MintColors.deepOrange,
-                height: 1.4,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textSecondary),
             ),
           ),
         ],

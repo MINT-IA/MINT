@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -15,13 +16,12 @@ import 'package:mint_mobile/widgets/coach/expat_rights_loss_widget.dart';
 //  EXPAT SCREEN — Sprint S23 / Expatriation + Frontaliers
 // ────────────────────────────────────────────────────────────
 //
+// Design System: Category C — Life Event.
 // Three-tab interactive screen for expatriation planning:
 //   Tab 1: "Forfait"  — Lump-sum taxation simulator
-//   Tab 2: "Depart"   — Departure planning checklist
+//   Tab 2: "Départ"   — Departure planning checklist
 //   Tab 3: "AVS"      — Pension gap estimator
 //
-// All text in French (informal "tu").
-// Material 3, MintColors theme, GoogleFonts.
 // Ne constitue pas un conseil fiscal ou juridique (LSFin).
 // ────────────────────────────────────────────────────────────
 
@@ -107,7 +107,7 @@ class _ExpatScreenState extends State<ExpatScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.white,
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           _buildAppBar(context, innerBoxIsScrolled),
@@ -124,59 +124,39 @@ class _ExpatScreenState extends State<ExpatScreen>
     );
   }
 
-  // ── App Bar with Tabs ──────────────────────────────────
+  // ── App Bar with Tabs — white standard ──────────────────
 
   Widget _buildAppBar(BuildContext context, bool innerBoxIsScrolled) {
+    final l = S.of(context)!;
     return SliverAppBar(
       pinned: true,
       floating: true,
-      expandedHeight: 160,
-      backgroundColor: MintColors.primary,
+      backgroundColor: MintColors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
         onPressed: () => context.pop(),
       ),
-      flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: 16),
-        title: Text(
-          S.of(context)!.expatTitle,
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-            color: MintColors.white,
-          ),
-        ),
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                MintColors.primary,
-                MintColors.primary.withValues(alpha: 0.85),
-              ],
-            ),
-          ),
+      title: Semantics(
+        header: true,
+        child: Text(
+          l.expatTitle,
+          style: MintTextStyles.headlineMedium(),
         ),
       ),
       bottom: TabBar(
         controller: _tabController,
-        indicatorColor: MintColors.white,
+        indicatorColor: MintColors.primary,
         indicatorWeight: 3,
-        labelColor: MintColors.white,
-        unselectedLabelColor: MintColors.white60,
-        labelStyle: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-        ),
-        unselectedLabelStyle: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.w400,
-        ),
+        labelColor: MintColors.textPrimary,
+        unselectedLabelColor: MintColors.textMuted,
+        labelStyle: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+        unselectedLabelStyle: MintTextStyles.bodySmall(),
         tabs: [
-          Tab(text: S.of(context)!.expatTabForfait),
-          Tab(text: S.of(context)!.expatTabDeparture),
-          Tab(text: S.of(context)!.expatTabAvs),
+          Tab(text: l.expatTabForfait),
+          Tab(text: l.expatTabDeparture),
+          Tab(text: l.expatTabAvs),
         ],
       ),
     );
@@ -188,29 +168,29 @@ class _ExpatScreenState extends State<ExpatScreen>
 
   Widget _buildTab1Forfait() {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      padding: const EdgeInsets.fromLTRB(
+          MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, MintSpacing.xxl),
       children: [
         _buildForfaitInputCard(),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
         if (_forfaitResult != null) ...[
           _buildForfaitResultCard(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
         ],
         _buildAbolishedWarning(),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
         _buildEducationalInsert(
           S.of(context)!.expatForfaitEducation,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
         _buildTopCantonSection(),
-        const SizedBox(height: 24),
+        const SizedBox(height: MintSpacing.lg),
         _buildDisclaimer(),
       ],
     );
   }
 
   Widget _buildTopCantonSection() {
-    // Scale tax savings relative to user income (base = 100k reference)
     final scale = (_actualIncome / 100000).clamp(0.3, 10.0);
     return TopCantonWidget(
       currentCanton: _departCanton,
@@ -262,55 +242,50 @@ class _ExpatScreenState extends State<ExpatScreen>
   }
 
   Widget _buildForfaitInputCard() {
+    final l = S.of(context)!;
     final eligibleCantons = ExpatService.eligibleForfaitCantons;
 
-    // Ensure selected canton is still eligible
     if (!eligibleCantons.contains(_forfaitCanton)) {
       _forfaitCanton = eligibleCantons.first;
     }
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Canton dropdown (eligible only)
           Row(
             children: [
               Expanded(
                 child: Text(
-                  S.of(context)!.expatCanton,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  l.expatCanton,
+                  style: MintTextStyles.bodyMedium(
+                      color: MintColors.textPrimary),
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
                 decoration: BoxDecoration(
-                  color: MintColors.appleSurface,
+                  color: MintColors.surface,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _forfaitCanton,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(
+                        color: MintColors.textPrimary),
                     items: eligibleCantons.map((code) {
                       return DropdownMenuItem(
                         value: code,
                         child: Text(
-                            '$code — ${ExpatService.cantonNames[code]}'),
+                            '$code \u2014 ${ExpatService.cantonNames[code]}'),
                       );
                     }).toList(),
                     onChanged: (v) {
@@ -324,11 +299,9 @@ class _ExpatScreenState extends State<ExpatScreen>
               ),
             ],
           ),
-          const SizedBox(height: 20),
-
-          // Living expenses slider
+          const SizedBox(height: MintSpacing.lg),
           _buildSlider(
-            label: S.of(context)!.expatLivingExpenses,
+            label: l.expatLivingExpenses,
             value: _livingExpenses,
             min: 250000,
             max: 5000000,
@@ -338,11 +311,9 @@ class _ExpatScreenState extends State<ExpatScreen>
               _recalculateForfait();
             },
           ),
-          const SizedBox(height: 20),
-
-          // Actual income slider
+          const SizedBox(height: MintSpacing.lg),
           _buildSlider(
-            label: S.of(context)!.expatActualIncome,
+            label: l.expatActualIncome,
             value: _actualIncome,
             min: 500000,
             max: 20000000,
@@ -358,11 +329,12 @@ class _ExpatScreenState extends State<ExpatScreen>
   }
 
   Widget _buildForfaitResultCard() {
+    final l = S.of(context)!;
     final result = _forfaitResult!;
 
     if (result['abolished'] == true) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(MintSpacing.md),
         decoration: BoxDecoration(
           color: MintColors.error.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(16),
@@ -372,15 +344,12 @@ class _ExpatScreenState extends State<ExpatScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Icon(Icons.block, size: 20, color: MintColors.error),
-            const SizedBox(width: 12),
+            const SizedBox(width: MintSpacing.sm),
             Expanded(
               child: Text(
                 result['note'] as String,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: MintColors.textPrimary,
-                  height: 1.5,
-                ),
+                style: MintTextStyles.bodyMedium(
+                    color: MintColors.textPrimary),
               ),
             ),
           ],
@@ -397,125 +366,95 @@ class _ExpatScreenState extends State<ExpatScreen>
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withValues(alpha: 0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border.withAlpha(128)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.compare_arrows, size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
+              const Icon(Icons.compare_arrows,
+                  size: 16, color: MintColors.textMuted),
+              const SizedBox(width: MintSpacing.sm),
               Text(
-                S.of(context)!.expatTaxComparison,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                l.expatTaxComparison,
+                style: MintTextStyles.labelSmall(),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
 
           // Side by side
           Row(
             children: [
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(MintSpacing.md),
                   decoration: BoxDecoration(
-                    color: MintColors.appleSurface,
+                    color: MintColors.surface,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
                     children: [
                       const Icon(Icons.receipt_long_outlined,
                           size: 24, color: MintColors.textSecondary),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: MintSpacing.sm),
                       Text(
-                        S.of(context)!.expatForfaitFiscal,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.textSecondary,
-                        ),
+                        l.expatForfaitFiscal,
+                        style: MintTextStyles.labelSmall(
+                            color: MintColors.textSecondary),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: MintSpacing.sm),
                       Text(
                         ExpatService.formatChf(forfaitTax),
-                        style: GoogleFonts.montserrat(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.titleMedium(),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: MintSpacing.xs),
                       Text(
-                        'Base: ${ExpatService.formatChf(forfaitBase)}',
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: MintColors.textMuted,
-                        ),
+                        l.expatForfaitBase(
+                            ExpatService.formatChf(forfaitBase)),
+                        style: MintTextStyles.labelSmall(),
                         textAlign: TextAlign.center,
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: MintSpacing.sm),
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(MintSpacing.md),
                   decoration: BoxDecoration(
-                    color: MintColors.appleSurface,
+                    color: MintColors.surface,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
                     children: [
                       const Icon(Icons.account_balance_outlined,
                           size: 24, color: MintColors.textSecondary),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: MintSpacing.sm),
                       Text(
-                        S.of(context)!.expatOrdinaryTaxation,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.textSecondary,
-                        ),
+                        l.expatOrdinaryTaxation,
+                        style: MintTextStyles.labelSmall(
+                            color: MintColors.textSecondary),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: MintSpacing.sm),
                       Text(
                         ExpatService.formatChf(ordinaryTax),
-                        style: GoogleFonts.montserrat(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.titleMedium(),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: MintSpacing.xs),
                       Text(
-                        S.of(context)!.expatOnActualIncome,
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: MintColors.textMuted,
-                        ),
+                        l.expatOnActualIncome,
+                        style: MintTextStyles.labelSmall(),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -524,47 +463,58 @@ class _ExpatScreenState extends State<ExpatScreen>
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Savings badge
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            decoration: BoxDecoration(
-              color: isFavorable
-                  ? MintColors.success.withValues(alpha: 0.1)
-                  : MintColors.warning.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
+          Semantics(
+            label: isFavorable
+                ? l.expatSavingsBadge(ExpatService.formatChf(savings.abs()),
+                    savingsPercent.toStringAsFixed(0))
+                : l.expatForfaitMoreCostly(
+                    ExpatService.formatChf(savings.abs())),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: MintSpacing.lg, vertical: MintSpacing.sm),
+              decoration: BoxDecoration(
                 color: isFavorable
-                    ? MintColors.success.withValues(alpha: 0.3)
-                    : MintColors.warning.withValues(alpha: 0.3),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  isFavorable ? Icons.trending_down : Icons.trending_up,
-                  size: 20,
-                  color: isFavorable ? MintColors.success : MintColors.warning,
+                    ? MintColors.success.withValues(alpha: 0.1)
+                    : MintColors.warning.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isFavorable
+                      ? MintColors.success.withValues(alpha: 0.3)
+                      : MintColors.warning.withValues(alpha: 0.3),
                 ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    isFavorable
-                        ? 'Économie: ${ExpatService.formatChf(savings.abs())} (-${savingsPercent.toStringAsFixed(0)}%)'
-                        : 'Forfait plus coûteux: +${ExpatService.formatChf(savings.abs())}',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: isFavorable
-                          ? MintColors.success
-                          : MintColors.warning,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    isFavorable ? Icons.trending_down : Icons.trending_up,
+                    size: 20,
+                    color: isFavorable
+                        ? MintColors.success
+                        : MintColors.warning,
+                  ),
+                  const SizedBox(width: MintSpacing.sm),
+                  Flexible(
+                    child: Text(
+                      isFavorable
+                          ? l.expatSavingsBadge(
+                              ExpatService.formatChf(savings.abs()),
+                              savingsPercent.toStringAsFixed(0))
+                          : l.expatForfaitMoreCostly(
+                              ExpatService.formatChf(savings.abs())),
+                      style: MintTextStyles.titleMedium(
+                        color: isFavorable
+                            ? MintColors.success
+                            : MintColors.warning,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -573,43 +523,39 @@ class _ExpatScreenState extends State<ExpatScreen>
   }
 
   Widget _buildAbolishedWarning() {
+    final l = S.of(context)!;
     final abolished = ExpatService.forfaitAbolishedCantons.toList()..sort();
-    final names = abolished
-        .map((c) => ExpatService.cantonNames[c] ?? c)
-        .join(', ');
+    final names =
+        abolished.map((c) => ExpatService.cantonNames[c] ?? c).join(', ');
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.warning.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.warning.withValues(alpha: 0.2)),
+        borderRadius: BorderRadius.circular(12),
+        border:
+            Border.all(color: MintColors.warning.withValues(alpha: 0.2)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.warning_amber, size: 18, color: MintColors.warning),
-          const SizedBox(width: 12),
+          const Icon(Icons.warning_amber,
+              size: 18, color: MintColors.warning),
+          const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  S.of(context)!.expatAbolishedCantons,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.warning,
-                  ),
+                  l.expatAbolishedCantons,
+                  style:
+                      MintTextStyles.bodySmall(color: MintColors.warning),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
-                  S.of(context)!.expatAbolishedNote(names),
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  l.expatAbolishedNote(names),
+                  style: MintTextStyles.bodySmall(
+                      color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -624,235 +570,266 @@ class _ExpatScreenState extends State<ExpatScreen>
   // ════════════════════════════════════════════════════════════
 
   Widget _buildTab2Depart() {
+    final l = S.of(context)!;
+    // Chiffre-choc for tab 2: total capital at stake
+    final totalCapital = _pillar3aBalance + _lppBalance;
+
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      padding: const EdgeInsets.fromLTRB(
+          MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, MintSpacing.xxl),
       children: [
+        // ── Chiffre-choc hero for Tab 2 ──
+        if (totalCapital > 0)
+          Padding(
+            padding: const EdgeInsets.only(bottom: MintSpacing.lg),
+            child: Semantics(
+              label: l.expatDepartChiffreChoc(
+                  ExpatService.formatChf(totalCapital)),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(MintSpacing.lg),
+                decoration: BoxDecoration(
+                  color: MintColors.info.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                      color: MintColors.info.withValues(alpha: 0.15)),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      ExpatService.formatChf(totalCapital),
+                      style: MintTextStyles.displayMedium(
+                          color: MintColors.info),
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(
+                      l.expatDepartChiffreChoc(
+                          ExpatService.formatChf(totalCapital)),
+                      style: MintTextStyles.bodySmall(
+                          color: MintColors.textSecondary),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
         _buildDepartInputCard(),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
         _buildNoExitTaxBadge(),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
         ExpatCountdownWidget(
           departureDate: _departureDate,
           deadlines: const [
             ExpatDeadline(
-              label: '3ème pilier 3a — clôture ou gel',
-              emoji: '🏦',
+              label: '3\u00e8me pilier 3a \u2014 cl\u00f4ture ou gel',
+              emoji: '\u{1F3E6}',
               daysFromDeparture: -90,
-              action: 'Contacte ta banque pour planifier la clôture ou le transfert du 3a.',
+              action:
+                  'Contacte ta banque pour planifier la cl\u00f4ture ou le transfert du 3a.',
               legalRef: 'OPP3 art. 1',
-              consequence: 'Un 3a non géré avant le départ peut bloquer des fonds pendant des années.',
+              consequence:
+                  'Un 3a non g\u00e9r\u00e9 avant le d\u00e9part peut bloquer des fonds pendant des ann\u00e9es.',
             ),
             ExpatDeadline(
-              label: 'LPP — libre passage',
-              emoji: '💼',
+              label: 'LPP \u2014 libre passage',
+              emoji: '\u{1F4BC}',
               daysFromDeparture: -60,
-              action: 'Demande le transfert de ton avoir LPP sur un compte de libre passage ou une police.',
+              action:
+                  'Demande le transfert de ton avoir LPP sur un compte de libre passage ou une police.',
               legalRef: 'LPP art. 5 + LFLP art. 4',
             ),
             ExpatDeadline(
-              label: 'AVS — cotisation volontaire',
-              emoji: '🛡️',
+              label: 'AVS \u2014 cotisation volontaire',
+              emoji: '\u{1F6E1}\uFE0F',
               daysFromDeparture: 0,
-              action: 'Si tu t\'installes hors EU/AELE, tu peux t\'affilier volontairement à l\'AVS pour éviter des lacunes.',
+              action:
+                  'Si tu t\'installes hors EU/AELE, tu peux t\'affilier volontairement \u00e0 l\'AVS pour \u00e9viter des lacunes.',
               legalRef: 'LAVS art. 2',
               isEuOnly: false,
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
         if (_departResult != null) ...[
           _buildDepartTimeline(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
           _buildDepartChecklist(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
         ],
-        _buildEducationalInsert(
-          'La Suisse ne prélève pas de taxe de sortie (exit tax) — '
-          'contrairement aux États-Unis ou à la France. '
-          'Tes gains en capital latents ne sont pas imposés au moment du départ. '
-          'C\'est un avantage majeur pour les expatriés.',
-        ),
-        const SizedBox(height: 20),
+        _buildEducationalInsert(l.expatTab2EduInsert),
+        const SizedBox(height: MintSpacing.lg),
         // ── P13-A : 5 choses que tu perds en partant ───────────
         const ExpatRightsLossWidget(
-          destination: 'l\'étranger',
+          destination: 'l\'\u00e9tranger',
           isEuDestination: false,
           rights: [
             ExpatRight(
-              label: 'AVS — cotisation obligatoire',
-              emoji: '🛡️',
+              label: 'AVS \u2014 cotisation obligatoire',
+              emoji: '\u{1F6E1}\uFE0F',
               before: 'Cotisation automatique via employeur',
-              after: 'Lacunes AVS → rente réduite',
+              after: 'Lacunes AVS \u2192 rente r\u00e9duite',
               legalRef: 'LAVS art. 1a',
               impact:
-                  'Chaque année manquante réduit ta rente AVS de ~2.3%. '
-                  '10 ans = −23% à vie.',
+                  'Chaque ann\u00e9e manquante r\u00e9duit ta rente AVS de ~2.3%. '
+                  '10 ans = \u221223% \u00e0 vie.',
               isIrreversible: true,
             ),
             ExpatRight(
-              label: 'LPP — 2e pilier',
-              emoji: '🏦',
-              before: 'Épargne retraite obligatoire',
-              after: 'Capital bloqué ou retiré sans rendement',
+              label: 'LPP \u2014 2e pilier',
+              emoji: '\u{1F3E6}',
+              before: '\u00c9pargne retraite obligatoire',
+              after: 'Capital bloqu\u00e9 ou retir\u00e9 sans rendement',
               legalRef: 'LPP art. 5',
               impact:
-                  'Tu peux retirer ton avoir LPP, mais tu paies l\'impôt '
-                  'sur le capital retiré. La reconstitution est impossible à l\'étranger.',
+                  'Tu peux retirer ton avoir LPP, mais tu paies l\'imp\u00f4t '
+                  'sur le capital retir\u00e9. La reconstitution est impossible \u00e0 l\'\u00e9tranger.',
             ),
             ExpatRight(
               label: 'Pilier 3a',
-              emoji: '🏛️',
-              before: 'Déductions fiscales annuelles',
-              after: 'Compte bloqué — aucun nouveau versement possible',
+              emoji: '\u{1F3DB}\uFE0F',
+              before: 'D\u00e9ductions fiscales annuelles',
+              after: 'Compte bloqu\u00e9 \u2014 aucun nouveau versement possible',
               legalRef: 'OPP3 art. 1',
               impact:
-                  'Tu perds le droit de verser dans le 3a dès que tu n\'as '
-                  'plus de revenu soumis à l\'AVS suisse.',
+                  'Tu perds le droit de verser dans le 3a d\u00e8s que tu n\'as '
+                  'plus de revenu soumis \u00e0 l\'AVS suisse.',
             ),
             ExpatRight(
-              label: 'LAMal — assurance maladie',
-              emoji: '🏥',
+              label: 'LAMal \u2014 assurance maladie',
+              emoji: '\u{1F3E5}',
               before: 'Couverture universelle en Suisse',
-              after: 'Tu dois t\'assurer dans le pays de résidence',
+              after: 'Tu dois t\'assurer dans le pays de r\u00e9sidence',
               legalRef: 'LAMal art. 3',
               impact:
                   'La couverture internationale est souvent partielle et '
-                  'coûteuse. Vérifie les conventions bilatérales.',
+                  'co\u00fbteuse. V\u00e9rifie les conventions bilat\u00e9rales.',
             ),
             ExpatRight(
-              label: 'Chômage AC',
-              emoji: '💼',
-              before: 'Indemnités AC jusqu\'à 520 jours',
-              after: 'Aucun droit AC suisse si tu travailles à l\'étranger',
+              label: 'Ch\u00f4mage AC',
+              emoji: '\u{1F4BC}',
+              before: 'Indemnit\u00e9s AC jusqu\'\u00e0 520 jours',
+              after: 'Aucun droit AC suisse si tu travailles \u00e0 l\'\u00e9tranger',
               legalRef: 'LACI art. 8',
               impact:
-                  'Si tu perds ton emploi à l\'étranger, seul le régime '
-                  'local s\'applique — souvent moins généreux.',
+                  'Si tu perds ton emploi \u00e0 l\'\u00e9tranger, seul le r\u00e9gime '
+                  'local s\'applique \u2014 souvent moins g\u00e9n\u00e9reux.',
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
         _buildDisclaimer(),
       ],
     );
   }
 
   Widget _buildDepartInputCard() {
+    final l = S.of(context)!;
     final sortedCodes = ExpatService.sortedCantonCodes;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Departure date picker
           Row(
             children: [
               Expanded(
                 child: Text(
-                  S.of(context)!.expatDepartureDate,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  l.expatDepartureDate,
+                  style: MintTextStyles.bodyMedium(
+                      color: MintColors.textPrimary),
                 ),
               ),
               Semantics(
-                label: 'Sélectionner la date de départ',
+                label: l.expatDepartureDate,
                 button: true,
                 child: GestureDetector(
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: _departureDate,
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(const Duration(days: 730)),
-                    builder: (context, child) {
-                      return Theme(
-                        data: Theme.of(context).copyWith(
-                          colorScheme: Theme.of(context).colorScheme.copyWith(
-                            primary: MintColors.primary,
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: _departureDate,
+                      firstDate: DateTime.now(),
+                      lastDate:
+                          DateTime.now().add(const Duration(days: 730)),
+                      builder: (context, child) {
+                        return Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme:
+                                Theme.of(context).colorScheme.copyWith(
+                                      primary: MintColors.primary,
+                                    ),
                           ),
+                          child: child!,
+                        );
+                      },
+                    );
+                    if (picked != null) {
+                      _departureDate = picked;
+                      _recalculateDepart();
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: MintSpacing.md, vertical: MintSpacing.sm),
+                    decoration: BoxDecoration(
+                      color: MintColors.surface,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: MintColors.border),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.calendar_today,
+                            size: 16, color: MintColors.textSecondary),
+                        const SizedBox(width: MintSpacing.sm),
+                        Text(
+                          '${_departureDate.day.toString().padLeft(2, '0')}.'
+                          '${_departureDate.month.toString().padLeft(2, '0')}.'
+                          '${_departureDate.year}',
+                          style: MintTextStyles.bodyMedium(
+                              color: MintColors.textPrimary),
                         ),
-                        child: child!,
-                      );
-                    },
-                  );
-                  if (picked != null) {
-                    _departureDate = picked;
-                    _recalculateDepart();
-                  }
-                },
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: MintColors.appleSurface,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: MintColors.border),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.calendar_today,
-                          size: 16, color: MintColors.textSecondary),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${_departureDate.day.toString().padLeft(2, '0')}.'
-                        '${_departureDate.month.toString().padLeft(2, '0')}.'
-                        '${_departureDate.year}',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.textPrimary,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-              ),
             ],
           ),
-          const SizedBox(height: 20),
-
-          // Canton dropdown
+          const SizedBox(height: MintSpacing.lg),
           Row(
             children: [
               Expanded(
                 child: Text(
-                  S.of(context)!.expatCurrentCanton,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  l.expatCurrentCanton,
+                  style: MintTextStyles.bodyMedium(
+                      color: MintColors.textPrimary),
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
                 decoration: BoxDecoration(
-                  color: MintColors.appleSurface,
+                  color: MintColors.surface,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _departCanton,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(
+                        color: MintColors.textPrimary),
                     items: sortedCodes.map((code) {
                       return DropdownMenuItem(
                         value: code,
                         child: Text(
-                            '$code — ${ExpatService.cantonNames[code]}'),
+                            '$code \u2014 ${ExpatService.cantonNames[code]}'),
                       );
                     }).toList(),
                     onChanged: (v) {
@@ -866,11 +843,9 @@ class _ExpatScreenState extends State<ExpatScreen>
               ),
             ],
           ),
-          const SizedBox(height: 20),
-
-          // Pillar 3a balance
+          const SizedBox(height: MintSpacing.lg),
           _buildSlider(
-            label: S.of(context)!.expatPillar3aBalance,
+            label: l.expatPillar3aBalance,
             value: _pillar3aBalance,
             min: 0,
             max: 500000,
@@ -880,11 +855,9 @@ class _ExpatScreenState extends State<ExpatScreen>
               _recalculateDepart();
             },
           ),
-          const SizedBox(height: 20),
-
-          // LPP balance
+          const SizedBox(height: MintSpacing.lg),
           _buildSlider(
-            label: S.of(context)!.expatLppBalance,
+            label: l.expatLppBalance,
             value: _lppBalance,
             min: 0,
             max: 1000000,
@@ -900,26 +873,26 @@ class _ExpatScreenState extends State<ExpatScreen>
   }
 
   Widget _buildNoExitTaxBadge() {
+    final l = S.of(context)!;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      padding: const EdgeInsets.symmetric(
+          horizontal: MintSpacing.lg, vertical: 14),
       decoration: BoxDecoration(
         color: MintColors.success.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.success.withValues(alpha: 0.3)),
+        border:
+            Border.all(color: MintColors.success.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.check_circle, size: 20, color: MintColors.success),
-          const SizedBox(width: 8),
+          const Icon(Icons.check_circle,
+              size: 20, color: MintColors.success),
+          const SizedBox(width: MintSpacing.sm),
           Flexible(
             child: Text(
-              S.of(context)!.expatNoExitTax,
-              style: GoogleFonts.montserrat(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: MintColors.success,
-              ),
+              l.expatNoExitTax,
+              style: MintTextStyles.titleMedium(color: MintColors.success),
             ),
           ),
         ],
@@ -928,70 +901,68 @@ class _ExpatScreenState extends State<ExpatScreen>
   }
 
   Widget _buildDepartTimeline() {
+    final l = S.of(context)!;
     final result = _departResult!;
     final daysUntil = result['daysUntilDeparture'] as int;
 
-    // Simple timeline with key dates
     final items = <Map<String, String>>[
       {
-        'label': 'Aujourd\'hui',
-        'desc': 'Commence à planifier',
-        'timing': 'Maintenant',
+        'label': l.expatTimelineToday,
+        'desc': l.expatTimelineTodayDesc,
+        'timing': l.expatTimelineTodayTiming,
       },
       {
-        'label': '2-3 mois avant',
-        'desc': 'Annoncer à la commune, résilier LAMal',
+        'label': l.expatTimeline2to3Months,
+        'desc': l.expatTimeline2to3MonthsDesc,
         'timing': daysUntil > 90
-            ? 'Dans ~${((daysUntil - 90) / 30).round()} mois'
-            : 'Urgent !',
+            ? l.expatTimeline2to3MonthsTiming(
+                ((daysUntil - 90) / 30).round())
+            : l.expatTimelineUrgent,
       },
       {
-        'label': '1 mois avant',
-        'desc': 'Retirer 3a, transférer LPP',
+        'label': l.expatTimeline1Month,
+        'desc': l.expatTimeline1MonthDesc,
         'timing': daysUntil > 30
-            ? 'Dans ~${((daysUntil - 30) / 30).round()} mois'
-            : 'Urgent !',
+            ? l.expatTimeline1MonthTiming(
+                ((daysUntil - 30) / 30).round())
+            : l.expatTimelineUrgent,
       },
       {
-        'label': 'Jour J',
-        'desc': 'Départ effectif',
+        'label': l.expatTimelineDDay,
+        'desc': l.expatTimelineDDayDesc,
         'timing': daysUntil > 0
-            ? 'Dans $daysUntil jours'
-            : 'Passé',
+            ? l.expatTimelineDDayTiming(daysUntil)
+            : l.expatTimelinePassed,
       },
       {
-        'label': '30 jours après',
-        'desc': 'Déclarer impôts prorata temporis',
-        'timing': 'Après le départ',
+        'label': l.expatTimeline30After,
+        'desc': l.expatTimeline30AfterDesc,
+        'timing': l.expatTimeline30AfterTiming,
       },
     ];
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border.withAlpha(128)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.timeline, size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
+              const Icon(Icons.timeline,
+                  size: 16, color: MintColors.textMuted),
+              const SizedBox(width: MintSpacing.sm),
               Text(
-                S.of(context)!.expatRecommendedTimeline,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                l.expatRecommendedTimeline,
+                style: MintTextStyles.labelSmall(),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           ...items.asMap().entries.map((entry) {
             final idx = entry.key;
             final item = entry.value;
@@ -1000,7 +971,6 @@ class _ExpatScreenState extends State<ExpatScreen>
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Timeline dot + line
                 SizedBox(
                   width: 24,
                   child: Column(
@@ -1030,41 +1000,34 @@ class _ExpatScreenState extends State<ExpatScreen>
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: MintSpacing.sm),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+                    padding: EdgeInsets.only(
+                        bottom: isLast ? 0 : MintSpacing.sm),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment:
+                              MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               item['label']!,
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: MintColors.textPrimary,
-                              ),
+                              style: MintTextStyles.bodySmall(
+                                  color: MintColors.textPrimary),
                             ),
                             Text(
                               item['timing']!,
-                              style: GoogleFonts.inter(
-                                fontSize: 11,
-                                color: MintColors.textMuted,
-                              ),
+                              style: MintTextStyles.labelSmall(),
                             ),
                           ],
                         ),
                         const SizedBox(height: 2),
                         Text(
                           item['desc']!,
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: MintColors.textSecondary,
-                            height: 1.4,
-                          ),
+                          style: MintTextStyles.labelSmall(
+                              color: MintColors.textSecondary),
                         ),
                       ],
                     ),
@@ -1079,44 +1042,38 @@ class _ExpatScreenState extends State<ExpatScreen>
   }
 
   Widget _buildDepartChecklist() {
+    final l = S.of(context)!;
     final result = _departResult!;
     final checklist = result['checklist'] as List<Map<String, dynamic>>;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border.withAlpha(128)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.checklist, size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
+              const Icon(Icons.checklist,
+                  size: 16, color: MintColors.textMuted),
+              const SizedBox(width: MintSpacing.sm),
               Text(
-                S.of(context)!.expatDepartureChecklist,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                l.expatDepartureChecklist,
+                style: MintTextStyles.labelSmall(),
               ),
               const Spacer(),
               Text(
                 '${_completedChecklist.length}/${checklist.length}',
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.primary,
-                ),
+                style: MintTextStyles.titleMedium(
+                    color: MintColors.primary),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           ...checklist.map((item) {
             final id = item['id'] as String;
             final title = item['title'] as String;
@@ -1125,37 +1082,37 @@ class _ExpatScreenState extends State<ExpatScreen>
             final isCompleted = _completedChecklist.contains(id);
 
             return Semantics(
-              label: 'Checklist : $title',
+              label: 'Checklist\u00a0: $title',
               button: true,
               child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  if (isCompleted) {
-                    _completedChecklist.remove(id);
-                  } else {
-                    _completedChecklist.add(id);
-                  }
-                });
-              },
-              child: AnimatedCrossFade(
-                duration: const Duration(milliseconds: 200),
-                crossFadeState: isCompleted
-                    ? CrossFadeState.showSecond
-                    : CrossFadeState.showFirst,
-                firstChild: _buildChecklistItem(
-                  title: title,
-                  subtitle: subtitle,
-                  timing: timing,
-                  isCompleted: false,
-                ),
-                secondChild: _buildChecklistItem(
-                  title: title,
-                  subtitle: subtitle,
-                  timing: timing,
-                  isCompleted: true,
+                onTap: () {
+                  setState(() {
+                    if (isCompleted) {
+                      _completedChecklist.remove(id);
+                    } else {
+                      _completedChecklist.add(id);
+                    }
+                  });
+                },
+                child: AnimatedCrossFade(
+                  duration: const Duration(milliseconds: 200),
+                  crossFadeState: isCompleted
+                      ? CrossFadeState.showSecond
+                      : CrossFadeState.showFirst,
+                  firstChild: _buildChecklistItem(
+                    title: title,
+                    subtitle: subtitle,
+                    timing: timing,
+                    isCompleted: false,
+                  ),
+                  secondChild: _buildChecklistItem(
+                    title: title,
+                    subtitle: subtitle,
+                    timing: timing,
+                    isCompleted: true,
+                  ),
                 ),
               ),
-            ),
             );
           }),
         ],
@@ -1170,7 +1127,7 @@ class _ExpatScreenState extends State<ExpatScreen>
     required bool isCompleted,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: MintSpacing.sm),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1179,9 +1136,8 @@ class _ExpatScreenState extends State<ExpatScreen>
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: isCompleted
-                  ? MintColors.success
-                  : MintColors.white,
+              color:
+                  isCompleted ? MintColors.success : MintColors.white,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: isCompleted
@@ -1191,10 +1147,11 @@ class _ExpatScreenState extends State<ExpatScreen>
               ),
             ),
             child: isCompleted
-                ? const Icon(Icons.check, size: 16, color: MintColors.white)
+                ? const Icon(Icons.check,
+                    size: 16, color: MintColors.white)
                 : null,
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: AnimatedOpacity(
               duration: const Duration(milliseconds: 200),
@@ -1204,32 +1161,20 @@ class _ExpatScreenState extends State<ExpatScreen>
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                    style: MintTextStyles.bodyMedium(
                       color: MintColors.textPrimary,
-                      decoration: isCompleted
-                          ? TextDecoration.lineThrough
-                          : TextDecoration.none,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                      height: 1.4,
-                    ),
+                    style: MintTextStyles.labelSmall(
+                        color: MintColors.textSecondary),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     timing,
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      color: MintColors.textMuted,
-                      fontStyle: FontStyle.italic,
-                    ),
+                    style: MintTextStyles.micro(),
                   ),
                 ],
               ),
@@ -1245,47 +1190,87 @@ class _ExpatScreenState extends State<ExpatScreen>
   // ════════════════════════════════════════════════════════════
 
   Widget _buildTab3Avs() {
+    final l = S.of(context)!;
+
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      padding: const EdgeInsets.fromLTRB(
+          MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, MintSpacing.xxl),
       children: [
         _buildAvsInputCard(),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
         if (_avsResult != null) ...[
+          // ── Chiffre-choc hero for Tab 3 ──
+          if ((_avsResult!['annualLoss'] as double) > 0)
+            Padding(
+              padding: const EdgeInsets.only(bottom: MintSpacing.lg),
+              child: Semantics(
+                label: l.expatAvsChiffreChoc(ExpatService.formatChf(
+                    _avsResult!['annualLoss'] as double)),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(MintSpacing.lg),
+                  decoration: BoxDecoration(
+                    color: MintColors.error.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                        color: MintColors.error.withValues(alpha: 0.15)),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        '-${ExpatService.formatChf(_avsResult!['annualLoss'] as double)}',
+                        style: MintTextStyles.displayMedium(
+                            color: MintColors.error),
+                      ),
+                      const SizedBox(height: MintSpacing.xs),
+                      Text(
+                        l.expatAvsChiffreChoc(ExpatService.formatChf(
+                            _avsResult!['annualLoss'] as double)),
+                        style: MintTextStyles.bodySmall(
+                            color: MintColors.textSecondary),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
           _buildAvsRingChart(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
           _buildAvsReductionCard(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
           _buildAvsVoluntarySection(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
           _buildAvsRecommendation(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
         ],
         Builder(builder: (context) {
           final provider = context.read<CoachProfileProvider>();
-          final profileAge = (provider.hasProfile && provider.profile!.age > 0)
-              ? provider.profile!.age
-              : 40;
+          final profileAge =
+              (provider.hasProfile && provider.profile!.age > 0)
+                  ? provider.profile!.age
+                  : 40;
           return AvsGapWidget(
             currentContributionYears: _yearsInCh,
             currentAge: profileAge,
           );
         }),
-        const SizedBox(height: 20),
-        _buildEducationalInsert(
-          S.of(context)!.expatAvsEducation,
-        ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
+        _buildEducationalInsert(l.expatAvsEducation),
+        const SizedBox(height: MintSpacing.lg),
         _buildDisclaimer(),
       ],
     );
   }
 
   Widget _buildAvsInputCard() {
+    final l = S.of(context)!;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -1293,7 +1278,7 @@ class _ExpatScreenState extends State<ExpatScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSlider(
-            label: S.of(context)!.expatYearsInSwitzerland,
+            label: l.expatYearsInSwitzerland,
             value: _yearsInCh.toDouble(),
             min: 0,
             max: 44,
@@ -1305,9 +1290,9 @@ class _ExpatScreenState extends State<ExpatScreen>
             formatAsInt: true,
             suffix: 'ans',
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
           _buildSlider(
-            label: S.of(context)!.expatYearsAbroad,
+            label: l.expatYearsAbroad,
             value: _yearsAbroad.toDouble(),
             min: 0,
             max: 44,
@@ -1325,6 +1310,7 @@ class _ExpatScreenState extends State<ExpatScreen>
   }
 
   Widget _buildAvsRingChart() {
+    final l = S.of(context)!;
     final result = _avsResult!;
     final completeness = result['completeness'] as double;
     final completenessPercent = result['completenessPercent'] as double;
@@ -1340,106 +1326,86 @@ class _ExpatScreenState extends State<ExpatScreen>
     }
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withValues(alpha: 0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border.withAlpha(128)),
       ),
       child: Column(
         children: [
           Row(
             children: [
-              const Icon(Icons.donut_large, size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
+              const Icon(Icons.donut_large,
+                  size: 16, color: MintColors.textMuted),
+              const SizedBox(width: MintSpacing.sm),
               Text(
-                S.of(context)!.expatAvsCompleteness,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                l.expatAvsCompleteness,
+                style: MintTextStyles.labelSmall(),
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: MintSpacing.lg),
 
-          // Animated ring chart
-          SizedBox(
-            width: 160,
-            height: 160,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                SizedBox(
-                  width: 160,
-                  height: 160,
-                  child: CircularProgressIndicator(
-                    value: completeness,
-                    strokeWidth: 12,
-                    backgroundColor: MintColors.border.withValues(alpha: 0.3),
-                    valueColor: AlwaysStoppedAnimation<Color>(ringColor),
-                    strokeCap: StrokeCap.round,
+          Semantics(
+            label:
+                '${completenessPercent.toStringAsFixed(0)}% ${l.expatOfPension}',
+            child: SizedBox(
+              width: 160,
+              height: 160,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    width: 160,
+                    height: 160,
+                    child: CircularProgressIndicator(
+                      value: completeness,
+                      strokeWidth: 12,
+                      backgroundColor:
+                          MintColors.border.withValues(alpha: 0.3),
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(ringColor),
+                      strokeCap: StrokeCap.round,
+                    ),
                   ),
-                ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '${completenessPercent.toStringAsFixed(0)}%',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w800,
-                        color: ringColor,
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${completenessPercent.toStringAsFixed(0)}%',
+                        style: MintTextStyles.displayMedium(
+                            color: ringColor),
                       ),
-                    ),
-                    Text(
-                      S.of(context)!.expatOfPension,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: MintColors.textMuted,
+                      Text(
+                        l.expatOfPension,
+                        style: MintTextStyles.bodySmall(),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
 
-          // Estimated rente
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MintSpacing.md),
             decoration: BoxDecoration(
-              color: MintColors.appleSurface,
+              color: MintColors.surface,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  S.of(context)!.expatEstimatedPension,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textSecondary,
-                  ),
+                  l.expatEstimatedPension,
+                  style: MintTextStyles.bodyMedium(
+                      color: MintColors.textSecondary),
                 ),
                 Text(
                   '${ExpatService.formatChf(estimatedRente)}/mois',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.headlineMedium(),
                 ),
               ],
             ),
@@ -1450,6 +1416,7 @@ class _ExpatScreenState extends State<ExpatScreen>
   }
 
   Widget _buildAvsReductionCard() {
+    final l = S.of(context)!;
     final result = _avsResult!;
     final missingYears = result['missingYears'] as int;
     final reductionPercent = result['reductionPercent'] as double;
@@ -1458,24 +1425,23 @@ class _ExpatScreenState extends State<ExpatScreen>
 
     if (missingYears == 0) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(MintSpacing.md),
         decoration: BoxDecoration(
           color: MintColors.success.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.success.withValues(alpha: 0.3)),
+          border: Border.all(
+              color: MintColors.success.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
-            const Icon(Icons.check_circle, size: 20, color: MintColors.success),
-            const SizedBox(width: 12),
+            const Icon(Icons.check_circle,
+                size: 20, color: MintColors.success),
+            const SizedBox(width: MintSpacing.sm),
             Expanded(
               child: Text(
-                S.of(context)!.expatAvsComplete,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: MintColors.textPrimary,
-                  height: 1.5,
-                ),
+                l.expatAvsComplete,
+                style: MintTextStyles.bodyMedium(
+                    color: MintColors.textPrimary),
               ),
             ),
           ],
@@ -1484,70 +1450,60 @@ class _ExpatScreenState extends State<ExpatScreen>
     }
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border.withAlpha(128)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.trending_down, size: 16, color: MintColors.error),
-              const SizedBox(width: 8),
+              const Icon(Icons.trending_down,
+                  size: 16, color: MintColors.error),
+              const SizedBox(width: MintSpacing.sm),
               Text(
-                S.of(context)!.expatPensionImpact,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                l.expatPensionImpact,
+                style: MintTextStyles.labelSmall(),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
+          _buildResultRow(l.expatMissingYears, '$missingYears ans'),
+          const SizedBox(height: MintSpacing.sm),
           _buildResultRow(
-            S.of(context)!.expatMissingYears,
-            '$missingYears ans',
-          ),
-          const SizedBox(height: 8),
-          _buildResultRow(
-            S.of(context)!.expatEstimatedReduction,
+            l.expatEstimatedReduction,
             '-${reductionPercent.toStringAsFixed(1)}%',
             color: MintColors.error,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           _buildResultRow(
-            S.of(context)!.expatMonthlyLoss,
+            l.expatMonthlyLoss,
             '-${ExpatService.formatChf(monthlyLoss)}',
             color: MintColors.error,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           _buildResultRow(
-            S.of(context)!.expatAnnualLoss,
+            l.expatAnnualLoss,
             '-${ExpatService.formatChf(annualLoss)}',
             color: MintColors.error,
             bold: true,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(MintSpacing.sm),
             decoration: BoxDecoration(
-              color: MintColors.appleSurface,
+              color: MintColors.surface,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              'Chaque année manquante réduit ta rente d\'environ '
-              '${(ExpatService.reductionPerMissingYear * 100).toStringAsFixed(1)}%. '
-              'La réduction est définitive et s\'applique à vie.',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              l.expatAvsReductionExplain(
+                  (ExpatService.reductionPerMissingYear * 100)
+                      .toStringAsFixed(1)),
+              style: MintTextStyles.labelSmall(
+                  color: MintColors.textSecondary),
             ),
           ),
         ],
@@ -1556,34 +1512,31 @@ class _ExpatScreenState extends State<ExpatScreen>
   }
 
   Widget _buildAvsVoluntarySection() {
+    final l = S.of(context)!;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border.withAlpha(128)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.savings_outlined, size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
+              const Icon(Icons.savings_outlined,
+                  size: 16, color: MintColors.textMuted),
+              const SizedBox(width: MintSpacing.sm),
               Text(
-                S.of(context)!.expatVoluntaryContribution,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                l.expatVoluntaryContribution,
+                style: MintTextStyles.labelSmall(),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MintSpacing.md),
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(16),
@@ -1592,31 +1545,25 @@ class _ExpatScreenState extends State<ExpatScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  S.of(context)!.expatVoluntaryAvsTitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.info,
-                  ),
+                  l.expatVoluntaryAvsTitle,
+                  style:
+                      MintTextStyles.titleMedium(color: MintColors.info),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: MintSpacing.sm),
                 _buildResultRow(
-                  S.of(context)!.expatMinContribution,
+                  l.expatMinContribution,
                   '${ExpatService.formatChf(ExpatService.avsVoluntaryMin)}/an',
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: MintSpacing.xs),
                 _buildResultRow(
-                  S.of(context)!.expatMaxContribution,
+                  l.expatMaxContribution,
                   '${ExpatService.formatChf(ExpatService.avsVoluntaryMax)}/an',
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: MintSpacing.sm),
                 Text(
-                  S.of(context)!.expatVoluntaryAvsBody,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  l.expatVoluntaryAvsBody,
+                  style: MintTextStyles.bodySmall(
+                      color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -1627,42 +1574,36 @@ class _ExpatScreenState extends State<ExpatScreen>
   }
 
   Widget _buildAvsRecommendation() {
+    final l = S.of(context)!;
     final result = _avsResult!;
     final recommendation = result['recommendation'] as String;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
+        border: Border.all(color: MintColors.border.withAlpha(128)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.tips_and_updates, size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
+              const Icon(Icons.tips_and_updates,
+                  size: 16, color: MintColors.textMuted),
+              const SizedBox(width: MintSpacing.sm),
               Text(
-                S.of(context)!.expatRecommendation,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                l.expatRecommendation,
+                style: MintTextStyles.labelSmall(),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             recommendation,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textPrimary,
-              height: 1.5,
-            ),
+            style: MintTextStyles.bodyMedium(
+                color: MintColors.textPrimary),
           ),
         ],
       ),
@@ -1687,59 +1628,59 @@ class _ExpatScreenState extends State<ExpatScreen>
 
     String displayValue;
     if (formatAsInt) {
-      displayValue = '${value.round()}${suffix != null ? ' $suffix' : ''}';
+      displayValue =
+          '${value.round()}${suffix != null ? ' $suffix' : ''}';
     } else {
       displayValue = ExpatService.formatChf(value);
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                label,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textSecondary,
+    return Semantics(
+      label: label,
+      value: displayValue,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  style: MintTextStyles.bodySmall(
+                      color: MintColors.textSecondary),
                 ),
               ),
-            ),
-            Text(
-              displayValue,
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: MintColors.primary,
+              Text(
+                displayValue,
+                style:
+                    MintTextStyles.titleMedium(color: MintColors.primary),
               ),
+            ],
+          ),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: MintColors.primary,
+              inactiveTrackColor: MintColors.border,
+              thumbColor: MintColors.primary,
+              overlayColor: MintColors.primary.withValues(alpha: 0.1),
+              trackHeight: 4,
+              thumbShape:
+                  const RoundSliderThumbShape(enabledThumbRadius: 7),
             ),
-          ],
-        ),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            activeTrackColor: MintColors.primary,
-            inactiveTrackColor: MintColors.border,
-            thumbColor: MintColors.primary,
-            overlayColor: MintColors.primary.withValues(alpha: 0.1),
-            trackHeight: 4,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+            child: Slider(
+              value: value,
+              min: min,
+              max: max,
+              divisions: divisions > 0 ? divisions : 1,
+              onChanged: (v) {
+                setState(() {
+                  onChanged((v / step).round() * step);
+                });
+              },
+            ),
           ),
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions > 0 ? divisions : 1,
-            onChanged: (v) {
-              setState(() {
-                onChanged((v / step).round() * step);
-              });
-            },
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -1751,17 +1692,12 @@ class _ExpatScreenState extends State<ExpatScreen>
         Expanded(
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodyMedium(),
           ),
         ),
         Text(
           value,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: bold ? FontWeight.w700 : FontWeight.w600,
+          style: MintTextStyles.bodyMedium(
             color: color ?? MintColors.textPrimary,
           ),
         ),
@@ -1770,18 +1706,20 @@ class _ExpatScreenState extends State<ExpatScreen>
   }
 
   Widget _buildEducationalInsert(String text) {
+    final l = S.of(context)!;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.info.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
+        color: MintColors.info.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
+        border:
+            Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(MintSpacing.xs),
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
@@ -1789,27 +1727,21 @@ class _ExpatScreenState extends State<ExpatScreen>
             child: const Icon(Icons.lightbulb_outline,
                 size: 18, color: MintColors.info),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  S.of(context)!.expatDidYouKnow,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.info,
-                  ),
+                  l.expatDidYouKnow,
+                  style:
+                      MintTextStyles.bodySmall(color: MintColors.info),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
                   text,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(
+                      color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -1820,31 +1752,29 @@ class _ExpatScreenState extends State<ExpatScreen>
   }
 
   Widget _buildDisclaimer() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.warningBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.orangeRetroWarm),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              ExpatService.disclaimer,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.deepOrange,
-                height: 1.5,
+    return Semantics(
+      label: ExpatService.disclaimer,
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        decoration: BoxDecoration(
+          color: MintColors.surface,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.info_outline,
+                color: MintColors.textMuted, size: 18),
+            const SizedBox(width: MintSpacing.sm),
+            Expanded(
+              child: Text(
+                ExpatService.disclaimer,
+                style: MintTextStyles.micro(),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
-

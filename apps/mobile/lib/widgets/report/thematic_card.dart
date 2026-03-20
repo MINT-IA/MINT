@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 enum CardStatus { serein, aRenforcer, alerte }
 
@@ -69,11 +69,7 @@ class ThematicCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 17),
                   ),
                 ),
                 Container(
@@ -84,11 +80,7 @@ class ThematicCard extends StatelessWidget {
                   ),
                   child: Text(
                     statusLabel,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: statusColor,
-                    ),
+                    style: MintTextStyles.bodySmall(color: statusColor).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -104,18 +96,11 @@ class ThematicCard extends StatelessWidget {
                   if (keyNumberLabel != null)
                     Text(
                       keyNumberLabel!,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textSecondary,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                     ),
                   Text(
                     keyNumber!,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w800,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.displayMedium(color: MintColors.textPrimary).copyWith(fontSize: 28, fontWeight: FontWeight.w800),
                   ),
                 ],
               ),
@@ -136,11 +121,7 @@ class ThematicCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
               child: Text(
                 source!,
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontStyle: FontStyle.italic,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.italic),
               ),
             ),
           // Action CTA
@@ -161,7 +142,7 @@ class ThematicCard extends StatelessWidget {
                   ),
                   child: Text(
                     actionLabel!,
-                    style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                    style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ),

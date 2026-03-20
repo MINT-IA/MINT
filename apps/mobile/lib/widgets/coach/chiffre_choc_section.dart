@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
@@ -24,7 +24,7 @@ class ChiffreChocSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = S.of(context);
+    final l10n = S.of(context)!;
     final revenuBrutAnnuel = profile.revenuBrutAnnuel;
     final cards = <Widget>[];
 
@@ -101,7 +101,7 @@ class ChiffreChocSection extends StatelessWidget {
         message: 'Rente AVS perdue sur 20 ans de retraite avec '
             '$lacunesAVS ann\u00e9e${lacunesAVS > 1 ? 's' : ''} '
             'de cotisation manquante${lacunesAVS > 1 ? 's' : ''} '
-            '(calcul\u00a0: rente mensuelle \u00d7 13 mois/an, 13\u1d49 rente incluse).', // TODO: i18n
+            '${S.of(context)!.chiffreChocRenteCalculation}',
         narrativeMessage: narratives['avs'],
         source: 'LAVS art. 29bis-29ter, 13\u1d49 rente AVS (d\u00e8s d\u00e9c. 2026)',
         ctaLabel: 'V\u00e9rifier mes lacunes',
@@ -117,33 +117,19 @@ class ChiffreChocSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          l10n?.coachShockTitle ?? 'Tes chiffres-chocs',
-          style: GoogleFonts.montserrat(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          S.of(context)!.coachShockTitle,
+          style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 4),
         Text(
-          l10n?.coachShockSubtitle ??
-              'Des montants personnalis\u00e9s pour \u00e9clairer tes d\u00e9cisions',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: MintColors.textSecondary,
-          ),
+          l10n.coachShockSubtitle,
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
         ),
         const SizedBox(height: 14),
         ...cards.expand((card) => [card, const SizedBox(height: 12)]),
         Text(
-          'Simulation \u00e0 titre \u00e9ducatif uniquement. '
-          'Ne constitue pas un conseil en placement ou pr\u00e9voyance (LSFin). '
-          'Hypoth\u00e8ses modifiables \u2014 r\u00e9sultats non garantis.',
-          style: GoogleFonts.inter(
-            fontSize: 10,
-            color: MintColors.textMuted,
-            fontStyle: FontStyle.italic,
-          ),
+          S.of(context)!.chiffreChocSectionDisclaimer,
+          style: MintTextStyles.micro(color: MintColors.textMuted),
         ),
       ],
     );

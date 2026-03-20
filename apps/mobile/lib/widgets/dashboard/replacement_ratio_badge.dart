@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  REPLACEMENT RATIO BADGE — Chantier 2 / Retirement Cockpit
@@ -54,11 +54,7 @@ class ReplacementRatioBadge extends StatelessWidget {
                 ),
                 Text(
                   '${ratio.round()}%',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: color,
-                  ),
+                  style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w800),
                 ),
               ],
             ),
@@ -74,31 +70,19 @@ class ReplacementRatioBadge extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       'Taux de remplacement',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.textSecondary,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
                 const SizedBox(height: 2),
                 Text(
                   '${ratio.toStringAsFixed(0)}% de ton revenu actuel',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: color,
-                  ),
+                  style: MintTextStyles.headlineMedium(color: color).copyWith(fontSize: 15),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   message,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: MintColors.textMuted,
-                    height: 1.3,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.3),
                 ),
               ],
             ),

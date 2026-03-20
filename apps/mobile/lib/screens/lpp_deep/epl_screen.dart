@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 /// Ecran de simulation du retrait EPL (Encouragement a la Propriete du Logement).
 ///
@@ -45,71 +48,69 @@ class _EplScreenState extends State<EplScreen> {
   @override
   Widget build(BuildContext context) {
     final result = _result;
+    final l = S.of(context)!;
 
     return Scaffold(
-      backgroundColor: MintColors.surface,
+      backgroundColor: MintColors.white,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 100,
             pinned: true,
-            backgroundColor: MintColors.primary,
-            foregroundColor: MintColors.white,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'RETRAIT EPL',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
-                  letterSpacing: 0.5,
-                ),
-              ),
+            backgroundColor: MintColors.white,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
+              onPressed: () => context.pop(),
+            ),
+            title: Text(
+              l.eplAppBarTitle,
+              style: MintTextStyles.headlineMedium(),
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MintSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Introduction
-                _buildIntroCard(),
-                const SizedBox(height: 24),
+                _buildIntroCard(l),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Sliders
-                _buildSlidersSection(),
-                const SizedBox(height: 24),
+                _buildSlidersSection(l),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Results
-                _buildResultsSection(result),
-                const SizedBox(height: 24),
+                _buildResultsSection(result, l),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Impact on benefits
                 if (result.montantSouhaiteApplicable > 0) ...[
-                  _buildImpactSection(result),
-                  const SizedBox(height: 24),
+                  _buildImpactSection(result, l),
+                  const SizedBox(height: MintSpacing.lg),
                 ],
 
                 // Impact on retirement rente
                 if (result.montantSouhaiteApplicable > 0) ...[
-                  _buildRenteImpactSection(result),
-                  const SizedBox(height: 24),
+                  _buildRenteImpactSection(result, l),
+                  const SizedBox(height: MintSpacing.lg),
                 ],
 
                 // Tax estimate
                 if (result.montantSouhaiteApplicable > 0) ...[
-                  _buildTaxCard(result),
-                  const SizedBox(height: 24),
+                  _buildTaxCard(result, l),
+                  const SizedBox(height: MintSpacing.lg),
                 ],
 
                 // Alerts
                 if (result.alerts.isNotEmpty) ...[
-                  _buildAlertsSection(result.alerts),
-                  const SizedBox(height: 24),
+                  _buildAlertsSection(result.alerts, l),
+                  const SizedBox(height: MintSpacing.lg),
                 ],
 
                 // Disclaimer
                 _buildDisclaimer(result.disclaimer),
-                const SizedBox(height: 40),
+                const SizedBox(height: MintSpacing.xxl),
               ]),
             ),
           ),
@@ -118,9 +119,9 @@ class _EplScreenState extends State<EplScreen> {
     );
   }
 
-  Widget _buildIntroCard() {
+  Widget _buildIntroCard(S l) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -130,32 +131,22 @@ class _EplScreenState extends State<EplScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Retrait EPL — Propriété du logement',
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
+            l.eplIntroTitle,
+            style: MintTextStyles.titleMedium(),
           ),
-          const SizedBox(height: 8),
-          const Text(
-            'L\'EPL permet d\'utiliser ton avoir LPP pour financer '
-            'l\'achat d\'un logement en propriété, amortir une hypothèque '
-            'ou financer des rénovations. Montant minimum : CHF 20\'000. '
-            'Ce retrait a un impact direct sur tes prestations de risque.',
-            style: TextStyle(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.5,
-            ),
+          const SizedBox(height: MintSpacing.sm),
+          Text(
+            l.eplIntroBody,
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSlidersSection() {
+  Widget _buildSlidersSection(S l) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -165,19 +156,14 @@ class _EplScreenState extends State<EplScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAMÈTRES',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            l.eplSectionParametres,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Avoir total
           _buildSliderRow(
-            label: 'Avoir LPP total',
+            label: l.eplLabelAvoirTotal,
             value: _avoirTotal,
             min: 0,
             max: 800000,
@@ -185,23 +171,23 @@ class _EplScreenState extends State<EplScreen> {
             format: 'CHF ${formatChf(_avoirTotal)}',
             onChanged: (v) => setState(() => _avoirTotal = v),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
 
           // Age
           _buildSliderRow(
-            label: 'Âge',
+            label: l.eplLabelAge,
             value: _age.toDouble(),
             min: 25,
             max: 65,
             divisions: 40,
-            format: '$_age ans',
+            format: l.eplLabelAgeFormat(_age),
             onChanged: (v) => setState(() => _age = v.round()),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
 
           // Montant souhaite
           _buildSliderRow(
-            label: 'Montant souhaité',
+            label: l.eplLabelMontantSouhaite,
             value: _montantSouhaite,
             min: 20000,
             max: 500000,
@@ -209,88 +195,81 @@ class _EplScreenState extends State<EplScreen> {
             format: 'CHF ${formatChf(_montantSouhaite)}',
             onChanged: (v) => setState(() => _montantSouhaite = v),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
 
           // Canton (pour l'impot sur retrait)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Canton',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textPrimary,
-                ),
+                l.eplLabelCanton,
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
               ),
-              DropdownButton<String>(
-                value: _canton,
-                underline: const SizedBox(),
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
+              Semantics(
+                label: l.eplLabelCanton,
+                child: DropdownButton<String>(
+                  value: _canton,
+                  underline: const SizedBox(),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+                  items: sortedCantonCodes.map((code) {
+                    final name = cantonFullNames[code] ?? code;
+                    return DropdownMenuItem(
+                      value: code,
+                      child: Text('$code — $name'),
+                    );
+                  }).toList(),
+                  onChanged: (v) {
+                    if (v != null) setState(() => _canton = v);
+                  },
                 ),
-                items: sortedCantonCodes.map((code) {
-                  final name = cantonFullNames[code] ?? code;
-                  return DropdownMenuItem(
-                    value: code,
-                    child: Text('$code — $name'),
-                  );
-                }).toList(),
-                onChanged: (v) {
-                  if (v != null) setState(() => _canton = v);
-                },
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Rachats recents
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Rachats LPP récents',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      l.eplLabelRachatsRecents,
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
-                      'As-tu effectué un rachat LPP ces 3 dernières années ?',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: MintColors.textSecondary,
-                      ),
+                      l.eplLabelRachatsQuestion,
+                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                     ),
                   ],
                 ),
               ),
-              Switch(
-                value: _aRachete,
-                activeTrackColor: MintColors.primary,
-                onChanged: (v) => setState(() {
-                  _aRachete = v;
-                  if (!v) _anneesSDepuisRachat = 0;
-                }),
+              Semantics(
+                label: l.eplLabelRachatsRecents,
+                toggled: _aRachete,
+                child: Switch(
+                  value: _aRachete,
+                  activeTrackColor: MintColors.primary,
+                  onChanged: (v) => setState(() {
+                    _aRachete = v;
+                    if (!v) _anneesSDepuisRachat = 0;
+                  }),
+                ),
               ),
             ],
           ),
 
           if (_aRachete) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.sm + 4),
             _buildSliderRow(
-              label: 'Années depuis le rachat',
+              label: l.eplLabelAnneesSDepuisRachat,
               value: _anneesSDepuisRachat.toDouble(),
               min: 0,
               max: 5,
               divisions: 5,
-              format: '$_anneesSDepuisRachat an${_anneesSDepuisRachat > 1 ? 's' : ''}',
+              format: l.eplLabelAnneesSDepuisRachatFormat(_anneesSDepuisRachat, _anneesSDepuisRachat > 1 ? 's' : ''),
               onChanged: (v) =>
                   setState(() => _anneesSDepuisRachat = v.round()),
             ),
@@ -315,39 +294,29 @@ class _EplScreenState extends State<EplScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textPrimary,
-              ),
-            ),
-            Text(
-              format,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
-            ),
+            Text(label, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
+            Text(format, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
           ],
         ),
-        Slider(
-          value: value,
-          min: min,
-          max: max,
-          divisions: divisions,
-          activeColor: MintColors.primary,
-          onChanged: onChanged,
+        Semantics(
+          label: label,
+          value: format,
+          child: Slider(
+            value: value,
+            min: min,
+            max: max,
+            divisions: divisions,
+            activeColor: MintColors.primary,
+            onChanged: onChanged,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildResultsSection(EplResult result) {
+  Widget _buildResultsSection(EplResult result, S l) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -357,22 +326,17 @@ class _EplScreenState extends State<EplScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'RÉSULTAT',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            l.eplSectionResultat,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildResultRow(
-            'Montant maximum retirable',
+            l.eplMontantMaxRetirable,
             'CHF ${formatChf(result.montantMaxRetirable)}',
           ),
           const Divider(height: 20),
           _buildResultRow(
-            'Montant applicable',
+            l.eplMontantApplicable,
             'CHF ${formatChf(result.montantSouhaiteApplicable)}',
             isBold: true,
             color: result.montantSouhaiteApplicable > 0
@@ -381,14 +345,10 @@ class _EplScreenState extends State<EplScreen> {
           ),
           if (result.montantSouhaiteApplicable == 0 &&
               result.alerts.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            const Text(
-              'Le retrait n\'est pas possible dans la configuration actuelle.',
-              style: TextStyle(
-                fontSize: 12,
-                color: MintColors.error,
-                fontStyle: FontStyle.italic,
-              ),
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              l.eplRetraitImpossible,
+              style: MintTextStyles.labelSmall(color: MintColors.error).copyWith(fontStyle: FontStyle.italic),
             ),
           ],
         ],
@@ -399,74 +359,57 @@ class _EplScreenState extends State<EplScreen> {
   Widget _buildResultRow(String label, String value,
       {bool isBold = false, Color? color}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            ),
+            style: isBold
+                ? MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                : MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
           Text(
             value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-              color: color ?? MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodySmall(color: color ?? MintColors.textPrimary)
+                .copyWith(fontWeight: isBold ? FontWeight.bold : FontWeight.w600),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildImpactSection(EplResult result) {
+  Widget _buildImpactSection(EplResult result, S l) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [MintColors.urgentBg, MintColors.warningBg],
-        ),
+        color: MintColors.error.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.redBg),
+        border: Border.all(color: MintColors.error.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'IMPACT SUR LES PRESTATIONS',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.redMedium,
-              letterSpacing: 1,
-            ),
+            l.eplSectionImpactPrestations,
+            style: MintTextStyles.bodySmall(color: MintColors.error),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildImpactRow(
             icon: Icons.accessible,
-            label: 'Réduction rente invalidité (estimation annuelle)',
+            label: l.eplReductionInvalidite,
             amount: '-CHF ${formatChf(result.reductionRenteInvalidite)}',
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           _buildImpactRow(
             icon: Icons.heart_broken_outlined,
-            label: 'Réduction capital-décès (estimation)',
+            label: l.eplReductionDeces,
             amount: '-CHF ${formatChf(result.reductionCapitalDeces)}',
           ),
-          const SizedBox(height: 12),
-          const Text(
-            'Le retrait EPL réduit proportionnellement tes prestations '
-            'de risque. Vérifie auprès de ta caisse de pension les '
-            'montants exacts et les possibilités d\'assurance complémentaire.',
-            style: TextStyle(
-              fontSize: 11,
-              color: MintColors.redDeep,
-              height: 1.4,
-            ),
+          const SizedBox(height: MintSpacing.sm + 4),
+          Text(
+            l.eplImpactPrestationsNote,
+            style: MintTextStyles.labelSmall(color: MintColors.error),
           ),
         ],
       ),
@@ -480,27 +423,20 @@ class _EplScreenState extends State<EplScreen> {
   }) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: MintColors.redDeep),
+        Icon(icon, size: 20, color: MintColors.error),
         const SizedBox(width: 10),
         Expanded(
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 12),
-          ),
+          child: Text(label, style: MintTextStyles.labelSmall(color: MintColors.textPrimary)),
         ),
         Text(
           amount,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: MintColors.redMedium,
-          ),
+          style: MintTextStyles.labelSmall(color: MintColors.error).copyWith(fontWeight: FontWeight.bold),
         ),
       ],
     );
   }
 
-  Widget _buildRenteImpactSection(EplResult result) {
+  Widget _buildRenteImpactSection(EplResult result, S l) {
     final eplImpact = LppCalculator.computeEplImpact(
       currentBalance: _avoirTotal,
       eplAmount: result.montantSouhaiteApplicable,
@@ -517,63 +453,50 @@ class _EplScreenState extends State<EplScreen> {
     final perteMensuelle = eplImpact.monthlyGapFromEpl;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [MintColors.warningBg, MintColors.disclaimerBg],
-        ),
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.orangeRetroWarm),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'IMPACT SUR LA RENTE',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.warning,
-              letterSpacing: 1,
-            ),
+            l.eplSectionImpactRente,
+            style: MintTextStyles.bodySmall(color: MintColors.warning),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildResultRow(
-            'Rente sans EPL',
+            l.eplRenteSansEpl,
             'CHF ${formatChf(renteWithout)}/mois',
           ),
           const Divider(height: 20),
           _buildResultRow(
-            'Rente avec EPL',
+            l.eplRenteAvecEpl,
             'CHF ${formatChf(renteWith)}/mois',
             color: MintColors.warning,
           ),
           const Divider(height: 20),
           _buildResultRow(
-            'Perte mensuelle',
+            l.eplPerteMensuelle,
             '-CHF ${formatChf(perteMensuelle)}/mois',
             isBold: true,
-            color: MintColors.redMedium,
+            color: MintColors.error,
           ),
-          const SizedBox(height: 12),
-          const Text(
-            'Estimation éducative basée sur un salaire de CHF 100\'000, '
-            'rendement caisse 2%, taux de conversion 6.8%. '
-            'Le montant réel dépend de ta situation.',
-            style: TextStyle(
-              fontSize: 11,
-              color: MintColors.warning,
-              height: 1.4,
-            ),
+          const SizedBox(height: MintSpacing.sm + 4),
+          Text(
+            l.eplImpactRenteNote,
+            style: MintTextStyles.labelSmall(color: MintColors.warning),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTaxCard(EplResult result) {
+  Widget _buildTaxCard(EplResult result, S l) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -583,84 +506,64 @@ class _EplScreenState extends State<EplScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'ESTIMATION FISCALE',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            l.eplSectionFiscale,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildResultRow(
-            'Montant retiré',
+            l.eplMontantRetire,
             'CHF ${formatChf(result.montantSouhaiteApplicable)}',
           ),
           _buildResultRow(
-            'Impôt estimé sur le retrait',
+            l.eplImpotEstime,
             'CHF ${formatChf(result.impotEstime)}',
-            color: MintColors.redDeep,
+            color: MintColors.error,
           ),
           const Divider(height: 20),
           _buildResultRow(
-            'Montant net après impôt',
+            l.eplMontantNet,
             'CHF ${formatChf(result.montantSouhaiteApplicable - result.impotEstime)}',
             isBold: true,
             color: MintColors.success,
           ),
-          const SizedBox(height: 8),
-          const Text(
-            'Le retrait en capital est imposé à un taux réduit '
-            '(environ 1/5 du barème ordinaire). Le taux exact dépend '
-            'du canton, de la commune et de la situation personnelle.',
-            style: TextStyle(
-              fontSize: 11,
-              color: MintColors.textMuted,
-              height: 1.4,
-            ),
+          const SizedBox(height: MintSpacing.sm),
+          Text(
+            l.eplFiscaleNote,
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAlertsSection(List<String> alerts) {
+  Widget _buildAlertsSection(List<String> alerts, S l) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'POINTS D\'ATTENTION',
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
-            letterSpacing: 1,
-          ),
+          l.eplSectionPointsAttention,
+          style: MintTextStyles.bodySmall(color: MintColors.textMuted),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm + 4),
         for (final alert in alerts)
           Container(
             margin: const EdgeInsets.only(bottom: 10),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: MintColors.disclaimerBg,
+              color: MintColors.warning.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: MintColors.yellowGold),
+              border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Icon(Icons.warning_amber_rounded,
-                    color: MintColors.warningText, size: 20),
+                    color: MintColors.warning, size: 20),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     alert,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: MintColors.amberDark,
-                      height: 1.4,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.warning),
                   ),
                 ),
               ],
@@ -672,25 +575,21 @@ class _EplScreenState extends State<EplScreen> {
 
   Widget _buildDisclaimer(String disclaimer) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.warningBg,
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.orangeRetroWarm),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
               disclaimer,
-              style: const TextStyle(
-                fontSize: 11,
-                color: MintColors.deepOrange,
-                height: 1.4,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ),
         ],

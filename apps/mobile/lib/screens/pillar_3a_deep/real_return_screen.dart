@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/pillar_3a_deep_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/constants/social_insurance.dart';
@@ -35,110 +37,99 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
   @override
   Widget build(BuildContext context) {
     final result = _result;
+    final l = S.of(context)!;
 
     return Scaffold(
       backgroundColor: MintColors.surface,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 100,
-            pinned: true,
-            backgroundColor: MintColors.primary,
-            foregroundColor: MintColors.white,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'RENDEMENT REEL 3A',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // Chiffre choc
-                _buildChiffreChoc(result),
-                const SizedBox(height: 24),
+      appBar: AppBar(
+        backgroundColor: MintColors.white,
+        foregroundColor: MintColors.textPrimary,
+        title: Text(l.realReturnTitle, style: MintTextStyles.headlineMedium()),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        children: [
+          // Chiffre choc
+          _buildChiffreChoc(result),
+          const SizedBox(height: MintSpacing.lg),
 
-                // Sliders
-                _buildSlidersSection(),
-                const SizedBox(height: 24),
+          // Aha moment narrative
+          _buildAhaMoment(result),
+          const SizedBox(height: MintSpacing.lg),
 
-                // Resultat rendement
-                _buildRendementSection(result),
-                const SizedBox(height: 24),
+          // Sliders
+          _buildSlidersSection(),
+          const SizedBox(height: MintSpacing.lg),
 
-                // Comparaison barres
-                _buildComparisonBars(result),
-                const SizedBox(height: 24),
+          // Resultat rendement
+          _buildRendementSection(result),
+          const SizedBox(height: MintSpacing.lg),
 
-                // Detail economie fiscale
-                _buildFiscalDetail(result),
-                const SizedBox(height: 24),
+          // Comparaison barres
+          _buildComparisonBars(result),
+          const SizedBox(height: MintSpacing.lg),
 
-                // Disclaimer
-                _buildDisclaimer(result.disclaimer),
-                const SizedBox(height: 40),
-              ]),
-            ),
-          ),
+          // Detail economie fiscale
+          _buildFiscalDetail(result),
+          const SizedBox(height: MintSpacing.lg),
+
+          // Disclaimer
+          _buildDisclaimer(result.disclaimer),
+          const SizedBox(height: MintSpacing.xl),
         ],
       ),
     );
   }
 
   Widget _buildChiffreChoc(RealReturnResult result) {
-    final effortNet = _versementAnnuel * (1 - _tauxMarginal);
-    final premiumPts = result.rendementReel - result.rendementNominal;
+    final l = S.of(context)!;
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [MintColors.successBg, MintColors.successBg],
-        ),
+        color: MintColors.success.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.greenLight, width: 2),
+        border: Border.all(color: MintColors.success.withValues(alpha: 0.15), width: 1.5),
       ),
       child: Column(
         children: [
           Text(
-            'Taux equivalent sur effort net',
-            style: GoogleFonts.montserrat(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: MintColors.greenForest,
-            ),
+            l.realReturnChiffreChocLabel,
+            style: MintTextStyles.bodySmall(color: MintColors.success),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
-            '${result.rendementReel.toStringAsFixed(1)}%',
-            style: GoogleFonts.montserrat(
-              fontSize: 36,
-              fontWeight: FontWeight.w800,
-              color: MintColors.greenDark,
-            ),
+            '${result.rendementReel.toStringAsFixed(1)}\u00a0%',
+            style: MintTextStyles.displayMedium(color: MintColors.success).copyWith(fontSize: 36, fontWeight: FontWeight.w800),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Text(
-            'vs ${result.rendementNominal.toStringAsFixed(1)}% taux net 3a (brut - frais)',
-            style: const TextStyle(
-              fontSize: 13,
-              color: MintColors.categoryGreen,
-            ),
+            l.realReturnVsNominal(result.rendementNominal.toStringAsFixed(1)),
+            style: MintTextStyles.bodySmall(color: MintColors.success),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Effort net: ${formatChf(effortNet)}/an | Prime fiscale implicite: +${premiumPts.toStringAsFixed(1)} pts',
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 11,
-              color: MintColors.greenDark,
-              fontWeight: FontWeight.w600,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAhaMoment(RealReturnResult result) {
+    final l = S.of(context)!;
+    final effortNet = _versementAnnuel * (1 - _tauxMarginal);
+    return Container(
+      padding: const EdgeInsets.all(MintSpacing.md),
+      decoration: BoxDecoration(
+        color: MintColors.info.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.lightbulb_outline, color: MintColors.info, size: 20),
+          const SizedBox(width: MintSpacing.sm),
+          Expanded(
+            child: Text(
+              l.realReturnAhaMoment('CHF\u00a0${formatChf(effortNet)}'),
+              style: MintTextStyles.bodyMedium(color: MintColors.info),
             ),
           ),
         ],
@@ -147,8 +138,9 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
   }
 
   Widget _buildSlidersSection() {
+    final l = S.of(context)!;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -157,74 +149,61 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'PARAMETRES',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
-          ),
-          const SizedBox(height: 16),
+          Text(l.realReturnParams, style: MintTextStyles.labelSmall()),
+          const SizedBox(height: MintSpacing.md),
 
-          // Versement annuel
           _buildSliderRow(
-            label: 'Versement annuel',
+            label: l.realReturnAnnualPayment,
             value: _versementAnnuel,
             min: 1000,
             max: pilier3aPlafondAvecLpp,
             divisions: 125,
-            format: 'CHF ${formatChf(_versementAnnuel)}',
+            format: 'CHF\u00a0${formatChf(_versementAnnuel)}',
             onChanged: (v) =>
                 setState(() => _versementAnnuel = (v / 50).round() * 50.0),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
 
-          // Taux marginal
           _buildSliderRow(
-            label: 'Taux marginal',
+            label: l.realReturnMarginalRate,
             value: _tauxMarginal,
             min: 0.00,
             max: 0.50,
             divisions: 50,
-            format: '${(_tauxMarginal * 100).toStringAsFixed(0)}%',
+            format: '${(_tauxMarginal * 100).toStringAsFixed(0)}\u00a0%',
             onChanged: (v) => setState(() => _tauxMarginal = v),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
 
-          // Rendement brut
           _buildSliderRow(
-            label: 'Rendement brut',
+            label: l.realReturnGrossReturn,
             value: _rendementBrut,
             min: 0.01,
             max: 0.08,
             divisions: 14,
-            format: '${(_rendementBrut * 100).toStringAsFixed(1)}%',
+            format: '${(_rendementBrut * 100).toStringAsFixed(1)}\u00a0%',
             onChanged: (v) => setState(() => _rendementBrut = v),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
 
-          // Frais de gestion
           _buildSliderRow(
-            label: 'Frais de gestion',
+            label: l.realReturnMgmtFees,
             value: _fraisGestion,
             min: 0.0,
             max: 0.02,
             divisions: 20,
-            format: '${(_fraisGestion * 100).toStringAsFixed(2)}%',
+            format: '${(_fraisGestion * 100).toStringAsFixed(2)}\u00a0%',
             onChanged: (v) => setState(() => _fraisGestion = v),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
 
-          // Duree
           _buildSliderRow(
-            label: 'Duree de placement',
+            label: l.realReturnDuration,
             value: _dureeAnnees.toDouble(),
             min: 5,
             max: 40,
             divisions: 35,
-            format: '$_dureeAnnees ans',
+            format: l.realReturnYearsSuffix(_dureeAnnees),
             onChanged: (v) => setState(() => _dureeAnnees = v.round()),
           ),
         ],
@@ -241,57 +220,48 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
     required String format,
     required ValueChanged<double> onChanged,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Text(
-                label,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textPrimary,
-                ),
+    return Semantics(
+      label: '$label: $format',
+      slider: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Text(label, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
               ),
-            ),
-            Text(
-              format,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            activeTrackColor: MintColors.primary,
-            inactiveTrackColor: MintColors.border,
-            thumbColor: MintColors.primary,
-            overlayColor: MintColors.primary.withValues(alpha: 0.1),
-            trackHeight: 4,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+              Text(format, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
+            ],
           ),
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions,
-            onChanged: onChanged,
+          const SizedBox(height: MintSpacing.xs),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: MintColors.primary,
+              inactiveTrackColor: MintColors.border,
+              thumbColor: MintColors.primary,
+              overlayColor: MintColors.primary.withValues(alpha: 0.1),
+              trackHeight: 4,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+            ),
+            child: Slider(
+              value: value,
+              min: min,
+              max: max,
+              divisions: divisions,
+              onChanged: onChanged,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildRendementSection(RealReturnResult result) {
+    final l = S.of(context)!;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -300,40 +270,28 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'RENDEMENTS COMPARES',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
-          ),
-          const SizedBox(height: 16),
+          Text(l.realReturnCompared, style: MintTextStyles.labelSmall()),
+          const SizedBox(height: MintSpacing.md),
           _buildResultRow(
-            'Rendement nominal 3a',
-            '${result.rendementNominal.toStringAsFixed(1)}% / an',
+            l.realReturnNominal3a,
+            '${result.rendementNominal.toStringAsFixed(1)}\u00a0% ${l.realReturnPerYear}',
           ),
           const Divider(height: 20),
           _buildResultRow(
-            'Rendement reel (avec fiscal)',
-            '${result.rendementReel.toStringAsFixed(1)}% / an',
+            l.realReturnRealWithFiscal,
+            '${result.rendementReel.toStringAsFixed(1)}\u00a0% ${l.realReturnPerYear}',
             isBold: true,
             color: MintColors.success,
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: MintSpacing.xs),
           Text(
-            'Ce taux est un taux equivalent: il ne represente pas un rendement de marche attendu.',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textMuted,
-              height: 1.35,
-            ),
+            l.realReturnEquivNote,
+            style: MintTextStyles.labelSmall(),
           ),
           const Divider(height: 20),
           _buildResultRow(
-            'Rendement compte epargne',
-            '${result.rendementEpargne.toStringAsFixed(1)}% / an',
+            l.realReturnSavingsAccount,
+            '${result.rendementEpargne.toStringAsFixed(1)}\u00a0% ${l.realReturnPerYear}',
             color: MintColors.textMuted,
           ),
         ],
@@ -342,7 +300,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
   }
 
   Widget _buildComparisonBars(RealReturnResult result) {
-    // Normaliser les barres
+    final l = S.of(context)!;
     final maxVal = [
       result.capitalFinal3a + result.economieFiscaleTotale,
       result.capitalFinalEpargne,
@@ -355,7 +313,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
         maxVal > 0 ? (result.capitalFinalEpargne / maxVal) : 0.0;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -365,52 +323,41 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'CAPITAL FINAL APRES $_dureeAnnees ANS',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            l.realReturnFinalCapital(_dureeAnnees),
+            style: MintTextStyles.labelSmall(),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md),
 
-          // 3a Fintech bar
           _buildBar(
-            label: '3a Fintech + fiscal',
+            label: l.realReturn3aFintech,
             amount: result.capitalFinal3a + result.economieFiscaleTotale,
             ratio: ratio3a,
             color: MintColors.success,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
-          // Compte epargne bar
           _buildBar(
-            label: 'Compte epargne 1.5%',
+            label: l.realReturnSavings15,
             amount: result.capitalFinalEpargne,
             ratio: ratioEpargne,
             color: MintColors.textMuted,
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.md),
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(MintSpacing.sm),
             decoration: BoxDecoration(
-              color: MintColors.successBg,
+              color: MintColors.success.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               children: [
-                const Icon(Icons.trending_up, color: MintColors.greenDark, size: 20),
-                const SizedBox(width: 8),
+                const Icon(Icons.trending_up, color: MintColors.success, size: 20),
+                const SizedBox(width: MintSpacing.sm),
                 Expanded(
                   child: Text(
-                    'Gain vs epargne classique : CHF ${formatChf(result.gainVsEpargne)}',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.greenForest,
-                    ),
+                    l.realReturnGainVsSavings(formatChf(result.gainVsEpargne)),
+                    style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -433,21 +380,14 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            Text(label, style: MintTextStyles.labelSmall(color: MintColors.textPrimary)),
             Text(
-              label,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-            ),
-            Text(
-              'CHF ${formatChf(amount)}',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: color,
-              ),
+              'CHF\u00a0${formatChf(amount)}',
+              style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w700),
             ),
           ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: MintSpacing.xs),
         ClipRRect(
           borderRadius: BorderRadius.circular(6),
           child: LinearProgressIndicator(
@@ -462,8 +402,9 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
   }
 
   Widget _buildFiscalDetail(RealReturnResult result) {
+    final l = S.of(context)!;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -472,34 +413,26 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'DETAIL ECONOMIE FISCALE',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
-          ),
-          const SizedBox(height: 16),
+          Text(l.realReturnFiscalDetail, style: MintTextStyles.labelSmall()),
+          const SizedBox(height: MintSpacing.md),
           _buildResultRow(
-            'Total versements',
-            'CHF ${formatChf(result.totalVersements)}',
+            l.realReturnTotalPayments,
+            'CHF\u00a0${formatChf(result.totalVersements)}',
           ),
           const Divider(height: 20),
           _buildResultRow(
-            'Capital final 3a (hors fiscal)',
-            'CHF ${formatChf(result.capitalFinal3a)}',
+            l.realReturnFinalCapital3a,
+            'CHF\u00a0${formatChf(result.capitalFinal3a)}',
           ),
           _buildResultRow(
-            'Economie fiscale cumulee',
-            'CHF ${formatChf(result.economieFiscaleTotale)}',
+            l.realReturnCumulativeFiscal,
+            'CHF\u00a0${formatChf(result.economieFiscaleTotale)}',
             color: MintColors.success,
           ),
           const Divider(height: 20),
           _buildResultRow(
-            'Total avec avantage fiscal',
-            'CHF ${formatChf(result.capitalFinal3a + result.economieFiscaleTotale)}',
+            l.realReturnTotalWithFiscal,
+            'CHF\u00a0${formatChf(result.capitalFinal3a + result.economieFiscaleTotale)}',
             isBold: true,
             color: MintColors.success,
           ),
@@ -511,26 +444,23 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
   Widget _buildResultRow(String label, String value,
       {bool isBold = false, Color? color}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-              ),
+              style: MintTextStyles.bodySmall(
+                color: isBold ? MintColors.textPrimary : MintColors.textSecondary,
+              ).copyWith(fontWeight: isBold ? FontWeight.bold : FontWeight.normal),
             ),
           ),
           Text(
             value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
+            style: MintTextStyles.bodySmall(
               color: color ?? MintColors.textPrimary,
-            ),
+            ).copyWith(fontWeight: isBold ? FontWeight.bold : FontWeight.w600),
           ),
         ],
       ),
@@ -539,25 +469,21 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
 
   Widget _buildDisclaimer(String disclaimer) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.warningBg,
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.orangeRetroWarm),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: Text(
               disclaimer,
-              style: const TextStyle(
-                fontSize: 11,
-                color: MintColors.deepOrange,
-                height: 1.4,
-              ),
+              style: MintTextStyles.micro(color: MintColors.deepOrange),
             ),
           ),
         ],

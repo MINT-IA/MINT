@@ -69,7 +69,7 @@ void main() {
     // ═══════════════════════════════════════════════════════════
 
     test('baseSystemPrompt contains mandatory compliance rules', () {
-      final prompt = PromptRegistry.baseSystemPrompt;
+      const prompt = PromptRegistry.baseSystemPrompt;
 
       // Must mention "JAMAIS" (never) for advice prohibition
       expect(prompt, contains('JAMAIS'));
@@ -85,7 +85,7 @@ void main() {
     });
 
     test('baseSystemPrompt lists all banned terms', () {
-      final prompt = PromptRegistry.baseSystemPrompt;
+      const prompt = PromptRegistry.baseSystemPrompt;
 
       for (final term in [
         'garanti',
@@ -107,7 +107,7 @@ void main() {
     });
 
     test('baseSystemPrompt prohibits inventing numbers', () {
-      final prompt = PromptRegistry.baseSystemPrompt;
+      const prompt = PromptRegistry.baseSystemPrompt;
       expect(prompt, contains('inventer'));
     });
 

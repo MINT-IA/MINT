@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/precision/precision_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Reusable tooltip widget for financial fields.
 ///
@@ -96,11 +96,7 @@ class FieldHelpTooltip extends StatelessWidget {
               // Title
               Text(
                 'Ou trouver ce chiffre ?',
-                style: GoogleFonts.montserrat(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
               ),
               const SizedBox(height: 16),
 
@@ -143,20 +139,12 @@ class FieldHelpTooltip extends StatelessWidget {
                     children: [
                       Text(
                         'Si tu n\'as pas le document',
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.info,
-                        ),
+                        style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         help.fallbackEstimation!,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: MintColors.textSecondary,
-                          height: 1.4,
-                        ),
+                        style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
                       ),
                       if (estimatedValue != null && onUseEstimate != null) ...[
                         const SizedBox(height: 10),
@@ -178,10 +166,7 @@ class FieldHelpTooltip extends StatelessWidget {
                             child: Text(
                               'Utiliser l\'estimation '
                               '(~CHF ${_formatValue(estimatedValue!)})',
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w600),
                             ),
                           ),
                         ),
@@ -239,21 +224,12 @@ class _InfoRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textMuted,
-                  letterSpacing: 0.5,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.5),
               ),
               const SizedBox(height: 2),
               Text(
                 text,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: MintColors.textPrimary,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
               ),
             ],
           ),

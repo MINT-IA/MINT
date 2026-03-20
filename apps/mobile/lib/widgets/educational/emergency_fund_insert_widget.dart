@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/educational/educational_insert_widget.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Insert didactique pour q_emergency_fund
 /// Calculateur de fonds d'urgence (3-6 mois de charges)
@@ -210,7 +210,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
                             const SizedBox(width: 8),
                             Text(
                               'Objectif atteint ! 🎉',
-                              style: GoogleFonts.inter(fontSize: 13, color: MintColors.success, fontWeight: FontWeight.bold),
+                              style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -239,11 +239,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
                 Expanded(
                   child: Text(
                     'Ce fonds te protège des imprévus (perte d\'emploi, maladie, réparations) sans toucher à tes investissements.',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MintColors.textPrimary,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
                   ),
                 ),
               ],

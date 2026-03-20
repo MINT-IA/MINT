@@ -2,8 +2,11 @@
 ## "Cercles Herméneutiques" pour la Finance Suisse
 
 > **Date**: 11 mars 2026
-> **Statut**: DRAFT — En attente validation fondateur
+> **Statut**: Archive stratégique utile — principes encore valables, architecture IA obsolète
 > **Supersède**: vision_product.md, vision_features.md, UX_V2_COACH_CONVERSATIONNEL.md (ces docs restent comme archives de référence)
+> **Source de vérité**: non. Lire d'abord `CLAUDE.md` puis `MINT_UX_GRAAL_MASTERPLAN.md`.
+> **Ce document reste utile pour**: principes suisses, lisibilité, transparence, garde-fous éducatifs.
+> **Ce document n'est plus directeur pour**: navigation, nombre d'onglets, taxonomie écran, séquence de migration.
 
 ---
 

@@ -149,7 +149,7 @@ void main() {
 
   group('RetirementProjectionService.project — couple', () {
     test('married couple triggers LAVS art. 35 cap (150%)', () {
-      final conjoint = ConjointProfile(
+      const conjoint = ConjointProfile(
         firstName: 'Lauren',
         birthYear: 1982,
         salaireBrutMensuel: 67000 / 12,
@@ -168,7 +168,7 @@ void main() {
     });
 
     test('couple with age difference produces 2 phases', () {
-      final conjoint = ConjointProfile(
+      const conjoint = ConjointProfile(
         firstName: 'Lauren',
         birthYear: 1982, // 5 years younger → different retirement year
         salaireBrutMensuel: 5500,

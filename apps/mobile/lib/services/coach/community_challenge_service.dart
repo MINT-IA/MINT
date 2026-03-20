@@ -246,7 +246,7 @@ class CommunityChallengeService {
           id: 'tax_3a_$year',
           title: 'Prépare ton dossier 3a',
           description:
-              'Bravo si tu y penses tôt\u00a0! Rassemble tes attestations '
+              'Tu t\u2019y prends tôt, c\u2019est malin\u00a0! Rassemble tes attestations '
               '3a pour la déclaration d\'impôts.',
           startDate: DateTime(year, 3, 1),
           endDate: DateTime(year, 4, 30),
@@ -334,7 +334,7 @@ class CommunityChallengeService {
           id: 'ye_bilan_$year',
           title: 'Bilan patrimonial annuel',
           description:
-              'Félicitations pour cette année de progrès\u00a0! Fais le bilan '
+              'Une année de plus au compteur\u00a0! Fais le bilan '
               'de ton patrimoine\u00a0: épargne, prévoyance, dettes, '
               'investissements.',
           startDate: DateTime(year, 11, 1),

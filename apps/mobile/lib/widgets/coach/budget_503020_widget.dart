@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -63,19 +63,12 @@ class Budget503020Widget extends StatelessWidget {
           children: [
             Text(
               'Ton budget 50 / 30 / 20',
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             Text(
               'Basé sur ${formatChfWithPrefix(netSalary)} net/mois',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
             ),
             const SizedBox(height: 16),
 
@@ -100,11 +93,7 @@ class Budget503020Widget extends StatelessWidget {
                 ),
                 child: Text(
                   chiffreChoc!,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.primary,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -114,11 +103,7 @@ class Budget503020Widget extends StatelessWidget {
             Text(
               'R\u00e8gle budg\u00e9taire indicative. '
               'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin).',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ],
         ),
@@ -149,11 +134,7 @@ class Budget503020Widget extends StatelessWidget {
                   alignment: Alignment.center,
                   child: Text(
                     '${categories[i].percent.round()}%',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.white,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
@@ -180,30 +161,19 @@ class Budget503020Widget extends StatelessWidget {
                     Expanded(
                       child: Text(
                         '${cat.label} (${cat.percent.round()}%)',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
                     Text(
                       formatChfWithPrefix(cat.amount),
-                      style: GoogleFonts.montserrat(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.primary,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
                 const SizedBox(height: 2),
                 Text(
                   cat.examples.join(' \u00b7 '),
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                 ),
               ],
             ),

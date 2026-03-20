@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -203,18 +203,11 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
               children: [
                 Text(
                   'Allocations familiales',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(),
                 ),
                 Text(
                   'par canton (par enfant/mois)',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
                 ),
               ],
             ),
@@ -267,11 +260,9 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
         ),
         child: Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
+          style: MintTextStyles.labelSmall(
             color: isActive ? MintColors.white : MintColors.textMuted,
-          ),
+          ).copyWith(fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -308,11 +299,8 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
             child: Center(
               child: Text(
                 '#$rank',
-                style: GoogleFonts.montserrat(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.white)
+                    .copyWith(fontWeight: FontWeight.w800),
               ),
             ),
           ),
@@ -323,29 +311,23 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
               children: [
                 Text(
                   '${canton.name} (${canton.code})',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                      .copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   'Rang $rank sur ${widget.cantons.length}',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                 ),
               ],
             ),
           ),
           Text(
             formatChfWithPrefix(canton.allocationPerChild),
-            style: GoogleFonts.montserrat(
+            style: MintTextStyles.headlineMedium().copyWith(
               fontSize: 18,
-              fontWeight: FontWeight.w800,
               color: _allocationColor(canton.allocationPerChild),
+              fontWeight: FontWeight.w800,
             ),
           ),
         ],
@@ -360,10 +342,8 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
         children: [
           Text(
             formatChfWithPrefix(_minAllocation),
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textMuted)
+                .copyWith(fontStyle: FontStyle.normal),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -385,10 +365,8 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
           const SizedBox(width: 8),
           Text(
             formatChfWithPrefix(_maxAllocation),
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textMuted)
+                .copyWith(fontStyle: FontStyle.normal),
           ),
         ],
       ),
@@ -466,19 +444,21 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
                     children: [
                       Text(
                         canton.code,
-                        style: GoogleFonts.montserrat(
+                        style: MintTextStyles.bodySmall(color: MintColors.white)
+                            .copyWith(
                           fontSize: bubbleSize > 50 ? 13 : 10,
                           fontWeight: FontWeight.w800,
-                          color: MintColors.white,
                         ),
                       ),
                       if (bubbleSize > 50)
                         Text(
                           '${canton.allocationPerChild.round()}',
-                          style: GoogleFonts.montserrat(
+                          style: MintTextStyles.micro(
+                            color: MintColors.white.withValues(alpha: 0.85),
+                          ).copyWith(
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
-                            color: MintColors.white.withValues(alpha: 0.85),
+                            fontStyle: FontStyle.normal,
                           ),
                         ),
                     ],

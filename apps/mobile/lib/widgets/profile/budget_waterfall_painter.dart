@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ---------------------------------------------------------------------------
@@ -179,13 +179,7 @@ class _WaterfallRow extends StatelessWidget {
             width: availableWidth * 0.28,
             child: Text(
               step.isSubtotal ? '= ${step.label}' : step.label,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: step.isSubtotal ? FontWeight.w600 : FontWeight.w400,
-                color: step.isSubtotal
-                    ? MintColors.textPrimary
-                    : MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodyMedium(color: step.isSubtotal ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: step.isSubtotal ? FontWeight.w600 : FontWeight.w400),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -218,13 +212,7 @@ class _WaterfallRow extends StatelessWidget {
             child: Text(
               formattedAmount,
               textAlign: TextAlign.right,
-              style: GoogleFonts.montserrat(
-                fontSize: 13,
-                fontWeight: step.isSubtotal ? FontWeight.w700 : FontWeight.w500,
-                color: step.isSubtotal
-                    ? MintColors.textPrimary
-                    : MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: step.isSubtotal ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontSize: 13, fontWeight: step.isSubtotal ? FontWeight.w700 : FontWeight.w500),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

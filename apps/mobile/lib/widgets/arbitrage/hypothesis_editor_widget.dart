@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // TODO: add Semantics for accessibility (HypothesisEditorWidget sliders)
 
@@ -49,19 +49,12 @@ class HypothesisEditorWidget extends StatelessWidget {
       children: [
         Text(
           'Hypothèses de simulation',
-          style: GoogleFonts.montserrat(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
         ),
         const SizedBox(height: 4),
         Text(
           'Ajuste les paramètres pour voir l\'impact sur les trajectoires.',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
         ),
         const SizedBox(height: 16),
         for (final h in hypotheses) _buildSlider(h),
@@ -86,20 +79,12 @@ class HypothesisEditorWidget extends StatelessWidget {
               Flexible(
                 child: Text(
                   config.label,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
                 ),
               ),
               Text(
                 displayValue,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.primary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),
