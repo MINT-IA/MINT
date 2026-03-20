@@ -148,14 +148,12 @@ class _MainNavigationShellState extends State<MainNavigationShell>
 
     return Container(
       decoration: BoxDecoration(
-        color: MintColors.white,
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, -1),
+        color: MintColors.porcelaine,
+        border: Border(
+          top: BorderSide(
+            color: MintColors.textPrimary.withValues(alpha: 0.06),
           ),
-        ],
+        ),
       ),
       child: SafeArea(
         child: Padding(
@@ -245,7 +243,7 @@ class _NavItem extends StatelessWidget {
               children: [
                 Icon(
                   isActive ? activeIcon : icon,
-                  color: isActive ? MintColors.primary : MintColors.textMuted,
+                  color: isActive ? MintColors.primary : MintColors.textSecondary,
                   size: 22,
                 ),
                 const SizedBox(height: 2),
@@ -256,7 +254,7 @@ class _NavItem extends StatelessWidget {
                     fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                     color: isActive
                         ? MintColors.primary
-                        : MintColors.textMuted,
+                        : MintColors.textSecondary,
                   ),
                 ),
               ],

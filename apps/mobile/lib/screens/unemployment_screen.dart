@@ -10,6 +10,9 @@ import 'package:mint_mobile/services/unemployment_service.dart';
 import 'package:mint_mobile/utils/profile_auto_fill_mixin.dart';
 import 'package:mint_mobile/widgets/educational/unemployment_timeline_widget.dart';
 import 'package:mint_mobile/widgets/coach/unemployment_counter_widget.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  UNEMPLOYMENT SCREEN — Sprint S19 / Chomage (LACI)
@@ -77,10 +80,10 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.porcelaine,
       appBar: AppBar(
-        backgroundColor: MintColors.white,
-        surfaceTintColor: MintColors.white,
+        backgroundColor: MintColors.porcelaine,
+        surfaceTintColor: MintColors.porcelaine,
         foregroundColor: MintColors.textPrimary,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -88,7 +91,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
         ),
         title: Text(
           S.of(context)!.unemploymentTitle,
-          style: MintTextStyles.headlineMedium(),
+          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
         ),
       ),
       body: SingleChildScrollView(
@@ -98,45 +101,49 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildHeader(),
-            const SizedBox(height: MintSpacing.md + 4),
+            // Hero: chute de revenu (shown when eligible)
+            if (_result != null && _result!.eligible) ...[
+              _buildChiffreChoc(),
+              const SizedBox(height: MintSpacing.xl),
+            ] else if (_result != null && !_result!.eligible) ...[
+              _buildNotEligible(),
+              const SizedBox(height: MintSpacing.xl),
+            ] else ...[
+              _buildHeader(),
+              const SizedBox(height: MintSpacing.xl),
+            ],
             _buildGainSlider(),
-            const SizedBox(height: MintSpacing.md + 4),
+            const SizedBox(height: MintSpacing.md),
             _buildAgeSlider(),
-            const SizedBox(height: MintSpacing.md + 4),
+            const SizedBox(height: MintSpacing.md),
             _buildMoisCotisationSlider(),
-            const SizedBox(height: MintSpacing.md + 4),
+            const SizedBox(height: MintSpacing.md),
             _buildToggles(),
-            const SizedBox(height: MintSpacing.lg),
+            const SizedBox(height: MintSpacing.xl),
+            if (_result != null && _result!.eligible) ...[
+              _buildTauxCard(),
+              const SizedBox(height: MintSpacing.xl),
+              _buildResultCards(),
+              const SizedBox(height: MintSpacing.xl),
+              _buildDurationCard(),
+              const SizedBox(height: MintSpacing.xl),
+              UnemploymentCounterWidget(
+                age: _age,
+                monthlyBenefit: _result!.indemniteMensuelle,
+              ),
+              const SizedBox(height: MintSpacing.xl),
+              _buildTroisVagues(),
+              const SizedBox(height: MintSpacing.xl),
+            ],
             if (_result != null) ...[
-              if (!_result!.eligible) ...[
-                _buildNotEligible(),
-                const SizedBox(height: MintSpacing.lg),
-              ] else ...[
-                _buildChiffreChoc(),
-                const SizedBox(height: MintSpacing.lg),
-                _buildTauxCard(),
-                const SizedBox(height: MintSpacing.lg),
-                _buildResultCards(),
-                const SizedBox(height: MintSpacing.lg),
-                _buildDurationCard(),
-                const SizedBox(height: MintSpacing.lg),
-                UnemploymentCounterWidget(
-                  age: _age,
-                  monthlyBenefit: _result!.indemniteMensuelle,
-                ),
-                const SizedBox(height: MintSpacing.lg),
-                _buildTroisVagues(),
-                const SizedBox(height: MintSpacing.lg),
-              ],
               UnemploymentTimelineWidget(items: _result!.timeline),
-              const SizedBox(height: MintSpacing.lg),
+              const SizedBox(height: MintSpacing.xl),
               _buildChecklist(),
-              const SizedBox(height: MintSpacing.lg),
+              const SizedBox(height: MintSpacing.xl),
               _buildEducation(),
-              const SizedBox(height: MintSpacing.lg),
+              const SizedBox(height: MintSpacing.xl),
               _buildMintCrashTestSection(),
-              const SizedBox(height: MintSpacing.lg),
+              const SizedBox(height: MintSpacing.xl),
             ],
             _buildDisclaimer(),
             const SizedBox(height: MintSpacing.xxl + MintSpacing.xl),
@@ -151,13 +158,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
   Widget _buildHeader() {
     return Semantics(
       header: true,
-      child: Container(
-        padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.border),
-        ),
+      child: MintSurface(
+        tone: MintSurfaceTone.bleu,
+        padding: const EdgeInsets.all(MintSpacing.md + 4),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -241,70 +244,16 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
     required int divisions,
     required ValueChanged<double> onChanged,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: MintTextStyles.titleMedium(
-                    color: MintColors.textPrimary,
-                  ),
-                ),
-              ),
-              Text(
-                valueLabel,
-                style: MintTextStyles.headlineMedium(
-                  color: MintColors.primary,
-                ).copyWith(fontSize: 20),
-              ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.sm + 4),
-          Semantics(
-            label: title,
-            value: valueLabel,
-            slider: true,
-            child: SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                activeTrackColor: MintColors.primary,
-                inactiveTrackColor: MintColors.border,
-                thumbColor: MintColors.primary,
-                overlayColor: MintColors.primary.withValues(alpha: 0.1),
-                trackHeight: 6,
-              ),
-              child: Slider(
-                value: value,
-                min: min,
-                max: max,
-                divisions: divisions,
-                onChanged: onChanged,
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(minLabel,
-                  style: MintTextStyles.labelSmall(
-                      color: MintColors.textMuted)),
-              Text(maxLabel,
-                  style: MintTextStyles.labelSmall(
-                      color: MintColors.textMuted)),
-            ],
-          ),
-        ],
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      child: MintPremiumSlider(
+        label: title,
+        value: value,
+        min: min,
+        max: max,
+        divisions: divisions,
+        formatValue: (_) => valueLabel,
+        onChanged: onChanged,
       ),
     );
   }
@@ -312,14 +261,8 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
   // ── Toggles ────────────────────────────────────────────────
 
   Widget _buildToggles() {
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -395,13 +338,8 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
   // ── Not Eligible ───────────────────────────────────────────
 
   Widget _buildNotEligible() {
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.warning.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.peche,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -437,33 +375,15 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
 
   Widget _buildChiffreChoc() {
     final r = _result!;
-    return Semantics(
-      label: '${UnemploymentService.formatChf(r.perteMensuelle)} — ${r.chiffreChoc}',
-      child: Container(
-        padding: const EdgeInsets.all(MintSpacing.lg),
-        decoration: BoxDecoration(
-          color: MintColors.warning,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          children: [
-            Text(
-              UnemploymentService.formatChf(r.perteMensuelle),
-              style: MintTextStyles.displayMedium(
-                color: MintColors.white,
-              ).copyWith(fontSize: 36, fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            Text(
-              r.chiffreChoc,
-              style: MintTextStyles.bodyMedium(
-                color: MintColors.white,
-              ).copyWith(height: 1.5),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
+    return MintResultHeroCard(
+      eyebrow: S.of(context)!.unemploymentTitle,
+      primaryValue: UnemploymentService.formatChf(r.perteMensuelle),
+      primaryLabel: S.of(context)!.unemploymentMonthlyBenefit,
+      secondaryValue: UnemploymentService.formatChf(r.indemniteMensuelle),
+      secondaryLabel: S.of(context)!.unemploymentInsuredEarnings,
+      narrative: r.chiffreChoc,
+      accentColor: MintColors.error,
+      tone: MintSurfaceTone.peche,
     );
   }
 
@@ -476,13 +396,8 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
 
     return Semantics(
       label: '${S.of(context)!.unemploymentCompensationRate}\u00a0: $tauxPct%',
-      child: Container(
-        padding: const EdgeInsets.all(MintSpacing.md + 4),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: MintColors.border),
-        ),
+      child: MintSurface(
+        tone: MintSurfaceTone.blanc,
         child: Row(
           children: [
             Container(
@@ -585,13 +500,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
       {bool small = false}) {
     return Semantics(
       label: '$label\u00a0: $value',
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.blanc,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.border),
-        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -620,27 +531,16 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
 
   Widget _buildDurationCard() {
     final r = _result!;
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.access_time, size: 16, color: MintColors.textMuted),
-              const SizedBox(width: MintSpacing.sm),
-              Text(
-                S.of(context)!.unemploymentDurationHeader,
-                style: MintTextStyles.labelSmall(
-                  color: MintColors.textMuted,
-                ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
-              ),
-            ],
+          Text(
+            S.of(context)!.unemploymentDurationHeader,
+            style: MintTextStyles.labelSmall(
+              color: MintColors.textMuted,
+            ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
           ),
           const SizedBox(height: MintSpacing.md),
           Row(
@@ -794,27 +694,16 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
       l10n.unemploymentCheckItem6,
     ];
 
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.checklist, size: 16, color: MintColors.textMuted),
-              const SizedBox(width: MintSpacing.sm),
-              Text(
-                S.of(context)!.unemploymentChecklistHeader,
-                style: MintTextStyles.labelSmall(
-                  color: MintColors.textMuted,
-                ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
-              ),
-            ],
+          Text(
+            S.of(context)!.unemploymentChecklistHeader,
+            style: MintTextStyles.labelSmall(
+              color: MintColors.textMuted,
+            ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
           ),
           const SizedBox(height: MintSpacing.md),
           ...List.generate(items.length, (index) {
@@ -931,23 +820,13 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
   Widget _buildEduCard(IconData icon, String title, String body) {
     return Padding(
       padding: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.bleu,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
-        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(MintSpacing.sm),
-              decoration: BoxDecoration(
-                color: MintColors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, size: 18, color: MintColors.primary),
-            ),
+            Icon(icon, size: 18, color: MintColors.primary),
             const SizedBox(width: MintSpacing.sm + 4),
             Expanded(
               child: Column(
@@ -997,12 +876,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
       ),
     ];
 
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.info.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.bleu,
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1130,24 +1006,20 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
   Widget _buildDisclaimer() {
     return Semantics(
       label: S.of(context)!.unemploymentDisclaimer,
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.peche,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.warning.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
-        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+            const Icon(Icons.info_outline, color: MintColors.corailDiscret, size: 18),
             const SizedBox(width: MintSpacing.sm + 4),
             Expanded(
               child: Text(
                 S.of(context)!.unemploymentDisclaimer,
                 style: MintTextStyles.micro(
                   color: MintColors.textMuted,
-                ).copyWith(fontSize: 12),
+                ).copyWith(fontSize: 11),
               ),
             ),
           ],
