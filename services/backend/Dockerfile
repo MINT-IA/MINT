@@ -10,6 +10,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install deps from pyproject.toml (single source of truth)
+# Cache bust: S56 added anthropic SDK (2026-03-20)
 COPY pyproject.toml .
 COPY app/ app/
 RUN pip install --no-cache-dir .
