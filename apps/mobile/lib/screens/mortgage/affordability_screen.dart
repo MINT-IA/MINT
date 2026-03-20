@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/widgets/coach/mortgage_journey_widget.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
 /// Ecran de capacite d'achat immobilier (Cat B — Simulator).
 ///
@@ -549,46 +550,14 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
     required String format,
     required ValueChanged<double> onChanged,
   }) {
-    return Semantics(
-      label: '$label: $format',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(
-                  label,
-                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
-                ),
-              ),
-              Text(
-                format,
-                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
-              ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.xs),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 4,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-            ),
-            child: Slider(
-              value: value,
-              min: min,
-              max: max,
-              divisions: divisions,
-              onChanged: onChanged,
-            ),
-          ),
-        ],
-      ),
+    return MintPremiumSlider(
+      label: label,
+      value: value,
+      min: min,
+      max: max,
+      divisions: divisions,
+      formatValue: (_) => format,
+      onChanged: onChanged,
     );
   }
 

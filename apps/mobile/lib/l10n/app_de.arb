@@ -6228,8 +6228,8 @@
       "count": { "type": "String" }
     }
   },
-  "quickStartTitle": "Drei Fragen, eine erste Zahl.",
-  "quickStartSubtitle": "Den Rest bestimmst du, wann du willst.",
+  "quickStartTitle": "Drei Zahlen, eine erste Wahrheit.",
+  "quickStartSubtitle": "Der Rest kommt sp\u00e4ter.",
   "quickStartFirstName": "Dein Vorname",
   "quickStartFirstNameHint": "Fakultativ",
   "quickStartAge": "Dein Alter",
@@ -6245,13 +6245,24 @@
   "quickStartAtRetirement": "Bei der Pensionierung",
   "quickStartPerMonth": "/Monat",
   "quickStartDropPct": "-{pct} % Kaufkraft ({gap}/Monat)",
-  "quickStartDisclaimer": "Lehrreiche Schätzung. Keine Finanzberatung (FIDLEG).",
-  "quickStartCta": "Meine Übersicht",
+  "quickStartDisclaimer": "Lehrreiche Sch\u00e4tzung basierend auf Alter, Einkommen und Kanton.",
+  "quickStartCta": "Sehen, was sich \u00e4ndert",
   "quickStartSectionIdentity": "Identität & Haushalt",
   "quickStartSectionIncome": "Einkommen & Sparen",
   "quickStartSectionPension": "Vorsorge (BVG)",
   "quickStartSectionProperty": "Immobilien & Schulden",
   "quickStartSectionGuidance": "Bereich: {label} — aktualisiere deine Angaben unten.",
+  "quickStartNarrative": "Du beh\u00e4ltst ~{pct}\u00a0% deines Lebensstandards.",
+  "@quickStartNarrative": {
+    "placeholders": {
+      "pct": { "type": "String" }
+    }
+  },
+  "quickStartNarrativeLow": "Eine erste Gr\u00f6ssenordnung, noch zu pr\u00e4zisieren.",
+  "quickStartCtaSecondary": "Ich erg\u00e4nze sp\u00e4ter weitere Details",
+  "quickStartConfidenceMsg": "Ohne BVG-Ausweis bleibt es eine grobe Sch\u00e4tzung.",
+  "quickStartHeroSecondaryLabel": "heute",
+  "quickStartHeroLabel": "bei der Pensionierung",
   "profileCompletionHint": "{pct}\u00a0% — es fehlt {missing}",
   "@profileCompletionHint": {
     "placeholders": {
@@ -8131,5 +8142,34 @@
   "concubinageDecisionMatrixColumnMarriage": "Ehe",
   "concubinageDecisionMatrixColumnConcubinage": "Konkubinat",
   "concubinageDecisionMatrixConclusionTitle": "Neutrale Schlussfolgerung",
-  "concubinageDecisionMatrixConclusionDesc": "Die Wahl h\u00e4ngt von deiner pers\u00f6nlichen Situation ab. Konsultiere einen Notar f\u00fcr eine vollst\u00e4ndige Analyse."
+  "concubinageDecisionMatrixConclusionDesc": "Die Wahl h\u00e4ngt von deiner pers\u00f6nlichen Situation ab. Konsultiere einen Notar f\u00fcr eine vollst\u00e4ndige Analyse.",
+  "landingHiddenAmount": "CHF\u00a0\u00b7\u00b7\u00b7\u00b7",
+  "landingHiddenSubtitle": "Deine erste Zahl in 30\u00a0Sekunden",
+  "renteVsCapitalV2Title": "Rente oder Kapital.",
+  "renteVsCapitalV2Subtitle": "Dasselbe Geld. Zwei verschiedene Leben.",
+  "renteVsCapitalChoiceRenteSubtitle": "Stabiler, weniger flexibel",
+  "renteVsCapitalChoiceCapitalSubtitle": "Freier, anspruchsvoller",
+  "renteVsCapitalChoiceMixteSubtitle": "Ein Gleichgewicht zum Aufbauen",
+  "renteVsCapitalConsequenceRenteEyebrow": "Wenn du die Rente w\u00e4hlst",
+  "renteVsCapitalConsequenceCapitalEyebrow": "Wenn du das Kapital w\u00e4hlst",
+  "renteVsCapitalConsequenceMixteEyebrow": "Wenn du die Mischform w\u00e4hlst",
+  "renteVsCapitalConsequenceRenteNarrative": "Ein festes Einkommen jeden Monat, unabh\u00e4ngig von den M\u00e4rkten. Im Gegenzug geh\u00f6rt dir dein Kapital nicht mehr.",
+  "renteVsCapitalConsequenceCapitalNarrative": "Du verwaltest dein Geld frei, aber es kann aufgebraucht werden. Jedes Jahr z\u00e4hlt.",
+  "renteVsCapitalConsequenceMixteNarrative": "Der obligatorische Teil als Rente f\u00fcr die Sicherheit, der \u00fcberobligatorische als Kapital f\u00fcr die Flexibilit\u00e4t.",
+  "renteVsCapitalConsequenceMixteRenteLabel": "Rente (obligatorisch)",
+  "renteVsCapitalConsequenceMixteCapitalLabel": "Kapital (\u00fcberobligatorisch)",
+  "renteVsCapitalSignalRevenu": "Monatliches Einkommen",
+  "renteVsCapitalSignalFiscalite": "Kumulative Besteuerung",
+  "renteVsCapitalSignalTransmission": "Vererbung",
+  "renteVsCapitalConfidenceNoticeLow": "Ohne BVG-Ausweis bleibt dies eine grobe Sch\u00e4tzung.",
+  "renteVsCapitalConfidenceNoticeHigh": "Vollst\u00e4ndige Daten \u2014 zuverl\u00e4ssige Ergebnisse.",
+  "renteVsCapitalConfidenceCta": "Meine Daten pr\u00e4zisieren",
+  "renteVsCapitalFastEstimateTitle": "Erste Sch\u00e4tzung machen",
+  "renteVsCapitalCtaCompare": "F\u00fcr mich vergleichen",
+  "renteVsCapitalAdvancedDisclosure": "Ich habe meinen BVG-Ausweis",
+  "renteVsCapitalPerMonthForLife": "/Monat, lebenslang",
+  "renteVsCapitalNetAfterTax": "netto nach Steuern",
+  "renteVsCapitalTransmissionRenteMarried": "60\u00a0% an Ehepartner",
+  "renteVsCapitalTransmissionRenteSingle": "Nichts an Erben",
+  "renteVsCapitalTransmissionCapitalValue": "100\u00a0% an Erben"
 }

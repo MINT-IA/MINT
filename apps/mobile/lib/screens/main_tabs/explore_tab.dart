@@ -4,14 +4,15 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Tab 2 — Explorer
 ///
-/// 7 hubs thématiques. Chaque hub ouvre un écran dédié avec
-/// 3 parcours vedettes + "Voir tout".
+/// 7 hubs thematiques. Chaque hub = une grande carte narrative
+/// avec fond colore subtil (Cleo-inspired).
 ///
 /// Hubs: Retraite, Famille, Travail & Statut, Logement,
-///        Fiscalité, Patrimoine & Succession, Santé & Protection
+///        Fiscalite, Patrimoine & Succession, Sante & Protection
 class ExploreTab extends StatelessWidget {
   const ExploreTab({super.key});
 
@@ -22,78 +23,81 @@ class ExploreTab extends StatelessWidget {
       slivers: [
         SliverAppBar(
           pinned: true,
-          backgroundColor: MintColors.white,
-          surfaceTintColor: MintColors.white,
+          backgroundColor: MintColors.porcelaine,
+          surfaceTintColor: MintColors.porcelaine,
           title: Text(
             l.tabExplore,
             style: MintTextStyles.headlineMedium(),
           ),
           centerTitle: false,
         ),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: MintSpacing.lg,
-            vertical: MintSpacing.md,
-          ),
-          sliver: SliverList(
-            delegate: SliverChildListDelegate([
-              _HubCard(
-                icon: Icons.beach_access_outlined,
-                title: l.exploreHubRetraiteTitle,
-                subtitle: l.exploreHubRetraiteSubtitle,
-                color: MintColors.info,
-                onTap: () => context.push('/explore/retraite'),
-              ),
-              const SizedBox(height: MintSpacing.md),
-              _HubCard(
-                icon: Icons.family_restroom_outlined,
-                title: l.exploreHubFamilleTitle,
-                subtitle: l.exploreHubFamilleSubtitle,
-                color: MintColors.pink,
-                onTap: () => context.push('/explore/famille'),
-              ),
-              const SizedBox(height: MintSpacing.md),
-              _HubCard(
-                icon: Icons.work_outline,
-                title: l.exploreHubTravailTitle,
-                subtitle: l.exploreHubTravailSubtitle,
-                color: MintColors.purple,
-                onTap: () => context.push('/explore/travail'),
-              ),
-              const SizedBox(height: MintSpacing.md),
-              _HubCard(
-                icon: Icons.home_outlined,
-                title: l.exploreHubLogementTitle,
-                subtitle: l.exploreHubLogementSubtitle,
-                color: MintColors.teal,
-                onTap: () => context.push('/explore/logement'),
-              ),
-              const SizedBox(height: MintSpacing.md),
-              _HubCard(
-                icon: Icons.receipt_long_outlined,
-                title: l.exploreHubFiscaliteTitle,
-                subtitle: l.exploreHubFiscaliteSubtitle,
-                color: MintColors.deepOrange,
-                onTap: () => context.push('/explore/fiscalite'),
-              ),
-              const SizedBox(height: MintSpacing.md),
-              _HubCard(
-                icon: Icons.account_balance_outlined,
-                title: l.exploreHubPatrimoineTitle,
-                subtitle: l.exploreHubPatrimoineSubtitle,
-                color: MintColors.indigo,
-                onTap: () => context.push('/explore/patrimoine'),
-              ),
-              const SizedBox(height: MintSpacing.md),
-              _HubCard(
-                icon: Icons.health_and_safety_outlined,
-                title: l.exploreHubSanteTitle,
-                subtitle: l.exploreHubSanteSubtitle,
-                color: MintColors.success,
-                onTap: () => context.push('/explore/sante'),
-              ),
-              const SizedBox(height: MintSpacing.xxl),
-            ]),
+        SliverToBoxAdapter(
+          child: Container(
+            color: MintColors.porcelaine,
+            padding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.lg,
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: MintSpacing.md),
+                _ExploreHubCard(
+                  title: l.exploreHubRetraiteTitle,
+                  narrative: l.exploreHubRetraiteSubtitle,
+                  tone: MintSurfaceTone.sauge,
+                  icon: Icons.beach_access_outlined,
+                  onTap: () => context.push('/explore/retraite'),
+                ),
+                const SizedBox(height: MintSpacing.xl),
+                _ExploreHubCard(
+                  title: l.exploreHubFamilleTitle,
+                  narrative: l.exploreHubFamilleSubtitle,
+                  tone: MintSurfaceTone.peche,
+                  icon: Icons.family_restroom_outlined,
+                  onTap: () => context.push('/explore/famille'),
+                ),
+                const SizedBox(height: MintSpacing.xl),
+                _ExploreHubCard(
+                  title: l.exploreHubTravailTitle,
+                  narrative: l.exploreHubTravailSubtitle,
+                  tone: MintSurfaceTone.bleu,
+                  icon: Icons.work_outline,
+                  onTap: () => context.push('/explore/travail'),
+                ),
+                const SizedBox(height: MintSpacing.xl),
+                _ExploreHubCard(
+                  title: l.exploreHubLogementTitle,
+                  narrative: l.exploreHubLogementSubtitle,
+                  tone: MintSurfaceTone.porcelaine,
+                  icon: Icons.home_outlined,
+                  onTap: () => context.push('/explore/logement'),
+                ),
+                const SizedBox(height: MintSpacing.xl),
+                _ExploreHubCard(
+                  title: l.exploreHubFiscaliteTitle,
+                  narrative: l.exploreHubFiscaliteSubtitle,
+                  tone: MintSurfaceTone.blanc,
+                  icon: Icons.receipt_long_outlined,
+                  onTap: () => context.push('/explore/fiscalite'),
+                ),
+                const SizedBox(height: MintSpacing.xl),
+                _ExploreHubCard(
+                  title: l.exploreHubPatrimoineTitle,
+                  narrative: l.exploreHubPatrimoineSubtitle,
+                  tone: MintSurfaceTone.sauge,
+                  icon: Icons.account_balance_outlined,
+                  onTap: () => context.push('/explore/patrimoine'),
+                ),
+                const SizedBox(height: MintSpacing.xl),
+                _ExploreHubCard(
+                  title: l.exploreHubSanteTitle,
+                  narrative: l.exploreHubSanteSubtitle,
+                  tone: MintSurfaceTone.bleu,
+                  icon: Icons.health_and_safety_outlined,
+                  onTap: () => context.push('/explore/sante'),
+                ),
+                const SizedBox(height: MintSpacing.xxl),
+              ],
+            ),
           ),
         ),
       ],
@@ -101,19 +105,20 @@ class ExploreTab extends StatelessWidget {
   }
 }
 
-/// Hub card — clean, minimal, one tap to enter a domain.
-class _HubCard extends StatelessWidget {
-  final IconData icon;
+/// Premium hub card — warm coloured surface, narrative text,
+/// generous breathing room. Cleo "goal card" aesthetic.
+class _ExploreHubCard extends StatelessWidget {
   final String title;
-  final String subtitle;
-  final Color color;
+  final String narrative;
+  final MintSurfaceTone tone;
+  final IconData icon;
   final VoidCallback onTap;
 
-  const _HubCard({
-    required this.icon,
+  const _ExploreHubCard({
     required this.title,
-    required this.subtitle,
-    required this.color,
+    required this.narrative,
+    required this.tone,
+    required this.icon,
     required this.onTap,
   });
 
@@ -122,50 +127,42 @@ class _HubCard extends StatelessWidget {
     return Semantics(
       label: title,
       button: true,
-      child: InkWell(
+      child: GestureDetector(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
+        child: MintSurface(
+          tone: tone,
           padding: const EdgeInsets.all(MintSpacing.lg),
-          decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: MintColors.border.withValues(alpha: 0.5),
-            ),
-          ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: color, size: 24),
+              Row(
+                children: [
+                  Icon(
+                    icon,
+                    color: MintColors.textSecondary,
+                    size: 22,
+                  ),
+                  const Spacer(),
+                  Icon(
+                    Icons.arrow_forward_rounded,
+                    color: MintColors.textMuted.withValues(alpha: 0.5),
+                    size: 18,
+                  ),
+                ],
               ),
-              const SizedBox(width: MintSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: MintTextStyles.titleMedium(),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: MintTextStyles.bodySmall(),
-                    ),
-                  ],
-                ),
+              const SizedBox(height: MintSpacing.lg),
+              Text(
+                title,
+                style: MintTextStyles.headlineMedium(),
               ),
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: MintColors.textMuted,
-                size: 20,
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                narrative,
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary,
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),

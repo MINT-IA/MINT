@@ -38,6 +38,22 @@ class MintColors {
   static const Color border = Color(0xFFD2D2D7);
   static const Color lightBorder = Color(0xFFE5E5E7);
 
+  // ── Premium palette (Visual Graal 2027 — Masterplan §6) ──
+  /// Warm off-white background — replaces cold #FFFFFF on hero screens.
+  static const Color porcelaine = Color(0xFFF7F4EE);
+  /// Cream white — coach chat background, subtle warmth.
+  static const Color craie = Color(0xFFFCFBF8);
+  /// Sage green — success surfaces, cap cards, positive signals.
+  static const Color saugeClaire = Color(0xFFD8E4DB);
+  /// Air blue — coach bubbles, info surfaces.
+  static const Color bleuAir = Color(0xFFCFE2F7);
+  /// Slate — deep text alternative, premium contrast.
+  static const Color ardoise = Color(0xFF3A3D44);
+  /// Soft peach — warm accent, progression, milestones.
+  static const Color pecheDouce = Color(0xFFF5C8AE);
+  /// Discreet coral — attention accent, warm emphasis.
+  static const Color corailDiscret = Color(0xFFE6855E);
+
   // Trajectory colors (MINT Coach)
   static const Color trajectoryOptimiste = Color(0xFF24B14D);
   static const Color trajectoryBase = Color(0xFF007AFF);

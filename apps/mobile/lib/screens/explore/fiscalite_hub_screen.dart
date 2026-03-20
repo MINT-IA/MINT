@@ -4,6 +4,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class FiscaliteHubScreen extends StatelessWidget {
   const FiscaliteHubScreen({super.key});
@@ -12,42 +13,45 @@ class FiscaliteHubScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = S.of(context)!;
     return Scaffold(
-      backgroundColor: MintColors.white,
+      backgroundColor: MintColors.porcelaine,
       appBar: AppBar(
-        backgroundColor: MintColors.white,
-        surfaceTintColor: MintColors.white,
+        backgroundColor: MintColors.porcelaine,
+        surfaceTintColor: MintColors.porcelaine,
         title: Text(l.exploreHubFiscaliteTitle, style: MintTextStyles.headlineMedium()),
         centerTitle: false,
       ),
       body: ListView(
-        padding: const EdgeInsets.all(MintSpacing.lg),
+        padding: const EdgeInsets.symmetric(
+          horizontal: MintSpacing.lg,
+          vertical: MintSpacing.md,
+        ),
         children: [
           Text(
             l.exploreHubFeatured,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.md),
-          _FeaturedCard(
+          _HubItemCard(
             title: l.fiscaliteHubFeaturedComparateur,
             subtitle: l.fiscaliteHubFeaturedComparateurSub,
             icon: Icons.calculate_outlined,
-            iconColor: MintColors.info,
+            tone: MintSurfaceTone.blanc,
             onTap: () => context.push('/fiscal'),
           ),
-          const SizedBox(height: MintSpacing.sm),
-          _FeaturedCard(
+          const SizedBox(height: MintSpacing.md),
+          _HubItemCard(
             title: l.fiscaliteHubFeaturedDemenagement,
             subtitle: l.fiscaliteHubFeaturedDemenagementSub,
             icon: Icons.map_outlined,
-            iconColor: MintColors.success,
+            tone: MintSurfaceTone.blanc,
             onTap: () => context.push('/life-event/demenagement-cantonal'),
           ),
-          const SizedBox(height: MintSpacing.sm),
-          _FeaturedCard(
+          const SizedBox(height: MintSpacing.md),
+          _HubItemCard(
             title: l.fiscaliteHubFeaturedAllocation,
             subtitle: l.fiscaliteHubFeaturedAllocationSub,
             icon: Icons.pie_chart_outline,
-            iconColor: MintColors.purple,
+            tone: MintSurfaceTone.blanc,
             onTap: () => context.push('/arbitrage/allocation-annuelle'),
           ),
           const SizedBox(height: MintSpacing.xl),
@@ -56,12 +60,15 @@ class FiscaliteHubScreen extends StatelessWidget {
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.md),
-          _ToolRow(
+          _HubItemCard(
             title: l.fiscaliteHubToolInteretsComposes,
+            tone: MintSurfaceTone.blanc,
             onTap: () => context.push('/simulator/compound'),
           ),
-          _ToolRow(
+          const SizedBox(height: MintSpacing.sm),
+          _HubItemCard(
             title: l.fiscaliteHubToolBilanArbitrage,
+            tone: MintSurfaceTone.blanc,
             onTap: () => context.push('/arbitrage/bilan'),
           ),
           const SizedBox(height: MintSpacing.xl),
@@ -70,109 +77,79 @@ class FiscaliteHubScreen extends StatelessWidget {
             icon: const Icon(
               Icons.school_outlined,
               size: 16,
-              color: MintColors.info,
+              color: MintColors.textMuted,
             ),
             label: Text(
               l.exploreHubLearnMore,
-              style: MintTextStyles.bodySmall(color: MintColors.info),
+              style: MintTextStyles.bodySmall(color: MintColors.textMuted),
             ),
           ),
+          const SizedBox(height: MintSpacing.xxl),
         ],
       ),
     );
   }
 }
 
-class _FeaturedCard extends StatelessWidget {
-  const _FeaturedCard({
+class _HubItemCard extends StatelessWidget {
+  const _HubItemCard({
     required this.title,
-    required this.subtitle,
-    required this.icon,
+    required this.tone,
     required this.onTap,
-    this.iconColor = MintColors.info,
+    this.subtitle,
+    this.icon,
   });
 
   final String title;
-  final String subtitle;
-  final IconData icon;
+  final String? subtitle;
+  final IconData? icon;
+  final MintSurfaceTone tone;
   final VoidCallback onTap;
-  final Color iconColor;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: MintColors.border.withAlpha(128),
-          ),
+      child: MintSurface(
+        tone: tone,
+        padding: EdgeInsets.symmetric(
+          horizontal: MintSpacing.lg,
+          vertical: subtitle != null ? MintSpacing.lg : MintSpacing.md,
         ),
         child: Row(
           children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: iconColor.withAlpha(20),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: iconColor, size: 24),
-            ),
-            const SizedBox(width: MintSpacing.md),
+            if (icon != null) ...[
+              Icon(icon, color: MintColors.textSecondary, size: 22),
+              const SizedBox(width: MintSpacing.md),
+            ],
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: MintTextStyles.titleMedium()),
-                  const SizedBox(height: MintSpacing.xs),
                   Text(
-                    subtitle,
-                    style: MintTextStyles.bodySmall(
-                      color: MintColors.textSecondary,
-                    ),
+                    title,
+                    style: subtitle != null
+                        ? MintTextStyles.titleMedium()
+                        : MintTextStyles.bodyMedium(),
                   ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(
+                      subtitle!,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textSecondary,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ],
               ),
             ),
-            const Icon(
-              Icons.chevron_right,
-              color: MintColors.textMuted,
-              size: 20,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ToolRow extends StatelessWidget {
-  const _ToolRow({
-    required this.title,
-    required this.onTap,
-  });
-
-  final String title;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        child: Row(
-          children: [
-            Text(title, style: MintTextStyles.bodyMedium()),
-            const Spacer(),
-            const Icon(
-              Icons.chevron_right,
-              color: MintColors.textMuted,
+            const SizedBox(width: MintSpacing.sm),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: MintColors.textMuted.withValues(alpha: 0.5),
               size: 20,
             ),
           ],
