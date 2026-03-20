@@ -18,7 +18,6 @@ import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
-import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
 import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
@@ -29,7 +28,7 @@ import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
-import 'package:mint_mobile/widgets/coach/life_event_sheet.dart';
+import 'package:mint_mobile/widgets/coach/lightning_menu.dart';
 import 'package:mint_mobile/widgets/coach/rich_chat_widgets.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
@@ -189,24 +188,15 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     final tier = _currentTier();
     final greeting = _buildCapBasedGreeting(p, name, tier, s);
 
-    // Phase 1: personalized suggestions based on age/archetype
+    // Emotional suggestions based on age/situation + "Il m'arrive quelque chose"
     final personalizedPrompts = ResponseCardService.suggestedPrompts(p);
-    final List<String> suggestions;
-    if (personalizedPrompts.isNotEmpty) {
-      suggestions = personalizedPrompts;
-    } else {
-      final tips = CoachingService.generateTips(
-        profile: p.toCoachingProfile(),
-      );
-      final topTipActions = tips.take(3).map((t) => t.title).toList();
-      suggestions = topTipActions.isNotEmpty
-          ? topTipActions
-          : [
-              s.coachSuggestRetirement,
-              s.coachSuggestDeductions,
-              s.coachSuggestSimulate3a,
-            ];
-    }
+    final suggestions = personalizedPrompts.isNotEmpty
+        ? [...personalizedPrompts.take(2), 'Il m\u2019arrive quelque chose']
+        : [
+            'Par o\u00f9 commencer\u00a0?',
+            'C\u2019est quoi tout \u00e7a\u00a0?',
+            'Il m\u2019arrive quelque chose',
+          ];
 
     // No response cards on greeting — they duplicate Pulse.
     // Cards appear only in response to user messages.
@@ -242,9 +232,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           '${cap.headline.substring(1)}. '
           '${cap.ctaLabel}\u00a0?';
     } catch (_) {
-      // Fallback: minimal, not generic
-      return '$name, tes chiffres sont là. '
-          'Qu\u2019est-ce qu\u2019on regarde\u00a0?';
+      // Fallback: minimal, real
+      return 'On commence par quoi\u00a0?';
     }
   }
 
@@ -263,11 +252,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   //  MESSAGE SENDING — SLM streaming or standard
   // ════════════════════════════════════════════════════════════
 
-  Future<void> _showLifeEventSheet() async {
-    final prompt = await LifeEventSheet.show(context);
-    if (prompt != null && prompt.isNotEmpty && mounted) {
-      _sendMessage(prompt);
-    }
+  void _showLightningMenu() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => LightningMenu(
+        profile: _profile,
+        onSendMessage: _sendMessage,
+      ),
+    );
   }
 
   Future<void> _sendMessage(String text) async {
@@ -1499,6 +1493,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 6),
                     onPressed: () {
+                      // "Il m'arrive quelque chose" opens the Lightning Menu
+                      if (action.toLowerCase().contains('il m') &&
+                          action.toLowerCase().contains('arrive')) {
+                        _showLightningMenu();
+                        return;
+                      }
                       final route = _routeForAction(action);
                       if (route != null) {
                         context.push(route);
@@ -1790,7 +1790,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                       color: MintColors.textSecondary, size: 18),
                   padding: EdgeInsets.zero,
                   tooltip: s.coachTooltipLifeEvent,
-                  onPressed: _isStreaming ? null : _showLifeEventSheet,
+                  onPressed: _isStreaming ? null : _showLightningMenu,
                 ),
               ),
               const SizedBox(width: MintSpacing.sm),

@@ -7946,5 +7946,16 @@
   "trajectoryConfidenceSectionTitle": "Fiducia",
   "trajectoryConfidenceLowMessage": "I tuoi dati sono ancora parziali \u2014 ogni informazione aggiuntiva affina la tua traiettoria.",
   "trajectoryConfidenceHighMessage": "Profilo ben documentato \u2014 le tue proiezioni sono affidabili.",
-  "trajectoryConfidenceCta": "Migliorare la precisione"
+  "trajectoryConfidenceCta": "Migliorare la precisione",
+  "settingsSheetTitle": "Impostazioni",
+  "settingsConsentsTitle": "Consensi",
+  "settingsConsentsSubtitle": "Privacy e condivisione dati",
+  "settingsSlmTitle": "IA sul dispositivo",
+  "settingsSlmSubtitle": "Funziona sul tuo dispositivo, anche offline",
+  "settingsByokTitle": "Chiave IA personale",
+  "settingsByokSubtitle": "Collega il tuo modello IA",
+  "settingsLangueTitle": "Lingua",
+  "settingsLangueSubtitle": "Scegli la lingua dell\u2019app",
+  "settingsAboutTitle": "Informazioni",
+  "settingsAboutSubtitle": "Versione, note legali, contatto"
 }

@@ -18293,4 +18293,37 @@ class SFr extends S {
 
   @override
   String get trajectoryConfidenceCta => 'Améliorer la précision';
+
+  @override
+  String get settingsSheetTitle => 'Réglages';
+
+  @override
+  String get settingsConsentsTitle => 'Consentements';
+
+  @override
+  String get settingsConsentsSubtitle => 'Vie privée et partage de données';
+
+  @override
+  String get settingsSlmTitle => 'IA embarquée';
+
+  @override
+  String get settingsSlmSubtitle => 'Tourne sur ton appareil, même hors ligne';
+
+  @override
+  String get settingsByokTitle => 'Clé IA perso';
+
+  @override
+  String get settingsByokSubtitle => 'Branche ton propre modèle IA';
+
+  @override
+  String get settingsLangueTitle => 'Langue';
+
+  @override
+  String get settingsLangueSubtitle => 'Choisir la langue de l’app';
+
+  @override
+  String get settingsAboutTitle => 'À propos';
+
+  @override
+  String get settingsAboutSubtitle => 'Version, mentions légales, contact';
 }
