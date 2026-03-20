@@ -1,8 +1,9 @@
-# MINT — Strategic Roadmap V2 (Benchmark-Driven)
+# MINT — Strategic Roadmap V2.1 (Post-S53)
 
-> Date: March 2026 | Version: 2.0 | Production: v0.1.0
-> Based on: `visions/MINT_Analyse_Strategique_Benchmark.md` (40+ apps, 18 research themes)
-> Execution method: Autoresearch Dev Agents (`visions/MINT_Autoresearch_Dev_Agents.md`)
+> Date: March 2026 | Version: 2.1 | Production: v0.3.0
+> Based on: `visions/MINT_Analyse_Strategique_Benchmark.md` + Cleo analysis + actuarial review
+> Execution method: Autoresearch Dev Agents + S53 Gate Closer pattern
+> Companion docs: `TOP_10_SWISS_CORE_JOURNEYS.md`, `MINT_UX_GRAAL_MASTERPLAN.md`, `MINT_CAP_ENGINE_SPEC.md`
 
 ---
 
@@ -22,26 +23,32 @@ Each agent follows the Karpathy loop: modify code, execute tests, measure metric
 
 ---
 
-## Phase 1: "Le Conversationnel" (S51-S56, 0-6 months)
+## Phase 1: "Le Plan Vivant" (S51-S56)
 
-**Objective**: MINT parle. L'utilisateur pose des questions en langage naturel.
+**Objective**: MINT devient plan-first, coach-orchestrated. L'utilisateur voit sa progression, pas un dashboard.
+
+**Direction post-S53**: La priorite n'est plus "ajouter du chat". C'est:
+- plus de plan (Cap du jour -> Plan du jour)
+- plus de memoire utile
+- plus de progression visible par objectif
+- plus de preuve accessible
+- Top 10 Suisse irreprochables avant le long tail
 
 **Benchmark justification**:
-- R1 (Chat AI): "Le chat est devenu la norme, pas une feature" — Cleo $250M ARR, bunq Finn 97% resolution
-- R3 (Gamification): +48% engagement via streaks, +30% savings increase (academic research)
-- 3a retroactif: unique 2026 market opportunity (new Swiss law), no competitor has it
-- Financial Health Score: inspired by WHOOP Recovery Score — daily composite = daily return
+- Cleo Autopilot: insight -> plan -> action -> memory (on prend la boucle, pas l'execution automatique)
+- 3 piliers suisses: terrain differenciateur principal (OFAS, AVS/AI, LPP)
+- Reframing rule + clause d'honnetete: transparence suisse > promesse marketing
 
-| Sprint | Objective | Key Deliverables | Autoresearch Skills Used | Success Metric |
-|--------|-----------|-----------------|--------------------------|----------------|
-| S51 | Chat AI MVP (text) | ChatService, ChatScreen, ClaudeApiClient, ConversationMemory, SuggestionChips, TypingIndicator | `/autoresearch-prompt-lab`, `/autoresearch-compliance-hardener` | Chat functional with 85+ prompt quality score, 0 compliance violations |
-| S52 | 3a Retroactif simulator | Retroactive3aSimulatorScreen, fiscal impact calc (1-10 year retroactive), comparison chart | `/autoresearch-calculator-forge` | 100% accuracy on 10-year retroactive scenarios, golden couple values correct |
-| S53 | 13e Rente AVS integration | Updated AvsCalculator (base x 1.0833), new chiffre choc widget, impact on couple projections | `/autoresearch-calculator-forge` | Golden couple values correct +/-0.5%, all existing AVS tests still green |
-| S54 | Financial Health Score v1 | FHS composite (debt 0-25 + savings 0-25 + retirement 0-25 + fiscal 0-25), daily score widget, gradient visualization | `/autoresearch-test-generation` | FHS computed for all 6 golden profiles (Julien, Lauren, Marco, Fatima, Hans, Marie) |
-| S55 | Streaks + 10 Milestones | StreakEngine (with freeze), MilestoneService, 10 initial milestones, flamme widget | `/autoresearch-test-generation`, `/autoresearch-ux-polish` | All 10 milestones trigger correctly, streak logic handles edge cases (freeze, timezone, interruption) |
-| S56 | RAG Knowledge Base v1 | 100+ Swiss finance docs (AVS, LPP, 3a, fiscal), retrieval pipeline, embedding store, source citation in chat | `/autoresearch-prompt-lab` | >80% retrieval accuracy on 200-question battery |
+| Sprint | Objective | Status | Key Deliverables |
+|--------|-----------|--------|-----------------|
+| S51 | Chat AI MVP | DONE | ChatService, SLM+BYOK, ConversationMemory, SuggestionChips, ComplianceGuard |
+| S52 | UX Cohesion + CapEngine V1 | DONE | 4-tab shell, 7 hubs, CapEngine (12 heuristiques), ActionSuccess, voice system 5/5 piliers, 6392 tests green |
+| S53 | Gate Closer + LPP doctrine | DONE | Honesty clause, disability gap, couple caps, 18/18 life events, LPP oblig/suroblig split, concubinage core, 6428 tests green |
+| S54 | Plan du jour + memoire renforcee | NEXT | CapSequence (prereqs/phases), ProjectionSnapshot, "ce qui a change", progression X/Y par objectif |
+| S55 | Top 10 irreprochables | PLANNED | Chaque parcours coeur audite: template, cap, progression, preuves, compliance. Gate Closer pattern. |
+| S56 | Coach contextuel avance | PLANNED | financialLiteracyLevel complete, reformulation calme, handoff structure, RAG v1 |
 
-**KPIs Phase 1**: DAU/MAU > 25%, Retention J7 > 35%, Chat used by > 40% active users
+**KPIs Phase 1**: DAU/MAU > 25%, Retention J7 > 35%, Actions completed / user > 0.5
 
 ---
 
@@ -49,20 +56,23 @@ Each agent follows the Karpathy loop: modify code, execute tests, measure metric
 
 **Objective**: MINT s'adapte a ta vie. Il se souvient et evolue.
 
+**Direction post-S53**: La memoire n'est pas une feature Phase 2 — c'est le fondement de Phase 1.
+Ce qui reste pour Phase 2: lifecycle adaptation, proactivite, benchmarks cantonaux, OB-ready architecture.
+
 **Benchmark justification**:
 - R2 (Lifecycle): Noom 7-phase model — content adaptation = long-term retention driver
-- R4 (Memory): Cleo 3.0 — "the AI remembers everything" as key differentiator for trust
-- R5 (Proactivity): JITAI research — 52% engagement at workflow boundaries (post-salary, pre-tax-deadline)
+- R5 (Proactivity): JITAI research — 52% engagement at workflow boundaries
 - R7 (Social): Cantonal benchmarks fill a gap no Swiss app addresses (anonymized, no ranking)
+- Open Finance: Conseil federal 2024 — architecturer pour l'OB maintenant, connecter plus tard
 
-| Sprint | Objective | Key Deliverables | Autoresearch Skills Used | Success Metric |
-|--------|-----------|-----------------|--------------------------|----------------|
-| S57 | Lifecycle Engine (7 phases) | PhaseDetector (Demarrage/Construction/Acceleration/Consolidation/Transition/Retraite/Transmission), content adaptation by phase, tone switching per age group | `/autoresearch-coach-evolution`, `/autoresearch-ux-polish` | Content adapts correctly for all 7 phases, tone validation by eval suite |
-| S58 | AI Memory (vector store) | Per-user vector store, cross-session context persistence, goal tracking over 30+ days, conversation summarization | `/autoresearch-prompt-lab` | AI recalls goals set 30+ days ago, context window management handles 100+ conversations |
-| S59 | Weekly Recap AI | WeeklyRecapService, automated summary generation (budget, actions, progress), PDF export | `/autoresearch-prompt-lab`, `/autoresearch-compliance-hardener` | 85+ quality score on recap content, 0 compliance violations in generated text |
-| S60 | Cantonal benchmarks (anonymized) | Aggregated comparison engine, opt-in only, display as "profils similaires" (never ranked), data aggregation pipeline | `/autoresearch-compliance-hardener` | 0 compliance violations, no ranked comparisons, no social comparison language |
-| S61 | JITAI Proactive nudges | Trigger engine (salary receipt, tax deadline, birthday, contract anniversary), timing based on user usage patterns, positive framing | `/autoresearch-ux-polish` | 52%+ engagement on triggered nudges, 0 mid-task interruptions |
-| S62 | Micro-challenges weekly | AdaptiveChallengeService, 50 challenges by archetype and phase, difficulty adaptation, FHS-linked rewards | `/autoresearch-coach-evolution` | Challenge completion rate > 30%, challenges correctly adapt to 8 archetypes |
+| Sprint | Objective | Key Deliverables | Success Metric |
+|--------|-----------|-----------------|----------------|
+| S57 | Lifecycle Engine (7 phases) | PhaseDetector, content adaptation by phase, tone switching | Content adapts for all 7 phases |
+| S58 | OB-ready architecture | Data source awareness in CapEngine, CTA OB dormants, confidence boost path | Architecture prete, 0 dependance OB reelle |
+| S59 | Weekly Recap AI | WeeklyRecapService, summary (budget, actions, progress), PDF export | 85+ quality score, 0 compliance violations |
+| S60 | Cantonal benchmarks (anonymized) | Aggregated comparison, opt-in only, "profils similaires" (never ranked) | 0 compliance violations, no ranking |
+| S61 | JITAI Proactive nudges | Trigger engine (salary, tax deadline, birthday), positive framing | 52%+ engagement on triggered nudges |
+| S62 | Caps menage avances | Couple optimization cross-profile, multi-goal household, retraite a deux | Caps menage couvrent les 5 grands arbitrages couple |
 
 **KPIs Phase 2**: Retention M3 > 40%, ConfidenceScore moyen > 55%, > 30% users with scanned doc
 
@@ -70,22 +80,21 @@ Each agent follows the Karpathy loop: modify code, execute tests, measure metric
 
 ## Phase 3: "L'Expert" (S63-S68, 12-18 months)
 
-**Objective**: MINT devient indispensable. Voice, humain, et communaute.
+**Objective**: MINT devient indispensable. Voice sobre, humain accessible, mise en scene premium.
 
-**Benchmark justification**:
-- R6 (Voice): Cleo 3.0 two-way voice, bunq speech-to-speech — critical for 50+ age group (82% Gen Z use AI vs. lower adoption in 50+)
-- R8 (Hybrid): Origin Financial model — AI + human = 52% trust increase (academic research)
-- R9 (Multi-LLM): Monarch Money architecture — Claude primary + GPT-4o fallback = 99.9% uptime
-- R10 (Agent): Albert autonomous agent — read-only agent (form pre-fill, letter generation) stays within MINT compliance posture
+**Direction post-S53**: Voice mode reporte ici (pas Phase 1/2) car:
+- marche quadrilingue (FR 23%, DE 63%, IT 8%, EN expats)
+- interactions financieres sensibles (pas de LPP a voix haute dans le train)
+- cout de maintenance 4 langues disproportionne avant product-market fit
 
-| Sprint | Objective | Key Deliverables | Autoresearch Skills Used | Success Metric |
-|--------|-----------|-----------------|--------------------------|----------------|
-| S63 | Voice AI (STT+TTS) | VoiceService, speech-to-text integration, text-to-speech with Swiss French, voice button in chat, accessibility for 50+ | `/autoresearch-prompt-lab` | Voice functional and tested with 50+ age group scenarios, latency < 3s |
-| S64 | Multi-LLM redundancy | Claude primary + GPT-4o fallback + local model for sensitive calcs, automatic failover, response quality monitoring | `/autoresearch-compliance-hardener` | 99.9% uptime, 0 compliance breaches on fallback, consistent response quality across LLMs |
-| S65 | Expert tier (human advisors) | Advisor matching by specialization (succession, expat, divorce), dossier preparation (AI pre-fills), session scheduling, advisor rating | `/autoresearch-compliance-hardener` | 52%+ trust increase with human validation, dossier preparation reduces advisor session time by 40% |
-| S66 | Advanced gamification | Cantonal leagues (opt-in only), community challenges, milestone sharing (anonymized), seasonal events | `/autoresearch-ux-polish`, `/autoresearch-compliance-hardener` | No social comparison violations, 20%+ opt-in rate, no ranked leaderboards |
-| S67 | RAG v2 (comprehensive) | 500+ docs, cantonal specifics for all 26 cantons, FAQ by caisse de pension, annual updates pipeline | `/autoresearch-calculator-forge` | >95% retrieval accuracy on expanded 500-question battery |
-| S68 | Agent autonome v1 | Form pre-fill (tax declaration, 3a forms), letter generation (caisse de pension requests), fiscal dossier prep — all read-only, all require user validation before submission | `/autoresearch-compliance-hardener` | 0 unauthorized actions, user validation gate on 100% of outputs |
+| Sprint | Objective | Key Deliverables | Success Metric |
+|--------|-----------|-----------------|----------------|
+| S63 | Voice AI sobre (FR+DE) | VoiceService STT+TTS, voice button en chat, ton calme, accessibilite 50+ | Latence < 3s, 0 compliance violations |
+| S64 | Multi-LLM redundancy | Claude primary + GPT-4o fallback + local model, automatic failover | 99.9% uptime, consistent quality |
+| S65 | Expert tier (human advisors) | Advisor matching, AI pre-fills dossier, session scheduling | Dossier prep reduit session time 40% |
+| S66 | Mise en scene premium | Less cards, more layers, hero hierarchy, proof accessible immediately | UX audit score > 9/10 on Top 10 |
+| S67 | RAG v2 (comprehensive) | 500+ docs, 26 cantons, FAQ by caisse, annual updates pipeline | >95% retrieval accuracy |
+| S68 | Agent autonome v1 (read-only) | Form pre-fill, letter generation, fiscal dossier — user validation gate 100% | 0 unauthorized actions |
 
 **KPIs Phase 3**: Retention M12 > 25%, NPS > 50, Revenue MRR > CHF 50K
 
@@ -125,6 +134,20 @@ Each agent follows the Karpathy loop: modify code, execute tests, measure metric
 - Betterment: 0.25% AUM with education-first approach
 - Origin Financial: hybrid AI + human at premium pricing
 - MINT advantage: Swiss depth (26 cantons, 8 archetypes) creates pricing power that foreign competitors cannot undercut
+
+---
+
+## WHAT WE EXPLICITLY DON'T BUILD
+
+| Feature | Why not | Reference |
+|---------|---------|-----------|
+| Autopilot / execution automatique | LSFin interdit, trust suisse incompatible | CLAUDE.md §6 |
+| Recommandation de souscription/produit | No-advice, read-only | CLAUDE.md §6 |
+| Voice mode avant Phase 3 | Quadrilinguisme, sensibilite, cout | Roadmap analysis post-S53 |
+| Gamification criarde / roast | Voix MINT calme, pas insolente | VOICE_SYSTEM.md |
+| Score/ranking social | Interdit CLAUDE.md §6 | No-Social-Comparison |
+| LLM opaque qui remplace les hypotheses | Transparence suisse non negociable | Masterplan §9 |
+| Faux levier quand aucun n'existe | Clause d'honnetete | CapEngine Spec §7 |
 
 ---
 
