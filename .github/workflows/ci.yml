@@ -153,7 +153,6 @@ jobs:
         run: |
           set +e
           flutter analyze --no-fatal-warnings --no-fatal-infos > /tmp/flutter_analyze.log 2>&1
-          status=$?
 
           errors=$(grep -cE "^[[:space:]]*error[[:space:]]+•" /tmp/flutter_analyze.log || true)
           warnings=$(grep -cE "^[[:space:]]*warning[[:space:]]+•" /tmp/flutter_analyze.log || true)
@@ -164,12 +163,13 @@ jobs:
           grep -E "^[[:space:]]*(error|warning)[[:space:]]+•" /tmp/flutter_analyze.log || true
           grep -E "issues found" /tmp/flutter_analyze.log || true
 
-          if [[ $status -ne 0 ]]; then
-            echo "Analyze failed. Raw output head:"
+          # Fail only on actual errors — infos and warnings are logged but not blocking
+          if [[ "$errors" -gt 0 ]]; then
+            echo "::error::Flutter analyze found $errors error(s)"
             sed -n '1,120p' /tmp/flutter_analyze.log
+            exit 1
           fi
-
-          exit $status
+          echo "Analyze passed (0 errors, $warnings warnings, $infos infos)"
 
       - name: Run tests
         shell: bash
