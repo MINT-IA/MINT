@@ -272,7 +272,12 @@ class CapEngine {
       ));
     }
 
-    // ── 9. Fallback: best ResponseCard → Cap ──
+    // ── 9. Goal alignment boost ──
+    // If the user declared a GoalA, boost candidates that align with it.
+    _applyGoalBoost(candidates, profile.goalA);
+
+    // ── 10. Fallback: best ResponseCard → Cap ──
+    // (renumbered from 9)
     if (candidates.isEmpty) {
       final cards =
           ResponseCardService.generateForPulse(profile, limit: 1);
@@ -300,6 +305,65 @@ class CapEngine {
     // Sort by priority and return the winner.
     candidates.sort((a, b) => b.priorityScore.compareTo(a.priorityScore));
     return candidates.first;
+  }
+
+  // ── GOAL ALIGNMENT ───────────────────────────────────────
+
+  /// Boost candidates that align with the user's declared GoalA.
+  /// Multiplies priorityScore by 1.3 for aligned caps.
+  static void _applyGoalBoost(List<CapDecision> candidates, GoalA? goalA) {
+    if (goalA == null) return;
+
+    final alignedIds = _goalAlignedCapIds(goalA.type);
+    if (alignedIds.isEmpty) return;
+
+    for (int i = 0; i < candidates.length; i++) {
+      final cap = candidates[i];
+      if (alignedIds.contains(cap.id)) {
+        // Replace with boosted copy (CapDecision is immutable)
+        candidates[i] = CapDecision(
+          id: cap.id,
+          kind: cap.kind,
+          priorityScore: cap.priorityScore * 1.3,
+          headline: cap.headline,
+          whyNow: cap.whyNow,
+          ctaLabel: cap.ctaLabel,
+          ctaMode: cap.ctaMode,
+          ctaRoute: cap.ctaRoute,
+          coachPrompt: cap.coachPrompt,
+          captureType: cap.captureType,
+          expectedImpact: cap.expectedImpact,
+          confidenceLabel: cap.confidenceLabel,
+          blockingData: cap.blockingData,
+          supportingSignals: cap.supportingSignals,
+          sourceCards: cap.sourceCards,
+        );
+      }
+    }
+  }
+
+  static Set<String> _goalAlignedCapIds(GoalAType goalType) {
+    return switch (goalType) {
+      GoalAType.retraite => {
+          'pillar_3a',
+          'lpp_buyback',
+          'replacement_rate',
+          'coverage_check',
+        },
+      GoalAType.achatImmo => {
+          'lpp_buyback',
+          'budget_deficit',
+        },
+      GoalAType.independance => {
+          'indep_no_lpp',
+          'pillar_3a',
+        },
+      GoalAType.debtFree => {
+          'debt_correct',
+          'budget_deficit',
+        },
+      GoalAType.custom => <String>{},
+    };
   }
 
   // ── SCORING ──────────────────────────────────────────────

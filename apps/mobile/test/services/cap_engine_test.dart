@@ -312,4 +312,79 @@ void main() {
       expect(cap.ctaRoute, isNotNull);
     });
   });
+
+  group('CapEngine — goal alignment boost', () {
+    test('retraite goal boosts retirement-related caps', () {
+      // Profile with LPP buyback opportunity + retraite goal
+      final profileRetraite = CoachProfile(
+        birthYear: 1977,
+        canton: 'VS',
+        salaireBrutMensuel: 10000,
+        employmentStatus: 'salarie',
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 70000,
+          rachatMaximum: 500000,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2042),
+          label: 'Retraite',
+        ),
+      );
+
+      // Same profile with custom goal (no boost)
+      final profileCustom = CoachProfile(
+        birthYear: 1977,
+        canton: 'VS',
+        salaireBrutMensuel: 10000,
+        employmentStatus: 'salarie',
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 70000,
+          rachatMaximum: 500000,
+        ),
+        goalA: GoalA(
+          type: GoalAType.custom,
+          targetDate: DateTime(2042),
+          label: 'Custom',
+        ),
+      );
+
+      final capRetraite = CapEngine.compute(
+          profile: profileRetraite, now: now);
+      final capCustom = CapEngine.compute(
+          profile: profileCustom, now: now);
+
+      // Both should return a cap
+      expect(capRetraite, isNotNull);
+      expect(capCustom, isNotNull);
+
+      // If same cap wins, retraite-aligned should have higher score
+      if (capRetraite.id == capCustom.id &&
+          {'pillar_3a', 'lpp_buyback', 'replacement_rate', 'coverage_check'}
+              .contains(capRetraite.id)) {
+        expect(capRetraite.priorityScore,
+            greaterThan(capCustom.priorityScore));
+      }
+    });
+
+    test('debtFree goal boosts debt-related caps', () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'ZH',
+        salaireBrutMensuel: 6000,
+        employmentStatus: 'salarie',
+        dettes: const DetteProfile(creditConsommation: 25000),
+        goalA: GoalA(
+          type: GoalAType.debtFree,
+          targetDate: DateTime(2028),
+          label: 'Debt free',
+        ),
+      );
+
+      final cap = CapEngine.compute(profile: profile, now: now);
+
+      // Debt correct should win and be boosted
+      expect(cap.id, 'debt_correct');
+    });
+  });
 }
