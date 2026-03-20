@@ -595,59 +595,57 @@ class _StepCanton extends StatelessWidget {
           style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: MintSpacing.xxl),
+        const SizedBox(height: MintSpacing.xl),
 
-        // Canton grid
+        // Canton grid — 4 columns, clean squares
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
-            child: Wrap(
-              spacing: MintSpacing.sm,
-              runSpacing: MintSpacing.sm,
-              children: sortedCantonCodes.map((code) {
-                final isSelected = code == selectedCanton;
-                return GestureDetector(
-                  onTap: () {
-                    HapticFeedback.selectionClick();
-                    onCantonSelected(code);
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
+          child: GridView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              childAspectRatio: 1.6,
+            ),
+            itemCount: sortedCantonCodes.length,
+            itemBuilder: (context, index) {
+              final code = sortedCantonCodes[index];
+              final isSelected = code == selectedCanton;
+              return GestureDetector(
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  onCantonSelected(code);
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeOutCubic,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? MintColors.primary
+                        : MintColors.porcelaine,
+                    borderRadius: BorderRadius.circular(12),
+                    border: isSelected
+                        ? null
+                        : Border.all(
+                            color: MintColors.border.withValues(alpha: 0.2),
+                            width: 0.5,
+                          ),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    code,
+                    style: MintTextStyles.titleMedium(
                       color: isSelected
-                          ? MintColors.primary
-                          : MintColors.craie,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          code,
-                          style: MintTextStyles.titleMedium(
-                            color: isSelected
-                                ? MintColors.white
-                                : MintColors.textPrimary,
-                          ),
-                        ),
-                        if (isSelected) ...[
-                          const SizedBox(width: 6),
-                          const Icon(
-                            Icons.check_rounded,
-                            size: 16,
-                            color: MintColors.white,
-                          ),
-                        ],
-                      ],
+                          ? MintColors.white
+                          : MintColors.textPrimary,
+                    ).copyWith(
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      letterSpacing: 0.5,
                     ),
                   ),
-                );
-              }).toList(),
-            ),
+                ),
+              );
+            },
           ),
         ),
         const SizedBox(height: MintSpacing.lg),
