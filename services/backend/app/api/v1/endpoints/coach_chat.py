@@ -31,7 +31,15 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-_service = ClaudeCoachService()
+_service: ClaudeCoachService | None = None
+
+
+def _get_service() -> ClaudeCoachService:
+    """Lazy init — ensures env vars are loaded before reading API key."""
+    global _service
+    if _service is None:
+        _service = ClaudeCoachService()
+    return _service
 
 # Simple in-memory quota tracking (per-user per-day).
 # In production, replace with Redis or DB.
@@ -67,7 +75,8 @@ def coach_chat(request: CoachChatRequest) -> CoachChatResponse:
     Rate limited to COACH_DAILY_QUOTA messages per user per day.
     All output filtered by ComplianceGuard.
     """
-    if not _service.is_available:
+    service = _get_service()
+    if not service.is_available:
         return CoachChatResponse(
             reply=(
                 "Le coach IA n'est pas disponible pour le moment. "
@@ -120,7 +129,7 @@ def coach_chat(request: CoachChatRequest) -> CoachChatResponse:
         for m in request.conversation_history[-20:]
     ]
 
-    result = _service.chat(
+    result = service.chat(
         message=request.message,
         conversation_history=history,
         system_prompt=system_prompt,

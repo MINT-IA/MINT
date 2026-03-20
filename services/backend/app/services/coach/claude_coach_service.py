@@ -192,11 +192,21 @@ class ClaudeCoachService:
             logger.warning("anthropic SDK not installed — coach chat disabled")
             self._client = None
             return
+
+        # Try settings first, then direct env var as fallback
         api_key = settings.ANTHROPIC_API_KEY
         if not api_key:
-            logger.warning("ANTHROPIC_API_KEY not set — coach chat disabled")
+            import os
+            api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+            if api_key:
+                logger.info("ANTHROPIC_API_KEY found via os.environ (not pydantic settings)")
+
+        if not api_key:
+            logger.warning("ANTHROPIC_API_KEY not set — coach chat disabled (checked settings + os.environ)")
             self._client = None
         else:
+            key_preview = f"{api_key[:8]}...{api_key[-4:]}" if len(api_key) > 12 else "***"
+            logger.info("Claude coach initialized with key %s", key_preview)
             self._client = Anthropic(api_key=api_key)
 
     @property
