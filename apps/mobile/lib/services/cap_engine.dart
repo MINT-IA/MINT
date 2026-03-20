@@ -272,7 +272,11 @@ class CapEngine {
       ));
     }
 
-    // ── 9. Goal alignment boost ──
+    // ── 9. Life event preparation ──
+    final lifeEventCap = _tryLifeEventCap(profile, confidence.score, memory, now);
+    if (lifeEventCap != null) candidates.add(lifeEventCap);
+
+    // ── 10. Goal alignment boost ──
     // If the user declared a GoalA, boost candidates that align with it.
     _applyGoalBoost(candidates, profile.goalA);
 
@@ -305,6 +309,88 @@ class CapEngine {
     // Sort by priority and return the winner.
     candidates.sort((a, b) => b.priorityScore.compareTo(a.priorityScore));
     return candidates.first;
+  }
+
+  // ── LIFE EVENT ───────────────────────────────────────────
+
+  /// Generate a Prepare cap if the user has declared a life event.
+  static CapDecision? _tryLifeEventCap(
+    CoachProfile profile,
+    double confidenceScore,
+    CapMemory memory,
+    DateTime now,
+  ) {
+    final event = profile.familyChange;
+    if (event == null || event.isEmpty) return null;
+
+    final mapping = _lifeEventMapping(event);
+    if (mapping == null) return null;
+
+    return CapDecision(
+      id: 'life_event_$event',
+      kind: CapKind.prepare,
+      priorityScore: _score(
+        impact: 0.65,
+        urgency: 0.6,
+        confidencePenalty: _confPenalty(confidenceScore),
+        readiness: 1.0,
+        recency: _recencyModifier('life_event_$event', memory, now),
+      ),
+      headline: mapping.headline,
+      whyNow: mapping.whyNow,
+      ctaLabel: mapping.ctaLabel,
+      ctaMode: CtaMode.route,
+      ctaRoute: mapping.route,
+      sourceCards: const [],
+    );
+  }
+
+  static _LifeEventMapping? _lifeEventMapping(String event) {
+    return switch (event) {
+      'marriage' => const _LifeEventMapping(
+          headline: 'Mariage en vue',
+          whyNow: 'Impôts, AVS, LPP, succession — tout change.',
+          ctaLabel: 'Voir l\u2019impact',
+          route: '/mariage',
+        ),
+      'divorce' => const _LifeEventMapping(
+          headline: 'Divorce en cours',
+          whyNow: 'Partage LPP, pension, impôts — anticipe.',
+          ctaLabel: 'Simuler',
+          route: '/divorce',
+        ),
+      'birth' => const _LifeEventMapping(
+          headline: 'Naissance prévue',
+          whyNow: 'Allocations, déductions, budget — prépare-toi.',
+          ctaLabel: 'Voir l\u2019impact',
+          route: '/naissance',
+        ),
+      'housingPurchase' => const _LifeEventMapping(
+          headline: 'Achat immobilier',
+          whyNow: 'EPL, 3a, hypothèque — tout se joue maintenant.',
+          ctaLabel: 'Simuler ma capacité',
+          route: '/hypotheque',
+        ),
+      'jobLoss' => const _LifeEventMapping(
+          headline: 'Perte d\u2019emploi',
+          whyNow: 'Chômage, LPP, budget — les 3 urgences.',
+          ctaLabel: 'Voir mes droits',
+          route: '/unemployment',
+        ),
+      'selfEmployment' => const _LifeEventMapping(
+          headline: 'Passage à l\u2019indépendance',
+          whyNow: 'LPP volontaire, 3a max, IJM — ton filet à reconstruire.',
+          ctaLabel: 'Vérifier ma couverture',
+          route: '/independants/lpp-volontaire',
+        ),
+      'retirement' => const _LifeEventMapping(
+          headline: 'Retraite à l\u2019horizon',
+          whyNow: 'Capital ou rente, décaissement, timing — c\u2019est le moment.',
+          ctaLabel: 'Explorer mes options',
+          route: '/rente-vs-capital',
+        ),
+      _ => null,
+    };
   }
 
   // ── GOAL ALIGNMENT ───────────────────────────────────────
@@ -462,4 +548,19 @@ class CapEngine {
     }
     return 'CHF\u00a0${rounded}k';
   }
+}
+
+/// Internal mapping for life event → cap content.
+class _LifeEventMapping {
+  final String headline;
+  final String whyNow;
+  final String ctaLabel;
+  final String route;
+
+  const _LifeEventMapping({
+    required this.headline,
+    required this.whyNow,
+    required this.ctaLabel,
+    required this.route,
+  });
 }

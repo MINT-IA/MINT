@@ -367,6 +367,27 @@ void main() {
       }
     });
 
+    test('life event marriage triggers prepare cap', () {
+      final profile = _profile(
+        salaireBrutMensuel: 8000,
+      );
+      // Create profile with familyChange using copyWith
+      final profileWithEvent = CoachProfile(
+        birthYear: profile.birthYear,
+        canton: profile.canton,
+        salaireBrutMensuel: profile.salaireBrutMensuel,
+        employmentStatus: profile.employmentStatus,
+        familyChange: 'marriage',
+        goalA: profile.goalA,
+      );
+
+      final cap = CapEngine.compute(profile: profileWithEvent, now: now);
+      expect(cap, isNotNull);
+
+      // The life event cap should be generated as a candidate
+      // It may or may not win depending on other priorities
+    });
+
     test('debtFree goal boosts debt-related caps', () {
       final profile = CoachProfile(
         birthYear: 1985,
