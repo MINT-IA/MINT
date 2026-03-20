@@ -67,7 +67,6 @@ Lire:
 - `CLAUDE.md`
 - `docs/MINT_UX_GRAAL_MASTERPLAN.md`
 - `docs/MINT_CAP_ENGINE_SPEC.md`
-- `docs/CAPENGINE_IMPLEMENTATION_CHECKLIST.md`
 
 ### Tâche: navigation / routes / IA de navigation
 Lire:
@@ -86,30 +85,37 @@ Lire:
 Lire:
 - `CLAUDE.md`
 - `docs/MINT_UX_GRAAL_MASTERPLAN.md`
-- puis au besoin `docs/VISION_UNIFIEE_V1.md` comme archive stratégique
+- `docs/ROADMAP_V2.md`
+- `docs/TOP_10_SWISS_CORE_JOURNEYS.md`
 
 ---
 
-## 4. Statut des documents
+## 4. Statut des documents (13 actifs)
 
-### Documents maîtres
-- `CLAUDE.md`
-- `docs/MINT_UX_GRAAL_MASTERPLAN.md`
-- `docs/DOCUMENTATION_OPERATING_SYSTEM.md`
+### Documents maîtres (lire en premier)
+- `CLAUDE.md` — règles, constantes, compliance
+- `docs/MINT_UX_GRAAL_MASTERPLAN.md` — vision produit umbrella
+- `docs/DOCUMENTATION_OPERATING_SYSTEM.md` — cet index
+
+### Documents stratégiques
+- `docs/ROADMAP_V2.md` — séquence des sprints, phases, KPIs
+- `docs/TOP_10_SWISS_CORE_JOURNEYS.md` — parcours coeur, état actuel, gaps
+- `docs/S53_GATE_CLOSER_AGENT_PROMPT.md` — prompt opérable pour agents d'exécution
 
 ### Documents spécialisés de référence
-- `docs/DESIGN_SYSTEM.md`
-- `docs/VOICE_SYSTEM.md`
-- `docs/MINT_CAP_ENGINE_SPEC.md`
-- `docs/MINT_SCREEN_BOARD_101.md`
-- `docs/CAPENGINE_IMPLEMENTATION_CHECKLIST.md`
+- `docs/DESIGN_SYSTEM.md` — tokens, composants, catégories d'écrans
+- `docs/VOICE_SYSTEM.md` — voix MINT, ton, microcopy, 50 avant/après
+- `docs/MINT_CAP_ENGINE_SPEC.md` — CapEngine, scoring, séquences, clause d'honnêteté
+- `docs/MINT_SCREEN_BOARD_101.md` — board des 101 écrans, template par écran
 
 ### Documents spécialisés secondaires
-- `docs/NAVIGATION_GRAAL_V10.md`
-- `docs/BLUEPRINT_COACH_AI_LAYER.md`
+- `docs/NAVIGATION_GRAAL_V10.md` — routes, hubs, shell 4 tabs
+- `docs/BLUEPRINT_COACH_AI_LAYER.md` — coach AI, mémoire, orchestration
+- `docs/CICD_ARCHITECTURE.md` — pipeline CI/CD, Railway, TestFlight
+- `docs/DATA_ACQUISITION_STRATEGY.md` — OCR, Open Banking, enrichment
 
-### Documents historiques / de transition
-- `docs/VISION_UNIFIEE_V1.md`
+### Archivés (docs/archive/)
+66 documents historiques. Utiles pour comprendre les décisions passées, mais ne gouvernent plus.
 
 ---
 
