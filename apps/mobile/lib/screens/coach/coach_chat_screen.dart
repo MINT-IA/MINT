@@ -189,24 +189,15 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     final tier = _currentTier();
     final greeting = _buildCapBasedGreeting(p, name, tier, s);
 
-    // Phase 1: personalized suggestions based on age/archetype
+    // Emotional suggestions based on age/situation + "Il m'arrive quelque chose"
     final personalizedPrompts = ResponseCardService.suggestedPrompts(p);
-    final List<String> suggestions;
-    if (personalizedPrompts.isNotEmpty) {
-      suggestions = personalizedPrompts;
-    } else {
-      final tips = CoachingService.generateTips(
-        profile: p.toCoachingProfile(),
-      );
-      final topTipActions = tips.take(3).map((t) => t.title).toList();
-      suggestions = topTipActions.isNotEmpty
-          ? topTipActions
-          : [
-              s.coachSuggestRetirement,
-              s.coachSuggestDeductions,
-              s.coachSuggestSimulate3a,
-            ];
-    }
+    final suggestions = personalizedPrompts.isNotEmpty
+        ? [...personalizedPrompts.take(2), 'Il m\u2019arrive quelque chose']
+        : [
+            'Par o\u00f9 commencer\u00a0?',
+            'C\u2019est quoi tout \u00e7a\u00a0?',
+            'Il m\u2019arrive quelque chose',
+          ];
 
     // No response cards on greeting — they duplicate Pulse.
     // Cards appear only in response to user messages.
@@ -242,9 +233,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           '${cap.headline.substring(1)}. '
           '${cap.ctaLabel}\u00a0?';
     } catch (_) {
-      // Fallback: minimal, not generic
-      return '$name, tes chiffres sont là. '
-          'Qu\u2019est-ce qu\u2019on regarde\u00a0?';
+      // Fallback: minimal, real
+      return 'On commence par quoi\u00a0?';
     }
   }
 
