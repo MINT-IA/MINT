@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONCUBINAGE vs MARRIAGE DECISION MATRIX
@@ -98,7 +99,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
   Widget build(BuildContext context) {
     return Semantics(
       label:
-          'Matrice de decision mariage vs concubinage. Mariage: $_marriageWins avantages, Concubinage: $_concubinageWins avantages.',
+          '${S.of(context)!.concubinageDecisionMatrixTitle}. ${S.of(context)!.concubinageDecisionMatrixColumnMarriage}: $_marriageWins, ${S.of(context)!.concubinageDecisionMatrixColumnConcubinage}: $_concubinageWins.',
       child: LayoutBuilder(
         builder: (context, constraints) {
           return Container(
@@ -155,11 +156,11 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Mariage vs Concubinage',
+                  S.of(context)!.concubinageDecisionMatrixTitle,
                   style: MintTextStyles.titleMedium(),
                 ),
                 Text(
-                  'Comparaison des droits et obligations',
+                  S.of(context)!.concubinageDecisionMatrixSubtitle,
                   style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
                 ),
               ],
@@ -186,7 +187,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  'Mariage',
+                  S.of(context)!.concubinageDecisionMatrixColumnMarriage,
                   style: MintTextStyles.labelSmall(color: MintColors.info).copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -206,7 +207,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  'Concubinage',
+                  S.of(context)!.concubinageDecisionMatrixColumnConcubinage,
                   style: MintTextStyles.labelSmall(color: MintColors.warning).copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -428,7 +429,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                       ),
                     ),
                     Text(
-                      'Mariage',
+                      S.of(context)!.concubinageDecisionMatrixColumnMarriage,
                       style: MintTextStyles.labelSmall(color: MintColors.white.withValues(alpha: 0.7)),
                     ),
                   ],
@@ -452,7 +453,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                       ),
                     ),
                     Text(
-                      'Concubinage',
+                      S.of(context)!.concubinageDecisionMatrixColumnConcubinage,
                       style: MintTextStyles.labelSmall(color: MintColors.white.withValues(alpha: 0.7)),
                     ),
                   ],
@@ -495,7 +496,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Conclusion neutre',
+                    S.of(context)!.concubinageDecisionMatrixConclusionTitle,
                     style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -503,8 +504,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Le choix depend de ta situation personnelle. '
-                    'Consultez un notaire pour une analyse complete.',
+                    S.of(context)!.concubinageDecisionMatrixConclusionDesc,
                     style: MintTextStyles.bodyMedium().copyWith(
                       fontSize: 12,
                       height: 1.4,

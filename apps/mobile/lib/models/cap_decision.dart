@@ -100,6 +100,16 @@ class CapDecision {
   /// IDs of ResponseCards that contributed to this cap.
   final List<String> sourceCards;
 
+  /// True when the engine detected no realistic lever exists.
+  ///
+  /// Honesty clause (spec §7): the cap acknowledges limits with tact,
+  /// shows what IS acquired, and orients toward a human specialist.
+  final bool isHonestyCap;
+
+  /// What the user has already acquired (AVS, LPP partial, 3a).
+  /// Populated only when [isHonestyCap] is true.
+  final List<String> acquiredAssets;
+
   const CapDecision({
     required this.id,
     required this.kind,
@@ -116,5 +126,7 @@ class CapDecision {
     this.blockingData = const [],
     this.supportingSignals = const [],
     this.sourceCards = const [],
+    this.isHonestyCap = false,
+    this.acquiredAssets = const [],
   });
 }

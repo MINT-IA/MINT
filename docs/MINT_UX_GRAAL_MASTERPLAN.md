@@ -71,6 +71,44 @@ Règle d'usage:
 - Une expérience `plan-first, coach-orchestrated`.
 - Une interface où la donnée nourrit des `insights`, les insights nourrissent un `plan`, et le plan nourrit l'action.
 
+### Ancrages externes non négociables
+
+MINT doit rester aligné avec 4 réalités externes:
+- **Suisse / LSFin / FINMA** : information financière éducative, jamais conseil personnalisé prescriptif, jamais mouvement d'argent.
+- **3 piliers suisses** : AVS/LPP/3a restent le cœur de différenciation et doivent rester juridiquement et pédagogiquement irréprochables.
+- **Réalisme actuariel** : les projections doivent montrer hypothèses, confiance et incertitude, jamais une certitude déguisée.
+- **UX mobile contemporaine** : navigation simple, hiérarchie radicale, conversation assistée par UI, jamais catalogue opaque ou cockpit.
+
+Traduction produit:
+- MINT peut expliquer, prioriser, simuler, comparer, contextualiser.
+- MINT ne doit pas recommander d'acheter, vendre, souscrire, verser ou arbitrer à la place de l'utilisateur.
+
+### Top 10 Suisse — priorités produit avant le long tail
+
+Tous les événements ne doivent pas être traités à égalité. Avant d'élargir davantage, MINT doit être excellent sur les situations les plus fréquentes, les plus coûteuses, les plus émotionnelles et les plus structurantes en Suisse.
+
+Top 10 à rendre irréprochables:
+1. premier emploi / entrée dans la vie active
+2. changement d'emploi / comparaison d'offre
+3. chômage / perte d'emploi
+4. invalidité / protection
+5. concubinage / mariage
+6. naissance
+7. achat logement / hypothèque
+8. dette / budget sous tension
+9. indépendance
+10. frontalier
+11. retraite / décaissement / succession
+
+Règle:
+- ces situations coeur doivent définir le standard MINT;
+- le reste du catalogue doit s'aligner sur leur niveau, pas l'inverse.
+
+Précision:
+- MINT parle de `Top 10 Suisse` comme noyau stratégique;
+- en pratique, ce noyau couvre `11` situations parce que `retraite / décaissement / succession` forment un même bloc de décision et que `invalidité / protection` et `frontalier` doivent rester first-class.
+- l'important n'est pas le chiffre marketing, mais la discipline de priorisation.
+
 ### Références de direction
 - Chloé: luxe discret
 - Aesop: respiration, matière, silence
@@ -162,6 +200,35 @@ Chaque action dans MINT doit pouvoir produire:
 - un retour dans `Aujourd'hui`
 
 Sans cela, MINT reste un calculateur.
+
+### Règle de progression
+
+MINT ne montre pas d'abord l'état du système.
+
+MINT montre d'abord l'avancement vers l'objectif actuel de la personne.
+
+La progression doit donc être `goal-centric`, pas seulement `dashboard-centric` ou `retraite-centric`.
+
+Selon le contexte, ce but peut être:
+- sortir d'une dette,
+- retrouver de la marge,
+- préparer une naissance,
+- absorber un chômage,
+- clarifier une succession,
+- financer un logement,
+- renforcer la retraite,
+- ou simplement compléter un dossier encore trop flou.
+
+`Aujourd'hui` doit donc montrer en priorité:
+- où l'utilisateur en est par rapport à son sujet du moment,
+- ce qui a progressé,
+- ce qui bloque encore,
+- quel est le prochain levier.
+
+Règle couple:
+- dans les sujets où le ménage change réellement la décision, le couple n'est pas un simple mode d'affichage;
+- le couple devient une unité de décision à part entière.
+- les caps peuvent donc être individuels ou ménage, selon l'impact réel sur AVS, LPP, fiscalité, logement et succession.
 
 ---
 
@@ -528,6 +595,16 @@ Il doit être accompagné:
 - ou d'un horizon atteignable.
 
 Ne jamais "positiver" un vrai risque. Montrer la réalité, puis le chemin.
+
+Clause d'honnêteté:
+- si aucun levier réaliste n'existe à horizon utile, MINT le dit avec tact;
+- dans ce cas, MINT montre les limites de manœuvre, les hypothèses et, si nécessaire, oriente vers un spécialiste humain;
+- le reframing ne doit jamais fabriquer un faux espoir.
+
+Règle LPP:
+- le minimum légal `6.8%` ne doit jamais être présenté comme un taux global implicite sur tout le capital LPP;
+- MINT doit distinguer le minimum légal sur la part obligatoire et l'estimation de caisse ou enveloppante sur l'ensemble du capital;
+- sans certificat LPP, une projection retraite détaillée reste une fourchette indicative, pas une estimation robuste.
 
 ### Proof after narrative
 

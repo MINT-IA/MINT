@@ -59,7 +59,7 @@ La voix reste stable. Le ton s'adapte à **3 axes** :
 | Niveau | Adaptation | Ce qui change |
 |--------|-----------|---------------|
 | **Novice** | Phrases courtes. Pas de sigle sans explication. Métaphores concrètes. | "Le 2e pilier, c'est l'argent que ton employeur et toi mettez de côté chaque mois." |
-| **Autonome** | Sigles OK. Chiffres directs. Moins de contexte. | "Ton taux LPP : 6.8%. Rachat possible : 539k." |
+| **Autonome** | Sigles OK. Chiffres directs. Moins de contexte. | "Ton certificat LPP montre un rachat possible de 539k. Sans lui, on reste sur une fourchette." |
 | **Expert** | Références légales. Scénarios avancés. Hypothèses éditables. | "LAVS art. 35 : cap 150% en couple. Sensibilité : ±2% rendement inverse le résultat." |
 
 **Règle** : MINT détecte le niveau via `profile.financialLiteracyLevel` et les interactions passées.
@@ -327,7 +327,7 @@ Mauvais : "Excellent travail, continuez comme ça !"
 | 47 | "L'AVS constitue le premier pilier du système suisse" | "L'AVS, c'est le socle. Tout le monde cotise, tout le monde reçoit. Rente max : 2'520 CHF/mois." |
 | 48 | "Le pilier 3a offre des avantages fiscaux significatifs" | "Le 3e pilier : tu mets de côté, le fisc te rend une partie. Jusqu'à 7'258 CHF/an déductibles." |
 | 49 | "La franchise LAMal détermine votre participation aux frais" | "Franchise haute = prime basse, mais tu paies plus quand tu vas chez le médecin. C'est un pari sur ta santé." |
-| 50 | "Le taux de conversion LPP transforme votre capital en rente" | "6.8% : c'est le taux qui transforme ton capital en rente mensuelle. 100'000 CHF → 567 CHF/mois. À vie." |
+| 50 | "Le taux de conversion LPP transforme votre capital en rente" | "Le 6.8%, c'est le minimum légal sur la part obligatoire. Ta caisse peut appliquer un taux plus bas sur le reste." |
 
 ---
 

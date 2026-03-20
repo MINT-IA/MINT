@@ -18,7 +18,7 @@
 - Une expérience où l'IA remplace la preuve, le contrôle et la lisibilité.
 
 ### Ce que MINT doit devenir
-- **Coach-first, UI-assisted**.
+- **Plan-first, coach-orchestrated**.
 - Plus précisément : **AI-as-layer**, pas **chat-as-product**.
 - L'IA personnalise, priorise, relie et explique.
 - Les écrans structurés restent la surface de confiance.
@@ -692,7 +692,7 @@ Chantiers :
 - rejet du `chatbot-first`
 
 ### Itération 2
-- adoption du `coach-first`
+- adoption progressive du `plan-first, coach-orchestrated`
 
 ### Itération 3
 - rejet du shell 3 tabs comme horizon final

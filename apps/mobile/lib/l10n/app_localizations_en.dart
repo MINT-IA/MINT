@@ -17776,4 +17776,123 @@ class SEn extends S {
   @override
   String get chiffreChocSectionDisclaimer =>
       'Educational simulation only. Does not constitute investment or retirement advice (FinSA). Adjustable assumptions — results not guaranteed.';
+
+  @override
+  String get concubinageTabProtection => 'Protection';
+
+  @override
+  String concubinageHeroChiffreChoc(String montant) {
+    return 'CHF $montant of exposed assets';
+  }
+
+  @override
+  String get concubinageHeroChiffreChocDesc =>
+      'In cohabitation, your partner is not a legal heir. Without a will, this entire amount is lost to them.';
+
+  @override
+  String get concubinageEducationalAvs =>
+      'In Switzerland, the 150% cap on couple AVS pensions (OASI art. 35) only applies to married couples. Cohabiting partners each receive their full individual pension — a real advantage when both have contributed the maximum.';
+
+  @override
+  String get concubinageEducationalLpp =>
+      'The LPP survivor pension (60% of the deceased’s pension, LPP art. 19) is reserved for spouses. In cohabitation, only the pension fund rules may provide a death benefit — and you must apply for it.';
+
+  @override
+  String get concubinageEducationalSuccession =>
+      'A married spouse is exempt from inheritance tax in most cantons (CC art. 462). A cohabiting partner pays tax at the third-party rate, often between 20% and 40%.';
+
+  @override
+  String get concubinageProtectionIntro =>
+      'In cohabitation, Switzerland does not protect like marriage. Here is what changes and what you can anticipate.';
+
+  @override
+  String get concubinageProtectionAvsSurvivor => 'AVS survivor pension';
+
+  @override
+  String get concubinageProtectionAvsSurvivorMarried =>
+      '80% of the deceased’s pension (OASI art. 23)';
+
+  @override
+  String get concubinageProtectionAvsSurvivorConcubin =>
+      'No pension — CHF 0/month';
+
+  @override
+  String get concubinageProtectionLppSurvivor => 'LPP survivor pension';
+
+  @override
+  String get concubinageProtectionLppSurvivorMarried =>
+      '60% of the deceased’s pension (LPP art. 19)';
+
+  @override
+  String get concubinageProtectionLppSurvivorConcubin => 'Per fund rules only';
+
+  @override
+  String get concubinageProtectionHeritage => 'Legal inheritance';
+
+  @override
+  String get concubinageProtectionHeritageMarried => 'Exempt (CC art. 462)';
+
+  @override
+  String get concubinageProtectionHeritageConcubin => 'Cantonal tax (20-40%)';
+
+  @override
+  String get concubinageProtectionPension => 'Alimony';
+
+  @override
+  String get concubinageProtectionPensionMarried => 'Court-protected';
+
+  @override
+  String get concubinageProtectionPensionConcubin => 'No legal obligation';
+
+  @override
+  String get concubinageProtectionAvsPlafond => 'Couple AVS cap';
+
+  @override
+  String get concubinageProtectionAvsPlafondMarried =>
+      '150% max (OASI art. 35)';
+
+  @override
+  String get concubinageProtectionAvsPlafondConcubin => 'No cap — 2×100%';
+
+  @override
+  String get concubinageProtectionMaried => 'Married';
+
+  @override
+  String get concubinageProtectionConcubinLabel => 'Cohabiting';
+
+  @override
+  String get concubinageProtectionWarning =>
+      'In cohabitation, if your partner dies, you receive no AVS pension, no automatic LPP pension, and you are not a legal heir. Every protection must be planned ahead.';
+
+  @override
+  String get concubinageProtectionLppSlider => 'Partner’s monthly LPP pension';
+
+  @override
+  String concubinageProtectionSurvivorTotal(String montant) {
+    return '$montant/month for the married surviving spouse';
+  }
+
+  @override
+  String get concubinageProtectionSurvivorZero =>
+      'CHF 0/month for the surviving cohabiting partner without action';
+
+  @override
+  String get concubinageDecisionMatrixTitle => 'Marriage vs Cohabitation';
+
+  @override
+  String get concubinageDecisionMatrixSubtitle =>
+      'Comparison of rights and obligations';
+
+  @override
+  String get concubinageDecisionMatrixColumnMarriage => 'Marriage';
+
+  @override
+  String get concubinageDecisionMatrixColumnConcubinage => 'Cohabitation';
+
+  @override
+  String get concubinageDecisionMatrixConclusionTitle => 'Neutral conclusion';
+
+  @override
+  String get concubinageDecisionMatrixConclusionDesc =>
+      'The choice depends on your personal situation. Consult a notary for a complete analysis.';
 }

@@ -16,7 +16,7 @@ MINT n'est pas un dashboard financier. C'est un **traducteur** entre le monde de
 
 | # | Loi | Signifie | Anti-pattern |
 |---|-----|----------|-------------|
-| **L1** | **CHF/mois d'abord** | Tout se traduit en impact mensuel. Pas de montants annuels, pas de pourcentages abstraits sans ancrage. | "Taux de conversion 6.8%" sans dire ce que ça fait en francs |
+| **L1** | **CHF/mois d'abord** | Tout se traduit en impact mensuel. Pas de montants annuels, pas de pourcentages abstraits sans ancrage. | "Taux de conversion 6.8%" sans dire ce que ça fait en francs, ni préciser que ce taux ne vaut que pour la part obligatoire LPP |
 | **L2** | **Avant → Après** | Chaque décision se montre comme un delta. L'utilisateur voit sa situation actuelle vs. le changement. | Un simulateur qui montre un résultat isolé sans point de comparaison |
 | **L3** | **3 niveaux max** | Novice voit 3 infos. Curieux en voit 6. Expert débloque le cockpit. Jamais 15 composants d'un coup. | Un scroll infini de graphiques sans hiérarchie |
 | **L4** | **Raconte, ne montre pas** | Chaque chiffre est accompagné d'une phrase humaine qui dit "et alors ?". | Un graphique sans légende narrative |
