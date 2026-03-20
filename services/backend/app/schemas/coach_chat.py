@@ -57,9 +57,19 @@ class CoachChatRequest(ChatBaseModel):
     declared_goals: List[str] = Field(default_factory=list)
 
 
+class WidgetCall(ChatBaseModel):
+    """A tool call from Claude requesting a rich widget display."""
+    tool: str = Field(..., description="Widget name (e.g. show_retirement_comparison)")
+    params: dict = Field(default_factory=dict, description="Widget parameters from Claude")
+
+
 class CoachChatResponse(ChatBaseModel):
     """Response from the coach chat endpoint."""
-    reply: str = Field(..., description="Coach's response")
+    reply: str = Field(..., description="Coach's response text")
+    widget: Optional[WidgetCall] = Field(
+        default=None,
+        description="Rich widget to display inline (chosen by Claude via tool calling)",
+    )
     disclaimer: str = Field(
         default="Outil educatif. Ne constitue pas un conseil financier (LSFin).",
     )

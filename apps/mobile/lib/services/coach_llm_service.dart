@@ -113,6 +113,15 @@ class ChatMessage {
   /// Affichees en strip horizontale scrollable dans le chat.
   final List<ResponseCard> responseCards;
 
+  /// Original user message that triggered this assistant response (S56).
+  /// Used to build rich inline widgets at render time.
+  /// Null for user/system messages and greeting.
+  final String? userQuery;
+
+  /// Rich widget chosen by Claude via tool calling (S56).
+  /// Rendered inline in the chat below the text response.
+  final Map<String, dynamic>? widgetCall;
+
   const ChatMessage({
     required this.role,
     required this.content,
@@ -122,6 +131,8 @@ class ChatMessage {
     this.disclaimers = const [],
     this.tier = ChatTier.none,
     this.responseCards = const [],
+    this.userQuery,
+    this.widgetCall,
   });
 
   bool get isUser => role == 'user';

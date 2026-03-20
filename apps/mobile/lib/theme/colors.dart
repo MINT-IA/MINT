@@ -228,6 +228,22 @@ class MintColors {
   static const Color black26 = Color(0x42000000); // 26% black
   static const Color black12 = Color(0x1F000000); // 12% black
 
+  // ── Premium palette (Visual Graal — DESIGN_SYSTEM.md §4.1b) ──
+  /// Warm off-white background — replaces cold #FFFFFF on hero screens.
+  static const Color porcelaine = Color(0xFFF7F4EE);
+  /// Cream white — coach chat background, subtle warmth.
+  static const Color craie = Color(0xFFFCFBF8);
+  /// Sage green — success surfaces, cap cards, positive signals.
+  static const Color saugeClaire = Color(0xFFD8E4DB);
+  /// Air blue — coach bubbles, info surfaces.
+  static const Color bleuAir = Color(0xFFCFE2F7);
+  /// Slate — deep text alternative, premium contrast.
+  static const Color ardoise = Color(0xFF3A3D44);
+  /// Soft peach — warm accent, progression, milestones.
+  static const Color pecheDouce = Color(0xFFF5C8AE);
+  /// Discreet coral — attention accent, warm emphasis.
+  static const Color corailDiscret = Color(0xFFE6855E);
+
   // Landing / branding gradient
   static const Color brandGreen = Color(0xFF1DB954); // Spotify-style green
   static const Color brandGreenDark = Color(0xFF0A8F6C); // Dark brand green

@@ -6,9 +6,8 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// A revelation card that shows the consequence of a financial situation.
 ///
-/// Used in Quick Start (first retirement preview) and Decision Canvas
-/// screens (rente vs capital comparison). The primary value is the
-/// emotional center of the screen — large, warm, undeniable.
+/// Used in Life Event screens as the hero chiffre-choc at the top.
+/// The primary value is the emotional center of the screen.
 ///
 /// Structure:
 /// - eyebrow label (small, muted)
@@ -53,7 +52,7 @@ class MintResultHeroCard extends StatelessWidget {
           ),
           const SizedBox(height: MintSpacing.lg),
 
-          // Primary value — the star
+          // Primary value
           Text(
             primaryValue,
             style: MintTextStyles.displayMedium(color: accentColor)
@@ -86,7 +85,7 @@ class MintResultHeroCard extends StatelessWidget {
             ),
           ],
 
-          // Narrative — the "so what"
+          // Narrative
           const SizedBox(height: MintSpacing.lg),
           Text(
             narrative,

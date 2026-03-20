@@ -6,11 +6,15 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Tab 3 — Dossier
 ///
 /// "Mes données, mes documents, mes réglages."
 /// Regroupe : Profil, Documents, Couple, Consentements, BYOK/SLM, Paramètres.
+///
+/// Design: fond porcelaine, sections MintSurface(blanc), espacement xl.
+/// Espace personnel calme — pas de couleurs vives, icônes textSecondary.
 class DossierTab extends StatelessWidget {
   const DossierTab({super.key});
 
@@ -22,121 +26,154 @@ class DossierTab extends StatelessWidget {
         ? (provider.profile!.firstName ?? '')
         : '';
 
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          pinned: true,
-          backgroundColor: MintColors.white,
-          surfaceTintColor: MintColors.white,
-          title: Text(
-            l.tabDossier,
-            style: MintTextStyles.headlineMedium(),
+    return ColoredBox(
+      color: MintColors.porcelaine,
+      child: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            backgroundColor: MintColors.porcelaine,
+            surfaceTintColor: MintColors.porcelaine,
+            elevation: 0,
+            title: Text(
+              l.tabDossier,
+              style: MintTextStyles.headlineMedium(
+                color: MintColors.textPrimary,
+              ),
+            ),
+            centerTitle: false,
           ),
-          centerTitle: false,
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: MintSpacing.lg,
-            vertical: MintSpacing.md,
-          ),
-          sliver: SliverList(
-            delegate: SliverChildListDelegate([
-              // ── Profile card ──
-              _DossierSection(
-                icon: Icons.person_outline,
-                title: firstName.isNotEmpty
-                    ? firstName
-                    : l.tabMoi,
-                subtitle: provider.hasProfile
-                    ? l.dossierProfileCompleted((provider.profileCompleteness * 100).round())
-                    : l.dossierStartProfile,
-                onTap: () => context.push('/profile'),
-              ),
-              const SizedBox(height: MintSpacing.sm),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.lg,
+              vertical: MintSpacing.md,
+            ),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // ═══════════════════════════════════════
+                //  Mon dossier
+                // ═══════════════════════════════════════
+                MintSurface(
+                  tone: MintSurfaceTone.blanc,
+                  padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
+                  child: Column(
+                    children: [
+                      // ── Profile ──
+                      _DossierRow(
+                        icon: Icons.person_outline,
+                        title: firstName.isNotEmpty
+                            ? firstName
+                            : l.tabMoi,
+                        subtitle: provider.hasProfile
+                            ? l.dossierProfileCompleted((provider.profileCompleteness * 100).round())
+                            : l.dossierStartProfile,
+                        onTap: () => context.push('/profile'),
+                      ),
 
-              // ── Documents ──
-              _DossierSection(
-                icon: Icons.folder_outlined,
-                title: l.dossierDocumentsTitle,
-                subtitle: l.dossierDocumentsSubtitle,
-                onTap: () => context.push('/documents'),
-              ),
-              const SizedBox(height: MintSpacing.sm),
+                      // ── Documents ──
+                      _DossierRow(
+                        icon: Icons.folder_outlined,
+                        title: l.dossierDocumentsTitle,
+                        subtitle: l.dossierDocumentsSubtitle,
+                        onTap: () => context.push('/documents'),
+                      ),
 
-              // ── Couple ──
-              _DossierSection(
-                icon: Icons.people_outline,
-                title: l.dossierCoupleTitle,
-                subtitle: l.dossierCoupleSubtitle,
-                onTap: () => context.push('/couple'),
-              ),
-              const SizedBox(height: MintSpacing.sm),
+                      // ── Couple ──
+                      _DossierRow(
+                        icon: Icons.people_outline,
+                        title: l.dossierCoupleTitle,
+                        subtitle: l.dossierCoupleSubtitle,
+                        onTap: () => context.push('/couple'),
+                      ),
 
-              // ── Bilan financier ──
-              _DossierSection(
-                icon: Icons.pie_chart_outline,
-                title: l.dossierBilanTitle,
-                subtitle: l.dossierBilanSubtitle,
-                onTap: () => context.push('/profile/bilan'),
-              ),
-
-              const SizedBox(height: MintSpacing.xl),
-              Padding(
-                padding: const EdgeInsets.only(bottom: MintSpacing.sm),
-                child: Text(
-                  l.dossierReglages,
-                  style: MintTextStyles.bodySmall(
-                    color: MintColors.textMuted,
+                      // ── Bilan financier ──
+                      _DossierRow(
+                        icon: Icons.pie_chart_outline,
+                        title: l.dossierBilanTitle,
+                        subtitle: l.dossierBilanSubtitle,
+                        onTap: () => context.push('/profile/bilan'),
+                        showDivider: false,
+                      ),
+                    ],
                   ),
                 ),
-              ),
 
-              // ── Consentements ──
-              _DossierSection(
-                icon: Icons.verified_user_outlined,
-                title: l.dossierConsentsTitle,
-                subtitle: l.dossierConsentsSubtitle,
-                onTap: () => context.push('/profile/consent'),
-              ),
-              const SizedBox(height: MintSpacing.sm),
+                const SizedBox(height: MintSpacing.xl),
 
-              // ── Modèle local (SLM) ──
-              _DossierSection(
-                icon: Icons.smart_toy_outlined,
-                title: l.dossierSlmTitle,
-                subtitle: l.dossierSlmSubtitle,
-                onTap: () => context.push('/profile/slm'),
-              ),
-              const SizedBox(height: MintSpacing.sm),
+                // ═══════════════════════════════════════
+                //  Réglages
+                // ═══════════════════════════════════════
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: MintSpacing.xs,
+                    bottom: MintSpacing.sm,
+                  ),
+                  child: Text(
+                    l.dossierReglages,
+                    style: MintTextStyles.bodySmall(
+                      color: MintColors.textMuted,
+                    ),
+                  ),
+                ),
 
-              // ── Clé API (BYOK) ──
-              _DossierSection(
-                icon: Icons.vpn_key_outlined,
-                title: l.dossierByokTitle,
-                subtitle: l.dossierByokSubtitle,
-                onTap: () => context.push('/profile/byok'),
-              ),
+                MintSurface(
+                  tone: MintSurfaceTone.blanc,
+                  padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
+                  child: Column(
+                    children: [
+                      // ── Consentements ──
+                      _DossierRow(
+                        icon: Icons.verified_user_outlined,
+                        title: l.dossierConsentsTitle,
+                        subtitle: l.dossierConsentsSubtitle,
+                        onTap: () => context.push('/profile/consent'),
+                      ),
 
-              const SizedBox(height: MintSpacing.xxl),
-            ]),
+                      // ── Modèle local (SLM) ──
+                      _DossierRow(
+                        icon: Icons.smart_toy_outlined,
+                        title: l.dossierSlmTitle,
+                        subtitle: l.dossierSlmSubtitle,
+                        onTap: () => context.push('/profile/slm'),
+                      ),
+
+                      // ── Clé API (BYOK) ──
+                      _DossierRow(
+                        icon: Icons.vpn_key_outlined,
+                        title: l.dossierByokTitle,
+                        subtitle: l.dossierByokSubtitle,
+                        onTap: () => context.push('/profile/byok'),
+                        showDivider: false,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: MintSpacing.xxl),
+              ]),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
-class _DossierSection extends StatelessWidget {
+/// Single row inside a dossier section surface.
+/// Uses spacing instead of borders between items.
+class _DossierRow extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+  final bool showDivider;
 
-  const _DossierSection({
+  const _DossierRow({
     required this.icon,
     required this.title,
     required this.subtitle,
     required this.onTap,
+    this.showDivider = true,
   });
 
   @override
@@ -144,42 +181,58 @@ class _DossierSection extends StatelessWidget {
     return Semantics(
       label: title,
       button: true,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: MintSpacing.md,
-            horizontal: MintSpacing.xs,
-          ),
-          child: Row(
-            children: [
-              Icon(icon, color: MintColors.textSecondary, size: 22),
-              const SizedBox(width: MintSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: MintTextStyles.titleMedium()
-                          .copyWith(fontSize: 15, fontWeight: FontWeight.w500),
-                    ),
-                    Text(
-                      subtitle,
-                      style: MintTextStyles.labelSmall(),
-                    ),
-                  ],
-                ),
+      child: Column(
+        children: [
+          InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: MintSpacing.md,
+                horizontal: MintSpacing.md,
               ),
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: MintColors.textMuted,
-                size: 18,
+              child: Row(
+                children: [
+                  Icon(icon, color: MintColors.textSecondary, size: 20),
+                  const SizedBox(width: MintSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: MintTextStyles.titleMedium(
+                            color: MintColors.textPrimary,
+                          ).copyWith(fontSize: 15, fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitle,
+                          style: MintTextStyles.labelSmall(
+                            color: MintColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: MintColors.textMuted,
+                    size: 18,
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+          if (showDivider)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
+              child: Divider(
+                height: 1,
+                color: MintColors.textPrimary.withValues(alpha: 0.05),
+              ),
+            ),
+        ],
       ),
     );
   }
