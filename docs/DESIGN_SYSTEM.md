@@ -231,6 +231,25 @@ Padding: spacingMd à spacingLg (16-24px)
 
 **Pas de glassmorphism.** `MintGlassCard` est déprécié — remplacer par Standard Card.
 
+### 4.1b Composants Premium (S54+)
+
+Famille de composants éditoriaux pour les surfaces manifestes MINT.
+
+| Composant | Fichier | Usage |
+|-----------|---------|-------|
+| `MintHeroNumber` | `widgets/premium/mint_hero_number.dart` | Chiffre dominant 56pt avec fade-in |
+| `MintSurface` | `widgets/premium/mint_surface.dart` | Container chaud (6 tones: porcelaine/craie/sauge/bleu/peche/blanc) |
+| `MintNarrativeCard` | `widgets/premium/mint_narrative_card.dart` | Carte calme pour cap/insight/story |
+| `MintProgressArc` | `widgets/premium/mint_progress_arc.dart` | Arc gauge 270° pour scores/pourcentages |
+| `MintSignalRow` | `widgets/premium/mint_signal_row.dart` | Ligne label+value minimale |
+| `MintPremiumSlider` | `widgets/premium/mint_premium_slider.dart` | Slider avec thumb anneau, value pill, track porcelaine |
+| `MintResultHeroCard` | `widgets/premium/mint_result_hero_card.dart` | Carte de révélation (conséquence financière) |
+| `MintChoiceCard` | `widgets/premium/mint_choice_card.dart` | Carte sélectionnable pour écrans de décision |
+| `MintInlineInputChip` | `widgets/premium/mint_inline_input_chip.dart` | Chip compact tap-to-edit |
+| `MintConfidenceNotice` | `widgets/premium/mint_confidence_notice.dart` | Notice fiabilité (pêche si <50%, sauge si ≥50%) |
+
+**Règle** : tout nouvel écran Tier 1-3 doit utiliser ces composants, pas des Container/Card manuels.
+
 ### 4.2 Boutons
 
 | Variante | Widget | Background | Texte | Height | Radius | Usage |
@@ -412,6 +431,25 @@ un `OutlinedButton` ou un `TextButton`.
 
 ---
 
+## 6.6 Art Direction — 5 règles non négociables (S55+)
+
+1. **L'écran commence par un enjeu, jamais par un contrôle.**
+   Quick Start, simulateurs, Decision Canvas : on doit d'abord sentir ce qui se joue.
+
+2. **Un seul moment hero par écran.**
+   Un chiffre, une phrase, ou un choix. Pas trois centres de gravité.
+
+3. **Les contrôles deviennent secondaires visuellement.**
+   Sliders, toggles, champs servent la décision. Ils ne mènent pas la composition.
+
+4. **La matière visuelle doit être chaude, calme, éditoriale.**
+   Porcelaine, craie, sauge, ardoise, bleu air, contraste mesuré, grandes marges.
+
+5. **Les résultats doivent être vécus comme des conséquences, pas comme des outputs.**
+   Toujours : ce que ça veut dire, ce que ça change, quoi faire ensuite.
+
+---
+
 ## 7. PATTERNS INTERDITS
 
 | # | Pattern | Remplacer par |
@@ -432,6 +470,11 @@ un `OutlinedButton` ou un `TextButton`.
 | 14 | Pie chart, 3D, radar, bubble | Donut, barre, ligne, gauge |
 | 15 | Titre > 6 mots | Réduire à l'essentiel |
 | 16 | Plus de 1 CTA primaire par écran | Secondary/Ghost pour les autres |
+| 17 | **Form first** : écran qui ouvre sur une pile de champs/sliders | Commencer par l'enjeu, contrôles après |
+| 18 | **Pretty calculator** : simulateur joliment stylé sans scène de décision | Montrer la conséquence d'abord |
+| 19 | **Grey soup** : trop de gris clairs, cartes similaires, pas de tension | Utiliser les tons premium (sauge/pêche/bleu) |
+| 20 | **Micro-polish sans macro** : améliorer pills/ombres sans résoudre la composition | Résoudre le layout d'abord |
+| 21 | **Everything visible** : toutes les hypothèses/inputs/états affichés ensemble | Progressive disclosure |
 
 ---
 
