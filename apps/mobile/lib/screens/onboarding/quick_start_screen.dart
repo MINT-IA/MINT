@@ -165,9 +165,9 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     setState(() {
       _canton = code;
     });
-    // Auto-advance after a brief visual confirmation
+    // Canton selected = go directly to chat (no result screen)
     Future.delayed(const Duration(milliseconds: 250), () {
-      if (mounted) _nextStep();
+      if (mounted) _onCtaCoach();
     });
   }
 
@@ -187,7 +187,10 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
 
     if (mounted) {
       context.go('/home');
-      NavigationShellState.switchTab(1); // Coach tab
+      // Wait for shell to mount before switching tab
+      Future.delayed(const Duration(milliseconds: 300), () {
+        NavigationShellState.switchTab(1); // Coach tab
+      });
     }
   }
 
