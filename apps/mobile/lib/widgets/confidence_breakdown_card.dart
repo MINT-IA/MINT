@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/confidence/confidence_breakdown_chart.dart';
 
 /// Compact card wrapper for S46 confidence breakdown.
@@ -31,11 +31,7 @@ class ConfidenceBreakdownCard extends StatelessWidget {
         children: [
           Text(
             'Precision des donnees',
-            style: GoogleFonts.montserrat(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15),
           ),
           const SizedBox(height: 14),
           ConfidenceBreakdownChart(

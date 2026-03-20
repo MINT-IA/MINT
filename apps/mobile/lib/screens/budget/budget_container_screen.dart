@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/screens/budget/budget_screen.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:provider/provider.dart';
 
 class BudgetContainerScreen extends StatelessWidget {
@@ -43,21 +44,13 @@ class BudgetContainerScreen extends StatelessWidget {
               Text(
                 S.of(context)!.budgetEmptyTitle,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.montserrat(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: MintSpacing.md),
               Text(
                 S.of(context)!.budgetEmptyBody,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: MintColors.textSecondary,
-                  height: 1.5,
-                ),
+                style: MintTextStyles.bodyMedium(),
               ),
               const SizedBox(height: 32),
               FilledButton.icon(

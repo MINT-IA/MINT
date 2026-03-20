@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/budget/spending_meter.dart';
 import 'package:mint_mobile/widgets/budget/envelope_slider.dart';
 import 'package:mint_mobile/widgets/budget/stop_rule_callout.dart';
@@ -47,7 +48,6 @@ class _BudgetScreenState extends State<BudgetScreen>
       parent: _staggerController,
       curve: Curves.easeOutCubic,
     );
-    // Au chargement, on initialise le provider avec les inputs passés
     WidgetsBinding.instance.addPostFrameCallback((_) {
       try {
         context.read<BudgetProvider>().setInputs(widget.inputs);
@@ -64,10 +64,8 @@ class _BudgetScreenState extends State<BudgetScreen>
     super.dispose();
   }
 
-  /// Staggered entry: returns opacity and slide offset for card at [index].
-  /// Total slots: 5 (header, donut, sliders, emergency, disclaimers).
   Widget _staggeredEntry({required int index, required Widget child}) {
-    const totalSlots = 5;
+    const totalSlots = 6;
     return AnimatedBuilder(
       animation: _staggerAnimation,
       builder: (context, _) {
@@ -86,29 +84,43 @@ class _BudgetScreenState extends State<BudgetScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(S.of(context)!.budgetMonthlyTitle),
+        backgroundColor: MintColors.white,
+        foregroundColor: MintColors.textPrimary,
+        elevation: 0,
+        title: Text(
+          l.budgetMonthlyTitle,
+          style: MintTextStyles.headlineMedium(),
+        ),
       ),
       body: Consumer<BudgetProvider>(
         builder: (context, provider, child) {
           if (_hasError) {
             return Center(
               child: Container(
-                padding: const EdgeInsets.all(16),
-                margin: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(MintSpacing.md),
+                margin: const EdgeInsets.all(MintSpacing.lg),
                 decoration: BoxDecoration(
-                  color: MintColors.error.withValues(alpha: 0.08),
+                  color: MintColors.error.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: MintColors.error.withValues(alpha: 0.15),
+                  ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.error_outline, color: MintColors.error, size: 20),
-                    const SizedBox(width: 12),
-                    Expanded(child: Text(
-                      'Une erreur est survenue. Réessaie plus tard.',
-                      style: GoogleFonts.inter(fontSize: 13, color: MintColors.error),
-                    )),
+                    const Icon(Icons.error_outline,
+                        color: MintColors.error, size: 20),
+                    const SizedBox(width: MintSpacing.sm),
+                    Expanded(
+                      child: Text(
+                        l.budgetErrorRetry,
+                        style: MintTextStyles.bodySmall(
+                            color: MintColors.error),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -122,17 +134,22 @@ class _BudgetScreenState extends State<BudgetScreen>
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(MintSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // ── ABOVE FOLD: Section 1 — Data quality banner ──
                 _staggeredEntry(
                   index: 0,
-                  child: _buildDataQualityBanner(widget.inputs),
+                  child: _buildDataQualityBanner(widget.inputs, l),
                 ),
-                const SizedBox(height: 12),
-                _staggeredEntry(index: 0, child: _buildHeader(plan)),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.sm),
+
+                // ── ABOVE FOLD: Section 2 — Hero chiffre + caption ──
+                _staggeredEntry(index: 0, child: _buildHeader(plan, l)),
+                const SizedBox(height: MintSpacing.lg),
+
+                // ── ABOVE FOLD: Section 3 — Spending meter ──
                 _staggeredEntry(
                   index: 1,
                   child: SpendingMeter(
@@ -141,86 +158,123 @@ class _BudgetScreenState extends State<BudgetScreen>
                     totalAvailable: plan.available,
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: MintSpacing.xl),
+
+                // ── BELOW FOLD: Envelopes sliders ──
                 if (widget.inputs.style == BudgetStyle.envelopes3) ...[
                   _staggeredEntry(
                     index: 2,
-                    child: _buildSliders(context, provider, plan),
+                    child: _buildSliders(context, provider, plan, l),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: MintSpacing.lg),
                 ],
                 if (plan.stopRuleTriggered) ...[
                   _staggeredEntry(
                     index: 2,
                     child: const StopRuleCallout(),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: MintSpacing.lg),
                 ],
-                // ── 50/30/20 Rule ─────────────────────────────────
+
+                // ── Educational insert ──
+                _staggeredEntry(
+                  index: 2,
+                  child: _buildEducationalInsert(l),
+                ),
+                const SizedBox(height: MintSpacing.lg),
+
+                // ── 50/30/20 Rule ──
                 _staggeredEntry(
                   index: 3,
                   child: Budget503020Widget(
                     netSalary: widget.inputs.netIncome,
                     chiffreChoc: plan.available > 0
-                        ? 'En épargnant CHF ${(plan.available * 0.20).toStringAsFixed(0)}/mois, tu accumules CHF ${(plan.available * 0.20 * 120).toStringAsFixed(0)} en 10 ans.'
+                        ? l.budgetChiffreChoc503020(
+                            (plan.available * 0.20).toStringAsFixed(0),
+                            (plan.available * 0.20 * 120).toStringAsFixed(0),
+                          )
                         : null,
                     categories: [
                       BudgetCategory(
-                        label: 'Besoins',
-                        emoji: '🏠',
+                        label: l.budgetNeeds,
+                        emoji: '',
                         percent: 50,
                         amount: plan.available * 0.50,
-                        examples: const ['Loyer', 'LAMal', 'impôts', 'dettes'],
+                        examples: [
+                          l.budgetExampleRent,
+                          l.budgetExampleLamal,
+                          l.budgetExampleTaxes,
+                          l.budgetExampleDebts,
+                        ],
                       ),
                       BudgetCategory(
-                        label: 'Vie',
-                        emoji: '🛒',
+                        label: l.budgetLife,
+                        emoji: '',
                         percent: 30,
                         amount: plan.available * 0.30,
-                        examples: const ['Alimentation', 'transport', 'loisirs'],
+                        examples: [
+                          l.budgetExampleFood,
+                          l.budgetExampleTransport,
+                          l.budgetExampleLeisure,
+                        ],
                       ),
                       BudgetCategory(
-                        label: 'Futur',
-                        emoji: '🌱',
+                        label: l.budgetFuture,
+                        emoji: '',
                         percent: 20,
                         amount: plan.available * 0.20,
-                        examples: const ['Épargne', '3a', 'projets'],
+                        examples: [
+                          l.budgetExampleSavings,
+                          '3a',
+                          l.budgetExampleProjects,
+                        ],
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
-                // ── Sandwich visuel (données réelles) ─────────────
+                // ── Sandwich chart ──
                 _staggeredEntry(
                   index: 3,
                   child: BudgetSandwichChart(
                     incomes: [
-                      BudgetLineItem(label: 'Revenu net', amount: widget.inputs.netIncome),
+                      BudgetLineItem(
+                          label: l.budgetNetIncome,
+                          amount: widget.inputs.netIncome),
                     ],
                     expenses: [
                       if (widget.inputs.housingCost > 0)
-                        BudgetLineItem(label: 'Logement', amount: widget.inputs.housingCost),
+                        BudgetLineItem(
+                            label: l.budgetHousing,
+                            amount: widget.inputs.housingCost),
                       if (widget.inputs.taxProvision > 0)
-                        BudgetLineItem(label: 'Provision impôts', amount: widget.inputs.taxProvision),
+                        BudgetLineItem(
+                            label: l.budgetTaxProvision,
+                            amount: widget.inputs.taxProvision),
                       if (widget.inputs.healthInsurance > 0)
-                        BudgetLineItem(label: 'LAMal', amount: widget.inputs.healthInsurance),
+                        BudgetLineItem(
+                            label: l.budgetHealthInsurance,
+                            amount: widget.inputs.healthInsurance),
                       if (widget.inputs.debtPayments > 0)
-                        BudgetLineItem(label: 'Dettes', amount: widget.inputs.debtPayments),
+                        BudgetLineItem(
+                            label: l.budgetDebts,
+                            amount: widget.inputs.debtPayments),
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
+                // ── Emergency fund ──
                 if (plan.emergencyFundMonths > 0 ||
                     widget.inputs.emergencyFundMonths > 0)
                   _staggeredEntry(
                     index: 3,
-                    child: _buildEmergencyFundCard(plan),
+                    child: _buildEmergencyFundCard(plan, l),
                   ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
-                // ── Crash Test budget ─────────────────────────────
+                // ── Crash test ──
                 _staggeredEntry(
                   index: 4,
                   child: CrashTestBudgetWidget(
@@ -232,39 +286,39 @@ class _BudgetScreenState extends State<BudgetScreen>
                     lines: [
                       if (widget.inputs.housingCost > 0)
                         BudgetLine(
-                          label: 'Logement',
-                          emoji: '🏠',
+                          label: l.budgetHousing,
+                          emoji: '',
                           normalAmount: widget.inputs.housingCost,
                           survivalAmount: widget.inputs.housingCost,
                           status: BudgetLineStatus.locked,
                         ),
                       if (widget.inputs.healthInsurance > 0)
                         BudgetLine(
-                          label: 'LAMal',
-                          emoji: '🏥',
+                          label: l.budgetHealthInsurance,
+                          emoji: '',
                           normalAmount: widget.inputs.healthInsurance,
                           survivalAmount: widget.inputs.healthInsurance,
                           status: BudgetLineStatus.locked,
                         ),
                       if (widget.inputs.taxProvision > 0)
                         BudgetLine(
-                          label: 'Impôts',
-                          emoji: '🧾',
+                          label: l.budgetTaxProvision,
+                          emoji: '',
                           normalAmount: widget.inputs.taxProvision,
                           survivalAmount: widget.inputs.taxProvision * 0.80,
                           status: BudgetLineStatus.paused,
                         ),
                       if (widget.inputs.debtPayments > 0)
                         BudgetLine(
-                          label: 'Dettes',
-                          emoji: '💳',
+                          label: l.budgetDebts,
+                          emoji: '',
                           normalAmount: widget.inputs.debtPayments,
                           survivalAmount: widget.inputs.debtPayments,
                           status: BudgetLineStatus.locked,
                         ),
                       BudgetLine(
-                        label: 'Variables',
-                        emoji: '🛒',
+                        label: l.budgetVariables,
+                        emoji: '',
                         normalAmount: plan.variables,
                         survivalAmount: plan.variables * 0.50,
                         status: BudgetLineStatus.cut,
@@ -272,19 +326,21 @@ class _BudgetScreenState extends State<BudgetScreen>
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
-                // ── Related sections (hub) ──
+                // ── Related sections ──
                 _staggeredEntry(
                   index: 4,
-                  child: _buildRelatedSections(),
+                  child: _buildRelatedSections(l),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
+                // ── Disclaimer ──
                 _staggeredEntry(
                   index: 5,
-                  child: _buildDisclaimers(context),
+                  child: _buildDisclaimer(l),
                 ),
+                const SizedBox(height: MintSpacing.md),
               ],
             ),
           );
@@ -293,39 +349,42 @@ class _BudgetScreenState extends State<BudgetScreen>
     );
   }
 
-  Widget _buildHeader(BudgetPlan plan) {
+  Widget _buildHeader(BudgetPlan plan, S l) {
     return Column(
       children: [
         Text(
-          "Disponible ce mois",
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            color: MintColors.textSecondary,
-          ),
+          l.budgetAvailableThisMonth,
+          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: MintSpacing.sm),
         TweenAnimationBuilder<double>(
           tween: Tween(begin: 0, end: plan.available),
           duration: const Duration(milliseconds: 1400),
           curve: Curves.easeOutCubic,
           builder: (context, value, _) {
-            return Text(
-              "CHF ${value.toStringAsFixed(0)}",
-              style: GoogleFonts.montserrat(
-                fontSize: 32,
-                fontWeight: FontWeight.w800,
-                color: MintColors.textPrimary,
+            return Semantics(
+              label:
+                  'CHF ${plan.available.toStringAsFixed(0)} ${l.budgetAvailableThisMonth}',
+              child: Text(
+                'CHF\u00a0${value.toStringAsFixed(0)}',
+                style: MintTextStyles.displayMedium(),
               ),
             );
           },
         ),
-        const SizedBox(height: 16),
-        _buildBreakdown(),
+        const SizedBox(height: MintSpacing.xs),
+        Text(
+          l.budgetChiffreChocCaption,
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: MintSpacing.md),
+        _buildBreakdown(l),
       ],
     );
   }
 
-  Widget _buildBreakdown() {
+  Widget _buildBreakdown(S l) {
     final income = widget.inputs.netIncome;
     final housing = widget.inputs.housingCost;
     final debt = widget.inputs.debtPayments;
@@ -335,7 +394,7 @@ class _BudgetScreenState extends State<BudgetScreen>
     final available = income - housing - debt - taxes - health - otherFixed;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.surface,
         borderRadius: BorderRadius.circular(12),
@@ -343,40 +402,49 @@ class _BudgetScreenState extends State<BudgetScreen>
       ),
       child: Column(
         children: [
-          _breakdownRow('Revenu net', income, isPositive: true),
+          _breakdownRow(l.budgetNetIncome, income, isPositive: true),
           if (housing > 0) ...[
-            const SizedBox(height: 8),
-            _breakdownRow('Logement', housing),
+            const SizedBox(height: MintSpacing.sm),
+            _breakdownRow(l.budgetHousing, housing),
           ],
           if (debt > 0) ...[
-            const SizedBox(height: 8),
-            _breakdownRow('Remboursement dettes', debt),
+            const SizedBox(height: MintSpacing.sm),
+            _breakdownRow(l.budgetDebtRepayment, debt),
           ],
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           _breakdownRow(
-            'Provision impôts${taxes > 0 ? "" : " (non renseigné)"}',
+            taxes > 0 ? l.budgetTaxProvision : l.budgetTaxProvisionNotProvided,
             taxes,
-            qualityTag: widget.inputs.isTaxEstimated ? 'estimé' : 'saisi',
+            qualityTag: widget.inputs.isTaxEstimated
+                ? l.budgetQualityEstimated
+                : l.budgetQualityProvided,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           _breakdownRow(
-            'Primes maladie (LAMal)${health > 0 ? "" : " (non renseigné)"}',
+            health > 0
+                ? l.budgetHealthInsurance
+                : l.budgetHealthInsuranceNotProvided,
             health,
-            qualityTag: widget.inputs.isHealthEstimated ? 'estimé' : 'saisi',
+            qualityTag: widget.inputs.isHealthEstimated
+                ? l.budgetQualityEstimated
+                : l.budgetQualityProvided,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           _breakdownRow(
-            'Autres charges fixes${otherFixed > 0 ? "" : " (non renseigné)"}',
+            otherFixed > 0
+                ? l.budgetOtherFixedCosts
+                : l.budgetOtherFixedCostsNotProvided,
             otherFixed,
-            qualityTag:
-                widget.inputs.isOtherFixedMissing ? 'manquant' : 'saisi',
+            qualityTag: widget.inputs.isOtherFixedMissing
+                ? l.budgetQualityMissing
+                : l.budgetQualityProvided,
           ),
           const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
+            padding: EdgeInsets.symmetric(vertical: MintSpacing.sm),
             child: Divider(height: 1),
           ),
           _breakdownRow(
-            'Disponible',
+            l.budgetAvailable,
             available.clamp(0, double.infinity),
             isPositive: true,
             isBold: true,
@@ -389,56 +457,58 @@ class _BudgetScreenState extends State<BudgetScreen>
   Widget _breakdownRow(String label, double amount,
       {bool isPositive = false, bool isBold = false, String? qualityTag}) {
     final sign = isPositive ? '' : '– ';
-    final displayAmount = isPositive ? amount : amount;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
-            color: isBold ? MintColors.textPrimary : MintColors.textSecondary,
+        Flexible(
+          child: Text(
+            label,
+            style: MintTextStyles.bodySmall(
+              color: isBold ? MintColors.textPrimary : MintColors.textSecondary,
+            ).copyWith(
+              fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             if (qualityTag != null && !isBold) ...[
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                margin: const EdgeInsets.only(right: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                margin: const EdgeInsets.only(right: MintSpacing.sm),
                 decoration: BoxDecoration(
-                  color: qualityTag == 'saisi'
+                  color: qualityTag == S.of(context)!.budgetQualityProvided
                       ? MintColors.success.withValues(alpha: 0.12)
-                      : qualityTag == 'estimé'
+                      : qualityTag == S.of(context)!.budgetQualityEstimated
                           ? MintColors.warning.withValues(alpha: 0.12)
                           : MintColors.textMuted.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   qualityTag,
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: qualityTag == 'saisi'
+                  style: MintTextStyles.labelSmall(
+                    color: qualityTag == S.of(context)!.budgetQualityProvided
                         ? MintColors.success
-                        : qualityTag == 'estimé'
+                        : qualityTag == S.of(context)!.budgetQualityEstimated
                             ? MintColors.warning
                             : MintColors.textSecondary,
-                  ),
+                  ).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
             ],
             Text(
-              '$sign CHF ${displayAmount.toStringAsFixed(0)}',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
+              '$sign CHF\u00a0${amount.toStringAsFixed(0)}',
+              style: MintTextStyles.bodySmall(
                 color: isBold
                     ? MintColors.primary
                     : isPositive
                         ? MintColors.textPrimary
                         : MintColors.error,
+              ).copyWith(
+                fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
           ],
@@ -447,93 +517,132 @@ class _BudgetScreenState extends State<BudgetScreen>
     );
   }
 
-  Widget _buildDataQualityBanner(BudgetInputs inputs) {
+  Widget _buildDataQualityBanner(BudgetInputs inputs, S l) {
     final hasEstimate = inputs.hasEstimatedValues;
     final hasMissing = inputs.hasMissingValues;
     if (!hasEstimate && !hasMissing) {
       return const SizedBox.shrink();
     }
-    final message = hasMissing
-        ? 'Certaines charges sont encore manquantes. Complète ton diagnostic pour fiabiliser ce budget.'
-        : 'Ce budget inclut des estimations (impôts/LAMal). Renseigne tes montants réels pour une projection plus fiable.';
+    final message =
+        hasMissing ? l.budgetBannerMissing : l.budgetBannerEstimated;
     return Semantics(
-      label: 'Compléter mes données',
+      label: l.budgetCompleteMyData,
       button: true,
       child: GestureDetector(
-      onTap: () => context.push('/profile/bilan'),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: MintColors.warning.withValues(alpha: 0.10),
-          borderRadius: BorderRadius.circular(10),
-          border:
-              Border.all(color: MintColors.warning.withValues(alpha: 0.35)),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(Icons.info_outline_rounded,
-                size: 18, color: MintColors.warning),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    message,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: MintColors.textPrimary,
+        onTap: () => context.push('/profile/bilan'),
+        child: Container(
+          padding: const EdgeInsets.all(MintSpacing.sm + MintSpacing.xs),
+          decoration: BoxDecoration(
+            color: MintColors.warning.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(12),
+            border:
+                Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.info_outline_rounded,
+                  size: 18, color: MintColors.warning),
+              const SizedBox(width: MintSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      message,
+                      style: MintTextStyles.bodySmall(
+                          color: MintColors.textPrimary),
                     ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Compléter mes données →',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.primary,
+                    const SizedBox(height: MintSpacing.xs + 2),
+                    Text(
+                      l.budgetCompleteMyData,
+                      style: MintTextStyles.bodySmall(
+                              color: MintColors.primary)
+                          .copyWith(fontWeight: FontWeight.w700),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
 
   Widget _buildSliders(
-      BuildContext context, BudgetProvider provider, BudgetPlan plan) {
+      BuildContext context, BudgetProvider provider, BudgetPlan plan, S l) {
     return Column(
       children: [
-        EnvelopeSlider(
-          label: "🔒 Futur (Épargne, Projets)",
-          value: plan.future,
-          max: plan.available,
-          activeColor: MintColors.info,
-          onChanged: (val) {
-            provider.updateOverride('future', val);
-          },
+        Semantics(
+          label: l.budgetEnvelopeFuture,
+          slider: true,
+          child: EnvelopeSlider(
+            label: l.budgetEnvelopeFuture,
+            value: plan.future,
+            max: plan.available,
+            activeColor: MintColors.info,
+            onChanged: (val) {
+              provider.updateOverride('future', val);
+            },
+          ),
         ),
-        const SizedBox(height: 16),
-        EnvelopeSlider(
-          label: "🛍️ Variables (Vivre)",
-          value: plan.variables,
-          max: plan.available,
-          activeColor: MintColors.success,
-          onChanged: (val) {
-            provider.updateOverride('variables', val);
-          },
+        const SizedBox(height: MintSpacing.md),
+        Semantics(
+          label: l.budgetEnvelopeVariables,
+          slider: true,
+          child: EnvelopeSlider(
+            label: l.budgetEnvelopeVariables,
+            value: plan.variables,
+            max: plan.available,
+            activeColor: MintColors.success,
+            onChanged: (val) {
+              provider.updateOverride('variables', val);
+            },
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildEmergencyFundCard(BudgetPlan plan) {
+  Widget _buildEducationalInsert(S l) {
+    return Container(
+      padding: const EdgeInsets.all(MintSpacing.md),
+      decoration: BoxDecoration(
+        color: MintColors.info.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.info_outline,
+                  size: 18, color: MintColors.info),
+              const SizedBox(width: MintSpacing.sm),
+              Text(
+                l.budgetMethodTitle,
+                style: MintTextStyles.titleMedium(color: MintColors.info),
+              ),
+            ],
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          Text(
+            l.budgetMethodBody,
+            style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+          ),
+          const SizedBox(height: MintSpacing.xs),
+          Text(
+            l.budgetMethodSource,
+            style: MintTextStyles.micro(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmergencyFundCard(BudgetPlan plan, S l) {
     final months = plan.emergencyFundMonths;
     const target = BudgetPlan.emergencyFundTarget;
     final isComplete = months >= target;
@@ -545,13 +654,13 @@ class _BudgetScreenState extends State<BudgetScreen>
             : MintColors.error;
 
     final statusText = isComplete
-        ? 'Objectif atteint'
+        ? l.budgetGoalReached
         : months >= 3
-            ? 'En bonne voie'
-            : 'A renforcer';
+            ? l.budgetOnTrack
+            : l.budgetToReinforce;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + MintSpacing.xs),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -567,7 +676,6 @@ class _BudgetScreenState extends State<BudgetScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Header row ──
           Row(
             children: [
               Icon(
@@ -575,75 +683,62 @@ class _BudgetScreenState extends State<BudgetScreen>
                 color: progressColor,
                 size: 22,
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: MintSpacing.sm + 2),
               Text(
-                "Fonds d'urgence",
-                style: GoogleFonts.montserrat(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                l.budgetEmergencyFundTitle,
+                style: MintTextStyles.titleMedium(),
               ),
               const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: progressColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  statusText,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: progressColor,
+              Semantics(
+                label: statusText,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: progressColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    statusText,
+                    style: MintTextStyles.labelSmall(color: progressColor)
+                        .copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          // ── Ring + info row ──
+          const SizedBox(height: MintSpacing.md),
           Row(
             children: [
-              // Left: EmergencyFundRing
               EmergencyFundRing(
                 months: months,
                 target: target,
               ),
-              const SizedBox(width: 16),
-              // Right: text info
+              const SizedBox(width: MintSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${months.toStringAsFixed(1)} mois couverts',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.textPrimary,
-                      ),
+                      l.budgetMonthsCovered(months.toStringAsFixed(1)),
+                      style: MintTextStyles.bodySmall(
+                              color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.w600),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: MintSpacing.xs),
                     Text(
-                      'Cible : ${target.toStringAsFixed(0)} mois',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textSecondary,
-                      ),
+                      l.budgetTargetMonths(target.toStringAsFixed(0)),
+                      style: MintTextStyles.bodySmall(
+                          color: MintColors.textSecondary),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: MintSpacing.sm + 2),
                     Text(
                       isComplete
-                          ? 'Tu es protege contre les imprevu. Continue ainsi.'
-                          : 'Epargne au moins ${target.toStringAsFixed(0)} mois de depenses '
-                              'pour te proteger contre un imprévu (perte d\'emploi, reparation...).',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textSecondary,
-                        height: 1.4,
-                      ),
+                          ? l.budgetEmergencyProtected
+                          : l.budgetEmergencySaveMore(
+                              target.toStringAsFixed(0)),
+                      style: MintTextStyles.bodySmall(
+                          color: MintColors.textSecondary),
                     ),
                   ],
                 ),
@@ -655,30 +750,32 @@ class _BudgetScreenState extends State<BudgetScreen>
     );
   }
 
-  Widget _buildRelatedSections() {
+  Widget _buildRelatedSections(S l) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Explorer aussi',
-          style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
-        const SizedBox(height: 12),
+        Text(
+          l.budgetExploreAlso,
+          style: MintTextStyles.titleMedium(),
+        ),
+        const SizedBox(height: MintSpacing.sm),
         CollapsibleSection(
-          title: 'Ratio d\'endettement',
-          subtitle: 'Évaluer ta situation de dette',
+          title: l.budgetDebtRatio,
+          subtitle: l.budgetDebtRatioSubtitle,
           icon: Icons.warning_amber_rounded,
-          child: _buildSectionCta('Évaluer', '/debt/ratio'),
+          child: _buildSectionCta(l.budgetCtaEvaluate, '/debt/ratio'),
         ),
         CollapsibleSection(
-          title: 'Plan de remboursement',
-          subtitle: 'Stratégie pour sortir de la dette',
+          title: l.budgetRepaymentPlan,
+          subtitle: l.budgetRepaymentPlanSubtitle,
           icon: Icons.trending_down,
-          child: _buildSectionCta('Planifier', '/debt/repayment'),
+          child: _buildSectionCta(l.budgetCtaPlan, '/debt/repayment'),
         ),
         CollapsibleSection(
-          title: 'Ressources d\'aide',
-          subtitle: 'Où trouver de l\'aide en Suisse',
+          title: l.budgetHelpResources,
+          subtitle: l.budgetHelpResourcesSubtitle,
           icon: Icons.help_outline,
-          child: _buildSectionCta('Découvrir', '/debt/help'),
+          child: _buildSectionCta(l.budgetCtaDiscover, '/debt/help'),
         ),
       ],
     );
@@ -687,35 +784,36 @@ class _BudgetScreenState extends State<BudgetScreen>
   Widget _buildSectionCta(String label, String route) {
     return SizedBox(
       width: double.infinity,
-      child: OutlinedButton(
-        onPressed: () => context.push(route),
-        child: Text(label),
+      child: Semantics(
+        button: true,
+        label: label,
+        child: OutlinedButton(
+          onPressed: () => context.push(route),
+          child: Text(label),
+        ),
       ),
     );
   }
 
-  Widget _buildDisclaimers(BuildContext context) {
-    final style = Theme.of(context)
-        .textTheme
-        .bodySmall
-        ?.copyWith(color: MintColors.textMuted);
+  Widget _buildDisclaimer(S l) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Divider(),
-        const SizedBox(height: 8),
-        Text("IMPORTANT:", style: style?.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(height: MintSpacing.sm),
         Text(
-          "• Ceci est un outil éducatif, ne constitue pas un conseil financier (LSFin).",
-          style: style,
+          l.budgetDisclaimerNote,
+          style: MintTextStyles.micro(),
         ),
+        const SizedBox(height: MintSpacing.xs),
         Text(
-          "• Les montants sont basés sur les informations déclarées.",
-          style: style,
+          l.budgetDisclaimerBased,
+          style: MintTextStyles.micro(),
         ),
+        const SizedBox(height: MintSpacing.xs),
         Text(
-          "• 'Disponible' = Revenus - Logement - Dettes - Impôts - LAMal - Charges fixes.",
-          style: style,
+          l.budgetDisclaimerFormula,
+          style: MintTextStyles.micro(),
         ),
       ],
     );

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 import 'package:mint_mobile/widgets/arbitrage/breakeven_indicator_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
@@ -19,9 +21,9 @@ import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 /// amortissement indirect, and investissement libre.
 ///
 /// Sprint S32 — Arbitrage Phase 1.
+/// Design System: Category B — Simulator.
 ///
 /// NEVER ranks options. Side-by-side comparison only.
-/// All text in French, informal "tu".
 /// No banned terms.
 class AllocationAnnuelleScreen extends StatefulWidget {
   const AllocationAnnuelleScreen({super.key});
@@ -125,44 +127,39 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
+
     return Scaffold(
+      backgroundColor: MintColors.white,
       body: CustomScrollView(
         slivers: [
-          // ── SliverAppBar ──
+          // ── AppBar: white standard (Design System §4.5) ──
           SliverAppBar(
-            expandedHeight: 100,
             pinned: true,
-            backgroundColor: MintColors.primary,
-            foregroundColor: MintColors.white,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'Ou placer tes CHF ?',
-                style: GoogleFonts.montserrat(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.white,
-                ),
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [MintColors.primary, MintColors.accent],
-                  ),
-                ),
+            backgroundColor: MintColors.white,
+            foregroundColor: MintColors.textPrimary,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            title: Semantics(
+              header: true,
+              child: Text(
+                l.allocAnnuelleTitle,
+                style: MintTextStyles.headlineMedium(),
               ),
             ),
           ),
 
           // ── Content ──
           SliverPadding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.lg,
+              vertical: MintSpacing.md,
+            ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── Inputs ──
-                _buildInputSection(),
-                const SizedBox(height: 24),
+                _buildInputSection(l),
+                const SizedBox(height: MintSpacing.lg),
 
                 // ── Chart ──
                 if (_result != null && _result!.options.isNotEmpty) ...[
@@ -173,43 +170,41 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                   ),
                   if (_hasEstimatedValues)
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.only(bottom: MintSpacing.sm),
                       child: SmartDefaultIndicator(
-                        source: 'Valeurs pre-remplies depuis ton profil',
+                        source: l.allocAnnuellePreRempli,
                         confidence: _result!.confidenceScore / 100,
                       ),
                     ),
-                  Text(
-                    'Trajectoires comparees',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
+                  Semantics(
+                    label: l.allocAnnuelleTrajectoires,
+                    child: Text(
+                      l.allocAnnuelleTrajectoires,
+                      style: MintTextStyles.titleMedium(),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: MintSpacing.xs),
                   Text(
-                    'Touche le graphique pour voir les valeurs a chaque annee.',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
+                    l.allocAnnuelleGraphHint,
+                    style: MintTextStyles.labelSmall(
                       color: MintColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: MintSpacing.sm),
                   TrajectoryComparisonChart(
                     options: _result!.options,
                     breakevenYear: _result!.breakevenYear,
                     colors: _colorsForOptions(_result!.options),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: MintSpacing.lg),
 
                   // ── Terminal values ──
-                  _buildTerminalValuesCard(),
-                  const SizedBox(height: 20),
+                  _buildTerminalValuesCard(l),
+                  const SizedBox(height: MintSpacing.lg),
 
                   // ── Chiffre choc ──
-                  _buildChiffreChocCard(),
-                  const SizedBox(height: 20),
+                  _buildChiffreChocCard(l),
+                  const SizedBox(height: MintSpacing.lg),
 
                   // ── Sensitivity ──
                   BreakevenIndicatorWidget(
@@ -218,17 +213,17 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                     horizon: _anneesAvantRetraite,
                     sensitivity: _result!.sensitivity,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: MintSpacing.lg),
 
                   ArbitrageTornadoSection(result: _result!),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: MintSpacing.lg),
 
                   // ── Hypothesis sliders ──
                   HypothesisEditorWidget(
-                    hypotheses: const [
+                    hypotheses: [
                       HypothesisConfig(
                         key: 'rendement_marche',
-                        label: 'Rendement marche',
+                        label: l.allocAnnuelleRendementMarche,
                         min: 0,
                         max: 8,
                         divisions: 16,
@@ -236,7 +231,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                       ),
                       HypothesisConfig(
                         key: 'rendement_lpp',
-                        label: 'Rendement LPP',
+                        label: l.allocAnnuelleRendementLpp,
                         min: 0,
                         max: 4,
                         divisions: 8,
@@ -244,7 +239,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                       ),
                       HypothesisConfig(
                         key: 'rendement_3a',
-                        label: 'Rendement 3a',
+                        label: l.allocAnnuelleRendement3a,
                         min: 0,
                         max: 5,
                         divisions: 10,
@@ -257,15 +252,27 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                       _recalculate();
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: MintSpacing.lg),
 
                   // ── Hypotheses list ──
-                  _buildHypothesesSection(),
-                  const SizedBox(height: 20),
+                  _buildHypothesesSection(l),
+                  const SizedBox(height: MintSpacing.lg),
+
+                  // ── Encouraging message ──
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: MintSpacing.md),
+                    child: Text(
+                      l.allocAnnuelleEncouragement,
+                      style: MintTextStyles.bodyMedium(
+                        color: MintColors.textSecondary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
 
                   // ── Disclaimer ──
-                  _buildDisclaimerCard(),
-                  const SizedBox(height: 32),
+                  _buildDisclaimerCard(l),
+                  const SizedBox(height: MintSpacing.xl),
                 ],
               ]),
             ),
@@ -291,127 +298,133 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
   //  INPUT SECTION
   // ═══════════════════════════════════════════════════════════════
 
-  Widget _buildInputSection() {
+  Widget _buildInputSection(S l) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border.withAlpha(128)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ton budget annuel',
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            l.allocAnnuelleBudgetTitle,
+            style: MintTextStyles.titleMedium(),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildTextField(
             controller: _montantCtrl,
-            label: 'Montant disponible par an (CHF)',
+            label: l.allocAnnuelleMontantLabel,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Taux marginal slider
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(
-                  'Taux marginal d\'imposition estime',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
+          Semantics(
+            label: l.allocAnnuelleTauxMarginal,
+            value: '${_tauxMarginal.toStringAsFixed(0)}\u00a0%',
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        l.allocAnnuelleTauxMarginal,
+                        style: MintTextStyles.bodySmall(
+                          color: MintColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '${_tauxMarginal.toStringAsFixed(0)}\u00a0%',
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+                SliderTheme(
+                  data: SliderThemeData(
+                    activeTrackColor: MintColors.primary,
+                    inactiveTrackColor: MintColors.border,
+                    thumbColor: MintColors.primary,
+                    overlayColor: MintColors.primary.withAlpha(30),
+                    trackHeight: 4,
+                    thumbShape:
+                        const RoundSliderThumbShape(enabledThumbRadius: 8),
+                  ),
+                  child: Slider(
+                    value: _tauxMarginal,
+                    min: 10,
+                    max: 50,
+                    divisions: 8,
+                    onChanged: (v) {
+                      setState(() => _tauxMarginal = v);
+                      _recalculate();
+                    },
                   ),
                 ),
-              ),
-              Text(
-                '${_tauxMarginal.toStringAsFixed(0)} %',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.primary,
-                ),
-              ),
-            ],
-          ),
-          SliderTheme(
-            data: SliderThemeData(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.textMuted.withAlpha(40),
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withAlpha(30),
-              trackHeight: 4,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-            ),
-            child: Slider(
-              value: _tauxMarginal,
-              min: 10,
-              max: 50,
-              divisions: 8,
-              onChanged: (v) {
-                setState(() => _tauxMarginal = v);
-                _recalculate();
-              },
+              ],
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
 
           // Annees avant retraite slider
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(
-                  'Annees avant la retraite',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
+          Semantics(
+            label: l.allocAnnuelleAnneesRetraite,
+            value: l.allocAnnuelleAnneesValue(_anneesAvantRetraite),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        l.allocAnnuelleAnneesRetraite,
+                        style: MintTextStyles.bodySmall(
+                          color: MintColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      l.allocAnnuelleAnneesValue(_anneesAvantRetraite),
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+                SliderTheme(
+                  data: SliderThemeData(
+                    activeTrackColor: MintColors.primary,
+                    inactiveTrackColor: MintColors.border,
+                    thumbColor: MintColors.primary,
+                    overlayColor: MintColors.primary.withAlpha(30),
+                    trackHeight: 4,
+                    thumbShape:
+                        const RoundSliderThumbShape(enabledThumbRadius: 8),
+                  ),
+                  child: Slider(
+                    value: _anneesAvantRetraite.toDouble(),
+                    min: 5,
+                    max: 40,
+                    divisions: 35,
+                    onChanged: (v) {
+                      setState(() => _anneesAvantRetraite = v.round());
+                      _recalculate();
+                    },
                   ),
                 ),
-              ),
-              Text(
-                '$_anneesAvantRetraite ans',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.primary,
-                ),
-              ),
-            ],
-          ),
-          SliderTheme(
-            data: SliderThemeData(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.textMuted.withAlpha(40),
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withAlpha(30),
-              trackHeight: 4,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-            ),
-            child: Slider(
-              value: _anneesAvantRetraite.toDouble(),
-              min: 5,
-              max: 40,
-              divisions: 35,
-              onChanged: (v) {
-                setState(() => _anneesAvantRetraite = v.round());
-                _recalculate();
-              },
+              ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
 
           // Toggles
           _buildToggle(
-            label: '3a deja au maximum',
+            label: l.allocAnnuelle3aMaxed,
             value: _a3aMaxed,
             onChanged: (v) {
               _a3aMaxed = v;
@@ -419,7 +432,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
             },
           ),
           _buildToggle(
-            label: 'Potentiel de rachat LPP',
+            label: l.allocAnnuelleRachatLpp,
             value: _hasRachatLpp,
             onChanged: (v) {
               _hasRachatLpp = v;
@@ -427,38 +440,40 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
             },
           ),
           if (_hasRachatLpp) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             _buildTextField(
               controller: _potentielRachatCtrl,
-              label: 'Montant de rachat possible (CHF)',
+              label: l.allocAnnuelleRachatMontant,
             ),
           ],
           _buildToggle(
-            label: 'Proprietaire immobilier',
+            label: l.allocAnnuelleProprietaire,
             value: _isPropertyOwner,
             onChanged: (v) {
               _isPropertyOwner = v;
               _recalculate();
             },
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           SizedBox(
             width: double.infinity,
-            child: FilledButton(
-              onPressed: _recalculate,
-              style: FilledButton.styleFrom(
-                backgroundColor: MintColors.primary,
-                foregroundColor: MintColors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+            child: Semantics(
+              button: true,
+              label: l.allocAnnuelleComparer,
+              child: FilledButton(
+                onPressed: _recalculate,
+                style: FilledButton.styleFrom(
+                  backgroundColor: MintColors.primary,
+                  foregroundColor: MintColors.white,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: MintSpacing.md),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-              ),
-              child: Text(
-                'Comparer les strategies',
-                style: GoogleFonts.inter(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
+                child: Text(
+                  l.allocAnnuelleComparer,
+                  style: MintTextStyles.bodySmall(color: MintColors.white),
                 ),
               ),
             ),
@@ -477,22 +492,15 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: MintSpacing.xs),
         TextField(
           controller: controller,
           keyboardType: TextInputType.number,
           onTapOutside: (_) => FocusScope.of(context).unfocus(),
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          style: GoogleFonts.inter(
-            fontSize: 15,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
           decoration: InputDecoration(
             filled: true,
             fillColor: MintColors.surface,
@@ -501,7 +509,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
+              horizontal: MintSpacing.md,
               vertical: 14,
             ),
           ),
@@ -517,26 +525,26 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
     required ValueChanged<bool> onChanged,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(bottom: MintSpacing.xs),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Flexible(
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
           ),
-          Switch(
-            value: value,
-            activeTrackColor: MintColors.primary,
-            onChanged: (v) {
-              setState(() => onChanged(v));
-            },
+          Semantics(
+            toggled: value,
+            label: label,
+            child: Switch(
+              value: value,
+              activeTrackColor: MintColors.primary,
+              onChanged: (v) {
+                setState(() => onChanged(v));
+              },
+            ),
           ),
         ],
       ),
@@ -547,41 +555,36 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
   //  TERMINAL VALUES CARD
   // ═══════════════════════════════════════════════════════════════
 
-  Widget _buildTerminalValuesCard() {
+  Widget _buildTerminalValuesCard(S l) {
     if (_result == null) return const SizedBox.shrink();
     final options = _result!.options;
     final colorMap = _colorsForOptions(options);
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border.withAlpha(128)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Valeur terminale estimee',
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            l.allocAnnuelleValeurTerminale,
+            style: MintTextStyles.titleMedium(),
           ),
           Text(
-            'Apres $_anneesAvantRetraite ans',
-            style: GoogleFonts.inter(
-              fontSize: 12,
+            l.allocAnnuelleApresAnnees(_anneesAvantRetraite),
+            style: MintTextStyles.labelSmall(
               color: MintColors.textSecondary,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           for (int i = 0; i < options.length; i++)
             Padding(
-              padding: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.only(bottom: MintSpacing.sm),
               child: Row(
                 children: [
                   Container(
@@ -594,21 +597,18 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                       shape: BoxShape.circle,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: MintSpacing.sm),
                   Expanded(
                     child: Text(
                       options[i].label,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
+                      style: MintTextStyles.bodySmall(
                         color: MintColors.textSecondary,
                       ),
                     ),
                   ),
                   Text(
                     _formatChf(options[i].terminalValue),
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
+                    style: MintTextStyles.bodyMedium(
                       color: MintColors.textPrimary,
                     ),
                   ),
@@ -624,60 +624,51 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
   //  CHIFFRE CHOC CARD
   // ═══════════════════════════════════════════════════════════════
 
-  Widget _buildChiffreChocCard() {
+  Widget _buildChiffreChocCard(S l) {
     if (_result == null) return const SizedBox.shrink();
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.info.withAlpha(15),
-            blurRadius: 30,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: MintColors.info.withAlpha(25),
-              shape: BoxShape.circle,
+    return Semantics(
+      label: _result!.chiffreChoc,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        decoration: BoxDecoration(
+          color: MintColors.card,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: MintColors.border.withAlpha(128)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: MintColors.info.withAlpha(25),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.insights_rounded,
+                color: MintColors.info,
+                size: 24,
+              ),
             ),
-            child: const Icon(
-              Icons.insights_rounded,
-              color: MintColors.info,
-              size: 24,
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              _result!.chiffreChoc,
+              style: MintTextStyles.bodyMedium(
+                color: MintColors.textPrimary,
+              ),
+              textAlign: TextAlign.center,
             ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            _result!.chiffreChoc,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textPrimary,
-              height: 1.5,
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              _result!.displaySummary,
+              style: MintTextStyles.labelSmall(
+                color: MintColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _result!.displaySummary,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -686,23 +677,19 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
   //  HYPOTHESES EXPANDABLE
   // ═══════════════════════════════════════════════════════════════
 
-  Widget _buildHypothesesSection() {
+  Widget _buildHypothesesSection(S l) {
     if (_result == null) return const SizedBox.shrink();
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
-      childrenPadding: const EdgeInsets.only(bottom: 8),
+      childrenPadding: const EdgeInsets.only(bottom: MintSpacing.sm),
       title: Text(
-        'Hypotheses utilisees',
-        style: GoogleFonts.montserrat(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: MintColors.textPrimary,
-        ),
+        l.allocAnnuelleHypotheses,
+        style: MintTextStyles.titleMedium(),
       ),
       children: [
         for (final h in _result!.hypotheses)
           Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.only(bottom: MintSpacing.xs),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -711,10 +698,8 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                 Expanded(
                   child: Text(
                     h,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
+                    style: MintTextStyles.labelSmall(
                       color: MintColors.textSecondary,
-                      height: 1.4,
                     ),
                   ),
                 ),
@@ -729,55 +714,46 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
   //  DISCLAIMER CARD
   // ═══════════════════════════════════════════════════════════════
 
-  Widget _buildDisclaimerCard() {
+  Widget _buildDisclaimerCard(S l) {
     if (_result == null) return const SizedBox.shrink();
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.info_outline_rounded,
-                size: 16,
-                color: MintColors.textMuted,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Avertissement',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+    return Semantics(
+      label: l.allocAnnuelleAvertissement,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(MintSpacing.md),
+        decoration: BoxDecoration(
+          color: MintColors.surface,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.info_outline_rounded,
+                  size: 16,
                   color: MintColors.textMuted,
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _result!.disclaimer,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textMuted,
-              height: 1.4,
+                const SizedBox(width: MintSpacing.sm),
+                Text(
+                  l.allocAnnuelleAvertissement,
+                  style: MintTextStyles.labelSmall(),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Sources : ${_result!.sources.join(' | ')}',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.textMuted,
-              height: 1.3,
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              _result!.disclaimer,
+              style: MintTextStyles.micro(),
             ),
-          ),
-        ],
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              l.allocAnnuelleSources(_result!.sources.join(' | ')),
+              style: MintTextStyles.micro(),
+            ),
+          ],
+        ),
       ),
     );
   }

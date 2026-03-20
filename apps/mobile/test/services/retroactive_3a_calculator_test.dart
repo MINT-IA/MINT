@@ -166,7 +166,7 @@ void main() {
         hasLpp: false,
       );
 
-      final expectedRatio = pilier3aPlafondSansLpp / pilier3aPlafondAvecLpp;
+      const expectedRatio = pilier3aPlafondSansLpp / pilier3aPlafondAvecLpp;
       expect(sansLpp.totalRetroactive,
           closeTo(withLpp.totalRetroactive * expectedRatio, 1.0));
       expect(sansLpp.totalRetroactive, greaterThan(withLpp.totalRetroactive));

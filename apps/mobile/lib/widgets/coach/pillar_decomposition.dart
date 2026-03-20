@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -129,10 +129,7 @@ class _PillarDecompositionState extends State<PillarDecomposition>
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Text(
                 'Compl\u00e8te ton profil pour voir la d\u00e9composition par pilier.',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
               ),
             )
           else
@@ -214,11 +211,7 @@ class _PillarDecompositionState extends State<PillarDecomposition>
   Widget _buildHeader() {
     return Text(
       'D\u00e9composition par pilier',
-      style: GoogleFonts.montserrat(
-        fontSize: 16,
-        fontWeight: FontWeight.w700,
-        color: MintColors.textPrimary,
-      ),
+      style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
     );
   }
 
@@ -253,11 +246,7 @@ class _PillarDecompositionState extends State<PillarDecomposition>
             children: [
               Text(
                 label,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
               ),
               const SizedBox(height: 4),
               LayoutBuilder(
@@ -293,11 +282,7 @@ class _PillarDecompositionState extends State<PillarDecomposition>
           child: Text(
             amount > 0 ? formatChfWithPrefix(amount) : '—',
             textAlign: TextAlign.right,
-            style: GoogleFonts.montserrat(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: amount > 0 ? MintColors.textPrimary : MintColors.textMuted,
-            ),
+            style: MintTextStyles.bodySmall(color: amount > 0 ? MintColors.textPrimary : MintColors.textMuted).copyWith(fontWeight: FontWeight.w700),
           ),
         ),
       ],
@@ -311,20 +296,12 @@ class _PillarDecompositionState extends State<PillarDecomposition>
         Expanded(
           child: Text(
             'Total mensuel estim\u00e9',
-            style: GoogleFonts.montserrat(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
         ),
         Text(
           formatChfWithPrefix(total),
-          style: GoogleFonts.montserrat(
-            fontSize: 15,
-            fontWeight: FontWeight.w800,
-            color: MintColors.primary,
-          ),
+          style: MintTextStyles.titleMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w800),
         ),
       ],
     );

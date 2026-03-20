@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Bottom sheet displaying the 18 life events as quick triggers.
 ///
@@ -45,11 +45,7 @@ class LifeEventSheet extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Text(
               'Il m\'arrive quelque chose',
-              style: GoogleFonts.montserrat(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
             ),
           ),
           const SizedBox(height: 4),
@@ -57,10 +53,7 @@ class LifeEventSheet extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Text(
               'Choisis un evenement pour voir l\'impact financier',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
           const SizedBox(height: 16),
@@ -115,12 +108,7 @@ class LifeEventSheet extends StatelessWidget {
           padding: const EdgeInsets.only(left: 4, top: 12, bottom: 8),
           child: Text(
             title,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 0.8,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.8),
           ),
         ),
         ...events.map((e) => _buildEventTile(e)),
@@ -153,11 +141,7 @@ class LifeEventSheet extends StatelessWidget {
                   Expanded(
                     child: Text(
                       event.label,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
                     ),
                   ),
                   const Icon(Icons.arrow_forward_ios,

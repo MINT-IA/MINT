@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P4-B  Le Reset silencieux — Perte d'ancienneté LPP
@@ -99,20 +99,12 @@ class DisabilityResetWidget extends StatelessWidget {
               children: [
                 Text(
                   'Le reset silencieux',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'L\'invalidité ne détruit pas que ton revenu actuel — elle rétrécit ta retraite.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
             ),
@@ -135,11 +127,7 @@ class DisabilityResetWidget extends StatelessWidget {
         children: [
           Text(
             'À $currentAge ans — taux de bonification LPP : ${rate.toStringAsFixed(0)}% (LPP art. 16)',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 10),
           _buildBonifRow('Avant invalidité', currentSalary, bonifBefore, MintColors.primary),
@@ -168,15 +156,11 @@ class DisabilityResetWidget extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
               ),
               Text(
                 'Salaire ${_fmt(salary)} → bonification LPP : CHF ${_fmt(bonif)}/an',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -191,11 +175,7 @@ class DisabilityResetWidget extends StatelessWidget {
       children: [
         Text(
           'Ton 2e pilier à 65 ans',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 12),
         Row(
@@ -224,11 +204,7 @@ class DisabilityResetWidget extends StatelessWidget {
           ),
           child: Text(
             '△ Différence : -CHF ${_fmt(delta)}',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: MintColors.scoreCritique,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
           ),
         ),
       ],
@@ -251,15 +227,11 @@ class DisabilityResetWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary)),
+          Text(label, style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
           const SizedBox(height: 4),
           Text(
             '$emoji CHF ${_fmt(amount)}',
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
+            style: MintTextStyles.titleMedium(color: color).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -282,19 +254,12 @@ class DisabilityResetWidget extends StatelessWidget {
               children: [
                 Text(
                   'Rente mensuelle perdue',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   '-CHF ${_fmt(monthlyDelta)}/mois',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.scoreCritique,
-                  ),
+                  style: MintTextStyles.headlineMedium(color: MintColors.scoreCritique).copyWith(fontSize: 22, fontWeight: FontWeight.w800),
                 ),
               ],
             ),
@@ -304,19 +269,11 @@ class DisabilityResetWidget extends StatelessWidget {
             children: [
               Text(
                 'Chaque mois.',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
               ),
               Text(
                 'Pour toujours.',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.scoreCritique,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -341,12 +298,7 @@ class DisabilityResetWidget extends StatelessWidget {
           Expanded(
             child: Text(
               'C\'est pas juste ton salaire qui baisse.\nC\'est ta retraite qui rétrécit.',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600, height: 1.5),
             ),
           ),
         ],
@@ -358,11 +310,7 @@ class DisabilityResetWidget extends StatelessWidget {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : LPP art. 16, 23-26. Taux de conversion minimum : 6.8% (LPP art. 14).',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

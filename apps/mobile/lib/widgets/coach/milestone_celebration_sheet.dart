@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/milestone_detection_service.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -163,11 +163,7 @@ class _MilestoneCelebrationSheetState extends State<MilestoneCelebrationSheet>
                 Text(
                   milestone.title,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 14),
 
@@ -177,11 +173,7 @@ class _MilestoneCelebrationSheetState extends State<MilestoneCelebrationSheet>
                   child: Text(
                     milestone.narrativeMessage ?? milestone.description,
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(
-                      fontSize: 15,
-                      color: MintColors.textSecondary,
-                      height: 1.55,
-                    ),
+                    style: MintTextStyles.bodyLarge(color: MintColors.textSecondary).copyWith(fontSize: 15, height: 1.55),
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -202,10 +194,7 @@ class _MilestoneCelebrationSheetState extends State<MilestoneCelebrationSheet>
                     ),
                     child: Text(
                       'Continuer',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),
                 ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -72,19 +72,12 @@ class TrueHourlyRateWidget extends StatelessWidget {
           children: [
             Text(
               'Ton tarif horaire de v\u00e9rit\u00e9',
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             Text(
               'Pour un net de ${formatChfWithPrefix(desiredNetAnnual)}/an',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
             ),
             const SizedBox(height: 20),
 
@@ -94,18 +87,11 @@ class TrueHourlyRateWidget extends StatelessWidget {
                 children: [
                   Text(
                     '${_hourlyRate.toStringAsFixed(0)} CHF/h',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 36,
-                      fontWeight: FontWeight.w800,
-                      color: MintColors.primary,
-                    ),
+                    style: MintTextStyles.displayMedium(color: MintColors.primary).copyWith(fontSize: 36, fontWeight: FontWeight.w800),
                   ),
                   Text(
                     'minimum',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: MintColors.textMuted,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textMuted),
                   ),
                 ],
               ),
@@ -130,12 +116,7 @@ class TrueHourlyRateWidget extends StatelessWidget {
                 '${_chargesPerHour.toStringAsFixed(0)} CHF partent en charges. '
                 'En dessous de ${_hourlyRate.toStringAsFixed(0)} CHF/h, '
                 'tu t\u2019appauvris.',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.scoreCritique,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w500, height: 1.4),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -145,11 +126,7 @@ class TrueHourlyRateWidget extends StatelessWidget {
               'Bas\u00e9 sur $billableHours h facturables/an. '
               'Cotisations\u00a0: LAVS art. 4-14. '
               'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin).',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
             ),
           ],
         ),
@@ -173,10 +150,7 @@ class TrueHourlyRateWidget extends StatelessWidget {
           padding: const EdgeInsets.only(left: 30, top: 2),
           child: Text(
             '\u00f7 $billableHours h = ${_hourlyRate.toStringAsFixed(0)} CHF/h',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w400),
           ),
         ),
       ],
@@ -194,20 +168,12 @@ class TrueHourlyRateWidget extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: isBold ? FontWeight.w600 : FontWeight.w400),
             ),
           ),
           Text(
             formatChfWithPrefix(amount),
-            style: GoogleFonts.montserrat(
-              fontSize: 13,
-              fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
-              color: color,
-            ),
+            style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: isBold ? FontWeight.w700 : FontWeight.w500),
           ),
         ],
       ),

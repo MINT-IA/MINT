@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P4-C  L'Écran rouge de l'indépendant — filet vs vide
@@ -104,11 +104,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
               Expanded(
                 child: Text(
                   'Indépendant·e : ton filet n\'existe pas',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.white,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -116,10 +112,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
           const SizedBox(height: 8),
           Text(
             'Si tu ne peux plus travailler demain :',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.white.withValues(alpha: 0.85),
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.white.withValues(alpha: 0.85)),
           ),
         ],
       ),
@@ -185,11 +178,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
               const SizedBox(width: 6),
               Text(
                 title,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: color,
-                ),
+                style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -208,11 +197,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
                   padding: const EdgeInsets.only(bottom: 3),
                   child: Text(
                     item,
-                    style: GoogleFonts.inter(
-                      fontSize: isVoid ? 16 : 12,
-                      fontWeight: isVoid ? FontWeight.w800 : FontWeight.w400,
-                      color: isVoid ? MintColors.scoreCritique : MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.labelSmall(color: isVoid ? MintColors.scoreCritique : MintColors.textPrimary).copyWith(fontSize: isVoid ? 16 : 12, fontWeight: isVoid ? FontWeight.w800 : FontWeight.w400),
                   ),
                 );
               }).toList(),
@@ -221,11 +206,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
           const SizedBox(height: 10),
           Text(
             isVoid ? '= 0 CHF/mois' : '\u2248 CHF ${_fmt(totalMonthly)}/mois',
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
+            style: MintTextStyles.titleMedium(color: color).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -245,29 +226,18 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
         children: [
           Text(
             '💰 Chiffre-choc : $_aiDelayMonths mois à 0 CHF.',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: MintColors.scoreCritique,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Text(
             'Tu dois avoir CHF ${_fmt(emergencyNeeded)} d\'épargne de sécurité '
             'pour tenir jusqu\'à la décision AI.',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textPrimary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
           ),
           const SizedBox(height: 8),
           Text(
             'Après décision AI : CHF ${_fmt(_aiRenteMax)}/mois (AI seule)',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
           ),
         ],
       ),
@@ -289,11 +259,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
           const SizedBox(height: 8),
           Text(
             'As-tu une assurance perte de gain ?',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
           Row(
@@ -326,11 +292,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
         ),
         child: Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: isSelected ? MintColors.white : MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: isSelected ? MintColors.white : MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -354,11 +316,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
         ),
         child: Text(
           msg,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: color,
-            fontWeight: FontWeight.w600,
-          ),
+          style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -368,11 +326,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : LAMal art. 67-77, CO art. 324a.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

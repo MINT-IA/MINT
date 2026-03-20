@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -39,11 +39,7 @@ class LowConfidenceCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Pas assez de donn\u00e9es pour une projection fiable',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -53,11 +49,7 @@ class LowConfidenceCard extends StatelessWidget {
             'En Suisse, le taux de remplacement moyen est de 60-70% '
             'du dernier salaire. Pour estimer le tien, '
             'compl\u00e8te quelques informations :',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
           const SizedBox(height: 16),
           ...topPrompts.map((p) => Padding(
@@ -73,21 +65,14 @@ class LowConfidenceCard extends StatelessWidget {
                       ),
                       child: Text(
                         '+${p.impact}%',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: MintColors.primary,
-                        ),
+                        style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         p.label,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                       ),
                     ),
                   ],
@@ -101,7 +86,7 @@ class LowConfidenceCard extends StatelessWidget {
               icon: const Icon(Icons.edit_outlined, size: 18),
               label: Text(
                 'Compl\u00e9ter mon profil',
-                style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                style: MintTextStyles.bodySmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
               ),
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.primary,
@@ -117,11 +102,7 @@ class LowConfidenceCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin).',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.textMuted,
-              fontStyle: FontStyle.italic,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textMuted),
           ),
         ],
       ),

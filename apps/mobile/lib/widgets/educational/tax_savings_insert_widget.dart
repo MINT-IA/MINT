@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mint_mobile/theme/colors.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Insert didactique pour q_has_3a
 /// Mini-simulateur d'économie fiscale 3a avec sliders
@@ -120,18 +120,11 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                     children: [
                       Text(
                         'Optimisation 3a',
-                        style: GoogleFonts.outfit(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       Text(
                         'Ton allié fiscal',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          color: MintColors.textSecondary,
-                        ),
+                        style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
                       ),
                     ],
                   ),
@@ -154,10 +147,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                 // Input Section
                 Text(
                   'Ton revenu mensuel net',
-                  style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MintColors.textSecondary,
-                      fontWeight: FontWeight.w500),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -205,9 +195,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                       ),
                       child: Text(
                         _currencyFormat.format(_monthlyIncome),
-                        style: GoogleFonts.outfit(
-                            fontWeight: FontWeight.bold,
-                            color: MintColors.textPrimary),
+                        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -236,8 +224,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text('Capacité 3a',
-                              style: GoogleFonts.inter(
-                                  color: MintColors.textSecondary)),
+                              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary)),
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
@@ -247,8 +234,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                             ),
                             child: Text(
                                 _currencyFormat.format(_max3aContribution),
-                                style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w600, fontSize: 13)),
+                                style: MintTextStyles.bodySmall().copyWith(fontWeight: FontWeight.w600)),
                           ),
                         ],
                       ),
@@ -256,26 +242,17 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                       const Divider(height: 1),
                       const SizedBox(height: 20),
                       Text('Économie d\'impôts annuelle',
-                          style: GoogleFonts.inter(
-                              fontSize: 13, color: MintColors.textSecondary)),
+                          style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
                       const SizedBox(height: 8),
                       // Hero Number - Clean Anthracite
                       Text(
                         '~${_currencyFormat.format((_taxSavingsMin + _taxSavingsMax) / 2)}',
-                        style: GoogleFonts.outfit(
-                          fontSize: 38,
-                          fontWeight: FontWeight.bold,
-                          color: MintColors.textPrimary,
-                          letterSpacing: -1.5,
-                        ),
+                        style: MintTextStyles.displayMedium(color: MintColors.textPrimary).copyWith(fontSize: 38, fontWeight: FontWeight.bold, letterSpacing: -1.5),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         'Soit ${(((_taxSavingsMin + _taxSavingsMax) / 2) / 12).toStringAsFixed(0)} CHF de plus par mois',
-                        style: GoogleFonts.inter(
-                            fontSize: 13,
-                            color: MintColors.textSecondary,
-                            fontWeight: FontWeight.w600),
+                        style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
@@ -285,8 +262,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                 Center(
                   child: Text(
                     'Estimation basée sur taux marginal ${(_taxRateMin * 100).toInt()}-${(_taxRateMax * 100).toInt()}%',
-                    style: GoogleFonts.inter(
-                        fontSize: 11, color: MintColors.textMuted),
+                    style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                   ),
                 ),
               ],

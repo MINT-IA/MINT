@@ -317,7 +317,8 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
       FlutterError.onError = handler;
 
-      expect(find.text('MON PARCOURS'), findsOneWidget);
+      // i18n: timelineTitle = "Mon parcours"
+      expect(find.textContaining('parcours'), findsWidgets);
     });
 
     testWidgets('shows timeline header text', (tester) async {

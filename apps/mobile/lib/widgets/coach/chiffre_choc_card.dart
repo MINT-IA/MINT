@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Animated "shock figure" card that reveals a personalized financial insight.
 ///
@@ -78,11 +78,7 @@ class ChiffreChocCard extends StatelessWidget {
                 ),
                 child: Text(
                   source,
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w500),
                 ),
               ),
             ],
@@ -97,13 +93,7 @@ class ChiffreChocCard extends StatelessWidget {
             builder: (context, animatedValue, _) {
               return Text(
                 '$prefix${_formatNumber(animatedValue)}$suffix',
-                style: GoogleFonts.montserrat(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
-                  color: color,
-                  height: 1.1,
-                  letterSpacing: -1,
-                ),
+                style: MintTextStyles.displayMedium(color: color).copyWith(fontWeight: FontWeight.w800, letterSpacing: -1),
               );
             },
           ),
@@ -115,12 +105,7 @@ class ChiffreChocCard extends StatelessWidget {
               narrativeMessage!,
               maxLines: 4,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                height: 1.5,
-                color: MintColors.textPrimary,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(height: 1.5, fontStyle: FontStyle.italic),
             ),
             const SizedBox(height: 4),
             Row(
@@ -129,22 +114,14 @@ class ChiffreChocCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text(
                   'Coach MINT',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                 ),
               ],
             ),
           ] else
             Text(
               message,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                color: MintColors.textPrimary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(height: 1.5),
             ),
           const SizedBox(height: 14),
 
@@ -167,10 +144,7 @@ class ChiffreChocCard extends StatelessWidget {
                 children: [
                   Text(
                     ctaLabel,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: MintTextStyles.bodySmall().copyWith(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(width: 6),
                   const Icon(Icons.arrow_forward, size: 14),

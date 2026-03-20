@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/retirement_projection_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Waterfall / bridge chart showing budget construction at retirement.
@@ -106,11 +106,7 @@ class _BudgetGapChartState extends State<BudgetGapChart>
           const SizedBox(width: 8),
           Text(
             'Taux de remplacement : ${rate.toStringAsFixed(0)}%',
-            style: GoogleFonts.montserrat(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
+            style: MintTextStyles.bodySmall(color: color).copyWith(fontSize: 13, fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -134,11 +130,7 @@ class _BudgetGapChartState extends State<BudgetGapChart>
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textSecondary,
-                height: 1.4,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
             ),
           ),
         ],
@@ -279,11 +271,7 @@ class _WaterfallPainter extends CustomPainter {
       final labelTP = TextPainter(
         text: TextSpan(
           text: step.label,
-          style: GoogleFonts.inter(
-            fontSize: 9,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontSize: 9, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
@@ -298,11 +286,7 @@ class _WaterfallPainter extends CustomPainter {
         final amtTP = TextPainter(
           text: TextSpan(
             text: amtStr,
-            style: GoogleFonts.montserrat(
-              fontSize: 9,
-              fontWeight: FontWeight.w700,
-              color: step.color,
-            ),
+            style: MintTextStyles.micro(color: step.color).copyWith(fontSize: 9, fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
           ),
           textDirection: TextDirection.ltr,
         )..layout();

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P8-B  Le Prix du silence — Concubin vs Marié·e
@@ -89,11 +89,7 @@ class PrixDuSilenceWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Le prix du silence',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -101,11 +97,7 @@ class PrixDuSilenceWidget extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             'Ce que ton statut marital coûte — ou économise — à ta succession.',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
           ),
         ],
       ),
@@ -126,11 +118,7 @@ class PrixDuSilenceWidget extends StatelessWidget {
           const SizedBox(width: 10),
           Text(
             'Patrimoine transmis : CHF ${_fmt(patrimoine)}',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: MintColors.info,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -155,29 +143,18 @@ class PrixDuSilenceWidget extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: color,
-                  ),
+                  style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w700),
                 ),
                 Text(
                   'Impôt succession : ${tax == 0 ? "0" : _fmt(tax)} CHF',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                 ),
               ],
             ),
           ),
           Text(
             tax == 0 ? '0 CHF' : '-CHF ${_fmt(tax)}',
-            style: GoogleFonts.montserrat(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
+            style: MintTextStyles.headlineMedium(color: color).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -197,30 +174,18 @@ class PrixDuSilenceWidget extends StatelessWidget {
         children: [
           Text(
             '💡 Le silence te coûte CHF ${_fmt(silence)}',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: MintColors.scoreCritique,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Text(
             'Un testament coûte ~CHF ${_fmt(testamentCost)}. '
             'La différence : CHF ${_fmt(silence - testamentCost)}.',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textPrimary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
           ),
           const SizedBox(height: 8),
           Text(
             '→ Action : Prends rendez-vous chez un·e notaire.',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: MintColors.primary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -231,11 +196,7 @@ class PrixDuSilenceWidget extends StatelessWidget {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : CC art. 462, LHID. Taux varient selon canton et lien de parenté.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
     );
   }
 }

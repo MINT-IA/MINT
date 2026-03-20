@@ -4,7 +4,14 @@ import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
 
 // ────────────────────────────────────────────────────────────────
-//  RESPONSE CARD WIDGET — Widget Tests
+//  RESPONSE CARD WIDGET V2 — Widget Tests
+// ────────────────────────────────────────────────────────────────
+//
+//  Validates V2 "Calm Narrative" contract:
+//  - 3 variants (chat, sheet, compact)
+//  - Proof hidden by default, accessible on demand
+//  - No legacy patterns (left border, +pts, fixed 280, inline sources)
+//  - MintTextStyles tokens only
 // ────────────────────────────────────────────────────────────────
 
 ResponseCard _makeCard({
@@ -34,161 +41,251 @@ ResponseCard _makeCard({
     cta: CardCta(label: ctaLabel, route: ctaRoute, icon: 'savings'),
     urgency: urgency,
     deadline: deadline,
-    disclaimer: 'Outil educatif — ne constitue pas un conseil financier (LSFin art. 3).',
+    disclaimer:
+        'Outil educatif — ne constitue pas un conseil financier (LSFin art. 3).',
     sources: sources,
     alertes: alertes,
     impactPoints: impactPoints,
   );
 }
 
-void main() {
-  group('ResponseCardWidget', () {
-    testWidgets('renders title and subtitle', (tester) async {
-      final card = _makeCard(title: 'Rachat LPP', subtitle: 'Potentiel');
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: SingleChildScrollView(child: ResponseCardWidget(card: card))),
+Widget _wrap(Widget child) {
+  return MaterialApp(
+    home: Scaffold(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: child,
         ),
-      );
+      ),
+    ),
+  );
+}
+
+void main() {
+  // ── COMPACT VARIANT ──
+
+  group('ResponseCardWidget — compact', () {
+    testWidgets('renders title and chevron', (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget.compact(card: _makeCard(title: 'Rachat LPP')),
+      ));
 
       expect(find.text('Rachat LPP'), findsOneWidget);
-      expect(find.text('Potentiel'), findsOneWidget);
+      expect(find.byIcon(Icons.chevron_right_rounded), findsOneWidget);
     });
 
-    testWidgets('renders chiffre-choc formatted', (tester) async {
-      final card = _makeCard(chiffreValue: 12450, chiffreUnit: 'CHF');
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: SingleChildScrollView(child: ResponseCardWidget(card: card))),
-        ),
-      );
+    testWidgets('does NOT show chiffre-choc', (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget.compact(
+            card: _makeCard(chiffreValue: 12450)),
+      ));
 
+      expect(find.text("12'450 CHF"), findsNothing);
+    });
+
+    testWidgets('does NOT show sources inline', (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget.compact(card: _makeCard()),
+      ));
+
+      expect(find.text('OPP3 art. 7'), findsNothing);
+    });
+
+    testWidgets('does NOT show +pts badge', (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget.compact(card: _makeCard(impactPoints: 22)),
+      ));
+
+      expect(find.text('+22 pts'), findsNothing);
+    });
+  });
+
+  // ── CHAT VARIANT ──
+
+  group('ResponseCardWidget — chat', () {
+    testWidgets('renders title and CTA', (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget.chat(card: _makeCard()),
+      ));
+
+      expect(find.text('Versement 3a 2026'), findsOneWidget);
+      expect(find.text('Simuler mon 3a'), findsOneWidget);
+    });
+
+    testWidgets('shows chiffre-choc when meaningful', (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget.chat(card: _makeCard(chiffreValue: 5000)),
+      ));
+
+      expect(find.text("5'000 CHF"), findsOneWidget);
+    });
+
+    testWidgets('hides chiffre-choc when value is 0', (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget.chat(card: _makeCard(chiffreValue: 0)),
+      ));
+
+      // Should not display "0 CHF" or any chiffre-choc text
+      expect(find.text('0 CHF'), findsNothing);
+    });
+
+    testWidgets('does NOT show sources inline (proof on demand)',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget.chat(card: _makeCard()),
+      ));
+
+      expect(find.text('OPP3 art. 7'), findsNothing);
+    });
+
+    testWidgets('shows deadline pill when set', (tester) async {
+      final deadline = DateTime.now().add(const Duration(days: 15));
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget.chat(
+          card: _makeCard(urgency: CardUrgency.high, deadline: deadline),
+        ),
+      ));
+
+      expect(find.byIcon(Icons.schedule_rounded), findsOneWidget);
+    });
+
+    testWidgets('no deadline pill when no deadline', (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget.chat(card: _makeCard()),
+      ));
+
+      expect(find.byIcon(Icons.schedule_rounded), findsNothing);
+    });
+  });
+
+  // ── SHEET VARIANT ──
+
+  group('ResponseCardWidget — sheet', () {
+    testWidgets('renders full layout', (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget(
+            card: _makeCard(chiffreValue: 12450),
+            variant: ResponseCardVariant.sheet),
+      ));
+
+      expect(find.text('Versement 3a 2026'), findsOneWidget);
+      expect(find.text('Economie fiscale estimee'), findsOneWidget);
       expect(find.text("12'450 CHF"), findsOneWidget);
+      expect(find.text('Simuler mon 3a'), findsOneWidget);
     });
 
-    testWidgets('renders percentage chiffre-choc', (tester) async {
-      final card = _makeCard(chiffreValue: 65.5, chiffreUnit: '%');
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: SingleChildScrollView(child: ResponseCardWidget(card: card))),
-        ),
-      );
-
-      expect(find.text('65.5%'), findsOneWidget);
-    });
-
-    testWidgets('renders CTA button', (tester) async {
-      final card = _makeCard(ctaLabel: 'Simuler un rachat');
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: SingleChildScrollView(child: ResponseCardWidget(card: card))),
-        ),
-      );
-
-      expect(find.text('Simuler un rachat'), findsOneWidget);
-      // CTA is a GestureDetector with styled Container, not a FilledButton
-      expect(find.byType(GestureDetector), findsWidgets);
-    });
-
-    testWidgets('renders sources', (tester) async {
-      final card = _makeCard(sources: ['LPP art. 79b', 'LIFD art. 33']);
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: SingleChildScrollView(child: ResponseCardWidget(card: card))),
-        ),
-      );
-
-      expect(find.textContaining('LPP art. 79b'), findsOneWidget);
-    });
-
-    testWidgets('renders deadline badge when present', (tester) async {
-      final card = _makeCard(
-        urgency: CardUrgency.high,
-        deadline: DateTime.now().add(const Duration(days: 20)),
-      );
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: SingleChildScrollView(child: ResponseCardWidget(card: card))),
-        ),
-      );
-
-      // Deadline badge shows "J-20" format for days <= 30
-      expect(find.textContaining('J-'), findsOneWidget);
-      expect(find.byIcon(Icons.schedule), findsOneWidget);
-    });
-
-    testWidgets('no deadline badge when no deadline', (tester) async {
-      final card = _makeCard(); // no deadline
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: SingleChildScrollView(child: ResponseCardWidget(card: card))),
-        ),
-      );
-
-      expect(find.byIcon(Icons.schedule), findsNothing);
-    });
-
-    testWidgets('renders alerte when present', (tester) async {
-      final card = _makeCard(
-        alertes: ['Taux inferieur au seuil recommande de 60%'],
-      );
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: SingleChildScrollView(child: ResponseCardWidget(card: card))),
-        ),
-      );
-
-      expect(find.byIcon(Icons.warning_amber_rounded), findsOneWidget);
-      expect(find.textContaining('60%'), findsOneWidget);
-    });
-
-    testWidgets('no alerte section when empty', (tester) async {
-      final card = _makeCard(alertes: []);
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: SingleChildScrollView(child: ResponseCardWidget(card: card))),
-        ),
-      );
-
-      expect(find.byIcon(Icons.warning_amber_rounded), findsNothing);
-    });
-
-    testWidgets('renders explanation text', (tester) async {
-      final card = _makeCard(title: 'Test');
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: SingleChildScrollView(child: ResponseCardWidget(card: card))),
-        ),
-      );
+    testWidgets('shows explanation text', (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget(
+            card: _makeCard(), variant: ResponseCardVariant.sheet),
+      ));
 
       expect(find.textContaining('Test explanation'), findsOneWidget);
     });
 
-    testWidgets('renders type icon for each card type', (tester) async {
+    testWidgets('shows proof button (info icon) when sources exist',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget(
+            card: _makeCard(), variant: ResponseCardVariant.sheet),
+      ));
+
+      expect(find.byIcon(Icons.info_outline_rounded), findsOneWidget);
+    });
+
+    testWidgets('sources NOT shown inline — only in proof sheet',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget(
+            card: _makeCard(), variant: ResponseCardVariant.sheet),
+      ));
+
+      // Sources text should NOT be visible on the card surface
+      expect(find.text('OPP3 art. 7'), findsNothing);
+    });
+
+    testWidgets('renders percentage chiffre-choc', (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget(
+          card: _makeCard(chiffreValue: 65.5, chiffreUnit: '%'),
+          variant: ResponseCardVariant.sheet,
+        ),
+      ));
+
+      expect(find.text('65.5%'), findsOneWidget);
+    });
+  });
+
+  // ── NO LEGACY PATTERNS ──
+
+  group('ResponseCardWidget — no legacy patterns', () {
+    testWidgets('no left border (V1 removed)', (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget(
+            card: _makeCard(), variant: ResponseCardVariant.sheet),
+      ));
+
+      final container = tester.widget<AnimatedContainer>(
+        find.byType(AnimatedContainer).first,
+      );
+      final decoration = container.decoration as BoxDecoration;
+      expect(decoration.border, isNull);
+    });
+
+    testWidgets('no +pts badge (V1 removed)', (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget(
+            card: _makeCard(impactPoints: 18),
+            variant: ResponseCardVariant.sheet),
+      ));
+
+      expect(find.text('+18 pts'), findsNothing);
+    });
+
+    testWidgets('no alertes inline (V1 removed)', (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget(
+          card: _makeCard(alertes: ['Taux inferieur a 60%']),
+          variant: ResponseCardVariant.sheet,
+        ),
+      ));
+
+      // Alertes are in the proof sheet, not on the card
+      expect(find.text('Taux inferieur a 60%'), findsNothing);
+      expect(find.byIcon(Icons.warning_amber_rounded), findsNothing);
+    });
+  });
+
+  // ── TYPE ICONS ──
+
+  group('ResponseCardWidget — type icons', () {
+    testWidgets('renders correct icon for each type', (tester) async {
       final types = {
-        ResponseCardType.pillar3a: Icons.savings,
-        ResponseCardType.lppBuyback: Icons.account_balance,
-        ResponseCardType.replacementRate: Icons.trending_up,
-        ResponseCardType.taxOptimization: Icons.receipt_long,
-        ResponseCardType.coupleAlert: Icons.family_restroom,
-        ResponseCardType.patrimoine: Icons.account_balance_wallet,
-        ResponseCardType.mortgage: Icons.home,
-        ResponseCardType.independant: Icons.business_center,
+        ResponseCardType.pillar3a: Icons.savings_rounded,
+        ResponseCardType.lppBuyback: Icons.account_balance_rounded,
+        ResponseCardType.replacementRate: Icons.trending_up_rounded,
+        ResponseCardType.taxOptimization: Icons.receipt_long_rounded,
+        ResponseCardType.coupleAlert: Icons.family_restroom_rounded,
+        ResponseCardType.patrimoine: Icons.account_balance_wallet_rounded,
+        ResponseCardType.mortgage: Icons.home_rounded,
+        ResponseCardType.independant: Icons.business_center_rounded,
       };
 
       for (final entry in types.entries) {
-        final card = _makeCard(type: entry.key);
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(body: SingleChildScrollView(child: ResponseCardWidget(card: card))),
-          ),
-        );
+        await tester.pumpWidget(_wrap(
+          ResponseCardWidget(
+              card: _makeCard(type: entry.key),
+              variant: ResponseCardVariant.sheet),
+        ));
 
         expect(find.byIcon(entry.value), findsWidgets,
-            reason: '${entry.key.name} should show ${entry.value}');
+            reason: '${entry.key.name} should show rounded icon');
       }
     });
   });
+
+  // ── STRIP ──
 
   group('ResponseCardStrip', () {
     testWidgets('renders nothing when empty', (tester) async {
@@ -198,38 +295,36 @@ void main() {
         ),
       );
 
-      expect(find.byType(ResponseCardStrip), findsOneWidget);
       expect(find.byType(ResponseCardWidget), findsNothing);
     });
 
-    testWidgets('renders multiple cards', (tester) async {
-      final cards = [
-        _makeCard(type: ResponseCardType.pillar3a, title: 'Card 1'),
-        _makeCard(type: ResponseCardType.lppBuyback, title: 'Card 2'),
-      ];
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: ResponseCardStrip(cards: cards)),
-        ),
-      );
+    testWidgets('single card renders without horizontal scroll',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardStrip(cards: [_makeCard()]),
+      ));
 
-      expect(find.byType(ResponseCardWidget), findsNWidgets(2));
-      expect(find.text('Card 1'), findsOneWidget);
-      expect(find.text('Card 2'), findsOneWidget);
+      expect(find.text('Versement 3a 2026'), findsOneWidget);
+      expect(find.byType(ListView), findsNothing);
     });
 
-    testWidgets('uses horizontal scroll', (tester) async {
-      final cards = [
-        _makeCard(type: ResponseCardType.pillar3a, title: 'A'),
-        _makeCard(type: ResponseCardType.lppBuyback, title: 'B'),
-        _makeCard(type: ResponseCardType.replacementRate, title: 'C'),
-      ];
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: ResponseCardStrip(cards: cards)),
+    testWidgets('multiple cards render in horizontal scroll',
+        (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            height: 300,
+            child: ResponseCardStrip(
+              cards: [
+                _makeCard(title: 'Card A'),
+                _makeCard(title: 'Card B'),
+              ],
+            ),
+          ),
         ),
-      );
+      ));
 
+      expect(find.byType(ListView), findsOneWidget);
       final listView = tester.widget<ListView>(find.byType(ListView));
       expect(listView.scrollDirection, Axis.horizontal);
     });

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Small badge shown next to an estimated value.
 ///
@@ -57,20 +57,12 @@ class SmartDefaultIndicator extends StatelessWidget {
           children: [
             Text(
               '~',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(width: 3),
             Text(
               'Estime',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted),
             ),
           ],
         ),
@@ -126,11 +118,7 @@ class SmartDefaultIndicator extends StatelessWidget {
                   const SizedBox(width: 10),
                   Text(
                     'Valeur estimee',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
                   ),
                 ],
               ),
@@ -139,11 +127,7 @@ class SmartDefaultIndicator extends StatelessWidget {
               Text(
                 'Ce chiffre est une estimation basee sur ton profil. '
                 'Precise-le pour un resultat plus fiable.',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: MintColors.textPrimary,
-                  height: 1.5,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(height: 1.5),
               ),
 
               const SizedBox(height: 12),
@@ -161,21 +145,12 @@ class SmartDefaultIndicator extends StatelessWidget {
                   children: [
                     Text(
                       'Base de l\'estimation',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.textMuted,
-                        letterSpacing: 0.3,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.3),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       source,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: MintColors.textSecondary,
-                        height: 1.4,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
                     ),
                     const SizedBox(height: 8),
 
@@ -184,11 +159,7 @@ class SmartDefaultIndicator extends StatelessWidget {
                       children: [
                         Text(
                           'Fiabilite : $confidencePct %',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: _confidenceColor(confidence),
-                          ),
+                          style: MintTextStyles.bodySmall(color: _confidenceColor(confidence)).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
                         ),
                         const Spacer(),
                       ],
@@ -221,10 +192,7 @@ class SmartDefaultIndicator extends StatelessWidget {
                     icon: const Icon(Icons.edit_outlined, size: 16),
                     label: Text(
                       'Preciser ce chiffre',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
                     ),
                     style: FilledButton.styleFrom(
                       backgroundColor: MintColors.primary,
@@ -283,10 +251,7 @@ class SmartDefaultValue extends StatelessWidget {
       children: [
         Text(
           '~$label',
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
         ),
         SmartDefaultIndicator(
           source: source,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -77,11 +77,7 @@ class WhatIfStoriesWidget extends StatelessWidget {
           children: [
             Text(
               'Ce qui pourrait tout changer',
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 14),
             ...stories
@@ -93,11 +89,7 @@ class WhatIfStoriesWidget extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               'Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier (LSFin).',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
             ),
           ],
         ),
@@ -136,12 +128,7 @@ class WhatIfStoriesWidget extends StatelessWidget {
                   Expanded(
                     child: Text(
                       story.question,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.textPrimary,
-                        height: 1.3,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600, height: 1.3),
                     ),
                   ),
                 ],
@@ -166,22 +153,14 @@ class WhatIfStoriesWidget extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           '${isPositive ? "+" : ""}${formatChfWithPrefix(story.monthlyImpactChf)}/mois \u00e0 65 ans',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: impactColor,
-                          ),
+                          style: MintTextStyles.bodySmall(color: impactColor).copyWith(fontWeight: FontWeight.w700),
                         ),
                       ],
                     ),
                     const SizedBox(height: 4),
                     Text(
                       story.explanation,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textSecondary,
-                        height: 1.3,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.3),
                     ),
                     if (story.actionLabel != null) ...[
                       const SizedBox(height: 6),
@@ -193,11 +172,7 @@ class WhatIfStoriesWidget extends StatelessWidget {
                           Flexible(
                             child: Text(
                               story.actionLabel!,
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: MintColors.primary,
-                              ),
+                              style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                             ),
                           ),
                         ],

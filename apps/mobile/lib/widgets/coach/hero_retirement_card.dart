@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -114,18 +114,11 @@ class HeroRetirementCard extends StatelessWidget {
             children: [
               Text(
                 _headerTitle,
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
               ),
               Text(
                 _headerSubtitle,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
               ),
             ],
           ),
@@ -168,11 +161,7 @@ class HeroRetirementCard extends StatelessWidget {
           ),
           child: Text(
             'Fiable',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: MintColors.scoreExcellent,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w600),
           ),
         );
       case HeroCardMode.range:
@@ -184,11 +173,7 @@ class HeroRetirementCard extends StatelessWidget {
           ),
           child: Text(
             'Estimation',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: MintColors.scoreAttention,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.scoreAttention).copyWith(fontWeight: FontWeight.w600),
           ),
         );
       case HeroCardMode.educational:
@@ -200,11 +185,7 @@ class HeroRetirementCard extends StatelessWidget {
           ),
           child: Text(
             'A compl\u00e9ter',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600),
           ),
         );
     }
@@ -266,20 +247,12 @@ class HeroRetirementCard extends StatelessWidget {
           // Fallback without current salary
           Text(
             formatChfWithPrefix(income),
-            style: GoogleFonts.montserrat(
-              fontSize: 36,
-              fontWeight: FontWeight.w800,
-              color: MintColors.textPrimary,
-              height: 1.0,
-            ),
+            style: MintTextStyles.displayMedium(color: MintColors.textPrimary).copyWith(fontSize: 36, fontWeight: FontWeight.w800, height: 1.0),
           ),
           const SizedBox(height: 4),
           Text(
             'par mois \u00e0 la retraite',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
           ),
         ],
         if (ratio > 0) ...[
@@ -304,28 +277,17 @@ class HeroRetirementCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
         ),
         const SizedBox(height: 4),
         Text(
           formatChfWithPrefix(amount),
-          style: GoogleFonts.montserrat(
-            fontSize: isHighlighted ? 28 : 22,
-            fontWeight: FontWeight.w800,
-            color: isHighlighted ? MintColors.primary : MintColors.textPrimary,
-            height: 1.0,
-          ),
+          style: MintTextStyles.displayMedium(color: isHighlighted ? MintColors.primary : MintColors.textPrimary).copyWith(fontSize: isHighlighted ? 28 : 22, fontWeight: FontWeight.w800, height: 1.0),
         ),
         const SizedBox(height: 2),
         Text(
           '/mois',
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted),
         ),
       ],
     );
@@ -365,11 +327,7 @@ class HeroRetirementCard extends StatelessWidget {
                   children: [
                     Text(
                       'Tu garderas ${ratio.toStringAsFixed(0)}% de ton train de vie',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: color,
-                      ),
+                      style: MintTextStyles.bodyMedium(color: color).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -388,11 +346,7 @@ class HeroRetirementCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             explanation,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
         ],
       ),
@@ -406,10 +360,7 @@ class HeroRetirementCard extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           'Fourchette\u00a0: ${formatChfWithPrefix(rangeMin!)} \u2013 ${formatChfWithPrefix(rangeMax!)} / mois',
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
         ),
       ],
     );
@@ -424,10 +375,7 @@ class HeroRetirementCard extends StatelessWidget {
       children: [
         Text(
           'Entre',
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
         ),
         const SizedBox(height: 4),
         Row(
@@ -435,41 +383,25 @@ class HeroRetirementCard extends StatelessWidget {
           children: [
             Text(
               formatChfWithPrefix(min),
-              style: GoogleFonts.montserrat(
-                fontSize: 28,
-                fontWeight: FontWeight.w800,
-                color: MintColors.textPrimary,
-                height: 1.0,
-              ),
+              style: MintTextStyles.headlineLarge(color: MintColors.textPrimary).copyWith(fontSize: 28, fontWeight: FontWeight.w800, height: 1.0),
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 3, left: 6, right: 6),
               child: Text(
                 'et',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
               ),
             ),
             Text(
               formatChfWithPrefix(max),
-              style: GoogleFonts.montserrat(
-                fontSize: 28,
-                fontWeight: FontWeight.w800,
-                color: MintColors.textPrimary,
-                height: 1.0,
-              ),
+              style: MintTextStyles.headlineLarge(color: MintColors.textPrimary).copyWith(fontSize: 28, fontWeight: FontWeight.w800, height: 1.0),
             ),
           ],
         ),
         const SizedBox(height: 4),
         Text(
           'par mois \u00e0 la retraite',
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
         ),
         const SizedBox(height: 14),
         Container(
@@ -489,11 +421,7 @@ class HeroRetirementCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'La fourchette se r\u00e9duira en ajoutant tes donn\u00e9es LPP et AVS.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ),
             ],
@@ -519,20 +447,12 @@ class HeroRetirementCard extends StatelessWidget {
             children: [
               Text(
                 'Il nous manque des informations',
-                style: GoogleFonts.montserrat(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
               Text(
                 'Pour estimer ton revenu de retraite, quelques questions suffisent\u00a0:',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: MintColors.textSecondary,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
               ),
               const SizedBox(height: 12),
               _buildQuestion(
@@ -552,7 +472,7 @@ class HeroRetirementCard extends StatelessWidget {
             icon: const Icon(Icons.edit_outlined, size: 18),
             label: Text(
               'Compl\u00e9ter mon profil',
-              style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+              style: MintTextStyles.bodySmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
             ),
             style: FilledButton.styleFrom(
               backgroundColor: MintColors.primary,
@@ -579,10 +499,7 @@ class HeroRetirementCard extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
           ),
         ],
@@ -597,11 +514,7 @@ class HeroRetirementCard extends StatelessWidget {
   Widget _buildDisclaimer() {
     return Text(
       'Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin).',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textMuted,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textMuted),
     );
   }
 

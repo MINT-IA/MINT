@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -128,11 +128,7 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
             // ── Header ──
             Text(
               s.earlyRetirementHeader,
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
             ),
             const SizedBox(height: 16),
 
@@ -140,12 +136,7 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
             Center(
               child: Text(
                 s.earlyRetirementAgeDisplay(_selectedAge),
-                style: GoogleFonts.montserrat(
-                  fontSize: 36,
-                  fontWeight: FontWeight.w800,
-                  color: color,
-                  height: 1.0,
-                ),
+                style: MintTextStyles.displayMedium(color: color).copyWith(fontSize: 36, fontWeight: FontWeight.w800, height: 1.0),
               ),
             ),
             const SizedBox(height: 8),
@@ -161,11 +152,7 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
                 ),
                 child: Text(
                   _zoneLabel(context, _selectedAge),
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: color,
-                  ),
+                  style: MintTextStyles.labelSmall(color: color).copyWith(fontWeight: FontWeight.w600),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -200,16 +187,11 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('$minAge',
-                    style: GoogleFonts.inter(
-                        fontSize: 11, color: MintColors.textMuted)),
+                    style: MintTextStyles.labelSmall(color: MintColors.textMuted)),
                 Text('65',
-                    style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.scoreExcellent)),
+                    style: MintTextStyles.labelSmall(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w600)),
                 Text('$maxAge',
-                    style: GoogleFonts.inter(
-                        fontSize: 11, color: MintColors.textMuted)),
+                    style: MintTextStyles.labelSmall(color: MintColors.textMuted)),
               ],
             ),
             const SizedBox(height: 16),
@@ -221,11 +203,7 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
             const SizedBox(height: 12),
             Text(
               s.earlyRetirementDisclaimer,
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ],
         ),
@@ -253,11 +231,7 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
               Expanded(
                 child: Text(
                   s.earlyRetirementResultLine(scenario.age, formatChfWithPrefix(scenario.monthlyIncome)),
-                  style: GoogleFonts.montserrat(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
                 ),
               ),
               Container(
@@ -271,13 +245,7 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
                 ),
                 child: Text(
                   '${isGain ? "+" : ""}${delta.toStringAsFixed(0)}%',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: isGain
-                        ? MintColors.scoreExcellent
-                        : MintColors.scoreCritique,
-                  ),
+                  style: MintTextStyles.labelSmall(color: isGain ? MintColors.scoreExcellent : MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -286,22 +254,14 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
             const SizedBox(height: 6),
             Text(
               _buildNarrative(context, scenario),
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textSecondary,
-                height: 1.4,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
             ),
           ],
           if (scenario.lifetimeDelta != null) ...[
             const SizedBox(height: 4),
             Text(
               s.earlyRetirementLifetimeImpact(formatChfWithPrefix(scenario.lifetimeDelta!.abs())),
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
+              style: MintTextStyles.labelSmall(color: color).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ],

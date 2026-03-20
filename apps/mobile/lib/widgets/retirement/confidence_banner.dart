@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/financial_core/bayesian_enricher.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Confidence score banner for retirement projections.
 ///
@@ -40,11 +40,7 @@ class ConfidenceBanner extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Fiabilite de la projection',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
               Container(
@@ -56,11 +52,7 @@ class ConfidenceBanner extends StatelessWidget {
                 ),
                 child: Text(
                   '${confidence.score.round()}% — $label',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: color,
-                  ),
+                  style: MintTextStyles.bodySmall(color: color).copyWith(fontSize: 13, fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -84,11 +76,7 @@ class ConfidenceBanner extends StatelessWidget {
             const SizedBox(height: 14),
             Text(
               'Ameliore ta projection :',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 8),
             ..._buildPromptsList(),
@@ -151,18 +139,11 @@ class ConfidenceBanner extends StatelessWidget {
                   children: [
                     Text(
                       prompt.label,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w500),
                     ),
                     Text(
                       prompt.action,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: MintColors.textSecondary,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -179,11 +160,7 @@ class ConfidenceBanner extends StatelessWidget {
                 ),
                 child: Text(
                   '+$impactPct%',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.primary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -225,18 +202,11 @@ class ConfidenceBanner extends StatelessWidget {
                   children: [
                     Text(
                       prompt.label,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w500),
                     ),
                     Text(
                       prompt.action,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: MintColors.textSecondary,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                     ),
                   ],
                 ),
@@ -251,11 +221,7 @@ class ConfidenceBanner extends StatelessWidget {
                 ),
                 child: Text(
                   '+${prompt.impact}%',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.primary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
                 ),
               ),
             ],

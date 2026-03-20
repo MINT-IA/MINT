@@ -11,7 +11,7 @@ import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
 /// Legal basis: LAVS art. 29ter-30, 29sexies, 34-35
 void main() {
   // ── Helper ──────────────────────────────────────────────────
-  ExtractedField? _findField(ExtractionResult r, String fieldName) {
+  ExtractedField? findField(ExtractionResult r, String fieldName) {
     try {
       return r.fields.firstWhere((f) => f.fieldName == fieldName);
     } catch (_) {
@@ -34,28 +34,28 @@ void main() {
     });
 
     test('extracts annees de cotisation = 22', () {
-      final field = _findField(result, 'annees_cotisation');
+      final field = findField(result, 'annees_cotisation');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(22.0, 0.01));
       expect(field.profileField, 'avsContributionYears');
     });
 
     test('extracts RAMD = 72450', () {
-      final field = _findField(result, 'ramd');
+      final field = findField(result, 'ramd');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(72450.0, 0.01));
       expect(field.profileField, 'avsRamd');
     });
 
     test('extracts lacunes de cotisation = 0', () {
-      final field = _findField(result, 'lacunes_cotisation');
+      final field = findField(result, 'lacunes_cotisation');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(0.0, 0.01));
       expect(field.profileField, 'avsGaps');
     });
 
     test('extracts bonifications educatives = 3', () {
-      final field = _findField(result, 'bonifications_educatives');
+      final field = findField(result, 'bonifications_educatives');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(3.0, 0.01));
       expect(field.profileField, 'avsEducationCredits');
@@ -85,41 +85,41 @@ void main() {
   // ── Swiss number formats for RAMD ──────────────────────────
   group('parseAvsExtract — Swiss number formats', () {
     test('parses apostrophe thousands: 72\'450', () {
-      final text = "Revenu annuel moyen déterminant (RAMD): CHF 72'450.00";
+      const text = "Revenu annuel moyen déterminant (RAMD): CHF 72'450.00";
       final result = AvsExtractParser.parseAvsExtract(text);
-      final field = _findField(result, 'ramd');
+      final field = findField(result, 'ramd');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(72450.0, 0.01));
     });
 
     test('parses space as thousand separator: 72 450', () {
-      final text = "Revenu annuel moyen déterminant: CHF 72 450";
+      const text = "Revenu annuel moyen déterminant: CHF 72 450";
       final result = AvsExtractParser.parseAvsExtract(text);
-      final field = _findField(result, 'ramd');
+      final field = findField(result, 'ramd');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(72450.0, 1.0));
     });
 
     test('parses RAMD abbreviation directly', () {
-      final text = "RAMD: CHF 88'200.00";
+      const text = "RAMD: CHF 88'200.00";
       final result = AvsExtractParser.parseAvsExtract(text);
-      final field = _findField(result, 'ramd');
+      final field = findField(result, 'ramd');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(88200.0, 0.01));
     });
 
     test('parses Fr. prefix for RAMD', () {
-      final text = "Revenu annuel moyen déterminant: Fr. 65'000.00";
+      const text = "Revenu annuel moyen déterminant: Fr. 65'000.00";
       final result = AvsExtractParser.parseAvsExtract(text);
-      final field = _findField(result, 'ramd');
+      final field = findField(result, 'ramd');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(65000.0, 0.01));
     });
 
     test('parses comma decimal (Swiss German): 72450,00', () {
-      final text = "RAMD: 72450,00";
+      const text = "RAMD: 72450,00";
       final result = AvsExtractParser.parseAvsExtract(text);
-      final field = _findField(result, 'ramd');
+      final field = findField(result, 'ramd');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(72450.0, 0.01));
     });
@@ -128,42 +128,42 @@ void main() {
   // ── German (DE) format ─────────────────────────────────────
   group('parseAvsExtract — German format', () {
     test('parses Beitragsjahre (DE)', () {
-      final text = "Beitragsjahre: 30";
+      const text = "Beitragsjahre: 30";
       final result = AvsExtractParser.parseAvsExtract(text);
-      final field = _findField(result, 'annees_cotisation');
+      final field = findField(result, 'annees_cotisation');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(30.0, 0.01));
     });
 
     test('parses Massgebendes durchschnittliches Jahreseinkommen (DE)', () {
-      final text =
+      const text =
           "Massgebendes durchschnittliches Jahreseinkommen: CHF 80'000.00";
       final result = AvsExtractParser.parseAvsExtract(text);
-      final field = _findField(result, 'ramd');
+      final field = findField(result, 'ramd');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(80000.0, 0.01));
     });
 
     test('parses MDJE abbreviation (DE)', () {
-      final text = "MDJE: CHF 75'000.00";
+      const text = "MDJE: CHF 75'000.00";
       final result = AvsExtractParser.parseAvsExtract(text);
-      final field = _findField(result, 'ramd');
+      final field = findField(result, 'ramd');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(75000.0, 0.01));
     });
 
     test('parses Beitragslücken (DE)', () {
-      final text = "Beitragslücken: 2";
+      const text = "Beitragslücken: 2";
       final result = AvsExtractParser.parseAvsExtract(text);
-      final field = _findField(result, 'lacunes_cotisation');
+      final field = findField(result, 'lacunes_cotisation');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(2.0, 0.01));
     });
 
     test('parses Erziehungsgutschriften (DE)', () {
-      final text = "Erziehungsgutschriften: 5";
+      const text = "Erziehungsgutschriften: 5";
       final result = AvsExtractParser.parseAvsExtract(text);
-      final field = _findField(result, 'bonifications_educatives');
+      final field = findField(result, 'bonifications_educatives');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(5.0, 0.01));
     });
@@ -172,7 +172,7 @@ void main() {
   // ── Cross-validation with userAge ──────────────────────────
   group('parseAvsExtract — cross-validation with userAge', () {
     test('warns when annees > age - 20', () {
-      final text = "Années de cotisation: 30";
+      const text = "Années de cotisation: 30";
       final result = AvsExtractParser.parseAvsExtract(text, userAge: 40);
       // 40 - 20 = 20 max years, but 30 claimed
       expect(result.warnings, isNotEmpty);
@@ -183,7 +183,7 @@ void main() {
     });
 
     test('no warning when annees <= age - 20', () {
-      final text = "Années de cotisation: 15";
+      const text = "Années de cotisation: 15";
       final result = AvsExtractParser.parseAvsExtract(text, userAge: 40);
       // 40 - 20 = 20 max, 15 <= 20 => OK
       expect(
@@ -193,7 +193,7 @@ void main() {
     });
 
     test('warns when annees + lacunes > age - 20', () {
-      final text = """
+      const text = """
 Années de cotisation: 12
 Lacunes de cotisation: 10
 """;
@@ -207,7 +207,7 @@ Lacunes de cotisation: 10
     });
 
     test('no warning when annees + lacunes <= age - 20', () {
-      final text = """
+      const text = """
 Années de cotisation: 15
 Lacunes de cotisation: 3
 """;
@@ -220,7 +220,7 @@ Lacunes de cotisation: 3
     });
 
     test('no age-based warnings when userAge is not provided', () {
-      final text = "Années de cotisation: 50";
+      const text = "Années de cotisation: 50";
       final result = AvsExtractParser.parseAvsExtract(text);
       // Without userAge, no age-based validation
       expect(
@@ -233,7 +233,7 @@ Lacunes de cotisation: 3
   // ── RAMD plausibility cross-validation ─────────────────────
   group('parseAvsExtract — RAMD plausibility', () {
     test('warns when RAMD > 100000 (above AVS cap)', () {
-      final text = "RAMD: CHF 120'000.00";
+      const text = "RAMD: CHF 120'000.00";
       final result = AvsExtractParser.parseAvsExtract(text);
       expect(result.warnings, isNotEmpty);
       expect(
@@ -243,7 +243,7 @@ Lacunes de cotisation: 3
     });
 
     test('warns when RAMD is very low (< 1000 but > 0)', () {
-      final text = "RAMD: CHF 500.00";
+      const text = "RAMD: CHF 500.00";
       final result = AvsExtractParser.parseAvsExtract(text);
       expect(result.warnings, isNotEmpty);
       expect(
@@ -253,7 +253,7 @@ Lacunes de cotisation: 3
     });
 
     test('no warning for reasonable RAMD = 72450', () {
-      final text = "RAMD: CHF 72'450.00";
+      const text = "RAMD: CHF 72'450.00";
       final result = AvsExtractParser.parseAvsExtract(text);
       expect(
         result.warnings.any(
@@ -266,7 +266,7 @@ Lacunes de cotisation: 3
   // ── Bonifications educatives plausibility ──────────────────
   group('parseAvsExtract — bonifications educatives plausibility', () {
     test('warns when bonifications > 16', () {
-      final text = "Bonifications pour tâches éducatives: 18";
+      const text = "Bonifications pour tâches éducatives: 18";
       final result = AvsExtractParser.parseAvsExtract(text);
       expect(result.warnings, isNotEmpty);
       expect(
@@ -276,7 +276,7 @@ Lacunes de cotisation: 3
     });
 
     test('no warning when bonifications <= 16', () {
-      final text = "Bonifications pour tâches éducatives: 8";
+      const text = "Bonifications pour tâches éducatives: 8";
       final result = AvsExtractParser.parseAvsExtract(text);
       expect(
         result.warnings.any((w) => w.contains('ducatives')),
@@ -321,18 +321,18 @@ Lacunes de cotisation: 3
   // ── Confidence metadata ────────────────────────────────────
   group('parseAvsExtract — confidence metadata', () {
     test('integer fields (years) have confidence = 0.88', () {
-      final text = "Années de cotisation: 22";
+      const text = "Années de cotisation: 22";
       final result = AvsExtractParser.parseAvsExtract(text);
-      final field = _findField(result, 'annees_cotisation');
+      final field = findField(result, 'annees_cotisation');
       expect(field, isNotNull);
       expect(field!.confidence, closeTo(0.88, 0.01));
       expect(field.needsReview, isFalse);
     });
 
     test('CHF-prefixed RAMD has confidence >= 0.82', () {
-      final text = "RAMD: CHF 72'450.00";
+      const text = "RAMD: CHF 72'450.00";
       final result = AvsExtractParser.parseAvsExtract(text);
-      final field = _findField(result, 'ramd');
+      final field = findField(result, 'ramd');
       expect(field, isNotNull);
       expect(field!.confidence, greaterThanOrEqualTo(0.82));
     });
@@ -385,49 +385,49 @@ Lacunes de cotisation: 3
   // ── French variant patterns ────────────────────────────────
   group('parseAvsExtract — French variant patterns', () {
     test('parses "durée de cotisation"', () {
-      final text = "Durée de cotisation: 28";
+      const text = "Durée de cotisation: 28";
       final result = AvsExtractParser.parseAvsExtract(text);
-      final field = _findField(result, 'annees_cotisation');
+      final field = findField(result, 'annees_cotisation');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(28.0, 0.01));
     });
 
     test('parses "nombre d\'années"', () {
-      final text = "Nombre d'années: 25";
+      const text = "Nombre d'années: 25";
       final result = AvsExtractParser.parseAvsExtract(text);
-      final field = _findField(result, 'annees_cotisation');
+      final field = findField(result, 'annees_cotisation');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(25.0, 0.01));
     });
 
     test('parses "revenu déterminant moyen"', () {
-      final text = "Revenu déterminant moyen: CHF 68'000.00";
+      const text = "Revenu déterminant moyen: CHF 68'000.00";
       final result = AvsExtractParser.parseAvsExtract(text);
-      final field = _findField(result, 'ramd');
+      final field = findField(result, 'ramd');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(68000.0, 0.01));
     });
 
     test('parses "années manquantes" as lacunes', () {
-      final text = "Années manquantes: 2";
+      const text = "Années manquantes: 2";
       final result = AvsExtractParser.parseAvsExtract(text);
-      final field = _findField(result, 'lacunes_cotisation');
+      final field = findField(result, 'lacunes_cotisation');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(2.0, 0.01));
     });
 
     test('parses reversed format "22 années de cotisation"', () {
-      final text = "22 années de cotisation";
+      const text = "22 années de cotisation";
       final result = AvsExtractParser.parseAvsExtract(text);
-      final field = _findField(result, 'annees_cotisation');
+      final field = findField(result, 'annees_cotisation');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(22.0, 0.01));
     });
 
     test('parses reversed format "2 lacunes"', () {
-      final text = "2 lacunes de cotisation";
+      const text = "2 lacunes de cotisation";
       final result = AvsExtractParser.parseAvsExtract(text);
-      final field = _findField(result, 'lacunes_cotisation');
+      final field = findField(result, 'lacunes_cotisation');
       expect(field, isNotNull);
       expect((field!.value as double), closeTo(2.0, 0.01));
     });
@@ -436,7 +436,7 @@ Lacunes de cotisation: 3
   // ── Golden couple: Julien (age 49) ─────────────────────────
   group('parseAvsExtract — golden test Julien', () {
     test('extracts Julien-like AVS extract with age validation', () {
-      final text = """
+      const text = """
 EXTRAIT DE COMPTE INDIVIDUEL (CI)
 Caisse de compensation AVS du Valais
 
@@ -451,10 +451,10 @@ Lacunes de cotisation: 0
 Bonifications pour tâches éducatives: 0
 """;
       final result = AvsExtractParser.parseAvsExtract(text, userAge: 49);
-      expect(_findField(result, 'annees_cotisation')!.value, closeTo(29.0, 0.01));
-      expect(_findField(result, 'ramd')!.value, closeTo(88200.0, 0.01));
-      expect(_findField(result, 'lacunes_cotisation')!.value, closeTo(0.0, 0.01));
-      expect(_findField(result, 'bonifications_educatives')!.value, closeTo(0.0, 0.01));
+      expect(findField(result, 'annees_cotisation')!.value, closeTo(29.0, 0.01));
+      expect(findField(result, 'ramd')!.value, closeTo(88200.0, 0.01));
+      expect(findField(result, 'lacunes_cotisation')!.value, closeTo(0.0, 0.01));
+      expect(findField(result, 'bonifications_educatives')!.value, closeTo(0.0, 0.01));
       // 29 years <= 49 - 20 = 29 max => no warning
       expect(
         result.warnings.any((w) => w.contains('passe le maximum')),

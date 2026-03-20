@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/widgets/analytics_consent_banner.dart';
@@ -85,18 +86,18 @@ class _LandingScreenState extends State<LandingScreen>
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 28),
+                    padding: const EdgeInsets.symmetric(horizontal: MintSpacing.xl),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildHeader(),
-                        const SizedBox(height: 48),
+                        const SizedBox(height: MintSpacing.xxl),
                         _buildHeroPunchline(),
                         const SizedBox(height: 44),
                         _buildTranslator(),
                         const SizedBox(height: 44),
                         _buildFooterCta(),
-                        const SizedBox(height: 40),
+                        const SizedBox(height: MintSpacing.xxl),
                         _buildTrustBar(),
                         const SizedBox(height: 12),
                         _buildLegalFooter(),
@@ -127,12 +128,8 @@ class _LandingScreenState extends State<LandingScreen>
         children: [
           Text(
             'MINT',
-            style: GoogleFonts.montserrat(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: MintColors.textPrimary,
-              letterSpacing: 2,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary)
+                .copyWith(fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: 2),
           ),
           TextButton(
             onPressed: () {
@@ -144,11 +141,8 @@ class _LandingScreenState extends State<LandingScreen>
             ),
             child: Text(
               S.of(context)!.authLogin,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                  .copyWith(fontWeight: FontWeight.w500),
             ),
           ),
         ],
@@ -179,28 +173,17 @@ class _LandingScreenState extends State<LandingScreen>
           children: [
             Text(
               l10n.landingPunchline1,
-              style: GoogleFonts.montserrat(
-                fontSize: 32,
-                fontWeight: FontWeight.w300,
-                color: MintColors.textPrimary,
-                height: 1.2,
-                letterSpacing: -0.5,
-              ),
+              style: MintTextStyles.displayMedium(color: MintColors.textPrimary)
+                  .copyWith(fontWeight: FontWeight.w300),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: MintSpacing.xs),
             ShaderMask(
               shaderCallback: (bounds) => const LinearGradient(
                 colors: [MintColors.brandGreen, MintColors.brandGreenDark],
               ).createShader(bounds),
               child: Text(
                 l10n.landingPunchline2,
-                style: GoogleFonts.montserrat(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.white,
-                  height: 1.2,
-                  letterSpacing: -0.5,
-                ),
+                style: MintTextStyles.displayMedium(color: MintColors.white),
               ),
             ),
           ],
@@ -248,7 +231,7 @@ class _LandingScreenState extends State<LandingScreen>
                 _buildTranslatorRow(pairs[i].$1, pairs[i].$2),
                 if (i < pairs.length - 1)
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: MintSpacing.sm),
                     child: Divider(
                       height: 1,
                       color: MintColors.black.withValues(alpha: 0.04),
@@ -270,18 +253,15 @@ class _LandingScreenState extends State<LandingScreen>
         Expanded(
           child: Text(
             jargon,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textMuted,
+            style: MintTextStyles.bodySmall().copyWith(
               decoration: TextDecoration.lineThrough,
               decorationColor: MintColors.textMuted.withValues(alpha: 0.4),
-              height: 1.4,
             ),
           ),
         ),
         // Arrow
         const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12),
+          padding: EdgeInsets.symmetric(horizontal: MintSpacing.sm),
           child: Icon(
             Icons.arrow_forward_rounded,
             size: 15,
@@ -292,12 +272,8 @@ class _LandingScreenState extends State<LandingScreen>
         Expanded(
           child: Text(
             clear,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -328,15 +304,9 @@ class _LandingScreenState extends State<LandingScreen>
             // Loss frame — darker, slightly larger
             Text(
               l10n.landingWhyNobody,
-              style: GoogleFonts.montserrat(
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-                height: 1.3,
-                letterSpacing: -0.3,
-              ),
+              style: MintTextStyles.headlineMedium(),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: MintSpacing.lg),
             // Full-width CTA
             SizedBox(
               width: double.infinity,
@@ -354,11 +324,7 @@ class _LandingScreenState extends State<LandingScreen>
                   child: Center(
                     child: Text(
                       l10n.landingCtaCommencer,
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.white,
-                      ),
+                      style: MintTextStyles.titleMedium(color: MintColors.white),
                     ),
                   ),
                 ),
@@ -401,11 +367,7 @@ class _LandingScreenState extends State<LandingScreen>
         const SizedBox(width: 4),
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            color: MintColors.textMuted,
-            fontWeight: FontWeight.w500,
-          ),
+          style: MintTextStyles.labelSmall(),
         ),
       ],
     );
@@ -435,11 +397,7 @@ class _LandingScreenState extends State<LandingScreen>
         child: Text(
           S.of(context)!.landingLegalFooterShort,
           textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
-            fontSize: 10,
-            color: MintColors.textMuted.withValues(alpha: 0.6),
-            height: 1.5,
-          ),
+          style: MintTextStyles.micro(color: MintColors.textMuted.withValues(alpha: 0.6)),
         ),
       ),
     );

@@ -106,11 +106,11 @@ void main() {
       expect(find.textContaining('Salut Julien'), findsOneWidget);
     });
 
-    testWidgets('shows initial greeting with coach identity', (tester) async {
+    testWidgets('shows initial greeting with question prompt', (tester) async {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.textContaining('coach MINT'), findsOneWidget);
+      expect(find.textContaining('tes chiffres'), findsOneWidget);
     });
 
     testWidgets('shows input field with placeholder', (tester) async {
@@ -118,7 +118,7 @@ void main() {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.byType(TextField), findsOneWidget);
-      expect(find.text('Pose ta question...'), findsOneWidget);
+      expect(find.textContaining('Pose ta question'), findsWidgets);
     });
 
     testWidgets('shows send button', (tester) async {

@@ -3,8 +3,10 @@
 > **Scope**: Architecture technique du Coach AI (services, data flow, cache, guardrails).
 > **Companions**: UX_REDESIGN_COACH.md (ce que l'utilisateur voit), MINT_COACH_VIVANT_ROADMAP.md (plan d'execution sprint).
 
-> **Objectif** : Transformer MINT d'un conseiller financier reactif en un coach IA proactif et emotionnel.
-> **Principe** : Le LLM (BYOK) ne repond plus seulement aux questions — il EST le coach. Chaque texte statique de l'app devient dynamique. Sans BYOK, l'app fonctionne exactement comme aujourd'hui (zero degradation).
+> **Objectif** : Transformer MINT d'un conseiller financier reactif en une couche coach plus proactive, narrative et utile.
+> **Principe** : Le LLM (BYOK) ne repond plus seulement aux questions. Il enrichit la narration, la personnalisation et l'orchestration du coach. Le coach n'est pas le produit: il sert le plan, les flows structures et les ecrans de preuve. Sans BYOK, l'app fonctionne exactement comme aujourd'hui (zero degradation).
+> **Source de vérité** : partielle. Référence technique pour la couche coach IA, subordonnée au `MINT_UX_GRAAL_MASTERPLAN.md`.
+> **Ne couvre pas** : vision umbrella, navigation globale, design system, taxonomie écran par écran.
 
 ---
 
@@ -32,9 +34,9 @@ Le check se fait via `context.read<ByokProvider>().isConfigured`.
 ### Dart/Flutter
 - **State** : Provider (ChangeNotifier). Jamais de setState hors widgets locaux.
 - **Navigation** : GoRouter. Routes declarees dans `app.dart`.
-- **Fonts** : `GoogleFonts.montserrat()` (headings), `GoogleFonts.inter()` (body).
+- **Fonts** : `MintTextStyles` uniquement. Jamais de `GoogleFonts.*` ad hoc dans les écrans/widgets.
 - **Colors** : `MintColors` de `lib/theme/colors.dart`. Jamais de couleurs hardcodees.
-- **Style** : Material 3, `SliverAppBar` pour les headers.
+- **Style** : suivre `DESIGN_SYSTEM.md` et le template maître de l'écran concerné.
 - **Imports** : `package:mint_mobile/...` — jamais de chemins relatifs.
 - **Textes FR** : Tutoiement ("tu"), inclusif ("un·e specialiste"), jamais prescriptif.
 - **Termes bannis** : `garanti`, `certain`, `assure`, `sans risque`, `optimal`, `meilleur`, `parfait`.

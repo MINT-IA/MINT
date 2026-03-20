@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/first_job_service.dart' show SalaryDeductionItem;
+import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -61,12 +61,7 @@ class SalaryBreakdownWidget extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 'DECOMPOSITION DU SALAIRE',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1),
               ),
             ],
           ),
@@ -81,18 +76,11 @@ class SalaryBreakdownWidget extends StatelessWidget {
                 children: [
                   Text(
                     'Brut',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                   ),
                   Text(
                     formatChfWithPrefix(brut),
-                    style: GoogleFonts.montserrat(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 20),
                   ),
                 ],
               ),
@@ -102,18 +90,11 @@ class SalaryBreakdownWidget extends StatelessWidget {
                 children: [
                   Text(
                     'Net estime',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                   ),
                   Text(
                     formatChfWithPrefix(netEstime),
-                    style: GoogleFonts.montserrat(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.success,
-                    ),
+                    style: MintTextStyles.headlineMedium(color: MintColors.success).copyWith(fontSize: 20),
                   ),
                 ],
               ),
@@ -184,11 +165,7 @@ class SalaryBreakdownWidget extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 'L\u2019iceberg de ton salaire',
-                style: GoogleFonts.montserrat(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.info,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -208,12 +185,7 @@ class SalaryBreakdownWidget extends StatelessWidget {
             'Quand tu n\u00e9gocies +200 CHF brut\u00a0: '
             'tu re\u00e7ois ~${negotiationNet.toStringAsFixed(0)} CHF net. '
             'Ton employeur paie ~${negotiationTotal.toStringAsFixed(0)} CHF de plus.',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textSecondary,
-              fontStyle: FontStyle.italic,
-              height: 1.4,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.italic, height: 1.4),
           ),
         ],
       ),
@@ -231,20 +203,12 @@ class SalaryBreakdownWidget extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: isBold ? FontWeight.w600 : FontWeight.w400),
             ),
           ),
           Text(
             formatChfWithPrefix(amount),
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
-              color: color,
-            ),
+            style: MintTextStyles.bodySmall(color: color).copyWith(fontSize: 12, fontWeight: isBold ? FontWeight.w700 : FontWeight.w500),
           ),
         ],
       ),
@@ -274,11 +238,7 @@ class SalaryBreakdownWidget extends StatelessWidget {
                   child: ratio > 0.05
                       ? Text(
                           '${d.pourcentage.toStringAsFixed(1)}%',
-                          style: GoogleFonts.inter(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w600,
-                            color: MintColors.white,
-                          ),
+                          style: MintTextStyles.micro(color: MintColors.white).copyWith(fontSize: 9, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
                         )
                       : null,
                 ),
@@ -292,11 +252,7 @@ class SalaryBreakdownWidget extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   '${((netPortion / brut) * 100).toStringAsFixed(0)}%',
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.white,
-                  ),
+                  style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
                 ),
               ),
             ),
@@ -323,30 +279,19 @@ class SalaryBreakdownWidget extends StatelessWidget {
           Expanded(
             child: Text(
               item.label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: isNet ? FontWeight.w600 : FontWeight.w400,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: isNet ? FontWeight.w600 : FontWeight.w400),
             ),
           ),
           Text(
             formatChfWithPrefix(item.montant),
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: isNet ? MintColors.success : MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodySmall(color: isNet ? MintColors.success : MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(width: 8),
           SizedBox(
             width: 45,
             child: Text(
               '${item.pourcentage.toStringAsFixed(1)}%',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               textAlign: TextAlign.right,
             ),
           ),
@@ -378,22 +323,14 @@ class SalaryBreakdownWidget extends StatelessWidget {
               children: [
                 Text(
                   'Contributions employeur (invisibles)',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.info,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Ton employeur verse ~${formatChfWithPrefix(cotisationsEmployeur)}/mois '
                   'en plus de ton salaire brut (AVS part employeur, LPP part '
                   'employeur, LAA, etc.).',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
             ),

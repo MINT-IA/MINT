@@ -9,9 +9,10 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/fhs_daily_score.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Compact badge displaying the FHS delta vs yesterday.
 ///
@@ -67,7 +68,7 @@ class FhsDeltaBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Tendance\u00a0: $_deltaText vs hier', // TODO: i18n
+      label: S.of(context)!.fhsDeltaLabel(_deltaText),
       child: Container(
         height: 28,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -81,12 +82,8 @@ class FhsDeltaBadge extends StatelessWidget {
             Icon(_icon, size: 14, color: _color),
             const SizedBox(width: 3),
             Text(
-              '$_deltaText vs hier', // TODO: i18n
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: _color,
-              ),
+              S.of(context)!.fhsDeltaText(_deltaText),
+              style: MintTextStyles.bodySmall(color: _color).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
             ),
           ],
         ),

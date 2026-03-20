@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  EMERGENCY FUND RING — Sprint 2 UX
@@ -117,20 +117,12 @@ class _EmergencyFundRingState extends State<EmergencyFundRing>
                   children: [
                     Text(
                       displayMonths.toStringAsFixed(1),
-                      style: GoogleFonts.montserrat(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800,
-                        color: _ringColor,
-                        height: 1.0,
-                      ),
+                      style: MintTextStyles.displayMedium(color: _ringColor).copyWith(fontSize: 28, height: 1.0),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'mois',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: MintColors.textMuted,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                     ),
                   ],
                 ),

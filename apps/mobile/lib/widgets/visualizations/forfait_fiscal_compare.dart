@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FORFAIT FISCAL COMPARE — Expatriation & Frontaliers
@@ -192,18 +192,11 @@ class _ForfaitFiscalCompareState extends State<ForfaitFiscalCompare>
             children: [
               Text(
                 l.forfaitFiscalTitle,
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(),
               ),
               Text(
                 l.forfaitFiscalSubtitle,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
               ),
             ],
           ),
@@ -282,27 +275,16 @@ class _ForfaitFiscalCompareState extends State<ForfaitFiscalCompare>
                         isSaving
                             ? l.forfaitFiscalSaving
                             : l.forfaitFiscalSurcharge,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: color,
-                        ),
+                        style: MintTextStyles.bodyMedium(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         _formatChf(_savings.abs()),
-                        style: GoogleFonts.montserrat(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w800,
-                          color: color,
-                        ),
+                        style: MintTextStyles.headlineMedium(color: color).copyWith(fontSize: 24, fontWeight: FontWeight.w800),
                       ),
                       Text(
                         l.forfaitFiscalPerYear,
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: color.withValues(alpha: 0.7),
-                        ),
+                        style: MintTextStyles.labelSmall(color: color.withValues(alpha: 0.7)),
                       ),
                     ],
                   ),
@@ -476,11 +458,7 @@ class _ForfaitBarPainter extends CustomPainter {
       final lineLabelTp = TextPainter(
         text: TextSpan(
           text: baseLineLabel,
-          style: GoogleFonts.inter(
-            fontSize: 8,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textMuted,
-          ),
+          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 8, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       );
@@ -549,11 +527,7 @@ class _ForfaitBarPainter extends CustomPainter {
         final segLabelTp = TextPainter(
           text: TextSpan(
             text: seg.label,
-            style: GoogleFonts.inter(
-              fontSize: 8,
-              fontWeight: FontWeight.w600,
-              color: MintColors.white.withValues(alpha: 0.9),
-            ),
+            style: MintTextStyles.micro(color: MintColors.white.withValues(alpha: 0.9)).copyWith(fontSize: 8, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
           ),
           textDirection: TextDirection.ltr,
         );
@@ -567,11 +541,7 @@ class _ForfaitBarPainter extends CustomPainter {
         final amtTp = TextPainter(
           text: TextSpan(
             text: _formatChfShort(seg.amount),
-            style: GoogleFonts.montserrat(
-              fontSize: 9,
-              fontWeight: FontWeight.w700,
-              color: MintColors.white,
-            ),
+            style: MintTextStyles.micro(color: MintColors.white).copyWith(fontSize: 9, fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
           ),
           textDirection: TextDirection.ltr,
         );
@@ -706,11 +676,7 @@ class _ForfaitBarPainter extends CustomPainter {
     final savingsTp = TextPainter(
       text: TextSpan(
         text: '-${_formatChfShort(savings)}',
-        style: GoogleFonts.montserrat(
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
-          color: MintColors.success,
-        ),
+        style: MintTextStyles.labelSmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w800),
       ),
       textDirection: TextDirection.ltr,
     );
@@ -744,12 +710,7 @@ class _ForfaitBarPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: text,
-        style: GoogleFonts.inter(
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-          color: color,
-          height: 1.3,
-        ),
+        style: MintTextStyles.micro(color: color).copyWith(fontSize: 10, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal, height: 1.3),
       ),
       textDirection: TextDirection.ltr,
       textAlign: TextAlign.center,
@@ -768,11 +729,7 @@ class _ForfaitBarPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: _formatChf(total * progress),
-        style: GoogleFonts.montserrat(
-          fontSize: 12,
-          fontWeight: FontWeight.w800,
-          color: color,
-        ),
+        style: MintTextStyles.bodyMedium(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w800),
       ),
       textDirection: TextDirection.ltr,
     );

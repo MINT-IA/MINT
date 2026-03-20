@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONFIDENCE BAR — LOT 4 / Retirement Dashboard
@@ -111,11 +111,7 @@ class _ConfidenceBarState extends State<ConfidenceBar>
               children: [
                 Text(
                   'Qualit\u00e9 de ta projection',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -129,21 +125,13 @@ class _ConfidenceBarState extends State<ConfidenceBar>
                       ),
                       child: Text(
                         _zoneDescription,
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: _barColor,
-                        ),
+                        style: MintTextStyles.micro(color: _barColor).copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
                     const SizedBox(width: 6),
                     Text(
                       '${widget.score.round()}%',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: _barColor,
-                      ),
+                      style: MintTextStyles.bodySmall(color: _barColor).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -203,31 +191,19 @@ class _ConfidenceBarState extends State<ConfidenceBar>
                         children: [
                           Text(
                             '20%',
-                            style: GoogleFonts.inter(
-                              fontSize: 9,
-                              color: MintColors.textMuted,
-                            ),
+                            style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 9),
                           ),
                           Text(
                             '40%',
-                            style: GoogleFonts.inter(
-                              fontSize: 9,
-                              color: MintColors.textMuted,
-                            ),
+                            style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 9),
                           ),
                           Text(
                             '70%',
-                            style: GoogleFonts.inter(
-                              fontSize: 9,
-                              color: MintColors.textMuted,
-                            ),
+                            style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 9),
                           ),
                           Text(
                             '95%',
-                            style: GoogleFonts.inter(
-                              fontSize: 9,
-                              color: MintColors.textMuted,
-                            ),
+                            style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 9),
                           ),
                         ],
                       ),
@@ -263,11 +239,7 @@ class _ConfidenceBarState extends State<ConfidenceBar>
         children: [
           Text(
             'Pour am\u00e9liorer ta projection',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: MintColors.primary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 6),
           ...widget.enrichmentActions!
@@ -293,10 +265,7 @@ class _ConfidenceBarState extends State<ConfidenceBar>
                     Expanded(
                       child: Text(
                         action['label'] as String? ?? '',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
                       ),
                     ),
                     const Icon(Icons.chevron_right,

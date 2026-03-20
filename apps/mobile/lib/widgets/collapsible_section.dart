@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Reusable collapsible section for consolidated hub screens (Phase 4).
 ///
@@ -41,19 +41,12 @@ class CollapsibleSection extends StatelessWidget {
           leading: Icon(icon, color: MintColors.primary, size: 20),
           title: Text(
             title,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
           ),
           subtitle: subtitle != null
               ? Text(
                   subtitle!,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                 )
               : null,
           children: [child],

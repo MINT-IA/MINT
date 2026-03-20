@@ -1,9 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 
@@ -148,24 +149,24 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
+                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
                 child: Column(
                   children: [
-                    const SizedBox(height: 40),
+                    const SizedBox(height: MintSpacing.xxl),
                     _buildTitle(),
-                    const SizedBox(height: 36),
+                    const SizedBox(height: MintSpacing.xl + 4),
                     _buildConfidenceCircle(),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: MintSpacing.lg),
                     _buildDeltaBadge(),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: MintSpacing.xl),
                     _buildChiffreChoc(),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: MintSpacing.lg),
                     _buildFieldList(),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: MintSpacing.xl),
                     _buildCtaButton(context),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: MintSpacing.md),
                     _buildDisclaimer(),
-                    const SizedBox(height: 60),
+                    const SizedBox(height: MintSpacing.xxl + 12),
                   ],
                 ),
               ),
@@ -186,22 +187,13 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           Text(
             S.of(context)!.docImpactTitle,
             textAlign: TextAlign.center,
-            style: GoogleFonts.montserrat(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-              height: 1.3,
-            ),
+            style: MintTextStyles.headlineMedium(),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             S.of(context)!.docImpactSubtitle(widget.result.documentType.label),
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 15,
-              color: MintColors.textSecondary,
-              height: 1.5,
-            ),
+            style: MintTextStyles.bodyLarge().copyWith(fontSize: 15),
           ),
         ],
       ),
@@ -235,19 +227,11 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
             children: [
               Text(
                 '$displayedConfidence',
-                style: GoogleFonts.montserrat(
-                  fontSize: 48,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.displayLarge(),
               ),
               Text(
                 S.of(context)!.docImpactConfidenceLabel,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: MintColors.textSecondary,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w500),
               ),
             ],
           ),
@@ -264,7 +248,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       child: Transform.translate(
         offset: Offset(0, 20 * (1 - _badgeFadeIn.value)),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md + 4, vertical: MintSpacing.sm + 2),
           decoration: BoxDecoration(
             color: MintColors.success.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(24),
@@ -276,14 +260,12 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
             children: [
               const Icon(Icons.arrow_upward,
                   size: 20, color: MintColors.success),
-              const SizedBox(width: 6),
+              const SizedBox(width: MintSpacing.sm - 2),
               Text(
                 S.of(context)!.docImpactDeltaPoints(_deltaPoints),
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
+                style: MintTextStyles.titleMedium(
                   color: MintColors.success,
-                ),
+                ).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -299,7 +281,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       opacity: _badgeFadeIn.value,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(MintSpacing.md + 4),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -316,14 +298,13 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           children: [
             Text(
               S.of(context)!.docImpactChiffreChocTitle,
-              style: GoogleFonts.montserrat(
+              style: MintTextStyles.bodySmall().copyWith(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1.2,
-                color: MintColors.textMuted,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.md - 4),
             // Example: show LPP total from extraction if available
             _buildChiffreChocContent(),
           ],
@@ -354,42 +335,29 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         children: [
           Text(
             'CHF ${_formatChf(total)}',
-            style: GoogleFonts.montserrat(
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.displayMedium().copyWith(fontSize: 28),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Text(
             S.of(context)!.docImpactLppRealAmount(_formatChf(obligVal)),
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodyMedium(),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.md - 4),
           Text(
             S.of(context)!.docImpactRenteOblig(_formatChf(rentableAt68)),
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
+            style: MintTextStyles.bodySmall(
               color: MintColors.info,
-            ),
+            ).copyWith(fontWeight: FontWeight.w600),
           ),
           if (surobligVal > 0) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: MintSpacing.xs),
             Text(
               renteSuroblig != null
                   ? S.of(context)!.docImpactSurobligWithRate(_formatChf(surobligVal), surobligRate!.toStringAsFixed(1), _formatChf(renteSuroblig))
                   : S.of(context)!.docImpactSurobligNoRate(_formatChf(surobligVal)),
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textMuted,
-                height: 1.4,
-              ),
+              style: MintTextStyles.bodySmall().copyWith(fontSize: 12, height: 1.4),
             ),
           ],
         ],
@@ -406,20 +374,13 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         children: [
           Text(
             S.of(context)!.docImpactAvsYears(years),
-            style: GoogleFonts.montserrat(
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.displayMedium().copyWith(fontSize: 28),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Text(
             S.of(context)!.docImpactAvsCompletion(maxYears, completionPct),
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodyMedium(),
           ),
         ],
       );
@@ -428,11 +389,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
     return Text(
       S.of(context)!.docImpactGenericMessage,
       textAlign: TextAlign.center,
-      style: GoogleFonts.inter(
-        fontSize: 14,
-        color: MintColors.textSecondary,
-        height: 1.5,
-      ),
+      style: MintTextStyles.bodyMedium(),
     );
   }
 
@@ -448,13 +405,9 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           children: [
             Text(
               S.of(context)!.docImpactFieldsUpdated,
-              style: GoogleFonts.montserrat(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600, color: MintColors.textPrimary),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: MintSpacing.md - 4),
             ...widget.result.fields.map((f) => _buildFieldRow(f)),
           ],
         ),
@@ -464,7 +417,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
 
   Widget _buildFieldRow(ExtractedField field) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: MintSpacing.sm),
       child: Row(
         children: [
           Container(
@@ -480,19 +433,14 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           Expanded(
             child: Text(
               field.label,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
             ),
           ),
           Text(
             _formatShortValue(field),
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
+            style: MintTextStyles.bodyMedium(
               color: MintColors.textPrimary,
-            ),
+            ).copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -515,10 +463,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           icon: const Icon(Icons.dashboard_outlined, size: 22),
           label: Text(
             S.of(context)!.docImpactReturnDashboard,
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
+            style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w600),
           ),
           style: FilledButton.styleFrom(
             backgroundColor: MintColors.primary,
@@ -540,11 +485,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       child: Text(
         S.of(context)!.docImpactDisclaimer,
         textAlign: TextAlign.center,
-        style: GoogleFonts.inter(
-          fontSize: 11,
-          color: MintColors.textMuted,
-          height: 1.5,
-        ),
+        style: MintTextStyles.labelSmall().copyWith(height: 1.5),
       ),
     );
   }

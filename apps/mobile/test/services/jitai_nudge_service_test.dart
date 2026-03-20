@@ -581,7 +581,7 @@ void main() {
       for (final age in milestoneAges) {
         // Use reflection-free approach: trigger birthday nudge for each age
         // by setting birthYear = testYear - age, then Jan 3 of testYear
-        final testYear = 2050;
+        const testYear = 2050;
         final birthYear = testYear - age;
         final profile = _makeProfile(birthYear: birthYear);
         final now = DateTime(testYear, 1, 3);

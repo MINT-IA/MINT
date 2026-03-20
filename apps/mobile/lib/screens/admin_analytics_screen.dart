@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 
 /// Admin analytics dashboard — shows event summary + conversion funnel.
 ///
@@ -75,112 +77,99 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
     return Scaffold(
-      backgroundColor: MintColors.background,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 120,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'Analytics',
-                style: GoogleFonts.montserrat(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 20,
-                  color: MintColors.white,
-                ),
+      backgroundColor: MintColors.white,
+      appBar: AppBar(
+        backgroundColor: MintColors.white,
+        surfaceTintColor: MintColors.white,
+        elevation: 0,
+        title: Text(
+          l10n.adminAnalyticsTitle,
+          style: MintTextStyles.headlineMedium(),
+        ),
+      ),
+      body: _loading
+          ? const Center(
+              child: Padding(
+                padding: EdgeInsets.only(top: 60),
+                child: CircularProgressIndicator(),
               ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [MintColors.primary, MintColors.accent],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+            )
+          : _error != null
+              ? _buildError(l10n)
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(MintSpacing.lg - 4),
+                  child: _buildContent(l10n),
                 ),
+    );
+  }
+
+  Widget _buildError(S l10n) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: MintSpacing.xxl - 8),
+            const Icon(Icons.cloud_off_rounded, size: 48, color: MintColors.textMuted),
+            const SizedBox(height: MintSpacing.md),
+            Text(
+              l10n.adminAnalyticsLoadError,
+              style: MintTextStyles.titleMedium(),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              _error!,
+              style: MintTextStyles.bodySmall(),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: MintSpacing.lg),
+            Semantics(
+              label: l10n.adminAnalyticsRetry,
+              button: true,
+              child: FilledButton.icon(
+                onPressed: _load,
+                icon: const Icon(Icons.refresh),
+                label: Text(l10n.adminAnalyticsRetry),
               ),
             ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: _loading
-                  ? const Center(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 60),
-                        child: CircularProgressIndicator(),
-                      ),
-                    )
-                  : _error != null
-                      ? _buildError()
-                      : _buildContent(),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildError() {
-    return Column(
-      children: [
-        const SizedBox(height: 40),
-        const Icon(Icons.cloud_off_rounded, size: 48, color: MintColors.textMuted),
-        const SizedBox(height: 16),
-        Text(
-          'Impossible de charger les analytics',
-          style: GoogleFonts.montserrat(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textPrimary,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          _error!,
-          style: GoogleFonts.inter(fontSize: 13, color: MintColors.textMuted),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 24),
-        FilledButton.icon(
-          onPressed: _load,
-          icon: const Icon(Icons.refresh),
-          label: const Text('Reessayer'),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildContent() {
+  Widget _buildContent(S l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Period selector
         _buildPeriodSelector(),
-        const SizedBox(height: 24),
+        const SizedBox(height: MintSpacing.lg),
 
         // KPI cards
-        _buildKpiRow(),
-        const SizedBox(height: 24),
+        _buildKpiRow(l10n),
+        const SizedBox(height: MintSpacing.lg),
 
         // Funnel
-        _buildSectionTitle('Funnel de conversion'),
-        const SizedBox(height: 12),
-        _buildFunnel(),
-        const SizedBox(height: 24),
+        _buildSectionTitle(l10n.adminAnalyticsFunnel),
+        const SizedBox(height: MintSpacing.sm + 4),
+        _buildFunnel(l10n),
+        const SizedBox(height: MintSpacing.lg),
 
         // Events by screen
-        _buildSectionTitle('Events par ecran'),
-        const SizedBox(height: 12),
-        _buildBreakdownCard(_byScreen),
-        const SizedBox(height: 24),
+        _buildSectionTitle(l10n.adminAnalyticsByScreen),
+        const SizedBox(height: MintSpacing.sm + 4),
+        _buildBreakdownCard(_byScreen, l10n),
+        const SizedBox(height: MintSpacing.lg),
 
         // Events by category
-        _buildSectionTitle('Events par categorie'),
-        const SizedBox(height: 12),
-        _buildBreakdownCard(_byCategory),
-        const SizedBox(height: 40),
+        _buildSectionTitle(l10n.adminAnalyticsByCategory),
+        const SizedBox(height: MintSpacing.sm + 4),
+        _buildBreakdownCard(_byCategory, l10n),
+        const SizedBox(height: MintSpacing.xxl - 8),
       ],
     );
   }
@@ -190,7 +179,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
       children: [
         for (final d in [7, 14, 30, 90])
           Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.only(right: MintSpacing.sm),
             child: ChoiceChip(
               label: Text('${d}j'),
               selected: _days == d,
@@ -200,61 +189,59 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                   _load();
                 }
               },
-              selectedColor: MintColors.primary.withAlpha(30),
-              labelStyle: GoogleFonts.inter(
-                fontWeight: _days == d ? FontWeight.w600 : FontWeight.w400,
+              selectedColor: MintColors.primary.withValues(alpha: 0.12),
+              labelStyle: MintTextStyles.bodySmall(
                 color: _days == d ? MintColors.primary : MintColors.textSecondary,
+              ).copyWith(
+                fontWeight: _days == d ? FontWeight.w600 : FontWeight.w400,
               ),
             ),
           ),
         const Spacer(),
-        IconButton(
-          onPressed: _load,
-          icon: const Icon(Icons.refresh_rounded),
-          color: MintColors.textSecondary,
+        Semantics(
+          label: 'Rafraîchir',
+          button: true,
+          child: IconButton(
+            onPressed: _load,
+            icon: const Icon(Icons.refresh_rounded),
+            color: MintColors.textSecondary,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildKpiRow() {
+  Widget _buildKpiRow(S l10n) {
     return Row(
       children: [
-        Expanded(child: _buildKpiCard('Sessions', '$_uniqueSessions', Icons.people_outline_rounded)),
-        const SizedBox(width: 12),
-        Expanded(child: _buildKpiCard('Events', '$_totalEvents', Icons.touch_app_rounded)),
+        Expanded(child: _buildKpiCard(l10n.adminAnalyticsSessions, '$_uniqueSessions', Icons.people_outline_rounded)),
+        const SizedBox(width: MintSpacing.sm + 4),
+        Expanded(child: _buildKpiCard(l10n.adminAnalyticsEvents, '$_totalEvents', Icons.touch_app_rounded)),
       ],
     );
   }
 
   Widget _buildKpiCard(String label, String value, IconData icon) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.card,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
+        border: Border.all(color: MintColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: MintColors.primary, size: 24),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           Text(
             value,
-            style: GoogleFonts.montserrat(
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.displayMedium().copyWith(fontSize: 28),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodySmall(),
           ),
         ],
       ),
@@ -264,25 +251,21 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.montserrat(
-        fontSize: 16,
-        fontWeight: FontWeight.w700,
-        color: MintColors.textPrimary,
-      ),
+      style: MintTextStyles.titleMedium(),
     );
   }
 
-  Widget _buildFunnel() {
+  Widget _buildFunnel(S l10n) {
     if (_funnelSteps.isEmpty) {
       return Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(MintSpacing.lg - 4),
         decoration: BoxDecoration(
           color: MintColors.surface,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Text(
-          'Pas encore de donnees de funnel.',
-          style: GoogleFonts.inter(color: MintColors.textMuted),
+          l10n.adminAnalyticsNoFunnel,
+          style: MintTextStyles.bodyMedium(),
         ),
       );
     }
@@ -291,9 +274,9 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: MintColors.card,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
+        border: Border.all(color: MintColors.border),
       ),
       child: Column(
         children: _funnelSteps.asMap().entries.map((entry) {
@@ -306,11 +289,11 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
           final isLast = i == _funnelSteps.length - 1;
 
           return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md, vertical: MintSpacing.sm + 4),
             decoration: BoxDecoration(
               border: isLast
                   ? null
-                  : const Border(bottom: BorderSide(color: MintColors.lightBorder)),
+                  : const Border(bottom: BorderSide(color: MintColors.border)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,36 +303,28 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                     Expanded(
                       child: Text(
                         name,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
+                        style: MintTextStyles.bodySmall(
                           color: MintColors.textPrimary,
                         ),
                       ),
                     ),
                     Text(
                       '$count',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
                     ),
                     if (rate != null) ...[
-                      const SizedBox(width: 8),
+                      const SizedBox(width: MintSpacing.sm),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm, vertical: 2),
                         decoration: BoxDecoration(
-                          color: _rateColor(rate).withAlpha(20),
+                          color: _rateColor(rate).withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           '${(rate as num).toStringAsFixed(0)}%',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                          style: MintTextStyles.labelSmall(
                             color: _rateColor(rate),
-                          ),
+                          ).copyWith(fontWeight: FontWeight.w600, fontSize: 12),
                         ),
                       ),
                     ],
@@ -360,9 +335,9 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: barFraction.clamp(0.0, 1.0),
-                    backgroundColor: MintColors.lightBorder,
+                    backgroundColor: MintColors.border,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      MintColors.primary.withAlpha((255 * (0.4 + 0.6 * barFraction)).round()),
+                      MintColors.primary.withValues(alpha: 0.4 + 0.6 * barFraction),
                     ),
                     minHeight: 6,
                   ),
@@ -375,17 +350,17 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
     );
   }
 
-  Widget _buildBreakdownCard(Map<String, dynamic> data) {
+  Widget _buildBreakdownCard(Map<String, dynamic> data, S l10n) {
     if (data.isEmpty) {
       return Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(MintSpacing.lg - 4),
         decoration: BoxDecoration(
           color: MintColors.surface,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Text(
-          'Pas encore de donnees.',
-          style: GoogleFonts.inter(color: MintColors.textMuted),
+          l10n.adminAnalyticsNoData,
+          style: MintTextStyles.bodyMedium(),
         ),
       );
     }
@@ -396,9 +371,9 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: MintColors.card,
+        color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
+        border: Border.all(color: MintColors.border),
       ),
       child: Column(
         children: entries.asMap().entries.map((entry) {
@@ -406,30 +381,25 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
           final e = entry.value;
           final isLast = i == entries.length - 1;
           return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md, vertical: MintSpacing.sm + 2),
             decoration: BoxDecoration(
               border: isLast
                   ? null
-                  : const Border(bottom: BorderSide(color: MintColors.lightBorder)),
+                  : const Border(bottom: BorderSide(color: MintColors.border)),
             ),
             child: Row(
               children: [
                 Expanded(
                   child: Text(
                     _readableName(e.key),
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
+                    style: MintTextStyles.bodySmall(
                       color: MintColors.textPrimary,
                     ),
                   ),
                 ),
                 Text(
                   '${e.value}',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium().copyWith(fontSize: 14),
                 ),
               ],
             ),
@@ -440,7 +410,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
   }
 
   Color _rateColor(num rate) {
-    if (rate >= 60) return MintColors.scoreExcellent;
+    if (rate >= 60) return MintColors.success;
     if (rate >= 30) return MintColors.warning;
     return MintColors.error;
   }

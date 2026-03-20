@@ -241,7 +241,7 @@ void main() {
     });
 
     test('scoreResponse returns valid quality for local fallback', () async {
-      final response = LlmResponse(
+      const response = LlmResponse(
         content: 'Le 3e pilier (pilier 3a) est un outil d\'épargne-retraite '
             'avec avantage fiscal. Le plafond est de 7\u00a0258\u00a0CHF.',
         provider: LlmProvider.localFallback,
@@ -904,7 +904,7 @@ void main() {
             timestamp: DateTime.now(),
           ),
         ],
-        llmConfig: legacy.LlmConfig(apiKey: '', provider: legacy.LlmProvider.anthropic),
+        llmConfig: const legacy.LlmConfig(apiKey: '', provider: legacy.LlmProvider.anthropic),
       );
 
       expect(response.provider, LlmProvider.localFallback);
@@ -1169,33 +1169,33 @@ void main() {
 
   group('Quality scoring — edge cases', () {
     test('very short response gets low relevance score', () async {
-      final response = LlmResponse(
+      const response = LlmResponse(
         content: 'Oui.',
         provider: LlmProvider.claude,
-        latency: const Duration(milliseconds: 100),
+        latency: Duration(milliseconds: 100),
       );
       final quality = await MultiLlmService.scoreResponse(response);
       expect(quality.relevance, lessThan(0.5));
     });
 
     test('response with missing French accents gets lower frenchQuality', () async {
-      final response = LlmResponse(
+      const response = LlmResponse(
         content: 'La prevoyance professionnelle est un outil important. '
             'Les interets composés augmentent le capital. '
             'Tu peux faire un rachat pour reduire ton impot.',
         provider: LlmProvider.claude,
-        latency: const Duration(milliseconds: 200),
+        latency: Duration(milliseconds: 200),
       );
       final quality = await MultiLlmService.scoreResponse(response);
       expect(quality.frenchQuality, lessThan(1.0));
     });
 
     test('response with banned terms gets lower compliance score', () async {
-      final response = LlmResponse(
+      const response = LlmResponse(
         content: 'Ce placement est garanti. C\'est la meilleure solution '
             'pour ton avenir. Un rendement certain de 5% par an.',
         provider: LlmProvider.claude,
-        latency: const Duration(milliseconds: 200),
+        latency: Duration(milliseconds: 200),
       );
       final quality = await MultiLlmService.scoreResponse(response);
       expect(quality.compliance, lessThan(1.0));
@@ -1226,7 +1226,7 @@ void main() {
         compliance: 0.9,
         frenchQuality: 1.0,
       );
-      final arithmeticMean = (0.8 + 0.9 + 1.0) / 3;
+      const arithmeticMean = (0.8 + 0.9 + 1.0) / 3;
       expect(score.overall, lessThan(arithmeticMean));
     });
   });

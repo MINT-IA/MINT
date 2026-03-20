@@ -229,18 +229,18 @@ void main() {
 
     test('returns null when opted out', () {
       CantonalBenchmarkService.isOptedIn = false;
-      final benchmark = CantonalBenchmark(
+      const benchmark = CantonalBenchmark(
         canton: 'VS',
         ageGroup: '45-54',
-        revenuMedian: const BenchmarkRange(
+        revenuMedian: BenchmarkRange(
             low: 72000, median: 92000, high: 125000, label: 'Test'),
-        epargneMensuelle: const BenchmarkRange(
+        epargneMensuelle: BenchmarkRange(
             low: 500, median: 1000, high: 1800, label: 'Test'),
-        chargesFixes: const BenchmarkRange(
+        chargesFixes: BenchmarkRange(
             low: 2400, median: 2900, high: 3600, label: 'Test'),
-        tauxEpargne: const BenchmarkRange(
+        tauxEpargne: BenchmarkRange(
             low: 7, median: 12, high: 17, label: 'Test'),
-        patrimoineNet: const BenchmarkRange(
+        patrimoineNet: BenchmarkRange(
             low: 60000, median: 180000, high: 380000, label: 'Test'),
         source: 'test',
         disclaimer: 'test',

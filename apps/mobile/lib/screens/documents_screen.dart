@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -8,6 +7,8 @@ import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/coach_paywall_sheet.dart';
 
 /// "Coffre-fort" (Document Vault) screen.
@@ -36,172 +37,134 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final docProvider = context.watch<DocumentProvider>();
     final sub = context.watch<SubscriptionProvider>();
     final totalDocs = docProvider.documentCount;
 
     return Scaffold(
       backgroundColor: MintColors.background,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showUploadTypeSheet(s),
-        backgroundColor: MintColors.primary,
-        child: const Icon(Icons.add_rounded, color: MintColors.white, size: 28),
+      floatingActionButton: Semantics(
+        label: s.vaultUploadButton,
+        button: true,
+        child: FloatingActionButton(
+          onPressed: () => _showUploadTypeSheet(s),
+          backgroundColor: MintColors.primary,
+          child: const Icon(Icons.add_rounded, color: MintColors.white, size: 28),
+        ),
       ),
-      body: CustomScrollView(
-        slivers: [
-          _buildAppBar(s, sub),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      appBar: AppBar(
+        backgroundColor: MintColors.white,
+        foregroundColor: MintColors.textPrimary,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
+          onPressed: () => context.pop(),
+        ),
+        title: Text(
+          s.vaultTitle,
+          style: MintTextStyles.headlineMedium(),
+        ),
+        actions: [
+          if (sub.isCoach)
+            Container(
+              margin: const EdgeInsets.only(right: MintSpacing.md),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: MintColors.primary.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  // 1. Header card
-                  _buildHeaderCard(s, totalDocs),
-                  const SizedBox(height: 24),
-
-                  // 2. Category grid
-                  _buildCategoryGrid(s, docProvider),
-                  const SizedBox(height: 28),
-
-                  // 3. Legal guidance section
-                  _buildGuidanceSection(s),
-                  const SizedBox(height: 28),
-
-                  // Uploading indicator
-                  if (docProvider.isUploading) ...[
-                    _buildUploadingIndicator(s),
-                    const SizedBox(height: 24),
-                  ],
-
-                  // Error display
-                  if (docProvider.error != null) ...[
-                    _buildErrorCard(docProvider),
-                    const SizedBox(height: 24),
-                  ],
-
-                  // Last upload result
-                  if (docProvider.lastUploadResult != null &&
-                      !docProvider.isUploading) ...[
-                    _buildResultSection(s, docProvider.lastUploadResult!),
-                    const SizedBox(height: 24),
-                  ],
-
-                  // 4. Documents list
-                  _buildDocumentsList(s, docProvider, sub),
-                  const SizedBox(height: 24),
-
-                  // Bank import card (kept as fallback)
-                  _buildBankImportCard(s),
-                  const SizedBox(height: 24),
-
-                  // Privacy footer
-                  _buildPrivacyFooter(s),
-                  const SizedBox(height: 16),
-
-                  // Disclaimer (compliance — mandatory)
-                  _buildDisclaimer(s),
-                  const SizedBox(height: 40),
+                  const Icon(Icons.star_rounded, color: MintColors.primary, size: 16),
+                  const SizedBox(width: MintSpacing.xs),
+                  Text(
+                    s.vaultPremiumBadge,
+                    style: MintTextStyles.labelSmall(color: MintColors.primary),
+                  ),
                 ],
               ),
             ),
+          IconButton(
+            icon: const Icon(Icons.info_outline, size: 22, color: MintColors.textMuted),
+            onPressed: () => _showInfoDialog(),
           ),
+          const SizedBox(width: MintSpacing.sm),
         ],
       ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. Header card
+            _buildHeaderCard(s, totalDocs),
+            const SizedBox(height: MintSpacing.lg),
+
+            // 2. Category grid
+            _buildCategoryGrid(s, docProvider),
+            const SizedBox(height: MintSpacing.xl),
+
+            // 3. Legal guidance section
+            _buildGuidanceSection(s),
+            const SizedBox(height: MintSpacing.xl),
+
+            // Uploading indicator
+            if (docProvider.isUploading) ...[
+              _buildUploadingIndicator(s),
+              const SizedBox(height: MintSpacing.lg),
+            ],
+
+            // Error display
+            if (docProvider.error != null) ...[
+              _buildErrorCard(docProvider),
+              const SizedBox(height: MintSpacing.lg),
+            ],
+
+            // Last upload result
+            if (docProvider.lastUploadResult != null &&
+                !docProvider.isUploading) ...[
+              _buildResultSection(s, docProvider.lastUploadResult!),
+              const SizedBox(height: MintSpacing.lg),
+            ],
+
+            // 4. Documents list
+            _buildDocumentsList(s, docProvider, sub),
+            const SizedBox(height: MintSpacing.lg),
+
+            // Bank import card (kept as fallback)
+            _buildBankImportCard(s),
+            const SizedBox(height: MintSpacing.lg),
+
+            // Privacy footer
+            _buildPrivacyFooter(s),
+            const SizedBox(height: MintSpacing.md),
+
+            // Disclaimer (compliance — mandatory)
+            _buildDisclaimer(s),
+            const SizedBox(height: MintSpacing.xl),
+          ],
+        ),
+      ),
     );
   }
 
   // ──────────────────────────────────────────────────────────
-  // 1. App Bar — SliverAppBar with gradient
+  // 2. Header Card — standard card (no glassmorphism)
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildAppBar(S? s, SubscriptionProvider sub) {
-    return SliverAppBar(
-      expandedHeight: 100,
-      pinned: true,
-      backgroundColor: MintColors.primary,
-      leading: IconButton(
-        icon:
-            const Icon(Icons.arrow_back_ios_new, color: MintColors.white, size: 20),
-        onPressed: () => context.pop(),
-      ),
-      flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                MintColors.primary,
-                MintColors.primary.withValues(alpha: 0.85),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-        title: Text(
-          s?.vaultTitle.toUpperCase() ?? 'COFFRE-FORT',
-          style: GoogleFonts.montserrat(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
-            color: MintColors.white,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      actions: [
-        if (sub.isCoach)
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: MintColors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.star_rounded, color: MintColors.white, size: 16),
-                const SizedBox(width: 4),
-                Text(
-                  s?.vaultPremiumBadge ?? 'Premium',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        IconButton(
-          icon: const Icon(Icons.info_outline, size: 22, color: MintColors.white),
-          onPressed: () => _showInfoDialog(),
-        ),
-        const SizedBox(width: 8),
-      ],
-    );
-  }
+  Widget _buildHeaderCard(S s, int totalDocs) {
+    // Compute confidence choc: rough heuristic
+    final confidencePct = totalDocs >= 6 ? 95 : (totalDocs * 15).clamp(0, 90);
 
-  // ──────────────────────────────────────────────────────────
-  // 2. Header Card — glassmorphism-style
-  // ──────────────────────────────────────────────────────────
-
-  Widget _buildHeaderCard(S? s, int totalDocs) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
-        color: MintColors.glassBackground,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: MintColors.glassBorder),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withValues(alpha: 0.06),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: MintColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,63 +174,53 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: MintColors.accent.withValues(alpha: 0.08),
+                  color: MintColors.primary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: const Icon(Icons.lock_outline,
-                    color: MintColors.accent, size: 28),
+                    color: MintColors.primary, size: 28),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: MintSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      s?.vaultHeaderTitle ?? 'Ton coffre-fort financier',
-                      style: GoogleFonts.outfit(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: MintColors.textPrimary,
-                      ),
+                      s.vaultHeaderTitle,
+                      style: MintTextStyles.headlineLarge().copyWith(fontSize: 24),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: MintSpacing.xs),
                     Text(
-                      s?.vaultHeaderSubtitle ??
-                          'Centralise, comprends et agis sur tes documents',
-                      style: const TextStyle(
-                        fontSize: 15,
-                        color: MintColors.textSecondary,
-                        height: 1.4,
-                      ),
+                      s.vaultHeaderSubtitle,
+                      style: MintTextStyles.bodyMedium(),
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: MintColors.info.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.folder_outlined,
-                    color: MintColors.info, size: 18),
-                const SizedBox(width: 8),
-                Text(
-                  s?.vaultDocCount(totalDocs.toString()) ??
-                      '$totalDocs documents',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.info,
+          const SizedBox(height: MintSpacing.md),
+          // Chiffre-choc: X documents = Y% confiance
+          Semantics(
+            label: s.documentsConfidenceChoc(totalDocs.toString(), confidencePct.toString()),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: MintSpacing.sm),
+              decoration: BoxDecoration(
+                color: MintColors.info.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.folder_outlined,
+                      color: MintColors.info, size: 18),
+                  const SizedBox(width: MintSpacing.sm),
+                  Text(
+                    s.documentsConfidenceChoc(totalDocs.toString(), confidencePct.toString()),
+                    style: MintTextStyles.bodySmall(color: MintColors.info),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -279,7 +232,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // 3. Category Grid — 2-column grid of tappable category cards
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildCategoryGrid(S? s, DocumentProvider docProvider) {
+  Widget _buildCategoryGrid(S s, DocumentProvider docProvider) {
     final categories = _getCategoryDefinitions(s);
 
     return GridView.builder(
@@ -287,8 +240,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
+        crossAxisSpacing: MintSpacing.sm,
+        mainAxisSpacing: MintSpacing.sm,
         childAspectRatio: 1.4,
       ),
       itemCount: categories.length,
@@ -302,7 +255,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Widget _buildCategoryCard(
-    S? s,
+    S s,
     VaultDocumentType type,
     IconData icon,
     Color color,
@@ -316,18 +269,11 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         onTap: () => _pickAndUpload(type),
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(MintSpacing.md),
           decoration: BoxDecoration(
             color: MintColors.white,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: MintColors.lightBorder),
-            boxShadow: [
-              BoxShadow(
-                color: color.withValues(alpha: 0.06),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
+            border: Border.all(color: MintColors.border),
           ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,25 +287,19 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               ),
               child: Icon(icon, color: color, size: 22),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             Text(
               label,
-              style: GoogleFonts.outfit(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             Text(
               count > 0
-                  ? (s?.vaultCategoryCount(count.toString()) ?? '$count')
-                  : (s?.vaultCategoryNone ?? 'Aucun'),
-              style: TextStyle(
-                fontSize: 13,
+                  ? s.vaultCategoryCount(count.toString())
+                  : s.vaultCategoryNone,
+              style: MintTextStyles.labelSmall(
                 color: count > 0 ? color : MintColors.textMuted,
-                fontWeight: count > 0 ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
           ],
@@ -373,101 +313,71 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // 4. Legal Guidance Section
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildGuidanceSection(S? s) {
+  Widget _buildGuidanceSection(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          s?.vaultGuidanceTitle.toUpperCase() ?? 'GUIDANCE JURIDIQUE',
-          style: GoogleFonts.montserrat(
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
-            letterSpacing: 1,
-          ),
+          s.vaultGuidanceTitle,
+          style: MintTextStyles.labelSmall(),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: MintSpacing.md),
 
-        // a) Bail — Tes droits de locataire
+        // a) Bail
         _buildGuidanceCard(
           s,
           icon: Icons.home_outlined,
-          title: s?.vaultGuidanceLeaseTitle ??
-              'Bail \u2014 Tes droits de locataire',
-          body: s?.vaultGuidanceLeaseBody ??
-              'En Suisse, le loyer peut \u00eatre contest\u00e9 s\u2019il d\u00e9passe '
-                  'le rendement admissible (CO art. 269). Le pr\u00e9avis l\u00e9gal est '
-                  'de 3 mois pour un appartement, sauf clause contraire dans le bail. '
-                  'L\u2019ASLOCA offre des consultations gratuites dans la plupart des cantons.',
-          source:
-              s?.vaultGuidanceLeaseSource ?? 'CO art. 269-270, OBLF art. 12-13',
+          title: s.vaultGuidanceLeaseTitle,
+          body: s.vaultGuidanceLeaseBody,
+          source: s.vaultGuidanceLeaseSource,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm),
 
-        // b) Assurances — Audit de couverture
+        // b) Assurances
         _buildGuidanceCard(
           s,
           icon: Icons.health_and_safety_outlined,
-          title: s?.vaultGuidanceInsuranceTitle ??
-              'Assurances \u2014 Audit de couverture',
-          body: s?.vaultGuidanceInsuranceBody ??
-              'La RC priv\u00e9e et l\u2019assurance m\u00e9nage ne sont pas obligatoires '
-                  'en Suisse, mais fortement recommand\u00e9es. V\u00e9rifie que ta somme '
-                  'assur\u00e9e m\u00e9nage couvre la valeur r\u00e9elle de tes biens. '
-                  'La sous-assurance peut r\u00e9duire l\u2019indemnisation proportionnellement '
-                  '(LCA art. 69).',
-          source:
-              s?.vaultGuidanceInsuranceSource ?? 'LCA art. 69, CGA assureurs',
+          title: s.vaultGuidanceInsuranceTitle,
+          body: s.vaultGuidanceInsuranceBody,
+          source: s.vaultGuidanceInsuranceSource,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm),
 
-        // c) LAMal — Optimisation franchise
+        // c) LAMal
         _buildGuidanceCard(
           s,
           icon: Icons.local_hospital_outlined,
-          title: s?.vaultGuidanceLamalTitle ??
-              'LAMal \u2014 Optimisation franchise',
-          body: s?.vaultGuidanceLamalBody ??
-              'Tu peux changer de franchise LAMal chaque ann\u00e9e au 30 novembre '
-                  '(franchise plus haute) ou au 31 d\u00e9cembre (franchise plus basse). '
-                  'Un\u00b7e adulte en bonne sant\u00e9 peut \u00e9conomiser jusqu\u2019\u00e0 '
-                  '1\u2019500 CHF/an avec une franchise de 2\u2019500 CHF vs 300 CHF.',
-          source:
-              s?.vaultGuidanceLamalSource ?? 'LAMal art. 62, OAMal art. 93-94',
+          title: s.vaultGuidanceLamalTitle,
+          body: s.vaultGuidanceLamalBody,
+          source: s.vaultGuidanceLamalSource,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm),
 
-        // d) Salaire — Vérification du certificat
+        // d) Salaire
         _buildGuidanceCard(
           s,
           icon: Icons.payments_outlined,
-          title: s?.vaultGuidanceSalaryTitle ??
-              'Salaire \u2014 V\u00e9rification du certificat',
-          body: s?.vaultGuidanceSalaryBody ??
-              'Ton certificat de salaire (Lohnausweis) est le document cl\u00e9 pour ta '
-                  'd\u00e9claration fiscale. V\u00e9rifie que les cotisations LPP, AVS et '
-                  'allocations familiales correspondent \u00e0 tes fiches de paie. '
-                  'Toute erreur peut impacter tes imp\u00f4ts et ta pr\u00e9voyance.',
-          source: s?.vaultGuidanceSalarySource ??
-              'LIFD art. 127, OFS formulaire 11',
+          title: s.vaultGuidanceSalaryTitle,
+          body: s.vaultGuidanceSalaryBody,
+          source: s.vaultGuidanceSalarySource,
         ),
       ],
     );
   }
 
   Widget _buildGuidanceCard(
-    S? s, {
+    S s, {
     required IconData icon,
     required String title,
     required String body,
     required String source,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.accentPastel,
+        color: MintColors.info.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.accent.withValues(alpha: 0.2)),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -475,46 +385,34 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(MintSpacing.sm),
                 decoration: BoxDecoration(
-                  color: MintColors.accent.withValues(alpha: 0.12),
+                  color: MintColors.info.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: MintColors.accent, size: 20),
+                child: Icon(icon, color: MintColors.info, size: 20),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: MintSpacing.sm),
               const Icon(Icons.school_outlined,
-                  color: MintColors.accent, size: 16),
+                  color: MintColors.info, size: 16),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   title,
-                  style: GoogleFonts.outfit(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             body,
-            style: const TextStyle(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.5,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             source,
-            style: const TextStyle(
-              fontSize: 12,
-              fontStyle: FontStyle.italic,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textMuted),
           ),
         ],
       ),
@@ -526,20 +424,15 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // ──────────────────────────────────────────────────────────
 
   Widget _buildDocumentsList(
-      S? s, DocumentProvider docProvider, SubscriptionProvider sub) {
+      S s, DocumentProvider docProvider, SubscriptionProvider sub) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          s?.vaultDocListTitle.toUpperCase() ?? 'MES DOCUMENTS',
-          style: GoogleFonts.montserrat(
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
-            letterSpacing: 1,
-          ),
+          s.vaultDocListTitle,
+          style: MintTextStyles.labelSmall(),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm),
         if (docProvider.documents.isEmpty)
           _buildEmptyState(s)
         else ...[
@@ -549,7 +442,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           // Premium upsell if free user has reached limit
           if (!sub.isCoach &&
               docProvider.documents.length >= _freeDocLimit) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
             _buildPremiumUpsellCard(s),
           ],
         ],
@@ -558,7 +451,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   List<Widget> _buildGroupedDocuments(
-      S? s, DocumentProvider docProvider, SubscriptionProvider sub) {
+      S s, DocumentProvider docProvider, SubscriptionProvider sub) {
     final docs = sub.isCoach
         ? docProvider.documents
         : docProvider.documents.take(_freeDocLimit).toList();
@@ -578,18 +471,14 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
       widgets.add(
         Padding(
-          padding: const EdgeInsets.only(bottom: 8, top: 8),
+          padding: const EdgeInsets.only(bottom: MintSpacing.sm, top: MintSpacing.sm),
           child: Row(
             children: [
               Icon(typeIcon, size: 16, color: typeColor),
-              const SizedBox(width: 8),
+              const SizedBox(width: MintSpacing.sm),
               Text(
                 typeLabel,
-                style: GoogleFonts.outfit(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
               ),
             ],
           ),
@@ -605,7 +494,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Widget _buildDocumentListItem(
-      S? s, DocumentSummary doc, DocumentProvider docProvider) {
+      S s, DocumentSummary doc, DocumentProvider docProvider) {
     final typeLabel = _labelForType(s, doc.documentType);
     final typeIcon = _iconForType(doc.documentType);
     final typeColor = _colorForType(doc.documentType);
@@ -619,7 +508,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       confirmDismiss: (_) => _confirmDeleteDialog(s, doc.id, docProvider),
       background: Container(
         alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
+        padding: const EdgeInsets.only(right: MintSpacing.lg),
         margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
           color: MintColors.error.withValues(alpha: 0.1),
@@ -636,7 +525,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             onTap: () => context.push('/documents/${doc.id}'),
             borderRadius: BorderRadius.circular(16),
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MintSpacing.md),
             decoration: BoxDecoration(
               color: MintColors.white,
               borderRadius: BorderRadius.circular(16),
@@ -659,37 +548,27 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                     children: [
                       Text(
                         typeLabel,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: MintSpacing.xs),
                       Row(
                         children: [
                           Text(
                             dateStr,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: MintColors.textMuted,
-                            ),
+                            style: MintTextStyles.labelSmall(),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: MintSpacing.sm),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
+                                horizontal: MintSpacing.sm, vertical: 2),
                             decoration: BoxDecoration(
                               color: _confidenceColor(confidence)
                                   .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              s?.vaultConfidence(confidence.toString()) ??
-                                  'Confiance : $confidence%',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
+                              s.vaultConfidence(confidence.toString()),
+                              style: MintTextStyles.labelSmall(
                                 color: _confidenceColor(confidence),
                               ),
                             ),
@@ -713,54 +592,45 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  Widget _buildEmptyState(S? s) {
+  Widget _buildEmptyState(S s) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(MintSpacing.xl),
       decoration: BoxDecoration(
         color: MintColors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
+        border: Border.all(color: MintColors.border),
       ),
       child: Column(
         children: [
           Icon(Icons.folder_open_outlined,
-              size: 48, color: MintColors.textMuted.withValues(alpha: 0.5)),
-          const SizedBox(height: 16),
+              size: 48, color: MintColors.textMuted.withValues(alpha: 0.4)),
+          const SizedBox(height: MintSpacing.md),
           Text(
-            s?.vaultEmptyTitle ?? 'Aucun document',
-            style: GoogleFonts.outfit(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            s.vaultEmptyTitle,
+            style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
-            s?.vaultEmptySubtitle ??
-                'Ajoute ton premier document pour alimenter tes simulations avec des donn\u00e9es r\u00e9elles',
+            s.documentsEmptyVoice,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-              height: 1.5,
-            ),
+            style: MintTextStyles.bodyMedium(),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
           FilledButton.icon(
             onPressed: () => _showUploadTypeSheet(s),
             style: FilledButton.styleFrom(
               backgroundColor: MintColors.primary,
               foregroundColor: MintColors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
               ),
             ),
             icon: const Icon(Icons.add_rounded, size: 20),
             label: Text(
-              s?.vaultUploadButton ?? 'Choisir un fichier PDF',
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              s.vaultUploadButton,
+              style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontSize: 14),
             ),
           ),
         ],
@@ -768,9 +638,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  Widget _buildPremiumUpsellCard(S? s) {
+  Widget _buildPremiumUpsellCard(S s) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -781,13 +651,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withValues(alpha: 0.3),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -806,33 +669,22 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
-                  s?.vaultPremiumTitle ?? 'Coffre-fort Premium',
-                  style: GoogleFonts.outfit(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.white,
-                  ),
+                  s.vaultPremiumTitle,
+                  style: MintTextStyles.headlineMedium(color: MintColors.white).copyWith(fontSize: 18),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           Text(
-            s?.vaultPremiumBody ??
-                'Passe \u00e0 MINT Premium pour stocker un nombre illimit\u00e9 de documents '
-                    'et d\u00e9bloquer l\u2019audit de couverture automatique',
-            style: TextStyle(
-              fontSize: 14,
-              color: MintColors.white.withValues(alpha: 0.9),
-              height: 1.4,
-            ),
+            s.vaultPremiumBody,
+            style: MintTextStyles.bodyMedium(color: MintColors.white),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
           SizedBox(
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
-                // Open the existing coach paywall (no '/subscription' route exists)
                 Navigator.of(context).pop();
                 CoachPaywallSheet.show(context);
               },
@@ -840,14 +692,14 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 backgroundColor: MintColors.white,
                 foregroundColor: MintColors.primary,
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.md),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
               ),
               child: Text(
-                s?.vaultPremiumCta ?? 'D\u00e9couvrir Premium',
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                s.vaultPremiumCta,
+                style: MintTextStyles.titleMedium(color: MintColors.primary).copyWith(fontSize: 14),
               ),
             ),
           ),
@@ -860,9 +712,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Uploading Indicator (kept)
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildUploadingIndicator(S? s) {
+  Widget _buildUploadingIndicator(S s) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.surface,
         borderRadius: BorderRadius.circular(20),
@@ -878,14 +730,10 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               valueColor: AlwaysStoppedAnimation<Color>(MintColors.primary),
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: MintSpacing.md),
           Text(
-            s?.vaultAnalyzing ?? 'Analyse en cours...',
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textPrimary,
-            ),
+            s.vaultAnalyzing,
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
           ),
         ],
       ),
@@ -898,24 +746,20 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
   Widget _buildErrorCard(DocumentProvider docProvider) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.error.withValues(alpha: 0.08),
+        color: MintColors.error.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
+        border: Border.all(color: MintColors.error.withValues(alpha: 0.15)),
       ),
       child: Row(
         children: [
           const Icon(Icons.error_outline, color: MintColors.error, size: 20),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: Text(
               docProvider.error!,
-              style: const TextStyle(
-                fontSize: 14,
-                color: MintColors.error,
-                height: 1.4,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.error),
             ),
           ),
           IconButton(
@@ -928,21 +772,21 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   // ──────────────────────────────────────────────────────────
-  // Upload Result Section (kept, handles new types gracefully)
+  // Upload Result Section (kept)
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildResultSection(S? s, DocumentUploadResult result) {
+  Widget _buildResultSection(S s, DocumentUploadResult result) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildConfidenceCard(s, result),
-        const SizedBox(height: 16),
+        const SizedBox(height: MintSpacing.md),
         if (result.extractedFields.lpp != null)
           _buildExtractedFieldsPreview(s, result.extractedFields.lpp!),
-        const SizedBox(height: 16),
+        const SizedBox(height: MintSpacing.md),
         if (result.warnings.isNotEmpty) ...[
           _buildWarningsCard(s, result.warnings),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
         ],
         SizedBox(
           width: double.infinity,
@@ -951,8 +795,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               context.push('/documents/${result.id}');
             },
             child: Text(
-              s?.documentsConfirmButton ??
-                  'Confirmer et mettre \u00e0 jour mon profil',
+              s.documentsConfirmButton,
             ),
           ),
         ),
@@ -960,12 +803,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  Widget _buildConfidenceCard(S? s, DocumentUploadResult result) {
+  Widget _buildConfidenceCard(S s, DocumentUploadResult result) {
     final confidence = (result.confidence * 100).round();
     final Color color = _confidenceColor(confidence);
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(20),
@@ -988,23 +831,16 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               const SizedBox(width: 10),
               Text(
                 _formatConfidence(s, confidence),
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: color,
-                ),
+                style: MintTextStyles.titleMedium(color: color),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             _formatFieldsFound(s, result.fieldsFound, result.fieldsTotal),
-            style: const TextStyle(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodyMedium(),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm),
           LinearProgressIndicator(
             value: result.fieldsTotal > 0
                 ? result.fieldsFound / result.fieldsTotal
@@ -1019,7 +855,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  Widget _buildExtractedFieldsPreview(S? s, LppExtractedFields fields) {
+  Widget _buildExtractedFieldsPreview(S s, LppExtractedFields fields) {
     final entries = _buildFieldEntries(s, fields);
     if (entries.isEmpty) return const SizedBox.shrink();
 
@@ -1027,15 +863,10 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          s?.vaultExtractedFields.toUpperCase() ?? 'CHAMPS EXTRAITS',
-          style: GoogleFonts.montserrat(
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
-            letterSpacing: 1,
-          ),
+          s.vaultExtractedFields,
+          style: MintTextStyles.labelSmall(),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm),
         ...entries.map((entry) => _buildFieldRow(entry.$1, entry.$2)),
       ],
     );
@@ -1043,12 +874,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
   Widget _buildFieldRow(String label, String value) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      margin: const EdgeInsets.only(bottom: MintSpacing.sm),
+      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md, vertical: 14),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: MintColors.lightBorder),
+        border: Border.all(color: MintColors.border),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1056,29 +887,22 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           Flexible(
             child: Text(
               label,
-              style: const TextStyle(
-                fontSize: 14,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodyMedium(),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildWarningsCard(S? s, List<String> warnings) {
+  Widget _buildWarningsCard(S s, List<String> warnings) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
@@ -1091,35 +915,26 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             children: [
               Icon(Icons.warning_amber_rounded,
                   size: 18, color: MintColors.warning.withValues(alpha: 0.8)),
-              const SizedBox(width: 8),
+              const SizedBox(width: MintSpacing.sm),
               Text(
-                s?.documentsWarningsTitle ?? 'Points d\'attention',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.warning.withValues(alpha: 0.9),
-                ),
+                s.documentsWarningsTitle,
+                style: MintTextStyles.bodySmall(color: MintColors.warning),
               ),
             ],
           ),
           const SizedBox(height: 10),
           for (final warning in warnings)
             Padding(
-              padding: const EdgeInsets.only(bottom: 4),
+              padding: const EdgeInsets.only(bottom: MintSpacing.xs),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('\u2022 ',
-                      style: TextStyle(
-                          color: MintColors.warning.withValues(alpha: 0.7))),
+                      style: MintTextStyles.bodySmall(color: MintColors.warning)),
                   Expanded(
                     child: Text(
                       warning,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: MintColors.warning.withValues(alpha: 0.8),
-                        height: 1.4,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.warning),
                     ),
                   ),
                 ],
@@ -1134,15 +949,15 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Bank Import Card (kept as fallback)
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildBankImportCard(S? s) {
+  Widget _buildBankImportCard(S s) {
     return Semantics(
-      label: s?.bankImportTitle ?? 'Importer un relevé bancaire',
+      label: s.bankImportTitle,
       button: true,
       child: InkWell(
         onTap: () => context.push('/bank-import'),
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(MintSpacing.md),
           decoration: BoxDecoration(
             color: MintColors.white,
             borderRadius: BorderRadius.circular(20),
@@ -1165,21 +980,13 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    s?.bankImportTitle ?? 'Importer un relev\u00e9 bancaire',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
+                    s.bankImportTitle,
+                    style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: MintSpacing.xs),
                   Text(
-                    s?.bankImportSubtitle ??
-                        'Analyse automatique de tes transactions',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: MintColors.textMuted,
-                    ),
+                    s.bankImportSubtitle,
+                    style: MintTextStyles.bodySmall(color: MintColors.textMuted),
                   ),
                 ],
               ),
@@ -1197,38 +1004,31 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Privacy Footer (kept)
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildPrivacyFooter(S? s) {
+  Widget _buildPrivacyFooter(S s) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.accentPastel,
+        color: MintColors.info.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.accent.withValues(alpha: 0.2)),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(MintSpacing.sm),
             decoration: BoxDecoration(
-              color: MintColors.accent.withValues(alpha: 0.1),
+              color: MintColors.info.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(Icons.lock_outline,
-                color: MintColors.accent, size: 20),
+                color: MintColors.info, size: 20),
           ),
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              s?.vaultPrivacy ??
-                  'Tes documents sont analys\u00e9s localement et ne sont '
-                      'jamais partag\u00e9s avec des tiers. Tu peux les supprimer '
-                      '\u00e0 tout moment.',
-              style: const TextStyle(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              s.vaultPrivacy,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
         ],
@@ -1240,33 +1040,24 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Disclaimer (compliance — MANDATORY)
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildDisclaimer(S? s) {
+  Widget _buildDisclaimer(S s) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
+        border: Border.all(color: MintColors.border),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.gavel_outlined,
               color: MintColors.textMuted, size: 18),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: Text(
-              s?.vaultDisclaimer ??
-                  'MINT est un outil \u00e9ducatif. Les informations juridiques '
-                      'pr\u00e9sent\u00e9es sont \u00e0 titre informatif et ne constituent '
-                      'pas un conseil juridique personnalis\u00e9 (LSFin, nLPD). '
-                      'Pour toute question sp\u00e9cifique, consulte un\u00b7e '
-                      'sp\u00e9cialiste qualifi\u00e9\u00b7e.',
-              style: const TextStyle(
-                fontSize: 12,
-                color: MintColors.textMuted,
-                height: 1.5,
-              ),
+              s.vaultDisclaimer,
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ),
         ],
@@ -1278,20 +1069,19 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Upload Bottom Sheet
   // ──────────────────────────────────────────────────────────
 
-  void _showUploadTypeSheet(S? s) {
+  void _showUploadTypeSheet(S s) {
     final sub = context.read<SubscriptionProvider>();
     final docProvider = context.read<DocumentProvider>();
 
     // Check free-tier limit
     if (!sub.isCoach && docProvider.documentCount >= _freeDocLimit) {
-      // Show premium upsell instead
       showModalBottomSheet(
         context: context,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         builder: (ctx) => Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(MintSpacing.lg),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -1303,9 +1093,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: MintSpacing.lg),
               _buildPremiumUpsellCard(s),
-              const SizedBox(height: 24),
+              const SizedBox(height: MintSpacing.lg),
             ],
           ),
         ),
@@ -1322,16 +1112,15 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  Widget _buildUploadTypeSheet(BuildContext ctx, S? s) {
+  Widget _buildUploadTypeSheet(BuildContext ctx, S s) {
     final categories = _getCategoryDefinitions(s);
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: MintSpacing.md),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Handle bar
             Container(
               width: 40,
               height: 4,
@@ -1340,26 +1129,22 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: MintSpacing.lg),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  s?.vaultUploadTitle ?? 'Quel type de document ?',
-                  style: GoogleFonts.outfit(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  s.vaultUploadTitle,
+                  style: MintTextStyles.headlineMedium().copyWith(fontSize: 20),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
             for (final cat in categories) ...[
               ListTile(
                 leading: Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(MintSpacing.sm),
                   decoration: BoxDecoration(
                     color: cat.color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
@@ -1368,11 +1153,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 ),
                 title: Text(
                   cat.label,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                 ),
                 trailing: const Icon(Icons.chevron_right_rounded,
                     color: MintColors.textMuted, size: 22),
@@ -1385,7 +1166,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             // "Other" type
             ListTile(
               leading: Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(MintSpacing.sm),
                 decoration: BoxDecoration(
                   color: MintColors.textMuted.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
@@ -1394,12 +1175,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                     color: MintColors.textMuted, size: 22),
               ),
               title: Text(
-                s?.vaultCategoryOther ?? 'Autre',
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textPrimary,
-                ),
+                s.vaultCategoryOther,
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
               ),
               trailing: const Icon(Icons.chevron_right_rounded,
                   color: MintColors.textMuted, size: 22),
@@ -1408,7 +1185,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 _pickAndUpload(VaultDocumentType.other);
               },
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
           ],
         ),
       ),
@@ -1427,9 +1204,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
     if (result != null && result.files.single.path != null) {
       if (!mounted) return;
-      // Upload with type hint (the provider will pass it to the service)
-      // For now, the provider's uploadDocument accepts a path string;
-      // once Agent 1 adds the type parameter, this will pass it through.
       await context
           .read<DocumentProvider>()
           .uploadDocument(result.files.single.path!);
@@ -1437,7 +1211,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Future<void> _confirmDelete(
-      S? s, String docId, DocumentProvider docProvider) async {
+      S s, String docId, DocumentProvider docProvider) async {
     final confirm = await _confirmDeleteDialog(s, docId, docProvider);
     if (confirm == true) {
       await docProvider.deleteDocument(docId);
@@ -1445,23 +1219,22 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Future<bool?> _confirmDeleteDialog(
-      S? s, String docId, DocumentProvider docProvider) async {
+      S s, String docId, DocumentProvider docProvider) async {
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(s?.vaultDeleteTitle ?? 'Supprimer le document ?'),
-        content: Text(
-            s?.vaultDeleteMessage ?? 'Cette action est irr\u00e9versible.'),
+        title: Text(s.vaultDeleteTitle),
+        content: Text(s.vaultDeleteMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text(s?.vaultCancelButton ?? 'Annuler'),
+            child: Text(s.vaultCancelButton),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(backgroundColor: MintColors.error),
-            child: Text(s?.vaultDeleteButton ?? 'Supprimer'),
+            child: Text(s.vaultDeleteButton),
           ),
         ],
       ),
@@ -1469,33 +1242,23 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   void _showInfoDialog() {
-    final s = S.of(context);
+    final s = S.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
-          s?.vaultTitle ?? 'Coffre-fort',
-          style: GoogleFonts.outfit(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-          ),
+          s.vaultTitle,
+          style: MintTextStyles.headlineMedium().copyWith(fontSize: 20),
         ),
         content: Text(
-          s?.vaultPrivacy ??
-              'Tes documents sont analys\u00e9s localement et ne sont '
-                  'jamais partag\u00e9s avec des tiers. Tu peux les supprimer '
-                  '\u00e0 tout moment.',
-          style: const TextStyle(
-            fontSize: 14,
-            color: MintColors.textSecondary,
-            height: 1.5,
-          ),
+          s.vaultPrivacy,
+          style: MintTextStyles.bodyMedium(),
         ),
         actions: [
           FilledButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(s?.vaultOkButton ?? 'OK'),
+            child: Text(s.vaultOkButton),
           ),
         ],
       ),
@@ -1506,75 +1269,71 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Helpers — Category definitions
   // ──────────────────────────────────────────────────────────
 
-  /// Category definitions (excluding "other" which is handled separately).
-  List<_CategoryDef> _getCategoryDefinitions(S? s) {
+  List<_CategoryDef> _getCategoryDefinitions(S s) {
     return [
       _CategoryDef(
         type: VaultDocumentType.lppCertificate,
         icon: Icons.shield_outlined,
         color: MintColors.info,
-        label: s?.vaultCategoryLpp ?? 'Pr\u00e9voyance LPP',
+        label: s.vaultCategoryLpp,
       ),
       _CategoryDef(
         type: VaultDocumentType.salaryCertificate,
         icon: Icons.payments_outlined,
         color: MintColors.success,
-        label: s?.vaultCategorySalary ?? 'Certificat de salaire',
+        label: s.vaultCategorySalary,
       ),
       _CategoryDef(
         type: VaultDocumentType.pillar3aAttestation,
         icon: Icons.savings_outlined,
         color: MintColors.purple,
-        label: s?.vaultCategory3a ?? '3e pilier',
+        label: s.vaultCategory3a,
       ),
       _CategoryDef(
         type: VaultDocumentType.insurancePolicy,
         icon: Icons.health_and_safety_outlined,
         color: MintColors.warning,
-        label: s?.vaultCategoryInsurance ?? 'Assurances',
+        label: s.vaultCategoryInsurance,
       ),
       _CategoryDef(
         type: VaultDocumentType.lease,
         icon: Icons.home_outlined,
         color: MintColors.cyan,
-        label: s?.vaultCategoryLease ?? 'Bail',
+        label: s.vaultCategoryLease,
       ),
       _CategoryDef(
         type: VaultDocumentType.lamalStatement,
         icon: Icons.local_hospital_outlined,
         color: MintColors.error,
-        label: s?.vaultCategoryLamal ?? 'Sant\u00e9 (LAMal)',
+        label: s.vaultCategoryLamal,
       ),
     ];
   }
 
-  /// Count documents of a given type from the provider.
   int _countDocumentsOfType(
       DocumentProvider docProvider, VaultDocumentType type) {
     return docProvider.documents.where((d) => d.documentType == type).length;
   }
 
-  /// Get the display label for a document type.
-  String _labelForType(S? s, VaultDocumentType type) {
+  String _labelForType(S s, VaultDocumentType type) {
     switch (type) {
       case VaultDocumentType.lppCertificate:
-        return s?.vaultCategoryLpp ?? 'Pr\u00e9voyance LPP';
+        return s.vaultCategoryLpp;
       case VaultDocumentType.salaryCertificate:
-        return s?.vaultCategorySalary ?? 'Certificat de salaire';
+        return s.vaultCategorySalary;
       case VaultDocumentType.pillar3aAttestation:
-        return s?.vaultCategory3a ?? '3e pilier';
+        return s.vaultCategory3a;
       case VaultDocumentType.insurancePolicy:
-        return s?.vaultCategoryInsurance ?? 'Assurances';
+        return s.vaultCategoryInsurance;
       case VaultDocumentType.lease:
-        return s?.vaultCategoryLease ?? 'Bail';
+        return s.vaultCategoryLease;
       case VaultDocumentType.lamalStatement:
-        return s?.vaultCategoryLamal ?? 'Sant\u00e9 (LAMal)';
+        return s.vaultCategoryLamal;
       case VaultDocumentType.other:
-        return s?.vaultCategoryOther ?? 'Autre';
+        return s.vaultCategoryOther;
     }
   }
 
-  /// Get the icon for a document type.
   IconData _iconForType(VaultDocumentType type) {
     switch (type) {
       case VaultDocumentType.lppCertificate:
@@ -1594,7 +1353,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     }
   }
 
-  /// Get the color for a document type.
   Color _colorForType(VaultDocumentType type) {
     switch (type) {
       case VaultDocumentType.lppCertificate:
@@ -1614,7 +1372,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     }
   }
 
-  /// Confidence color based on percentage.
   Color _confidenceColor(int confidence) {
     if (confidence >= 80) return MintColors.success;
     if (confidence >= 50) return MintColors.warning;
@@ -1622,58 +1379,57 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   // ──────────────────────────────────────────────────────────
-  // Helpers — Field entries (LPP-specific, kept for backward compat)
+  // Helpers — Field entries (LPP-specific)
   // ──────────────────────────────────────────────────────────
 
-  List<(String, String)> _buildFieldEntries(S? s, LppExtractedFields fields) {
+  List<(String, String)> _buildFieldEntries(S s, LppExtractedFields fields) {
     final entries = <(String, String)>[];
 
     if (fields.avoirVieillesseTotal != null) {
       entries.add((
-        s?.documentsFieldAvoirTotal ?? 'Avoir de vieillesse total',
+        s.documentsFieldAvoirTotal,
         _formatChf(fields.avoirVieillesseTotal!),
       ));
     }
     if (fields.salaireAssure != null) {
       entries.add((
-        s?.documentsFieldSalaireAssure ?? 'Salaire assur\u00e9',
+        s.documentsFieldSalaireAssure,
         _formatChf(fields.salaireAssure!),
       ));
     }
     if (fields.tauxConversionObligatoire != null) {
       entries.add((
-        s?.documentsFieldTauxObligatoire ?? 'Taux de conversion obligatoire',
+        s.documentsFieldTauxObligatoire,
         '${fields.tauxConversionObligatoire!.toStringAsFixed(1)}%',
       ));
     }
     if (fields.rachatMaximum != null) {
       entries.add((
-        s?.documentsFieldRachatMax ?? 'Rachat maximum possible',
+        s.documentsFieldRachatMax,
         _formatChf(fields.rachatMaximum!),
       ));
     }
     if (fields.renteInvalidite != null) {
       entries.add((
-        s?.documentsFieldRenteInvalidite ?? 'Rente d\'invalidit\u00e9 annuelle',
+        s.documentsFieldRenteInvalidite,
         '${_formatChf(fields.renteInvalidite!)}/an',
       ));
     }
     if (fields.capitalDeces != null) {
       entries.add((
-        s?.documentsFieldCapitalDeces ?? 'Capital-d\u00e9c\u00e8s',
+        s.documentsFieldCapitalDeces,
         _formatChf(fields.capitalDeces!),
       ));
     }
     if (fields.cotisationEmploye != null) {
       entries.add((
-        s?.documentsFieldCotisationEmploye ??
-            'Cotisation employ\u00e9 annuelle',
+        s.documentsFieldCotisationEmploye,
         _formatChf(fields.cotisationEmploye!),
       ));
     }
     if (fields.cotisationEmployeur != null) {
       entries.add((
-        s?.documentsFieldCotisationEmployeur ?? 'Cotisation employeur annuelle',
+        s.documentsFieldCotisationEmployeur,
         _formatChf(fields.cotisationEmployeur!),
       ));
     }
@@ -1681,14 +1437,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     return entries;
   }
 
-  /// Format a number as CHF with Swiss apostrophe grouping.
   String _formatChf(double value) {
     final intPart = value.truncate();
     final formatted = _groupDigits(intPart);
     return 'CHF $formatted';
   }
 
-  /// Group digits with apostrophe (Swiss format): 245678 -> 245'678
   String _groupDigits(int value) {
     final str = value.abs().toString();
     final buffer = StringBuffer();
@@ -1702,14 +1456,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     return value < 0 ? '-${buffer.toString()}' : buffer.toString();
   }
 
-  String _formatConfidence(S? s, int confidence) {
-    return s?.documentsConfidence(confidence.toString()) ??
-        'Confiance : $confidence%';
+  String _formatConfidence(S s, int confidence) {
+    return s.documentsConfidence(confidence.toString());
   }
 
-  String _formatFieldsFound(S? s, int found, int total) {
-    return s?.documentsFieldsFound(found.toString(), total.toString()) ??
-        '$found champs extraits sur $total';
+  String _formatFieldsFound(S s, int found, int total) {
+    return s.documentsFieldsFound(found.toString(), total.toString());
   }
 }
 

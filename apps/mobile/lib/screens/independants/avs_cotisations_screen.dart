@@ -1,17 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/independants_service.dart';
-
-// ────────────────────────────────────────────────────────────
-//  AVS COTISATIONS SCREEN — Sprint S18 / Independants complet
-// ────────────────────────────────────────────────────────────
-//
-// Barème AVS/AI/APG for self-employed workers.
-// Income slider, comparison bar chart vs salarié,
-// chiffre choc, gauge showing barème position.
-// ────────────────────────────────────────────────────────────
 
 class AvsCotisationsScreen extends StatefulWidget {
   const AvsCotisationsScreen({super.key});
@@ -38,172 +30,112 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
-        slivers: [
-          _buildAppBar(context),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _buildHeader(),
-                const SizedBox(height: 20),
-                _buildIncomeSlider(),
-                const SizedBox(height: 24),
-                if (_result != null) ...[
-                  _buildChiffreChoc(),
-                  const SizedBox(height: 24),
-                  _buildResultCards(),
-                  const SizedBox(height: 24),
-                  _buildComparisonChart(),
-                  const SizedBox(height: 24),
-                  _buildBaremeGauge(),
-                  const SizedBox(height: 24),
-                  _buildEducation(),
-                  const SizedBox(height: 24),
-                ],
-                _buildDisclaimer(),
-                const SizedBox(height: 100),
-              ]),
-            ),
-          ),
-        ],
+      appBar: AppBar(
+        backgroundColor: MintColors.white,
+        foregroundColor: MintColors.textPrimary,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: Text(s.avsCotisationsTitle, style: MintTextStyles.headlineMedium()),
       ),
-    );
-  }
-
-  // ── App Bar ────────────────────────────────────────────────
-
-  Widget _buildAppBar(BuildContext context) {
-    return SliverAppBar(
-      pinned: true,
-      expandedHeight: 120,
-      backgroundColor: MintColors.primary,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.white),
-        onPressed: () => context.pop(),
-      ),
-      flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 56, bottom: 16, right: 16),
-        title: Text(
-          'Cotisations AVS',
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-            color: MintColors.white,
-          ),
-        ),
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                MintColors.primary,
-                MintColors.primary.withValues(alpha: 0.85),
-              ],
-            ),
-          ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(s),
+            const SizedBox(height: MintSpacing.xl),
+            _buildIncomeSlider(s),
+            const SizedBox(height: MintSpacing.lg),
+            if (_result != null) ...[
+              _buildChiffreChoc(s),
+              const SizedBox(height: MintSpacing.lg),
+              _buildResultCards(s),
+              const SizedBox(height: MintSpacing.lg),
+              _buildComparisonChart(s),
+              const SizedBox(height: MintSpacing.lg),
+              _buildBaremeGauge(s),
+              const SizedBox(height: MintSpacing.lg),
+              _buildEducation(s),
+              const SizedBox(height: MintSpacing.lg),
+            ],
+            _buildDisclaimer(s),
+            const SizedBox(height: MintSpacing.xxl),
+          ],
         ),
       ),
     );
   }
 
-  // ── Header ─────────────────────────────────────────────────
-
-  Widget _buildHeader() {
+  Widget _buildHeader(S s) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.appleSurface,
+        color: MintColors.info.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.info, size: 20),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
-            child: Text(
-              'En tant qu\'indépendant\u00B7e, tu paies l\'intégralité des '
-              'cotisations AVS/AI/APG toi-même. Un\u00B7e salarié\u00B7e '
-              'n\'en paie que la moitié (5.3%), l\'employeur couvrant le reste.',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
-            ),
+            child: Text(s.avsCotisationsHeaderInfo, style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
           ),
         ],
       ),
     );
   }
 
-  // ── Income Slider ──────────────────────────────────────────
-
-  Widget _buildIncomeSlider() {
+  Widget _buildIncomeSlider(S s) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withValues(alpha: 0.06),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Ton revenu net annuel',
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 12),
+          Text(s.avsCotisationsRevenuLabel, style: MintTextStyles.titleMedium()),
+          const SizedBox(height: MintSpacing.sm + 4),
           Text(
             IndependantsService.formatChf(_revenuNet),
-            style: GoogleFonts.montserrat(
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              color: MintColors.primary,
-            ),
+            style: MintTextStyles.headlineMedium(color: MintColors.primary),
           ),
-          const SizedBox(height: 12),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 6,
-            ),
-            child: Slider(
-              value: _revenuNet,
-              min: 0,
-              max: 250000,
-              divisions: 250,
-              onChanged: (value) {
-                _revenuNet = value;
-                _calculate();
-              },
+          const SizedBox(height: MintSpacing.sm + 4),
+          Semantics(
+            label: s.avsCotisationsRevenuLabel,
+            value: IndependantsService.formatChf(_revenuNet),
+            child: SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                activeTrackColor: MintColors.primary,
+                inactiveTrackColor: MintColors.border,
+                thumbColor: MintColors.primary,
+                overlayColor: MintColors.primary.withValues(alpha: 0.1),
+                trackHeight: 4,
+              ),
+              child: Slider(
+                value: _revenuNet,
+                min: 0,
+                max: 250000,
+                divisions: 250,
+                onChanged: (value) {
+                  _revenuNet = value;
+                  _calculate();
+                },
+              ),
             ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('CHF 0', style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
-              Text("CHF 250'000", style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
+              Text(s.avsCotisationsSliderMin, style: MintTextStyles.labelSmall()),
+              Text(s.avsCotisationsSliderMax250k, style: MintTextStyles.labelSmall()),
             ],
           ),
         ],
@@ -211,38 +143,25 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
     );
   }
 
-  // ── Chiffre Choc ───────────────────────────────────────────
-
-  Widget _buildChiffreChoc() {
+  Widget _buildChiffreChoc(S s) {
     final r = _result!;
     if (r.differenceAnnuelle <= 0) return const SizedBox.shrink();
-
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.primary,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
           Text(
             IndependantsService.formatChf(r.differenceAnnuelle),
-            style: GoogleFonts.montserrat(
-              fontSize: 36,
-              fontWeight: FontWeight.w800,
-              color: MintColors.white,
-            ),
+            style: MintTextStyles.displayMedium(color: MintColors.white),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
-            'En tant qu\'indépendant\u00B7e, tu paies '
-            '${IndependantsService.formatChf(r.differenceAnnuelle)}/an '
-            'de plus qu\'un\u00B7e salarié\u00B7e',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.white.withValues(alpha: 0.9),
-              height: 1.5,
-            ),
+            s.avsCotisationsChiffreChocCaption(IndependantsService.formatChf(r.differenceAnnuelle)),
+            style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.9)),
             textAlign: TextAlign.center,
           ),
         ],
@@ -250,151 +169,74 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
     );
   }
 
-  // ── Result Cards ───────────────────────────────────────────
-
-  Widget _buildResultCards() {
+  Widget _buildResultCards(S s) {
     final r = _result!;
     return Column(
       children: [
         Row(
           children: [
-            Expanded(
-              child: _buildMetricCard(
-                'Taux effectif',
-                '${r.tauxEffectif.toStringAsFixed(2)}%',
-                Icons.percent,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildMetricCard(
-                'Cotisation /an',
-                IndependantsService.formatChf(r.cotisationAnnuelle),
-                Icons.calendar_month_outlined,
-              ),
-            ),
+            Expanded(child: _buildMetricCard(s.avsCotisationsTauxEffectif, '${r.tauxEffectif.toStringAsFixed(2)}\u00a0%', Icons.percent)),
+            const SizedBox(width: MintSpacing.sm + 4),
+            Expanded(child: _buildMetricCard(s.avsCotisationsCotisationAn, IndependantsService.formatChf(r.cotisationAnnuelle), Icons.calendar_month_outlined)),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm + 4),
         Row(
           children: [
-            Expanded(
-              child: _buildMetricCard(
-                'Cotisation /mois',
-                IndependantsService.formatChf(r.cotisationMensuelle),
-                Icons.today_outlined,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildMetricCard(
-                'Tranche',
-                r.tranchLabel,
-                Icons.format_list_numbered,
-                small: true,
-              ),
-            ),
+            Expanded(child: _buildMetricCard(s.avsCotisationsCotisationMois, IndependantsService.formatChf(r.cotisationMensuelle), Icons.today_outlined)),
+            const SizedBox(width: MintSpacing.sm + 4),
+            Expanded(child: _buildMetricCard(s.avsCotisationsTranche, r.tranchLabel, Icons.format_list_numbered, small: true)),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildMetricCard(String label, String value, IconData icon,
-      {bool small = false}) {
+  Widget _buildMetricCard(String label, String value, IconData icon, {bool small = false}) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, size: 18, color: MintColors.textMuted),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: GoogleFonts.montserrat(
-              fontSize: small ? 13 : 18,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-            ),
-          ),
+          const SizedBox(height: MintSpacing.sm),
+          Text(value, style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: small ? 13 : 18, fontWeight: FontWeight.w700)),
+          const SizedBox(height: MintSpacing.xs),
+          Text(label, style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
         ],
       ),
     );
   }
 
-  // ── Comparison Chart ───────────────────────────────────────
-
-  Widget _buildComparisonChart() {
+  Widget _buildComparisonChart(S s) {
     final r = _result!;
-    final maxVal = r.cotisationAnnuelle > r.cotisationSalarie
-        ? r.cotisationAnnuelle
-        : r.cotisationSalarie;
+    final maxVal = r.cotisationAnnuelle > r.cotisationSalarie ? r.cotisationAnnuelle : r.cotisationSalarie;
     if (maxVal <= 0) return const SizedBox.shrink();
-
     final indepRatio = r.cotisationAnnuelle / maxVal;
     final salarieRatio = r.cotisationSalarie / maxVal;
-
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.bar_chart, size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
-              Text(
-                'COMPARAISON ANNUELLE',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-
-          // Independant bar
-          _buildComparisonBar(
-            label: 'Indépendant\u00B7e',
-            value: r.cotisationAnnuelle,
-            ratio: indepRatio,
-            color: MintColors.error,
-          ),
-          const SizedBox(height: 16),
-
-          // Salarie bar
-          _buildComparisonBar(
-            label: 'Salarié\u00B7e (part employée)',
-            value: r.cotisationSalarie,
-            ratio: salarieRatio,
-            color: MintColors.success,
-          ),
-          const SizedBox(height: 16),
-
-          // Difference
+          Text(s.avsCotisationsComparaisonTitle, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: MintSpacing.md + 4),
+          _buildComparisonBar(label: s.avsCotisationsIndependant, value: r.cotisationAnnuelle, ratio: indepRatio, color: MintColors.error),
+          const SizedBox(height: MintSpacing.md),
+          _buildComparisonBar(label: s.avsCotisationsSalarie, value: r.cotisationSalarie, ratio: salarieRatio, color: MintColors.success),
+          const SizedBox(height: MintSpacing.md),
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(MintSpacing.sm + 4),
             decoration: BoxDecoration(
               color: MintColors.error.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(12),
@@ -402,15 +244,11 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
             child: Row(
               children: [
                 const Icon(Icons.arrow_upward, size: 16, color: MintColors.error),
-                const SizedBox(width: 8),
+                const SizedBox(width: MintSpacing.sm),
                 Expanded(
                   child: Text(
-                    'Surcoût indépendant\u00B7e : +${IndependantsService.formatChf(r.differenceAnnuelle)}/an',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.error,
-                    ),
+                    s.avsCotisationsSurcout(IndependantsService.formatChf(r.differenceAnnuelle)),
+                    style: MintTextStyles.bodySmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -421,33 +259,18 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
     );
   }
 
-  Widget _buildComparisonBar({
-    required String label,
-    required double value,
-    required double ratio,
-    required Color color,
-  }) {
+  Widget _buildComparisonBar({required String label, required double value, required double ratio, required Color color}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              label,
-              style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
-            ),
-            Text(
-              IndependantsService.formatChf(value),
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
-            ),
+            Text(label, style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
+            Text(IndependantsService.formatChf(value), style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600)),
           ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: MintSpacing.xs + 2),
         ClipRRect(
           borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
@@ -461,55 +284,32 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
     );
   }
 
-  // ── Barème Gauge ───────────────────────────────────────────
-
-  Widget _buildBaremeGauge() {
+  Widget _buildBaremeGauge(S s) {
     final r = _result!;
-    // Position on the barème (0 to 60500+ mapped to 0-1)
     final position = (_revenuNet / 60500).clamp(0.0, 1.0);
-
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.speed_outlined, size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
-              Text(
-                'TON POSITIONNEMENT SUR LE BARÈME',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-
-          // Gauge
+          Text(s.avsCotisationsBaremeTitle, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: MintSpacing.md + 4),
           Stack(
             children: [
               Container(
                 height: 24,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  gradient: const LinearGradient(
-                    colors: [
-                      MintColors.centralScenario,
-                      MintColors.yellowLight,
-                      MintColors.orangeFF,
-                      MintColors.redMaterial,
-                    ],
-                  ),
+                  gradient: LinearGradient(colors: [
+                    MintColors.success.withValues(alpha: 0.5),
+                    MintColors.warning.withValues(alpha: 0.7),
+                    MintColors.error.withValues(alpha: 0.7),
+                  ]),
                 ),
               ),
               Positioned(
@@ -522,127 +322,70 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
                     color: MintColors.white,
                     shape: BoxShape.circle,
                     border: Border.all(color: MintColors.primary, width: 3),
-                    boxShadow: [
-                      BoxShadow(
-                        color: MintColors.black.withValues(alpha: 0.2),
-                        blurRadius: 4,
-                      ),
-                    ],
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('5.37%', style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
-              Text('10.6%', style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
+              Text('5.37\u00a0%', style: MintTextStyles.labelSmall()),
+              Text('10.6\u00a0%', style: MintTextStyles.labelSmall()),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           Text(
-            'Ton taux effectif : ${r.tauxEffectif.toStringAsFixed(2)}%',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
+            s.avsCotisationsTauxEffectifLabel(r.tauxEffectif.toStringAsFixed(2)),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),
     );
   }
 
-  // ── Education ──────────────────────────────────────────────
-
-  Widget _buildEducation() {
+  Widget _buildEducation(S s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.textMuted),
-            const SizedBox(width: 8),
-            Text(
-              'BON À SAVOIR',
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textMuted,
-                letterSpacing: 1,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        _buildEduCard(
-          Icons.trending_down,
-          'Barème dégressif',
-          'Le taux diminue pour les bas revenus (entre CHF 10\'100 et '
-          'CHF 60\'500). Au-dessus de CHF 60\'500, le taux plein de '
-          '10.6% s\'applique.',
-        ),
-        _buildEduCard(
-          Icons.people_outline,
-          'Double charge',
-          'Un\u00B7e salarié\u00B7e ne paie que 5.3% ; l\'employeur prend '
-          'en charge l\'autre moitié. En tant qu\'indépendant\u00B7e, tu '
-          'assumes la totalité.',
-        ),
-        _buildEduCard(
-          Icons.calendar_today_outlined,
-          'Cotisation minimale',
-          "Même avec un revenu très faible, la cotisation minimale est "
-          "de CHF 530/an.",
-        ),
+        Text(s.avsCotisationsBonASavoir, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600)),
+        const SizedBox(height: MintSpacing.sm + 4),
+        _buildEduCard(Icons.trending_down, s.avsCotisationsEduDegressifTitle, s.avsCotisationsEduDegressifBody),
+        _buildEduCard(Icons.people_outline, s.avsCotisationsEduDoubleChargeTitle, s.avsCotisationsEduDoubleChargeBody),
+        _buildEduCard(Icons.calendar_today_outlined, s.avsCotisationsEduMinTitle, s.avsCotisationsEduMinBody),
       ],
     );
   }
 
   Widget _buildEduCard(IconData icon, String title, String body) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(MintSpacing.md),
         decoration: BoxDecoration(
-          color: MintColors.appleSurface,
+          color: MintColors.surface,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(MintSpacing.sm),
               decoration: BoxDecoration(
                 color: MintColors.white,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, size: 18, color: MintColors.primary),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: MintSpacing.sm + 4),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    body,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MintColors.textSecondary,
-                      height: 1.5,
-                    ),
-                  ),
+                  Text(title, style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: MintSpacing.xs),
+                  Text(body, style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
                 ],
               ),
             ),
@@ -652,36 +395,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
     );
   }
 
-  // ── Disclaimer ─────────────────────────────────────────────
-
-  Widget _buildDisclaimer() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.warningBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.orangeRetroWarm),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Les montants présentés sont des estimations basées sur le '
-              'barème AVS/AI/APG en vigueur. Les cotisations réelles peuvent '
-              'varier selon ta situation personnelle. Consulte ta caisse de '
-              'compensation pour un décompte exact.',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.deepOrange,
-                height: 1.5,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+  Widget _buildDisclaimer(S s) {
+    return Text(s.avsCotisationsDisclaimer, style: MintTextStyles.micro());
   }
 }

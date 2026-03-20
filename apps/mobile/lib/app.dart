@@ -122,6 +122,13 @@ import 'package:mint_mobile/screens/household/household_screen.dart';
 import 'package:mint_mobile/screens/household/accept_invitation_screen.dart';
 import 'package:mint_mobile/screens/achievements_screen.dart';
 import 'package:mint_mobile/screens/cantonal_benchmark_screen.dart';
+import 'package:mint_mobile/screens/explore/retraite_hub_screen.dart';
+import 'package:mint_mobile/screens/explore/famille_hub_screen.dart';
+import 'package:mint_mobile/screens/explore/travail_hub_screen.dart';
+import 'package:mint_mobile/screens/explore/logement_hub_screen.dart';
+import 'package:mint_mobile/screens/explore/fiscalite_hub_screen.dart';
+import 'package:mint_mobile/screens/explore/patrimoine_hub_screen.dart';
+import 'package:mint_mobile/screens/explore/sante_hub_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -191,10 +198,47 @@ final _router = GoRouter(
       builder: (context, state) => const VerifyEmailScreen(),
     ),
 
-    // ── Main Shell (3 tabs: Pulse, Mint, Moi) ────────────────
+    // ── Main Shell (4 tabs: Aujourd'hui, Coach, Explorer, Dossier) ──
     GoRoute(
       path: '/home',
       builder: (context, state) => const MainNavigationShell(),
+    ),
+
+    // ── EXPLORER HUBS (7 thematic hubs) ──────────────────────
+    GoRoute(
+      path: '/explore/retraite',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const RetraiteHubScreen(),
+    ),
+    GoRoute(
+      path: '/explore/famille',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const FamilleHubScreen(),
+    ),
+    GoRoute(
+      path: '/explore/travail',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const TravailHubScreen(),
+    ),
+    GoRoute(
+      path: '/explore/logement',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const LogementHubScreen(),
+    ),
+    GoRoute(
+      path: '/explore/fiscalite',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const FiscaliteHubScreen(),
+    ),
+    GoRoute(
+      path: '/explore/patrimoine',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const PatrimoineHubScreen(),
+    ),
+    GoRoute(
+      path: '/explore/sante',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const SanteHubScreen(),
     ),
 
     // ── RETRAITE & PREVOYANCE ────────────────────────────────

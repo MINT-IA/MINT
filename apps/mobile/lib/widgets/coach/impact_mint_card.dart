@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -129,18 +129,11 @@ class _ImpactMintCardState extends State<ImpactMintCard>
             children: [
               Text(
                 'Impact des actions MINT',
-                style: GoogleFonts.montserrat(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
               ),
               Text(
                 'Ce que tu peux faire changer',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
               ),
             ],
           ),
@@ -229,29 +222,17 @@ class _ImpactMintCardState extends State<ImpactMintCard>
         children: [
           Text(
             title,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
+            style: MintTextStyles.labelSmall(color: color).copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 6),
           Text(
             formatChfWithPrefix(amount),
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: isHighlighted ? MintColors.scoreExcellent : MintColors.textSecondary,
-              height: 1.1,
-            ),
+            style: MintTextStyles.titleMedium(color: isHighlighted ? MintColors.scoreExcellent : MintColors.textSecondary).copyWith(fontWeight: FontWeight.w800, height: 1.1),
           ),
           const SizedBox(height: 2),
           Text(
             '/ mois',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted),
           ),
         ],
       ),
@@ -273,20 +254,13 @@ class _ImpactMintCardState extends State<ImpactMintCard>
         children: [
           Text(
             '+${formatChfWithPrefix(_delta)} / mois',
-            style: GoogleFonts.montserrat(
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
-              color: MintColors.scoreExcellent,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.scoreExcellent).copyWith(fontSize: 15, fontWeight: FontWeight.w800),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               widget.description,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
             ),
           ),
         ],
@@ -301,11 +275,7 @@ class _ImpactMintCardState extends State<ImpactMintCard>
   Widget _buildDisclaimer() {
     return Text(
       'Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin).',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textMuted,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textMuted),
     );
   }
 

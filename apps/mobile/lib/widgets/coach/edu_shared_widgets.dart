@@ -4,8 +4,8 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ── Disclaimer palette (amber/brown — intentionally distinct from MintColors) ──
 const _kDisclaimerBg = MintColors.disclaimerBg;
@@ -22,11 +22,7 @@ class EduSectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: GoogleFonts.montserrat(
-        fontSize: 15,
-        fontWeight: FontWeight.w700,
-        color: MintColors.textPrimary,
-      ),
+      style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
     );
   }
 }
@@ -53,11 +49,7 @@ class EduDisclaimer extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: _kDisclaimerText,
-                height: 1.5,
-              ),
+              style: MintTextStyles.labelSmall(color: _kDisclaimerText).copyWith(height: 1.5),
             ),
           ),
         ],
@@ -87,20 +79,12 @@ class EduLegalSources extends StatelessWidget {
         children: [
           Text(
             'Sources légales',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textMuted,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
           Text(
             sources,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textMuted,
-              height: 1.5,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.5),
           ),
         ],
       ),
@@ -142,20 +126,12 @@ class EduSpecialistCta extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   body,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
             ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/pillar_3a_deep_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 
@@ -38,6 +40,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
   @override
   Widget build(BuildContext context) {
     final result = _result;
+    final l = S.of(context)!;
 
     return Scaffold(
       backgroundColor: MintColors.surface,
@@ -46,49 +49,43 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           SliverAppBar(
             expandedHeight: 100,
             pinned: true,
-            backgroundColor: MintColors.primary,
-            foregroundColor: MintColors.white,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'RETRAIT 3A ÉCHELONNÉ',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
-                  letterSpacing: 0.5,
-                ),
-              ),
+            backgroundColor: MintColors.white,
+            surfaceTintColor: MintColors.white,
+            foregroundColor: MintColors.textPrimary,
+            title: Text(
+              l.staggered3aTitle,
+              style: MintTextStyles.headlineMedium(),
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Chiffre choc
-                _buildChiffreChoc(result),
-                const SizedBox(height: 24),
+                _buildChiffreChoc(result, l),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Introduction
-                _buildIntroCard(),
-                const SizedBox(height: 24),
+                _buildIntroCard(l),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Sliders
-                _buildSlidersSection(),
-                const SizedBox(height: 24),
+                _buildSlidersSection(l),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Resultat comparaison
-                _buildComparisonSection(result),
-                const SizedBox(height: 24),
+                _buildComparisonSection(result, l),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Plan annuel
                 if (result.planAnnuel.isNotEmpty) ...[
-                  _buildYearlyPlanTable(result),
-                  const SizedBox(height: 24),
+                  _buildYearlyPlanTable(result, l),
+                  const SizedBox(height: MintSpacing.lg),
                 ],
 
                 // Disclaimer
                 _buildDisclaimer(result.disclaimer),
-                const SizedBox(height: 40),
+                const SizedBox(height: MintSpacing.xxl),
               ]),
             ),
           ),
@@ -97,15 +94,13 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
     );
   }
 
-  Widget _buildChiffreChoc(StaggeredWithdrawalResult result) {
+  Widget _buildChiffreChoc(StaggeredWithdrawalResult result, S l) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: result.economie > 0
-              ? [MintColors.successBg, MintColors.successBg]
-              : [MintColors.warningBg, MintColors.warningBg],
-        ),
+        color: result.economie > 0
+            ? MintColors.successBg
+            : MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: result.economie > 0
@@ -117,45 +112,36 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
       child: Column(
         children: [
           Text(
-            'Économie estimée',
-            style: GoogleFonts.montserrat(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
+            l.staggered3aEconomie,
+            style: MintTextStyles.bodySmall(
               color: result.economie > 0
                   ? MintColors.greenForest
                   : MintColors.deepOrange,
-            ),
+            ).copyWith(fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             'CHF ${formatChf(result.economie)}',
-            style: GoogleFonts.montserrat(
-              fontSize: 32,
-              fontWeight: FontWeight.w800,
+            style: MintTextStyles.displayMedium(
               color: result.economie > 0
                   ? MintColors.greenDark
                   : MintColors.warning,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: MintSpacing.xs),
           Text(
-            'en échelonnant sur $_nbComptes comptes',
-            style: TextStyle(
-              fontSize: 12,
+            '${l.staggered3aEconomie.toLowerCase()} — $_nbComptes ${l.staggered3aAns}',
+            style: MintTextStyles.labelSmall(
               color: result.economie > 0
                   ? MintColors.categoryGreen
                   : MintColors.warning,
             ),
           ),
           if (result.nbComptesOptimal != _nbComptes) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             Text(
-              'Nombre adapté : ${result.nbComptesOptimal} comptes',
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: MintColors.info,
-              ),
+              '${result.nbComptesOptimal} comptes',
+              style: MintTextStyles.labelSmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ],
@@ -163,9 +149,9 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
     );
   }
 
-  Widget _buildIntroCard() {
+  Widget _buildIntroCard(S l) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -174,36 +160,20 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(l.staggered3aIntroTitle, style: MintTextStyles.titleMedium()),
+          const SizedBox(height: MintSpacing.sm),
           Text(
-            'Pourquoi échelonner les retraits 3a ?',
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'L\'impôt sur le retrait en capital de prévoyance est progressif. '
-            'En répartissant tes avoirs 3a sur plusieurs comptes et en les '
-            'retirant sur différentes années fiscales, tu réduis le taux '
-            'moyen d\'imposition. La loi autorise jusqu\'à 5 comptes 3a par '
-            'personne (OPP3). Depuis la réforme AHV21 (2024), les retraits '
-            'anticipés sont possibles dès l\'âge de 60 ans (5 ans avant '
-            'l\'âge de retraite à 65 ans pour tous).',
-            style: TextStyle(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.5,
-            ),
+            l.staggered3aIntroBody,
+            style: MintTextStyles.bodyMedium().copyWith(fontSize: 13, height: 1.5),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSlidersSection() {
+  Widget _buildSlidersSection(S l) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -212,124 +182,55 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'PARAMÈTRES',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
-          ),
-          const SizedBox(height: 16),
+          Text(l.staggered3aParametres, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+          const SizedBox(height: MintSpacing.md),
 
-          // Avoir total
-          _buildSliderRow(
-            label: 'Avoir 3a total',
-            value: _avoirTotal,
-            min: 0,
-            max: 1000000,
-            divisions: 200,
-            format: 'CHF ${formatChf(_avoirTotal)}',
-            onChanged: (v) => setState(() => _avoirTotal = v),
-          ),
-          const SizedBox(height: 12),
+          _buildSliderRow(label: l.staggered3aAvoirTotal, value: _avoirTotal, min: 0, max: 1000000, divisions: 200, format: 'CHF ${formatChf(_avoirTotal)}', onChanged: (v) => setState(() => _avoirTotal = v)),
+          const SizedBox(height: MintSpacing.sm + 4),
 
-          // Nombre de comptes
-          _buildSliderRow(
-            label: 'Nombre de comptes 3a',
-            value: _nbComptes.toDouble(),
-            min: 1,
-            max: 5,
-            divisions: 4,
-            format: '$_nbComptes',
-            onChanged: (v) => setState(() => _nbComptes = v.round()),
-          ),
-          const SizedBox(height: 12),
+          _buildSliderRow(label: l.staggered3aNbComptes, value: _nbComptes.toDouble(), min: 1, max: 5, divisions: 4, format: '$_nbComptes', onChanged: (v) => setState(() => _nbComptes = v.round())),
+          const SizedBox(height: MintSpacing.sm + 4),
 
-          // Canton
-          _buildCantonDropdown(),
-          const SizedBox(height: 12),
+          _buildCantonDropdown(l),
+          const SizedBox(height: MintSpacing.sm + 4),
 
-          // Revenu imposable
-          _buildSliderRow(
-            label: 'Revenu imposable',
-            value: _revenuImposable,
-            min: 30000,
-            max: 300000,
-            divisions: 54,
-            format: 'CHF ${formatChf(_revenuImposable)}',
-            onChanged: (v) => setState(() => _revenuImposable = v),
-          ),
-          const SizedBox(height: 12),
+          _buildSliderRow(label: l.staggered3aRevenuImposable, value: _revenuImposable, min: 30000, max: 300000, divisions: 54, format: 'CHF ${formatChf(_revenuImposable)}', onChanged: (v) => setState(() => _revenuImposable = v)),
+          const SizedBox(height: MintSpacing.sm + 4),
 
-          // Age retrait debut
-          // OPP3 art. 3 : retrait anticipé dès 5 ans avant l'âge de retraite.
-          // Depuis AHV21 (2024), l'âge de retraite est 65 pour tous → min = 60.
-          _buildSliderRow(
-            label: 'Âge début retraits',
-            value: _ageRetraitDebut.toDouble(),
-            min: 60,
-            max: 65,
-            divisions: 5,
-            format: '$_ageRetraitDebut ans',
-            onChanged: (v) => setState(() {
-              _ageRetraitDebut = v.round();
-              if (_ageRetraitFin < _ageRetraitDebut) {
-                _ageRetraitFin = _ageRetraitDebut;
-              }
-            }),
-          ),
-          const SizedBox(height: 12),
+          _buildSliderRow(label: l.staggered3aAgeDebut, value: _ageRetraitDebut.toDouble(), min: 60, max: 65, divisions: 5, format: '$_ageRetraitDebut ${l.staggered3aAns}', onChanged: (v) => setState(() { _ageRetraitDebut = v.round(); if (_ageRetraitFin < _ageRetraitDebut) _ageRetraitFin = _ageRetraitDebut; })),
+          const SizedBox(height: MintSpacing.sm + 4),
 
-          // Age retrait fin
-          _buildSliderRow(
-            label: 'Âge dernier retrait',
-            value: _ageRetraitFin.toDouble(),
-            min: _ageRetraitDebut.toDouble(),
-            max: 65,
-            divisions: (65 - _ageRetraitDebut).clamp(1, 6),
-            format: '$_ageRetraitFin ans',
-            onChanged: (v) => setState(() => _ageRetraitFin = v.round()),
-          ),
+          _buildSliderRow(label: l.staggered3aAgeFin, value: _ageRetraitFin.toDouble(), min: _ageRetraitDebut.toDouble(), max: 65, divisions: (65 - _ageRetraitDebut).clamp(1, 6), format: '$_ageRetraitFin ${l.staggered3aAns}', onChanged: (v) => setState(() => _ageRetraitFin = v.round())),
         ],
       ),
     );
   }
 
-  Widget _buildCantonDropdown() {
+  Widget _buildCantonDropdown(S l) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          'Canton',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: MintColors.textPrimary,
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            border: Border.all(color: MintColors.border),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _canton,
-              isDense: true,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
+        Text(l.staggered3aCanton, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
+        Semantics(
+          label: l.staggered3aCanton,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              border: Border.all(color: MintColors.border),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: _canton,
+                isDense: true,
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+                items: StaggeredWithdrawalSimulator.cantons
+                    .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                    .toList(),
+                onChanged: (v) {
+                  if (v != null) setState(() => _canton = v);
+                },
               ),
-              items: StaggeredWithdrawalSimulator.cantons
-                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                  .toList(),
-              onChanged: (v) {
-                if (v != null) setState(() => _canton = v);
-              },
             ),
           ),
         ),
@@ -352,77 +253,36 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textPrimary,
-              ),
-            ),
-            Text(
-              format,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
-            ),
+            Text(label, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
+            Text(format, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
           ],
         ),
-        Slider(
-          value: value,
-          min: min,
-          max: max,
-          divisions: divisions,
-          activeColor: MintColors.primary,
-          onChanged: onChanged,
+        Semantics(
+          label: label,
+          value: format,
+          child: Slider(value: value, min: min, max: max, divisions: divisions, activeColor: MintColors.primary, onChanged: onChanged),
         ),
       ],
     );
   }
 
-  Widget _buildComparisonSection(StaggeredWithdrawalResult result) {
+  Widget _buildComparisonSection(StaggeredWithdrawalResult result, S l) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'RÉSULTAT',
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
-            letterSpacing: 1,
-          ),
-        ),
-        const SizedBox(height: 12),
+        Text(l.staggered3aResultat, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+        const SizedBox(height: MintSpacing.sm + 4),
         Row(
           children: [
-            Expanded(
-              child: _buildComparisonCard(
-                title: 'EN BLOC',
-                subtitle: 'Retrait unique',
-                amount: result.impotBloc,
-                color: MintColors.warning,
-                isWinner: false,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildComparisonCard(
-                title: 'ÉCHELONNÉ',
-                subtitle: '$_nbComptes retraits',
-                amount: result.impotEchelonne,
-                color: MintColors.success,
-                isWinner: result.economie > 0,
-              ),
-            ),
+            Expanded(child: _buildComparisonCard(title: l.staggered3aEnBloc, subtitle: l.staggered3aRetraitUnique, amount: result.impotBloc, color: MintColors.warning, isWinner: false)),
+            const SizedBox(width: MintSpacing.sm + 4),
+            Expanded(child: _buildComparisonCard(title: l.staggered3aEchelonneLabel, subtitle: '$_nbComptes ${l.staggered3aRetrait.toLowerCase()}s', amount: result.impotEchelonne, color: MintColors.success, isWinner: result.economie > 0)),
           ],
         ),
         if (result.economie > 0) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MintSpacing.md),
             decoration: BoxDecoration(
               color: MintColors.successBg,
               borderRadius: BorderRadius.circular(12),
@@ -431,16 +291,11 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
             child: Row(
               children: [
                 const Icon(Icons.savings, color: MintColors.greenDark, size: 24),
-                const SizedBox(width: 12),
+                const SizedBox(width: MintSpacing.sm + 4),
                 Expanded(
                   child: Text(
-                    'En échelonnant, tu paies CHF ${formatChf(result.economie)} '
-                    'de moins en impôts.',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.greenForest,
-                    ),
+                    'CHF ${formatChf(result.economie)}',
+                    style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600, color: MintColors.greenForest),
                   ),
                 ),
               ],
@@ -459,60 +314,30 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
     required bool isWinner,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isWinner ? color : MintColors.border,
-          width: isWinner ? 2 : 1,
-        ),
+        border: Border.all(color: isWinner ? color : MintColors.border, width: isWinner ? 2 : 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: GoogleFonts.montserrat(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 0.5,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: const TextStyle(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'CHF ${formatChf(amount)}',
-            style: GoogleFonts.montserrat(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Impôt estimé',
-            style: TextStyle(
-              fontSize: 11,
-              color: MintColors.textMuted,
-            ),
-          ),
+          Text(title, style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+          const SizedBox(height: MintSpacing.xs),
+          Text(subtitle, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12)),
+          const SizedBox(height: MintSpacing.sm + 4),
+          Text('CHF ${formatChf(amount)}', style: MintTextStyles.displayMedium(color: color).copyWith(fontSize: 22)),
+          const SizedBox(height: MintSpacing.xs),
+          Text(S.of(context)!.staggered3aImpotEstime, style: MintTextStyles.labelSmall()),
         ],
       ),
     );
   }
 
-  Widget _buildYearlyPlanTable(StaggeredWithdrawalResult result) {
+  Widget _buildYearlyPlanTable(StaggeredWithdrawalResult result, S l) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -521,132 +346,40 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'PLAN ANNUEL',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
-          ),
-          const SizedBox(height: 16),
+          Text(l.staggered3aPlanAnnuel, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+          const SizedBox(height: MintSpacing.md),
 
-          // Header
-          const Row(
+          Row(
             children: [
-              SizedBox(
-                width: 40,
-                child: Text('Age',
-                    style:
-                        TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-              ),
-              Expanded(
-                child: Text('Retrait',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.right),
-              ),
-              Expanded(
-                child: Text('Impôt',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.right),
-              ),
-              Expanded(
-                child: Text('Net',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.right),
-              ),
+              SizedBox(width: 40, child: Text(l.staggered3aAge, style: MintTextStyles.labelSmall().copyWith(fontWeight: FontWeight.bold))),
+              Expanded(child: Text(l.staggered3aRetrait, style: MintTextStyles.labelSmall().copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.right)),
+              Expanded(child: Text(l.staggered3aImpot, style: MintTextStyles.labelSmall().copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.right)),
+              Expanded(child: Text(l.staggered3aNet, style: MintTextStyles.labelSmall().copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.right)),
             ],
           ),
-          const Divider(height: 16),
+          const Divider(height: MintSpacing.md),
 
-          // Rows
           for (final year in result.planAnnuel)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: Row(
                 children: [
-                  SizedBox(
-                    width: 40,
-                    child: Text(
-                      '${year.ageRetrait}',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      'CHF ${formatChf(year.montantRetire)}',
-                      style: const TextStyle(fontSize: 12),
-                      textAlign: TextAlign.right,
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      'CHF ${formatChf(year.impotEstime)}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: MintColors.redDeep,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.right,
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      'CHF ${formatChf(year.montantNet)}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: MintColors.greenDark,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.right,
-                    ),
-                  ),
+                  SizedBox(width: 40, child: Text('${year.ageRetrait}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12))),
+                  Expanded(child: Text('CHF ${formatChf(year.montantRetire)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12), textAlign: TextAlign.right)),
+                  Expanded(child: Text('CHF ${formatChf(year.impotEstime)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, color: MintColors.error, fontWeight: FontWeight.w600), textAlign: TextAlign.right)),
+                  Expanded(child: Text('CHF ${formatChf(year.montantNet)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, color: MintColors.greenDark, fontWeight: FontWeight.w600), textAlign: TextAlign.right)),
                 ],
               ),
             ),
 
-          const Divider(height: 16),
+          const Divider(height: MintSpacing.md),
 
-          // Total
           Row(
             children: [
-              const SizedBox(
-                width: 40,
-                child: Text('Total',
-                    style:
-                        TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-              ),
-              Expanded(
-                child: Text(
-                  'CHF ${formatChf(_avoirTotal)}',
-                  style: const TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.right,
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  'CHF ${formatChf(result.impotEchelonne)}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: MintColors.redDeep,
-                  ),
-                  textAlign: TextAlign.right,
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  'CHF ${formatChf(_avoirTotal - result.impotEchelonne)}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: MintColors.greenDark,
-                  ),
-                  textAlign: TextAlign.right,
-                ),
-              ),
+              SizedBox(width: 40, child: Text(l.staggered3aTotal, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, fontWeight: FontWeight.bold))),
+              Expanded(child: Text('CHF ${formatChf(_avoirTotal)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, fontWeight: FontWeight.bold), textAlign: TextAlign.right)),
+              Expanded(child: Text('CHF ${formatChf(result.impotEchelonne)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, fontWeight: FontWeight.bold, color: MintColors.error), textAlign: TextAlign.right)),
+              Expanded(child: Text('CHF ${formatChf(_avoirTotal - result.impotEchelonne)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, fontWeight: FontWeight.bold, color: MintColors.greenDark), textAlign: TextAlign.right)),
             ],
           ),
         ],
@@ -656,7 +389,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
 
   Widget _buildDisclaimer(String disclaimer) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(12),
@@ -666,16 +399,9 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
-            child: Text(
-              disclaimer,
-              style: const TextStyle(
-                fontSize: 11,
-                color: MintColors.deepOrange,
-                height: 1.4,
-              ),
-            ),
+            child: Text(disclaimer, style: MintTextStyles.micro(color: MintColors.deepOrange).copyWith(height: 1.4)),
           ),
         ],
       ),

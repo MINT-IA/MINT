@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P3-E  Parcours fléché immobilier — 7 étapes narratives
@@ -161,11 +161,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
               Expanded(
                 child: Text(
                   'Parcours achat immobilier',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
               Container(
@@ -177,11 +173,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
                 ),
                 child: Text(
                   '${_activeStep + 1} / ${_kSteps.length}',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.primary,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -189,11 +181,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
           const SizedBox(height: 8),
           Text(
             '7 étapes pour passer de "est-ce que je peux ?" à "j\'ai signé !".',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
           ),
         ],
       ),
@@ -230,13 +218,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
                         ? const Icon(Icons.check, size: 14, color: MintColors.white)
                         : Text(
                             '${i + 1}',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w800,
-                              color: isActive
-                                  ? MintColors.primary
-                                  : MintColors.textSecondary,
-                            ),
+                            style: MintTextStyles.labelSmall(color: isActive ? MintColors.primary : MintColors.textSecondary).copyWith(fontWeight: FontWeight.w800),
                           ),
                   ),
                 ),
@@ -281,11 +263,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
                 Expanded(
                   child: Text(
                     'Étape ${step.number} · ${step.title}',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
                   ),
                 ),
               ],
@@ -293,11 +271,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
             const SizedBox(height: 10),
             Text(
               step.subtitle,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textPrimary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.5),
             ),
             const SizedBox(height: 12),
             Container(
@@ -315,11 +289,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
                   Expanded(
                     child: Text(
                       step.action,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.primary,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
                     ),
                   ),
                 ],
@@ -328,11 +298,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
             const SizedBox(height: 8),
             Text(
               '📖 ${step.legalRef}',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textSecondary,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
             ),
           ],
         ),
@@ -367,10 +333,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
               foregroundColor: MintColors.white,
               padding:
                   const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              textStyle: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
+              textStyle: MintTextStyles.labelSmall(color: MintColors.white).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
             ),
           )
         else
@@ -382,11 +345,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
             ),
             child: Text(
               '✅ Parcours complet !',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-                color: MintColors.white,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(fontSize: 12, fontWeight: FontWeight.w800),
             ),
           ),
       ],
@@ -398,11 +357,7 @@ class _MortgageJourneyWidgetState extends State<MortgageJourneyWidget> {
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Consulte un·e spécialiste hypothécaire avant toute décision. '
       'Sources : FINMA Circular 2008/10, LPP art. 30c, LIFD art. 21, CC art. 652.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
     );
   }
 }

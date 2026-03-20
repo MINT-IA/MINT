@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/retirement_projection_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COUPLE PHASE TIMELINE — P5 / Couple Interactif
@@ -177,11 +177,7 @@ class _CouplePhaseTimelineState extends State<CouplePhaseTimeline> {
               Expanded(
                 child: Text(
                   'Timeline couple',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -221,11 +217,7 @@ class _CouplePhaseTimelineState extends State<CouplePhaseTimeline> {
           Text(
             'Projection \u00e9ducative. Les dates et montants sont '
             'des estimations qui peuvent varier (LSFin).',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.textMuted,
-              fontStyle: FontStyle.italic,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.italic),
           ),
         ],
       ),
@@ -261,13 +253,7 @@ class _CouplePhaseTimelineState extends State<CouplePhaseTimeline> {
               Expanded(
                 child: Text(
                   'Et si $conjName \u00e0 $currentAge\u00a0ans\u00a0?',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: _isModified
-                        ? MintColors.purple
-                        : MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: _isModified ? MintColors.purple : MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
               if (_isModified)
@@ -287,11 +273,7 @@ class _CouplePhaseTimelineState extends State<CouplePhaseTimeline> {
                     ),
                     child: Text(
                       'R\u00e9initialiser',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.textSecondary,
-                      ),
+                      style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
                     ),
                   ),
                 ),
@@ -322,17 +304,11 @@ class _CouplePhaseTimelineState extends State<CouplePhaseTimeline> {
             children: [
               Text(
                 '58 ans',
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
               ),
               Text(
                 '70 ans',
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
               ),
             ],
           ),
@@ -361,11 +337,7 @@ class _CouplePhaseTimelineState extends State<CouplePhaseTimeline> {
         Expanded(
           child: Text(
             '$name\u00a0: retraite en $year',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: isModified ? MintColors.purple : MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodySmall(color: isModified ? MintColors.purple : MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
           ),
         ),
         if (isModified)
@@ -377,11 +349,7 @@ class _CouplePhaseTimelineState extends State<CouplePhaseTimeline> {
             ),
             child: Text(
               'modifi\u00e9',
-              style: GoogleFonts.inter(
-                fontSize: 9,
-                fontWeight: FontWeight.w700,
-                color: MintColors.purple,
-              ),
+              style: MintTextStyles.micro(color: MintColors.purple).copyWith(fontSize: 9, fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
             ),
           ),
       ],
@@ -437,21 +405,13 @@ class _CouplePhaseTimelineState extends State<CouplePhaseTimeline> {
                     children: [
                       Text(
                         yearRange,
-                        style: GoogleFonts.montserrat(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: MintColors.info,
-                        ),
+                        style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           phase.label,
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: MintColors.textPrimary,
-                          ),
+                          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -460,11 +420,7 @@ class _CouplePhaseTimelineState extends State<CouplePhaseTimeline> {
                   const SizedBox(height: 6),
                   Text(
                     'Revenu m\u00e9nage\u00a0: ${_formatChf(phase.totalMonthly)}/mois',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 4),
                   // Income sources breakdown (compact)
@@ -475,10 +431,7 @@ class _CouplePhaseTimelineState extends State<CouplePhaseTimeline> {
                         .where((s) => s.monthlyAmount > 0)
                         .map((s) => Text(
                               '${s.label}\u00a0: ${_formatChf(s.monthlyAmount)}',
-                              style: GoogleFonts.inter(
-                                fontSize: 11,
-                                color: MintColors.textMuted,
-                              ),
+                              style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                             ))
                         .toList(),
                   ),

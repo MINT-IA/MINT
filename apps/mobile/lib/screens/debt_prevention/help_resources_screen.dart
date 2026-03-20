@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/debt_prevention_service.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 
 /// Ecran des ressources d'aide en cas de dette.
 ///
@@ -27,37 +30,19 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 100,
             pinned: true,
-            backgroundColor: MintColors.primary,
-            foregroundColor: MintColors.white,
-            iconTheme: const IconThemeData(color: MintColors.white),
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      MintColors.primary,
-                      MintColors.primary.withAlpha(220),
-                    ],
-                  ),
-                ),
-              ),
-              title: Text(
-                'AIDE EN CAS DE DETTE',
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
-                  letterSpacing: 0.5,
-                ),
-              ),
+            backgroundColor: MintColors.white,
+            surfaceTintColor: MintColors.white,
+            foregroundColor: MintColors.textPrimary,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            title: Text(
+              'AIDE EN CAS DE DETTE',
+              style: MintTextStyles.titleMedium(),
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Intro
@@ -103,6 +88,10 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
 
                 // Disclaimer
                 _buildDisclaimer(),
+                const SizedBox(height: 24),
+
+                // Navigation croisée dette
+                const DebtToolsNav(currentRoute: '/debt/help'),
                 const SizedBox(height: 40),
               ]),
             ),
@@ -114,7 +103,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
 
   Widget _buildIntroCard() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -130,10 +119,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
               const SizedBox(width: 12),
               Text(
                 'Vous n\'êtes pas seul',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: MintTextStyles.titleMedium(),
               ),
             ],
           ),
@@ -173,7 +159,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -199,10 +185,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                   children: [
                     Text(
                       nom,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: MintTextStyles.titleMedium(),
                     ),
                     Container(
                       margin: const EdgeInsets.only(top: 4),
@@ -242,7 +225,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () => _launchUrl(url),
                   icon: const Icon(Icons.open_in_new, size: 16),
-                  label: const Text('Site web'),
+                  label: Text(S.of(context)!.helpResourceSiteWeb),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: color,
                     side: BorderSide(color: color.withValues(alpha: 0.5)),
@@ -269,7 +252,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
 
   Widget _buildCantonalSection(HelpResource? cantonalResource) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -280,12 +263,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
         children: [
           Text(
             'SERVICE CANTONAL',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: 16),
 
@@ -402,7 +380,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
 
   Widget _buildPrivacyNote() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.neutralBg,
         borderRadius: BorderRadius.circular(12),
@@ -447,7 +425,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
 
   Widget _buildDisclaimer() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(12),

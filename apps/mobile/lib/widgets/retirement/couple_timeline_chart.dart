@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/retirement_projection_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Horizontal swim-lane timeline for couples with age difference.
 ///
@@ -126,31 +126,20 @@ class _CoupleTimelineChartState extends State<CoupleTimelineChart>
               children: [
                 Text(
                   phase.label,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w700),
                 ),
                 Text(
                   phase.endYear != null
                       ? '${phase.startYear} - ${phase.endYear}'
                       : 'Des ${phase.startYear}',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                 ),
               ],
             ),
           ),
           Text(
             '${RetirementProjectionService.formatChf(phase.totalMonthly)}/mois',
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -264,11 +253,10 @@ class _CoupleTimelinePainter extends CustomPainter {
         final tp = TextPainter(
           text: TextSpan(
             text: '$y',
-            style: GoogleFonts.inter(
+            style: MintTextStyles.micro(color: isKey ? MintColors.textPrimary : MintColors.textMuted).copyWith(
               fontSize: isKey ? 11 : 9,
               fontWeight: isKey ? FontWeight.w700 : FontWeight.w400,
-              color:
-                  isKey ? MintColors.textPrimary : MintColors.textMuted,
+              fontStyle: FontStyle.normal,
             ),
           ),
           textDirection: TextDirection.ltr,
@@ -303,11 +291,7 @@ class _CoupleTimelinePainter extends CustomPainter {
       final tp1 = TextPainter(
         text: TextSpan(
           text: 'Phase 1',
-          style: GoogleFonts.montserrat(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            color: MintColors.amber,
-          ),
+          style: MintTextStyles.micro(color: MintColors.amber).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
@@ -318,11 +302,7 @@ class _CoupleTimelinePainter extends CustomPainter {
         final tp2 = TextPainter(
           text: TextSpan(
             text: 'Phase 2',
-            style: GoogleFonts.montserrat(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: MintColors.info,
-            ),
+            style: MintTextStyles.micro(color: MintColors.info).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
           ),
           textDirection: TextDirection.ltr,
         )..layout();
@@ -368,11 +348,7 @@ class _CoupleTimelinePainter extends CustomPainter {
     final nameTP = TextPainter(
       text: TextSpan(
         text: name,
-        style: GoogleFonts.montserrat(
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-          color: MintColors.textPrimary,
-        ),
+        style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
@@ -392,11 +368,7 @@ class _CoupleTimelinePainter extends CustomPainter {
     final ageTP = TextPainter(
       text: TextSpan(
         text: '${65} ans',
-        style: GoogleFonts.inter(
-          fontSize: 9,
-          fontWeight: FontWeight.w600,
-          color: MintColors.info,
-        ),
+        style: MintTextStyles.micro(color: MintColors.info).copyWith(fontSize: 9, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
       ),
       textDirection: TextDirection.ltr,
     )..layout();

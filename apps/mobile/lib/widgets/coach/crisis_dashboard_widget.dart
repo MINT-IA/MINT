@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P7-E  Tableau de bord crise — 5 indicateurs vitaux
@@ -112,11 +112,7 @@ class CrisisDashboardWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Tableau de bord crise',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
               Container(
@@ -127,11 +123,7 @@ class CrisisDashboardWidget extends StatelessWidget {
                 ),
                 child: Text(
                   headerLabel,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.white,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -139,7 +131,7 @@ class CrisisDashboardWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             '${indicators.length} indicateurs vitaux — actions prioritaires en rouge.',
-            style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
           ),
         ],
       ),
@@ -167,11 +159,7 @@ class CrisisDashboardWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   ind.label,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
               Container(
@@ -182,11 +170,7 @@ class CrisisDashboardWidget extends StatelessWidget {
                 ),
                 child: Text(
                   '${ind.value} ${ind.unit}',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.white,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(fontSize: 12, fontWeight: FontWeight.w800),
                 ),
               ),
               const SizedBox(width: 8),
@@ -196,7 +180,7 @@ class CrisisDashboardWidget extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             ind.legalRef,
-            style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+            style: MintTextStyles.micro(color: MintColors.textSecondary),
           ),
           if (ind.action != null && ind.status != CrisisStatus.ok) ...[
             const SizedBox(height: 6),
@@ -207,12 +191,7 @@ class CrisisDashboardWidget extends StatelessWidget {
                 Expanded(
                   child: Text(
                     ind.action!,
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: color,
-                      height: 1.3,
-                    ),
+                    style: MintTextStyles.labelSmall(color: color).copyWith(fontWeight: FontWeight.w700, height: 1.3),
                   ),
                 ),
               ],
@@ -253,20 +232,12 @@ class CrisisDashboardWidget extends StatelessWidget {
               children: [
                 Text(
                   'Action prioritaire maintenant',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.scoreCritique,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   action,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textPrimary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
             ),
@@ -291,11 +262,7 @@ class CrisisDashboardWidget extends StatelessWidget {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : LACI art. 27 (délai max chômage), LPP art. 5 (libre passage 30j), LP art. 93 (minimum vital).',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

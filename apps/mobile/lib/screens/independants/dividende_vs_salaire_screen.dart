@@ -1,7 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/independants_service.dart';
 
@@ -80,6 +82,8 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
                 _buildDisclaimer(),
                 const SizedBox(height: 16),
                 _buildCantonalDisclaimer(),
+                const SizedBox(height: 16),
+                _buildComplianceFooter(),
                 const SizedBox(height: 100),
               ]),
             ),
@@ -94,35 +98,15 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
   Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
       pinned: true,
-      expandedHeight: 120,
-      backgroundColor: MintColors.primary,
+      backgroundColor: MintColors.white,
+      foregroundColor: MintColors.textPrimary,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
         onPressed: () => context.pop(),
       ),
-      flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 56, bottom: 16, right: 16),
-        title: Text(
-          'Dividende vs Salaire',
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-            color: MintColors.white,
-          ),
-        ),
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                MintColors.primary,
-                MintColors.primary.withValues(alpha: 0.85),
-              ],
-            ),
-          ),
-        ),
-      ),
+      title: Text(S.of(context)!.dividendeVsSalaireTitle, style: MintTextStyles.headlineMedium()),
     );
   }
 
@@ -147,11 +131,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
               'combinaison de salaire et de dividendes. Le dividende '
               'est imposé à 50% (participation qualifiante) et échappe '
               'aux cotisations AVS. Trouve le split le plus adapte.',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
         ],
@@ -163,7 +143,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
 
   Widget _buildBeneficeSlider() {
     return _buildSliderCard(
-      title: 'Bénéfice total',
+      title: S.of(context)!.dividendeBeneficeTotal,
       valueLabel: IndependantsService.formatChf(_benefice),
       minLabel: 'CHF 0',
       maxLabel: "CHF 500'000",
@@ -180,7 +160,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
 
   Widget _buildPartSalaireSlider() {
     return _buildSliderCard(
-      title: 'Part salaire',
+      title: S.of(context)!.dividendePartSalaire,
       valueLabel: '${_partSalairePct.toInt()}%',
       minLabel: '0%',
       maxLabel: '100%',
@@ -197,7 +177,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
 
   Widget _buildTauxSlider() {
     return _buildSliderCard(
-      title: 'Taux marginal d\'imposition',
+      title: S.of(context)!.dividendeTauxMarginal,
       valueLabel: '${(_tauxMarginal * 100).toStringAsFixed(0)}%',
       minLabel: '10%',
       maxLabel: '45%',
@@ -238,19 +218,11 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
             children: [
               Text(
                 title,
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(),
               ),
               Text(
                 valueLabel,
-                style: GoogleFonts.montserrat(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.primary,
-                ),
+                style: MintTextStyles.headlineMedium(color: MintColors.primary),
               ),
             ],
           ),
@@ -274,8 +246,8 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(minLabel, style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
-              Text(maxLabel, style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
+              Text(minLabel, style: MintTextStyles.micro(color: MintColors.textMuted)),
+              Text(maxLabel, style: MintTextStyles.micro(color: MintColors.textMuted)),
             ],
           ),
         ],
@@ -299,26 +271,16 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
         children: [
           Text(
             IndependantsService.formatChf(saving),
-            style: GoogleFonts.montserrat(
-              fontSize: 36,
-              fontWeight: FontWeight.w800,
-              color: saving > 0 ? MintColors.white : MintColors.primary,
-            ),
+            style: MintTextStyles.displayMedium(color: saving > 0 ? MintColors.white : MintColors.primary),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Text(
             saving > 0
                 ? 'Le split adapté te fait économiser '
                   '${IndependantsService.formatChf(saving)}/an '
                   'par rapport à 100% salaire'
                 : 'Ajuste le split pour trouver une économie',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: saving > 0
-                  ? MintColors.white.withValues(alpha: 0.9)
-                  : MintColors.textSecondary,
-              height: 1.5,
-            ),
+            style: MintTextStyles.bodyMedium(color: saving > 0 ? MintColors.white.withValues(alpha: 0.9) : MintColors.textSecondary),
             textAlign: TextAlign.center,
           ),
         ],
@@ -347,23 +309,15 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
               children: [
                 Text(
                   'Risque de requalification',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.error,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.error).copyWith(fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
                   'Si la part salaire est inférieure à ~60% du bénéfice, '
                   'l\'administration fiscale peut requalifier une partie '
                   'des dividendes en salaire (pratique cantonale variable). '
                   'Cela entraîne des cotisations AVS rétroactives.',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.error.withValues(alpha: 0.8),
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.error.withValues(alpha: 0.8)),
                 ),
               ],
             ),
@@ -442,26 +396,18 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           children: [
             Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: bold ? FontWeight.w600 : FontWeight.w400,
-                color: color ?? MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodyMedium(color: color ?? MintColors.textSecondary).copyWith(fontWeight: bold ? FontWeight.w600 : FontWeight.w400),
             ),
             if (subtitle != null)
               Text(
                 subtitle,
-                style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted),
+                style: MintTextStyles.micro(color: MintColors.textMuted),
               ),
           ],
         ),
         Text(
           value,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: bold ? MintColors.primary : (color ?? MintColors.textPrimary),
-          ),
+          style: MintTextStyles.bodyMedium(color: bold ? MintColors.primary : (color ?? MintColors.textPrimary)).copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -489,12 +435,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
               const SizedBox(width: 8),
               Text(
                 'CHARGE TOTALE PAR SPLIT',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(letterSpacing: 1, fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -517,8 +458,8 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('0% salaire', style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
-              Text('100% salaire', style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted)),
+              Text(S.of(context)!.dividendeSplitMin, style: MintTextStyles.micro(color: MintColors.textMuted)),
+              Text(S.of(context)!.dividendeSplitMax, style: MintTextStyles.micro(color: MintColors.textMuted)),
             ],
           ),
           const SizedBox(height: 12),
@@ -552,7 +493,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
         const SizedBox(width: 4),
         Text(
           label,
-          style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+          style: MintTextStyles.micro(color: MintColors.textSecondary),
         ),
       ],
     );
@@ -570,12 +511,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
             const SizedBox(width: 8),
             Text(
               'À RETENIR',
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textMuted,
-                letterSpacing: 1,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(letterSpacing: 1, fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -592,7 +528,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           'AVS uniquement sur le salaire',
           'Les cotisations AVS (environ 12.5% au total) ne s\'appliquent '
           'qu\'à la part salaire. Le dividende échappe aux charges sociales, '
-          'd\'où l\'intérêt d\'optimiser le split.',
+          'd\'où l\'intérêt d\'ajuster le split.',
         ),
         _buildEduCard(
           Icons.gavel_outlined,
@@ -632,20 +568,12 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: MintSpacing.xs),
                   Text(
                     body,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MintColors.textSecondary,
-                      height: 1.5,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                   ),
                 ],
               ),
@@ -677,11 +605,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
               'les déductions personnelles et les règles cantonales ne sont '
               'pas intégrés dans ce calcul. Consulte un\u00B7e spécialiste '
               'pour une analyse complète.',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.deepOrange,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.deepOrange),
             ),
           ),
         ],
@@ -697,14 +621,35 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        'L\'optimisation fiscale dépend de la pratique cantonale. '
-        'Les seuils de requalification varient d\'un canton a l\'autre.',
-        style: GoogleFonts.inter(
-          fontSize: 11,
-          color: MintColors.textMuted,
-          height: 1.4,
-        ),
+        'L\'impact fiscal dépend de la pratique cantonale. '
+        'Les seuils de requalification varient d\'un canton à l\'autre.',
+        style: MintTextStyles.micro(color: MintColors.textMuted),
         textAlign: TextAlign.center,
+      ),
+    );
+  }
+  // ── Compliance Footer ─────────────────────────────────────
+
+  Widget _buildComplianceFooter() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.appleSurface,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Outil éducatif — ne constitue pas un conseil financier (LSFin).',
+            style: MintTextStyles.micro(color: MintColors.textMuted),
+          ),
+          const SizedBox(height: MintSpacing.xs),
+          Text(
+            'Sources\u00a0: LIFD art.\u00a018, 20, 33\u00a0; CO art.\u00a0660',
+            style: MintTextStyles.micro(color: MintColors.textMuted),
+          ),
+        ],
       ),
     );
   }

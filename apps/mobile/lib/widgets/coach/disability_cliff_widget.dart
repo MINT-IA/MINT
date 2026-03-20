@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P4-A  La Falaise — Timeline invalidité en 3 actes
@@ -106,11 +106,7 @@ class DisabilityCliffWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Si tu ne pouvais plus travailler demain',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -118,10 +114,7 @@ class DisabilityCliffWidget extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             'La falaise d\'invalidité en 3 actes',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
         ],
       ),
@@ -142,11 +135,7 @@ class DisabilityCliffWidget extends StatelessWidget {
           const SizedBox(width: 10),
           Text(
             'Ton salaire actuel : CHF ${_fmt(grossMonthly)}/mois',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: MintColors.primary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -179,19 +168,11 @@ class DisabilityCliffWidget extends StatelessWidget {
                       children: [
                         Text(
                           'ACTE ${index + 1} · ${act.label}',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            color: act.color,
-                            letterSpacing: 0.5,
-                          ),
+                          style: MintTextStyles.labelSmall(color: act.color).copyWith(fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 0.5),
                         ),
                         Text(
                           act.durationLabel,
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: MintColors.textSecondary,
-                          ),
+                          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                         ),
                       ],
                     ),
@@ -201,18 +182,11 @@ class DisabilityCliffWidget extends StatelessWidget {
                     children: [
                       Text(
                         'CHF ${_fmt(act.monthlyIncome)}',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: act.color,
-                        ),
+                        style: MintTextStyles.titleMedium(color: act.color).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
                       ),
                       Text(
                         '/mois',
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: MintColors.textSecondary,
-                        ),
+                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                       ),
                     ],
                   ),
@@ -222,22 +196,14 @@ class DisabilityCliffWidget extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   act.subtitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
               if (act.detail != null) ...[
                 const SizedBox(height: 6),
                 Text(
                   act.detail!,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: act.color,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: MintTextStyles.labelSmall(color: act.color).copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
               if (isLast && acts.isNotEmpty) ...[
@@ -250,11 +216,7 @@ class DisabilityCliffWidget extends StatelessWidget {
                   ),
                   child: Text(
                     'vs CHF ${_fmt(grossMonthly)}/mois avant',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.scoreCritique,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -287,38 +249,22 @@ class DisabilityCliffWidget extends StatelessWidget {
         children: [
           Text(
             '💰 Chiffre-choc',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.scoreCritique,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Text(
             'Tu perdrais CHF ${_fmt(lostMonthly)}/mois.',
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: MintColors.scoreCritique,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.scoreCritique).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 4),
           Text(
             'Sur 15 ans = CHF ${_fmt(lostYearly15)} de revenus en moins.',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textPrimary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
           ),
           const SizedBox(height: 8),
           Text(
             '→ Action : Vérifie ta couverture LPP invalidité',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: MintColors.primary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -329,11 +275,7 @@ class DisabilityCliffWidget extends StatelessWidget {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : LAVS art. 28-29, LPP art. 23-26.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

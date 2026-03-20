@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -90,11 +90,7 @@ class AvancementHoirieWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   'L\'avancement d\'hoirie',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -102,11 +98,7 @@ class AvancementHoirieWidget extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             'Ce que tu donnes aujourd\'hui sera déduit de la part à ton décès · CC art. 626',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
           ),
         ],
       ),
@@ -123,7 +115,7 @@ class AvancementHoirieWidget extends StatelessWidget {
         children: [
           Text(
             'Patrimoine total : ${formatChfWithPrefix(totalPatrimoine)}',
-            style: GoogleFonts.inter(fontSize: 13, color: MintColors.textPrimary),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
           ),
           const SizedBox(height: 8),
           Row(
@@ -132,18 +124,14 @@ class AvancementHoirieWidget extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 'reçoit donation : ${formatChfWithPrefix(donationAmount)}',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.primary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
           const SizedBox(height: 6),
           Text(
             'Patrimoine restant : ${formatChfWithPrefix(totalPatrimoine - donationAmount)}',
-            style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
           ),
         ],
       ),
@@ -159,12 +147,12 @@ class AvancementHoirieWidget extends StatelessWidget {
         children: [
           Text(
             'Masse de calcul : ${formatChfWithPrefix(totalPatrimoine - donationAmount)} + ${formatChfWithPrefix(donationAmount)} (rapporté)',
-            style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
           ),
           const SizedBox(height: 2),
           Text(
             '= ${formatChfWithPrefix(totalPatrimoine)} partagé en ${children.length}',
-            style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
           ),
           const SizedBox(height: 10),
           ...children.asMap().entries.map((e) {
@@ -185,18 +173,14 @@ class AvancementHoirieWidget extends StatelessWidget {
                       ),
                       child: Text(
                         '(déjà reçu ${formatChfWithPrefix(donationAmount)})',
-                        style: GoogleFonts.inter(fontSize: 10, color: MintColors.scoreAttention, fontWeight: FontWeight.w600),
+                        style: MintTextStyles.micro(color: MintColors.scoreAttention).copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
                   const Spacer(),
                   Text(
                     formatChfWithPrefix(share),
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: isRecipient ? MintColors.scoreAttention : MintColors.scoreExcellent,
-                    ),
+                    style: MintTextStyles.bodySmall(color: isRecipient ? MintColors.scoreAttention : MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ],
               ),
@@ -220,12 +204,7 @@ class AvancementHoirieWidget extends StatelessWidget {
         children: [
           Text(
             actLabel,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
-              color: color,
-              letterSpacing: 0.3,
-            ),
+            style: MintTextStyles.labelSmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 0.3),
           ),
           const SizedBox(height: 10),
           child,
@@ -260,11 +239,7 @@ class AvancementHoirieWidget extends StatelessWidget {
             child: Text(
               'Ce que tu donnes sera déduit de sa part. '
               'L\'égalité entre héritiers est préservée — sauf clause d\'exonération de rapport.',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textPrimary,
-                height: 1.5,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.5),
             ),
           ),
         ],
@@ -276,11 +251,7 @@ class AvancementHoirieWidget extends StatelessWidget {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : CC art. 626 (rapport), CC art. 471 (réserves).',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

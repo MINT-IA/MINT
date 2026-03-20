@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart';
 import 'package:mint_mobile/widgets/coach/lpp_rescue_widget.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 /// Ecran de conseil en libre passage.
 ///
@@ -37,61 +40,59 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
   @override
   Widget build(BuildContext context) {
     final result = _result;
+    final l = S.of(context)!;
 
     return Scaffold(
-      backgroundColor: MintColors.surface,
+      backgroundColor: MintColors.white,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 100,
             pinned: true,
-            backgroundColor: MintColors.primary,
-            foregroundColor: MintColors.white,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'LIBRE PASSAGE',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
-                  letterSpacing: 0.5,
-                ),
-              ),
+            backgroundColor: MintColors.white,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
+              onPressed: () => context.pop(),
+            ),
+            title: Text(
+              l.librePassageAppBarTitle,
+              style: MintTextStyles.headlineMedium(),
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Situation selector
-                _buildSituationSelector(),
-                const SizedBox(height: 16),
+                _buildSituationSelector(l),
+                const SizedBox(height: MintSpacing.md),
 
                 // Profile inputs (age + avoir)
-                _buildProfileInputs(),
-                const SizedBox(height: 16),
+                _buildProfileInputs(l),
+                const SizedBox(height: MintSpacing.md),
 
                 // New employer toggle — only for job change
                 if (_statut == LibrePassageStatut.changementEmploi) ...[
-                  _buildNewEmployerToggle(),
-                  const SizedBox(height: 16),
+                  _buildNewEmployerToggle(l),
+                  const SizedBox(height: MintSpacing.md),
                 ],
-                const SizedBox(height: 8),
+                const SizedBox(height: MintSpacing.sm),
 
                 // Alerts
                 if (result.alerts.isNotEmpty) ...[
-                  _buildAlertsSection(result.alerts),
-                  const SizedBox(height: 24),
+                  _buildAlertsSection(result.alerts, l),
+                  const SizedBox(height: MintSpacing.lg),
                 ],
 
                 // Checklist
-                _buildChecklistSection(result.checklist),
-                const SizedBox(height: 24),
+                _buildChecklistSection(result.checklist, l),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Recommendations
                 if (result.recommendations.isNotEmpty) ...[
-                  _buildRecommendationsSection(result.recommendations),
-                  const SizedBox(height: 24),
+                  _buildRecommendationsSection(result.recommendations, l),
+                  const SizedBox(height: MintSpacing.lg),
                 ],
 
                 // ── P7-D : Opération sauvetage 2e pilier ─────────
@@ -126,19 +127,19 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Link to sfbvg.ch
-                _buildCentrale2ePilier(),
-                const SizedBox(height: 24),
+                _buildCentrale2ePilier(l),
+                const SizedBox(height: MintSpacing.lg),
 
                 // nLPD / Privacy
-                _buildPrivacyNote(),
-                const SizedBox(height: 24),
+                _buildPrivacyNote(l),
+                const SizedBox(height: MintSpacing.lg),
 
                 // Disclaimer
                 _buildDisclaimer(result.disclaimer),
-                const SizedBox(height: 40),
+                const SizedBox(height: MintSpacing.xxl),
               ]),
             ),
           ),
@@ -147,9 +148,9 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
     );
   }
 
-  Widget _buildSituationSelector() {
+  Widget _buildSituationSelector(S l) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -159,33 +160,28 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'SITUATION',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            l.librePassageSectionSituation,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MintSpacing.sm + 4),
           Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: MintSpacing.sm,
+            runSpacing: MintSpacing.sm,
             children: [
               _buildChoiceChip(
-                label: 'Changement d\'emploi',
+                label: l.librePassageChipChangementEmploi,
                 selected: _statut == LibrePassageStatut.changementEmploi,
                 onSelected: () => setState(
                     () => _statut = LibrePassageStatut.changementEmploi),
               ),
               _buildChoiceChip(
-                label: 'Depart de Suisse',
+                label: l.librePassageChipDepartSuisse,
                 selected: _statut == LibrePassageStatut.departSuisse,
                 onSelected: () =>
                     setState(() => _statut = LibrePassageStatut.departSuisse),
               ),
               _buildChoiceChip(
-                label: 'Cessation d\'activite',
+                label: l.librePassageChipCessationActivite,
                 selected: _statut == LibrePassageStatut.cessationActivite,
                 onSelected: () => setState(
                     () => _statut = LibrePassageStatut.cessationActivite),
@@ -205,15 +201,13 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
     return ChoiceChip(
       label: Text(
         label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+        style: MintTextStyles.labelSmall(
           color: selected ? MintColors.white : MintColors.textPrimary,
-        ),
+        ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
       ),
       selected: selected,
       selectedColor: MintColors.primary,
-      backgroundColor: MintColors.appleSurface,
+      backgroundColor: MintColors.surface,
       side: BorderSide(
         color: selected ? MintColors.primary : MintColors.border,
       ),
@@ -221,9 +215,9 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
     );
   }
 
-  Widget _buildProfileInputs() {
+  Widget _buildProfileInputs(S l) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -233,84 +227,58 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'TON PROFIL',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
+            l.librePassageSectionProfil,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           // Age slider
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Ton âge',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textPrimary,
-                ),
-              ),
-              Text(
-                '$_age ans',
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
-              ),
+              Text(l.librePassageLabelAge, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
+              Text(l.librePassageLabelAgeFormat(_age), style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
             ],
           ),
-          Slider(
-            value: _age.toDouble(),
-            min: 18,
-            max: 65,
-            divisions: 47,
-            activeColor: MintColors.primary,
-            onChanged: (v) => setState(() => _age = v.round()),
+          Semantics(
+            label: l.librePassageLabelAge,
+            value: l.librePassageLabelAgeFormat(_age),
+            child: Slider(
+              value: _age.toDouble(),
+              min: 18,
+              max: 65,
+              divisions: 47,
+              activeColor: MintColors.primary,
+              onChanged: (v) => setState(() => _age = v.round()),
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           // Avoir slider
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Avoir de libre passage',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textPrimary,
-                ),
-              ),
-              Text(
-                'CHF ${(_avoir / 1000).toStringAsFixed(0)}k',
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
-              ),
+              Text(l.librePassageLabelAvoir, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
+              Text('CHF ${(_avoir / 1000).toStringAsFixed(0)}k', style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
             ],
           ),
-          Slider(
-            value: _avoir,
-            min: 0,
-            max: 500000,
-            divisions: 100,
-            activeColor: MintColors.primary,
-            onChanged: (v) => setState(() => _avoir = v),
+          Semantics(
+            label: l.librePassageLabelAvoir,
+            child: Slider(
+              value: _avoir,
+              min: 0,
+              max: 500000,
+              divisions: 100,
+              activeColor: MintColors.primary,
+              onChanged: (v) => setState(() => _avoir = v),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildNewEmployerToggle() {
+  Widget _buildNewEmployerToggle(S l) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -318,91 +286,57 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
       ),
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Nouvel employeur',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'As-tu déjà un nouvel employeur ?',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
-                ),
+                Text(l.librePassageLabelNouvelEmployeur, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600)),
+                const SizedBox(height: MintSpacing.xs),
+                Text(l.librePassageLabelNouvelEmployeurQuestion, style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
               ],
             ),
           ),
-          Switch(
-            value: _hasNewEmployer,
-            activeTrackColor: MintColors.primary,
-            onChanged: (v) => setState(() => _hasNewEmployer = v),
+          Semantics(
+            label: l.librePassageLabelNouvelEmployeur,
+            toggled: _hasNewEmployer,
+            child: Switch(
+              value: _hasNewEmployer,
+              activeTrackColor: MintColors.primary,
+              onChanged: (v) => setState(() => _hasNewEmployer = v),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAlertsSection(List<LibrePassageAlert> alerts) {
+  Widget _buildAlertsSection(List<LibrePassageAlert> alerts, S l) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'ALERTES',
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textMuted,
-            letterSpacing: 1,
-          ),
-        ),
-        const SizedBox(height: 12),
+        Text(l.librePassageSectionAlertes, style: MintTextStyles.bodySmall(color: MintColors.textMuted)),
+        const SizedBox(height: MintSpacing.sm + 4),
         for (final alert in alerts)
           Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(16),
+            margin: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
+            padding: const EdgeInsets.all(MintSpacing.md),
             decoration: BoxDecoration(
-              color: _urgencyBgColor(alert.urgency),
+              color: _urgencyColor(alert.urgency).withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: _urgencyBorderColor(alert.urgency)),
+              border: Border.all(color: _urgencyColor(alert.urgency).withValues(alpha: 0.15)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.warning_amber_rounded,
-                  color: _urgencyColor(alert.urgency),
-                  size: 22,
-                ),
-                const SizedBox(width: 12),
+                Icon(Icons.warning_amber_rounded, color: _urgencyColor(alert.urgency), size: 22),
+                const SizedBox(width: MintSpacing.sm + 4),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        alert.title,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: _urgencyColor(alert.urgency),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        alert.message,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: _urgencyColor(alert.urgency),
-                          height: 1.4,
-                        ),
-                      ),
+                      Text(alert.title, style: MintTextStyles.bodySmall(color: _urgencyColor(alert.urgency)).copyWith(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: MintSpacing.xs),
+                      Text(alert.message, style: MintTextStyles.labelSmall(color: _urgencyColor(alert.urgency))),
                     ],
                   ),
                 ),
@@ -413,9 +347,9 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
     );
   }
 
-  Widget _buildChecklistSection(List<ChecklistItem> items) {
+  Widget _buildChecklistSection(List<ChecklistItem> items, S l) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -424,36 +358,25 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'CHECKLIST',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
-          ),
-          const SizedBox(height: 16),
+          Text(l.librePassageSectionChecklist, style: MintTextStyles.bodySmall(color: MintColors.textMuted)),
+          const SizedBox(height: MintSpacing.md),
           for (int i = 0; i < items.length; i++) ...[
-            _buildChecklistCard(items[i], i),
-            if (i < items.length - 1) const SizedBox(height: 12),
+            _buildChecklistCard(items[i], i, l),
+            if (i < items.length - 1) const SizedBox(height: MintSpacing.sm + 4),
           ],
         ],
       ),
     );
   }
 
-  Widget _buildChecklistCard(ChecklistItem item, int index) {
+  Widget _buildChecklistCard(ChecklistItem item, int index, S l) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: MintColors.appleSurface,
+        color: MintColors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border(
-          left: BorderSide(
-            color: _urgencyColor(item.urgency),
-            width: 3,
-          ),
+          left: BorderSide(color: _urgencyColor(item.urgency), width: 3),
         ),
       ),
       child: Column(
@@ -461,44 +384,26 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
         children: [
           Row(
             children: [
-              Expanded(
-                child: Text(
-                  item.title,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              _buildUrgencyBadge(item.urgency),
+              Expanded(child: Text(item.title, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600))),
+              _buildUrgencyBadge(item.urgency, l),
             ],
           ),
           const SizedBox(height: 6),
-          Text(
-            item.description,
-            style: const TextStyle(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
-          ),
+          Text(item.description, style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
         ],
       ),
     );
   }
 
-  Widget _buildUrgencyBadge(ChecklistUrgency urgency) {
-    String label;
+  Widget _buildUrgencyBadge(ChecklistUrgency urgency, S l) {
+    final String label;
     switch (urgency) {
       case ChecklistUrgency.critique:
-        label = 'Critique';
-        break;
+        label = l.librePassageUrgenceCritique;
       case ChecklistUrgency.haute:
-        label = 'Haute';
-        break;
+        label = l.librePassageUrgenceHaute;
       case ChecklistUrgency.moyenne:
-        label = 'Moyenne';
-        break;
+        label = l.librePassageUrgenceMoyenne;
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -508,18 +413,15 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
       ),
       child: Text(
         label,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          color: _urgencyColor(urgency),
-        ),
+        style: MintTextStyles.micro(color: _urgencyColor(urgency))
+            .copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
       ),
     );
   }
 
-  Widget _buildRecommendationsSection(List<String> recommendations) {
+  Widget _buildRecommendationsSection(List<String> recommendations, S l) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -528,35 +430,17 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'RECOMMANDATIONS',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
-              letterSpacing: 1,
-            ),
-          ),
-          const SizedBox(height: 12),
+          Text(l.librePassageSectionRecommandations, style: MintTextStyles.bodySmall(color: MintColors.textMuted)),
+          const SizedBox(height: MintSpacing.sm + 4),
           for (final rec in recommendations)
             Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(bottom: MintSpacing.sm),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.lightbulb_outline,
-                      size: 18, color: MintColors.warningText),
+                  const Icon(Icons.lightbulb_outline, size: 18, color: MintColors.warning),
                   const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      rec,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: MintColors.textPrimary,
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
+                  Expanded(child: Text(rec, style: MintTextStyles.bodySmall(color: MintColors.textPrimary))),
                 ],
               ),
             ),
@@ -565,83 +449,60 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
     );
   }
 
-  Widget _buildCentrale2ePilier() {
+  Widget _buildCentrale2ePilier(S l) {
     return Semantics(
-      label: 'Centrale du 2e pilier (sfbvg.ch)',
+      label: l.librePassageCentrale2eTitle,
       button: true,
       child: InkWell(
-      onTap: () async {
-        final uri = Uri.parse('https://www.sfbvg.ch');
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-        }
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: MintColors.neutralBg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.neutralBg),
-        ),
-        child: const Row(
-          children: [
-            Icon(Icons.search, color: MintColors.blueDark, size: 24),
-            SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Centrale du 2e pilier (sfbvg.ch)',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.blueMaterial900,
-                    ),
-                  ),
-                  SizedBox(height: 2),
-                  Text(
-                    'Recherchez des avoirs de libre passage oublies',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: MintColors.categoryBlue,
-                    ),
-                  ),
-                ],
+        onTap: () async {
+          final uri = Uri.parse('https://www.sfbvg.ch');
+          if (await canLaunchUrl(uri)) {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+          }
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(MintSpacing.md),
+          decoration: BoxDecoration(
+            color: MintColors.info.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.search, color: MintColors.info, size: 24),
+              const SizedBox(width: MintSpacing.sm + 4),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l.librePassageCentrale2eTitle, style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 2),
+                    Text(l.librePassageCentrale2eSubtitle, style: MintTextStyles.labelSmall(color: MintColors.info)),
+                  ],
+                ),
               ),
-            ),
-            Icon(Icons.open_in_new, color: MintColors.blueClassic, size: 18),
-          ],
+              const Icon(Icons.open_in_new, color: MintColors.info, size: 18),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
 
-  Widget _buildPrivacyNote() {
+  Widget _buildPrivacyNote(S l) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: MintColors.appleSurface,
+        color: MintColors.surface,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.lock_outline, size: 18, color: MintColors.textMuted),
-          SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              'Tes données restent sur ton appareil. Aucune information '
-              'n\'est transmise à des tiers. Conforme à la nLPD.',
-              style: TextStyle(
-                fontSize: 11,
-                color: MintColors.textMuted,
-                height: 1.4,
-              ),
-            ),
-          ),
+          const Icon(Icons.lock_outline, size: 18, color: MintColors.textMuted),
+          const SizedBox(width: 10),
+          Expanded(child: Text(l.librePassagePrivacyNote, style: MintTextStyles.labelSmall(color: MintColors.textMuted))),
         ],
       ),
     );
@@ -649,27 +510,18 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
 
   Widget _buildDisclaimer(String disclaimer) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
-        color: MintColors.warningBg,
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.orangeRetroWarm),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.warning, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              disclaimer,
-              style: const TextStyle(
-                fontSize: 11,
-                color: MintColors.deepOrange,
-                height: 1.4,
-              ),
-            ),
-          ),
+          const SizedBox(width: MintSpacing.sm + 4),
+          Expanded(child: Text(disclaimer, style: MintTextStyles.micro(color: MintColors.textMuted))),
         ],
       ),
     );
@@ -678,33 +530,11 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
   Color _urgencyColor(ChecklistUrgency urgency) {
     switch (urgency) {
       case ChecklistUrgency.critique:
-        return MintColors.redMedium;
+        return MintColors.error;
       case ChecklistUrgency.haute:
         return MintColors.warning;
       case ChecklistUrgency.moyenne:
-        return MintColors.blueDark;
-    }
-  }
-
-  Color _urgencyBgColor(ChecklistUrgency urgency) {
-    switch (urgency) {
-      case ChecklistUrgency.critique:
-        return MintColors.urgentBg;
-      case ChecklistUrgency.haute:
-        return MintColors.warningBg;
-      case ChecklistUrgency.moyenne:
-        return MintColors.neutralBg;
-    }
-  }
-
-  Color _urgencyBorderColor(ChecklistUrgency urgency) {
-    switch (urgency) {
-      case ChecklistUrgency.critique:
-        return MintColors.redBg;
-      case ChecklistUrgency.haute:
-        return MintColors.orangeRetroWarm;
-      case ChecklistUrgency.moyenne:
-        return MintColors.neutralBg;
+        return MintColors.info;
     }
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -74,7 +74,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     return [
       DisabilityAct(
         label: 'ACTE 1 · Employeur',
-        subtitle: 'CO art. 324a — 3 à 26 semaines selon ancienneté',
+        subtitle: S.of(context)!.disabilityGapEmployerSub,
         durationLabel: 'Semaines 1-26',
         monthlyIncome: act1Income,
         emoji: '🟢',
@@ -96,7 +96,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
       ),
       DisabilityAct(
         label: 'ACTE 3 · AI + LPP (définitif)',
-        subtitle: 'Délai moyen décision AI : 14 mois · LAI art. 28 + LPP art. 23',
+        subtitle: S.of(context)!.disabilityGapAiDelaySub,
         durationLabel: 'Après 24 mois',
         monthlyIncome: act3Income,
         emoji: '🔴',
@@ -318,20 +318,11 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                 children: [
                   Text(
                     S.of(context)!.disabilityStatLine1,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.white70,
-                      letterSpacing: 0.5,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.white70).copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.5),
                   ),
                   Text(
                     S.of(context)!.disabilityStatLine2,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: MintColors.white,
-                    ),
+                    style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
                   ),
                 ],
               ),
@@ -341,11 +332,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
       ),
       title: Text(
         S.of(context)!.disabilityAppBarTitle,
-        style: GoogleFonts.montserrat(
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-          color: MintColors.white,
-        ),
+        style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
       ),
     );
   }
@@ -363,11 +350,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
         children: [
           Text(
             S.of(context)!.disabilityYourSituation,
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 16),
           _buildSliderRow(
@@ -406,10 +389,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
               Flexible(
                 child: Text(
                   S.of(context)!.disabilityHasIjm,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                 ),
               ),
               Switch(
@@ -429,7 +409,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(S.of(context)!.disabilityExploreAlso,
-          style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w700, color: MintColors.textPrimary)),
+          style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: 12),
         CollapsibleSection(
           title: S.of(context)!.disabilityCoverageInsurance,
@@ -475,19 +455,12 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
             Flexible(
               child: Text(
                 label,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
               ),
             ),
             Text(
               format(value),
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: MintColors.primary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),

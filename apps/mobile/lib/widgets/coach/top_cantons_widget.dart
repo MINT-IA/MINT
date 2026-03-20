@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -109,11 +109,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
               Expanded(
                 child: Text(
                   'Ton top cantons',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -122,7 +118,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
           if (top != null)
             Text(
               'Ton n°1 : ${top.canton}. Tu économises ${formatChfWithPrefix(top.annualTaxSaving)}/an vs ${widget.currentCanton}.',
-              style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary, height: 1.4),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
             ),
         ],
       ),
@@ -134,7 +130,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
       children: [
         Text(
           'Avec enfants',
-          style: GoogleFonts.inter(fontSize: 13, color: MintColors.textPrimary),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
         ),
         const SizedBox(width: 8),
         Switch(
@@ -180,11 +176,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
                   ),
                   child: Text(
                     '${r.rank}',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: isTop ? MintColors.white : MintColors.textSecondary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: isTop ? MintColors.white : MintColors.textSecondary).copyWith(fontWeight: FontWeight.w800),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -194,16 +186,12 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
                     children: [
                       Text(
                         r.canton,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                       ),
                       if (r.highlight != null)
                         Text(
                           r.highlight!,
-                          style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                          style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
                         ),
                     ],
                   ),
@@ -213,15 +201,11 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
                   children: [
                     Text(
                       '− ${formatChfWithPrefix(r.annualTaxSaving)}/an',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.scoreExcellent,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w700),
                     ),
                     Text(
                       'LAMal ${formatChf(r.monthlyLamal)}/m · loyer ~${formatChf(r.monthlyRent)}/m',
-                      style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                      style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
                     ),
                   ],
                 ),
@@ -250,7 +234,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
             child: Text(
               'Le canton le moins cher est parfois à 30 minutes. '
               'Compare aussi la qualité des écoles, transports et prix de l\'immobilier.',
-              style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary, height: 1.4),
+              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
             ),
           ),
         ],
@@ -263,11 +247,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
       'Outil éducatif · ne constitue pas un conseil fiscal au sens de la LSFin. '
       'Source : AFC, taux d\'imposition cantonaux. '
       'Classement basé sur revenu seul — varie selon patrimoine et situation familiale.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FISCAL IMPACT WATERFALL CHART — Sprint S22 + Sprint 3 UX
@@ -179,18 +179,11 @@ class _FiscalImpactWaterfallState extends State<FiscalImpactWaterfall>
               children: [
                 Text(
                   'Impact fiscal enfant',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(),
                 ),
                 Text(
                   'Deductions et allocations',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
                 ),
               ],
             ),
@@ -298,19 +291,11 @@ class _FiscalImpactWaterfallState extends State<FiscalImpactWaterfall>
                 children: [
                   Text(
                     step.label,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w700),
                   ),
                   Text(
                     '${step.isTotal ? '' : step.amount < 0 ? '' : '+'}${_formatChf(step.amount)}',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: color,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -321,18 +306,11 @@ class _FiscalImpactWaterfallState extends State<FiscalImpactWaterfall>
               children: [
                 Text(
                   'Total courant',
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 10, fontStyle: FontStyle.normal),
                 ),
                 Text(
                   _formatChf(runningTotal),
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -382,20 +360,12 @@ class _FiscalImpactWaterfallState extends State<FiscalImpactWaterfall>
                     children: [
                       Text(
                         'Economies totales',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.success,
-                        ),
+                        style: MintTextStyles.bodyMedium(color: MintColors.success).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         _formatChf(widget.totalSavings),
-                        style: GoogleFonts.montserrat(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color: MintColors.success,
-                        ),
+                        style: MintTextStyles.headlineMedium(color: MintColors.success).copyWith(fontWeight: FontWeight.w800),
                       ),
                     ],
                   ),
@@ -639,10 +609,10 @@ class _WaterfallPainter extends CustomPainter {
       final amountPainter = TextPainter(
         text: TextSpan(
           text: amountText,
-          style: GoogleFonts.montserrat(
+          style: MintTextStyles.micro(color: barColor).copyWith(
             fontSize: isHighlighted ? 11 : 10,
             fontWeight: FontWeight.w700,
-            color: barColor,
+            fontStyle: FontStyle.normal,
           ),
         ),
         textDirection: TextDirection.ltr,
@@ -660,12 +630,12 @@ class _WaterfallPainter extends CustomPainter {
       final labelPainter = TextPainter(
         text: TextSpan(
           text: step.label,
-          style: GoogleFonts.inter(
+          style: MintTextStyles.micro(
+            color: isHighlighted ? MintColors.textPrimary : MintColors.textSecondary,
+          ).copyWith(
             fontSize: 9,
             fontWeight: isHighlighted ? FontWeight.w700 : FontWeight.w500,
-            color: isHighlighted
-                ? MintColors.textPrimary
-                : MintColors.textSecondary,
+            fontStyle: FontStyle.normal,
           ),
         ),
         textDirection: TextDirection.ltr,

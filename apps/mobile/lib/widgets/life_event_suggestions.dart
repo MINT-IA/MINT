@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  LIFE EVENT SUGGESTIONS
@@ -220,18 +220,11 @@ class LifeEventSuggestionsSection extends StatelessWidget {
                   children: [
                     Text(
                       'Et ensuite ?',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
                     ),
                     Text(
                       'Modules adaptés à ton profil',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textSecondary,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                     ),
                   ],
                 ),
@@ -293,19 +286,12 @@ class LifeEventSuggestionsSection extends StatelessWidget {
                   children: [
                     Text(
                       suggestion.title,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       suggestion.reason,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: MintColors.textSecondary,
-                      ),
+                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -322,11 +308,7 @@ class LifeEventSuggestionsSection extends StatelessWidget {
                 ),
                 child: Text(
                   'Simuler',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: suggestion.color,
-                  ),
+                  style: MintTextStyles.labelSmall(color: suggestion.color).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
             ],

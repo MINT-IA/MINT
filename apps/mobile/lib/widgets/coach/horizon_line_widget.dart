@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P7-F  Ligne d'horizon — Le mur de la fin des droits
@@ -86,11 +86,7 @@ class HorizonLineWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Ta ligne d\'horizon',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -98,11 +94,7 @@ class HorizonLineWidget extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             'CHF ${_fmt(monthlyBenefit)}/mois jusqu\'au dernier jour — puis 0 CHF.',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
         ],
       ),
@@ -118,11 +110,7 @@ class HorizonLineWidget extends StatelessWidget {
       children: [
         Text(
           'Ta trajectoire financière',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 16),
         // Visual timeline
@@ -142,11 +130,11 @@ class HorizonLineWidget extends StatelessWidget {
               children: [
                 Text(
                   'Zone sécurisée',
-                  style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: zoneColor),
+                  style: MintTextStyles.labelSmall(color: zoneColor).copyWith(fontWeight: FontWeight.w700),
                 ),
                 Text(
                   'CHF ${_fmt(monthlyBenefit)}/mois',
-                  style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -155,11 +143,11 @@ class HorizonLineWidget extends StatelessWidget {
               children: [
                 Text(
                   'LE MUR',
-                  style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w800, color: wallColor),
+                  style: MintTextStyles.labelSmall(color: wallColor).copyWith(fontWeight: FontWeight.w800),
                 ),
                 Text(
                   'Jour $totalDays → 0 CHF',
-                  style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -175,11 +163,7 @@ class HorizonLineWidget extends StatelessWidget {
             ),
             child: Text(
               'Il te reste $daysLeft jours — soit ${monthsLeft.toStringAsFixed(1)} mois de revenus',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: MintColors.info,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.info).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -200,11 +184,7 @@ class HorizonLineWidget extends StatelessWidget {
         children: [
           Text(
             'Après la ligne d\'horizon :',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: MintColors.scoreCritique,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           _buildAfterItem('Aide sociale cantonale', 'Montant variable selon canton'),
@@ -229,18 +209,11 @@ class HorizonLineWidget extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                 ),
                 Text(
                   subtitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -274,21 +247,13 @@ class HorizonLineWidget extends StatelessWidget {
               children: [
                 Text(
                   'Passage instantané de CHF ${_fmt(monthlyBenefit)} → 0 CHF',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Il n\'y a pas de transition douce. Le jour J+1, tes droits sont épuisés. '
                   'Prépare ton plan B avant d\'atteindre la ligne.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.5),
                 ),
               ],
             ),
@@ -302,11 +267,7 @@ class HorizonLineWidget extends StatelessWidget {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : LACI art. 27-30.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

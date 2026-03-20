@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -65,11 +65,7 @@ class BudgetSandwichChart extends StatelessWidget {
           children: [
             Text(
               'Ton budget retraite',
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 16),
 
@@ -121,11 +117,7 @@ class BudgetSandwichChart extends StatelessWidget {
                       const SizedBox(width: 6),
                       Text(
                         '${isPositive ? "Marge" : "D\u00e9ficit"}\u00a0: ${formatChfWithPrefix(margin.abs())}/mois',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: marginColor,
-                        ),
+                        style: MintTextStyles.titleMedium(color: marginColor).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
                       ),
                     ],
                   ),
@@ -135,10 +127,7 @@ class BudgetSandwichChart extends StatelessWidget {
                         ? 'Tu es dans le vert. Ce coussin absorbe les impr\u00e9vus.'
                         : 'Il manque ${formatChfWithPrefix(margin.abs())}/mois. '
                             'Des ajustements sont possibles.',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -149,11 +138,7 @@ class BudgetSandwichChart extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               'Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier (LSFin).',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: MintColors.textMuted,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ],
         ),
@@ -183,20 +168,12 @@ class BudgetSandwichChart extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 label,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
               ),
               const Spacer(),
               Text(
                 formatChfWithPrefix(total),
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -233,10 +210,7 @@ class BudgetSandwichChart extends StatelessWidget {
             children: items.map((item) {
               return Text(
                 '${item.label} ${formatChfWithPrefix(item.amount)}',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               );
             }).toList(),
           ),
@@ -255,10 +229,7 @@ class BudgetSandwichChart extends StatelessWidget {
                 size: 20, color: MintColors.textMuted),
             Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: MintColors.textMuted,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted),
             ),
           ],
         ),

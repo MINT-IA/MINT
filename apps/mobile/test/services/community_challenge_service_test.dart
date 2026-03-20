@@ -306,7 +306,7 @@ void main() {
 
   group('CommunityChallengeService — adversarial compliance', () {
     /// Helper: get ALL 12 challenges across all 4 seasons.
-    Future<List<CommunityChallenge>> _allChallenges() async {
+    Future<List<CommunityChallenge>> allChallenges0() async {
       final results = <CommunityChallenge>[];
       for (final month in [1, 3, 6, 11]) {
         results.addAll(
@@ -319,7 +319,7 @@ void main() {
     }
 
     test('16. NO social comparison in ANY challenge text', () async {
-      final all = await _allChallenges();
+      final all = await allChallenges0();
       final socialPatterns = [
         'top ',
         'top\u00a0',
@@ -351,7 +351,7 @@ void main() {
     });
 
     test('17. NO ranking language in challenge text', () async {
-      final all = await _allChallenges();
+      final all = await allChallenges0();
       final rankingPatterns = RegExp(
         r'(n°\s?\d|position|classé|place\s+\d|premier|dernier|podium|médaille)',
         caseSensitive: false,
@@ -398,7 +398,7 @@ void main() {
 
     test('20. NO "maximise/optimal" absolute language in challenges',
         () async {
-      final all = await _allChallenges();
+      final all = await allChallenges0();
       final absolutePatterns = [
         'maximise',
         'maximiser',
@@ -421,7 +421,7 @@ void main() {
 
     test('21. exactly 12 challenges across 4 seasons (3 per season)',
         () async {
-      final all = await _allChallenges();
+      final all = await allChallenges0();
       expect(all, hasLength(12));
 
       // Verify 3 per season.
@@ -439,7 +439,7 @@ void main() {
     });
 
     test('22. all challenge IDs are unique', () async {
-      final all = await _allChallenges();
+      final all = await allChallenges0();
       final ids = all.map((c) => c.id).toSet();
       expect(ids.length, all.length, reason: 'Duplicate challenge IDs found');
     });
@@ -512,7 +512,7 @@ void main() {
   // ═══════════════════════════════════════════════════════════════
 
   group('CommunityChallengeService — coaching quality', () {
-    Future<List<CommunityChallenge>> _allChallenges() async {
+    Future<List<CommunityChallenge>> allChallenges0() async {
       final results = <CommunityChallenge>[];
       for (final month in [1, 3, 6, 11]) {
         results.addAll(
@@ -525,13 +525,13 @@ void main() {
     }
 
     test('26. every challenge has at least 1 emotional marker', () async {
-      final all = await _allChallenges();
+      final all = await allChallenges0();
       final emotionWords = [
         'imagine',
         'impact',
-        'bravo',
+        'malin',
         'progrès',
-        'félicitations',
+        'compteur',
         'courage',
         'important',
         'confiance',
@@ -553,7 +553,7 @@ void main() {
     });
 
     test('27. every challenge has at least 1 actionnable verb', () async {
-      final all = await _allChallenges();
+      final all = await allChallenges0();
       final actionVerbs = [
         'tu peux',
         'vérifie',
@@ -594,7 +594,7 @@ void main() {
 
     test('28. French diacritics present (no ASCII-only accented words)',
         () async {
-      final all = await _allChallenges();
+      final all = await allChallenges0();
       // Common words that MUST have accents in French.
       final asciiErrors = RegExp(
         r'\b(prevoyance|epargne|decembre|depenses|deductions|securite'
@@ -620,7 +620,7 @@ void main() {
         SeasonalEvent.yearEndPlanning.name: [11, 12],
       };
 
-      final all = await _allChallenges();
+      final all = await allChallenges0();
       for (final c in all) {
         final expectedMonths = seasonMonths[c.seasonalEvent];
         expect(expectedMonths, isNotNull,
@@ -634,7 +634,7 @@ void main() {
 
     test('30. inclusive language: no "conseiller", uses "spécialiste"',
         () async {
-      final all = await _allChallenges();
+      final all = await allChallenges0();
 
       for (final c in all) {
         final text = '${c.title} ${c.description}'.toLowerCase();

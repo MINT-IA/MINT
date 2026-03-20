@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Banner displayed when projection confidence is below 70%.
 ///
@@ -61,11 +61,7 @@ class IndicatifBanner extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Résultat indicatif ($pct% de fiabilité)',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
             ],
@@ -88,11 +84,7 @@ class IndicatifBanner extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             'Précise tes données pour des projections personnalisées.',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
           ),
           const SizedBox(height: 8),
           Align(
@@ -102,10 +94,7 @@ class IndicatifBanner extends StatelessWidget {
               icon: const Icon(Icons.arrow_forward, size: 16),
               label: Text(
                 'Préciser',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
               ),
               style: TextButton.styleFrom(
                 foregroundColor: MintColors.primary,

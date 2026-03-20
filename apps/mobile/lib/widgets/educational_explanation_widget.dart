@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Widget explicatif didactique réutilisable
 /// Affiche une explication détaillée avec sections dépliables
@@ -59,11 +59,7 @@ class _EducationalExplanationWidgetState
                       children: [
                         Text(
                           widget.title,
-                          style: GoogleFonts.montserrat(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: widget.accentColor,
-                          ),
+                          style: MintTextStyles.titleMedium(color: widget.accentColor),
                         ),
                         if (!_isExpanded) ...[
                           const SizedBox(height: 4),
@@ -128,10 +124,7 @@ class _EducationalExplanationWidgetState
           if (section.title != null) ...[
             Text(
               section.title!,
-              style: GoogleFonts.montserrat(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-              ),
+              style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15),
             ),
             const SizedBox(height: 8),
           ],

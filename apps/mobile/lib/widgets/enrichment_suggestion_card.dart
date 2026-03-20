@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Reusable S46 card for a single enrichment action.
 class EnrichmentSuggestionCard extends StatelessWidget {
@@ -55,21 +55,13 @@ class EnrichmentSuggestionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   action,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
                 ),
               ),
               const SizedBox(width: 8),
               Text(
                 '+$impactPoints',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.success,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
               ),
             ],
           ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 class SafeModeGate extends StatelessWidget {
   final bool hasDebt;
@@ -51,20 +51,12 @@ class SafeModeGate extends StatelessWidget {
               children: [
                 Text(
                   lockedTitle,
-                  style: GoogleFonts.outfit(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textSecondary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   lockedMessage,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textMuted,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(height: 1.4),
                 ),
                 if (reasons.isNotEmpty) ...[
                   const SizedBox(height: 10),
@@ -83,10 +75,7 @@ class SafeModeGate extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   reason,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    color: MintColors.textSecondary,
-                                  ),
+                                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                                 ),
                               ),
                             ],
@@ -115,21 +104,13 @@ class SafeModeGate extends StatelessWidget {
                           children: [
                             Text(
                               'Pourquoi c’est bloqué',
-                              style: GoogleFonts.outfit(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                color: MintColors.textPrimary,
-                              ),
+                              style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
                             ),
                             const SizedBox(height: 10),
                             Text(
                               'En mode protection, MINT priorise la stabilité de trésorerie '
                               'avant les optimisations fiscales et prévoyance.',
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                color: MintColors.textSecondary,
-                                height: 1.4,
-                              ),
+                              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
                             ),
                             if (reasons.isNotEmpty) ...[
                               const SizedBox(height: 10),
@@ -138,10 +119,7 @@ class SafeModeGate extends StatelessWidget {
                                       padding: const EdgeInsets.only(bottom: 6),
                                       child: Text(
                                         '• $reason',
-                                        style: GoogleFonts.inter(
-                                          fontSize: 12,
-                                          color: MintColors.textSecondary,
-                                        ),
+                                        style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                                       ),
                                     ),
                                   ),
@@ -153,12 +131,7 @@ class SafeModeGate extends StatelessWidget {
                   },
                   child: Text(
                     "Pourquoi est-ce bloqué ?",
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.primary,
-                      decoration: TextDecoration.underline,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
                   ),
                 ),
                 ),
@@ -178,10 +151,7 @@ class SafeModeGate extends StatelessWidget {
                     ),
                     child: Text(
                       ctaLabel,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),

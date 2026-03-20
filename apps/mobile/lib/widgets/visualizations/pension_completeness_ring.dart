@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  PENSION COMPLETENESS RING — Expatriation & Frontaliers
@@ -185,18 +185,11 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
             children: [
               Text(
                 'Complétude AVS',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+                style: MintTextStyles.titleMedium(),
               ),
               Text(
                 'Années de cotisation  ·  Rente mensuelle',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
               ),
             ],
           ),
@@ -236,30 +229,23 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
                 children: [
                   Text(
                     '$displayPct%',
-                    style: GoogleFonts.montserrat(
+                    style: MintTextStyles.displayMedium(color: _ringColor).copyWith(
                       fontSize: 40,
                       fontWeight: FontWeight.w800,
-                      color: _ringColor,
                       height: 1.0,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'complétude',
-                    style: GoogleFonts.inter(
+                    style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(
                       fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: MintColors.textMuted,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     '${(widget.contributedYears * _fillAnimation.value).round()} / ${widget.totalYearsRequired} ans',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textSecondary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ],
               ),
@@ -333,10 +319,9 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
                         Expanded(
                           child: Text(
                             'Réduction estimée: ${_formatChf(_missingYears * widget.reductionPerMissingYear)}/mois',
-                            style: GoogleFonts.inter(
+                            style: MintTextStyles.bodyMedium(color: MintColors.error).copyWith(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: MintColors.error,
                             ),
                           ),
                         ),
@@ -361,19 +346,15 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.labelSmall(),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 4),
         Text(
           value,
-          style: GoogleFonts.montserrat(
+          style: MintTextStyles.headlineMedium(color: color).copyWith(
             fontSize: 18,
             fontWeight: FontWeight.w800,
-            color: color,
           ),
           textAlign: TextAlign.center,
         ),
@@ -432,18 +413,15 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
                       children: [
                         Text(
                           'Cotisations volontaires AVS',
-                          style: GoogleFonts.inter(
+                          style: MintTextStyles.bodyMedium(color: MintColors.info).copyWith(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: MintColors.info,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           'Tu peux combler des lacunes en cotisant volontairement dans les 5 ans suivant ton départ.',
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            color: MintColors.textSecondary,
+                          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(
                             height: 1.4,
                           ),
                         ),
@@ -613,10 +591,10 @@ class _PensionRingPainter extends CustomPainter {
         final labelTp = TextPainter(
           text: TextSpan(
             text: '$y',
-            style: GoogleFonts.montserrat(
+            style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(
               fontSize: 8,
               fontWeight: FontWeight.w700,
-              color: MintColors.textMuted,
+              fontStyle: FontStyle.normal,
             ),
           ),
           textDirection: TextDirection.ltr,

@@ -1,9 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
@@ -15,16 +16,17 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/coach/couple_narrative_timeline.dart';
 
 // ────────────────────────────────────────────────────────────
-//  MARIAGE SCREEN — Sprint S22 / Famille & Concubinage
+//  MARIAGE SCREEN — Category C (Life Event)
 // ────────────────────────────────────────────────────────────
 //
-// Three-tab interactive screen:
+// Four-tab interactive screen:
 //   Tab 1: "Impots"     — Marriage penalty/bonus calculator
 //   Tab 2: "Regime"     — Matrimonial regime comparison
 //   Tab 3: "Protection" — Survivor benefits (married vs not)
+//   Tab 4: "Checklist"  — Essential steps before/after marriage
 //
-// All text in French (informal "tu").
-// Material 3, MintColors theme, GoogleFonts.
+// Design System: MintTextStyles + MintSpacing tokens.
+// AppBar: white standard (Life Event screen).
 // Ne constitue pas un conseil fiscal ou juridique (LSFin).
 // ────────────────────────────────────────────────────────────
 
@@ -107,55 +109,35 @@ class _MariageScreenState extends State<MariageScreen>
     );
   }
 
-  // ── App Bar with Tabs ──────────────────────────────────
+  // ── App Bar with Tabs (white standard — Life Event) ──
 
   Widget _buildAppBar(BuildContext context, bool innerBoxIsScrolled) {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      expandedHeight: 160,
-      backgroundColor: MintColors.primary,
+      expandedHeight: 120,
+      backgroundColor: MintColors.white,
+      elevation: 0,
+      surfaceTintColor: MintColors.white,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.white),
+        icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: 16),
+        titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: MintSpacing.md),
         title: Text(
           S.of(context)!.mariageTitle,
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-            color: MintColors.white,
-          ),
-        ),
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                MintColors.primary,
-                MintColors.primary.withValues(alpha: 0.85),
-              ],
-            ),
-          ),
+          style: MintTextStyles.headlineMedium(),
         ),
       ),
       bottom: TabBar(
         controller: _tabController,
-        indicatorColor: MintColors.white,
+        indicatorColor: MintColors.primary,
         indicatorWeight: 3,
-        labelColor: MintColors.white,
-        unselectedLabelColor: MintColors.white60,
-        labelStyle: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-        ),
-        unselectedLabelStyle: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.w400,
-        ),
+        labelColor: MintColors.textPrimary,
+        unselectedLabelColor: MintColors.textMuted,
+        labelStyle: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+        unselectedLabelStyle: MintTextStyles.bodySmall(color: MintColors.textMuted),
         tabs: [
           Tab(text: S.of(context)!.mariageTabImpots),
           Tab(text: S.of(context)!.mariageTabRegime),
@@ -172,25 +154,25 @@ class _MariageScreenState extends State<MariageScreen>
 
   Widget _buildTab1Impots() {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         _buildImpotsInputsCard(),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
         if (_fiscalResult != null) ...[
           _buildHeroComparisonCard(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
           MarriagePenaltyGauge(
             taxSingles: (_fiscalResult!['totalCelibataires'] as double),
             taxMarried: (_fiscalResult!['totalMarie'] as double),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
           _buildDeductionsBreakdown(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
         ],
         _buildEducationalInsert(
           S.of(context)!.mariageEducationalPenalty,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
         _buildDisclaimer(),
       ],
     );
@@ -200,10 +182,10 @@ class _MariageScreenState extends State<MariageScreen>
     final sortedCodes = FamilyService.sortedCantonCodes;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -222,7 +204,7 @@ class _MariageScreenState extends State<MariageScreen>
               _recalculate();
             },
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Revenue 2 slider
           _buildSlider(
@@ -236,7 +218,7 @@ class _MariageScreenState extends State<MariageScreen>
               _recalculate();
             },
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
 
           // Canton dropdown
           Row(
@@ -244,11 +226,7 @@ class _MariageScreenState extends State<MariageScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.mariageCanton,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
                 ),
               ),
               Container(
@@ -260,10 +238,7 @@ class _MariageScreenState extends State<MariageScreen>
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _canton,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                     items: sortedCodes.map((code) {
                       return DropdownMenuItem(
                         value: code,
@@ -282,7 +257,7 @@ class _MariageScreenState extends State<MariageScreen>
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Children counter
           Row(
@@ -290,11 +265,7 @@ class _MariageScreenState extends State<MariageScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.mariageEnfants,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
                 ),
               ),
               _buildStepper(
@@ -321,10 +292,10 @@ class _MariageScreenState extends State<MariageScreen>
     final isPenalite = result['isPenalite'] as bool;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -333,19 +304,14 @@ class _MariageScreenState extends State<MariageScreen>
             children: [
               const Icon(Icons.compare_arrows,
                   size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
+              const SizedBox(width: MintSpacing.sm),
               Text(
                 S.of(context)!.mariageFiscalComparison,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
 
           // Side by side cards
           Row(
@@ -353,7 +319,7 @@ class _MariageScreenState extends State<MariageScreen>
               // Left: 2 celibataires
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(MintSpacing.md),
                   decoration: BoxDecoration(
                     color: MintColors.appleSurface,
                     borderRadius: BorderRadius.circular(16),
@@ -362,35 +328,27 @@ class _MariageScreenState extends State<MariageScreen>
                     children: [
                       const Icon(Icons.person_outline,
                           size: 24, color: MintColors.textSecondary),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: MintSpacing.sm),
                       Text(
                         S.of(context)!.mariageTwoCelibataires,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.textSecondary,
-                        ),
+                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600, fontSize: 12),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: MintSpacing.sm),
                       Text(
                         FamilyService.formatChf(totalCelib),
-                        style: GoogleFonts.montserrat(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
                         textAlign: TextAlign.center,
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: MintSpacing.sm + 4),
               // Right: Maries
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(MintSpacing.md),
                   decoration: BoxDecoration(
                     color: MintColors.appleSurface,
                     borderRadius: BorderRadius.circular(16),
@@ -399,24 +357,16 @@ class _MariageScreenState extends State<MariageScreen>
                     children: [
                       const Icon(Icons.people_outline,
                           size: 24, color: MintColors.textSecondary),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: MintSpacing.sm),
                       Text(
                         S.of(context)!.mariageMaries,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.textSecondary,
-                        ),
+                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600, fontSize: 12),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: MintSpacing.sm),
                       Text(
                         FamilyService.formatChf(totalMarie),
-                        style: GoogleFonts.montserrat(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: MintColors.textPrimary,
-                        ),
+                        style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -425,12 +375,12 @@ class _MariageScreenState extends State<MariageScreen>
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
 
           // Animated difference badge
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.sm + 4),
             decoration: BoxDecoration(
               color: isPenalite
                   ? MintColors.error.withValues(alpha: 0.1)
@@ -450,7 +400,7 @@ class _MariageScreenState extends State<MariageScreen>
                   size: 20,
                   color: isPenalite ? MintColors.error : MintColors.success,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: MintSpacing.sm),
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
                   child: Text(
@@ -458,12 +408,9 @@ class _MariageScreenState extends State<MariageScreen>
                         ? S.of(context)!.mariagePenaltyAmount(FamilyService.formatChf(difference.abs()))
                         : S.of(context)!.mariageBonusAmount(FamilyService.formatChf(difference.abs())),
                     key: ValueKey(difference),
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color:
-                          isPenalite ? MintColors.error : MintColors.success,
-                    ),
+                    style: MintTextStyles.titleMedium(
+                      color: isPenalite ? MintColors.error : MintColors.success,
+                    ).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -477,10 +424,10 @@ class _MariageScreenState extends State<MariageScreen>
   Widget _buildDeductionsBreakdown() {
     final result = _fiscalResult!;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -490,46 +437,41 @@ class _MariageScreenState extends State<MariageScreen>
             children: [
               const Icon(Icons.receipt_long_outlined,
                   size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
+              const SizedBox(width: MintSpacing.sm),
               Text(
                 S.of(context)!.mariageDeductions,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildResultRow(
             S.of(context)!.mariageDeductionCouple,
             FamilyService.formatChf(result['deductionMarie'] as double),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           _buildResultRow(
             S.of(context)!.mariageDeductionInsurance,
             FamilyService.formatChf(result['deductionAssurance'] as double),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           if ((result['deductionDoubleRevenu'] as double) > 0) ...[
             _buildResultRow(
               S.of(context)!.mariageDeductionDualIncome,
               FamilyService.formatChf(
                   result['deductionDoubleRevenu'] as double),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
           ],
           if ((result['deductionEnfants'] as double) > 0) ...[
             _buildResultRow(
               S.of(context)!.mariageDeductionChildren,
               FamilyService.formatChf(result['deductionEnfants'] as double),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
           ],
           Divider(color: MintColors.border.withValues(alpha: 0.5)),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           _buildResultRow(
             S.of(context)!.mariageTotalDeductions,
             FamilyService.formatChf(result['totalDeductions'] as double),
@@ -557,25 +499,20 @@ class _MariageScreenState extends State<MariageScreen>
 
   Widget _buildTab2Regime() {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Regime cards
         Row(
           children: [
             const Icon(Icons.gavel, size: 16, color: MintColors.textMuted),
-            const SizedBox(width: 8),
+            const SizedBox(width: MintSpacing.sm),
             Text(
               S.of(context)!.mariageRegimeMatrimonial,
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textMuted,
-                letterSpacing: 1,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm + 4),
         _buildRegimeCard(
           index: 0,
           icon: Icons.handshake_outlined,
@@ -583,7 +520,7 @@ class _MariageScreenState extends State<MariageScreen>
           subtitle: S.of(context)!.mariageParticipationSub,
           description: S.of(context)!.mariageParticipationDesc,
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: MintSpacing.sm + 2),
         _buildRegimeCard(
           index: 1,
           icon: Icons.lock_outline,
@@ -591,7 +528,7 @@ class _MariageScreenState extends State<MariageScreen>
           subtitle: S.of(context)!.mariageSeparationSub,
           description: S.of(context)!.mariageSeparationDesc,
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: MintSpacing.sm + 2),
         _buildRegimeCard(
           index: 2,
           icon: Icons.group_outlined,
@@ -599,14 +536,14 @@ class _MariageScreenState extends State<MariageScreen>
           subtitle: S.of(context)!.mariageCommunauteSub,
           description: S.of(context)!.mariageCommunauteDesc,
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: MintSpacing.lg),
 
         // Patrimoine sliders
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(MintSpacing.lg),
           decoration: BoxDecoration(
             color: MintColors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
                 color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
           ),
@@ -625,7 +562,7 @@ class _MariageScreenState extends State<MariageScreen>
                   });
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: MintSpacing.md),
               _buildSlider(
                 label: S.of(context)!.mariagePatrimoine2,
                 value: _patrimoine2,
@@ -641,7 +578,7 @@ class _MariageScreenState extends State<MariageScreen>
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         // Pie chart visualization — animated donut per regime
         RegimeMatrimonialPie(
@@ -650,11 +587,11 @@ class _MariageScreenState extends State<MariageScreen>
           regime: _regimeFromIndex(_selectedRegime),
           onRegimeChanged: (r) => setState(() => _selectedRegime = r.index),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         // Chiffre choc
         _buildChiffreChocRegime(),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         // ── Couple Narrative Timeline ─────────────────────────
         CoupleNarrativeTimeline(
@@ -688,7 +625,7 @@ class _MariageScreenState extends State<MariageScreen>
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         _buildDisclaimer(),
       ],
@@ -712,7 +649,7 @@ class _MariageScreenState extends State<MariageScreen>
         onTap: () => setState(() => _selectedRegime = index),
         child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(MintSpacing.md),
         decoration: BoxDecoration(
           color: isSelected
               ? MintColors.primary.withValues(alpha: 0.04)
@@ -742,34 +679,23 @@ class _MariageScreenState extends State<MariageScreen>
                     isSelected ? MintColors.primary : MintColors.textSecondary,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: MintSpacing.sm + 4),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                   ),
                   Text(
                     subtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textMuted,
-                    ),
+                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: MintSpacing.xs + 2),
                   Text(
                     description,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MintColors.textSecondary,
-                      height: 1.5,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
                   ),
                 ],
               ),
@@ -809,31 +735,23 @@ class _MariageScreenState extends State<MariageScreen>
     if (acquetsPartage <= 0) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.primary,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
           Text(
             FamilyService.formatChf(acquetsPartage),
-            style: GoogleFonts.montserrat(
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              color: MintColors.white,
-            ),
+            style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(fontSize: 28, fontWeight: FontWeight.w800),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: MintSpacing.xs + 2),
           Text(
             _selectedRegime == 0
                 ? S.of(context)!.mariageChiffreChocDefault
                 : S.of(context)!.mariageChiffreChocCommunaute,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.white70,
-              height: 1.4,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.white70).copyWith(height: 1.4),
             textAlign: TextAlign.center,
           ),
         ],
@@ -852,11 +770,11 @@ class _MariageScreenState extends State<MariageScreen>
     final totalSurvivor = avsSurvivor + lppSurvivor;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Scenario introduction
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(MintSpacing.md),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
             borderRadius: BorderRadius.circular(16),
@@ -867,28 +785,24 @@ class _MariageScreenState extends State<MariageScreen>
             children: [
               const Icon(Icons.shield_outlined,
                   color: MintColors.info, size: 20),
-              const SizedBox(width: 12),
+              const SizedBox(width: MintSpacing.sm + 4),
               Expanded(
                 child: Text(
                   S.of(context)!.mariageProtectionIntro,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         // LPP slider
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(MintSpacing.lg),
           decoration: BoxDecoration(
             color: MintColors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
                 color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
           ),
@@ -905,7 +819,7 @@ class _MariageScreenState extends State<MariageScreen>
             },
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         // AVS survivor
         _buildSurvivorCard(
@@ -915,7 +829,7 @@ class _MariageScreenState extends State<MariageScreen>
           value: avsSurvivor,
           footnote: S.of(context)!.mariageAvsSurvivorFootnote,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm + 4),
 
         // LPP survivor
         _buildSurvivorCard(
@@ -925,56 +839,48 @@ class _MariageScreenState extends State<MariageScreen>
           value: lppSurvivor,
           footnote: S.of(context)!.mariageLppSurvivorFootnote,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MintSpacing.sm + 4),
 
         // Total
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(MintSpacing.lg),
           decoration: BoxDecoration(
             color: MintColors.primary,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
             children: [
               Text(
                 FamilyService.formatChf(totalSurvivor),
-                style: GoogleFonts.montserrat(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: MintColors.white,
-                ),
+                style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(fontSize: 28, fontWeight: FontWeight.w800),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: MintSpacing.xs + 2),
               Text(
                 S.of(context)!.mariageSurvivorMonthly,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: MintColors.white70,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.white70).copyWith(height: 1.4),
                 textAlign: TextAlign.center,
               ),
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         // Married vs unmarried comparison
         _buildProtectionComparison(),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         // Protection checklist
         _buildProtectionChecklist(),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         _buildClause3aSection(),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
         SurvivorPensionWidget(
           partnerAvsRente: avsRenteMaxMensuelle,
           partnerLppMonthly: _renteLpp,
           isConcubin: false,
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: MintSpacing.lg),
         _buildDisclaimer(),
       ],
     );
@@ -983,7 +889,7 @@ class _MariageScreenState extends State<MariageScreen>
   Widget _buildClause3aSection() {
     final profile = context.read<CoachProfileProvider>().profile;
     final balance = profile?.prevoyance.totalEpargne3a ?? 0;
-    // Estimation si pas de donnée : revenu moyen du couple × 5% × 10 ans
+    // Estimation si pas de donnee : revenu moyen du couple x 5% x 10 ans
     final estimated = balance > 0
         ? balance
         : (_revenu1 + _revenu2) * 0.05 * 10;
@@ -1000,7 +906,7 @@ class _MariageScreenState extends State<MariageScreen>
     required String footnote,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -1017,45 +923,30 @@ class _MariageScreenState extends State<MariageScreen>
             ),
             child: Icon(icon, size: 22, color: MintColors.success),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: MintSpacing.md - 2),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                 ),
                 Text(
                   subtitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   footnote,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: MintColors.textMuted,
-                    fontStyle: FontStyle.italic,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.italic),
                 ),
               ],
             ),
           ),
           Text(
             '${FamilyService.formatChf(value)}/mois',
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: MintColors.success,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.success).copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -1064,10 +955,10 @@ class _MariageScreenState extends State<MariageScreen>
 
   Widget _buildProtectionComparison() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1076,26 +967,21 @@ class _MariageScreenState extends State<MariageScreen>
           Row(
             children: [
               const Icon(Icons.compare, size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
+              const SizedBox(width: MintSpacing.sm),
               Text(
                 S.of(context)!.mariageVsConcubin,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildComparisonRow(S.of(context)!.mariageRenteAvsSurvivor, true, false),
           _buildComparisonRow(S.of(context)!.mariageRenteLppSurvivor, true, false),
           _buildComparisonRow(S.of(context)!.mariageHeritageExonere, true, false),
           _buildComparisonRow(S.of(context)!.mariagePensionAlimentaire, true, false),
-          const SizedBox(height: 8),
+          const SizedBox(height: MintSpacing.sm),
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(MintSpacing.sm + 4),
             decoration: BoxDecoration(
               color: MintColors.error.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
@@ -1105,15 +991,11 @@ class _MariageScreenState extends State<MariageScreen>
               children: [
                 const Icon(Icons.warning_amber,
                     size: 18, color: MintColors.error),
-                const SizedBox(width: 10),
+                const SizedBox(width: MintSpacing.sm + 2),
                 Expanded(
                   child: Text(
                     S.of(context)!.mariageConcubinWarning,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MintColors.textPrimary,
-                      height: 1.4,
-                    ),
+                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
                   ),
                 ),
               ],
@@ -1126,17 +1008,14 @@ class _MariageScreenState extends State<MariageScreen>
 
   Widget _buildComparisonRow(String label, bool married, bool concubin) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: MintSpacing.sm + 2),
       child: Row(
         children: [
           Expanded(
             flex: 3,
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
           Expanded(
@@ -1172,10 +1051,10 @@ class _MariageScreenState extends State<MariageScreen>
     ];
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1184,21 +1063,16 @@ class _MariageScreenState extends State<MariageScreen>
           Row(
             children: [
               const Icon(Icons.checklist, size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
+              const SizedBox(width: MintSpacing.sm),
               Text(
                 S.of(context)!.mariageProtectionsEssentielles,
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           ...items.map((item) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.only(bottom: MintSpacing.sm + 2),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1211,15 +1085,11 @@ class _MariageScreenState extends State<MariageScreen>
                         shape: BoxShape.circle,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: MintSpacing.sm + 4),
                     Expanded(
                       child: Text(
                         item,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          color: MintColors.textPrimary,
-                          height: 1.4,
-                        ),
+                        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
                       ),
                     ),
                   ],
@@ -1239,11 +1109,11 @@ class _MariageScreenState extends State<MariageScreen>
     final nbChecked = _checkedItems.length;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Intro
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(MintSpacing.md),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
             borderRadius: BorderRadius.circular(16),
@@ -1254,28 +1124,24 @@ class _MariageScreenState extends State<MariageScreen>
             children: [
               const Icon(Icons.checklist_rtl,
                   color: MintColors.info, size: 20),
-              const SizedBox(width: 12),
+              const SizedBox(width: MintSpacing.sm + 4),
               Expanded(
                 child: Text(
                   S.of(context)!.mariageChecklistIntro,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         // Progress bar
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(MintSpacing.lg),
           decoration: BoxDecoration(
             color: MintColors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(color: MintColors.lightBorder),
           ),
           child: Column(
@@ -1285,25 +1151,19 @@ class _MariageScreenState extends State<MariageScreen>
                 children: [
                   Text(
                     S.of(context)!.mariageChecklistProgress(nbChecked, items.length),
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                   ),
                   Text(
                     '${(nbChecked / items.length * 100).toStringAsFixed(0)}%',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
+                    style: MintTextStyles.titleMedium(
                       color: nbChecked == items.length
                           ? MintColors.success
                           : MintColors.primary,
-                    ),
+                    ).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: MintSpacing.sm + 4),
               ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: AnimatedContainer(
@@ -1321,7 +1181,7 @@ class _MariageScreenState extends State<MariageScreen>
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         // Checklist items
         ...items.asMap().entries.map((entry) {
@@ -1333,7 +1193,7 @@ class _MariageScreenState extends State<MariageScreen>
             description: item['description'] as String,
           );
         }),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         _buildDisclaimer(),
       ],
@@ -1349,7 +1209,7 @@ class _MariageScreenState extends State<MariageScreen>
     final isExpanded = _expandedItems[index] ?? false;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: MintSpacing.sm + 2),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
@@ -1366,7 +1226,7 @@ class _MariageScreenState extends State<MariageScreen>
         child: Column(
           children: [
             Semantics(
-              label: 'Détails de $title',
+              label: title,
               button: true,
               child: GestureDetector(
                 onTap: () {
@@ -1375,12 +1235,12 @@ class _MariageScreenState extends State<MariageScreen>
                   });
                 },
                 child: Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(MintSpacing.md),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Semantics(
-                        label: 'Cocher $title',
+                        label: title,
                         button: true,
                         toggled: isChecked,
                         child: GestureDetector(
@@ -1416,16 +1276,16 @@ class _MariageScreenState extends State<MariageScreen>
                           ),
                         ),
                       ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: MintSpacing.sm + 4),
                     Expanded(
                       child: Text(
                         title,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                        style: MintTextStyles.bodyMedium(
                           color: isChecked
                               ? MintColors.textMuted
                               : MintColors.textPrimary,
+                        ).copyWith(
+                          fontWeight: FontWeight.w600,
                           decoration:
                               isChecked ? TextDecoration.lineThrough : null,
                         ),
@@ -1446,14 +1306,10 @@ class _MariageScreenState extends State<MariageScreen>
             AnimatedCrossFade(
               firstChild: const SizedBox.shrink(),
               secondChild: Container(
-                padding: const EdgeInsets.fromLTRB(52, 0, 16, 16),
+                padding: const EdgeInsets.fromLTRB(52, 0, MintSpacing.md, MintSpacing.md),
                 child: Text(
                   description,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
                 ),
               ),
               crossFadeState: isExpanded
@@ -1505,20 +1361,12 @@ class _MariageScreenState extends State<MariageScreen>
             Expanded(
               child: Text(
                 label,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
               ),
             ),
             Text(
               FamilyService.formatChf(value),
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: MintColors.primary,
-              ),
+              style: MintTextStyles.titleMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -1531,16 +1379,20 @@ class _MariageScreenState extends State<MariageScreen>
             trackHeight: 4,
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
           ),
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions > 0 ? divisions : 1,
-            onChanged: (v) {
-              setState(() {
-                onChanged((v / step).round() * step);
-              });
-            },
+          child: Semantics(
+            label: label,
+            value: FamilyService.formatChf(value),
+            child: Slider(
+              value: value,
+              min: min,
+              max: max,
+              divisions: divisions > 0 ? divisions : 1,
+              onChanged: (v) {
+                setState(() {
+                  onChanged((v / step).round() * step);
+                });
+              },
+            ),
           ),
         ),
       ],
@@ -1555,35 +1407,39 @@ class _MariageScreenState extends State<MariageScreen>
   }) {
     return Row(
       children: [
-        IconButton(
-          onPressed: value > minVal
-              ? () {
-                  setState(() => onChanged(value - 1));
-                }
-              : null,
-          icon: const Icon(Icons.remove_circle_outline, size: 24),
-          color: MintColors.primary,
+        Semantics(
+          label: S.of(context)!.mariageEnfants,
+          button: true,
+          child: IconButton(
+            onPressed: value > minVal
+                ? () {
+                    setState(() => onChanged(value - 1));
+                  }
+                : null,
+            icon: const Icon(Icons.remove_circle_outline, size: 24),
+            color: MintColors.primary,
+          ),
         ),
         SizedBox(
-          width: 32,
+          width: MintSpacing.xl,
           child: Text(
             '$value',
-            style: GoogleFonts.montserrat(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
         ),
-        IconButton(
-          onPressed: value < maxVal
-              ? () {
-                  setState(() => onChanged(value + 1));
-                }
-              : null,
-          icon: const Icon(Icons.add_circle_outline, size: 24),
-          color: MintColors.primary,
+        Semantics(
+          label: S.of(context)!.mariageEnfants,
+          button: true,
+          child: IconButton(
+            onPressed: value < maxVal
+                ? () {
+                    setState(() => onChanged(value + 1));
+                  }
+                : null,
+            icon: const Icon(Icons.add_circle_outline, size: 24),
+            color: MintColors.primary,
+          ),
         ),
       ],
     );
@@ -1595,17 +1451,12 @@ class _MariageScreenState extends State<MariageScreen>
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
         ),
         Text(
           value,
-          style: GoogleFonts.inter(
-            fontSize: 14,
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(
             fontWeight: bold ? FontWeight.w700 : FontWeight.w600,
-            color: MintColors.textPrimary,
           ),
         ),
       ],
@@ -1614,7 +1465,7 @@ class _MariageScreenState extends State<MariageScreen>
 
   Widget _buildEducationalInsert(String text) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.info.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
@@ -1624,7 +1475,7 @@ class _MariageScreenState extends State<MariageScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(MintSpacing.xs + 2),
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
@@ -1632,27 +1483,19 @@ class _MariageScreenState extends State<MariageScreen>
             child:
                 const Icon(Icons.lightbulb_outline, size: 18, color: MintColors.info),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   S.of(context)!.lifeEventDidYouKnow,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.info,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MintSpacing.xs),
                 Text(
                   text,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
                 ),
               ],
             ),
@@ -1664,7 +1507,7 @@ class _MariageScreenState extends State<MariageScreen>
 
   Widget _buildDisclaimer() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
@@ -1674,15 +1517,11 @@ class _MariageScreenState extends State<MariageScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
               S.of(context)!.mariageDisclaimer,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.deepOrange,
-                height: 1.5,
-              ),
+              style: MintTextStyles.micro(color: MintColors.deepOrange).copyWith(fontSize: 12, height: 1.5, fontStyle: FontStyle.normal),
             ),
           ),
         ],
@@ -1690,4 +1529,3 @@ class _MariageScreenState extends State<MariageScreen>
     );
   }
 }
-

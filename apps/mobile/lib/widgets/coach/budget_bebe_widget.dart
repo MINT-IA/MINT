@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P9-E  Budget 50/30/20 avec curseur nombre d'enfants
@@ -107,16 +107,12 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
               children: [
                 Text(
                   'Budget 50/30/20 avec bébé',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Besoins / Envies / Épargne — avant et après',
-                  style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                 ),
               ],
             ),
@@ -135,11 +131,7 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
           children: [
             Text(
               'Nombre d\'enfants',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -149,11 +141,7 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
               ),
               child: Text(
                 _children == 0 ? 'Sans enfant' : '$_children enfant${_children > 1 ? 's' : ''}',
-                style: GoogleFonts.montserrat(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.primary,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
               ),
             ),
           ],
@@ -176,11 +164,7 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
       children: [
         Text(
           'Répartition mensuelle',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 12),
         _buildBudgetRow(
@@ -249,15 +233,11 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
                   children: [
                     Text(
                       label,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.textPrimary,
-                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                     ),
                     Text(
                       note,
-                      style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
+                      style: MintTextStyles.micro(color: MintColors.textSecondary),
                     ),
                   ],
                 ),
@@ -265,11 +245,7 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
               if (isNew || _children == 0) ...[
                 Text(
                   'CHF ${_fmt(after)}',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: color,
-                  ),
+                  style: MintTextStyles.titleMedium(color: color).copyWith(fontWeight: FontWeight.w800),
                 ),
               ] else ...[
                 Column(
@@ -278,20 +254,12 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
                     if (changed && _children > 0) ...[
                       Text(
                         'CHF ${_fmt(before)}',
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: MintColors.textSecondary,
-                          decoration: TextDecoration.lineThrough,
-                        ),
+                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(decoration: TextDecoration.lineThrough),
                       ),
                     ],
                     Text(
                       'CHF ${_fmt(after)}',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: changed && _children > 0 ? MintColors.scoreCritique : color,
-                      ),
+                      style: MintTextStyles.titleMedium(color: changed && _children > 0 ? MintColors.scoreCritique : color).copyWith(fontWeight: FontWeight.w800),
                     ),
                   ],
                 ),
@@ -345,11 +313,7 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
                   isSerious
                       ? 'Ton épargne est fortement impactée'
                       : 'Pense à ajuster ton épargne',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: isSerious ? MintColors.scoreCritique : MintColors.scoreAttention,
-                  ),
+                  style: MintTextStyles.bodySmall(color: isSerious ? MintColors.scoreCritique : MintColors.scoreAttention).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -357,11 +321,7 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
                       ? 'Tes enfants coûtent CHF ${_fmt(_childrenCost)}/mois, '
                         'ce qui réduit ton épargne de CHF ${_fmt(savingsLost)}/mois.'
                       : 'Tes enfants sont financés par tes envies — ton épargne reste intacte.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
                 ),
               ],
             ),
@@ -375,11 +335,7 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : OFS statistiques des ménages suisses, règle budgétaire 50/30/20.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

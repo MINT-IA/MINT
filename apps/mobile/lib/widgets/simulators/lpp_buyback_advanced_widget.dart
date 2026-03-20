@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/simulators/lpp_buyback_advanced_simulator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
@@ -151,20 +151,12 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
         children: [
           Text(
             l.simLppBuybackFinalCapital,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.white70,
-              fontWeight: FontWeight.w500,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.white70),
           ),
           const SizedBox(height: 8),
           Text(
             "CHF ${result.finalCapital.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}\'')}",
-            style: GoogleFonts.outfit(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: MintColors.white,
-            ),
+            style: MintTextStyles.displayMedium(color: MintColors.white),
           ),
           const SizedBox(height: 12),
           Container(
@@ -231,11 +223,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
             const SizedBox(height: 4),
             Text(
               value,
-              style: GoogleFonts.outfit(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
+              style: MintTextStyles.titleMedium(color: color),
             ),
           ],
         ),
@@ -322,11 +310,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
               color: MintColors.primary, size: 20),
           title: Text(
             l.simLppBuybackBonASavoir,
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: MintColors.primary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.bold),
           ),
           children: [
             _buildBonASavoirItem(l.simLppBuybackBonASavoirItem1),
@@ -359,11 +343,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
         Expanded(
           child: Text(
             text,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textPrimary,
-              height: 1.4,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
           ),
         ),
       ],
@@ -378,10 +358,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
         _staggeringYears,
         _taxableIncome.toStringAsFixed(0),
       ),
-      style: GoogleFonts.inter(
-          fontSize: 10,
-          color: MintColors.textMuted,
-          fontStyle: FontStyle.italic),
+      style: MintTextStyles.micro(color: MintColors.textMuted),
       textAlign: TextAlign.center,
     );
   }
@@ -406,11 +383,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
                     const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
             Text(
               "${value.toInt()} $unit",
-              style: GoogleFonts.outfit(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: MintColors.primary,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.bold),
             ),
           ],
         ),

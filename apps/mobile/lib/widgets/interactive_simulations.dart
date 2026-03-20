@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/haptic_feedback_service.dart';
 import 'dart:math' as math;
 import 'package:mint_mobile/constants/social_insurance.dart';
@@ -85,10 +85,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
                   widget.isEmployee
                       ? '👤 EMPLOYÉ avec LPP'
                       : '💼 INDÉPENDANT sans LPP',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
                 ),
               ),
             ],
@@ -216,10 +213,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
           // Projections
           Text(
             'Projection $_years ans (scénarios pédagogiques)',
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
 
@@ -386,10 +380,7 @@ class _InteractiveLppBuybackSimulationState
               const SizedBox(width: 12),
               Text(
                 'Simulation Rachat LPP',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
               ),
             ],
           ),
@@ -470,10 +461,7 @@ class _InteractiveLppBuybackSimulationState
           // Projections rente
           Text(
             'Impact retraite (scénarios pédagogiques)',
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
 

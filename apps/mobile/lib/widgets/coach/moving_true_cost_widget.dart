@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -96,11 +96,7 @@ class MovingTrueCostWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Déménager : le bilan réel',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -108,7 +104,7 @@ class MovingTrueCostWidget extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             '$fromCanton → $toCanton',
-            style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
         ],
       ),
@@ -126,9 +122,7 @@ class MovingTrueCostWidget extends StatelessWidget {
               flex: 2,
               child: Text(
                 fromCanton,
-                style: GoogleFonts.inter(
-                  fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w700),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -136,9 +130,7 @@ class MovingTrueCostWidget extends StatelessWidget {
               flex: 2,
               child: Text(
                 toCanton,
-                style: GoogleFonts.inter(
-                  fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.primary,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -170,12 +162,12 @@ class MovingTrueCostWidget extends StatelessWidget {
                           children: [
                             Text(
                               item.label,
-                              style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary),
+                              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
                             ),
                             if (item.note != null)
                               Text(
                                 item.note!,
-                                style: GoogleFonts.inter(fontSize: 9, color: MintColors.textSecondary),
+                                style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontSize: 9, fontStyle: FontStyle.normal),
                               ),
                           ],
                         ),
@@ -187,7 +179,7 @@ class MovingTrueCostWidget extends StatelessWidget {
                   flex: 2,
                   child: Text(
                     formatChfWithPrefix(item.monthlyBefore),
-                    style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -195,11 +187,7 @@ class MovingTrueCostWidget extends StatelessWidget {
                   flex: 2,
                   child: Text(
                     formatChfWithPrefix(item.monthlyAfter),
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: color,
-                    ),
+                    style: MintTextStyles.labelSmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -228,19 +216,11 @@ class MovingTrueCostWidget extends StatelessWidget {
         children: [
           Text(
             isGain ? '✅ Gain net/mois' : '⚠️ Surcoût net/mois',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
+            style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w700),
           ),
           Text(
             '$sign ${formatChfWithPrefix(_netMonthly.abs())}',
-            style: GoogleFonts.montserrat(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
+            style: MintTextStyles.headlineMedium(color: color).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -265,7 +245,7 @@ class MovingTrueCostWidget extends StatelessWidget {
             child: Text(
               'Frais de déménagement (${formatChfWithPrefix(movingFees)}) remboursés en '
               '${_breakEvenMonths.round()} mois.',
-              style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary, height: 1.4),
+              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
             ),
           ),
         ],
@@ -277,11 +257,7 @@ class MovingTrueCostWidget extends StatelessWidget {
     return Text(
       'Outil éducatif · ne constitue pas un conseil fiscal au sens de la LSFin. '
       'Source : LIFD art. 1, législations cantonales. Chiffres indicatifs — varie selon profil.',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        color: MintColors.textSecondary,
-        fontStyle: FontStyle.italic,
-      ),
+      style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
     );
   }
 }
