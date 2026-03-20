@@ -39,7 +39,7 @@ class Settings(BaseSettings):
 
     # Anthropic Claude API (coach AI)
     ANTHROPIC_API_KEY: str = ""
-    COACH_MODEL: str = "claude-sonnet-4-20250514"
+    COACH_MODEL: str = "claude-sonnet-4-20250514"  # Also valid: claude-3-5-sonnet-20241022
     COACH_MAX_TOKENS: int = 500
     COACH_DAILY_QUOTA: int = 30  # per user, free tier
 
