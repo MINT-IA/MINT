@@ -18,6 +18,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -46,7 +47,7 @@ class ProfileScreen extends StatelessWidget {
     final l = S.of(context)!;
 
     return Scaffold(
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.porcelaine,
       body: CustomScrollView(
         slivers: [
           _buildAppBar(context),
@@ -150,8 +151,9 @@ class ProfileScreen extends StatelessWidget {
     return SliverAppBar(
       pinned: true,
       toolbarHeight: isCompact ? 44 : 52,
-      backgroundColor: MintColors.white,
-      surfaceTintColor: MintColors.white,
+      backgroundColor: MintColors.porcelaine,
+      surfaceTintColor: MintColors.porcelaine,
+      elevation: 0,
       title: Text(
         S.of(context)!.tabMoi,
         style: MintTextStyles.titleMedium(
@@ -207,13 +209,9 @@ class ProfileScreen extends StatelessWidget {
       progressLabel = l.profileCompletionHint(pct, missingText);
     }
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         children: [
           // Progress header
@@ -364,64 +362,54 @@ class ProfileScreen extends StatelessWidget {
       'retraite': l.identityStatusRetraite,
     }[status] ?? status;
 
-    return Container(
-      width: double.infinity,
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 22,
-                backgroundColor: MintColors.primary.withValues(alpha: 0.12),
-                child: Text(
-                  name.isNotEmpty ? name[0].toUpperCase() : '?',
+          CircleAvatar(
+            radius: 22,
+            backgroundColor: MintColors.primary.withValues(alpha: 0.08),
+            child: Text(
+              name.isNotEmpty ? name[0].toUpperCase() : '?',
+              style: MintTextStyles.titleMedium(
+                color: MintColors.primary,
+              ),
+            ),
+          ),
+          const SizedBox(width: MintSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  age != null ? l.profileNameAge(name, age) : name,
                   style: MintTextStyles.titleMedium(
-                    color: MintColors.primary,
+                    color: MintColors.textPrimary,
                   ),
                 ),
-              ),
-              const SizedBox(width: MintSpacing.sm + 6),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      age != null ? l.profileNameAge(name, age) : name,
-                      style: MintTextStyles.titleMedium(
-                        color: MintColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      canton.isNotEmpty
-                          ? '$canton \u00b7 $statusLabel'
-                          : statusLabel,
-                      style: MintTextStyles.bodySmall(
-                        color: MintColors.textSecondary,
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: 2),
+                Text(
+                  canton.isNotEmpty
+                      ? '$canton \u00b7 $statusLabel'
+                      : statusLabel,
+                  style: MintTextStyles.bodySmall(
+                    color: MintColors.textSecondary,
+                  ),
                 ),
-              ),
-              Semantics(
-                label: l.commonEdit,
-                button: true,
-                child: IconButton(
-                  icon: const Icon(Icons.edit_outlined,
-                      size: 18, color: MintColors.textMuted),
-                  onPressed: () =>
-                      context.push('/onboarding/quick?section=identity'),
-                  tooltip: l.commonEdit,
-                ),
-              ),
-            ],
+              ],
+            ),
+          ),
+          Semantics(
+            label: l.commonEdit,
+            button: true,
+            child: IconButton(
+              icon: const Icon(Icons.edit_outlined,
+                  size: 18, color: MintColors.textMuted),
+              onPressed: () =>
+                  context.push('/onboarding/quick?section=identity'),
+              tooltip: l.commonEdit,
+            ),
           ),
         ],
       ),
@@ -434,15 +422,15 @@ class ProfileScreen extends StatelessWidget {
       button: true,
       child: InkWell(
         onTap: () => context.push('/profile/bilan'),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.all(MintSpacing.md),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [MintColors.primary, MintColors.darkSurface],
+              colors: [MintColors.primary, MintColors.ardoise],
             ),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Row(
             children: [
@@ -502,14 +490,9 @@ class ProfileScreen extends StatelessWidget {
       BuildContext context, CoachProfileProvider provider) {
     final l = S.of(context)!;
     final days = _staleDays(provider);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(MintSpacing.sm + 6),
-      decoration: BoxDecoration(
-        color: MintColors.warning.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: MintColors.warning.withValues(alpha: 0.3)),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.peche,
+      padding: const EdgeInsets.all(MintSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -568,24 +551,21 @@ class ProfileScreen extends StatelessWidget {
     return Semantics(
       label: title,
       button: true,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: MintSpacing.sm + MintSpacing.xs),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: MintSpacing.sm + MintSpacing.xs),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
+          borderRadius: BorderRadius.circular(20),
+          child: MintSurface(
+            tone: MintSurfaceTone.blanc,
             padding: const EdgeInsets.all(MintSpacing.md),
-            decoration: BoxDecoration(
-              color: MintColors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: MintColors.border),
-            ),
             child: Row(
               children: [
                 Icon(icon,
+                    size: 20,
                     color: isComplete
                         ? MintColors.success
-                        : MintColors.textMuted),
+                        : MintColors.textSecondary),
                 const SizedBox(width: MintSpacing.md),
                 Expanded(
                   child: Column(
@@ -595,6 +575,7 @@ class ProfileScreen extends StatelessWidget {
                           style: MintTextStyles.bodySmall(
                             color: MintColors.textPrimary,
                           )),
+                      const SizedBox(height: 2),
                       Text(status,
                           style: MintTextStyles.labelSmall(
                             color: isComplete
@@ -609,7 +590,7 @@ class ProfileScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: MintSpacing.sm, vertical: MintSpacing.xs),
                     decoration: BoxDecoration(
-                        color: MintColors.appleSurface,
+                        color: MintColors.porcelaine,
                         borderRadius: BorderRadius.circular(8)),
                     child: Text(reward,
                         style: MintTextStyles.micro(
@@ -672,14 +653,11 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildAuthSection(BuildContext context, AuthProvider authProvider) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: MintSpacing.sm + MintSpacing.xs),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: MintSpacing.sm + MintSpacing.xs),
+      child: MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md + MintSpacing.xs),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -711,9 +689,7 @@ class ProfileScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: MintSpacing.md),
-          const Divider(),
-          const SizedBox(height: MintSpacing.sm),
+          const SizedBox(height: MintSpacing.lg),
           TextButton.icon(
             onPressed: () async {
               await authProvider.logout();
@@ -766,6 +742,7 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }
@@ -837,13 +814,9 @@ class ProfileScreen extends StatelessWidget {
                 context.read<LocaleProvider>().setLocale(selected);
               }
             },
-            child: Container(
+            child: MintSurface(
+              tone: MintSurfaceTone.blanc,
               padding: const EdgeInsets.all(MintSpacing.md),
-              decoration: BoxDecoration(
-                color: MintColors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: MintColors.border),
-              ),
               child: Row(
                 children: [
                   Text(flag, style: MintTextStyles.headlineMedium()),
@@ -871,12 +844,11 @@ class ProfileScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Divider(),
-        const SizedBox(height: MintSpacing.md),
+        const SizedBox(height: MintSpacing.lg),
         Text(
           l.profileDangerZoneTitle,
-          style: MintTextStyles.titleMedium(
-            color: MintColors.textPrimary,
+          style: MintTextStyles.bodySmall(
+            color: MintColors.textMuted,
           ),
         ),
         const SizedBox(height: MintSpacing.sm),

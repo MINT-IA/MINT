@@ -9,6 +9,9 @@ import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/widgets/coach/baby_cost_widget.dart';
 import 'package:mint_mobile/widgets/coach/budget_bebe_widget.dart';
 import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/visualizations/fiscal_impact_waterfall.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -101,7 +104,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.porcelaine,
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           _buildAppBar(context, innerBoxIsScrolled),
@@ -126,9 +129,9 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       pinned: true,
       floating: true,
       expandedHeight: 120,
-      backgroundColor: MintColors.white,
+      backgroundColor: MintColors.porcelaine,
       elevation: 0,
-      surfaceTintColor: MintColors.white,
+      surfaceTintColor: MintColors.porcelaine,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
         onPressed: () => context.pop(),
@@ -137,15 +140,16 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: MintSpacing.md),
         title: Text(
           S.of(context)!.naissanceTitle,
-          style: MintTextStyles.headlineMedium(),
+          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
         ),
       ),
       bottom: TabBar(
         controller: _tabController,
         indicatorColor: MintColors.primary,
-        indicatorWeight: 3,
+        indicatorWeight: 2,
         labelColor: MintColors.textPrimary,
         unselectedLabelColor: MintColors.textMuted,
+        dividerColor: MintColors.border.withValues(alpha: 0.3),
         labelStyle: MintTextStyles.bodySmall(color: MintColors.textPrimary),
         unselectedLabelStyle: MintTextStyles.bodySmall(color: MintColors.textMuted),
         tabs: [
@@ -166,28 +170,27 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     return ListView(
       padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
+        // Hero: chiffre choc APG
+        if (_congeResult != null) ...[
+          _buildCongeChiffreChoc(),
+          const SizedBox(height: MintSpacing.xl),
+        ],
+
         // Toggle + salary
         _buildCongeInputsCard(),
-        const SizedBox(height: MintSpacing.lg),
+        const SizedBox(height: MintSpacing.xl),
 
         if (_congeResult != null) ...[
-          // Hero timeline
           _buildCongeTimeline(),
-          const SizedBox(height: MintSpacing.lg),
-
-          // Daily breakdown
+          const SizedBox(height: MintSpacing.xl),
           _buildCongeBreakdown(),
-          const SizedBox(height: MintSpacing.lg),
-
-          // Chiffre choc
-          _buildCongeChiffreChoc(),
-          const SizedBox(height: MintSpacing.lg),
+          const SizedBox(height: MintSpacing.xl),
         ],
 
         _buildEducationalInsert(
           S.of(context)!.naissanceCongeEducational,
         ),
-        const SizedBox(height: MintSpacing.lg),
+        const SizedBox(height: MintSpacing.xl),
 
         _buildDisclaimer(),
       ],
@@ -195,14 +198,8 @@ class _NaissanceScreenState extends State<NaissanceScreen>
   }
 
   Widget _buildCongeInputsCard() {
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -212,7 +209,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.naissanceLeaveType,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ),
               SegmentedButton<bool>(
@@ -246,15 +243,18 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           const SizedBox(height: MintSpacing.lg),
 
           // Salary slider
-          _buildSlider(
+          MintPremiumSlider(
             label: S.of(context)!.naissanceMonthlySalary,
             value: _salaireMensuel,
             min: 2000,
             max: 15000,
-            step: 250,
+            divisions: 52,
+            formatValue: (v) => FamilyService.formatChf(v),
             onChanged: (v) {
-              _salaireMensuel = v;
-              _recalculateConge();
+              setState(() {
+                _salaireMensuel = (v / 250).round() * 250.0;
+                _recalculateConge();
+              });
             },
           ),
         ],
@@ -270,25 +270,14 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     final isCapped = result['isCapped'] as bool;
     final type = result['type'] as String;
 
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.timeline, size: 16, color: MintColors.textMuted),
-              const SizedBox(width: MintSpacing.sm),
-              Text(
-                S.of(context)!.naissanceCongeLabel(type),
-                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
-              ),
-            ],
+          Text(
+            S.of(context)!.naissanceCongeLabel(type),
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.md),
 
@@ -360,26 +349,14 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     final perte = result['perteSalaire'] as double;
     final diffJour = salaireJour - apgJour;
 
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.receipt_long_outlined,
-                  size: 16, color: MintColors.textMuted),
-              const SizedBox(width: MintSpacing.sm),
-              Text(
-                S.of(context)!.naissanceDailyDetail,
-                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
-              ),
-            ],
+          Text(
+            S.of(context)!.naissanceDailyDetail,
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.md),
           _buildBarComparison(
@@ -432,26 +409,14 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         ? S.of(context)!.naissanceMaternite
         : S.of(context)!.naissancePaternite;
 
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.primary,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Text(
-            FamilyService.formatChf(totalApg),
-            style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(fontSize: 28, fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: MintSpacing.xs + 2),
-          Text(
-            S.of(context)!.naissanceChiffreChocText(typeLabel, FamilyService.formatChf(totalApg), weeks),
-            style: MintTextStyles.bodySmall(color: MintColors.white70).copyWith(height: 1.4),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+    return MintResultHeroCard(
+      eyebrow: typeLabel,
+      primaryValue: FamilyService.formatChf(totalApg),
+      primaryLabel: S.of(context)!.naissanceTotalApg,
+      secondaryValue: S.of(context)!.naissanceWeeks(weeks),
+      secondaryLabel: S.of(context)!.naissanceCongeLabel(typeLabel),
+      narrative: S.of(context)!.naissanceChiffreChocText(typeLabel, FamilyService.formatChf(totalApg), weeks),
+      tone: MintSurfaceTone.peche,
     );
   }
 
@@ -489,14 +454,8 @@ class _NaissanceScreenState extends State<NaissanceScreen>
   Widget _buildAllocInputsCard() {
     final sortedCodes = FamilyService.sortedCantonCodes;
 
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       child: Column(
         children: [
           // Canton dropdown
@@ -505,13 +464,13 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.naissanceCanton,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
-                  color: MintColors.appleSurface,
+                  color: MintColors.porcelaine,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: DropdownButtonHideUnderline(
@@ -546,7 +505,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.naissanceNbEnfants,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ),
               _buildStepper(
@@ -572,31 +531,13 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     final cantonNom = FamilyService.cantonNames[_cantonAlloc] ?? _cantonAlloc;
     final plural = _nbEnfantsAlloc > 1 ? 's' : '';
 
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.primary,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Text(
-            '${FamilyService.formatChf(mensuel)}/mois',
-            style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(fontSize: 28, fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: MintSpacing.xs + 2),
-          Text(
-            '${FamilyService.formatChf(annuel)}/an',
-            style: MintTextStyles.headlineMedium(color: MintColors.white70).copyWith(fontSize: 18),
-          ),
-          const SizedBox(height: MintSpacing.xs + 2),
-          Text(
-            S.of(context)!.naissanceAllocForCanton(cantonNom, _nbEnfantsAlloc, plural),
-            style: MintTextStyles.bodySmall(color: MintColors.white60).copyWith(height: 1.4),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+    return MintResultHeroCard(
+      eyebrow: S.of(context)!.naissanceTabAllocations,
+      primaryValue: '${FamilyService.formatChf(mensuel)}/mois',
+      primaryLabel: '${FamilyService.formatChf(annuel)}/an',
+      narrative: S.of(context)!.naissanceAllocForCanton(cantonNom, _nbEnfantsAlloc, plural),
+      accentColor: MintColors.success,
+      tone: MintSurfaceTone.sauge,
     );
   }
 
@@ -605,28 +546,17 @@ class _NaissanceScreenState extends State<NaissanceScreen>
 
     final maxMensuel = _allocRanking.first['mensuelTotal'] as double;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.symmetric(vertical: MintSpacing.sm + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.sm, MintSpacing.lg, MintSpacing.sm + 4),
-            child: Row(
-              children: [
-                const Icon(Icons.leaderboard_outlined,
-                    size: 16, color: MintColors.textMuted),
-                const SizedBox(width: MintSpacing.sm),
-                Text(
-                  S.of(context)!.naissanceRanking26,
-                  style: MintTextStyles.labelSmall(color: MintColors.textMuted),
-                ),
-              ],
+            child: Text(
+              S.of(context)!.naissanceRanking26,
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted),
             ),
           ),
           ..._allocRanking.map((c) {
@@ -775,35 +705,30 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Inputs
-        Container(
-          padding: const EdgeInsets.all(MintSpacing.lg),
-          decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-                color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-          ),
+        MintSurface(
+          tone: MintSurfaceTone.blanc,
           child: Column(
             children: [
-              _buildSlider(
+              MintPremiumSlider(
                 label: S.of(context)!.naissanceRevenuAnnuel,
                 value: _revenuImpact,
                 min: 30000,
                 max: 200000,
-                step: 5000,
+                divisions: 34,
+                formatValue: (v) => FamilyService.formatChf(v),
                 onChanged: (v) {
                   setState(() {
-                    _revenuImpact = v;
+                    _revenuImpact = (v / 5000).round() * 5000.0;
                   });
                 },
               ),
-              const SizedBox(height: MintSpacing.md),
+              const SizedBox(height: MintSpacing.lg),
               Row(
                 children: [
                   Expanded(
                     child: Text(
                       S.of(context)!.naissanceNbEnfants,
-                      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
+                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                     ),
                   ),
                   _buildStepper(
@@ -818,23 +743,24 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                   ),
                 ],
               ),
-              const SizedBox(height: MintSpacing.md),
-              _buildSlider(
+              const SizedBox(height: MintSpacing.lg),
+              MintPremiumSlider(
                 label: S.of(context)!.naissanceFraisGarde,
                 value: _fraisGarde,
                 min: 0,
                 max: 3000,
-                step: 100,
+                divisions: 30,
+                formatValue: (v) => FamilyService.formatChf(v),
                 onChanged: (v) {
                   setState(() {
-                    _fraisGarde = v;
+                    _fraisGarde = (v / 100).round() * 100.0;
                   });
                 },
               ),
             ],
           ),
         ),
-        const SizedBox(height: MintSpacing.lg),
+        const SizedBox(height: MintSpacing.xl),
 
         // 1. Tax savings
         _buildImpactSection(
@@ -1051,13 +977,9 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     required Color color,
     required List<Widget> children,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1098,13 +1020,9 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Intro
-        Container(
-          padding: const EdgeInsets.all(MintSpacing.md),
-          decoration: BoxDecoration(
-            color: MintColors.appleSurface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: MintColors.lightBorder),
-          ),
+        MintSurface(
+          tone: MintSurfaceTone.bleu,
+          padding: const EdgeInsets.all(MintSpacing.md + 4),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1120,16 +1038,11 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             ],
           ),
         ),
-        const SizedBox(height: MintSpacing.lg),
+        const SizedBox(height: MintSpacing.xl),
 
         // Progress bar
-        Container(
-          padding: const EdgeInsets.all(MintSpacing.lg),
-          decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: MintColors.lightBorder),
-          ),
+        MintSurface(
+          tone: MintSurfaceTone.blanc,
           child: Column(
             children: [
               Row(
@@ -1156,18 +1069,18 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                   duration: const Duration(milliseconds: 300),
                   child: LinearProgressIndicator(
                     value: items.isNotEmpty ? nbChecked / items.length : 0,
-                    backgroundColor: MintColors.appleSurface,
+                    backgroundColor: MintColors.porcelaine,
                     color: nbChecked == items.length
                         ? MintColors.success
                         : MintColors.primary,
-                    minHeight: 10,
+                    minHeight: 6,
                   ),
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: MintSpacing.lg),
+        const SizedBox(height: MintSpacing.xl),
 
         // Checklist items
         ...items.asMap().entries.map((entry) {
@@ -1200,14 +1113,9 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
           color: isChecked
-              ? MintColors.success.withValues(alpha: 0.04)
-              : MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isChecked
-                ? MintColors.success.withValues(alpha: 0.3)
-                : MintColors.lightBorder,
-          ),
+              ? MintColors.saugeClaire.withValues(alpha: 0.3)
+              : MintColors.craie,
+          borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
           children: [
@@ -1329,63 +1237,6 @@ class _NaissanceScreenState extends State<NaissanceScreen>
   //  SHARED WIDGETS
   // ════════════════════════════════════════════════════════════
 
-  Widget _buildSlider({
-    required String label,
-    required double value,
-    required double min,
-    required double max,
-    required double step,
-    required ValueChanged<double> onChanged,
-  }) {
-    final divisions = ((max - min) / step).round();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                label,
-                style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
-              ),
-            ),
-            Text(
-              FamilyService.formatChf(value),
-              style: MintTextStyles.titleMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            activeTrackColor: MintColors.primary,
-            inactiveTrackColor: MintColors.border,
-            thumbColor: MintColors.primary,
-            overlayColor: MintColors.primary.withValues(alpha: 0.1),
-            trackHeight: 4,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-          ),
-          child: Semantics(
-            label: label,
-            value: FamilyService.formatChf(value),
-            child: Slider(
-              value: value,
-              min: min,
-              max: max,
-              divisions: divisions > 0 ? divisions : 1,
-              onChanged: (v) {
-                setState(() {
-                  onChanged((v / step).round() * step);
-                });
-              },
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildStepper({
     required int value,
     required int minVal,
@@ -1487,25 +1338,13 @@ class _NaissanceScreenState extends State<NaissanceScreen>
   }
 
   Widget _buildEducationalInsert(String text) {
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.info.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
-      ),
+    return MintSurface(
+      tone: MintSurfaceTone.bleu,
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(MintSpacing.xs + 2),
-            decoration: BoxDecoration(
-              color: MintColors.info.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(Icons.lightbulb_outline,
-                size: 18, color: MintColors.info),
-          ),
+          const Icon(Icons.lightbulb_outline, size: 18, color: MintColors.info),
           const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Column(
@@ -1513,7 +1352,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               children: [
                 Text(
                   S.of(context)!.naissanceDidYouKnow,
-                  style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: MintSpacing.xs),
                 Text(
@@ -1529,22 +1368,18 @@ class _NaissanceScreenState extends State<NaissanceScreen>
   }
 
   Widget _buildDisclaimer() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.peche,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.warningBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.orangeRetroWarm),
-      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
+          const Icon(Icons.info_outline, color: MintColors.corailDiscret, size: 18),
           const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
               S.of(context)!.naissanceDisclaimer,
-              style: MintTextStyles.micro(color: MintColors.deepOrange).copyWith(fontSize: 12, height: 1.5, fontStyle: FontStyle.normal),
+              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 11, height: 1.5),
             ),
           ),
         ],

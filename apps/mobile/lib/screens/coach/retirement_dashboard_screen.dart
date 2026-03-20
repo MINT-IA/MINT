@@ -25,6 +25,11 @@ import 'package:mint_mobile/services/slm/slm_auto_prompt_service.dart';
 import 'package:mint_mobile/widgets/coach/retirement_hero_zone.dart';
 import 'package:mint_mobile/widgets/coach/smart_shortcuts.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_progress_arc.dart';
+import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -338,8 +343,17 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
 
     final l = S.of(context)!;
 
+    // Pillar decomposition for signal rows
+    final avs = ((decoBase['avs'] ?? decoBase['avs_user'] ?? 0) +
+            (decoBase['avs_conjoint'] ?? 0)) /
+        12;
+    final lpp = ((decoBase['lpp'] ?? decoBase['lpp_user'] ?? 0) +
+            (decoBase['lpp_conjoint'] ?? 0)) /
+        12;
+    final troisA = (decoBase['3a'] ?? decoBase['pilier3a'] ?? 0) / 12;
+
     return Scaffold(
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.porcelaine,
       body: CustomScrollView(
         slivers: [
           _buildAppBar(profile.firstName),
@@ -356,10 +370,22 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 // Position 0: Urgent Banner (conditional)
                 if (urgentItem.isNotEmpty) ...[
                   _UrgentBanner(item: urgentItem.first),
-                  const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
+                  const SizedBox(height: MintSpacing.md),
                 ],
 
-                // Position 1: Hero Zone
+                // Position 1: Hero — Replacement rate arc (the single moment hero)
+                Center(
+                  child: MintProgressArc(
+                    value: proj.tauxRemplacementBase,
+                    maxValue: 100,
+                    label: '${proj.tauxRemplacementBase.round()}\u00a0%',
+                    subtitle: l.dashboardMetricReplacementRate,
+                    size: 200,
+                  ),
+                ),
+                const SizedBox(height: MintSpacing.md),
+
+                // Position 1b: Hero Zone — monthly income, sparkline, pillar bar
                 RetirementHeroZone(
                   monthlyIncome: isCouple && partnerMonthly != null
                       ? monthlyBase + partnerMonthly
@@ -379,25 +405,81 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   partnerMonthlyIncome: partnerMonthly,
                   onConfidenceTap: () => _showEnrichmentSheet(context),
                 ),
-                const SizedBox(height: MintSpacing.md),
+                const SizedBox(height: MintSpacing.xxl),
 
                 // ── BELOW FOLD ──
 
-                // Position 2: Action Cards (max 2)
+                // Position 2: Coach narrative card (cap retraite)
+                if (_narrative != null && _narrative!.greeting.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: MintSpacing.xl),
+                    child: MintNarrativeCard(
+                      headline: l.dashboardCockpitTitle,
+                      body: coachOneLiner,
+                      tone: MintSurfaceTone.sauge,
+                      ctaLabel: l.dashboardCockpitCta,
+                      onTap: () => context.push('/coach/cockpit'),
+                    ),
+                  ),
+
+                // Position 2b: Pillar signal rows (AVS/LPP/3a — light, not heavy cards)
+                MintSurface(
+                  tone: MintSurfaceTone.craie,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: MintSpacing.lg,
+                    vertical: MintSpacing.sm,
+                  ),
+                  child: Column(
+                    children: [
+                      MintSignalRow(
+                        label: 'AVS',
+                        value: 'CHF\u00a0${avs.round()}',
+                        valueColor: MintColors.retirementAvs,
+                      ),
+                      MintSignalRow(
+                        label: 'LPP',
+                        value: 'CHF\u00a0${lpp.round()}',
+                        valueColor: MintColors.retirementLpp,
+                      ),
+                      if (troisA > 0)
+                        MintSignalRow(
+                          label: '3a',
+                          value: 'CHF\u00a0${troisA.round()}',
+                          valueColor: MintColors.retirement3a,
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: MintSpacing.xl),
+
+                // Position 2c: Confidence notice (premium)
+                if (isApproximate)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: MintSpacing.xl),
+                    child: MintConfidenceNotice(
+                      percent: _confidenceScore.round(),
+                      message: l.dashboardCurrentConfidence(
+                          _confidenceScore.round()),
+                      ctaLabel: l.dashboardImproveAccuracyTitle,
+                      onTap: () => _showEnrichmentSheet(context),
+                    ),
+                  ),
+
+                // Position 3: Action Cards (max 2)
                 ..._buildActionCards(isApproximate, l),
 
-                // Position 3: Smart Shortcuts
+                // Position 4: Smart Shortcuts
                 SmartShortcuts(
                   profile: profile,
                   confidenceScore: _confidenceScore,
                 ),
-                const SizedBox(height: MintSpacing.lg),
+                const SizedBox(height: MintSpacing.xxl),
 
-                // Position 4: Related sections (hub)
+                // Position 5: Related sections (hub)
                 _buildRelatedSections(l),
-                const SizedBox(height: MintSpacing.lg),
+                const SizedBox(height: MintSpacing.xl),
 
-                // Position 5: Footer — disclaimer
+                // Position 6: Footer — disclaimer
                 _buildDisclaimer(),
                 const SizedBox(height: MintSpacing.xl),
               ]),
@@ -414,7 +496,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
 
   Widget _buildStateC() {
     return Scaffold(
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.porcelaine,
       body: CustomScrollView(
         slivers: [
           _buildAppBar(null),
@@ -452,7 +534,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       expandedHeight: 80,
       floating: true,
       snap: true,
-      backgroundColor: MintColors.white,
+      backgroundColor: MintColors.porcelaine,
       surfaceTintColor: MintColors.transparent,
       elevation: 0,
       flexibleSpace: FlexibleSpaceBar(
