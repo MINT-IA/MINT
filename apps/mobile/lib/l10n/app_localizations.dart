@@ -6116,7 +6116,7 @@ abstract class S {
   /// No description provided for @coachWelcome.
   ///
   /// In fr, this message translates to:
-  /// **'Bienvenue sur MINT'**
+  /// **'Tes chiffres sont là'**
   String get coachWelcome;
 
   /// No description provided for @coachHello.
@@ -6164,13 +6164,13 @@ abstract class S {
   /// No description provided for @coachCompletePrompt.
   ///
   /// In fr, this message translates to:
-  /// **'Complète ton diagnostic pour découvrir ton score'**
+  /// **'Complète ton diagnostic pour voir ton score'**
   String get coachCompletePrompt;
 
   /// No description provided for @coachDiscoverScore.
   ///
   /// In fr, this message translates to:
-  /// **'Découvrir mon score — 10 min'**
+  /// **'Voir mon score — 10 min'**
   String get coachDiscoverScore;
 
   /// No description provided for @coachTrajectory.
@@ -6506,7 +6506,7 @@ abstract class S {
   /// No description provided for @eduHubSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Pas de panique. Choisis un sujet, on t\'explique l\'essentiel et on te donne une action simple.'**
+  /// **'Choisis un sujet. L\'essentiel en clair, une action concrète à la fin.'**
   String get eduHubSubtitle;
 
   /// No description provided for @eduHubReadQuiz.
@@ -6674,13 +6674,13 @@ abstract class S {
   /// No description provided for @trajectoryEmpty.
   ///
   /// In fr, this message translates to:
-  /// **'Pas encore de projection disponible'**
+  /// **'Pas encore de projection'**
   String get trajectoryEmpty;
 
   /// No description provided for @trajectoryEmptySub.
   ///
   /// In fr, this message translates to:
-  /// **'Complète ton profil pour voir ta trajectoire'**
+  /// **'Un scan de certificat LPP, et tout s\'éclaire.'**
   String get trajectoryEmptySub;
 
   /// No description provided for @trajectoryDisclaimer.

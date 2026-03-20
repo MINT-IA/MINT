@@ -3306,7 +3306,7 @@ class SPt extends S {
   String get exploreLearnFiscal => 'Fiscalidade suica 101';
 
   @override
-  String get coachWelcome => 'Bienvenue sur MINT';
+  String get coachWelcome => 'Os teus números estão prontos';
 
   @override
   String coachHello(String firstName) {
@@ -3333,10 +3333,10 @@ class SPt extends S {
 
   @override
   String get coachCompletePrompt =>
-      'Complète ton diagnostic pour découvrir ton score';
+      'Completa o teu diagnóstico para ver a tua pontuação';
 
   @override
-  String get coachDiscoverScore => 'Découvrir mon score — 10 min';
+  String get coachDiscoverScore => 'Ver a minha pontuação — 10 min';
 
   @override
   String get coachTrajectory => 'Ta trajectoire';
@@ -3521,7 +3521,7 @@ class SPt extends S {
 
   @override
   String get eduHubSubtitle =>
-      'Pas de panique. Choisis un sujet, on t\'explique l\'essentiel et on te donne une action simple.';
+      'Escolhe um tema. O essencial em claro, uma ação concreta no final.';
 
   @override
   String get eduHubReadQuiz => 'Lire + quiz • 2 min';
@@ -3627,11 +3627,11 @@ class SPt extends S {
   String get trajectoryTauxRemplacement => 'Taux de remplacement estimé : ';
 
   @override
-  String get trajectoryEmpty => 'Pas encore de projection disponible';
+  String get trajectoryEmpty => 'Sem projeção ainda';
 
   @override
   String get trajectoryEmptySub =>
-      'Complète ton profil pour voir ta trajectoire';
+      'Um scan do teu certificado LPP, e tudo se esclarece.';
 
   @override
   String get trajectoryDisclaimer =>

@@ -3308,7 +3308,7 @@ class SFr extends S {
   String get exploreLearnFiscal => 'Fiscalité Suisse 101';
 
   @override
-  String get coachWelcome => 'Bienvenue sur MINT';
+  String get coachWelcome => 'Tes chiffres sont là';
 
   @override
   String coachHello(String firstName) {
@@ -3335,10 +3335,10 @@ class SFr extends S {
 
   @override
   String get coachCompletePrompt =>
-      'Complète ton diagnostic pour découvrir ton score';
+      'Complète ton diagnostic pour voir ton score';
 
   @override
-  String get coachDiscoverScore => 'Découvrir mon score — 10 min';
+  String get coachDiscoverScore => 'Voir mon score — 10 min';
 
   @override
   String get coachTrajectory => 'Ta trajectoire';
@@ -3523,7 +3523,7 @@ class SFr extends S {
 
   @override
   String get eduHubSubtitle =>
-      'Pas de panique. Choisis un sujet, on t\'explique l\'essentiel et on te donne une action simple.';
+      'Choisis un sujet. L\'essentiel en clair, une action concrète à la fin.';
 
   @override
   String get eduHubReadQuiz => 'Lire + quiz • 2 min';
@@ -3629,11 +3629,11 @@ class SFr extends S {
   String get trajectoryTauxRemplacement => 'Taux de remplacement estimé : ';
 
   @override
-  String get trajectoryEmpty => 'Pas encore de projection disponible';
+  String get trajectoryEmpty => 'Pas encore de projection';
 
   @override
   String get trajectoryEmptySub =>
-      'Complète ton profil pour voir ta trajectoire';
+      'Un scan de certificat LPP, et tout s\'éclaire.';
 
   @override
   String get trajectoryDisclaimer =>

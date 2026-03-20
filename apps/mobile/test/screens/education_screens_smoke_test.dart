@@ -70,11 +70,11 @@ void main() {
       await tester.pump();
 
       expect(
-        find.textContaining('Pas de panique'),
+        find.textContaining('Choisis un sujet'),
         findsOneWidget,
       );
       expect(
-        find.textContaining('action simple'),
+        find.textContaining('action concrète'),
         findsOneWidget,
       );
     });

@@ -386,3 +386,17 @@ const Map<int, double> pilier3aHistoricalLimits = {
 
 /// Nombre maximum d'annees de rattrapage retroactif 3a (OPP3 art. 7, amendement 2026).
 const int pilier3aMaxRetroactiveYears = 10;
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Financial Fitness Score (FRI) — Seuils d'affichage
+// Utilises pour la colorisation et les labels dans tous les ecrans.
+// ══════════════════════════════════════════════════════════════════════════════
+
+/// FRI >= 80 : Excellent (vert fonce)
+const int friThresholdExcellent = 80;
+
+/// FRI >= 60 : Bon (vert)
+const int friThresholdBon = 60;
+
+/// FRI >= 40 : Attention (orange)
+const int friThresholdAttention = 40;

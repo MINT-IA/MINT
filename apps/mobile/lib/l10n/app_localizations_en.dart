@@ -3291,7 +3291,7 @@ class SEn extends S {
   String get exploreLearnFiscal => 'Swiss Taxation 101';
 
   @override
-  String get coachWelcome => 'Welcome to MINT';
+  String get coachWelcome => 'Your numbers are ready';
 
   @override
   String coachHello(String firstName) {
@@ -3318,10 +3318,10 @@ class SEn extends S {
 
   @override
   String get coachCompletePrompt =>
-      'Complete your diagnostic to discover your score';
+      'Complete your diagnostic to see your score';
 
   @override
-  String get coachDiscoverScore => 'Discover my score — 10 min';
+  String get coachDiscoverScore => 'See my score — 10 min';
 
   @override
   String get coachTrajectory => 'Your trajectory';
@@ -3502,7 +3502,7 @@ class SEn extends S {
 
   @override
   String get eduHubSubtitle =>
-      'Don\'t panic. Pick a topic, we\'ll explain the essentials and give you a simple action.';
+      'Pick a topic. The essentials in plain terms, one concrete action at the end.';
 
   @override
   String get eduHubReadQuiz => 'Read + quiz • 2 min';
@@ -3607,11 +3607,11 @@ class SEn extends S {
   String get trajectoryTauxRemplacement => 'Estimated replacement rate: ';
 
   @override
-  String get trajectoryEmpty => 'No projection available yet';
+  String get trajectoryEmpty => 'No projection yet';
 
   @override
   String get trajectoryEmptySub =>
-      'Complete your profile to see your trajectory';
+      'Scan your pension certificate and everything lights up.';
 
   @override
   String get trajectoryDisclaimer =>

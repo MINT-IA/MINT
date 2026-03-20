@@ -2,6 +2,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
+import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/visibility_score_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -635,28 +636,25 @@ class ResponseCardService {
     if (profile.age >= profile.effectiveRetirementAge) return null;
     if (profile.salaireBrutMensuel <= 0) return null;
 
-    // Use ForecasterService-style projection
-    final monthlyAvs = AvsCalculator.computeMonthlyRente(
-      currentAge: profile.age,
-      retirementAge: profile.effectiveRetirementAge,
-      arrivalAge: profile.arrivalAge,
-      grossAnnualSalary: profile.revenuBrutAnnuel,
-    );
+    // Single source of truth: use ForecasterService projection
+    // instead of a local snapshot. This ensures the same replacement
+    // rate is shown on Pulse, Coach, and Response Cards.
+    final ProjectionResult projection;
+    try {
+      projection = ForecasterService.project(profile: profile);
+    } catch (_) {
+      return null;
+    }
 
-    final lppAvoir = profile.prevoyance.avoirLppTotal ?? 0;
-    final lppMonthly = lppAvoir > 0
-        ? (lppAvoir * lppTauxConversionSurobligDecimal / 12) // conservative 5.4% (suroblig estimate)
-        : 0.0;
+    final replacementRate = projection.tauxRemplacementBase;
+    if (replacementRate <= 0) return null;
 
-    final totalMonthly = monthlyAvs + lppMonthly;
-    // Use NetIncomeBreakdown for consistent net calculation (same as Pulse)
+    final monthlyRetirement = projection.base.revenuAnnuelRetraite / 12;
     final currentMonthly = NetIncomeBreakdown.compute(
       grossSalary: profile.revenuBrutAnnuel,
       canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
       age: profile.age,
     ).monthlyNetPayslip;
-    final replacementRate =
-        currentMonthly > 0 ? (totalMonthly / currentMonthly * 100) : 0.0;
 
     return ResponseCard(
       id: 'replacement_rate',
@@ -667,12 +665,12 @@ class ResponseCardService {
         value: replacementRate,
         unit: '%',
         explanation:
-            'Revenu estim\u00e9 \u00e0 la retraite\u00a0: ${totalMonthly.round()} CHF/mois '
+            'Revenu estim\u00e9 \u00e0 la retraite\u00a0: ${monthlyRetirement.round()} CHF/mois '
             'vs ${currentMonthly.round()} CHF/mois actuellement',
       ),
       cta: const CardCta(
-        label: 'Explorer mes sc\u00e9narios',
-        route: '/rente-vs-capital',
+        label: 'Voir mes leviers retraite',
+        route: '/explore/retraite',
         icon: 'trending_up',
       ),
       urgency: profile.age >= 58 ? CardUrgency.high : CardUrgency.medium,
@@ -823,8 +821,8 @@ class ResponseCardService {
             '+ rachat LPP',
       ),
       cta: const CardCta(
-        label: 'D\u00e9couvrir mes d\u00e9ductions',
-        route: '/fiscal',
+        label: 'Simuler mes d\u00e9ductions',
+        route: '/pilier-3a',
         icon: 'receipt_long',
       ),
       urgency: CardUrgency.low,
