@@ -10,7 +10,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
-//  COACH CHAT SCREEN TESTS — Phase 4 / BYOK + RAG wiring
+//  COACH CHAT SCREEN TESTS — S52 redesigned UI
 // ────────────────────────────────────────────────────────────
 
 void main() {
@@ -74,46 +74,56 @@ void main() {
       expect(find.byType(CoachChatScreen), findsOneWidget);
     });
 
-    testWidgets('shows Coach MINT title', (tester) async {
+    testWidgets('shows MINT title', (tester) async {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.text('Coach MINT'), findsOneWidget);
+      expect(find.text('MINT'), findsOneWidget);
     });
 
-    testWidgets('shows tier subtitle in app bar', (tester) async {
+    testWidgets('shows tier badge on response messages', (tester) async {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
-      // Without SLM or BYOK, the fallback tier shows "Mode hors-ligne"
-      expect(find.text('Mode hors-ligne'), findsOneWidget);
+
+      // Tier badge is hidden on the greeting (messageIndex == 0)
+      // but shown on subsequent response messages.
+      await tester.enterText(find.byType(TextField), 'Mon 3a');
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+      await tester.pumpAndSettle();
+
+      // Fallback tier badge with "Hors-ligne" text appears on response
+      expect(find.textContaining('Hors-ligne'), findsOneWidget);
     });
 
-    testWidgets('shows disclaimer text', (tester) async {
+    testWidgets('disclaimer removed from chat header', (tester) async {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
+      // Disclaimer bar was removed from main UI (moved to settings).
+      // Verify it is NOT shown in the initial chat header.
       expect(
         find.textContaining('Outil éducatif'),
-        findsOneWidget,
+        findsNothing,
       );
     });
 
-    testWidgets('shows initial greeting with name', (tester) async {
+    testWidgets('shows initial greeting', (tester) async {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
-      // Greeting is now cap-based, but must contain the user's name
-      expect(find.textContaining('Julien'), findsWidgets);
+      // Greeting is now silent/minimal: "On commence par quoi ?"
+      expect(find.textContaining('On commence par quoi'), findsOneWidget);
     });
 
-    testWidgets('shows initial greeting with contextual content', (tester) async {
+    testWidgets('shows initial greeting with suggested prompts', (tester) async {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
-      // Greeting should contain cap-based or fallback contextual content
-      // (no longer checks for generic "tes chiffres" since greeting is dynamic)
-      expect(find.textContaining('Julien'), findsWidgets);
+      // Greeting has suggested action prompts (rendered as tappable containers).
+      // At least the "Il m'arrive quelque chose" life event trigger should exist.
+      expect(find.textContaining('arrive quelque chose'), findsOneWidget);
     });
 
     testWidgets('shows input field with placeholder', (tester) async {
@@ -128,30 +138,31 @@ void main() {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.byIcon(Icons.send), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_upward_rounded), findsOneWidget);
     });
 
     testWidgets('shows settings icon in app bar', (tester) async {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
-      // Settings gear icon is always shown for IA configuration
-      expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
+      // Settings uses more_horiz icon for IA configuration access
+      expect(find.byIcon(Icons.more_horiz_rounded), findsOneWidget);
     });
 
     testWidgets('shows back button', (tester) async {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.byIcon(Icons.arrow_back), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_back_ios_new_rounded), findsOneWidget);
     });
 
-    testWidgets('shows suggested action chips', (tester) async {
+    testWidgets('shows suggested action prompts', (tester) async {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
-      // The initial greeting should have suggested actions
-      expect(find.byType(ActionChip), findsWidgets);
+      // The initial greeting has suggested actions rendered as tappable
+      // Container widgets (not ActionChip). Verify at least one exists.
+      expect(find.textContaining('arrive quelque chose'), findsOneWidget);
     });
 
     testWidgets('can type in input field', (tester) async {
@@ -172,8 +183,8 @@ void main() {
       await tester.enterText(find.byType(TextField), 'Parle-moi du 3a');
       await tester.pump();
 
-      // Tap send and settle (scroll animation + async response)
-      await tester.tap(find.byIcon(Icons.send));
+      // Tap send (arrow_upward icon) and settle (scroll animation + async response)
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
       await tester.pumpAndSettle();
 
       // User message should appear as a bubble
@@ -189,26 +200,34 @@ void main() {
       await tester.enterText(find.byType(TextField), 'Parle-moi du 3a');
       await tester.pump();
 
-      // Tap send
-      await tester.tap(find.byIcon(Icons.send));
+      // Tap send (arrow_upward icon)
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
       await tester.pumpAndSettle();
 
-      // Coach response should appear (fallback path returns generic message)
+      // Coach response should appear (fallback path returns message with "coach IA")
       expect(find.textContaining('coach IA'), findsOneWidget);
     });
 
-    testWidgets('shows coach avatar icon', (tester) async {
+    testWidgets('shows coach avatar with M letter', (tester) async {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
-      // Coach avatar uses the psychology icon
-      expect(find.byIcon(Icons.psychology), findsOneWidget);
+      // Coach avatar is a 24px gradient circle with letter 'M' (no icon)
+      expect(find.text('M'), findsOneWidget);
     });
 
-    testWidgets('disclaimer mentions LSFin', (tester) async {
+    testWidgets('fallback response embeds LSFin disclaimer', (tester) async {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
+
+      // Send a message to trigger fallback response (which embeds LSFin)
+      await tester.enterText(find.byType(TextField), 'Aide-moi');
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+      await tester.pumpAndSettle();
+
+      // The fallback response body includes the LSFin disclaimer
       expect(find.textContaining('LSFin'), findsOneWidget);
     });
 
@@ -220,7 +239,7 @@ void main() {
       // Send a 3a message
       await tester.enterText(find.byType(TextField), 'Mon 3a');
       await tester.pump();
-      await tester.tap(find.byIcon(Icons.send));
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
       await tester.pumpAndSettle();
 
       // Fallback response mentions simulators
@@ -235,7 +254,7 @@ void main() {
       // Send a LPP message
       await tester.enterText(find.byType(TextField), 'Ma LPP');
       await tester.pump();
-      await tester.tap(find.byIcon(Icons.send));
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
       await tester.pumpAndSettle();
 
       // Fallback response mentions educational content
@@ -254,11 +273,11 @@ void main() {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
 
-      // Settings gear icon should be present
-      expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
+      // Settings uses more_horiz icon for IA configuration access
+      expect(find.byIcon(Icons.more_horiz_rounded), findsOneWidget);
     });
 
-    testWidgets('wifi_off icon shown for fallback tier', (tester) async {
+    testWidgets('wifi_off icon shown for fallback tier badge', (tester) async {
       tester.view.physicalSize = const Size(1080, 1920);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -268,8 +287,15 @@ void main() {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
 
-      // Fallback tier shows wifi_off icon in subtitle
-      expect(find.byIcon(Icons.wifi_off), findsWidgets);
+      // Tier badge (with wifi_off) is only shown on non-greeting messages.
+      // Send a message to trigger a fallback response with tier badge.
+      await tester.enterText(find.byType(TextField), 'Info');
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+      await tester.pumpAndSettle();
+
+      // Fallback tier badge shows wifi_off icon
+      expect(find.byIcon(Icons.wifi_off), findsOneWidget);
     });
 
     testWidgets('no BYOK CTA card in chat area', (tester) async {
@@ -300,8 +326,8 @@ void main() {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
 
-      // No user messages yet, so share button should not be shown
-      expect(find.byIcon(Icons.share), findsNothing);
+      // No user messages yet, so share/export button should not be shown
+      expect(find.byIcon(Icons.ios_share_rounded), findsNothing);
     });
 
     testWidgets('export button appears after sending a message',
@@ -318,11 +344,11 @@ void main() {
       // Send a message
       await tester.enterText(find.byType(TextField), 'Mon 3a');
       await tester.pump();
-      await tester.tap(find.byIcon(Icons.send));
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
       await tester.pumpAndSettle();
 
       // Now the share/export button should appear
-      expect(find.byIcon(Icons.share), findsOneWidget);
+      expect(find.byIcon(Icons.ios_share_rounded), findsOneWidget);
     });
   });
 }
