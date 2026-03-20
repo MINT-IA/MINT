@@ -761,33 +761,36 @@ Règle:
 
 ## 13. Séquence d'implémentation recommandée
 
-### Phase 0 — Socle technique déjà posé
+### Phase 0 — Socle technique (DONE)
 - navigation cible 4 tabs / 7 hubs / capture contextuelle
 - première vague tokens, i18n, AppBars, voix, conformité
 - migration initiale des tiers S52 déjà traités
 - nettoyage des patterns les plus legacy
 
-### Phase 1 — Verrouiller la grammaire
-- refonte `ResponseCardWidget`
-- création des 4 templates maîtres
-- composant `Cap du jour`
+### Phase 1 — Verrouiller la grammaire (DONE)
+- refonte `ResponseCardWidget` V2 (3 variantes: chat/sheet/compact)
+- création des 4 templates maîtres (HP/DC/RF/QU)
+- composant `Cap du jour` (CapCard + CapEngine)
 
-### Phase 2 — Propager le système
-- migration des 70 écrans restants par template
-- nettoyage i18n visible
-- nettoyage semantics non localisés
+### Phase 2 — Propager le système (DONE)
+- migration des 109 écrans + 192 widgets aux tokens MintTextStyles/MintSpacing/MintColors
+- 0 GoogleFonts résiduel dans lib/ (hors theme/app.dart)
+- nettoyage i18n T6-A (50 clés extraites)
+- nettoyage async (document_scan 16 warnings -> 0)
 
-### Phase 3 — Rendre le système vivant
-- `CapEngine`
-- `Goal Selection`
-- `Action Success`
-- mémoire légère du plan
+### Phase 3 — Rendre le système vivant (DONE)
+- `CapEngine` V1 heuristique (12 règles, scoring multiplicatif, pure function)
+- `CapMemory` persistant (lastCapServed, completedActions, abandonedFlows, recentFrictionContext)
+- `Goal Selection` : GoalA aligne les caps (boost x1.3 sur caps alignés)
+- `Action Success` : bottom sheet feedback (action + impact + next step)
+- `Life Events` : 7 événements de vie détectés via profile.familyChange
+- Feedback loop : markServed → markCompleted → recompute → nouveau cap
 
-### Phase 4 — Harmonisation finale
-- screenshot board des 109 surfaces actives
-- nettoyage palette
-- motion unifiée
-- suppression des derniers patterns legacy
+### Phase 4 — Harmonisation finale (IN PROGRESS)
+- `MintMotion` tokens (fast/standard/slow + curveStandard/curveEnter/curveExit)
+- suppression `MintGlassCard`, `MintPremiumButton`, `mint_ui_kit.dart`
+- 0 hardcoded hex colors dans screens/ et widgets/
+- screenshot board des 109 surfaces actives (TODO)
 
 ---
 

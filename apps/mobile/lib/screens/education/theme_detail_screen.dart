@@ -6,7 +6,7 @@ import 'package:mint_mobile/data/education_content.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
-import 'package:mint_mobile/widgets/mint_ui_kit.dart';
+// mint_ui_kit.dart removed — deprecated MintPremiumButton replaced
 
 class ThemeDetailScreen extends StatefulWidget {
   final String themeId;
@@ -193,10 +193,22 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 32),
-                      MintPremiumButton(
-                        title: theme.actionLabel,
-                        subtitle: 'Action recommandee',
-                        onTap: () => context.push(theme.route),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: () => context.push(theme.route),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: MintColors.primary,
+                            padding: const EdgeInsets.symmetric(vertical: MintSpacing.md),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          child: Text(
+                            theme.actionLabel,
+                            style: MintTextStyles.titleMedium(color: MintColors.white),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -676,10 +688,22 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
   Widget _buildCTA(EducationalTheme theme) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
-      child: MintPremiumButton(
-        title: theme.actionLabel,
-        subtitle: 'Action recommandee \u2022 ${theme.estimatedMinutes} min',
-        onTap: () => context.push(theme.route),
+      child: SizedBox(
+        width: double.infinity,
+        child: FilledButton(
+          onPressed: () => context.push(theme.route),
+          style: FilledButton.styleFrom(
+            backgroundColor: MintColors.primary,
+            padding: const EdgeInsets.symmetric(vertical: MintSpacing.md),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+          child: Text(
+            '${theme.actionLabel} \u2022 ${theme.estimatedMinutes} min',
+            style: MintTextStyles.titleMedium(color: MintColors.white),
+          ),
+        ),
       ),
     );
   }
