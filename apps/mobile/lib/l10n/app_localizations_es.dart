@@ -18100,4 +18100,199 @@ class SEs extends S {
 
   @override
   String get renteVsCapitalTransmissionCapitalValue => '100 % a los herederos';
+
+  @override
+  String get quickStartAgeTitle => '¿Cuántos años tienes?';
+
+  @override
+  String get quickStartAgeSubtitle => 'Empecemos por aquí.';
+
+  @override
+  String get quickStartRevenueTitle => '¿Tu ingreso bruto anual?';
+
+  @override
+  String get quickStartRevenueSubtitle => 'Incluso aproximado, basta.';
+
+  @override
+  String get quickStartCantonTitle => '¿Dónde vives?';
+
+  @override
+  String get quickStartCantonSubtitle => 'Tu cantón cambia muchas cosas.';
+
+  @override
+  String get quickStartNext => 'Siguiente';
+
+  @override
+  String get quickStartResultConfidence =>
+      'Estimación basada en 3 datos. El coach precisará.';
+
+  @override
+  String get quickStartCtaCoach => 'Hablar con el coach';
+
+  @override
+  String get quickStartCtaExplore => 'Explorar primero';
+
+  @override
+  String get lightningMenuTitle => '¿Qué quieres explorar?';
+
+  @override
+  String get lightningMenuSubtitle => 'MINT calcula, tú decides.';
+
+  @override
+  String get lightningMenuRetirementTitle => 'Mi visión de jubilación';
+
+  @override
+  String get lightningMenuRetirementSubtitle =>
+      'Cuánto conservarás al jubilarte';
+
+  @override
+  String get lightningMenuRetirementAction => '¿Cuánto a la jubilación?';
+
+  @override
+  String get lightningMenuBudgetTitle => 'Mi presupuesto';
+
+  @override
+  String get lightningMenuBudgetSubtitle => 'A dónde va tu dinero este mes';
+
+  @override
+  String get lightningMenuBudgetAction => 'Mi presupuesto este mes';
+
+  @override
+  String get lightningMenuRenteCapitalTitle => '¿Renta o capital?';
+
+  @override
+  String get lightningMenuRenteCapitalSubtitle => 'Comparar ambos escenarios';
+
+  @override
+  String get lightningMenuRenteCapitalAction => '¿Renta o capital?';
+
+  @override
+  String get lightningMenuScoreTitle => 'Mi puntuación fitness';
+
+  @override
+  String get lightningMenuScoreSubtitle => 'Tu salud financiera de un vistazo';
+
+  @override
+  String get lightningMenuScoreAction => 'Mi puntuación financiera';
+
+  @override
+  String get lightningMenuCoupleTitle => 'Nuestra situación en pareja';
+
+  @override
+  String get lightningMenuCoupleSubtitle => 'Previsión y patrimonio en pareja';
+
+  @override
+  String get lightningMenuCoupleAction => 'Nuestra previsión en pareja';
+
+  @override
+  String get lightningMenuDebtTitle => 'Salir de la deuda';
+
+  @override
+  String get lightningMenuDebtSubtitle => 'Un plan para reducir tus cargas';
+
+  @override
+  String get lightningMenuDebtAction => '¿Cómo reducir mi deuda?';
+
+  @override
+  String get lightningMenuIndependantTitle => 'Mi red de seguridad';
+
+  @override
+  String get lightningMenuIndependantSubtitle =>
+      'Cobertura y protección como independiente';
+
+  @override
+  String get lightningMenuIndependantAction =>
+      'Mi cobertura como independiente';
+
+  @override
+  String get lightningMenuRetirementPrepTitle => 'Preparar mi jubilación';
+
+  @override
+  String get lightningMenuRetirementPrepSubtitle =>
+      'Los últimos años cuentan doble';
+
+  @override
+  String get lightningMenuRetirementPrepAction => 'Mi plan de jubilación';
+
+  @override
+  String get trajectoryGoalSectionTitle => 'Tu objetivo';
+
+  @override
+  String get trajectoryGoalRetraite => 'Jubilación a los 65';
+
+  @override
+  String get trajectoryGoalAchatImmo => 'Compra inmobiliaria';
+
+  @override
+  String get trajectoryGoalIndependance => 'Independencia financiera';
+
+  @override
+  String get trajectoryGoalDebtFree => 'Liberación de deudas';
+
+  @override
+  String trajectoryGoalHorizon(int years) {
+    return 'Horizonte: $years años';
+  }
+
+  @override
+  String trajectoryGoalTarget(String amount) {
+    return 'Objetivo: $amount';
+  }
+
+  @override
+  String get trajectoryKnownSectionTitle => 'Lo que MINT sabe';
+
+  @override
+  String get trajectoryFieldAge => 'Edad';
+
+  @override
+  String get trajectoryFieldAgeUnit => 'años';
+
+  @override
+  String get trajectoryFieldRevenu => 'Ingreso bruto';
+
+  @override
+  String get trajectoryFieldCanton => 'Cantón';
+
+  @override
+  String get trajectoryFieldLpp => 'Saldo LPP';
+
+  @override
+  String get trajectoryField3a => 'Ahorro 3a';
+
+  @override
+  String get trajectoryFieldConjoint => 'Cónyuge';
+
+  @override
+  String get trajectoryFieldIncomplete => 'Por completar';
+
+  @override
+  String get trajectoryFieldConjointYes => 'Sí';
+
+  @override
+  String get trajectoryFieldConjointNo => 'No especificado';
+
+  @override
+  String get trajectoryDecisionsSectionTitle => 'Tus decisiones';
+
+  @override
+  String get trajectoryNextStepSectionTitle => 'Próximo paso';
+
+  @override
+  String get trajectoryNextStepBody =>
+      'El coach te acompaña hacia esta acción.';
+
+  @override
+  String get trajectoryConfidenceSectionTitle => 'Confianza';
+
+  @override
+  String get trajectoryConfidenceLowMessage =>
+      'Tus datos aún son parciales — cada información adicional afina tu trayectoria.';
+
+  @override
+  String get trajectoryConfidenceHighMessage =>
+      'Perfil bien documentado — tus proyecciones son fiables.';
+
+  @override
+  String get trajectoryConfidenceCta => 'Mejorar la precisión';
 }
