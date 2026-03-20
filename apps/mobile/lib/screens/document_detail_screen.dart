@@ -19,7 +19,7 @@ class DocumentDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     final docProvider = context.watch<DocumentProvider>();
 
     // Get the upload result if it matches, otherwise show placeholder
@@ -49,7 +49,7 @@ class DocumentDetailScreen extends StatelessWidget {
   // App Bar
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildAppBar(BuildContext context, S? s) {
+  Widget _buildAppBar(BuildContext context, S s) {
     return SliverAppBar(
       pinned: true,
       backgroundColor: MintColors.white,
@@ -60,7 +60,7 @@ class DocumentDetailScreen extends StatelessWidget {
         onPressed: () => context.pop(),
       ),
       title: Text(
-        s?.documentsLppCertificate ?? 'Certificat LPP',
+        s.documentsLppCertificate,
         style: MintTextStyles.headlineMedium(),
       ),
     );
@@ -70,7 +70,7 @@ class DocumentDetailScreen extends StatelessWidget {
   // Placeholder when detail is not available
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildPlaceholder(S? s) {
+  Widget _buildPlaceholder(S s) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.only(top: 80),
@@ -87,7 +87,7 @@ class DocumentDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: MintSpacing.md + 4),
             Text(
-              s?.documentsEmpty ?? 'Aucun document',
+              s.documentsEmpty,
               style: MintTextStyles.headlineMedium(color: MintColors.textMuted),
             ),
           ],
@@ -100,7 +100,7 @@ class DocumentDetailScreen extends StatelessWidget {
   // Detail Content
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildDetailContent(BuildContext context, S? s,
+  Widget _buildDetailContent(BuildContext context, S s,
       DocumentUploadResult result, DocumentProvider docProvider) {
     final lppFields = result.extractedFields.lpp;
     final confidence = (result.confidence * 100).round();
@@ -115,24 +115,22 @@ class DocumentDetailScreen extends StatelessWidget {
         // Category: Epargne
         _buildCategory(
           s,
-          label: s?.documentsCategoryEpargne ?? '\u00c9pargne',
+          label: s.documentsCategoryEpargne,
           icon: Icons.savings_outlined,
           color: MintColors.success,
           fields: [
             _field(
-              s?.documentsFieldAvoirObligatoire ??
-                  'Avoir de vieillesse obligatoire',
+              s.documentsFieldAvoirObligatoire,
               lppFields?.avoirObligatoire,
               'Montant accumul\u00e9 dans la part obligatoire LPP',
             ),
             _field(
-              s?.documentsFieldAvoirSurobligatoire ??
-                  'Avoir de vieillesse surobligatoire',
+              s.documentsFieldAvoirSurobligatoire,
               lppFields?.avoirSurobligatoire,
               'Part au-del\u00e0 du minimum l\u00e9gal',
             ),
             _field(
-              s?.documentsFieldAvoirTotal ?? 'Avoir de vieillesse total',
+              s.documentsFieldAvoirTotal,
               lppFields?.avoirVieillesseTotal,
               'Total de ton capital de vieillesse',
             ),
@@ -143,23 +141,22 @@ class DocumentDetailScreen extends StatelessWidget {
         // Category: Salaire
         _buildCategory(
           s,
-          label: s?.documentsCategorySalaire ?? 'Salaire',
+          label: s.documentsCategorySalaire,
           icon: Icons.account_balance_wallet_outlined,
           color: MintColors.info,
           fields: [
             _field(
-              s?.documentsFieldSalaireAssure ?? 'Salaire assur\u00e9',
+              s.documentsFieldSalaireAssure,
               lppFields?.salaireAssure,
               'Salaire sur lequel les cotisations sont calcul\u00e9es',
             ),
             _field(
-              s?.documentsFieldSalaireAvs ?? 'Salaire AVS',
+              s.documentsFieldSalaireAvs,
               lppFields?.salaireAvs,
               'Salaire d\u00e9terminant pour l\'AVS',
             ),
             _field(
-              s?.documentsFieldDeductionCoordination ??
-                  'D\u00e9duction de coordination',
+              s.documentsFieldDeductionCoordination,
               lppFields?.deductionCoordination,
               'Montant d\u00e9duit pour coordonner avec l\'AVS',
             ),
@@ -170,25 +167,22 @@ class DocumentDetailScreen extends StatelessWidget {
         // Category: Taux de conversion
         _buildCategory(
           s,
-          label: s?.documentsCategoryTaux ?? 'Taux de conversion',
+          label: s.documentsCategoryTaux,
           icon: Icons.percent,
           color: MintColors.indigo,
           fields: [
             _fieldPercent(
-              s?.documentsFieldTauxObligatoire ??
-                  'Taux de conversion obligatoire',
+              s.documentsFieldTauxObligatoire,
               lppFields?.tauxConversionObligatoire,
               'L\u00e9gal minimum : 6.8%',
             ),
             _fieldPercent(
-              s?.documentsFieldTauxSurobligatoire ??
-                  'Taux de conversion surobligatoire',
+              s.documentsFieldTauxSurobligatoire,
               lppFields?.tauxConversionSurobligatoire,
               'Fix\u00e9 par ta caisse de pension',
             ),
             _fieldPercent(
-              s?.documentsFieldTauxEnveloppe ??
-                  'Taux de conversion enveloppe',
+              s.documentsFieldTauxEnveloppe,
               lppFields?.tauxConversionEnveloppe,
               'Taux moyen pond\u00e9r\u00e9',
             ),
@@ -199,29 +193,27 @@ class DocumentDetailScreen extends StatelessWidget {
         // Category: Couverture risque
         _buildCategory(
           s,
-          label: s?.documentsCategoryRisque ?? 'Couverture risque',
+          label: s.documentsCategoryRisque,
           icon: Icons.shield_outlined,
           color: MintColors.deepOrange,
           fields: [
             _fieldYearly(
-              s?.documentsFieldRenteInvalidite ??
-                  'Rente d\'invalidit\u00e9 annuelle',
+              s.documentsFieldRenteInvalidite,
               lppFields?.renteInvalidite,
               'Rente en cas d\'incapacit\u00e9 de travail',
             ),
             _field(
-              s?.documentsFieldCapitalDeces ?? 'Capital-d\u00e9c\u00e8s',
+              s.documentsFieldCapitalDeces,
               lppFields?.capitalDeces,
               'Montant vers\u00e9 aux b\u00e9n\u00e9ficiaires en cas de d\u00e9c\u00e8s',
             ),
             _fieldYearly(
-              s?.documentsFieldRenteConjoint ??
-                  'Rente de conjoint annuelle',
+              s.documentsFieldRenteConjoint,
               lppFields?.renteConjoint,
               'Rente vers\u00e9e au conjoint survivant',
             ),
             _fieldYearly(
-              s?.documentsFieldRenteEnfant ?? 'Rente d\'enfant annuelle',
+              s.documentsFieldRenteEnfant,
               lppFields?.renteEnfant,
               'Rente vers\u00e9e par enfant',
             ),
@@ -232,12 +224,12 @@ class DocumentDetailScreen extends StatelessWidget {
         // Category: Rachat
         _buildCategory(
           s,
-          label: s?.documentsCategoryRachat ?? 'Rachat',
+          label: s.documentsCategoryRachat,
           icon: Icons.add_circle_outline,
           color: MintColors.primary,
           fields: [
             _field(
-              s?.documentsFieldRachatMax ?? 'Rachat maximum possible',
+              s.documentsFieldRachatMax,
               lppFields?.rachatMaximum,
               'Montant pouvant \u00eatre rachet\u00e9 pour optimiser ta pr\u00e9voyance',
             ),
@@ -248,19 +240,17 @@ class DocumentDetailScreen extends StatelessWidget {
         // Category: Cotisations
         _buildCategory(
           s,
-          label: s?.documentsCategoryCotisations ?? 'Cotisations',
+          label: s.documentsCategoryCotisations,
           icon: Icons.sync_alt,
           color: MintColors.warning,
           fields: [
             _fieldYearly(
-              s?.documentsFieldCotisationEmploye ??
-                  'Cotisation employ\u00e9 annuelle',
+              s.documentsFieldCotisationEmploye,
               lppFields?.cotisationEmploye,
               'Ta contribution annuelle',
             ),
             _fieldYearly(
-              s?.documentsFieldCotisationEmployeur ??
-                  'Cotisation employeur annuelle',
+              s.documentsFieldCotisationEmployeur,
               lppFields?.cotisationEmployeur,
               'Contribution de ton employeur',
             ),
@@ -281,7 +271,7 @@ class DocumentDetailScreen extends StatelessWidget {
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(s?.documentDetailProfileUpdated ?? 'Profil mis \u00e0 jour avec succ\u00e8s'),
+                  content: Text(s.documentDetailProfileUpdated),
                   backgroundColor: MintColors.success,
                   behavior: SnackBarBehavior.floating,
                   shape: RoundedRectangleBorder(
@@ -291,8 +281,7 @@ class DocumentDetailScreen extends StatelessWidget {
               context.pop();
             },
             child: Text(
-              s?.documentsConfirmButton ??
-                  'Mettre \u00e0 jour le profil',
+              s.documentsConfirmButton,
             ),
           ),
         ),
@@ -301,7 +290,7 @@ class DocumentDetailScreen extends StatelessWidget {
           child: TextButton.icon(
             onPressed: () => _confirmDelete(context, s, docProvider),
             icon: const Icon(Icons.delete_outline, size: 18),
-            label: Text(s?.documentsDeleteButton ?? 'Supprimer ce document'),
+            label: Text(s.documentsDeleteButton),
             style: TextButton.styleFrom(foregroundColor: MintColors.error),
           ),
         ),
@@ -315,7 +304,7 @@ class DocumentDetailScreen extends StatelessWidget {
   // ──────────────────────────────────────────────────────────
 
   Widget _buildConfidenceHeader(
-      S? s, int confidence, DocumentUploadResult result) {
+      S s, int confidence, DocumentUploadResult result) {
     final Color color;
     if (confidence >= 80) {
       color = MintColors.success;
@@ -358,12 +347,12 @@ class DocumentDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  s?.documentsLppCertificate ?? 'Certificat LPP',
+                  s.documentsLppCertificate,
                   style: MintTextStyles.titleMedium(),
                 ),
                 const SizedBox(height: MintSpacing.xs),
                 Text(
-                  s?.documentDetailFieldsExtracted(result.fieldsFound, result.fieldsTotal) ?? '${result.fieldsFound} champs extraits sur ${result.fieldsTotal}',
+                  s.documentDetailFieldsExtracted(result.fieldsFound, result.fieldsTotal),
                   style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ],
@@ -379,7 +368,7 @@ class DocumentDetailScreen extends StatelessWidget {
   // ──────────────────────────────────────────────────────────
 
   Widget _buildCategory(
-    S? s, {
+    S s, {
     required String label,
     required IconData icon,
     required Color color,
@@ -458,7 +447,7 @@ class DocumentDetailScreen extends StatelessWidget {
   // Warnings
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildWarnings(S? s, List<String> warnings) {
+  Widget _buildWarnings(S s, List<String> warnings) {
     return Container(
       padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
@@ -475,7 +464,7 @@ class DocumentDetailScreen extends StatelessWidget {
                   size: 18, color: MintColors.warning.withValues(alpha: 0.8)),
               const SizedBox(width: MintSpacing.sm),
               Text(
-                s?.documentsWarningsTitle ?? 'Points d\'attention',
+                s.documentsWarningsTitle,
                 style: MintTextStyles.bodySmall(color: MintColors.warning),
               ),
             ],
@@ -509,23 +498,22 @@ class DocumentDetailScreen extends StatelessWidget {
   // ──────────────────────────────────────────────────────────
 
   Future<void> _confirmDelete(
-      BuildContext context, S? s, DocumentProvider docProvider) async {
+      BuildContext context, S s, DocumentProvider docProvider) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(s?.documentsDeleteTitle ?? 'Supprimer le document ?'),
-        content: Text(s?.documentsDeleteMessage ??
-            'Cette action est irr\u00e9versible.'),
+        title: Text(s.documentsDeleteTitle),
+        content: Text(s.documentsDeleteMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text(s?.documentDetailCancelButton ?? 'Annuler'),
+            child: Text(s.documentDetailCancelButton),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(backgroundColor: MintColors.error),
-            child: Text(s?.documentsDeleteButton ?? 'Supprimer ce document'),
+            child: Text(s.documentsDeleteButton),
           ),
         ],
       ),
