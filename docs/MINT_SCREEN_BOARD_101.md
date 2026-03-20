@@ -5,6 +5,8 @@
 > Usage: savoir quel template appliquer à chaque écran et dans quel ordre le migrer
 > Périmètre: `109` surfaces actives (`105 *_screen.dart` + `4` shell/tabs)
 > Note: le label historique `101` reste un nom de chantier dans certains échanges, pas un décompte exact
+> Source de vérité: oui, pour le mapping `surface -> template -> priorité`
+> Ne couvre pas: logique métier détaillée, copy, navigation complète, contrats techniques
 
 ---
 

@@ -3,6 +3,8 @@
 > Statut: spec produit + technique
 > Dépend de: `MINT_UX_GRAAL_MASTERPLAN.md`, `NAVIGATION_GRAAL_V10.md`, `VOICE_SYSTEM.md`
 > Rôle: transformer les insights MINT en priorité du moment lisible et actionnable
+> Source de vérité: oui, pour la priorisation, les CTA modes, la mémoire et le feedback loop du `Cap du jour`
+> Ne couvre pas: tokens UI détaillés, copy exhaustive, migration écran par écran
 
 ---
 

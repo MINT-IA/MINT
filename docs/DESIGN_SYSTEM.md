@@ -5,6 +5,8 @@
 > CLAUDE.md §7 pointe ici pour les détails. En cas de divergence entre ce document
 > et le code actuel, c'est ce document qui décrit l'état souhaité — mais le code fait
 > foi pour l'état actuel. Les écarts sont trackés dans le plan de migration (§9).
+> **Source de vérité** : oui, pour les tokens, composants et règles visuelles détaillées.
+> **Ne couvre pas** : vision produit globale, priorisation CapEngine, stratégie de navigation.
 
 ---
 

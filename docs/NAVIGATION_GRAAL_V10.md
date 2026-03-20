@@ -5,6 +5,8 @@
 > Portée : mobile app MINT
 > Compagnons : `docs/UX_V2_COACH_CONVERSATIONNEL.md`, `docs/DESIGN_SYSTEM.md`, `docs/BLUEPRINT_COACH_AI_LAYER.md`
 > Révision : cette version intègre un audit contradictoire sur iOS patterns, profondeur Explore, ordre de migration et capacité réelle du coach à orchestrer.
+> Source de vérité : partielle. Référence détaillée pour la navigation et les routes, subordonnée au `MINT_UX_GRAAL_MASTERPLAN.md` pour la vision produit.
+> Ne couvre pas : design system détaillé, voix, templates maîtres, hiérarchie documentaire.
 
 ---
 

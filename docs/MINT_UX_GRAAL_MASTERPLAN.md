@@ -4,6 +4,7 @@
 > Horizon: 2026-2027
 > Portée: 109 surfaces actives MINT (`105 *_screen.dart` + `4` shell/tabs)
 > Compagnons détaillés: `DESIGN_SYSTEM.md`, `NAVIGATION_GRAAL_V10.md`, `VOICE_SYSTEM.md`, `BLUEPRINT_COACH_AI_LAYER.md`
+> Lire aussi: `DOCUMENTATION_OPERATING_SYSTEM.md`
 
 ---
 
@@ -13,7 +14,10 @@ Hiérarchie documentaire:
 - `rules.md`
 - `CLAUDE.md`
 - ce document
-- `DESIGN_SYSTEM.md`, `NAVIGATION_GRAAL_V10.md`, `VOICE_SYSTEM.md`, `BLUEPRINT_COACH_AI_LAYER.md`
+- `DOCUMENTATION_OPERATING_SYSTEM.md`
+- `DESIGN_SYSTEM.md`, `VOICE_SYSTEM.md`, `MINT_CAP_ENGINE_SPEC.md`, `MINT_SCREEN_BOARD_101.md`
+- `NAVIGATION_GRAAL_V10.md`, `BLUEPRINT_COACH_AI_LAYER.md`
+- `VISION_UNIFIEE_V1.md` comme archive stratégique
 
 Ce document existe pour éviter que MINT avance sur 5 rails séparés:
 - navigation
@@ -33,6 +37,23 @@ Formule produit:
 
 Formule de marque:
 - `Les chiffres -> Les leviers`
+
+Ce document couvre:
+- la thèse produit
+- la boucle coeur
+- la navigation cible
+- la direction visuelle finale
+- les templates maîtres
+- la séquence d'implémentation
+
+Ce document ne couvre pas:
+- les tokens détaillés
+- les règles de microcopy exhaustives
+- la spec détaillée du CapEngine
+- le board écran par écran exhaustif
+
+Règle d'usage:
+- si un agent ne lit qu'un seul document stratégique après `CLAUDE.md`, c'est celui-ci.
 
 ---
 
