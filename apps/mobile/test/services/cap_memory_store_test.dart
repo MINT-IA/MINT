@@ -52,7 +52,7 @@ void main() {
 
   group('CapMemory — copyWith', () {
     test('preserves fields not overridden', () {
-      final memory = CapMemory(
+      const memory = CapMemory(
         lastCapServed: 'a',
         completedActions: ['x'],
         declaredGoals: ['retraite'],
@@ -107,7 +107,7 @@ void main() {
 
   group('CapMemory — copyWith clears nullable fields', () {
     test('passing null explicitly clears recentFrictionContext', () {
-      final memory = CapMemory(
+      const memory = CapMemory(
         recentFrictionContext: 'budget_stress',
         completedActions: ['a'],
       );
@@ -119,7 +119,7 @@ void main() {
     });
 
     test('passing null explicitly clears preferredCtaMode', () {
-      final memory = CapMemory(preferredCtaMode: 'route');
+      const memory = CapMemory(preferredCtaMode: 'route');
 
       final cleared = memory.copyWith(preferredCtaMode: null);
 
@@ -127,7 +127,7 @@ void main() {
     });
 
     test('passing null explicitly clears lastCapServed', () {
-      final memory = CapMemory(lastCapServed: 'old_cap');
+      const memory = CapMemory(lastCapServed: 'old_cap');
 
       final cleared = memory.copyWith(lastCapServed: null);
 
@@ -135,7 +135,7 @@ void main() {
     });
 
     test('omitting a field preserves existing value (not clear)', () {
-      final memory = CapMemory(recentFrictionContext: 'stress');
+      const memory = CapMemory(recentFrictionContext: 'stress');
 
       // copyWith with no recentFrictionContext arg → keeps 'stress'
       final kept = memory.copyWith(completedActions: ['x']);

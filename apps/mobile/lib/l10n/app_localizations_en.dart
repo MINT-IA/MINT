@@ -1978,7 +1978,7 @@ class SEn extends S {
 
   @override
   String get coachingNoTips =>
-      'Your profile is complete and well managed. Well done!';
+      'Your profile is complete. Nothing to flag right now.';
 
   @override
   String coachingImpact(String amount) {
@@ -3751,7 +3751,7 @@ class SEn extends S {
 
   @override
   String checkinSuccessTitle(String month) {
-    return 'Well done! Check-in $month completed';
+    return 'All set. Check-in $month completed.';
   }
 
   @override
@@ -7290,7 +7290,7 @@ class SEn extends S {
 
   @override
   String scoreRevealGreeting(String name) {
-    return 'Bravo $name,';
+    return 'Here is your score, $name.';
   }
 
   @override
@@ -7760,7 +7760,7 @@ class SEn extends S {
 
   @override
   String get expatAvsComplete =>
-      'Congratulations! You have your 44 full contribution years. Your AVS pension should not be reduced.';
+      'Confirmed: you have your 44 full contribution years. Your AVS pension should not be reduced.';
 
   @override
   String get expatPensionImpact => 'IMPACT ON YOUR PENSION';
@@ -17751,4 +17751,29 @@ class SEn extends S {
 
   @override
   String get coachBriefingFallbackGreeting => 'Hello';
+
+  @override
+  String get coachBriefingBadgeLlm => 'AI Coach';
+
+  @override
+  String get coachBriefingBadge => 'Coach';
+
+  @override
+  String coachBriefingConfidenceLow(String score) {
+    return 'Confidence $score % — Enrich';
+  }
+
+  @override
+  String coachBriefingConfidence(String score) {
+    return 'Confidence $score %';
+  }
+
+  @override
+  String coachBriefingImpactEstimated(String amount) {
+    return 'Estimated impact : CHF $amount';
+  }
+
+  @override
+  String get chiffreChocSectionDisclaimer =>
+      'Educational simulation only. Does not constitute investment or retirement advice (FinSA). Adjustable assumptions — results not guaranteed.';
 }

@@ -811,7 +811,7 @@
   "coachingFilterPrevoyance": "Prévoyance",
   "coachingFilterBudget": "Budget",
   "coachingFilterRetraite": "Retraite",
-  "coachingNoTips": "Votre profil est complet et bien géré. Bravo !",
+  "coachingNoTips": "Ton profil est complet. Rien \u00e0 signaler pour l\u2019instant.",
   "coachingImpact": "Impact estimé : {amount}",
   "@coachingImpact": {
     "placeholders": {
@@ -1599,7 +1599,7 @@
   "checkinNoteHint": "Ex: Mois compliqué, dépense imprévue pour la voiture...",
   "checkinSubmit": "Valider le check-in",
   "checkinInvalidAmount": "Montant invalide",
-  "checkinSuccessTitle": "Bravo ! Check-in {month} complété",
+  "checkinSuccessTitle": "C'est fait\u00a0! Check-in {month} complété",
   "@checkinSuccessTitle": {
     "placeholders": {
       "month": {
@@ -3330,7 +3330,7 @@
   "debtCheckGamblingSupportBody": "Un soutien professionnel et anonyme est disponible gratuitement.",
   "debtCheckGamblingSupportCta": "SOS Jeu - Aide en ligne",
   "debtCheckPrivacyNote": "Mint respecte ta vie privée. Aucune donnée n'est stockée ou transmise.",
-  "scoreRevealGreeting": "Bravo {name},",
+  "scoreRevealGreeting": "Voici ton score, {name}.",
   "@scoreRevealGreeting": {
     "placeholders": {
       "name": {
@@ -3537,7 +3537,7 @@
   "expatAvsCompleteness": "COMPLÉTUDE AVS",
   "expatOfPension": "de rente",
   "expatEstimatedPension": "Rente estimée",
-  "expatAvsComplete": "Félicitations ! Tu as tes 44 années complètes de cotisation. Ta rente AVS ne devrait pas être réduite.",
+  "expatAvsComplete": "C'est acquis\u00a0: tu as tes 44 années complètes de cotisation. Ta rente AVS ne devrait pas être réduite.",
   "expatPensionImpact": "IMPACT SUR TA RENTE",
   "expatMissingYears": "Années manquantes",
   "expatEstimatedReduction": "Réduction estimée",
@@ -8409,5 +8409,14 @@
   "@fhsDeltaText": {"placeholders": {"delta": {"type": "String"}}},
   "@avsGapLifetimeLoss": {"placeholders": {"amount": {"type": "String"}}}
 ,
-  "coachBriefingFallbackGreeting": "Bonjour"
+  "coachBriefingFallbackGreeting": "Bonjour",
+  "coachBriefingBadgeLlm": "Coach IA",
+  "coachBriefingBadge": "Coach",
+  "coachBriefingConfidenceLow": "Confiance {score}\u00a0% \u2014 Enrichir",
+  "@coachBriefingConfidenceLow": {"placeholders": {"score": {"type": "String"}}},
+  "coachBriefingConfidence": "Confiance {score}\u00a0%",
+  "@coachBriefingConfidence": {"placeholders": {"score": {"type": "String"}}},
+  "coachBriefingImpactEstimated": "Impact estim\u00e9\u00a0: CHF\u00a0{amount}",
+  "@coachBriefingImpactEstimated": {"placeholders": {"amount": {"type": "String"}}},
+  "chiffreChocSectionDisclaimer": "Simulation \u00e0 titre \u00e9ducatif uniquement. Ne constitue pas un conseil en placement ou pr\u00e9voyance (LSFin). Hypoth\u00e8ses modifiables \u2014 r\u00e9sultats non garantis."
 }

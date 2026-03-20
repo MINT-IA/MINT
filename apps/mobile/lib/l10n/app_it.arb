@@ -786,7 +786,7 @@
   "coachingFilterPrevoyance": "Previdenza",
   "coachingFilterBudget": "Budget",
   "coachingFilterRetraite": "Pensione",
-  "coachingNoTips": "Il vostro profilo è completo e ben gestito. Bravo!",
+  "coachingNoTips": "Il tuo profilo è completo. Nulla da segnalare.",
   "coachingImpact": "Impatto stimato: {amount}",
   "@coachingImpact": {
     "placeholders": {
@@ -1574,7 +1574,7 @@
   "checkinNoteHint": "Ex: Mois compliqué, dépense imprévue pour la voiture...",
   "checkinSubmit": "Valider le check-in",
   "checkinInvalidAmount": "Montant invalide",
-  "checkinSuccessTitle": "Bravo ! Check-in {month} complété",
+  "checkinSuccessTitle": "Fatto. Check-in {month} completato.",
   "@checkinSuccessTitle": {
     "placeholders": {
       "month": {
@@ -1871,7 +1871,7 @@
       }
     }
   },
-  "coachShockTitle": "Tes chiffres-chocs",
+  "coachShockTitle": "Le tue cifre chiave",
   "coachShockSubtitle": "Des montants personnalises pour eclairer tes decisions",
   "coachScenarioDecodedTitle": "Tes scenarios decryptes",
   "coachBadgeStatic": "Coach",
@@ -3330,7 +3330,7 @@
   "debtCheckGamblingSupportBody": "Un supporto professionale e anonimo è disponibile gratuitamente.",
   "debtCheckGamblingSupportCta": "SOS Gioco - Aiuto online",
   "debtCheckPrivacyNote": "Mint rispetta la tua privacy. Nessun dato viene memorizzato o trasmesso.",
-  "scoreRevealGreeting": "Bravo {name},",
+  "scoreRevealGreeting": "Ecco il tuo punteggio, {name}.",
   "@scoreRevealGreeting": {
     "placeholders": {
       "name": {
@@ -3537,7 +3537,7 @@
   "expatAvsCompleteness": "COMPLETEZZA AVS",
   "expatOfPension": "della rendita",
   "expatEstimatedPension": "Rendita stimata",
-  "expatAvsComplete": "Complimenti! Hai i tuoi 44 anni completi di contribuzione. La tua rendita AVS non dovrebbe essere ridotta.",
+  "expatAvsComplete": "Confermato: hai i tuoi 44 anni completi di contribuzione. La tua rendita AVS non dovrebbe essere ridotta.",
   "expatPensionImpact": "IMPATTO SULLA TUA RENDITA",
   "expatMissingYears": "Anni mancanti",
   "expatEstimatedReduction": "Riduzione stimata",
@@ -7787,5 +7787,14 @@
   "avsGapCalculation": "Calcolo: rendita mensile × 13 mesi/anno (13ª rendita AVS da dic. 2026)",
   "chiffreChocRenteCalculation": "(calcolo: rendita mensile × 13 mesi/anno, 13ª rendita inclusa)."
 ,
-  "coachBriefingFallbackGreeting": "Ciao"
+  "coachBriefingFallbackGreeting": "Ciao",
+  "coachBriefingBadgeLlm": "Coach IA",
+  "coachBriefingBadge": "Coach",
+  "coachBriefingConfidenceLow": "Fiducia {score}\u00a0% \u2014 Arricchire",
+  "@coachBriefingConfidenceLow": {"placeholders": {"score": {"type": "String"}}},
+  "coachBriefingConfidence": "Fiducia {score}\u00a0%",
+  "@coachBriefingConfidence": {"placeholders": {"score": {"type": "String"}}},
+  "coachBriefingImpactEstimated": "Impatto stimato\u00a0: CHF\u00a0{amount}",
+  "@coachBriefingImpactEstimated": {"placeholders": {"amount": {"type": "String"}}},
+  "chiffreChocSectionDisclaimer": "Simulazione a scopo educativo. Non costituisce consulenza finanziaria (LSerFi). Ipotesi modificabili \u2014 risultati non garantiti."
 }

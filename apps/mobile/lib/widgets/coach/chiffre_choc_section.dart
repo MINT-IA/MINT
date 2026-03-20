@@ -128,9 +128,7 @@ class ChiffreChocSection extends StatelessWidget {
         const SizedBox(height: 14),
         ...cards.expand((card) => [card, const SizedBox(height: 12)]),
         Text(
-          'Simulation \u00e0 titre \u00e9ducatif uniquement. '
-          'Ne constitue pas un conseil en placement ou pr\u00e9voyance (LSFin). '
-          'Hypoth\u00e8ses modifiables \u2014 r\u00e9sultats non garantis.',
+          S.of(context)!.chiffreChocSectionDisclaimer,
           style: MintTextStyles.micro(color: MintColors.textMuted),
         ),
       ],

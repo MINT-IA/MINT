@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/screens/pulse/pulse_screen.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -209,7 +210,9 @@ class CapCard extends StatelessWidget {
     switch (cap.ctaMode) {
       case CtaMode.route:
         if (cap.ctaRoute != null) {
-          context.push(cap.ctaRoute!);
+          context.push<void>(cap.ctaRoute!).then((_) {
+            _trackAbandonmentIfNeeded();
+          });
         }
       case CtaMode.coach:
         // Switch to coach tab with injected prompt if available.
@@ -226,8 +229,24 @@ class CapCard extends StatelessWidget {
           'profile' => '/onboarding/enrichment',
           _ => '/onboarding/enrichment',
         };
-        context.push(route);
+        context.push<void>(route).then((_) {
+          _trackAbandonmentIfNeeded();
+        });
     }
+  }
+
+  /// Track flow abandonment when user returns from a cap-triggered route
+  /// without having called markCompleted. This populates CapMemory.abandonedFlows
+  /// for recency scoring and UX adaptation.
+  void _trackAbandonmentIfNeeded() {
+    CapMemoryStore.load().then((mem) {
+      // If the cap was NOT completed (no fresh lastCompletedDate),
+      // mark it as abandoned.
+      final wasCompleted = mem.completedActions.contains(cap.id);
+      if (!wasCompleted) {
+        CapMemoryStore.markAbandoned(mem, cap.id, frictionContext: 'user_returned');
+      }
+    });
   }
 
   // ── COMPUTED ──────────────────────────────────────────────

@@ -329,15 +329,17 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 ### Conflict resolution (priority order)
 1. `rules.md` — Non-negotiable technical + ethical rules
 2. `CLAUDE.md` (this file) — Project context, constants, compliance
-3. `.claude/skills/` — Agent-specific conventions
-4. `LEGAL_RELEASE_CHECK.md` — Wording compliance checklist
-5. `visions/` — Product vision + limits
-6. `decisions/` (ADR) — Architecture decisions
-7. `docs/` — Strategy specs
-8. `SOT.md` + OpenAPI — Data contracts
-9. Code — Implementation follows documents
+3. `docs/MINT_UX_GRAAL_MASTERPLAN.md` — UX/product umbrella: templates, CapEngine, screen board
+4. `docs/DOCUMENTATION_OPERATING_SYSTEM.md` — Which doc to read for which task
+5. `.claude/skills/` — Agent-specific conventions
+6. `LEGAL_RELEASE_CHECK.md` — Wording compliance checklist
+7. `visions/` — Product vision + limits
+8. `decisions/` (ADR) — Architecture decisions
+9. `docs/` — Strategy specs
+10. `SOT.md` + OpenAPI — Data contracts
+11. Code — Implementation follows documents
 
-If code contradicts 1-8: fix the code OR write an ADR.
+If code contradicts 1-9: fix the code OR write an ADR.
 
 ---
 
@@ -361,17 +363,20 @@ If code contradicts 1-8: fix the code OR write an ADR.
 | Document | Purpose |
 |----------|---------|
 | `rules.md` | Tier 1: fintech-grade principles, UX rules, workflow |
+| `docs/DOCUMENTATION_OPERATING_SYSTEM.md` | Task-based reading order + documentation hierarchy |
 | `SOT.md` | Data contracts: Profile, SessionReport, EnhancedConfidence |
 | `LEGAL_RELEASE_CHECK.md` | Pre-release compliance gate |
 | `DefinitionOfDone.md` | Sprint completion criteria |
 | `docs/ROADMAP_V2.md` | Strategic roadmap V2 (benchmark-driven, 4 phases) |
-| `docs/VISION_UNIFIEE_V1.md` | Unified V1 vision (7 hermeneutic principles, 3 tabs) |
+| `docs/VISION_UNIFIEE_V1.md` | Historical strategic vision; useful principles, obsolete IA |
 | `docs/CICD_ARCHITECTURE.md` | Full CI/CD pipeline reference |
 | `docs/ONBOARDING_ARBITRAGE_ENGINE.md` | Onboarding + arbitrage specs |
 | `docs/DATA_ACQUISITION_STRATEGY.md` | OCR, guided entry, Open Banking |
+| `docs/MINT_UX_GRAAL_MASTERPLAN.md` | UX/product umbrella: templates, visual graal, CapEngine, screen board |
 | `docs/DESIGN_SYSTEM.md` | Visual direction + tokens + components + screen categories + checklist |
 | `docs/VOICE_SYSTEM.md` | Editorial system: brand voice, tone by context, microcopy, 50 avant/après |
-| `docs/NAVIGATION_GRAAL_V10.md` | Target IA: 4 tabs + 7 hubs + Capture + migration plan |
+| `docs/NAVIGATION_GRAAL_V10.md` | Detailed target IA; subordinate to masterplan for product direction |
+| `docs/BLUEPRINT_COACH_AI_LAYER.md` | Coach AI implementation blueprint; subordinate to masterplan |
 | `docs/UX_WIDGET_REDESIGN_MASTERPLAN.md` | UX 7 laws + 75 creative proposals |
 | `visions/MINT_Analyse_Strategique_Benchmark.md` | 40+ app benchmark + academic research |
 | `visions/MINT_Autoresearch_Dev_Agents.md` | 10 dev agents (build) — sprint execution method |

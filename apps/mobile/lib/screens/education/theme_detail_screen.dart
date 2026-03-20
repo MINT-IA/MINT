@@ -566,7 +566,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                         const SizedBox(width: 8),
                         Text(
                           _selectedQuizAnswer == quiz.correctIndex
-                              ? 'Bravo\u00a0!'
+                              ? 'Bien vu\u00a0!'
                               : 'Pas tout à fait...',
                           style: MintTextStyles.bodyMedium(
                             color: _selectedQuizAnswer == quiz.correctIndex

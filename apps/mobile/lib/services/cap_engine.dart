@@ -60,6 +60,8 @@ class CapEngine {
         ctaLabel: top.action,
         ctaMode: CtaMode.capture,
         captureType: top.category,
+        coachPrompt: 'Aide-moi à comprendre pourquoi '
+            '${top.category} est important pour ma situation.',
         expectedImpact: '+${top.impact} pts de confiance',
         confidenceLabel: 'confiance ${confidence.score.round()}\u00a0%',
         blockingData: [top.category],
@@ -86,6 +88,8 @@ class CapEngine {
         ctaLabel: 'Voir mon plan',
         ctaMode: CtaMode.route,
         ctaRoute: '/debt/repayment',
+        coachPrompt: 'Aide-moi à prioriser le remboursement '
+            'de mes dettes. Par quoi commencer\u00a0?',
         expectedImpact: 'marge à retrouver',
         sourceCards: const ['debt_ratio'],
       ));
@@ -141,6 +145,8 @@ class CapEngine {
           ctaLabel: 'Simuler mon 3a',
           ctaMode: CtaMode.route,
           ctaRoute: '/pilier-3a',
+          coachPrompt: 'Combien je peux économiser avec un versement 3a '
+              'cette année\u00a0? Quelles sont mes options\u00a0?',
           expectedImpact: card.chiffreChoc.value > 0
               ? 'jusqu\u2019à ${card.chiffreChoc.formatted} d\u2019économie'
               : null,
@@ -168,6 +174,8 @@ class CapEngine {
         ctaLabel: 'Simuler un rachat',
         ctaMode: CtaMode.route,
         ctaRoute: '/rachat-lpp',
+        coachPrompt: 'Aide-moi à comprendre si un rachat LPP '
+            'est intéressant dans ma situation. Quel montant\u00a0?',
         expectedImpact: 'déduction fiscale',
         sourceCards: const ['lpp_buyback'],
       ));
@@ -200,6 +208,8 @@ class CapEngine {
           ctaLabel: 'Ajuster mon budget',
           ctaMode: CtaMode.route,
           ctaRoute: '/budget',
+          coachPrompt: 'Mon budget est en déficit. '
+              'Quels postes je pourrais ajuster en priorité\u00a0?',
           expectedImpact: 'marge mensuelle',
           sourceCards: const ['budget'],
         ));
@@ -233,6 +243,8 @@ class CapEngine {
             ctaLabel: 'Explorer mes scénarios',
             ctaMode: CtaMode.route,
             ctaRoute: '/rente-vs-capital',
+            coachPrompt: 'Mon taux de remplacement est de ${rate.round()}%. '
+                'Aide-moi à arbitrer entre 3a et rachat LPP.',
             expectedImpact: '+4 à +7 pts',
             sourceCards: [card.id],
           ));
@@ -308,7 +320,40 @@ class CapEngine {
 
     // Sort by priority and return the winner.
     candidates.sort((a, b) => b.priorityScore.compareTo(a.priorityScore));
-    return candidates.first;
+
+    // Enrich the winner with supporting signals from other candidates.
+    final winner = candidates.first;
+    final signals = <CapSignal>[];
+    for (int i = 1; i < candidates.length && signals.length < 2; i++) {
+      final c = candidates[i];
+      if (c.id != winner.id) {
+        signals.add(CapSignal(
+          label: c.headline,
+          value: c.expectedImpact ?? c.ctaLabel,
+          route: c.ctaRoute,
+        ));
+      }
+    }
+
+    if (signals.isEmpty) return winner;
+
+    return CapDecision(
+      id: winner.id,
+      kind: winner.kind,
+      priorityScore: winner.priorityScore,
+      headline: winner.headline,
+      whyNow: winner.whyNow,
+      ctaLabel: winner.ctaLabel,
+      ctaMode: winner.ctaMode,
+      ctaRoute: winner.ctaRoute,
+      coachPrompt: winner.coachPrompt,
+      captureType: winner.captureType,
+      expectedImpact: winner.expectedImpact,
+      confidenceLabel: winner.confidenceLabel,
+      blockingData: winner.blockingData,
+      supportingSignals: signals,
+      sourceCards: winner.sourceCards,
+    );
   }
 
   // ── LIFE EVENT ───────────────────────────────────────────
@@ -388,6 +433,66 @@ class CapEngine {
           whyNow: 'Capital ou rente, décaissement, timing — c\u2019est le moment.',
           ctaLabel: 'Explorer mes options',
           route: '/rente-vs-capital',
+        ),
+      'concubinage' => const _LifeEventMapping(
+          headline: 'Vie commune',
+          whyNow: 'Pas de cap AVS 150\u00a0%, pas de partage LPP automatique — anticipe.',
+          ctaLabel: 'Voir les différences',
+          route: '/concubinage',
+        ),
+      'deathOfRelative' => const _LifeEventMapping(
+          headline: 'Perte d\u2019un proche',
+          whyNow: 'Succession, rentes de survivant, délais — ce qui est urgent.',
+          ctaLabel: 'Voir les démarches',
+          route: '/deces-proche',
+        ),
+      'newJob' => const _LifeEventMapping(
+          headline: 'Nouveau poste',
+          whyNow: 'LPP, libre passage, 3a — trois choses à vérifier.',
+          ctaLabel: 'Comparer',
+          route: '/job-comparison',
+        ),
+      'housingSale' => const _LifeEventMapping(
+          headline: 'Vente immobilière',
+          whyNow: 'Plus-value, remboursement EPL, réinvestissement — planifie.',
+          ctaLabel: 'Voir l\u2019impact',
+          route: '/housing-sale',
+        ),
+      'inheritance' => const _LifeEventMapping(
+          headline: 'Héritage reçu',
+          whyNow: 'Impôts, intégration au patrimoine, rachat LPP — arbitre.',
+          ctaLabel: 'Voir mes options',
+          route: '/explore/patrimoine',
+        ),
+      'donation' => const _LifeEventMapping(
+          headline: 'Donation envisagée',
+          whyNow: 'Avancement d\u2019hoirie, fiscalité, rapport — anticipe.',
+          ctaLabel: 'Voir l\u2019impact',
+          route: '/donation',
+        ),
+      'disability' => const _LifeEventMapping(
+          headline: 'Risque invalidité',
+          whyNow: 'AI, LPP invalidité, IJM — vérifie ton filet.',
+          ctaLabel: 'Vérifier ma couverture',
+          route: '/invalidite',
+        ),
+      'cantonMove' => const _LifeEventMapping(
+          headline: 'Déménagement cantonal',
+          whyNow: 'Impôts, LAMal, charges — l\u2019impact peut surprendre.',
+          ctaLabel: 'Comparer les cantons',
+          route: '/demenagement-cantonal',
+        ),
+      'countryMove' => const _LifeEventMapping(
+          headline: 'Départ de Suisse',
+          whyNow: 'Libre passage, AVS, 3a — ce qui te suit, ce qui reste.',
+          ctaLabel: 'Voir les conséquences',
+          route: '/expat',
+        ),
+      'debtCrisis' => const _LifeEventMapping(
+          headline: 'Situation de dette',
+          whyNow: 'Prioriser, restructurer, protéger l\u2019essentiel — par étapes.',
+          ctaLabel: 'Voir mon plan',
+          route: '/debt/repayment',
         ),
       _ => null,
     };

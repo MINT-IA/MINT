@@ -138,7 +138,7 @@ class ConversationTile extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.chat_bubble_outline,
                           size: 12,
                           color: MintColors.textMuted,

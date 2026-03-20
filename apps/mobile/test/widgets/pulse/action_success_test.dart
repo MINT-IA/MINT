@@ -6,7 +6,7 @@ import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/widgets/pulse/action_success_sheet.dart';
 
 void main() {
-  Widget _wrap(Widget child) {
+  Widget wrap(Widget child) {
     return MaterialApp(
       locale: const Locale('fr'),
       localizationsDelegates: const [
@@ -25,7 +25,7 @@ void main() {
 
   group('ActionSuccessData', () {
     test('fromCap builds correct data from CapDecision', () {
-      final cap = CapDecision(
+      const cap = CapDecision(
         id: 'pillar_3a',
         kind: CapKind.optimize,
         priorityScore: 0.8,
@@ -37,7 +37,7 @@ void main() {
         expectedImpact: 'jusqu\'à CHF 1\'240',
       );
 
-      final next = CapDecision(
+      const next = CapDecision(
         id: 'lpp_buyback',
         kind: CapKind.optimize,
         priorityScore: 0.6,
@@ -61,7 +61,7 @@ void main() {
     });
 
     test('fromCap handles null nextCap', () {
-      final cap = CapDecision(
+      const cap = CapDecision(
         id: 'debt_correct',
         kind: CapKind.correct,
         priorityScore: 0.9,
@@ -85,7 +85,7 @@ void main() {
 
   group('ActionSuccess sheet', () {
     testWidgets('renders action label', (tester) async {
-      await tester.pumpWidget(_wrap(
+      await tester.pumpWidget(wrap(
         Builder(
           builder: (context) => FilledButton(
             onPressed: () => showActionSuccessSheet(
@@ -108,7 +108,7 @@ void main() {
     });
 
     testWidgets('renders impact label', (tester) async {
-      await tester.pumpWidget(_wrap(
+      await tester.pumpWidget(wrap(
         Builder(
           builder: (context) => FilledButton(
             onPressed: () => showActionSuccessSheet(
@@ -131,7 +131,7 @@ void main() {
     });
 
     testWidgets('renders next step when provided', (tester) async {
-      await tester.pumpWidget(_wrap(
+      await tester.pumpWidget(wrap(
         Builder(
           builder: (context) => FilledButton(
             onPressed: () => showActionSuccessSheet(
@@ -155,7 +155,7 @@ void main() {
     });
 
     testWidgets('hides impact when null', (tester) async {
-      await tester.pumpWidget(_wrap(
+      await tester.pumpWidget(wrap(
         Builder(
           builder: (context) => FilledButton(
             onPressed: () => showActionSuccessSheet(
@@ -174,7 +174,7 @@ void main() {
     });
 
     testWidgets('uses l10n for button and next label', (tester) async {
-      await tester.pumpWidget(_wrap(
+      await tester.pumpWidget(wrap(
         Builder(
           builder: (context) => FilledButton(
             onPressed: () => showActionSuccessSheet(

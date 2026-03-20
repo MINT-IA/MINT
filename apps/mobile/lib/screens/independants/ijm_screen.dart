@@ -43,31 +43,31 @@ class _IjmScreenState extends State<IjmScreen> {
         title: Text(s.ijmTitle, style: MintTextStyles.headlineMedium()),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.md),
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(s),
-            SizedBox(height: MintSpacing.xl),
+            const SizedBox(height: MintSpacing.xl),
             _buildSliderCard(title: s.ijmRevenuMensuel, valueLabel: IndependantsService.formatChf(_revenuMensuel), minLabel: s.ijmSliderMinChf0, maxLabel: s.ijmSliderMax20k, value: _revenuMensuel, min: 0, max: 20000, divisions: 200, onChanged: (v) { _revenuMensuel = v; _calculate(); }),
-            SizedBox(height: MintSpacing.md + 4),
+            const SizedBox(height: MintSpacing.md + 4),
             _buildSliderCard(title: s.ijmTonAge, valueLabel: '$_age ans', minLabel: s.ijmAgeMin, maxLabel: s.ijmAgeMax, value: _age.toDouble(), min: 18, max: 65, divisions: 47, onChanged: (v) { _age = v.toInt(); _calculate(); }),
-            SizedBox(height: MintSpacing.md + 4),
+            const SizedBox(height: MintSpacing.md + 4),
             _buildCarenceToggle(s),
-            SizedBox(height: MintSpacing.lg),
+            const SizedBox(height: MintSpacing.lg),
             if (_result != null) ...[
               _buildChiffreChoc(s),
-              SizedBox(height: MintSpacing.lg),
+              const SizedBox(height: MintSpacing.lg),
               if (_result!.isHighRisk) ...[
                 _buildHighRiskWarning(s),
-                SizedBox(height: MintSpacing.md + 4),
+                const SizedBox(height: MintSpacing.md + 4),
               ],
               _buildResultCards(s),
-              SizedBox(height: MintSpacing.lg),
+              const SizedBox(height: MintSpacing.lg),
               _buildCoverageTimeline(s),
-              SizedBox(height: MintSpacing.lg),
+              const SizedBox(height: MintSpacing.lg),
               _buildEducation(s),
-              SizedBox(height: MintSpacing.lg),
+              const SizedBox(height: MintSpacing.lg),
             ],
             _buildDisclaimer(s),
             const SizedBox(height: 100),
@@ -79,7 +79,7 @@ class _IjmScreenState extends State<IjmScreen> {
 
   Widget _buildHeader(S s) {
     return Container(
-      padding: EdgeInsets.all(MintSpacing.md),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.info.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
@@ -89,7 +89,7 @@ class _IjmScreenState extends State<IjmScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.info, size: 20),
-          SizedBox(width: MintSpacing.sm + 4),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(child: Text(s.ijmHeaderInfo, style: MintTextStyles.bodySmall(color: MintColors.textSecondary))),
         ],
       ),
@@ -98,7 +98,7 @@ class _IjmScreenState extends State<IjmScreen> {
 
   Widget _buildSliderCard({required String title, required String valueLabel, required String minLabel, required String maxLabel, required double value, required double min, required double max, required int divisions, required ValueChanged<double> onChanged}) {
     return Container(
-      padding: EdgeInsets.all(MintSpacing.md + 4),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -114,7 +114,7 @@ class _IjmScreenState extends State<IjmScreen> {
               Text(valueLabel, style: MintTextStyles.headlineMedium(color: MintColors.primary).copyWith(fontSize: 20)),
             ],
           ),
-          SizedBox(height: MintSpacing.sm + 4),
+          const SizedBox(height: MintSpacing.sm + 4),
           Semantics(
             label: title,
             value: valueLabel,
@@ -134,7 +134,7 @@ class _IjmScreenState extends State<IjmScreen> {
 
   Widget _buildCarenceToggle(S s) {
     return Container(
-      padding: EdgeInsets.all(MintSpacing.md + 4),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -144,15 +144,15 @@ class _IjmScreenState extends State<IjmScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(s.ijmDelaiCarence, style: MintTextStyles.titleMedium()),
-          SizedBox(height: MintSpacing.xs),
+          const SizedBox(height: MintSpacing.xs),
           Text(s.ijmDelaiCarenceDesc, style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
-          SizedBox(height: MintSpacing.md),
+          const SizedBox(height: MintSpacing.md),
           Row(
             children: [
               _buildCarenceChip(s, 30),
-              SizedBox(width: MintSpacing.sm),
+              const SizedBox(width: MintSpacing.sm),
               _buildCarenceChip(s, 60),
-              SizedBox(width: MintSpacing.sm),
+              const SizedBox(width: MintSpacing.sm),
               _buildCarenceChip(s, 90),
             ],
           ),
@@ -180,7 +180,7 @@ class _IjmScreenState extends State<IjmScreen> {
             child: Column(
               children: [
                 Text('$jours j', style: MintTextStyles.titleMedium(color: isSelected ? MintColors.white : MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700)),
-                SizedBox(height: MintSpacing.xs / 2),
+                const SizedBox(height: MintSpacing.xs / 2),
                 Text(s.ijmJours, style: MintTextStyles.labelSmall(color: isSelected ? MintColors.white.withValues(alpha: 0.8) : MintColors.textMuted)),
               ],
             ),
@@ -193,12 +193,12 @@ class _IjmScreenState extends State<IjmScreen> {
   Widget _buildChiffreChoc(S s) {
     final r = _result!;
     return Container(
-      padding: EdgeInsets.all(MintSpacing.lg),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(color: MintColors.error, borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
           Text(IndependantsService.formatChf(r.perteCarence), style: MintTextStyles.displayMedium(color: MintColors.white)),
-          SizedBox(height: MintSpacing.sm),
+          const SizedBox(height: MintSpacing.sm),
           Text(s.ijmChiffreChocCaption(IndependantsService.formatChf(r.perteCarence), r.delaiCarence), style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.9)), textAlign: TextAlign.center),
         ],
       ),
@@ -207,7 +207,7 @@ class _IjmScreenState extends State<IjmScreen> {
 
   Widget _buildHighRiskWarning(S s) {
     return Container(
-      padding: EdgeInsets.all(MintSpacing.md),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
@@ -217,13 +217,13 @@ class _IjmScreenState extends State<IjmScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.warning_amber_rounded, color: MintColors.warning, size: 22),
-          SizedBox(width: MintSpacing.sm + 4),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(s.ijmHighRiskTitle, style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600)),
-                SizedBox(height: MintSpacing.xs),
+                const SizedBox(height: MintSpacing.xs),
                 Text(s.ijmHighRiskBody, style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
               ],
             ),
@@ -239,13 +239,13 @@ class _IjmScreenState extends State<IjmScreen> {
       children: [
         Row(children: [
           Expanded(child: _buildResultCard(s.ijmPrimeMois, IndependantsService.formatChf(r.primeMensuelle), Icons.payment_outlined)),
-          SizedBox(width: MintSpacing.sm + 4),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(child: _buildResultCard(s.ijmPrimeAn, IndependantsService.formatChf(r.primeAnnuelle), Icons.calendar_month_outlined)),
         ]),
-        SizedBox(height: MintSpacing.sm + 4),
+        const SizedBox(height: MintSpacing.sm + 4),
         Row(children: [
           Expanded(child: _buildResultCard(s.ijmIndemniteJour, IndependantsService.formatChf(r.indemniteJournaliere), Icons.today_outlined)),
-          SizedBox(width: MintSpacing.sm + 4),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(child: _buildResultCard(s.ijmTrancheAge, r.ageBandLabel, Icons.person_outline, small: true)),
         ]),
       ],
@@ -254,15 +254,15 @@ class _IjmScreenState extends State<IjmScreen> {
 
   Widget _buildResultCard(String label, String value, IconData icon, {bool small = false}) {
     return Container(
-      padding: EdgeInsets.all(MintSpacing.md),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(color: MintColors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: MintColors.border.withValues(alpha: 0.5))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, size: 18, color: MintColors.textMuted),
-          SizedBox(height: MintSpacing.sm),
+          const SizedBox(height: MintSpacing.sm),
           Text(value, style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: small ? 14 : 18, fontWeight: FontWeight.w700)),
-          SizedBox(height: MintSpacing.xs),
+          const SizedBox(height: MintSpacing.xs),
           Text(label, style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
         ],
       ),
@@ -274,13 +274,13 @@ class _IjmScreenState extends State<IjmScreen> {
     const totalDays = 180;
     final carenceRatio = r.delaiCarence / totalDays;
     return Container(
-      padding: EdgeInsets.all(MintSpacing.md + 4),
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
       decoration: BoxDecoration(color: MintColors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: MintColors.border.withValues(alpha: 0.5))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(s.ijmTimelineTitle, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600)),
-          SizedBox(height: MintSpacing.md + 4),
+          const SizedBox(height: MintSpacing.md + 4),
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
             child: Row(children: [
@@ -294,15 +294,15 @@ class _IjmScreenState extends State<IjmScreen> {
               ),
             ]),
           ),
-          SizedBox(height: MintSpacing.sm + 4),
+          const SizedBox(height: MintSpacing.sm + 4),
           Row(children: [
             _buildLegendDot(MintColors.error, s.ijmTimelineNoCoverage),
-            SizedBox(width: MintSpacing.md),
+            const SizedBox(width: MintSpacing.md),
             _buildLegendDot(MintColors.success, s.ijmTimelineCoverageIjm),
           ]),
-          SizedBox(height: MintSpacing.md),
+          const SizedBox(height: MintSpacing.md),
           Container(
-            padding: EdgeInsets.all(MintSpacing.sm + 4),
+            padding: const EdgeInsets.all(MintSpacing.sm + 4),
             decoration: BoxDecoration(color: MintColors.surface, borderRadius: BorderRadius.circular(12)),
             child: Text(s.ijmTimelineSummary(r.delaiCarence, IndependantsService.formatChf(r.indemniteJournaliere)), style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
           ),
@@ -314,7 +314,7 @@ class _IjmScreenState extends State<IjmScreen> {
   Widget _buildLegendDot(Color color, String label) {
     return Row(children: [
       Container(width: 10, height: 10, decoration: BoxDecoration(color: color.withValues(alpha: 0.3), shape: BoxShape.circle, border: Border.all(color: color, width: 1.5))),
-      SizedBox(width: MintSpacing.xs + 2),
+      const SizedBox(width: MintSpacing.xs + 2),
       Text(label, style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
     ]);
   }
@@ -324,7 +324,7 @@ class _IjmScreenState extends State<IjmScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(s.ijmStrategies, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600)),
-        SizedBox(height: MintSpacing.sm + 4),
+        const SizedBox(height: MintSpacing.sm + 4),
         _buildEduCard(Icons.savings_outlined, s.ijmEduFondsTitle, s.ijmEduFondsBody),
         _buildEduCard(Icons.compare_arrows, s.ijmEduComparerTitle, s.ijmEduComparerBody),
         _buildEduCard(Icons.shield_outlined, s.ijmEduLamalTitle, s.ijmEduLamalBody),
@@ -334,19 +334,19 @@ class _IjmScreenState extends State<IjmScreen> {
 
   Widget _buildEduCard(IconData icon, String title, String body) {
     return Padding(
-      padding: EdgeInsets.only(bottom: MintSpacing.sm + 4),
+      padding: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
       child: Container(
-        padding: EdgeInsets.all(MintSpacing.md),
+        padding: const EdgeInsets.all(MintSpacing.md),
         decoration: BoxDecoration(color: MintColors.surface, borderRadius: BorderRadius.circular(16)),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(padding: EdgeInsets.all(MintSpacing.sm), decoration: BoxDecoration(color: MintColors.white, borderRadius: BorderRadius.circular(10)), child: Icon(icon, size: 18, color: MintColors.primary)),
-            SizedBox(width: MintSpacing.sm + 4),
+            Container(padding: const EdgeInsets.all(MintSpacing.sm), decoration: BoxDecoration(color: MintColors.white, borderRadius: BorderRadius.circular(10)), child: Icon(icon, size: 18, color: MintColors.primary)),
+            const SizedBox(width: MintSpacing.sm + 4),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(title, style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600)),
-                SizedBox(height: MintSpacing.xs),
+                const SizedBox(height: MintSpacing.xs),
                 Text(body, style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
               ]),
             ),

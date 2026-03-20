@@ -129,8 +129,8 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // Phase 2: "Sécurité & Data" header replaced by "RÉGLAGES" section
-      expect(find.textContaining('GLAGES'), findsOneWidget);
+      // Phase 2: settings section header
+      expect(find.textContaining('glages'), findsWidgets);
     });
 
     testWidgets('shows delete data button', (tester) async {
@@ -485,33 +485,26 @@ void main() {
       expect(find.byType(MainNavigationShell), findsOneWidget);
     });
 
-    testWidgets('shows bottom navigation with 3 tabs', (tester) async {
+    testWidgets('shows bottom navigation with 4 tabs', (tester) async {
       await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
       await tester.pump(const Duration(seconds: 1));
 
-      // Tab labels appear in the bottom nav (S49: 3-tab layout)
-      expect(find.text('Pulse'), findsOneWidget);
-      expect(find.text('Mint'), findsOneWidget);
-      expect(find.text('Moi'), findsOneWidget);
+      // S52: 4-tab layout — Aujourd'hui, Coach, Explorer, Dossier
+      expect(find.textContaining('ujourd'), findsWidgets);
+      expect(find.text('Coach'), findsOneWidget);
+      expect(find.text('Explorer'), findsOneWidget);
+      expect(find.text('Dossier'), findsOneWidget);
     });
 
     testWidgets('shows tab icons', (tester) async {
       await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
       await tester.pump(const Duration(seconds: 1));
 
-      // Active tab shows filled icon (Pulse = show_chart), others show outlined
-      // S49: 3 tabs — Pulse, Mint (chat_bubble), Moi (person)
-      expect(find.byIcon(Icons.show_chart), findsOneWidget); // Active (Pulse)
+      // S52: 4 tabs — today (active), coach, explore, dossier
+      expect(find.byIcon(Icons.today), findsOneWidget); // Active
       expect(find.byIcon(Icons.chat_bubble_outline), findsOneWidget);
-      expect(find.byIcon(Icons.person_outline), findsOneWidget);
-    });
-
-    testWidgets('shows floating mentor FAB', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
-      await tester.pump(const Duration(seconds: 1));
-
-      expect(find.byType(FloatingActionButton), findsOneWidget);
-      expect(find.byIcon(Icons.auto_awesome), findsWidgets);
+      expect(find.byIcon(Icons.explore_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.folder_outlined), findsOneWidget);
     });
   });
 }

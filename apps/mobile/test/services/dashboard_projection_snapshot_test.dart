@@ -145,7 +145,7 @@ void main() {
 
   group('DashboardProjectionSnapshot.fromProjection — couple', () {
     test('includes conjoint net income in household total', () {
-      final conjoint = ConjointProfile(
+      const conjoint = ConjointProfile(
         firstName: 'Lauren',
         birthYear: 1982,
         salaireBrutMensuel: 5500,
@@ -167,7 +167,7 @@ void main() {
     });
 
     test('conjoint with null salary does not increase household net', () {
-      final conjoint = ConjointProfile(
+      const conjoint = ConjointProfile(
         firstName: 'Test',
         birthYear: 1985,
         salaireBrutMensuel: null,
@@ -185,7 +185,7 @@ void main() {
     });
 
     test('conjoint with zero salary does not increase household net', () {
-      final conjoint = ConjointProfile(
+      const conjoint = ConjointProfile(
         firstName: 'Test',
         birthYear: 1985,
         salaireBrutMensuel: 0,

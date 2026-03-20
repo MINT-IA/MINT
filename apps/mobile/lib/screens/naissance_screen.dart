@@ -616,7 +616,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.sm, MintSpacing.lg, MintSpacing.sm + 4),
+            padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.sm, MintSpacing.lg, MintSpacing.sm + 4),
             child: Row(
               children: [
                 const Icon(Icons.leaderboard_outlined,
@@ -636,7 +636,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             final ratio = maxMensuel > 0 ? mensuel / maxMensuel : 0.0;
 
             return Container(
-              padding: EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.xs + 2),
+              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.xs + 2),
               color: isHighlighted
                   ? MintColors.primary.withValues(alpha: 0.06)
                   : null,

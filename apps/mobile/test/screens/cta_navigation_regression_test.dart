@@ -192,9 +192,9 @@ void main() {
       await tester.pumpWidget(buildProfileScreen(coachProvider: coachProvider));
       await tester.pump();
 
-      // Phase 2 redesign: two section headers replace old guidance card
-      expect(find.text('MON DOSSIER'), findsOneWidget);
-      expect(find.textContaining('GLAGES'), findsOneWidget); // RÉ prefix may be trimmed
+      // Phase 2 redesign: two section headers in sentence case
+      expect(find.text('Mon dossier'), findsOneWidget);
+      expect(find.textContaining('glages'), findsOneWidget); // Ré prefix may be trimmed
     });
   });
 

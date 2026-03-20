@@ -66,7 +66,7 @@ class CoachBriefingCard extends StatelessWidget {
                   style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 19, fontWeight: FontWeight.w700),
                 ),
               ),
-              _buildBadge(),
+              _buildBadge(context),
             ],
           ),
 
@@ -118,12 +118,12 @@ class CoachBriefingCard extends StatelessWidget {
           // ── Top tip / urgent alert ─────────────────────
           if (_hasTopContent) ...[
             const SizedBox(height: 12),
-            _buildTopContent(),
+            _buildTopContent(context),
           ],
 
           // ── Confidence chip ────────────────────────────
           const SizedBox(height: 12),
-          _buildConfidenceChip(),
+          _buildConfidenceChip(context),
         ],
       ),
     );
@@ -170,7 +170,7 @@ class CoachBriefingCard extends StatelessWidget {
       narrative?.topTipNarrative != null ||
       topCard != null;
 
-  Widget _buildTopContent() {
+  Widget _buildTopContent(BuildContext context) {
     // Priority: urgent alert > top tip narrative > curated card
     if (narrative?.urgentAlert != null) {
       return _buildAlertRow(
@@ -208,7 +208,7 @@ class CoachBriefingCard extends StatelessWidget {
           if (card.impactChf != null && card.impactChf! > 0) ...[
             const SizedBox(height: 6),
             Text(
-              'Impact estim\u00e9\u00a0: CHF\u00a0${formatChf(card.impactChf!)}',
+              S.of(context)!.coachBriefingImpactEstimated(formatChf(card.impactChf!)),
               style: MintTextStyles.labelSmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
@@ -249,7 +249,7 @@ class CoachBriefingCard extends StatelessWidget {
     );
   }
 
-  Widget _buildBadge() {
+  Widget _buildBadge(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
@@ -259,14 +259,16 @@ class CoachBriefingCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        isLlmGenerated ? 'Coach IA' : 'Coach',
+        isLlmGenerated ? S.of(context)!.coachBriefingBadgeLlm : S.of(context)!.coachBriefingBadge,
         style: MintTextStyles.micro(color: isLlmGenerated ? MintColors.primary : MintColors.textMuted).copyWith(fontWeight: FontWeight.w600),
       ),
     );
   }
 
-  Widget _buildConfidenceChip() {
+  Widget _buildConfidenceChip(BuildContext context) {
     final isLow = confidenceScore < 70;
+    final scoreStr = confidenceScore.toStringAsFixed(0);
+    final l = S.of(context)!;
 
     return Semantics(
       label: 'interactive element',
@@ -292,8 +294,8 @@ class CoachBriefingCard extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               isLow
-                  ? 'Confiance ${confidenceScore.toStringAsFixed(0)}% — Enrichir'
-                  : 'Confiance ${confidenceScore.toStringAsFixed(0)}%',
+                  ? l.coachBriefingConfidenceLow(scoreStr)
+                  : l.coachBriefingConfidence(scoreStr),
               style: MintTextStyles.labelSmall(color: isLow ? MintColors.warning : MintColors.success).copyWith(fontWeight: FontWeight.w600),
             ),
           ],

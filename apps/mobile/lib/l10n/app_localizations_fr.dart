@@ -1990,7 +1990,8 @@ class SFr extends S {
   String get coachingFilterRetraite => 'Retraite';
 
   @override
-  String get coachingNoTips => 'Votre profil est complet et bien géré. Bravo !';
+  String get coachingNoTips =>
+      'Ton profil est complet. Rien à signaler pour l’instant.';
 
   @override
   String coachingImpact(String amount) {
@@ -3773,7 +3774,7 @@ class SFr extends S {
 
   @override
   String checkinSuccessTitle(String month) {
-    return 'Bravo ! Check-in $month complété';
+    return 'C\'est fait ! Check-in $month complété';
   }
 
   @override
@@ -7326,7 +7327,7 @@ class SFr extends S {
 
   @override
   String scoreRevealGreeting(String name) {
-    return 'Bravo $name,';
+    return 'Voici ton score, $name.';
   }
 
   @override
@@ -7796,7 +7797,7 @@ class SFr extends S {
 
   @override
   String get expatAvsComplete =>
-      'Félicitations ! Tu as tes 44 années complètes de cotisation. Ta rente AVS ne devrait pas être réduite.';
+      'C\'est acquis : tu as tes 44 années complètes de cotisation. Ta rente AVS ne devrait pas être réduite.';
 
   @override
   String get expatPensionImpact => 'IMPACT SUR TA RENTE';
@@ -17831,4 +17832,29 @@ class SFr extends S {
 
   @override
   String get coachBriefingFallbackGreeting => 'Bonjour';
+
+  @override
+  String get coachBriefingBadgeLlm => 'Coach IA';
+
+  @override
+  String get coachBriefingBadge => 'Coach';
+
+  @override
+  String coachBriefingConfidenceLow(String score) {
+    return 'Confiance $score % — Enrichir';
+  }
+
+  @override
+  String coachBriefingConfidence(String score) {
+    return 'Confiance $score %';
+  }
+
+  @override
+  String coachBriefingImpactEstimated(String amount) {
+    return 'Impact estimé : CHF $amount';
+  }
+
+  @override
+  String get chiffreChocSectionDisclaimer =>
+      'Simulation à titre éducatif uniquement. Ne constitue pas un conseil en placement ou prévoyance (LSFin). Hypothèses modifiables — résultats non garantis.';
 }

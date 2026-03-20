@@ -14,7 +14,7 @@ import 'package:mint_mobile/services/cap_memory_store.dart';
 /// - Golden couple (Julien + Lauren) produces sensible caps
 void main() {
   // ── Helper ──
-  CoachProfile _profile({
+  CoachProfile profile0({
     int birthYear = 1980,
     double salaireBrutMensuel = 8000,
     String employmentStatus = 'salarie',
@@ -46,14 +46,14 @@ void main() {
   }
 
   /// Build a DetteProfile with the desired total via creditConsommation.
-  DetteProfile _dettes(double total) =>
+  DetteProfile dettes(double total) =>
       DetteProfile(creditConsommation: total);
 
   final now = DateTime(2026, 3, 19);
 
   group('CapEngine — always returns 1 cap', () {
     test('returns a cap for minimal profile with stable id', () {
-      final profile = _profile();
+      final profile = profile0();
       final cap = CapEngine.compute(profile: profile, now: now);
 
       expect(cap, isNotNull);
@@ -64,7 +64,7 @@ void main() {
     });
 
     test('returns a cap even with zero salary', () {
-      final profile = _profile(salaireBrutMensuel: 0);
+      final profile = profile0(salaireBrutMensuel: 0);
       final cap = CapEngine.compute(profile: profile, now: now);
 
       expect(cap, isNotNull);
@@ -73,8 +73,8 @@ void main() {
 
   group('CapEngine — priority: debt overrides other caps', () {
     test('debt > 10k produces Correct cap', () {
-      final profile = _profile(
-        dettes: _dettes(25000),
+      final profile = profile0(
+        dettes: dettes(25000),
       );
       final cap = CapEngine.compute(profile: profile, now: now);
 
@@ -83,8 +83,8 @@ void main() {
     });
 
     test('debt < 10k does not trigger debt cap', () {
-      final profile = _profile(
-        dettes: _dettes(5000),
+      final profile = profile0(
+        dettes: dettes(5000),
       );
       final cap = CapEngine.compute(profile: profile, now: now);
 
@@ -94,7 +94,7 @@ void main() {
 
   group('CapEngine — independent without LPP', () {
     test('produces Secure cap for independant without LPP', () {
-      final profile = _profile(
+      final profile = profile0(
         employmentStatus: 'independant',
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 0),
       );
@@ -109,7 +109,7 @@ void main() {
     test('3a cap appears when < 90 days to year-end', () {
       // November 1st = ~60 days to year-end
       final novemberNow = DateTime(2026, 11, 1);
-      final profile = _profile(
+      final profile = profile0(
         salaireBrutMensuel: 10000,
         canton: 'ZH',
       );
@@ -126,7 +126,7 @@ void main() {
 
     test('3a cap does not appear in January (> 90 days)', () {
       final januaryNow = DateTime(2026, 1, 15);
-      final profile = _profile(
+      final profile = profile0(
         salaireBrutMensuel: 10000,
         canton: 'ZH',
       );
@@ -141,7 +141,7 @@ void main() {
 
   group('CapEngine — budget deficit reframing', () {
     test('deficit budget produces Correct cap with lever, not just red', () {
-      final profile = _profile(
+      final profile = profile0(
         salaireBrutMensuel: 6000,
         depenses: const DepensesProfile(
           loyer: 2500,
@@ -163,8 +163,8 @@ void main() {
 
   group('CapEngine — recency modifier (deterministic)', () {
     test('same cap served 2h ago has lower priority score', () {
-      final profile = _profile(
-        dettes: _dettes(25000),
+      final profile = profile0(
+        dettes: dettes(25000),
       );
 
       // Fresh — no memory
@@ -192,8 +192,8 @@ void main() {
     });
 
     test('cap served 24h+ ago is not penalized — same score', () {
-      final profile = _profile(
-        dettes: _dettes(25000),
+      final profile = profile0(
+        dettes: dettes(25000),
       );
 
       final capFresh = CapEngine.compute(
@@ -218,7 +218,7 @@ void main() {
     });
 
     test('recency is deterministic — same now gives same result', () {
-      final profile = _profile(dettes: _dettes(25000));
+      final profile = profile0(dettes: dettes(25000));
       final memory = CapMemory(
         lastCapServed: 'debt_correct',
         lastCapDate: now.subtract(const Duration(hours: 3)),
@@ -234,7 +234,7 @@ void main() {
 
   group('CapEngine — LPP buyback', () {
     test('rachat > 5k produces optimize cap', () {
-      final profile = _profile(
+      final profile = profile0(
         prevoyance: const PrevoyanceProfile(
           avoirLppTotal: 50000,
           rachatMaximum: 100000,
@@ -249,7 +249,7 @@ void main() {
 
   group('CapEngine — replacement rate for 45+', () {
     test('profile age 50 with low replacement rate triggers prepare cap', () {
-      final profile = _profile(
+      final profile = profile0(
         birthYear: 1976,
         salaireBrutMensuel: 10000,
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 30000),
@@ -264,7 +264,7 @@ void main() {
 
   group('CapEngine — golden couple Julien', () {
     test('Julien profile produces sensible cap', () {
-      final julien = _profile(
+      final julien = profile0(
         birthYear: 1977,
         salaireBrutMensuel: 122207 / 12, // ~10184/mois
         canton: 'VS',
@@ -291,7 +291,7 @@ void main() {
   group('CapEngine — CTA modes', () {
     test('capture mode when confidence is very low', () {
       // Profile with almost nothing filled → confidence < 45
-      final profile = _profile(
+      final profile = profile0(
         salaireBrutMensuel: 0,
         canton: '',
       );
@@ -303,8 +303,8 @@ void main() {
     });
 
     test('route mode for actionable caps', () {
-      final profile = _profile(
-        dettes: _dettes(50000),
+      final profile = profile0(
+        dettes: dettes(50000),
       );
       final cap = CapEngine.compute(profile: profile, now: now);
 
@@ -368,7 +368,7 @@ void main() {
     });
 
     test('life event marriage triggers prepare cap', () {
-      final profile = _profile(
+      final profile = profile0(
         salaireBrutMensuel: 8000,
       );
       // Create profile with familyChange using copyWith

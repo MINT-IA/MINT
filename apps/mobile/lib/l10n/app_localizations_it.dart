@@ -1995,8 +1995,7 @@ class SIt extends S {
   String get coachingFilterRetraite => 'Pensione';
 
   @override
-  String get coachingNoTips =>
-      'Il vostro profilo è completo e ben gestito. Bravo!';
+  String get coachingNoTips => 'Il tuo profilo è completo. Nulla da segnalare.';
 
   @override
   String coachingImpact(String amount) {
@@ -3787,7 +3786,7 @@ class SIt extends S {
 
   @override
   String checkinSuccessTitle(String month) {
-    return 'Bravo ! Check-in $month complété';
+    return 'Fatto. Check-in $month completato.';
   }
 
   @override
@@ -4310,7 +4309,7 @@ class SIt extends S {
   }
 
   @override
-  String get coachShockTitle => 'Tes chiffres-chocs';
+  String get coachShockTitle => 'Le tue cifre chiave';
 
   @override
   String get coachShockSubtitle =>
@@ -7355,7 +7354,7 @@ class SIt extends S {
 
   @override
   String scoreRevealGreeting(String name) {
-    return 'Bravo $name,';
+    return 'Ecco il tuo punteggio, $name.';
   }
 
   @override
@@ -7823,7 +7822,7 @@ class SIt extends S {
 
   @override
   String get expatAvsComplete =>
-      'Complimenti! Hai i tuoi 44 anni completi di contribuzione. La tua rendita AVS non dovrebbe essere ridotta.';
+      'Confermato: hai i tuoi 44 anni completi di contribuzione. La tua rendita AVS non dovrebbe essere ridotta.';
 
   @override
   String get expatPensionImpact => 'IMPATTO SULLA TUA RENDITA';
@@ -17848,4 +17847,29 @@ class SIt extends S {
 
   @override
   String get coachBriefingFallbackGreeting => 'Ciao';
+
+  @override
+  String get coachBriefingBadgeLlm => 'Coach IA';
+
+  @override
+  String get coachBriefingBadge => 'Coach';
+
+  @override
+  String coachBriefingConfidenceLow(String score) {
+    return 'Fiducia $score % — Arricchire';
+  }
+
+  @override
+  String coachBriefingConfidence(String score) {
+    return 'Fiducia $score %';
+  }
+
+  @override
+  String coachBriefingImpactEstimated(String amount) {
+    return 'Impatto stimato : CHF $amount';
+  }
+
+  @override
+  String get chiffreChocSectionDisclaimer =>
+      'Simulazione a scopo educativo. Non costituisce consulenza finanziaria (LSerFi). Ipotesi modificabili — risultati non garantiti.';
 }

@@ -95,7 +95,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
               style: MintTextStyles.bodyMedium(),
               children: [
                 TextSpan(text: S.of(context)!.compoundMentorIntro),
-                WidgetSpan(child: InfoTooltip(term: 'intérêt composé')),
+                const WidgetSpan(child: InfoTooltip(term: 'intérêt composé')),
                 TextSpan(text: S.of(context)!.compoundMentorOutro),
               ],
             ),

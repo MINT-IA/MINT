@@ -786,7 +786,7 @@
   "coachingFilterPrevoyance": "Pension",
   "coachingFilterBudget": "Budget",
   "coachingFilterRetraite": "Retirement",
-  "coachingNoTips": "Your profile is complete and well managed. Well done!",
+  "coachingNoTips": "Your profile is complete. Nothing to flag right now.",
   "coachingImpact": "Estimated impact: {amount}",
   "@coachingImpact": {
     "placeholders": {
@@ -1574,7 +1574,7 @@
   "checkinNoteHint": "E.g.: Tough month, unexpected car expense...",
   "checkinSubmit": "Submit check-in",
   "checkinInvalidAmount": "Invalid amount",
-  "checkinSuccessTitle": "Well done! Check-in {month} completed",
+  "checkinSuccessTitle": "All set. Check-in {month} completed.",
   "@checkinSuccessTitle": {
     "placeholders": {
       "month": {
@@ -3330,7 +3330,7 @@
   "debtCheckGamblingSupportBody": "Free professional and anonymous support is available.",
   "debtCheckGamblingSupportCta": "SOS Gambling - Online help",
   "debtCheckPrivacyNote": "Mint respects your privacy. No data is stored or transmitted.",
-  "scoreRevealGreeting": "Bravo {name},",
+  "scoreRevealGreeting": "Here is your score, {name}.",
   "@scoreRevealGreeting": {
     "placeholders": {
       "name": {
@@ -3537,7 +3537,7 @@
   "expatAvsCompleteness": "AVS COMPLETENESS",
   "expatOfPension": "of pension",
   "expatEstimatedPension": "Estimated pension",
-  "expatAvsComplete": "Congratulations! You have your 44 full contribution years. Your AVS pension should not be reduced.",
+  "expatAvsComplete": "Confirmed: you have your 44 full contribution years. Your AVS pension should not be reduced.",
   "expatPensionImpact": "IMPACT ON YOUR PENSION",
   "expatMissingYears": "Missing years",
   "expatEstimatedReduction": "Estimated reduction",
@@ -8115,5 +8115,14 @@
   "avsGapCalculation": "Calculation: monthly pension × 13 months/year (13th AVS pension from Dec. 2026)",
   "chiffreChocRenteCalculation": "(calculation: monthly pension × 13 months/year, 13th pension included)."
 ,
-  "coachBriefingFallbackGreeting": "Hello"
+  "coachBriefingFallbackGreeting": "Hello",
+  "coachBriefingBadgeLlm": "AI Coach",
+  "coachBriefingBadge": "Coach",
+  "coachBriefingConfidenceLow": "Confidence {score}\u00a0% \u2014 Enrich",
+  "@coachBriefingConfidenceLow": {"placeholders": {"score": {"type": "String"}}},
+  "coachBriefingConfidence": "Confidence {score}\u00a0%",
+  "@coachBriefingConfidence": {"placeholders": {"score": {"type": "String"}}},
+  "coachBriefingImpactEstimated": "Estimated impact\u00a0: CHF\u00a0{amount}",
+  "@coachBriefingImpactEstimated": {"placeholders": {"amount": {"type": "String"}}},
+  "chiffreChocSectionDisclaimer": "Educational simulation only. Does not constitute investment or retirement advice (FinSA). Adjustable assumptions \u2014 results not guaranteed."
 }

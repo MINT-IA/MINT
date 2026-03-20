@@ -3720,7 +3720,7 @@ abstract class S {
   /// No description provided for @coachingNoTips.
   ///
   /// In fr, this message translates to:
-  /// **'Votre profil est complet et bien géré. Bravo !'**
+  /// **'Ton profil est complet. Rien à signaler pour l’instant.'**
   String get coachingNoTips;
 
   /// No description provided for @coachingImpact.
@@ -6926,7 +6926,7 @@ abstract class S {
   /// No description provided for @checkinSuccessTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Bravo ! Check-in {month} complété'**
+  /// **'C\'est fait ! Check-in {month} complété'**
   String checkinSuccessTitle(String month);
 
   /// No description provided for @checkinSeeTrajectory.
@@ -13235,7 +13235,7 @@ abstract class S {
   /// No description provided for @scoreRevealGreeting.
   ///
   /// In fr, this message translates to:
-  /// **'Bravo {name},'**
+  /// **'Voici ton score, {name}.'**
   String scoreRevealGreeting(String name);
 
   /// No description provided for @scoreRevealTitle.
@@ -14099,7 +14099,7 @@ abstract class S {
   /// No description provided for @expatAvsComplete.
   ///
   /// In fr, this message translates to:
-  /// **'Félicitations ! Tu as tes 44 années complètes de cotisation. Ta rente AVS ne devrait pas être réduite.'**
+  /// **'C\'est acquis : tu as tes 44 années complètes de cotisation. Ta rente AVS ne devrait pas être réduite.'**
   String get expatAvsComplete;
 
   /// No description provided for @expatPensionImpact.
@@ -31624,6 +31624,42 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Bonjour'**
   String get coachBriefingFallbackGreeting;
+
+  /// No description provided for @coachBriefingBadgeLlm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coach IA'**
+  String get coachBriefingBadgeLlm;
+
+  /// No description provided for @coachBriefingBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coach'**
+  String get coachBriefingBadge;
+
+  /// No description provided for @coachBriefingConfidenceLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confiance {score} % — Enrichir'**
+  String coachBriefingConfidenceLow(String score);
+
+  /// No description provided for @coachBriefingConfidence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confiance {score} %'**
+  String coachBriefingConfidence(String score);
+
+  /// No description provided for @coachBriefingImpactEstimated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact estimé : CHF {amount}'**
+  String coachBriefingImpactEstimated(String amount);
+
+  /// No description provided for @chiffreChocSectionDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simulation à titre éducatif uniquement. Ne constitue pas un conseil en placement ou prévoyance (LSFin). Hypothèses modifiables — résultats non garantis.'**
+  String get chiffreChocSectionDisclaimer;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

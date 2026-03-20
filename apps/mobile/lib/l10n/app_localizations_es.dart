@@ -1991,7 +1991,7 @@ class SEs extends S {
 
   @override
   String get coachingNoTips =>
-      'Tu perfil esta completo y bien gestionado. !Felicidades!';
+      'Tu perfil está completo. Nada que señalar por ahora.';
 
   @override
   String coachingImpact(String amount) {
@@ -3777,7 +3777,7 @@ class SEs extends S {
 
   @override
   String checkinSuccessTitle(String month) {
-    return 'Bravo ! Check-in $month complété';
+    return 'Listo. Check-in $month completado.';
   }
 
   @override
@@ -4299,7 +4299,7 @@ class SEs extends S {
   }
 
   @override
-  String get coachShockTitle => 'Tes chiffres-chocs';
+  String get coachShockTitle => 'Tus cifras clave';
 
   @override
   String get coachShockSubtitle =>
@@ -7334,7 +7334,7 @@ class SEs extends S {
 
   @override
   String scoreRevealGreeting(String name) {
-    return 'Bravo $name,';
+    return 'Aquí está tu puntuación, $name.';
   }
 
   @override
@@ -7802,7 +7802,7 @@ class SEs extends S {
 
   @override
   String get expatAvsComplete =>
-      '¡Felicidades! Tienes tus 44 años completos de cotización. Tu pensión AVS no debería reducirse.';
+      'Confirmado: tienes tus 44 años completos de cotización. Tu pensión AVS no debería reducirse.';
 
   @override
   String get expatPensionImpact => 'IMPACTO EN TU PENSIÓN';
@@ -17836,4 +17836,29 @@ class SEs extends S {
 
   @override
   String get coachBriefingFallbackGreeting => 'Hola';
+
+  @override
+  String get coachBriefingBadgeLlm => 'Coach IA';
+
+  @override
+  String get coachBriefingBadge => 'Coach';
+
+  @override
+  String coachBriefingConfidenceLow(String score) {
+    return 'Confianza $score % — Enriquecer';
+  }
+
+  @override
+  String coachBriefingConfidence(String score) {
+    return 'Confianza $score %';
+  }
+
+  @override
+  String coachBriefingImpactEstimated(String amount) {
+    return 'Impacto estimado : CHF $amount';
+  }
+
+  @override
+  String get chiffreChocSectionDisclaimer =>
+      'Simulación educativa. No constituye asesoramiento financiero (LSFin). Hipótesis modificables — resultados no garantizados.';
 }

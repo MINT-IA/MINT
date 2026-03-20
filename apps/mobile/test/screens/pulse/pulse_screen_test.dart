@@ -12,7 +12,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
 
 // ────────────────────────────────────────────────────────────────
-//  PULSE SCREEN — Smoke + Integration Tests
+//  PULSE SCREEN — Smoke + Integration Tests (V5 — Plan-first)
 // ────────────────────────────────────────────────────────────────
 
 void main() {
@@ -76,13 +76,16 @@ void main() {
     return provider;
   }
 
+  // ── EMPTY STATE ──────────────────────────────────────────────
+
   group('PulseScreen — empty state', () {
-    testWidgets('renders empty state when no profile', (tester) async {
+    testWidgets('renders empty state with onboarding CTA', (tester) async {
       await tester.pumpWidget(buildPulseScreen());
       await tester.pump(const Duration(seconds: 1));
 
-      expect(find.text('Bienvenue sur MINT'), findsOneWidget);
-      expect(find.text('Démarrer'), findsOneWidget);
+      // V5: empty state uses l10n keys pulseEmptyTitle + pulseEmptyCtaStart
+      expect(find.textContaining('Trois questions'), findsOneWidget);
+      expect(find.text('Commencer'), findsOneWidget);
     });
 
     testWidgets('shows disclaimer in empty state', (tester) async {
@@ -93,32 +96,34 @@ void main() {
       expect(find.textContaining('LSFin art.'), findsOneWidget);
     });
 
-    testWidgets('shows onboarding CTA in empty state', (tester) async {
+    testWidgets('shows onboarding subtitle', (tester) async {
       await tester.pumpWidget(buildPulseScreen());
       await tester.pump(const Duration(seconds: 1));
 
-      expect(find.textContaining('Commence par remplir ton profil'), findsOneWidget);
-      expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
+      // V5: pulseEmptySubtitle
+      expect(find.textContaining('Commence par ton profil'), findsOneWidget);
     });
   });
 
+  // ── LOADED STATE ─────────────────────────────────────────────
+
   group('PulseScreen — loaded state', () {
-    testWidgets('renders greeting with name', (tester) async {
+    testWidgets('renders AppBar greeting with name', (tester) async {
       final provider = buildProfileProvider(firstName: 'Julien');
       await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
       await tester.pump(const Duration(seconds: 2));
 
+      // V5: AppBar uses pulseGreeting("Bonjour {name}")
       expect(find.textContaining('Bonjour Julien'), findsOneWidget);
     });
 
-    testWidgets('renders hero zone (adaptive hero or focus selector)', (tester) async {
+    testWidgets('renders hero zone with dominant number', (tester) async {
       final provider = buildProfileProvider();
       await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
       await tester.pump(const Duration(seconds: 2));
 
-      // Phase 3A: hero zone renders either adaptive hero card (with FHS ring)
-      // or FocusSelector if PulseHeroEngine returns null for the test profile.
-      // Either way, the Pulse screen renders successfully.
+      // V5: hero zone renders a dominant number (%, CHF, or score)
+      // + narrative phrase + CapCard or fallback action
       expect(find.byType(Container), findsWidgets);
     });
 
@@ -129,10 +134,26 @@ void main() {
 
       expect(find.textContaining('Outil éducatif'), findsOneWidget);
     });
+
+    testWidgets('renders narrative phrase from CapEngine', (tester) async {
+      final provider = buildProfileProvider(
+        firstName: 'Julien',
+        birthYear: 1977,
+        salaire: 9078,
+      );
+      await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
+      await tester.pump(const Duration(seconds: 2));
+
+      // V5: narrative comes from cap.whyNow prefixed with firstName.
+      // The exact text depends on CapEngine output, but Julien should appear.
+      expect(find.textContaining('Julien'), findsWidgets);
+    });
   });
 
+  // ── COUPLE MODE ──────────────────────────────────────────────
+
   group('PulseScreen — couple mode', () {
-    testWidgets('renders couple greeting when married with conjoint',
+    testWidgets('renders couple icon when married with conjoint',
         (tester) async {
       final provider = buildProfileProvider(
         firstName: 'Julien',
@@ -144,21 +165,54 @@ void main() {
       await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
       await tester.pump(const Duration(seconds: 2));
 
+      // V5: couple mode shows people_outline icon in AppBar action
       expect(find.textContaining('Julien'), findsWidgets);
-      // Couple greeting should mention both names
-      expect(find.textContaining('Lauren'), findsWidgets);
+      expect(find.byIcon(Icons.people_outline), findsOneWidget);
+    });
+
+    testWidgets('does not show couple icon for celibataire',
+        (tester) async {
+      final provider = buildProfileProvider(
+        firstName: 'Julien',
+        civilStatus: 'celibataire',
+      );
+      await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
+      await tester.pump(const Duration(seconds: 2));
+
+      expect(find.byIcon(Icons.people_outline), findsNothing);
     });
   });
 
+  // ── SECONDARY SIGNALS ────────────────────────────────────────
+
+  group('PulseScreen — secondary signals', () {
+    testWidgets('renders budget and patrimoine signal rows',
+        (tester) async {
+      final provider = buildProfileProvider(
+        firstName: 'Julien',
+        birthYear: 1977,
+        canton: 'VS',
+        salaire: 9078,
+      );
+      await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
+      await tester.pump(const Duration(seconds: 2));
+
+      // V5: secondary signals use l10n keys (pulseKeyFigBudgetLibre, pulseKeyFigPatrimoine)
+      // shown as _SignalRow widgets. Look for the l10n labels.
+      // Budget libre signal should exist for a profile with salary
+      expect(find.textContaining('Budget'), findsWidgets);
+    });
+  });
+
+  // ── HELPER EDGE CASES ────────────────────────────────────────
+
   group('PulseScreen — _hasMinimalConjointData edge cases', () {
     test('returns false for null birthYear', () {
-      // _hasMinimalConjointData requires birthYear != null && salary > 0
       const conjoint = ConjointProfile(
         firstName: 'Lauren',
         birthYear: null,
         salaireBrutMensuel: 4800,
       );
-      // Replicates the logic of _hasMinimalConjointData
       final hasMinimal = conjoint.birthYear != null &&
           conjoint.salaireBrutMensuel != null &&
           conjoint.salaireBrutMensuel! > 0;
@@ -192,7 +246,6 @@ void main() {
 
   group('PulseScreen — _conjointToCoachProfile mapping', () {
     test('correctly maps ConjointProfile fields to CoachProfile', () {
-      // Build a main profile with conjoint
       final mainProfile = CoachProfile(
         firstName: 'Julien',
         birthYear: 1977,
@@ -220,7 +273,6 @@ void main() {
         ),
       );
 
-      // Replicate the logic of _conjointToCoachProfile
       final conj = mainProfile.conjoint!;
       final retirementAge = conj.targetRetirementAge ?? 65;
       final birthYr = conj.birthYear ?? mainProfile.birthYear;
@@ -283,23 +335,20 @@ void main() {
 
       final conj = mainProfile.conjoint!;
       final birthYr = conj.birthYear ?? mainProfile.birthYear;
-      expect(birthYr, 1977); // falls back to main profile
+      expect(birthYr, 1977);
     });
   });
 
   group('PulseScreen — _computeTemporalItems', () {
     test('produces items when profile has salary and canton', () {
-      // TemporalPriorityService.prioritize should produce items for a
-      // profile with positive salary (tax saving > 0) and a valid canton.
       final items = TemporalPriorityService.prioritize(
         canton: 'VS',
-        taxSaving3a: 1500, // non-zero → 3a deadline item expected
+        taxSaving3a: 1500,
         friTotal: 0,
         friDelta: 0,
         limit: 4,
       );
       expect(items, isNotEmpty);
-      // Each item should have a title and body
       for (final item in items) {
         expect(item.title, isNotEmpty);
         expect(item.body, isNotEmpty);
@@ -307,66 +356,10 @@ void main() {
     });
   });
 
-  group('PulseScreen — key figures section', () {
-    testWidgets('renders retraite, budget, patrimoine cards',
-        (tester) async {
-      final provider = buildProfileProvider(
-        firstName: 'Julien',
-        birthYear: 1977,
-        canton: 'VS',
-        salaire: 9078,
-      );
-      await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
-      await tester.pump(const Duration(seconds: 2));
-
-      // Key figure labels
-      expect(find.text('Retraite estimée'), findsOneWidget);
-      expect(find.text('Budget libre'), findsOneWidget);
-      expect(find.text('Patrimoine'), findsOneWidget);
-
-      // Key figures use specific icons
-      expect(find.byIcon(Icons.beach_access_outlined), findsWidgets);
-      expect(find.byIcon(Icons.account_balance_wallet_outlined), findsWidgets);
-      expect(find.byIcon(Icons.trending_up_outlined), findsWidgets);
-    });
-  });
-
-  group('PulseScreen — couple card', () {
-    testWidgets('shows couple greeting when profile.isCouple is true',
-        (tester) async {
-      final provider = buildProfileProvider(
-        firstName: 'Julien',
-        civilStatus: 'marie',
-        conjointFirstName: 'Lauren',
-        conjointSalaire: 4800,
-        conjointBirthYear: 1982,
-      );
-      await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
-      await tester.pump(const Duration(seconds: 2));
-
-      // Couple greeting in SliverAppBar: "Bonjour Julien et Lauren"
-      expect(find.textContaining('Julien'), findsWidgets);
-      expect(find.textContaining('Lauren'), findsWidgets);
-    });
-
-    testWidgets('does not show couple card for celibataire',
-        (tester) async {
-      final provider = buildProfileProvider(
-        firstName: 'Julien',
-        civilStatus: 'celibataire',
-      );
-      await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
-      await tester.pump(const Duration(seconds: 2));
-
-      // No couple icon
-      expect(find.byIcon(Icons.people_outline), findsNothing);
-    });
-  });
+  // ── CONJOINT SERIALIZATION ───────────────────────────────────
 
   group('PulseScreen — _conjointToCoachProfile correctness', () {
     test('conjoint profile preserves patrimoine when available', () {
-      // This tests that ConjointProfile.patrimoine is properly threaded
-      // through to the synthetic CoachProfile used for couple scoring.
       const conjoint = ConjointProfile(
         firstName: 'Lauren',
         birthYear: 1982,

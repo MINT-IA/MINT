@@ -786,7 +786,7 @@
   "coachingFilterPrevoyance": "Vorsorge",
   "coachingFilterBudget": "Budget",
   "coachingFilterRetraite": "Rente",
-  "coachingNoTips": "Ihr Profil ist vollständig und gut verwaltet. Bravo!",
+  "coachingNoTips": "Dein Profil ist vollständig. Nichts zu melden.",
   "coachingImpact": "Geschätzter Effekt: {amount}",
   "@coachingImpact": {
     "placeholders": {
@@ -1574,7 +1574,7 @@
   "checkinNoteHint": "Z.B.: Schwieriger Monat, unerwartete Autokosten...",
   "checkinSubmit": "Check-in bestätigen",
   "checkinInvalidAmount": "Ungültiger Betrag",
-  "checkinSuccessTitle": "Bravo! Check-in {month} abgeschlossen",
+  "checkinSuccessTitle": "Erledigt. Check-in {month} abgeschlossen.",
   "@checkinSuccessTitle": {
     "placeholders": {
       "month": {
@@ -1871,7 +1871,7 @@
       }
     }
   },
-  "coachShockTitle": "Tes chiffres-chocs",
+  "coachShockTitle": "Deine Schl\u00fcsselzahlen",
   "coachShockSubtitle": "Des montants personnalises pour eclairer tes decisions",
   "coachScenarioDecodedTitle": "Tes scenarios decryptes",
   "coachBadgeStatic": "Coach",
@@ -3330,7 +3330,7 @@
   "debtCheckGamblingSupportBody": "Kostenlose professionelle und anonyme Unterstützung ist verfügbar.",
   "debtCheckGamblingSupportCta": "SOS Spielsucht - Online-Hilfe",
   "debtCheckPrivacyNote": "Mint respektiert deine Privatsphäre. Keine Daten werden gespeichert oder übermittelt.",
-  "scoreRevealGreeting": "Bravo {name},",
+  "scoreRevealGreeting": "Hier ist dein Score, {name}.",
   "@scoreRevealGreeting": {
     "placeholders": {
       "name": {
@@ -3537,7 +3537,7 @@
   "expatAvsCompleteness": "AHV-VOLLSTÄNDIGKEIT",
   "expatOfPension": "der Rente",
   "expatEstimatedPension": "Geschätzte Rente",
-  "expatAvsComplete": "Glückwunsch! Du hast deine 44 vollständigen Beitragsjahre. Deine AHV-Rente sollte nicht gekürzt werden.",
+  "expatAvsComplete": "Bestätigt: Du hast deine 44 vollständigen Beitragsjahre. Deine AHV-Rente sollte nicht gekürzt werden.",
   "expatPensionImpact": "AUSWIRKUNG AUF DEINE RENTE",
   "expatMissingYears": "Fehlende Jahre",
   "expatEstimatedReduction": "Geschätzte Kürzung",
@@ -8085,5 +8085,14 @@
   "avsGapCalculation": "Berechnung: Monatsrente × 13 Monate/Jahr (13. AHV-Rente ab Dez. 2026)",
   "chiffreChocRenteCalculation": "(Berechnung: Monatsrente × 13 Monate/Jahr, 13. Rente inklusive)."
 ,
-  "coachBriefingFallbackGreeting": "Hallo"
+  "coachBriefingFallbackGreeting": "Hallo",
+  "coachBriefingBadgeLlm": "KI-Coach",
+  "coachBriefingBadge": "Coach",
+  "coachBriefingConfidenceLow": "Vertrauen {score}\u00a0% \u2014 Erg\u00e4nzen",
+  "@coachBriefingConfidenceLow": {"placeholders": {"score": {"type": "String"}}},
+  "coachBriefingConfidence": "Vertrauen {score}\u00a0%",
+  "@coachBriefingConfidence": {"placeholders": {"score": {"type": "String"}}},
+  "coachBriefingImpactEstimated": "Gesch\u00e4tzter Effekt\u00a0: CHF\u00a0{amount}",
+  "@coachBriefingImpactEstimated": {"placeholders": {"amount": {"type": "String"}}},
+  "chiffreChocSectionDisclaimer": "Nur zu Bildungszwecken. Keine Anlage- oder Vorsorgeberatung (FIDLEG). Annahmen anpassbar \u2014 Ergebnisse nicht garantiert."
 }

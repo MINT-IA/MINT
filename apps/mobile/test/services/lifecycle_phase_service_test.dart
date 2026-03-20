@@ -20,7 +20,7 @@ import 'package:mint_mobile/services/content_adapter_service.dart';
 
 void main() {
   // ── Helper: create a minimal CoachProfile for testing ───────
-  CoachProfile _makeProfile({
+  CoachProfile makeProfile({
     int birthYear = 1990,
     String canton = 'VD',
     double salaire = 6000,
@@ -63,7 +63,7 @@ void main() {
   group('LifecyclePhaseService — Golden Couple', () {
     // ── JULIEN: born 1977, age 49 → Consolidation ──────────────
     test('Julien (49, swiss_native, 122k) = Consolidation', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1977,
         canton: 'VS',
         salaire: 122207 / 12, // Monthly
@@ -82,7 +82,7 @@ void main() {
 
     // ── LAUREN: born 1982, age 43 → Accélération ───────────────
     test('Lauren (43, expat_us, 67k) = Accélération', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1982,
         canton: 'VS',
         salaire: 67000 / 12,
@@ -103,7 +103,7 @@ void main() {
   group('LifecyclePhaseService — All 7 Phases', () {
     // ── Phase 1: Démarrage (22-27) ──────────────────────────────
     test('age 24 → Démarrage', () {
-      final profile = _makeProfile(birthYear: 2002);
+      final profile = makeProfile(birthYear: 2002);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.demarrage));
       expect(result.tone, equals(LifecycleTone.encouraging));
@@ -111,7 +111,7 @@ void main() {
 
     // ── Phase 2: Construction (28-34) ───────────────────────────
     test('age 30 → Construction', () {
-      final profile = _makeProfile(birthYear: 1996);
+      final profile = makeProfile(birthYear: 1996);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.construction));
       expect(result.tone, equals(LifecycleTone.encouraging));
@@ -119,7 +119,7 @@ void main() {
 
     // ── Phase 3: Accélération (35-44) ───────────────────────────
     test('age 40 → Accélération', () {
-      final profile = _makeProfile(birthYear: 1986);
+      final profile = makeProfile(birthYear: 1986);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.acceleration));
       expect(result.tone, equals(LifecycleTone.empowering));
@@ -127,7 +127,7 @@ void main() {
 
     // ── Phase 4: Consolidation (45-54) ──────────────────────────
     test('age 50 → Consolidation', () {
-      final profile = _makeProfile(birthYear: 1976);
+      final profile = makeProfile(birthYear: 1976);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.consolidation));
       expect(result.tone, equals(LifecycleTone.reassuring));
@@ -135,7 +135,7 @@ void main() {
 
     // ── Phase 5: Transition (55-64) ─────────────────────────────
     test('age 60 → Transition', () {
-      final profile = _makeProfile(birthYear: 1966);
+      final profile = makeProfile(birthYear: 1966);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.transition));
       expect(result.tone, equals(LifecycleTone.reassuring));
@@ -143,7 +143,7 @@ void main() {
 
     // ── Phase 6: Retraite (65-74) ───────────────────────────────
     test('age 70 → Retraite', () {
-      final profile = _makeProfile(birthYear: 1956);
+      final profile = makeProfile(birthYear: 1956);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.retraite));
       expect(result.tone, equals(LifecycleTone.simple));
@@ -151,7 +151,7 @@ void main() {
 
     // ── Phase 7: Transmission (75+) ─────────────────────────────
     test('age 80 → Transmission', () {
-      final profile = _makeProfile(birthYear: 1946);
+      final profile = makeProfile(birthYear: 1946);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.transmission));
       expect(result.tone, equals(LifecycleTone.simple));
@@ -160,55 +160,55 @@ void main() {
 
   group('LifecyclePhaseService — Boundary Ages', () {
     test('age 22 → Démarrage (youngest)', () {
-      final profile = _makeProfile(birthYear: 2004);
+      final profile = makeProfile(birthYear: 2004);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.demarrage));
     });
 
     test('age 27 → still Démarrage', () {
-      final profile = _makeProfile(birthYear: 1999);
+      final profile = makeProfile(birthYear: 1999);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.demarrage));
     });
 
     test('age 28 → Construction (boundary)', () {
-      final profile = _makeProfile(birthYear: 1998);
+      final profile = makeProfile(birthYear: 1998);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.construction));
     });
 
     test('age 35 → Accélération (boundary)', () {
-      final profile = _makeProfile(birthYear: 1991);
+      final profile = makeProfile(birthYear: 1991);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.acceleration));
     });
 
     test('age 45 → Consolidation (boundary)', () {
-      final profile = _makeProfile(birthYear: 1981);
+      final profile = makeProfile(birthYear: 1981);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.consolidation));
     });
 
     test('age 55 → Transition (boundary)', () {
-      final profile = _makeProfile(birthYear: 1971);
+      final profile = makeProfile(birthYear: 1971);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.transition));
     });
 
     test('age 65 → Retraite (boundary)', () {
-      final profile = _makeProfile(birthYear: 1961);
+      final profile = makeProfile(birthYear: 1961);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.retraite));
     });
 
     test('age 75 → Transmission (boundary)', () {
-      final profile = _makeProfile(birthYear: 1951);
+      final profile = makeProfile(birthYear: 1951);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.transmission));
     });
 
     test('age 95 → Transmission (very old)', () {
-      final profile = _makeProfile(birthYear: 1931);
+      final profile = makeProfile(birthYear: 1931);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.transmission));
     });
@@ -216,7 +216,7 @@ void main() {
 
   group('LifecyclePhaseService — Overrides', () {
     test('retired user at age 60 → Retraite (not Transition)', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1966,
         employment: 'retraite',
       );
@@ -225,7 +225,7 @@ void main() {
     });
 
     test('retired user at age 80 → Transmission', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1946,
         employment: 'retraite',
       );
@@ -234,7 +234,7 @@ void main() {
     });
 
     test('early retirement target (58) at age 50 → Transition', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1976,
         targetRetirementAge: 58,
       );
@@ -244,7 +244,7 @@ void main() {
     });
 
     test('early retirement target (58) at age 45 → no override (Consolidation)', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1981,
         targetRetirementAge: 58,
       );
@@ -254,7 +254,7 @@ void main() {
     });
 
     test('early retirement target (60) at age 52 → Transition (8 years)', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1974,
         targetRetirementAge: 60,
       );
@@ -266,7 +266,7 @@ void main() {
 
   group('LifecyclePhaseService — Priorities', () {
     test('Démarrage priorities include open_3a and emergency fund', () {
-      final profile = _makeProfile(birthYear: 2002);
+      final profile = makeProfile(birthYear: 2002);
       final result = LifecyclePhaseService.detect(profile, now: now);
       final keys = result.priorities.map((p) => p.key).toList();
       expect(keys, contains('open_3a'));
@@ -274,7 +274,7 @@ void main() {
     });
 
     test('Consolidation priorities include retirement planning', () {
-      final profile = _makeProfile(birthYear: 1977);
+      final profile = makeProfile(birthYear: 1977);
       final result = LifecyclePhaseService.detect(profile, now: now);
       final keys = result.priorities.map((p) => p.key).toList();
       expect(keys, contains('plan_retirement_scenario'));
@@ -282,7 +282,7 @@ void main() {
     });
 
     test('high debt adds debt_reduction as top priority', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1986,
         dettes: const DetteProfile(creditConsommation: 25000),
       );
@@ -292,7 +292,7 @@ void main() {
     });
 
     test('concubinage adds protection priority', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1986,
         etatCivil: CoachCivilStatus.concubinage,
       );
@@ -302,10 +302,10 @@ void main() {
     });
 
     test('married with conjoint adds couple retirement sync', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1977,
         etatCivil: CoachCivilStatus.marie,
-        conjoint: ConjointProfile(
+        conjoint: const ConjointProfile(
           birthYear: 1982,
         ),
       );
@@ -317,7 +317,7 @@ void main() {
 
   group('LifecyclePhaseService — Complexity & Literacy', () {
     test('Démarrage + beginner → basic complexity', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 2002,
         literacy: FinancialLiteracyLevel.beginner,
       );
@@ -326,7 +326,7 @@ void main() {
     });
 
     test('Démarrage + advanced → intermediate complexity', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 2002,
         literacy: FinancialLiteracyLevel.advanced,
       );
@@ -335,7 +335,7 @@ void main() {
     });
 
     test('Consolidation + intermediate → advanced complexity', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1977,
         literacy: FinancialLiteracyLevel.intermediate,
       );
@@ -344,7 +344,7 @@ void main() {
     });
 
     test('Transmission + beginner → basic complexity', () {
-      final profile = _makeProfile(birthYear: 1946);
+      final profile = makeProfile(birthYear: 1946);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.complexity, equals(LifecycleComplexity.basic));
     });
@@ -352,7 +352,7 @@ void main() {
 
   group('ContentAdapterService', () {
     test('Démarrage adaptation hides advanced features', () {
-      final profile = _makeProfile(birthYear: 2002);
+      final profile = makeProfile(birthYear: 2002);
       final phaseResult = LifecyclePhaseService.detect(profile, now: now);
       final adaptation = ContentAdapterService.adapt(phaseResult, profile);
 
@@ -366,7 +366,7 @@ void main() {
     });
 
     test('Consolidation adaptation shows full features', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1977,
         literacy: FinancialLiteracyLevel.intermediate,
       );
@@ -382,7 +382,7 @@ void main() {
     });
 
     test('Transition dashboard focuses on retirement', () {
-      final profile = _makeProfile(birthYear: 1966);
+      final profile = makeProfile(birthYear: 1966);
       final phaseResult = LifecyclePhaseService.detect(profile, now: now);
       final adaptation = ContentAdapterService.adapt(phaseResult, profile);
 
@@ -391,7 +391,7 @@ void main() {
     });
 
     test('Retraite dashboard focuses on budget', () {
-      final profile = _makeProfile(birthYear: 1956);
+      final profile = makeProfile(birthYear: 1956);
       final phaseResult = LifecyclePhaseService.detect(profile, now: now);
       final adaptation = ContentAdapterService.adapt(phaseResult, profile);
 
@@ -399,7 +399,7 @@ void main() {
     });
 
     test('coachSystemPromptAddition includes phase and priorities', () {
-      final profile = _makeProfile(birthYear: 1977);
+      final profile = makeProfile(birthYear: 1977);
       final phaseResult = LifecyclePhaseService.detect(profile, now: now);
       final adaptation = ContentAdapterService.adapt(phaseResult, profile);
 
@@ -409,7 +409,7 @@ void main() {
     });
 
     test('greeting key follows naming convention', () {
-      final profile = _makeProfile(birthYear: 2002);
+      final profile = makeProfile(birthYear: 2002);
       final phaseResult = LifecyclePhaseService.detect(profile, now: now);
       final adaptation = ContentAdapterService.adapt(phaseResult, profile);
 
@@ -419,13 +419,13 @@ void main() {
 
   group('LifecyclePhaseService — yearsToRetirement', () {
     test('yearsToRetirement uses default 65 when no target', () {
-      final profile = _makeProfile(birthYear: 1977);
+      final profile = makeProfile(birthYear: 1977);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.yearsToRetirement, equals(16)); // 65 - 49
     });
 
     test('yearsToRetirement uses custom target', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1977,
         targetRetirementAge: 60,
       );
@@ -434,7 +434,7 @@ void main() {
     });
 
     test('yearsToRetirement can be negative (past retirement)', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1956,
         targetRetirementAge: 65,
       );

@@ -27,7 +27,7 @@ void main() {
     test('2. hallucinated number flagged when context provides known values', () {
       const llmOutput =
           'Ton avoir LPP est de CHF 95\'000. Tu peux envisager un rachat.';
-      final context = CoachContext(
+      const context = CoachContext(
         firstName: 'Lauren',
         archetype: 'expat_us',
         age: 43,

@@ -1991,8 +1991,7 @@ class SPt extends S {
   String get coachingFilterRetraite => 'Reforma';
 
   @override
-  String get coachingNoTips =>
-      'O teu perfil esta completo e bem gerido. Parabens!';
+  String get coachingNoTips => 'O teu perfil está completo. Nada a assinalar.';
 
   @override
   String coachingImpact(String amount) {
@@ -3773,7 +3772,7 @@ class SPt extends S {
 
   @override
   String checkinSuccessTitle(String month) {
-    return 'Bravo ! Check-in $month complété';
+    return 'Feito. Check-in $month concluído.';
   }
 
   @override
@@ -4295,7 +4294,7 @@ class SPt extends S {
   }
 
   @override
-  String get coachShockTitle => 'Tes chiffres-chocs';
+  String get coachShockTitle => 'Os teus números-chave';
 
   @override
   String get coachShockSubtitle =>
@@ -7334,7 +7333,7 @@ class SPt extends S {
 
   @override
   String scoreRevealGreeting(String name) {
-    return 'Bravo $name,';
+    return 'Aqui está a tua pontuação, $name.';
   }
 
   @override
@@ -7802,7 +7801,7 @@ class SPt extends S {
 
   @override
   String get expatAvsComplete =>
-      'Parabéns! Tens os teus 44 anos completos de contribuição. A tua pensão AVS não deverá ser reduzida.';
+      'Confirmado: tens os teus 44 anos completos de contribuição. A tua pensão AVS não deverá ser reduzida.';
 
   @override
   String get expatPensionImpact => 'IMPACTO NA TUA PENSÃO';
@@ -17783,4 +17782,29 @@ class SPt extends S {
 
   @override
   String get coachBriefingFallbackGreeting => 'Olá';
+
+  @override
+  String get coachBriefingBadgeLlm => 'Coach IA';
+
+  @override
+  String get coachBriefingBadge => 'Coach';
+
+  @override
+  String coachBriefingConfidenceLow(String score) {
+    return 'Confiança $score % — Enriquecer';
+  }
+
+  @override
+  String coachBriefingConfidence(String score) {
+    return 'Confiança $score %';
+  }
+
+  @override
+  String coachBriefingImpactEstimated(String amount) {
+    return 'Impacto estimado : CHF $amount';
+  }
+
+  @override
+  String get chiffreChocSectionDisclaimer =>
+      'Simulação educativa. Não constitui aconselhamento financeiro (LSFin). Hipóteses modificáveis — resultados não garantidos.';
 }

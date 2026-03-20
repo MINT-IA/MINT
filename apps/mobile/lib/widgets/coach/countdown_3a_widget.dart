@@ -131,7 +131,7 @@ class Countdown3aWidget extends StatelessWidget {
                         'd\u2019imp\u00f4ts en moins.\n'
                         'Si tu ne fais rien\u00a0: ${formatChfWithPrefix(taxSavingsIfFull)} '
                         'laiss\u00e9s sur la table. Chaque ann\u00e9e.'
-                    : 'Bravo\u00a0! Tu as rempli ton 3a $year. '
+                    : 'C\u2019est fait\u00a0! Ton 3a $year est rempli. '
                         '\u00c9conomie fiscale\u00a0: ${formatChfWithPrefix(taxSavingsIfFull)}.',
                 style: MintTextStyles.labelSmall(color: _remaining > 0 ? MintColors.scoreCritique : MintColors.scoreExcellent).copyWith(fontSize: 12, fontWeight: FontWeight.w500, height: 1.4),
                 textAlign: TextAlign.center,

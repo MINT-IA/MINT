@@ -65,9 +65,10 @@ void main() {
     expect(find.textContaining("1'450"), findsWidgets);
   });
 
-  testWidgets('shows congratulation when ceiling full', (tester) async {
+  testWidgets('shows completion message when ceiling full', (tester) async {
     await tester.pumpWidget(buildWidget(contributed: 7258));
-    expect(find.textContaining('Bravo'), findsOneWidget);
+    // V5 voice: "C'est fait !" replaces "Bravo !"
+    expect(find.textContaining('fait'), findsOneWidget);
   });
 
   testWidgets('shows disclaimer', (tester) async {

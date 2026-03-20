@@ -518,7 +518,7 @@ void main() {
       );
       final prompts = ResponseCardService.suggestedPrompts(profile);
 
-      expect(prompts.any((p) => p.contains('ind\u00e9pendant')), isTrue);
+      expect(prompts.any((p) => p.toLowerCase().contains('ind\u00e9pendant')), isTrue);
     });
 
     test('couple sees coordination prompt', () {

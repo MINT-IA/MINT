@@ -1988,8 +1988,7 @@ class SDe extends S {
   String get coachingFilterRetraite => 'Rente';
 
   @override
-  String get coachingNoTips =>
-      'Ihr Profil ist vollständig und gut verwaltet. Bravo!';
+  String get coachingNoTips => 'Dein Profil ist vollständig. Nichts zu melden.';
 
   @override
   String coachingImpact(String amount) {
@@ -3778,7 +3777,7 @@ class SDe extends S {
 
   @override
   String checkinSuccessTitle(String month) {
-    return 'Bravo! Check-in $month abgeschlossen';
+    return 'Erledigt. Check-in $month abgeschlossen.';
   }
 
   @override
@@ -4302,7 +4301,7 @@ class SDe extends S {
   }
 
   @override
-  String get coachShockTitle => 'Tes chiffres-chocs';
+  String get coachShockTitle => 'Deine Schlüsselzahlen';
 
   @override
   String get coachShockSubtitle =>
@@ -7340,7 +7339,7 @@ class SDe extends S {
 
   @override
   String scoreRevealGreeting(String name) {
-    return 'Bravo $name,';
+    return 'Hier ist dein Score, $name.';
   }
 
   @override
@@ -7807,7 +7806,7 @@ class SDe extends S {
 
   @override
   String get expatAvsComplete =>
-      'Glückwunsch! Du hast deine 44 vollständigen Beitragsjahre. Deine AHV-Rente sollte nicht gekürzt werden.';
+      'Bestätigt: Du hast deine 44 vollständigen Beitragsjahre. Deine AHV-Rente sollte nicht gekürzt werden.';
 
   @override
   String get expatPensionImpact => 'AUSWIRKUNG AUF DEINE RENTE';
@@ -17849,4 +17848,29 @@ class SDe extends S {
 
   @override
   String get coachBriefingFallbackGreeting => 'Hallo';
+
+  @override
+  String get coachBriefingBadgeLlm => 'KI-Coach';
+
+  @override
+  String get coachBriefingBadge => 'Coach';
+
+  @override
+  String coachBriefingConfidenceLow(String score) {
+    return 'Vertrauen $score % — Ergänzen';
+  }
+
+  @override
+  String coachBriefingConfidence(String score) {
+    return 'Vertrauen $score %';
+  }
+
+  @override
+  String coachBriefingImpactEstimated(String amount) {
+    return 'Geschätzter Effekt : CHF $amount';
+  }
+
+  @override
+  String get chiffreChocSectionDisclaimer =>
+      'Nur zu Bildungszwecken. Keine Anlage- oder Vorsorgeberatung (FIDLEG). Annahmen anpassbar — Ergebnisse nicht garantiert.';
 }

@@ -7,7 +7,7 @@ import 'package:mint_mobile/services/financial_core/withdrawal_sequencing_servic
 // ────────────────────────────────────────────────────────────
 
 void main() {
-  CoachProfile _makeProfile({
+  CoachProfile makeProfile({
     int birthYear = 1977,
     String canton = 'VS',
     double salaire = 10000,
@@ -36,7 +36,7 @@ void main() {
 
   group('WithdrawalSequencingService.optimize', () {
     test('no capital → empty sequences', () {
-      final profile = _makeProfile();
+      final profile = makeProfile();
       final result = WithdrawalSequencingService.optimize(profile: profile);
 
       expect(result.optimizedSequence, isEmpty);
@@ -47,7 +47,7 @@ void main() {
     });
 
     test('already retired → empty sequences', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1956, // age ~70
         epargne3a: 100000,
       );
@@ -58,7 +58,7 @@ void main() {
     });
 
     test('result always includes disclaimer', () {
-      final profile = _makeProfile(epargne3a: 50000, nombre3a: 2);
+      final profile = makeProfile(epargne3a: 50000, nombre3a: 2);
       final result = WithdrawalSequencingService.optimize(profile: profile);
 
       expect(result.disclaimer, isNotEmpty);
@@ -67,7 +67,7 @@ void main() {
     });
 
     test('result always includes legal sources', () {
-      final profile = _makeProfile(epargne3a: 50000, nombre3a: 2);
+      final profile = makeProfile(epargne3a: 50000, nombre3a: 2);
       final result = WithdrawalSequencingService.optimize(profile: profile);
 
       expect(result.sources, isNotEmpty);
@@ -76,7 +76,7 @@ void main() {
     });
 
     test('with 3a capital → generates withdrawal events', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1977, // age ~49, retires at 65
         epargne3a: 100000,
         nombre3a: 3,
@@ -88,7 +88,7 @@ void main() {
     });
 
     test('optimized tax ≤ naive tax (optimization works)', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1977,
         epargne3a: 150000,
         nombre3a: 5,
@@ -105,7 +105,7 @@ void main() {
     });
 
     test('tax savings percent is correctly computed', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1977,
         epargne3a: 100000,
         nombre3a: 3,
@@ -124,12 +124,12 @@ void main() {
     });
 
     test('married couple gets tax discount', () {
-      final profileSingle = _makeProfile(
+      final profileSingle = makeProfile(
         epargne3a: 200000,
         nombre3a: 5,
         etatCivil: CoachCivilStatus.celibataire,
       );
-      final profileMarried = _makeProfile(
+      final profileMarried = makeProfile(
         epargne3a: 200000,
         nombre3a: 5,
         etatCivil: CoachCivilStatus.marie,
@@ -148,7 +148,7 @@ void main() {
     });
 
     test('withdrawal events have valid structure', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1977,
         epargne3a: 100000,
         nombre3a: 3,
@@ -169,7 +169,7 @@ void main() {
     });
 
     test('lppCapitalPct = 0 → no LPP in sequence', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         birthYear: 1977,
         avoirLpp: 500000,
       );

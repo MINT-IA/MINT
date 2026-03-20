@@ -18,7 +18,7 @@ import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/models/profile.dart';
 
 // ────────────────────────────────────────────────────────────
-//  NAVIGATION SHELL TESTS — S49 (3 tabs: Pulse, Mint, Moi)
+//  NAVIGATION SHELL TESTS — S52 (4 tabs: Aujourd'hui, Coach, Explorer, Dossier)
 // ────────────────────────────────────────────────────────────
 
 void main() {
@@ -82,7 +82,7 @@ void main() {
     );
   }
 
-  group('MainNavigationShell (S49 — 3 tabs)', () {
+  group('MainNavigationShell (S52 — 4 tabs)', () {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(buildTestableShell());
       await tester.pump(const Duration(seconds: 2));
@@ -91,48 +91,50 @@ void main() {
       expect(find.byType(Scaffold), findsWidgets);
     });
 
-    testWidgets('renders 3 tab items in bottom navigation', (tester) async {
+    testWidgets('renders 4 tab items in bottom navigation', (tester) async {
       await tester.pumpWidget(buildTestableShell());
       await tester.pump(const Duration(seconds: 2));
 
-      expect(find.text('Pulse'), findsOneWidget);
-      expect(find.text('Mint'), findsOneWidget);
-      expect(find.text('Moi'), findsOneWidget);
+      // S52: 4 tabs — Aujourd'hui, Coach, Explorer, Dossier
+      expect(find.text('Aujourd\'hui'), findsOneWidget);
+      expect(find.text('Coach'), findsOneWidget);
+      expect(find.text('Explorer'), findsOneWidget);
+      expect(find.text('Dossier'), findsOneWidget);
     });
 
     testWidgets('old tab labels are removed', (tester) async {
       await tester.pumpWidget(buildTestableShell());
       await tester.pump(const Duration(seconds: 2));
 
-      expect(find.text('Agir'), findsNothing,
-          reason: 'Old tab label Agir should be removed');
-      expect(find.text('Apprendre'), findsNothing,
-          reason: 'Old tab label Apprendre should be removed');
-      expect(find.text('Profil'), findsNothing,
-          reason: 'Old tab label Profil replaced by Moi');
+      expect(find.text('Pulse'), findsNothing,
+          reason: 'Old tab label Pulse replaced by Aujourd\'hui');
+      expect(find.text('Mint'), findsNothing,
+          reason: 'Old tab label Mint replaced by Coach');
+      expect(find.text('Moi'), findsNothing,
+          reason: 'Old tab label Moi replaced by Dossier');
     });
 
     testWidgets('tapping each tab switches content', (tester) async {
       await tester.pumpWidget(buildTestableShell());
       await tester.pump(const Duration(seconds: 2));
 
-      // Tab 0 (Pulse) is active by default
-      expect(find.byType(Scaffold), findsWidgets,
-          reason: 'Pulse tab renders content');
+      // Tab 0 (Aujourd'hui) is active by default
+      expect(find.byType(Scaffold), findsWidgets);
 
-      // Tap Tab 1 (Mint)
-      await tester.tap(find.text('Mint'));
+      // Tap Tab 1 (Coach)
+      await tester.tap(find.text('Coach'));
       await tester.pump(const Duration(seconds: 2));
+      expect(find.byType(Scaffold), findsWidgets);
 
-      expect(find.byType(Scaffold), findsWidgets,
-          reason: 'Mint tab content should be visible');
-
-      // Tap Tab 2 (Moi)
-      await tester.tap(find.text('Moi'));
+      // Tap Tab 2 (Explorer)
+      await tester.tap(find.text('Explorer'));
       await tester.pump(const Duration(seconds: 2));
+      expect(find.byType(Scaffold), findsWidgets);
 
-      expect(find.byType(Scaffold), findsWidgets,
-          reason: 'Moi tab renders a Scaffold');
+      // Tap Tab 3 (Dossier)
+      await tester.tap(find.text('Dossier'));
+      await tester.pump(const Duration(seconds: 2));
+      expect(find.byType(Scaffold), findsWidgets);
     });
   });
 }

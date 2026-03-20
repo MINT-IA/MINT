@@ -1123,13 +1123,13 @@ class _IndependantScreenState extends State<IndependantScreen> {
               deadline: 'J+30',
               urgencyColor: MintColors.scoreCritique,
               actions: [
-                PlanAction(
+                const PlanAction(
                   label: 'Inscription caisse AVS ind\u00e9pendants',
                   consequence:
                       'Amendes r\u00e9troactives si d\u00e9lai d\u00e9pass\u00e9',
                   legalRef: 'LAVS art. 12',
                 ),
-                PlanAction(
+                const PlanAction(
                   label: 'Assurance accidents LAA (si pas LPP)',
                   consequence: 'Pas de couverture accident professionnel',
                   legalRef: 'LAA art. 4',
@@ -1142,12 +1142,12 @@ class _IndependantScreenState extends State<IndependantScreen> {
               deadline: 'J+60',
               urgencyColor: MintColors.scoreAttention,
               actions: [
-                PlanAction(
+                const PlanAction(
                   label:
                       'Ouvrir compte 3a (d\u00e9duction jusqu\'\u00e0 CHF 36\'288)',
                   legalRef: 'OPP3',
                 ),
-                PlanAction(
+                const PlanAction(
                   label:
                       '\u00c9valuer IJM (indemnit\u00e9 journali\u00e8re maladie)',
                   consequence:
@@ -1161,10 +1161,10 @@ class _IndependantScreenState extends State<IndependantScreen> {
               deadline: 'J+90',
               urgencyColor: MintColors.primary,
               actions: [
-                PlanAction(
+                const PlanAction(
                     label:
                         'Frais professionnels d\u00e9ductibles \u2014 tenir registre'),
-                PlanAction(
+                const PlanAction(
                     label:
                         'Acomptes imp\u00f4ts cantonaux \u2014 \u00e9viter les int\u00e9r\u00eats'),
               ],

@@ -22,8 +22,8 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
   String _lienParente = 'conjoint';
   String _canton = 'VD';
   double _fortuneDefunt = 500000;
-  double _lppDefunt = 200000;
-  double _pilier3aDefunt = 50000;
+  final double _lppDefunt = 200000;
+  final double _pilier3aDefunt = 50000;
   bool _testamentExiste = false;
 
   @override
@@ -82,7 +82,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
   }
 
   Widget _buildChiffreChoc(S s) {
-    final delaiRepudiation = 3; // mois — CC art. 567
+    const delaiRepudiation = 3; // mois — CC art. 567
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -139,7 +139,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
                         width: 24,
                         height: 24,
                         alignment: Alignment.center,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: MintColors.error,
                           shape: BoxShape.circle,
                         ),
@@ -227,7 +227,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
           title: Text(s.decesProchTestament,
               style: MintTextStyles.bodyMedium()),
           value: _testamentExiste,
-          activeColor: MintColors.primary,
+          activeThumbColor: MintColors.primary,
           onChanged: (v) => setState(() => _testamentExiste = v),
         ),
       ],
@@ -381,7 +381,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
             ),
             child: Row(
               children: [
-                Icon(Icons.check_circle_outline,
+                const Icon(Icons.check_circle_outline,
                     color: MintColors.success, size: 20),
                 const SizedBox(width: 12),
                 Expanded(
