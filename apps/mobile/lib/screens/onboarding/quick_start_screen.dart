@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
@@ -13,20 +15,14 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/screens/pulse/pulse_screen.dart'
     show NavigationShellState;
 import 'package:mint_mobile/utils/chf_formatter.dart';
-import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
-import 'package:mint_mobile/widgets/premium/mint_inline_input_chip.dart';
+import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
-import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
-/// Quick Start V2 — revelation-first onboarding.
+/// Quick Start V3 — Premium 3-step onboarding (15 seconds, 3 taps).
 ///
-/// The result dominates. Inputs are compact chips that open bottom sheets.
-/// Structure: Hero intro > Result hero card > Input chips > Micro proof > CTA.
-///
-/// Collects 4 fields: firstName (secondary), age, revenu brut annuel, canton.
-/// Shows a live retirement preview based on the user's actual inputs.
-/// Saves via [CoachProfileProvider.updateFromSmartFlow] and navigates to /home.
+/// Structure: Age (picker) → Revenu (numeric) → Canton (grid) → Result reveal.
+/// Each step is a full-screen page with generous whitespace and smooth transitions.
+/// No firstName — the coach will ask later.
 ///
 /// Design System category: D (Form) — progressive disclosure, preview live.
 class QuickStartScreen extends StatefulWidget {
@@ -42,73 +38,83 @@ class QuickStartScreen extends StatefulWidget {
 
 class _QuickStartScreenState extends State<QuickStartScreen> {
   final _analytics = AnalyticsService();
-  final _nameController = TextEditingController();
-  double _age = 45;
-  double _salary = 85000;
-  String _canton = 'VD';
+
+  // ── State ──
+  int _step = 0; // 0=age, 1=revenu, 2=canton, 3=result
+  int _age = 45;
+  String _salaryText = '';
+  double _salary = 0;
+  String _canton = '';
   bool _saving = false;
+
+  // Controllers
+  late final FixedExtentScrollController _pickerController;
+  final _salaryFocus = FocusNode();
+  final _salaryController = TextEditingController();
+
+  // Constants
+  static const int _minAge = 18;
+  static const int _maxAge = 75;
 
   @override
   void initState() {
     super.initState();
     _analytics.trackScreenView('/onboarding/quick');
+    _pickerController = FixedExtentScrollController(
+      initialItem: _age - _minAge,
+    );
 
     // Pre-fill from existing profile if editing a specific section
     if (widget.initialSection != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _prefillFromProfile();
-        _showSectionGuidance();
       });
     }
   }
 
-  /// Pre-fill fields from the existing coach profile when editing.
   void _prefillFromProfile() {
     final provider = context.read<CoachProfileProvider>();
     final profile = provider.profile;
     if (profile == null) return;
 
     setState(() {
-      if (profile.firstName != null && profile.firstName!.isNotEmpty) {
-        _nameController.text = profile.firstName!;
-      }
-      _age = profile.age.toDouble().clamp(22, 67);
+      _age = profile.age.clamp(_minAge, _maxAge);
+      _pickerController.jumpToItem(_age - _minAge);
       if (profile.canton.isNotEmpty) {
         _canton = profile.canton;
       }
       if (profile.revenuBrutAnnuel > 0) {
-        _salary = profile.revenuBrutAnnuel.clamp(20000, 300000);
+        _salary = profile.revenuBrutAnnuel.clamp(20000, 500000);
+        _salaryText = _formatSalaryDisplay(_salary.round());
+        _salaryController.text = _salary.round().toString();
       }
     });
   }
 
-  /// Show a guidance snackbar indicating which section the user should edit.
-  void _showSectionGuidance() {
-    final l = S.of(context)!;
-    final sectionLabels = {
-      'identity': l.quickStartSectionIdentity,
-      'income': l.quickStartSectionIncome,
-      'pension': l.quickStartSectionPension,
-      'property': l.quickStartSectionProperty,
-    };
-    final label = sectionLabels[widget.initialSection];
-    if (label == null || !mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l.quickStartSectionGuidance(label)),
-        duration: const Duration(seconds: 4),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
   @override
   void dispose() {
-    _nameController.dispose();
+    _pickerController.dispose();
+    _salaryFocus.dispose();
+    _salaryController.dispose();
     super.dispose();
   }
 
-  // ── Live estimation (same formulas as landing page, via financial_core) ──
+  // ── Formatting ──
+
+  String _formatSalaryDisplay(int amount) {
+    if (amount == 0) return '';
+    final str = amount.toString();
+    final buffer = StringBuffer();
+    for (int i = 0; i < str.length; i++) {
+      if (i > 0 && (str.length - i) % 3 == 0) {
+        buffer.write('\u2019'); // right single quotation mark (Swiss thousands)
+      }
+      buffer.write(str[i]);
+    }
+    return buffer.toString();
+  }
+
+  // ── Estimation (same formulas as before, via financial_core) ──
 
   double _estimateLppBalance(int age, double gross) {
     if (gross < lppSeuilEntree) return 0.0;
@@ -123,13 +129,12 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
   }
 
   Map<String, double> _estimate() {
-    final age = _age.round();
     final gross = _salary;
     final avs = AvsCalculator.renteFromRAMD(gross);
-    final lppBalance = _estimateLppBalance(age, gross);
+    final lppBalance = _estimateLppBalance(_age, gross);
     final lppAnnual = LppCalculator.projectToRetirement(
       currentBalance: lppBalance,
-      currentAge: age,
+      currentAge: _age,
       retirementAge: 65,
       grossAnnualSalary: gross,
       caisseReturn: 0.01,
@@ -142,424 +147,644 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     return {'total': total, 'current': current, 'ratio': ratio};
   }
 
-  Future<void> _onContinue() async {
+  // ── Navigation ──
+
+  void _nextStep() {
+    if (_step < 3) {
+      setState(() => _step++);
+      if (_step == 1) {
+        // Focus salary field after transition
+        Future.delayed(const Duration(milliseconds: 400), () {
+          if (mounted) _salaryFocus.requestFocus();
+        });
+      }
+    }
+  }
+
+  void _onCantonSelected(String code) {
+    setState(() {
+      _canton = code;
+    });
+    // Auto-advance after a brief visual confirmation
+    Future.delayed(const Duration(milliseconds: 250), () {
+      if (mounted) _nextStep();
+    });
+  }
+
+  Future<void> _onCtaCoach() async {
     if (_saving) return;
     setState(() => _saving = true);
 
     final provider = context.read<CoachProfileProvider>();
     provider.updateFromSmartFlow(
-      age: _age.round(),
+      age: _age,
       grossSalary: _salary,
       canton: _canton,
-      firstName: _nameController.text.trim().isNotEmpty
-          ? _nameController.text.trim()
-          : null,
     );
 
-    _analytics.trackCTAClick('quick_start_completed',
+    _analytics.trackCTAClick('quick_start_coach',
         screenName: '/onboarding/quick');
 
     if (mounted) {
       context.go('/home');
-      NavigationShellState.switchTab(0);
+      NavigationShellState.switchTab(1); // Coach tab
     }
   }
 
-  // ── Bottom sheets for editing ──
+  Future<void> _onCtaExplore() async {
+    if (_saving) return;
+    setState(() => _saving = true);
 
-  void _showAgeSheet() {
-    final l = S.of(context)!;
-    double tempAge = _age;
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: MintColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setSheetState) => Padding(
-          padding: const EdgeInsets.fromLTRB(
-            MintSpacing.lg,
-            MintSpacing.xl,
-            MintSpacing.lg,
-            MintSpacing.xxl,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              MintPremiumSlider(
-                label: l.quickStartAge,
-                value: tempAge,
-                min: 22,
-                max: 67,
-                divisions: 45,
-                formatValue: (v) =>
-                    l.quickStartAgeValue(v.round().toString()),
-                onChanged: (v) => setSheetState(() => tempAge = v),
-              ),
-              const SizedBox(height: MintSpacing.lg),
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: FilledButton(
-                  onPressed: () {
-                    setState(() => _age = tempAge);
-                    Navigator.pop(ctx);
-                  },
-                  style: FilledButton.styleFrom(
-                    backgroundColor: MintColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    'OK',
-                    style:
-                        MintTextStyles.titleMedium(color: MintColors.white),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    final provider = context.read<CoachProfileProvider>();
+    provider.updateFromSmartFlow(
+      age: _age,
+      grossSalary: _salary,
+      canton: _canton,
     );
-  }
 
-  void _showSalarySheet() {
-    final l = S.of(context)!;
-    double tempSalary = _salary;
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: MintColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setSheetState) => Padding(
-          padding: const EdgeInsets.fromLTRB(
-            MintSpacing.lg,
-            MintSpacing.xl,
-            MintSpacing.lg,
-            MintSpacing.xxl,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              MintPremiumSlider(
-                label: l.quickStartSalary,
-                value: tempSalary,
-                min: 20000,
-                max: 300000,
-                divisions: 56,
-                formatValue: (v) => formatChfWithPrefix(v),
-                onChanged: (v) => setSheetState(() => tempSalary = v),
-              ),
-              const SizedBox(height: MintSpacing.lg),
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: FilledButton(
-                  onPressed: () {
-                    setState(() => _salary = tempSalary);
-                    Navigator.pop(ctx);
-                  },
-                  style: FilledButton.styleFrom(
-                    backgroundColor: MintColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    'OK',
-                    style:
-                        MintTextStyles.titleMedium(color: MintColors.white),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+    _analytics.trackCTAClick('quick_start_explore',
+        screenName: '/onboarding/quick');
 
-  void _showCantonSheet() {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: MintColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      isScrollControlled: true,
-      builder: (ctx) => DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.55,
-        maxChildSize: 0.8,
-        minChildSize: 0.3,
-        builder: (ctx, scrollController) => ListView.builder(
-          controller: scrollController,
-          padding: const EdgeInsets.symmetric(vertical: MintSpacing.md),
-          itemCount: sortedCantonCodes.length,
-          itemBuilder: (ctx, i) {
-            final code = sortedCantonCodes[i];
-            final name = cantonFullNames[code] ?? code;
-            final selected = code == _canton;
-            return ListTile(
-              title: Text(
-                '$code \u2014 $name',
-                style: MintTextStyles.bodyMedium(
-                  color: selected
-                      ? MintColors.primary
-                      : MintColors.textPrimary,
-                ).copyWith(
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
-                ),
-              ),
-              trailing: selected
-                  ? const Icon(Icons.check_rounded,
-                      size: 20, color: MintColors.primary)
-                  : null,
-              onTap: () {
-                setState(() => _canton = code);
-                Navigator.pop(ctx);
-              },
-            );
-          },
-        ),
-      ),
-    );
+    if (mounted) {
+      context.go('/home');
+      NavigationShellState.switchTab(0); // Aujourd'hui tab
+    }
   }
 
   // ── Build ──
 
   @override
   Widget build(BuildContext context) {
-    final l = S.of(context)!;
-    final est = _estimate();
-    final total = est['total']!;
-    final current = est['current']!;
-    final ratio = est['ratio']!;
-    final ratioPct = (ratio * 100).round();
-
-    // Accent color for hero
-    final Color accentColor;
-    if (ratio >= 0.7) {
-      accentColor = MintColors.success;
-    } else if (ratio >= 0.5) {
-      accentColor = MintColors.warning;
-    } else {
-      accentColor = MintColors.error;
-    }
-
-    // Narrative text
-    final narrative = ratio >= 0.3
-        ? l.quickStartNarrative(ratioPct.toString())
-        : l.quickStartNarrativeLow;
-
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
-      appBar: AppBar(
-        backgroundColor: MintColors.porcelaine,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        leading: BackButton(
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go('/');
-            }
-          },
+      body: SafeArea(
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          switchInCurve: Curves.easeOut,
+          switchOutCurve: Curves.easeIn,
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: child,
+          ),
+          child: _buildCurrentStep(),
         ),
       ),
-      body: SafeArea(
-        top: false,
-        child: Column(
-          children: [
-            // ── Scrollable content ──
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(
-                  MintSpacing.lg,
-                  MintSpacing.sm,
-                  MintSpacing.lg,
-                  MintSpacing.md,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // ── Bloc 1: Hero intro ──
-                    Text(
-                      l.quickStartTitle,
-                      style: MintTextStyles.headlineLarge(),
+    );
+  }
+
+  Widget _buildCurrentStep() {
+    switch (_step) {
+      case 0:
+        return _StepAge(
+          key: const ValueKey('step_age'),
+          age: _age,
+          pickerController: _pickerController,
+          onAgeChanged: (v) => setState(() => _age = v),
+          onNext: _nextStep,
+        );
+      case 1:
+        return _StepRevenu(
+          key: const ValueKey('step_revenu'),
+          salaryText: _salaryText,
+          salaryFocus: _salaryFocus,
+          salaryController: _salaryController,
+          onSalaryChanged: (text, value) {
+            setState(() {
+              _salaryText = text;
+              _salary = value;
+            });
+          },
+          onNext: _salary > 0 ? _nextStep : null,
+        );
+      case 2:
+        return _StepCanton(
+          key: const ValueKey('step_canton'),
+          selectedCanton: _canton,
+          onCantonSelected: _onCantonSelected,
+        );
+      case 3:
+        final est = _estimate();
+        return _StepResult(
+          key: const ValueKey('step_result'),
+          total: est['total']!,
+          ratio: est['ratio']!,
+          saving: _saving,
+          onCtaCoach: _onCtaCoach,
+          onCtaExplore: _onCtaExplore,
+        );
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// STEP 1 — Age
+// ═══════════════════════════════════════════════════════════════════════════════
+
+class _StepAge extends StatelessWidget {
+  final int age;
+  final FixedExtentScrollController pickerController;
+  final ValueChanged<int> onAgeChanged;
+  final VoidCallback onNext;
+
+  const _StepAge({
+    super.key,
+    required this.age,
+    required this.pickerController,
+    required this.onAgeChanged,
+    required this.onNext,
+  });
+
+  static const int _minAge = 18;
+  static const int _maxAge = 75;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = S.of(context)!;
+
+    return Column(
+      children: [
+        const SizedBox(height: MintSpacing.xxl + MintSpacing.xl),
+
+        // Title
+        Text(
+          l.quickStartAgeTitle,
+          style: MintTextStyles.headlineLarge(),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: MintSpacing.sm),
+
+        // Subtitle
+        Text(
+          l.quickStartAgeSubtitle,
+          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+          textAlign: TextAlign.center,
+        ),
+
+        // Picker
+        Expanded(
+          child: Center(
+            child: SizedBox(
+              height: 260,
+              child: CupertinoPicker(
+                scrollController: pickerController,
+                itemExtent: 56,
+                diameterRatio: 1.3,
+                squeeze: 0.95,
+                magnification: 1.15,
+                useMagnifier: true,
+                selectionOverlay: Container(
+                  decoration: BoxDecoration(
+                    border: Border.symmetric(
+                      horizontal: BorderSide(
+                        color: MintColors.bleuAir.withValues(alpha: 0.15),
+                        width: 1.5,
+                      ),
                     ),
-                    const SizedBox(height: MintSpacing.sm),
+                  ),
+                ),
+                onSelectedItemChanged: (index) {
+                  HapticFeedback.selectionClick();
+                  onAgeChanged(_minAge + index);
+                },
+                children: List.generate(
+                  _maxAge - _minAge + 1,
+                  (index) {
+                    final value = _minAge + index;
+                    final isSelected = value == age;
+                    return Center(
+                      child: Text(
+                        l.quickStartAgeValue(value.toString()),
+                        style: MintTextStyles.displayMedium(
+                          color: isSelected
+                              ? MintColors.textPrimary
+                              : MintColors.textMuted,
+                        ).copyWith(
+                          fontWeight:
+                              isSelected ? FontWeight.w700 : FontWeight.w400,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+
+        // Next button
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            MintSpacing.lg,
+            0,
+            MintSpacing.lg,
+            MintSpacing.xl,
+          ),
+          child: SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: FilledButton(
+              onPressed: onNext,
+              style: FilledButton.styleFrom(
+                backgroundColor: MintColors.primary,
+                shape: const StadiumBorder(),
+              ),
+              child: Text(
+                l.quickStartNext,
+                style: MintTextStyles.titleMedium(color: MintColors.white),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// STEP 2 — Revenu
+// ═══════════════════════════════════════════════════════════════════════════════
+
+class _StepRevenu extends StatelessWidget {
+  final String salaryText;
+  final FocusNode salaryFocus;
+  final TextEditingController salaryController;
+  final void Function(String display, double value) onSalaryChanged;
+  final VoidCallback? onNext;
+
+  const _StepRevenu({
+    super.key,
+    required this.salaryText,
+    required this.salaryFocus,
+    required this.salaryController,
+    required this.onSalaryChanged,
+    required this.onNext,
+  });
+
+  String _formatLive(String raw) {
+    final digits = raw.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.isEmpty) return '';
+    final num = int.tryParse(digits) ?? 0;
+    if (num == 0) return '';
+    final str = num.toString();
+    final buffer = StringBuffer();
+    for (int i = 0; i < str.length; i++) {
+      if (i > 0 && (str.length - i) % 3 == 0) {
+        buffer.write('\u2019');
+      }
+      buffer.write(str[i]);
+    }
+    return buffer.toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = S.of(context)!;
+
+    return Column(
+      children: [
+        const SizedBox(height: MintSpacing.xxl + MintSpacing.xl),
+
+        // Title
+        Text(
+          l.quickStartRevenueTitle,
+          style: MintTextStyles.headlineLarge(),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: MintSpacing.sm),
+
+        // Subtitle
+        Text(
+          l.quickStartRevenueSubtitle,
+          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+          textAlign: TextAlign.center,
+        ),
+
+        // Input area
+        Expanded(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: MintSpacing.lg,
+                  vertical: MintSpacing.lg,
+                ),
+                decoration: BoxDecoration(
+                  color: MintColors.craie,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
                     Text(
-                      l.quickStartSubtitle,
-                      style: MintTextStyles.bodyMedium(
+                      'CHF',
+                      style: MintTextStyles.headlineMedium(
                         color: MintColors.textSecondary,
                       ),
                     ),
-                    const SizedBox(height: MintSpacing.xxl),
-
-                    // ── Bloc 3: Result hero card (THE STAR) ──
-                    MintResultHeroCard(
-                      eyebrow: l.quickStartPreviewTitle,
-                      primaryValue:
-                          '${formatChfWithPrefix(total)}${l.quickStartPerMonth}',
-                      primaryLabel: l.quickStartHeroLabel,
-                      secondaryValue:
-                          '${formatChfWithPrefix(current)}${l.quickStartPerMonth}',
-                      secondaryLabel: l.quickStartHeroSecondaryLabel,
-                      narrative: narrative,
-                      accentColor: accentColor,
-                      tone: MintSurfaceTone.porcelaine,
-                    ),
-                    const SizedBox(height: MintSpacing.xl),
-
-                    // ── Bloc 2: Input chips (compact) ──
-                    Wrap(
-                      spacing: MintSpacing.sm,
-                      runSpacing: MintSpacing.sm,
-                      children: [
-                        MintInlineInputChip(
-                          label: l.quickStartAge,
-                          value: l.quickStartAgeValue(
-                              _age.round().toString()),
-                          onTap: _showAgeSheet,
-                          icon: Icons.cake_outlined,
-                        ),
-                        MintInlineInputChip(
-                          label: l.quickStartSalary,
-                          value: formatChfWithPrefix(_salary),
-                          onTap: _showSalarySheet,
-                          icon: Icons.work_outline,
-                        ),
-                        MintInlineInputChip(
-                          label: l.quickStartCanton,
-                          value: _canton,
-                          onTap: _showCantonSheet,
-                          icon: Icons.location_on_outlined,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: MintSpacing.lg),
-
-                    // ── Prenom (secondary, discrete) ──
-                    Semantics(
-                      label: l.quickStartFirstName,
-                      textField: true,
+                    const SizedBox(width: MintSpacing.md),
+                    Expanded(
                       child: TextField(
-                        controller: _nameController,
-                        textCapitalization: TextCapitalization.words,
-                        decoration: InputDecoration(
-                          hintText: l.quickStartFirstNameHint,
-                          labelText: l.quickStartFirstName,
-                          labelStyle: MintTextStyles.bodySmall(
-                            color: MintColors.textMuted,
-                          ),
-                          hintStyle: MintTextStyles.bodyMedium(
-                            color: MintColors.textMuted,
-                          ),
-                          filled: true,
-                          fillColor: MintColors.craie,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
-                        ),
-                        style: MintTextStyles.bodyMedium(
+                        focusNode: salaryFocus,
+                        controller: salaryController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(7),
+                        ],
+                        style: MintTextStyles.displayMedium(
                           color: MintColors.textPrimary,
                         ),
+                        textAlign: TextAlign.right,
+                        decoration: InputDecoration(
+                          hintText: '85\u2019000',
+                          hintStyle: MintTextStyles.displayMedium(
+                            color: MintColors.textMuted.withValues(alpha: 0.4),
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                          isDense: true,
+                        ),
+                        onChanged: (raw) {
+                          final digits =
+                              raw.replaceAll(RegExp(r'[^0-9]'), '');
+                          final num = int.tryParse(digits) ?? 0;
+                          final display = _formatLive(raw);
+                          onSalaryChanged(display, num.toDouble());
+                        },
                       ),
                     ),
-                    const SizedBox(height: MintSpacing.xl),
-
-                    // ── Bloc 4: Confidence notice ──
-                    MintConfidenceNotice(
-                      percent: 30,
-                      message: l.quickStartConfidenceMsg,
-                    ),
-                    const SizedBox(height: MintSpacing.md),
-
-                    // ── Bloc 5: Micro proof ──
-                    Text(
-                      l.quickStartDisclaimer,
-                      style: MintTextStyles.micro(),
-                    ),
-                    const SizedBox(height: MintSpacing.md),
                   ],
                 ),
               ),
             ),
+          ),
+        ),
 
-            // ── Bloc 6 + 7: CTA pill + secondary link (sticky) ──
-            MintSurface(
-              tone: MintSurfaceTone.porcelaine,
-              radius: 0,
-              padding: const EdgeInsets.fromLTRB(
-                MintSpacing.lg,
-                MintSpacing.md,
-                MintSpacing.lg,
-                MintSpacing.md,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: Semantics(
-                      button: true,
-                      label: l.quickStartCta,
-                      child: FilledButton(
-                        onPressed: _saving ? null : _onContinue,
-                        style: FilledButton.styleFrom(
-                          backgroundColor: MintColors.primary,
-                          shape: const StadiumBorder(),
-                        ),
-                        child: _saving
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: MintColors.white,
-                                ),
-                              )
-                            : Text(
-                                l.quickStartCta,
-                                style: MintTextStyles.titleMedium(
-                                  color: MintColors.white,
-                                ),
-                              ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: MintSpacing.sm),
-                  TextButton(
-                    onPressed: _saving ? null : _onContinue,
-                    child: Text(
-                      l.quickStartCtaSecondary,
-                      style: MintTextStyles.bodySmall(
-                        color: MintColors.textMuted,
-                      ),
-                    ),
-                  ),
-                ],
+        // Next button
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            MintSpacing.lg,
+            0,
+            MintSpacing.lg,
+            MintSpacing.xl,
+          ),
+          child: SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: AnimatedOpacity(
+              opacity: onNext != null ? 1.0 : 0.4,
+              duration: const Duration(milliseconds: 200),
+              child: FilledButton(
+                onPressed: onNext,
+                style: FilledButton.styleFrom(
+                  backgroundColor: MintColors.primary,
+                  shape: const StadiumBorder(),
+                ),
+                child: Text(
+                  l.quickStartNext,
+                  style: MintTextStyles.titleMedium(color: MintColors.white),
+                ),
               ),
             ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// STEP 3 — Canton
+// ═══════════════════════════════════════════════════════════════════════════════
+
+class _StepCanton extends StatelessWidget {
+  final String selectedCanton;
+  final ValueChanged<String> onCantonSelected;
+
+  const _StepCanton({
+    super.key,
+    required this.selectedCanton,
+    required this.onCantonSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l = S.of(context)!;
+
+    return Column(
+      children: [
+        const SizedBox(height: MintSpacing.xxl + MintSpacing.xl),
+
+        // Title
+        Text(
+          l.quickStartCantonTitle,
+          style: MintTextStyles.headlineLarge(),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: MintSpacing.sm),
+
+        // Subtitle
+        Text(
+          l.quickStartCantonSubtitle,
+          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: MintSpacing.xxl),
+
+        // Canton grid
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
+            child: Wrap(
+              spacing: MintSpacing.sm,
+              runSpacing: MintSpacing.sm,
+              children: sortedCantonCodes.map((code) {
+                final isSelected = code == selectedCanton;
+                return GestureDetector(
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    onCantonSelected(code);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? MintColors.primary
+                          : MintColors.craie,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          code,
+                          style: MintTextStyles.titleMedium(
+                            color: isSelected
+                                ? MintColors.white
+                                : MintColors.textPrimary,
+                          ),
+                        ),
+                        if (isSelected) ...[
+                          const SizedBox(width: 6),
+                          const Icon(
+                            Icons.check_rounded,
+                            size: 16,
+                            color: MintColors.white,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+        const SizedBox(height: MintSpacing.lg),
+      ],
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// STEP 4 — Result reveal
+// ═══════════════════════════════════════════════════════════════════════════════
+
+class _StepResult extends StatelessWidget {
+  final double total;
+  final double ratio;
+  final bool saving;
+  final VoidCallback onCtaCoach;
+  final VoidCallback onCtaExplore;
+
+  const _StepResult({
+    super.key,
+    required this.total,
+    required this.ratio,
+    required this.saving,
+    required this.onCtaCoach,
+    required this.onCtaExplore,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l = S.of(context)!;
+    final ratioPct = (ratio * 100).round();
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            MintColors.porcelaine,
+            MintColors.pecheDouce.withValues(alpha: 0.18),
           ],
         ),
+      ),
+      child: Column(
+        children: [
+          // Hero content
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Hero number
+                    MintHeroNumber(
+                      value: formatChfWithPrefix(total),
+                      caption: l.quickStartPerMonth,
+                      semanticsLabel:
+                          '${formatChfWithPrefix(total)} ${l.quickStartPerMonth}',
+                    ),
+                    const SizedBox(height: MintSpacing.xl),
+
+                    // Narrative
+                    Text(
+                      l.quickStartNarrative(ratioPct.toString()),
+                      style: MintTextStyles.bodyLarge(
+                        color: MintColors.textPrimary,
+                      ).copyWith(fontWeight: FontWeight.w500),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: MintSpacing.xl),
+
+                    // Confidence notice
+                    MintConfidenceNotice(
+                      percent: 30,
+                      message: l.quickStartResultConfidence,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // CTAs
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              MintSpacing.lg,
+              0,
+              MintSpacing.lg,
+              MintSpacing.md,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Primary CTA
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: FilledButton(
+                    onPressed: saving ? null : onCtaCoach,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: MintColors.primary,
+                      shape: const StadiumBorder(),
+                    ),
+                    child: saving
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: MintColors.white,
+                            ),
+                          )
+                        : Text(
+                            l.quickStartCtaCoach,
+                            style: MintTextStyles.titleMedium(
+                              color: MintColors.white,
+                            ),
+                          ),
+                  ),
+                ),
+                const SizedBox(height: MintSpacing.sm),
+
+                // Secondary CTA
+                TextButton(
+                  onPressed: saving ? null : onCtaExplore,
+                  child: Text(
+                    l.quickStartCtaExplore,
+                    style: MintTextStyles.bodySmall(
+                      color: MintColors.textMuted,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: MintSpacing.sm),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -32074,6 +32074,372 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'100 % aux héritiers'**
   String get renteVsCapitalTransmissionCapitalValue;
+
+  /// No description provided for @quickStartAgeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel âge as-tu ?'**
+  String get quickStartAgeTitle;
+
+  /// No description provided for @quickStartAgeSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'On commence par là.'**
+  String get quickStartAgeSubtitle;
+
+  /// No description provided for @quickStartRevenueTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton revenu brut annuel ?'**
+  String get quickStartRevenueTitle;
+
+  /// No description provided for @quickStartRevenueSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Même approximatif, ça suffit.'**
+  String get quickStartRevenueSubtitle;
+
+  /// No description provided for @quickStartCantonTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu vis où ?'**
+  String get quickStartCantonTitle;
+
+  /// No description provided for @quickStartCantonSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton canton change beaucoup de choses.'**
+  String get quickStartCantonSubtitle;
+
+  /// No description provided for @quickStartNext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivant'**
+  String get quickStartNext;
+
+  /// No description provided for @quickStartResultConfidence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation basée sur 3 infos. Le coach affinera.'**
+  String get quickStartResultConfidence;
+
+  /// No description provided for @quickStartCtaCoach.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parler au coach'**
+  String get quickStartCtaCoach;
+
+  /// No description provided for @quickStartCtaExplore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explorer d’abord'**
+  String get quickStartCtaExplore;
+
+  /// No description provided for @lightningMenuTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Que veux-tu explorer ?'**
+  String get lightningMenuTitle;
+
+  /// No description provided for @lightningMenuSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT calcule, tu décides.'**
+  String get lightningMenuSubtitle;
+
+  /// No description provided for @lightningMenuRetirementTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon aperçu retraite'**
+  String get lightningMenuRetirementTitle;
+
+  /// No description provided for @lightningMenuRetirementSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien tu garderas à la retraite'**
+  String get lightningMenuRetirementSubtitle;
+
+  /// No description provided for @lightningMenuRetirementAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien à la retraite ?'**
+  String get lightningMenuRetirementAction;
+
+  /// No description provided for @lightningMenuBudgetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon budget'**
+  String get lightningMenuBudgetTitle;
+
+  /// No description provided for @lightningMenuBudgetSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où part ton argent ce mois'**
+  String get lightningMenuBudgetSubtitle;
+
+  /// No description provided for @lightningMenuBudgetAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon budget ce mois'**
+  String get lightningMenuBudgetAction;
+
+  /// No description provided for @lightningMenuRenteCapitalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente ou capital ?'**
+  String get lightningMenuRenteCapitalTitle;
+
+  /// No description provided for @lightningMenuRenteCapitalSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparer les deux scénarios'**
+  String get lightningMenuRenteCapitalSubtitle;
+
+  /// No description provided for @lightningMenuRenteCapitalAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente ou capital ?'**
+  String get lightningMenuRenteCapitalAction;
+
+  /// No description provided for @lightningMenuScoreTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon score fitness'**
+  String get lightningMenuScoreTitle;
+
+  /// No description provided for @lightningMenuScoreSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta santé financière en un coup d’œil'**
+  String get lightningMenuScoreSubtitle;
+
+  /// No description provided for @lightningMenuScoreAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon score financier'**
+  String get lightningMenuScoreAction;
+
+  /// No description provided for @lightningMenuCoupleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notre situation à deux'**
+  String get lightningMenuCoupleTitle;
+
+  /// No description provided for @lightningMenuCoupleSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévoyance et patrimoine en couple'**
+  String get lightningMenuCoupleSubtitle;
+
+  /// No description provided for @lightningMenuCoupleAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notre prévoyance couple'**
+  String get lightningMenuCoupleAction;
+
+  /// No description provided for @lightningMenuDebtTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sortir de la dette'**
+  String get lightningMenuDebtTitle;
+
+  /// No description provided for @lightningMenuDebtSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un plan pour réduire tes charges'**
+  String get lightningMenuDebtSubtitle;
+
+  /// No description provided for @lightningMenuDebtAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment réduire ma dette ?'**
+  String get lightningMenuDebtAction;
+
+  /// No description provided for @lightningMenuIndependantTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon filet indépendant'**
+  String get lightningMenuIndependantTitle;
+
+  /// No description provided for @lightningMenuIndependantSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couverture et protection en solo'**
+  String get lightningMenuIndependantSubtitle;
+
+  /// No description provided for @lightningMenuIndependantAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma couverture indépendant'**
+  String get lightningMenuIndependantAction;
+
+  /// No description provided for @lightningMenuRetirementPrepTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparer ma retraite'**
+  String get lightningMenuRetirementPrepTitle;
+
+  /// No description provided for @lightningMenuRetirementPrepSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les dernières années comptent double'**
+  String get lightningMenuRetirementPrepSubtitle;
+
+  /// No description provided for @lightningMenuRetirementPrepAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon plan retraite'**
+  String get lightningMenuRetirementPrepAction;
+
+  /// No description provided for @trajectoryGoalSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton objectif'**
+  String get trajectoryGoalSectionTitle;
+
+  /// No description provided for @trajectoryGoalRetraite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite à 65 ans'**
+  String get trajectoryGoalRetraite;
+
+  /// No description provided for @trajectoryGoalAchatImmo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Achat immobilier'**
+  String get trajectoryGoalAchatImmo;
+
+  /// No description provided for @trajectoryGoalIndependance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indépendance financière'**
+  String get trajectoryGoalIndependance;
+
+  /// No description provided for @trajectoryGoalDebtFree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Libération des dettes'**
+  String get trajectoryGoalDebtFree;
+
+  /// No description provided for @trajectoryGoalHorizon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Horizon : {years} ans'**
+  String trajectoryGoalHorizon(int years);
+
+  /// No description provided for @trajectoryGoalTarget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cible : {amount}'**
+  String trajectoryGoalTarget(String amount);
+
+  /// No description provided for @trajectoryKnownSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que MINT sait'**
+  String get trajectoryKnownSectionTitle;
+
+  /// No description provided for @trajectoryFieldAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge'**
+  String get trajectoryFieldAge;
+
+  /// No description provided for @trajectoryFieldAgeUnit.
+  ///
+  /// In fr, this message translates to:
+  /// **'ans'**
+  String get trajectoryFieldAgeUnit;
+
+  /// No description provided for @trajectoryFieldRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu brut'**
+  String get trajectoryFieldRevenu;
+
+  /// No description provided for @trajectoryFieldCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton'**
+  String get trajectoryFieldCanton;
+
+  /// No description provided for @trajectoryFieldLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP'**
+  String get trajectoryFieldLpp;
+
+  /// No description provided for @trajectoryField3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne 3a'**
+  String get trajectoryField3a;
+
+  /// No description provided for @trajectoryFieldConjoint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conjoint·e'**
+  String get trajectoryFieldConjoint;
+
+  /// No description provided for @trajectoryFieldIncomplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'À compléter'**
+  String get trajectoryFieldIncomplete;
+
+  /// No description provided for @trajectoryFieldConjointYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui'**
+  String get trajectoryFieldConjointYes;
+
+  /// No description provided for @trajectoryFieldConjointNo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseigné'**
+  String get trajectoryFieldConjointNo;
+
+  /// No description provided for @trajectoryDecisionsSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes décisions'**
+  String get trajectoryDecisionsSectionTitle;
+
+  /// No description provided for @trajectoryNextStepSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaine étape'**
+  String get trajectoryNextStepSectionTitle;
+
+  /// No description provided for @trajectoryNextStepBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le coach t’accompagne vers cette action.'**
+  String get trajectoryNextStepBody;
+
+  /// No description provided for @trajectoryConfidenceSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confiance'**
+  String get trajectoryConfidenceSectionTitle;
+
+  /// No description provided for @trajectoryConfidenceLowMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes données sont encore parcellaires — chaque info supplémentaire affine ta trajectoire.'**
+  String get trajectoryConfidenceLowMessage;
+
+  /// No description provided for @trajectoryConfidenceHighMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil bien renseigné — tes projections sont fiables.'**
+  String get trajectoryConfidenceHighMessage;
+
+  /// No description provided for @trajectoryConfidenceCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Améliorer la précision'**
+  String get trajectoryConfidenceCta;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
