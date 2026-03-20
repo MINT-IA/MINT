@@ -292,6 +292,7 @@ class ConversationStore {
         if (msg.suggestedActions != null)
           'suggestedActions': msg.suggestedActions,
         if (msg.disclaimers.isNotEmpty) 'disclaimers': msg.disclaimers,
+        if (msg.userQuery != null) 'userQuery': msg.userQuery,
       };
 
   ChatMessage _messageFromJson(Map<String, dynamic> json) {
@@ -313,6 +314,7 @@ class ConversationStore {
               ?.map((e) => e as String)
               .toList() ??
           const [],
+      userQuery: json['userQuery'] as String?,
     );
   }
 }
