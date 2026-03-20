@@ -18,7 +18,6 @@ import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
-import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
 import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
@@ -29,7 +28,7 @@ import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
-import 'package:mint_mobile/widgets/coach/life_event_sheet.dart';
+import 'package:mint_mobile/widgets/coach/lightning_menu.dart';
 import 'package:mint_mobile/widgets/coach/rich_chat_widgets.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
@@ -253,11 +252,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   //  MESSAGE SENDING — SLM streaming or standard
   // ════════════════════════════════════════════════════════════
 
-  Future<void> _showLifeEventSheet() async {
-    final prompt = await LifeEventSheet.show(context);
-    if (prompt != null && prompt.isNotEmpty && mounted) {
-      _sendMessage(prompt);
-    }
+  void _showLightningMenu() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => LightningMenu(
+        profile: _profile,
+        onSendMessage: _sendMessage,
+      ),
+    );
   }
 
   Future<void> _sendMessage(String text) async {
@@ -1489,6 +1493,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 6),
                     onPressed: () {
+                      // "Il m'arrive quelque chose" opens the Lightning Menu
+                      if (action.toLowerCase().contains('il m') &&
+                          action.toLowerCase().contains('arrive')) {
+                        _showLightningMenu();
+                        return;
+                      }
                       final route = _routeForAction(action);
                       if (route != null) {
                         context.push(route);
@@ -1780,7 +1790,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                       color: MintColors.textSecondary, size: 18),
                   padding: EdgeInsets.zero,
                   tooltip: s.coachTooltipLifeEvent,
-                  onPressed: _isStreaming ? null : _showLifeEventSheet,
+                  onPressed: _isStreaming ? null : _showLightningMenu,
                 ),
               ),
               const SizedBox(width: MintSpacing.sm),

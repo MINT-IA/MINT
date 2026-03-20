@@ -18318,4 +18318,37 @@ class SDe extends S {
 
   @override
   String get trajectoryConfidenceCta => 'Genauigkeit verbessern';
+
+  @override
+  String get settingsSheetTitle => 'Einstellungen';
+
+  @override
+  String get settingsConsentsTitle => 'Einwilligungen';
+
+  @override
+  String get settingsConsentsSubtitle => 'Datenschutz und Datenfreigabe';
+
+  @override
+  String get settingsSlmTitle => 'Geräte-KI';
+
+  @override
+  String get settingsSlmSubtitle => 'Läuft auf deinem Gerät, auch offline';
+
+  @override
+  String get settingsByokTitle => 'Eigener KI-Schlüssel';
+
+  @override
+  String get settingsByokSubtitle => 'Verbinde dein eigenes KI-Modell';
+
+  @override
+  String get settingsLangueTitle => 'Sprache';
+
+  @override
+  String get settingsLangueSubtitle => 'App-Sprache wählen';
+
+  @override
+  String get settingsAboutTitle => 'Über';
+
+  @override
+  String get settingsAboutSubtitle => 'Version, rechtliche Hinweise, Kontakt';
 }

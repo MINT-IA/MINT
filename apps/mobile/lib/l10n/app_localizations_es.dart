@@ -18295,4 +18295,38 @@ class SEs extends S {
 
   @override
   String get trajectoryConfidenceCta => 'Mejorar la precisión';
+
+  @override
+  String get settingsSheetTitle => 'Ajustes';
+
+  @override
+  String get settingsConsentsTitle => 'Consentimientos';
+
+  @override
+  String get settingsConsentsSubtitle => 'Privacidad y uso compartido de datos';
+
+  @override
+  String get settingsSlmTitle => 'IA en el dispositivo';
+
+  @override
+  String get settingsSlmSubtitle =>
+      'Funciona en tu dispositivo, incluso sin conexión';
+
+  @override
+  String get settingsByokTitle => 'Clave IA personal';
+
+  @override
+  String get settingsByokSubtitle => 'Conecta tu propio modelo IA';
+
+  @override
+  String get settingsLangueTitle => 'Idioma';
+
+  @override
+  String get settingsLangueSubtitle => 'Elegir el idioma de la app';
+
+  @override
+  String get settingsAboutTitle => 'Acerca de';
+
+  @override
+  String get settingsAboutSubtitle => 'Versión, avisos legales, contacto';
 }

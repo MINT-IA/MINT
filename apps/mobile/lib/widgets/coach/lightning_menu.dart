@@ -44,30 +44,30 @@ class LightningMenu extends StatelessWidget {
         LightningMenuItem(
           title: s.lightningMenuRetirementTitle,
           subtitle: s.lightningMenuRetirementSubtitle,
-          icon: Icons.trending_up_rounded,
+          icon: Icons.beach_access_outlined,
           action: s.lightningMenuRetirementAction,
           tone: MintSurfaceTone.sauge,
         ),
         LightningMenuItem(
           title: s.lightningMenuBudgetTitle,
           subtitle: s.lightningMenuBudgetSubtitle,
-          icon: Icons.account_balance_wallet_rounded,
+          icon: Icons.receipt_long_outlined,
           action: s.lightningMenuBudgetAction,
           tone: MintSurfaceTone.bleu,
         ),
         LightningMenuItem(
           title: s.lightningMenuRenteCapitalTitle,
           subtitle: s.lightningMenuRenteCapitalSubtitle,
-          icon: Icons.compare_arrows_rounded,
+          icon: Icons.account_balance_outlined,
           action: s.lightningMenuRenteCapitalAction,
-          tone: MintSurfaceTone.peche,
+          tone: MintSurfaceTone.sauge,
         ),
         LightningMenuItem(
           title: s.lightningMenuScoreTitle,
           subtitle: s.lightningMenuScoreSubtitle,
-          icon: Icons.speed_rounded,
+          icon: Icons.health_and_safety_outlined,
           action: s.lightningMenuScoreAction,
-          tone: MintSurfaceTone.sauge,
+          tone: MintSurfaceTone.bleu,
         ),
       ];
 
@@ -82,9 +82,9 @@ class LightningMenu extends StatelessWidget {
       items.add(LightningMenuItem(
         title: s.lightningMenuCoupleTitle,
         subtitle: s.lightningMenuCoupleSubtitle,
-        icon: Icons.people_rounded,
+        icon: Icons.family_restroom_outlined,
         action: s.lightningMenuCoupleAction,
-        tone: MintSurfaceTone.bleu,
+        tone: MintSurfaceTone.peche,
       ));
     }
 
@@ -92,7 +92,7 @@ class LightningMenu extends StatelessWidget {
       items.add(LightningMenuItem(
         title: s.lightningMenuDebtTitle,
         subtitle: s.lightningMenuDebtSubtitle,
-        icon: Icons.trending_down_rounded,
+        icon: Icons.home_outlined,
         action: s.lightningMenuDebtAction,
         tone: MintSurfaceTone.peche,
       ));
@@ -102,9 +102,9 @@ class LightningMenu extends StatelessWidget {
       items.add(LightningMenuItem(
         title: s.lightningMenuIndependantTitle,
         subtitle: s.lightningMenuIndependantSubtitle,
-        icon: Icons.shield_rounded,
+        icon: Icons.work_outline,
         action: s.lightningMenuIndependantAction,
-        tone: MintSurfaceTone.sauge,
+        tone: MintSurfaceTone.bleu,
       ));
     }
 
@@ -112,9 +112,9 @@ class LightningMenu extends StatelessWidget {
       items.add(LightningMenuItem(
         title: s.lightningMenuRetirementPrepTitle,
         subtitle: s.lightningMenuRetirementPrepSubtitle,
-        icon: Icons.event_rounded,
+        icon: Icons.beach_access_outlined,
         action: s.lightningMenuRetirementPrepAction,
-        tone: MintSurfaceTone.peche,
+        tone: MintSurfaceTone.sauge,
       ));
     }
 

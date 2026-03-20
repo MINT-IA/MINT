@@ -18312,4 +18312,38 @@ class SIt extends S {
 
   @override
   String get trajectoryConfidenceCta => 'Migliorare la precisione';
+
+  @override
+  String get settingsSheetTitle => 'Impostazioni';
+
+  @override
+  String get settingsConsentsTitle => 'Consensi';
+
+  @override
+  String get settingsConsentsSubtitle => 'Privacy e condivisione dati';
+
+  @override
+  String get settingsSlmTitle => 'IA sul dispositivo';
+
+  @override
+  String get settingsSlmSubtitle =>
+      'Funziona sul tuo dispositivo, anche offline';
+
+  @override
+  String get settingsByokTitle => 'Chiave IA personale';
+
+  @override
+  String get settingsByokSubtitle => 'Collega il tuo modello IA';
+
+  @override
+  String get settingsLangueTitle => 'Lingua';
+
+  @override
+  String get settingsLangueSubtitle => 'Scegli la lingua dell’app';
+
+  @override
+  String get settingsAboutTitle => 'Informazioni';
+
+  @override
+  String get settingsAboutSubtitle => 'Versione, note legali, contatto';
 }

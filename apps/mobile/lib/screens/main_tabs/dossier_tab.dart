@@ -3,28 +3,53 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/profile/trajectory_view.dart';
+import 'package:mint_mobile/widgets/settings_sheet.dart';
 
 /// Tab 3 — Dossier
 ///
-/// "Mes données, mes documents, mes réglages."
-/// Regroupe : Profil, Documents, Couple, Consentements, BYOK/SLM, Paramètres.
+/// "Ma vie financiere, ma trajectoire."
+/// Hero: TrajectoryView (goal, known data, decisions, confidence).
+/// Puis 4 liens: Profil, Couple (si applicable), Documents, Bilan.
+/// Reglages accessibles via icone engrenage dans l'AppBar.
 ///
-/// Design: fond porcelaine, sections MintSurface(blanc), espacement xl.
-/// Espace personnel calme — pas de couleurs vives, icônes textSecondary.
-class DossierTab extends StatelessWidget {
+/// Design: fond porcelaine, MintSurface(blanc), espacement xl.
+class DossierTab extends StatefulWidget {
   const DossierTab({super.key});
+
+  @override
+  State<DossierTab> createState() => _DossierTabState();
+}
+
+class _DossierTabState extends State<DossierTab> {
+  CapMemory _capMemory = const CapMemory();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCapMemory();
+  }
+
+  Future<void> _loadCapMemory() async {
+    final mem = await CapMemoryStore.load();
+    if (mounted) {
+      setState(() => _capMemory = mem);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
     final provider = context.watch<CoachProfileProvider>();
-    final firstName = provider.hasProfile
-        ? (provider.profile!.firstName ?? '')
-        : '';
+    final hasProfile = provider.hasProfile;
+    final profile = hasProfile ? provider.profile! : null;
+    final firstName = hasProfile ? (profile!.firstName ?? '') : '';
+    final isCouple = hasProfile && profile!.isCouple;
 
     return ColoredBox(
       color: MintColors.porcelaine,
@@ -42,7 +67,34 @@ class DossierTab extends StatelessWidget {
               ),
             ),
             centerTitle: false,
+            actions: [
+              IconButton(
+                icon: const Icon(
+                  Icons.settings_outlined,
+                  color: MintColors.textSecondary,
+                  size: 22,
+                ),
+                tooltip: l.dossierReglages,
+                onPressed: () => SettingsSheet.show(context),
+              ),
+              const SizedBox(width: MintSpacing.xs),
+            ],
           ),
+
+          // ═══════════════════════════════════════
+          //  Hero: TrajectoryView
+          // ═══════════════════════════════════════
+          if (hasProfile)
+            SliverToBoxAdapter(
+              child: TrajectoryView(
+                profile: profile!,
+                capMemory: _capMemory,
+              ),
+            ),
+
+          // ═══════════════════════════════════════
+          //  Links: Profil, Couple, Documents, Bilan
+          // ═══════════════════════════════════════
           SliverPadding(
             padding: const EdgeInsets.symmetric(
               horizontal: MintSpacing.lg,
@@ -50,27 +102,33 @@ class DossierTab extends StatelessWidget {
             ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // ═══════════════════════════════════════
-                //  Mon dossier
-                // ═══════════════════════════════════════
                 MintSurface(
                   tone: MintSurfaceTone.blanc,
-                  padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: MintSpacing.xs),
                   child: Column(
                     children: [
-                      // ── Profile ──
+                      // -- Profil --
                       _DossierRow(
                         icon: Icons.person_outline,
-                        title: firstName.isNotEmpty
-                            ? firstName
-                            : l.tabMoi,
-                        subtitle: provider.hasProfile
-                            ? l.dossierProfileCompleted((provider.profileCompleteness * 100).round())
+                        title: firstName.isNotEmpty ? firstName : l.tabMoi,
+                        subtitle: hasProfile
+                            ? l.dossierProfileCompleted(
+                                (provider.profileCompleteness * 100).round())
                             : l.dossierStartProfile,
                         onTap: () => context.push('/profile'),
                       ),
 
-                      // ── Documents ──
+                      // -- Couple (conditional) --
+                      if (isCouple)
+                        _DossierRow(
+                          icon: Icons.people_outline,
+                          title: l.dossierCoupleTitle,
+                          subtitle: l.dossierCoupleSubtitle,
+                          onTap: () => context.push('/couple'),
+                        ),
+
+                      // -- Documents --
                       _DossierRow(
                         icon: Icons.folder_outlined,
                         title: l.dossierDocumentsTitle,
@@ -78,71 +136,12 @@ class DossierTab extends StatelessWidget {
                         onTap: () => context.push('/documents'),
                       ),
 
-                      // ── Couple ──
-                      _DossierRow(
-                        icon: Icons.people_outline,
-                        title: l.dossierCoupleTitle,
-                        subtitle: l.dossierCoupleSubtitle,
-                        onTap: () => context.push('/couple'),
-                      ),
-
-                      // ── Bilan financier ──
+                      // -- Bilan financier --
                       _DossierRow(
                         icon: Icons.pie_chart_outline,
                         title: l.dossierBilanTitle,
                         subtitle: l.dossierBilanSubtitle,
                         onTap: () => context.push('/profile/bilan'),
-                        showDivider: false,
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: MintSpacing.xl),
-
-                // ═══════════════════════════════════════
-                //  Réglages
-                // ═══════════════════════════════════════
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: MintSpacing.xs,
-                    bottom: MintSpacing.sm,
-                  ),
-                  child: Text(
-                    l.dossierReglages,
-                    style: MintTextStyles.bodySmall(
-                      color: MintColors.textMuted,
-                    ),
-                  ),
-                ),
-
-                MintSurface(
-                  tone: MintSurfaceTone.blanc,
-                  padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
-                  child: Column(
-                    children: [
-                      // ── Consentements ──
-                      _DossierRow(
-                        icon: Icons.verified_user_outlined,
-                        title: l.dossierConsentsTitle,
-                        subtitle: l.dossierConsentsSubtitle,
-                        onTap: () => context.push('/profile/consent'),
-                      ),
-
-                      // ── Modèle local (SLM) ──
-                      _DossierRow(
-                        icon: Icons.smart_toy_outlined,
-                        title: l.dossierSlmTitle,
-                        subtitle: l.dossierSlmSubtitle,
-                        onTap: () => context.push('/profile/slm'),
-                      ),
-
-                      // ── Clé API (BYOK) ──
-                      _DossierRow(
-                        icon: Icons.vpn_key_outlined,
-                        title: l.dossierByokTitle,
-                        subtitle: l.dossierByokSubtitle,
-                        onTap: () => context.push('/profile/byok'),
                         showDivider: false,
                       ),
                     ],
