@@ -10,6 +10,7 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -337,16 +338,19 @@ class _PulseScreenState extends State<PulseScreen> {
 
   _DominantNumber _computeDominantNumber(CoachProfile profile) {
     if (_cachedProjection != null) {
-      final retraite = _cachedProjection!.base.revenuAnnuelRetraite / 12;
-      final revenuNet = _computeRevenuNet(profile);
-      if (revenuNet > 0) {
-        final taux = (retraite / revenuNet * 100);
+      // Use tauxRemplacementBase from ForecasterService — single source of truth.
+      // This divides household retirement income by household current income,
+      // avoiding the previous bug where household retirement was divided by
+      // individual income only.
+      final taux = _cachedProjection!.tauxRemplacementBase;
+      if (taux > 0) {
         return _DominantNumber(
           value: taux,
-          format: (v) => '${v.round()}%',
+          format: (v) => '${v.round()}\u00a0%',
           type: _NumberType.percentage,
         );
       }
+      final retraite = _cachedProjection!.base.revenuAnnuelRetraite / 12;
       if (retraite > 0) {
         return _DominantNumber(
           value: retraite,
@@ -372,8 +376,8 @@ class _PulseScreenState extends State<PulseScreen> {
 
   String _computeDominantLabel(CoachProfile profile, S l) {
     if (_cachedProjection != null) {
-      final revenuNet = _computeRevenuNet(profile);
-      if (revenuNet > 0) {
+      final taux = _cachedProjection!.tauxRemplacementBase;
+      if (taux > 0) {
         return l.pulseLabelReplacementRate;
       }
       return l.pulseLabelRetirementIncome;
@@ -388,8 +392,8 @@ class _PulseScreenState extends State<PulseScreen> {
       return MintColors.error;
     }
     if (n.type == _NumberType.score) {
-      if (n.value >= 70) return MintColors.success;
-      if (n.value >= 40) return MintColors.warning;
+      if (n.value >= friThresholdBon) return MintColors.success;
+      if (n.value >= friThresholdAttention) return MintColors.warning;
       return MintColors.error;
     }
     return MintColors.textPrimary;

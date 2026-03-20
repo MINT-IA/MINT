@@ -59,8 +59,12 @@ class FallbackTemplates {
       return '$salut Ton score a bougé de ${ctx.friDelta.toStringAsFixed(0)} points.';
     }
 
-    // Default: show current score
-    return '$salut Ton score de solidité : ${ctx.friTotal.toStringAsFixed(0)}/100.';
+    // Default: observation + lever, not a bare score
+    final enrichment = _topEnrichmentAction(ctx);
+    if (enrichment != null) {
+      return '$salut $enrichment';
+    }
+    return '$salut Tes chiffres sont là. Par où veux-tu commencer\u00a0?';
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -74,7 +78,7 @@ class FallbackTemplates {
         : ctx.friDelta < 0
             ? 'En recul de ${ctx.friDelta.abs().toStringAsFixed(0)} points.'
             : 'Stable.';
-    return 'Solidité financière : ${ctx.friTotal.toStringAsFixed(0)}/100. $trend';
+    return '${ctx.friTotal.toStringAsFixed(0)}/100. $trend';
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -104,20 +108,18 @@ class FallbackTemplates {
 
     // Retirement gap (replacement ratio < 55%)
     if (replacement < 55) {
-      return 'Ton taux de remplacement estimé à la retraite est de '
-          '${replacement.toStringAsFixed(0)}%. '
-          'Explore les options pour combler l\'écart dans le simulateur.';
+      return '${ctx.firstName}, ton taux de remplacement est à '
+          '${replacement.toStringAsFixed(0)}\u00a0%. '
+          'Un rachat LPP ou un versement 3a change le calcul.';
     }
 
-    // Default: encourage profile completion with specific enrichment action
+    // Default: specific enrichment action, not generic score
     final enrichment = _topEnrichmentAction(ctx);
     if (enrichment != null) {
-      return 'Ton score de solidité est de '
-          '${ctx.friTotal.toStringAsFixed(0)}/100. $enrichment';
+      return '${ctx.firstName}, $enrichment';
     }
-    return 'Ton score de solidité est de '
-        '${ctx.friTotal.toStringAsFixed(0)}/100. '
-        'Continue à affiner ton profil pour des estimations plus précises.';
+    return '${ctx.firstName}, tes projections sont prêtes. '
+        'Pose une question ou explore un sujet.';
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -132,14 +134,12 @@ class FallbackTemplates {
         .any((v) => v == 'certified');
 
     if (hasCertifiedData) {
-      return 'Ce chiffre s\'appuie sur des données certifiées '
-          '(confiance : ${confidence.toStringAsFixed(0)}%). '
-          'Continue à enrichir ton profil pour affiner l\'estimation.';
+      return 'Données certifiées — confiance ${confidence.toStringAsFixed(0)}\u00a0%. '
+          'Ce chiffre est fiable.';
     }
     final enrichment = _topEnrichmentAction(ctx);
-    return 'Ce chiffre est basé sur '
-        '${confidence.toStringAsFixed(0)}% de données concrètes. '
-        '${enrichment ?? 'Plus tu précises ton profil, plus l\'estimation s\'affine.'}';
+    return 'Confiance ${confidence.toStringAsFixed(0)}\u00a0%. '
+        '${enrichment ?? 'Un certificat LPP ou un extrait AVS affinerait cette estimation.'}';
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -185,8 +185,8 @@ class FallbackTemplates {
         'AVS plafonnée pour les mariés, rente de survivant LPP, '
         'et possibilités d\'optimisation fiscale à deux.',
       _ =>
-        '$name, continue à enrichir ton profil. '
-        'Chaque donnée ajoutée améliore la précision de tes projections.',
+        '$name, chaque donnée ajoutée affine tes projections '
+        'et révèle des leviers concrets.',
     };
   }
 

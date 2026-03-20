@@ -147,12 +147,14 @@ void main() {
       expect(result, contains('points'));
     });
 
-    test('default greeting shows score', () {
+    test('default greeting shows enrichment or fallback', () {
       final result = FallbackTemplates.greeting(
         _ctx(daysSinceLastVisit: 14, friDelta: 0, friTotal: 72),
       );
-      expect(result, contains('72'));
-      expect(result, contains('/100'));
+      // Default greeting now shows enrichment action or minimal fallback
+      // instead of a bare score.
+      expect(result, isNotEmpty);
+      expect(result, contains('Julien'));
     });
 
     test('no firstName uses generic greeting', () {
@@ -242,10 +244,10 @@ void main() {
           },
         ),
       );
-      expect(result, contains('72'));
-      // Should suggest enrichment or profile completion
+      // Should contain enrichment action or contextual fallback
+      expect(result, isNotEmpty);
       expect(
-        result.contains('profil') || result.contains('LPP') || result.contains('AVS'),
+        result.contains('LPP') || result.contains('AVS') || result.contains('projections'),
         isTrue,
       );
     });
@@ -330,7 +332,7 @@ void main() {
     test('unknown block type returns generic message', () {
       final result =
           FallbackTemplates.enrichmentGuide(_ctx(), 'unknownBlock');
-      expect(result, contains('profil'));
+      expect(result, contains('projections'));
     });
 
     test('avs block for expat archetype mentions expat', () {

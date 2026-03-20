@@ -403,10 +403,6 @@ void main() {
 
       // Le score summary doit contenir "/100"
       expect(narrative.scoreSummary, contains('/100'));
-
-      // FallbackTemplates.scoreSummary format:
-      // "Solidité financière : X/100. {trend}."
-      expect(narrative.scoreSummary, contains('Solidit'));
     });
   });
 

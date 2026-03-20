@@ -54,9 +54,9 @@ class CapEngine {
           readiness: 1.0,
           recency: _recencyModifier('complete_${top.category}', memory, now),
         ),
-        headline: 'Il manque une pièce',
-        whyNow: '${top.label} — sans cette donnée, '
-            'ta projection reste floue.',
+        headline: 'Confiance ${confidence.score.round()}\u00a0% — ${top.label}',
+        whyNow: 'Sans cette donnée, ta projection reste indicative. '
+            '${top.action} affinerait de +${top.impact}\u00a0pts.',
         ctaLabel: top.action,
         ctaMode: CtaMode.capture,
         captureType: top.category,
@@ -81,8 +81,7 @@ class CapEngine {
           readiness: 1.0,
           recency: _recencyModifier('debt_correct', memory, now),
         ),
-        headline: 'Ta dette pèse',
-        // Reframing rule: never show bad number alone — show the lever.
+        headline: 'CHF\u00a0${_formatChfRound(profile.dettes.totalDettes)} de dette',
         whyNow: 'Rembourser le taux le plus élevé d\u2019abord '
             'libère de la marge chaque mois.',
         ctaLabel: 'Voir mon plan',
@@ -168,9 +167,9 @@ class CapEngine {
             readiness: 1.0,
             recency: _recencyModifier('pillar_3a', memory, now),
           ),
-          headline: 'Cette année compte encore',
-          whyNow: 'Un versement 3a peut encore alléger '
-              'tes impôts et renforcer ta retraite.',
+          headline: '3a\u00a0: déduction fiscale avant le 31\u00a0déc.',
+          whyNow: 'Un versement 3a cette année réduit '
+              'directement ton impôt et renforce ta retraite.',
           ctaLabel: 'Simuler mon 3a',
           ctaMode: CtaMode.route,
           ctaRoute: '/pilier-3a',
@@ -197,9 +196,9 @@ class CapEngine {
           readiness: 1.0,
           recency: _recencyModifier('lpp_buyback', memory, now),
         ),
-        headline: 'Rachat LPP disponible',
-        whyNow: 'Tu peux racheter jusqu\u2019à '
-            '${_formatChfRound(rachatMax)} et déduire de tes impôts.',
+        headline: 'Rachat LPP\u00a0: jusqu\u2019à ${_formatChfRound(rachatMax)} de déduction',
+        whyNow: 'Ce montant est déductible de ton revenu imposable. '
+            'L\u2019effet sur ta retraite et tes impôts est immédiat.',
         ctaLabel: 'Simuler un rachat',
         ctaMode: CtaMode.route,
         ctaRoute: '/rachat-lpp',
@@ -230,10 +229,9 @@ class CapEngine {
             readiness: 1.0,
             recency: _recencyModifier('budget_deficit', memory, now),
           ),
-          // Reframing: show the margin to recover, not just the red.
-          headline: 'Ta marge à retrouver',
-          whyNow: 'Ton budget serre. '
-              'Ajuster une enveloppe peut redonner de l\u2019air.',
+          headline: 'Budget\u00a0: CHF\u00a0${_formatChfRound(libre.abs())}/mois à retrouver',
+          whyNow: 'Ton budget est en tension. '
+              'Ajuster un poste de dépense redonne de la marge.',
           ctaLabel: 'Ajuster mon budget',
           ctaMode: CtaMode.route,
           ctaRoute: '/budget',
@@ -265,13 +263,13 @@ class CapEngine {
               readiness: 1.0,
               recency: _recencyModifier('replacement_rate', memory, now),
             ),
-            headline: 'Ta retraite pince encore',
+            headline: '${rate.round()}\u00a0% de remplacement — les leviers existent',
             whyNow:
-                '${rate.round()}\u00a0% de taux de remplacement. '
-                'Un rachat ou un 3a change la trajectoire.',
-            ctaLabel: 'Explorer mes scénarios',
+                'Un rachat LPP ou un versement 3a '
+                'change le calcul. Explore tes options.',
+            ctaLabel: 'Voir mes leviers retraite',
             ctaMode: CtaMode.route,
-            ctaRoute: '/rente-vs-capital',
+            ctaRoute: '/explore/retraite',
             coachPrompt: 'Mon taux de remplacement est de ${rate.round()}%. '
                 'Aide-moi à arbitrer entre 3a et rachat LPP.',
             expectedImpact: '+4 à +7 pts',
@@ -379,8 +377,9 @@ class CapEngine {
         id: 'fallback_enrich',
         kind: CapKind.complete,
         priorityScore: 1.0,
-        headline: 'Complète ton profil',
-        whyNow: 'Plus MINT te connaît, plus les leviers sont précis.',
+        headline: 'Confiance ${confidence.score.round()}\u00a0% — enrichis ton profil',
+        whyNow: 'Chaque donnée ajoutée affine tes projections '
+            'et révèle des leviers concrets.',
         ctaLabel: 'Enrichir',
         ctaMode: CtaMode.capture,
         captureType: 'profile',
@@ -558,7 +557,7 @@ class CapEngine {
           headline: 'Départ de Suisse',
           whyNow: 'Libre passage, AVS, 3a — ce qui te suit, ce qui reste.',
           ctaLabel: 'Voir les conséquences',
-          route: '/expat',
+          route: '/expatriation',
         ),
       'debtCrisis' => const _LifeEventMapping(
           headline: 'Situation de dette',
@@ -738,7 +737,7 @@ class CapEngine {
             'L\u2019écart peut atteindre ~10\u2019000\u00a0CHF/an.',
         ctaLabel: 'Voir l\u2019impact AVS',
         ctaMode: CtaMode.route,
-        ctaRoute: '/rente-vs-capital',
+        ctaRoute: '/retraite',
         coachPrompt: 'Nous sommes mariés et nous travaillons tous les deux. '
             'Aide-nous à comprendre l\u2019impact du plafonnement AVS '
             'à 150\u00a0% sur notre retraite.',
