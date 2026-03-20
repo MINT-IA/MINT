@@ -11,6 +11,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/backend_coach_service.dart';
 import 'package:mint_mobile/services/cap_engine.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
@@ -305,6 +306,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       return;
     }
 
+    // Try backend Claude proxy (S56 — server-side, no BYOK needed).
+    final backendSuccess = await _tryBackendClaude(text.trim());
+    if (backendSuccess) return;
+
     // Fallback to standard (BYOK → fallback chain).
     await _handleStandardResponse(text.trim(), memoryBlock: memoryBlock);
   }
@@ -420,6 +425,48 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       _isStreaming = false;
     });
     _scrollToBottom();
+  }
+
+  /// Try backend Claude proxy (S56). Returns true if successful.
+  Future<bool> _tryBackendClaude(String text) async {
+    if (_profile == null) return false;
+
+    try {
+      final history = _messages
+          .where((m) => m.role == 'user' || m.role == 'assistant')
+          .map((m) => {'role': m.role, 'content': m.content})
+          .toList();
+
+      final response = await BackendCoachService.chat(
+        message: text,
+        profile: _profile!,
+        history: history,
+      );
+
+      if (response == null) return false;
+
+      // Generate inline response cards
+      final cards = ResponseCardService.generateForChat(_profile!, text);
+
+      if (!mounted) return true;
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: response.reply,
+          timestamp: DateTime.now(),
+          suggestedActions: _inferSuggestedActions(text),
+          responseCards: cards,
+          tier: ChatTier.byok, // Show as AI-powered, not fallback
+          disclaimers: [response.disclaimer],
+        ));
+        _isLoading = false;
+      });
+      _scrollToBottom();
+      return true;
+    } catch (e) {
+      debugPrint('[CoachChat] Backend Claude error: $e');
+      return false;
+    }
   }
 
   /// Handle standard (non-streaming) response via orchestrator.

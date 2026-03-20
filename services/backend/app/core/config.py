@@ -37,6 +37,12 @@ class Settings(BaseSettings):
     STRIPE_PRICE_COACH_MONTHLY: str = ""
     BILLING_PORTAL_RETURN_URL: str = "https://mint.ch/profile"
 
+    # Anthropic Claude API (coach AI)
+    ANTHROPIC_API_KEY: str = ""
+    COACH_MODEL: str = "claude-sonnet-4-20250514"
+    COACH_MAX_TOKENS: int = 500
+    COACH_DAILY_QUOTA: int = 30  # per user, free tier
+
     # Apple IAP / StoreKit
     APPLE_IAP_PRODUCT_COACH_MONTHLY: str = "ch.mint.coach.monthly"
     BILLING_ALLOW_CLIENT_APPLE_VERIFY: bool = False
