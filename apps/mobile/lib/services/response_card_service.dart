@@ -500,44 +500,47 @@ class ResponseCardService {
     return unique.take(2).toList();
   }
 
-  /// Suggested prompts personnalises selon le profil.
-  /// Un 50+ voit "Quand partir \u00e0 la retraite\u00a0?" au lieu de "Mon score Fitness".
+  /// Suggested prompts — real human concerns, not financial categories.
+  /// Adapted by age + situation. Emotional, not technical.
   static List<String> suggestedPrompts(CoachProfile profile) {
     final age = profile.age;
     final isIndep = profile.employmentStatus == 'independant';
     final isCouple = profile.isCouple;
-    final hasLpp = (profile.prevoyance.avoirLppTotal ?? 0) > 0;
+    final hasDette = profile.dettes.hasDette;
 
     final prompts = <String>[];
 
-    // Age-driven priorities
-    if (age >= 50) {
-      prompts.add('Quand la retraite devient-elle tenable\u00a0?');
-      prompts.add(
-          'Rente ou capital\u00a0: qu\'est-ce qui me laisse le plus d\'air\u00a0?');
-      if (!hasLpp) prompts.add('Que vaut un rachat LPP dans mon cas\u00a0?');
-    } else if (age >= 35) {
-      prompts
-          .add('O\u00f9 all\u00e9ger mes imp\u00f4ts cette ann\u00e9e\u00a0?');
-      prompts.add('Combien verser en 3a cette ann\u00e9e\u00a0?');
-      if (!hasLpp) prompts.add('Que vaut un rachat LPP dans mon cas\u00a0?');
+    // Age-driven: what keeps them up at 3am
+    if (age >= 55) {
+      prompts.add('J\u2019ai peur de manquer \u00e0 la retraite');
+      prompts.add('Rente ou capital\u00a0: qu\u2019est-ce qui me laisse le plus d\u2019air\u00a0?');
+      prompts.add('C\u2019est bient\u00f4t, par o\u00f9 commencer\u00a0?');
+    } else if (age >= 40) {
+      prompts.add('Est-ce que \u00e7a va aller pour la retraite\u00a0?');
+      prompts.add('Je paie trop d\u2019imp\u00f4ts, non\u00a0?');
+      prompts.add('Je veux acheter, c\u2019est possible\u00a0?');
+    } else if (age >= 30) {
+      prompts.add('Mon salaire ne suffit plus');
+      prompts.add('Je veux acheter, c\u2019est possible\u00a0?');
+      prompts.add('Le 3a, c\u2019est vraiment utile\u00a0?');
     } else {
-      prompts.add('Pourquoi commencer le 3a maintenant ?');
-      prompts.add('Le 2e pilier, concr\u00e8tement, \u00e7a fait quoi\u00a0?');
+      prompts.add('Je comprends rien \u00e0 ma fiche de salaire');
+      prompts.add('C\u2019est quoi le 2e pilier\u00a0?');
+      prompts.add('Par o\u00f9 commencer\u00a0?');
     }
 
-    // Archetype-driven
+    // Situation-driven: override with what matters NOW
+    if (hasDette) {
+      prompts.insert(0, 'J\u2019ai des dettes, je fais quoi\u00a0?');
+      if (prompts.length > 3) prompts.removeLast();
+    }
     if (isIndep) {
-      prompts.add(
-          'Ind\u00e9pendant\u00a0: qu\'est-ce que je dois reconstruire\u00a0?');
+      prompts.insert(0, 'Je me lance seul, mon filet tient\u00a0?');
+      if (prompts.length > 3) prompts.removeLast();
     }
     if (isCouple) {
-      prompts
-          .add('O\u00f9 notre pr\u00e9voyance de couple boite-t-elle\u00a0?');
-    }
-    if (profile.archetype == FinancialArchetype.expatUs) {
-      prompts
-          .add('FATCA\u00a0: qu\'est-ce que \u00e7a change pour mon 3a\u00a0?');
+      prompts.add('\u00c0 deux, on optimise quoi\u00a0?');
+      if (prompts.length > 4) prompts.removeLast();
     }
 
     return prompts.take(3).toList();
