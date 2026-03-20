@@ -870,11 +870,18 @@ class ForecasterService {
       renteLppUser =
           projectedOblig * userConvRateOblig + projectedSurob * userConvRateSurob;
     } else {
-      // No certificate split: apply the profile's tauxConversion as the
-      // enveloping rate (defaults to 6.8% if never set, but if the user
-      // or parser set a lower enveloping rate, honour it).
+      // No certificate split available.
+      // If the profile has a user-set or parser-set enveloping rate that
+      // differs from the default 6.8%, honour it (it came from real data).
+      // Otherwise, use the conservative surobligatoire estimate (5.4%)
+      // to avoid silently overstating with the minimum legal rate.
+      final profileRate = profile.prevoyance.tauxConversion;
+      final isDefaultRate = (profileRate - lppTauxConversionMinDecimal).abs() < 0.001;
+      final baseRate = isDefaultRate
+          ? lppTauxConversionSurobligDecimal
+          : profileRate;
       final envelopingRate = LppCalculator.adjustedConversionRate(
-        baseRate: profile.prevoyance.tauxConversion,
+        baseRate: baseRate,
         retirementAge: retirementAge,
       );
       renteLppUser = lppBalance * envelopingRate;
@@ -901,9 +908,14 @@ class ForecasterService {
       renteLppConjoint = projectedConjOblig * conjConvRateOblig +
           projectedConjSurob * conjConvRateSurob;
     } else {
+      final conjProfileRate = profile.conjoint?.prevoyance?.tauxConversion
+          ?? lppTauxConversionMinDecimal;
+      final conjIsDefault = (conjProfileRate - lppTauxConversionMinDecimal).abs() < 0.001;
+      final conjBaseRate = conjIsDefault
+          ? lppTauxConversionSurobligDecimal
+          : conjProfileRate;
       final conjEnvelopingRate = LppCalculator.adjustedConversionRate(
-        baseRate: profile.conjoint?.prevoyance?.tauxConversion ??
-            lppTauxConversionMinDecimal,
+        baseRate: conjBaseRate,
         retirementAge: conjRetirementAge,
       );
       renteLppConjoint = conjLppBalance * conjEnvelopingRate;

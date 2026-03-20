@@ -200,9 +200,14 @@ class MonteCarloProjectionService {
           return balance * ratio * convRateOblig +
               balance * (1 - ratio) * convRateSurob;
         }
-        // No certificate split: use profile enveloping rate
+        // No certificate split: use conservative rate when profile has default 6.8%
+        final profileRate = profile.prevoyance.tauxConversion;
+        final isDefault = (profileRate - lppTauxConversionMinDecimal).abs() < 0.001;
+        final baseRate = isDefault
+            ? lppTauxConversionSurobligDecimal
+            : profileRate;
         final envRate = LppCalculator.adjustedConversionRate(
-          baseRate: profile.prevoyance.tauxConversion,
+          baseRate: baseRate,
           retirementAge: retirementAgeUser,
         );
         return balance * envRate;
