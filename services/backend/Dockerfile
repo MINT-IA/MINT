@@ -12,8 +12,7 @@ RUN apt-get update && \
 # Install deps from pyproject.toml (single source of truth)
 COPY pyproject.toml .
 COPY app/ app/
-RUN pip install --no-cache-dir .
-RUN pip install --no-cache-dir anthropic>=0.40.0 && echo "anthropic installed:" && python -c "import anthropic; print(anthropic.__version__)"
+RUN pip install --no-cache-dir . && python -c "import anthropic; print('anthropic', anthropic.__version__)"
 
 # --- Stage 2: Production ---
 FROM python:3.12-slim AS production
