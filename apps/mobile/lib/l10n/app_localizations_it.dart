@@ -17872,4 +17872,127 @@ class SIt extends S {
   @override
   String get chiffreChocSectionDisclaimer =>
       'Simulazione a scopo educativo. Non costituisce consulenza finanziaria (LSerFi). Ipotesi modificabili — risultati non garantiti.';
+
+  @override
+  String get concubinageTabProtection => 'Protezione';
+
+  @override
+  String concubinageHeroChiffreChoc(String montant) {
+    return 'CHF $montant di patrimonio esposto';
+  }
+
+  @override
+  String get concubinageHeroChiffreChocDesc =>
+      'In concubinato, il tuo partner non è erede legale. Senza testamento, questo importo gli sfugge interamente.';
+
+  @override
+  String get concubinageEducationalAvs =>
+      'In Svizzera, il tetto del 150 % sulle rendite AVS di coppia (LAVS art. 35) si applica solo ai coniugi. I concubini percepiscono ciascuno la propria rendita individuale completa — un vantaggio reale quando entrambi hanno versato al massimo.';
+
+  @override
+  String get concubinageEducationalLpp =>
+      'La rendita LPP superstite (60 % della rendita del defunto, LPP art. 19) è riservata ai coniugi. In concubinato, solo il regolamento della cassa può prevedere un capitale di decesso — e bisogna richiederlo.';
+
+  @override
+  String get concubinageEducationalSuccession =>
+      'Un coniuge è esente dall’imposta di successione nella maggior parte dei cantoni (CC art. 462). Un concubino paga l’imposta all’aliquota dei terzi, spesso tra il 20 % e il 40 %.';
+
+  @override
+  String get concubinageProtectionIntro =>
+      'In concubinato, la Svizzera non protegge come il matrimonio. Ecco cosa cambia e cosa puoi anticipare.';
+
+  @override
+  String get concubinageProtectionAvsSurvivor => 'Rendita AVS superstite';
+
+  @override
+  String get concubinageProtectionAvsSurvivorMarried =>
+      '80 % della rendita del defunto (LAVS art. 23)';
+
+  @override
+  String get concubinageProtectionAvsSurvivorConcubin =>
+      'Nessuna rendita — CHF 0/mese';
+
+  @override
+  String get concubinageProtectionLppSurvivor => 'Rendita LPP superstite';
+
+  @override
+  String get concubinageProtectionLppSurvivorMarried =>
+      '60 % della rendita del defunto (LPP art. 19)';
+
+  @override
+  String get concubinageProtectionLppSurvivorConcubin =>
+      'Solo secondo regolamento cassa';
+
+  @override
+  String get concubinageProtectionHeritage => 'Eredità legale';
+
+  @override
+  String get concubinageProtectionHeritageMarried => 'Esente (CC art. 462)';
+
+  @override
+  String get concubinageProtectionHeritageConcubin =>
+      'Imposta cantonale (20-40 %)';
+
+  @override
+  String get concubinageProtectionPension => 'Alimenti';
+
+  @override
+  String get concubinageProtectionPensionMarried => 'Protetti dal giudice';
+
+  @override
+  String get concubinageProtectionPensionConcubin => 'Nessun obbligo legale';
+
+  @override
+  String get concubinageProtectionAvsPlafond => 'Tetto AVS coppia';
+
+  @override
+  String get concubinageProtectionAvsPlafondMarried =>
+      'Max. 150 % (LAVS art. 35)';
+
+  @override
+  String get concubinageProtectionAvsPlafondConcubin =>
+      'Nessun tetto — 2×100 %';
+
+  @override
+  String get concubinageProtectionMaried => 'Coniugato';
+
+  @override
+  String get concubinageProtectionConcubinLabel => 'Concubino';
+
+  @override
+  String get concubinageProtectionWarning =>
+      'In concubinato, se il tuo partner muore, non ricevi né rendita AVS, né rendita LPP automatica, e non sei erede legale. Ogni protezione va anticipata.';
+
+  @override
+  String get concubinageProtectionLppSlider =>
+      'Rendita LPP mensile del partner';
+
+  @override
+  String concubinageProtectionSurvivorTotal(String montant) {
+    return '$montant/mese per il coniuge superstite sposato';
+  }
+
+  @override
+  String get concubinageProtectionSurvivorZero =>
+      'CHF 0/mese per il concubino superstite senza azione';
+
+  @override
+  String get concubinageDecisionMatrixTitle => 'Matrimonio vs Concubinato';
+
+  @override
+  String get concubinageDecisionMatrixSubtitle =>
+      'Confronto dei diritti e degli obblighi';
+
+  @override
+  String get concubinageDecisionMatrixColumnMarriage => 'Matrimonio';
+
+  @override
+  String get concubinageDecisionMatrixColumnConcubinage => 'Concubinato';
+
+  @override
+  String get concubinageDecisionMatrixConclusionTitle => 'Conclusione neutra';
+
+  @override
+  String get concubinageDecisionMatrixConclusionDesc =>
+      'La scelta dipende dalla tua situazione personale. Consulta un notaio per un’analisi completa.';
 }

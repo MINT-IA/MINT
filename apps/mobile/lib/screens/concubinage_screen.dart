@@ -3,20 +3,26 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/visualizations/concubinage_decision_matrix.dart';
+import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
+import 'package:mint_mobile/widgets/coach/survivor_pension_widget.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 // ────────────────────────────────────────────────────────────
-//  CONCUBINAGE SCREEN — Sprint S22 / Famille & Concubinage
+//  CONCUBINAGE SCREEN — Category C (Life Event)
 // ────────────────────────────────────────────────────────────
 //
-// Two-tab decision-support screen:
-//   Tab 1: "Comparateur" — Mariage vs Concubinage matrix
-//   Tab 2: "Checklist"   — Essential protections for concubins
+// Three-tab decision-support screen:
+//   Tab 1: "Comparateur" — Mariage vs Concubinage matrix + hero chiffre-choc
+//   Tab 2: "Protection"  — Survivor benefits gap + comparison table
+//   Tab 3: "Checklist"   — Essential protections for concubins
 //
-// All text in French (informal "tu").
-// Material 3, MintColors theme, MintTextStyles.
+// Design System: MintTextStyles + MintSpacing tokens.
+// AppBar: white standard (Life Event screen).
 // Ne constitue pas un conseil juridique ou fiscal (LSFin).
 // ────────────────────────────────────────────────────────────
 
@@ -38,14 +44,17 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
   String _canton = 'VD';
   Map<String, dynamic>? _comparisonResult;
 
-  // ── Tab 2: Checklist state ────────────────────────────
+  // ── Tab 2: Protection ─────────────────────────────────
+  double _renteLpp = 2500;
+
+  // ── Tab 3: Checklist state ────────────────────────────
   final Set<int> _checkedItems = {};
   final Map<int, bool> _expandedItems = {};
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _recalculate();
   }
 
@@ -82,30 +91,30 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           controller: _tabController,
           children: [
             _buildTab1Comparateur(),
-            _buildTab2Checklist(),
+            _buildTab2Protection(),
+            _buildTab3Checklist(),
           ],
         ),
       ),
     );
   }
 
-  // ── App Bar with Tabs ──────────────────────────────────
+  // ── App Bar with Tabs (white standard — Life Event) ──
 
   Widget _buildAppBar(BuildContext context, bool innerBoxIsScrolled) {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      expandedHeight: 110,
+      expandedHeight: 120,
       backgroundColor: MintColors.white,
-      foregroundColor: MintColors.textPrimary,
       elevation: 0,
-      scrolledUnderElevation: 0,
+      surfaceTintColor: MintColors.white,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: 16),
+        titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: MintSpacing.md),
         title: Text(
           S.of(context)!.concubinageAppBarTitle,
           style: MintTextStyles.headlineMedium(),
@@ -117,10 +126,11 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         indicatorWeight: 3,
         labelColor: MintColors.textPrimary,
         unselectedLabelColor: MintColors.textMuted,
-        labelStyle: MintTextStyles.bodySmall().copyWith(fontWeight: FontWeight.w600),
-        unselectedLabelStyle: MintTextStyles.bodySmall(),
+        labelStyle: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+        unselectedLabelStyle: MintTextStyles.bodySmall(color: MintColors.textMuted),
         tabs: [
           Tab(text: S.of(context)!.concubinageTabComparateur),
+          Tab(text: S.of(context)!.concubinageTabProtection),
           Tab(text: S.of(context)!.concubinageTabChecklist),
         ],
       ),
@@ -133,38 +143,85 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
 
   Widget _buildTab1Comparateur() {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
+        // Hero chiffre-choc — patrimoine exposed
+        if (_patrimoine > 0) ...[
+          _buildHeroChiffreChoc(),
+          const SizedBox(height: MintSpacing.lg),
+        ],
+
         // Inputs
         _buildComparateurInputs(),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         if (_comparisonResult != null) ...[
           // Decision matrix — animated comparison visualization
           ConcubinageDecisionMatrix(
             criteria: _matrixCriteria,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
 
           // Score summary
           _buildScoreSummary(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
 
           // Fiscal detail
           _buildFiscalDetailCard(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
 
           // Inheritance detail
           _buildInheritanceCard(),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
         ],
+
+        // Educational insert — AVS cap 150% (LAVS art. 35)
+        _buildEducationalInsert(
+          S.of(context)!.concubinageEducationalAvs,
+        ),
+        const SizedBox(height: MintSpacing.md),
+
+        // Educational insert — Succession
+        _buildEducationalInsert(
+          S.of(context)!.concubinageEducationalSuccession,
+        ),
+        const SizedBox(height: MintSpacing.lg),
 
         // Neutral conclusion
         _buildNeutralConclusion(),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         _buildDisclaimer(),
       ],
+    );
+  }
+
+  Widget _buildHeroChiffreChoc() {
+    return Container(
+      padding: const EdgeInsets.all(MintSpacing.lg),
+      decoration: BoxDecoration(
+        color: MintColors.primary,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          Text(
+            S.of(context)!.concubinageHeroChiffreChoc(
+              FamilyService.formatChf(_patrimoine),
+            ),
+            style: MintTextStyles.displayMedium(color: MintColors.white)
+                .copyWith(fontSize: 28, fontWeight: FontWeight.w800),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: MintSpacing.xs + 2),
+          Text(
+            S.of(context)!.concubinageHeroChiffreChocDesc,
+            style: MintTextStyles.bodySmall(color: MintColors.white70)
+                .copyWith(height: 1.4),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 
@@ -172,10 +229,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     final sortedCodes = FamilyService.sortedCantonCodes;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -193,7 +250,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               _recalculate();
             },
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildSlider(
             label: S.of(context)!.concubinageRevenu2,
             value: _revenu2,
@@ -205,7 +262,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               _recalculate();
             },
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MintSpacing.md),
           _buildSlider(
             label: S.of(context)!.concubinagePatrimoineTotal,
             value: _patrimoine,
@@ -217,7 +274,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               _recalculate();
             },
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: MintSpacing.lg),
 
           // Canton dropdown
           Row(
@@ -229,7 +286,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: MintColors.appleSurface,
                   borderRadius: BorderRadius.circular(10),
@@ -311,60 +368,63 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     final scoreMariage = result['scoreMariage'] as int;
     final scoreConcubinage = result['scoreConcubinage'] as int;
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.primary,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              children: [
-                Text(
-                  '$scoreMariage',
-                  style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(fontSize: 36, fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: MintSpacing.xs),
-                Text(
-                  S.of(context)!.concubinageAvantages,
-                  style: MintTextStyles.labelSmall(color: MintColors.white60),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  S.of(context)!.concubinageMariage,
-                  style: MintTextStyles.bodyMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
-                ),
-              ],
+    return Semantics(
+      label: '${S.of(context)!.concubinageMariage}: $scoreMariage ${S.of(context)!.concubinageAvantages}, ${S.of(context)!.concubinageConcubinage}: $scoreConcubinage ${S.of(context)!.concubinageAvantages}',
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.md),
+        decoration: BoxDecoration(
+          color: MintColors.primary,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                children: [
+                  Text(
+                    '$scoreMariage',
+                    style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(fontSize: 36, fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: MintSpacing.xs),
+                  Text(
+                    S.of(context)!.concubinageAvantages,
+                    style: MintTextStyles.labelSmall(color: MintColors.white60),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    S.of(context)!.concubinageMariage,
+                    style: MintTextStyles.bodyMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Container(
-            width: 1,
-            height: 60,
-            color: MintColors.white24,
-          ),
-          Expanded(
-            child: Column(
-              children: [
-                Text(
-                  '$scoreConcubinage',
-                  style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(fontSize: 36, fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: MintSpacing.xs),
-                Text(
-                  S.of(context)!.concubinageAvantages,
-                  style: MintTextStyles.labelSmall(color: MintColors.white60),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  S.of(context)!.concubinageConcubinage,
-                  style: MintTextStyles.bodyMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
-                ),
-              ],
+            Container(
+              width: 1,
+              height: 60,
+              color: MintColors.white24,
             ),
-          ),
-        ],
+            Expanded(
+              child: Column(
+                children: [
+                  Text(
+                    '$scoreConcubinage',
+                    style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(fontSize: 36, fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: MintSpacing.xs),
+                  Text(
+                    S.of(context)!.concubinageAvantages,
+                    style: MintTextStyles.labelSmall(color: MintColors.white60),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    S.of(context)!.concubinageConcubinage,
+                    style: MintTextStyles.bodyMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -378,10 +438,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     final isPenalite = fiscal['isPenalite'] as bool;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -438,10 +498,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     if (impot <= 0) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -511,7 +571,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
 
   Widget _buildNeutralConclusion() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
         borderRadius: BorderRadius.circular(16),
@@ -520,14 +580,14 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(MintSpacing.xs + 2),
             decoration: BoxDecoration(
               color: MintColors.white,
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(Icons.balance, size: 18, color: MintColors.primary),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -550,19 +610,20 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
   }
 
   // ════════════════════════════════════════════════════════════
-  //  TAB 2: CHECKLIST — Essential steps for concubins
+  //  TAB 2: PROTECTION — Survivor benefits gap
   // ════════════════════════════════════════════════════════════
 
-  Widget _buildTab2Checklist() {
-    final items = _checklistItems(context);
-    final nbChecked = _checkedItems.length;
+  Widget _buildTab2Protection() {
+    const avsSurvivor = avsRenteMaxMensuelle * FamilyService.avsSurvivorFactor;
+    final lppSurvivor = _renteLpp * FamilyService.lppSurvivorFactor;
+    final totalSurvivorMarried = avsSurvivor + lppSurvivor;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Intro
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(MintSpacing.md),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
             borderRadius: BorderRadius.circular(16),
@@ -573,7 +634,272 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             children: [
               const Icon(Icons.shield_outlined,
                   color: MintColors.info, size: 20),
-              const SizedBox(width: 12),
+              const SizedBox(width: MintSpacing.sm + 4),
+              Expanded(
+                child: Text(
+                  S.of(context)!.concubinageProtectionIntro,
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: MintSpacing.lg),
+
+        // LPP slider
+        Container(
+          padding: const EdgeInsets.all(MintSpacing.lg),
+          decoration: BoxDecoration(
+            color: MintColors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+                color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
+          ),
+          child: _buildSlider(
+            label: S.of(context)!.concubinageProtectionLppSlider,
+            value: _renteLpp,
+            min: 0,
+            max: 8000,
+            step: 100,
+            onChanged: (v) {
+              setState(() {
+                _renteLpp = v;
+              });
+            },
+          ),
+        ),
+        const SizedBox(height: MintSpacing.lg),
+
+        // Side-by-side chiffre-choc: Married vs Concubin survivor total
+        Row(
+          children: [
+            // Married survivor
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(MintSpacing.md),
+                decoration: BoxDecoration(
+                  color: MintColors.success.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: MintColors.success.withValues(alpha: 0.3)),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      FamilyService.formatChf(totalSurvivorMarried),
+                      style: MintTextStyles.titleMedium(color: MintColors.success).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(
+                      S.of(context)!.concubinageProtectionMaried,
+                      style: MintTextStyles.labelSmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: MintSpacing.sm + 4),
+            // Concubin survivor
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(MintSpacing.md),
+                decoration: BoxDecoration(
+                  color: MintColors.error.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      'CHF\u00a00',
+                      style: MintTextStyles.titleMedium(color: MintColors.error).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(
+                      S.of(context)!.concubinageProtectionConcubinLabel,
+                      style: MintTextStyles.labelSmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w600),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: MintSpacing.sm),
+        Text(
+          S.of(context)!.concubinageProtectionSurvivorZero,
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: MintSpacing.lg),
+
+        // Comparison table: married vs concubin
+        _buildProtectionComparison(),
+        const SizedBox(height: MintSpacing.lg),
+
+        // Educational insert — LPP survivor
+        _buildEducationalInsert(
+          S.of(context)!.concubinageEducationalLpp,
+        ),
+        const SizedBox(height: MintSpacing.lg),
+
+        // Clause 3a widget
+        _buildClause3aSection(),
+        const SizedBox(height: MintSpacing.lg),
+
+        // Survivor pension widget (concubin mode)
+        SurvivorPensionWidget(
+          partnerAvsRente: avsRenteMaxMensuelle,
+          partnerLppMonthly: _renteLpp,
+          isConcubin: true,
+        ),
+        const SizedBox(height: MintSpacing.lg),
+
+        _buildDisclaimer(),
+      ],
+    );
+  }
+
+  Widget _buildClause3aSection() {
+    final profile = context.read<CoachProfileProvider>().profile;
+    final balance = profile?.prevoyance.totalEpargne3a ?? 0;
+    final estimated = balance > 0
+        ? balance
+        : (_revenu1 + _revenu2) * 0.05 * 10;
+    return Clause3aWidget(
+      balance3a: estimated,
+    );
+  }
+
+  Widget _buildProtectionComparison() {
+    return Container(
+      padding: const EdgeInsets.all(MintSpacing.lg),
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header row
+          Row(
+            children: [
+              const Expanded(flex: 3, child: SizedBox()),
+              Expanded(
+                child: Center(
+                  child: Text(
+                    S.of(context)!.concubinageProtectionMaried,
+                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, fontSize: 11),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: Text(
+                    S.of(context)!.concubinageProtectionConcubinLabel,
+                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, fontSize: 11),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: MintSpacing.md),
+          _buildComparisonRow(S.of(context)!.concubinageProtectionAvsSurvivor, true, false),
+          _buildComparisonRow(S.of(context)!.concubinageProtectionLppSurvivor, true, false),
+          _buildComparisonRow(S.of(context)!.concubinageProtectionHeritage, true, false),
+          _buildComparisonRow(S.of(context)!.concubinageProtectionPension, true, false),
+          _buildComparisonRow(S.of(context)!.concubinageProtectionAvsPlafond, false, true),
+          const SizedBox(height: MintSpacing.sm),
+          Container(
+            padding: const EdgeInsets.all(MintSpacing.sm + 4),
+            decoration: BoxDecoration(
+              color: MintColors.error.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.warning_amber,
+                    size: 18, color: MintColors.error),
+                const SizedBox(width: MintSpacing.sm + 2),
+                Expanded(
+                  child: Text(
+                    S.of(context)!.concubinageProtectionWarning,
+                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildComparisonRow(String label, bool married, bool concubin) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: MintSpacing.sm + 2),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 3,
+            child: Text(
+              label,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Icon(
+                married ? Icons.check_circle : Icons.cancel,
+                size: 20,
+                color: married ? MintColors.success : MintColors.error,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Icon(
+                concubin ? Icons.check_circle : Icons.cancel,
+                size: 20,
+                color: concubin ? MintColors.success : MintColors.error,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  TAB 3: CHECKLIST — Essential steps for concubins
+  // ════════════════════════════════════════════════════════════
+
+  Widget _buildTab3Checklist() {
+    final items = _checklistItems(context);
+    final nbChecked = _checkedItems.length;
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
+      children: [
+        // Intro
+        Container(
+          padding: const EdgeInsets.all(MintSpacing.md),
+          decoration: BoxDecoration(
+            color: MintColors.appleSurface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: MintColors.lightBorder),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.checklist_rtl,
+                  color: MintColors.info, size: 20),
+              const SizedBox(width: MintSpacing.sm + 4),
               Expanded(
                 child: Text(
                   S.of(context)!.concubinageChecklistIntro,
@@ -583,14 +909,14 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         // Progress bar
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(MintSpacing.lg),
           decoration: BoxDecoration(
             color: MintColors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(color: MintColors.lightBorder),
           ),
           child: Column(
@@ -608,7 +934,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: MintSpacing.sm + 4),
               ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: AnimatedContainer(
@@ -626,7 +952,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         // Checklist items
         ...items.asMap().entries.map((entry) {
@@ -638,7 +964,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             description: item['description'] as String,
           );
         }),
-        const SizedBox(height: 20),
+        const SizedBox(height: MintSpacing.lg),
 
         _buildDisclaimer(),
       ],
@@ -654,7 +980,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     final isExpanded = _expandedItems[index] ?? false;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: MintSpacing.sm + 2),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
@@ -670,90 +996,88 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         ),
         child: Column(
           children: [
-            // Header row (checkbox + title + expand)
             Semantics(
-              label: 'Développer : $title',
+              label: title,
               button: true,
               child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _expandedItems[index] = !isExpanded;
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Checkbox
-                    Semantics(
-                      label: 'Cocher : $title',
-                      button: true,
-                      child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          if (isChecked) {
-                            _checkedItems.remove(index);
-                          } else {
-                            _checkedItems.add(index);
-                          }
-                        });
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: isChecked
-                              ? MintColors.success
-                              : MintColors.transparent,
-                          borderRadius: BorderRadius.circular(7),
-                          border: Border.all(
-                            color: isChecked
-                                ? MintColors.success
-                                : MintColors.border,
-                            width: 1.5,
+                onTap: () {
+                  setState(() {
+                    _expandedItems[index] = !isExpanded;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(MintSpacing.md),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Semantics(
+                        label: title,
+                        button: true,
+                        toggled: isChecked,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              if (isChecked) {
+                                _checkedItems.remove(index);
+                              } else {
+                                _checkedItems.add(index);
+                              }
+                            });
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: isChecked
+                                  ? MintColors.success
+                                  : MintColors.transparent,
+                              borderRadius: BorderRadius.circular(7),
+                              border: Border.all(
+                                color: isChecked
+                                    ? MintColors.success
+                                    : MintColors.border,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: isChecked
+                                ? const Icon(Icons.check,
+                                    size: 15, color: MintColors.white)
+                                : null,
                           ),
                         ),
-                        child: isChecked
-                            ? const Icon(Icons.check,
-                                size: 15, color: MintColors.white)
-                            : null,
                       ),
-                    ),
-                    ),
-                    const SizedBox(width: 12),
-
-                    // Title
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: MintTextStyles.bodyMedium(color: isChecked ? MintColors.textMuted : MintColors.textPrimary).copyWith(
-                          fontWeight: FontWeight.w600,
-                          decoration: isChecked ? TextDecoration.lineThrough : null,
+                      const SizedBox(width: MintSpacing.sm + 4),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: MintTextStyles.bodyMedium(
+                            color: isChecked
+                                ? MintColors.textMuted
+                                : MintColors.textPrimary,
+                          ).copyWith(
+                            fontWeight: FontWeight.w600,
+                            decoration:
+                                isChecked ? TextDecoration.lineThrough : null,
+                          ),
                         ),
                       ),
-                    ),
-
-                    // Expand icon
-                    Icon(
-                      isExpanded
-                          ? Icons.keyboard_arrow_up
-                          : Icons.keyboard_arrow_down,
-                      size: 20,
-                      color: MintColors.textMuted,
-                    ),
-                  ],
+                      Icon(
+                        isExpanded
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
+                        size: 20,
+                        color: MintColors.textMuted,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-            ),
-
-            // Expandable description
             AnimatedCrossFade(
               firstChild: const SizedBox.shrink(),
               secondChild: Container(
-                padding: const EdgeInsets.fromLTRB(52, 0, 16, 16),
+                padding: const EdgeInsets.fromLTRB(52, 0, MintSpacing.md, MintSpacing.md),
                 child: Text(
                   description,
                   style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
@@ -832,7 +1156,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             Expanded(
               child: Text(
                 label,
-                style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
               ),
             ),
             Text(
@@ -850,16 +1174,20 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             trackHeight: 4,
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
           ),
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions > 0 ? divisions : 1,
-            onChanged: (v) {
-              setState(() {
-                onChanged((v / step).round() * step);
-              });
-            },
+          child: Semantics(
+            label: label,
+            value: FamilyService.formatChf(value),
+            child: Slider(
+              value: value,
+              min: min,
+              max: max,
+              divisions: divisions > 0 ? divisions : 1,
+              onChanged: (v) {
+                setState(() {
+                  onChanged((v / step).round() * step);
+                });
+              },
+            ),
           ),
         ),
       ],
@@ -884,9 +1212,51 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     );
   }
 
+  Widget _buildEducationalInsert(String text) {
+    return Container(
+      padding: const EdgeInsets.all(MintSpacing.md),
+      decoration: BoxDecoration(
+        color: MintColors.info.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(MintSpacing.xs + 2),
+            decoration: BoxDecoration(
+              color: MintColors.info.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child:
+                const Icon(Icons.lightbulb_outline, size: 18, color: MintColors.info),
+          ),
+          const SizedBox(width: MintSpacing.sm + 4),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  S.of(context)!.lifeEventDidYouKnow,
+                  style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: MintSpacing.xs),
+                Text(
+                  text,
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDisclaimer() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
         color: MintColors.warningBg,
         borderRadius: BorderRadius.circular(16),
@@ -896,11 +1266,11 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, color: MintColors.warning, size: 18),
-          const SizedBox(width: 12),
+          const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
               S.of(context)!.concubinageDisclaimer,
-              style: MintTextStyles.labelSmall(color: MintColors.deepOrange).copyWith(height: 1.5),
+              style: MintTextStyles.micro(color: MintColors.deepOrange).copyWith(fontSize: 12, height: 1.5, fontStyle: FontStyle.normal),
             ),
           ),
         ],

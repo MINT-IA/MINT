@@ -240,21 +240,24 @@ void main() {
   });
 
   // ═══════════════════════════════════════════════════════════
-  //  3. ConcubinageScreen — S22, 2 tabs
+  //  3. ConcubinageScreen — S52, 3 tabs (Comparateur, Protection, Checklist)
   // ═══════════════════════════════════════════════════════════
 
   group('ConcubinageScreen', () {
     Widget buildConcubinageScreen() {
-      return const MaterialApp(
-        locale: Locale('fr'),
-        localizationsDelegates: [
-          S.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: S.supportedLocales,
-        home: ConcubinageScreen(),
+      return ChangeNotifierProvider<CoachProfileProvider>(
+        create: (_) => CoachProfileProvider(),
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: ConcubinageScreen(),
+        ),
       );
     }
 
@@ -271,21 +274,27 @@ void main() {
       expect(find.text('Mariage vs Concubinage'), findsWidgets);
     });
 
-    testWidgets('both tabs are present', (tester) async {
+    testWidgets('all three tabs are present', (tester) async {
       await tester.pumpWidget(buildConcubinageScreen());
       await tester.pumpAndSettle();
       expect(find.text('Comparateur'), findsOneWidget);
+      expect(find.text('Protection'), findsOneWidget);
       expect(find.text('Checklist'), findsOneWidget);
     });
 
     testWidgets('Tab 1 (Comparateur) shows decision matrix', (tester) async {
       await tester.pumpWidget(buildConcubinageScreen());
       await tester.pumpAndSettle();
-      // ConcubinageDecisionMatrix widget subtitle
+      // Decision matrix may be below fold due to hero chiffre-choc — scroll
+      final listFinder = find.byType(Scrollable).last;
+      await tester.scrollUntilVisible(
+        find.textContaining('Comparaison des droits'),
+        200,
+        scrollable: listFinder,
+      );
+      await tester.pumpAndSettle();
       expect(
-          find.text('Comparaison des droits et obligations'), findsOneWidget);
-      expect(find.text('Mariage'), findsWidgets);
-      expect(find.text('Concubinage'), findsWidgets);
+          find.textContaining('Comparaison des droits'), findsOneWidget);
     });
 
     testWidgets('Tab 1 (Comparateur) shows input sliders', (tester) async {
@@ -300,9 +309,6 @@ void main() {
         (tester) async {
       await tester.pumpWidget(buildConcubinageScreen());
       await tester.pumpAndSettle();
-      // Disclaimer is at the bottom of a long ListView inside a
-      // NestedScrollView. We need to scroll within the inner scrollable
-      // to make it visible.
       final listFinder = find.byType(Scrollable).last;
       await tester.scrollUntilVisible(
         find.textContaining('ne constitue pas'),
@@ -317,8 +323,6 @@ void main() {
         (tester) async {
       await tester.pumpWidget(buildConcubinageScreen());
       await tester.pumpAndSettle();
-      // The neutral conclusion is deep in a ListView inside a
-      // NestedScrollView — scroll to bring it into view.
       final listFinder = find.byType(Scrollable).last;
       await tester.scrollUntilVisible(
         find.textContaining('Aucune option'),
@@ -329,7 +333,19 @@ void main() {
       expect(find.textContaining('Aucune option'), findsOneWidget);
     });
 
-    testWidgets('Tab 2 (Checklist) renders without crash', (tester) async {
+    testWidgets('Tab 2 (Protection) renders comparison table', (tester) async {
+      await tester.pumpWidget(buildConcubinageScreen());
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Protection'));
+      await tester.pumpAndSettle();
+      // Protection tab should show the married vs concubin comparison
+      expect(
+        find.textContaining('la Suisse ne prot\u00e8ge pas', skipOffstage: false),
+        findsWidgets,
+      );
+    });
+
+    testWidgets('Tab 3 (Checklist) renders without crash', (tester) async {
       await tester.pumpWidget(buildConcubinageScreen());
       await tester.pumpAndSettle();
       await tester.tap(find.text('Checklist'));

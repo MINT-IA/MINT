@@ -17,6 +17,7 @@
 
 import 'dart:convert';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'pension_fund_registry.dart';
@@ -247,7 +248,7 @@ class MockPensionFundBackend implements PensionFundBackend {
           fund: fund,
           avoirLpp: 185420.0,
           rachatMaximal: 120000.0,
-          tauxConversion: 0.068,
+          tauxConversion: lppTauxConversionMinDecimal,
           bonificationAnnuelle: 0.15,
           dataDate: DateTime.now(),
           confidenceScore: 0.95,
@@ -258,7 +259,7 @@ class MockPensionFundBackend implements PensionFundBackend {
           fund: fund,
           avoirLpp: 95300.0,
           rachatMaximal: 250000.0,
-          tauxConversion: 0.068,
+          tauxConversion: lppTauxConversionMinDecimal,
           bonificationAnnuelle: 0.10,
           dataDate: DateTime.now(),
           confidenceScore: 0.95,
@@ -269,7 +270,7 @@ class MockPensionFundBackend implements PensionFundBackend {
           fund: fund,
           avoirLpp: 142750.0,
           rachatMaximal: 180000.0,
-          tauxConversion: 0.068,
+          tauxConversion: lppTauxConversionMinDecimal,
           bonificationAnnuelle: 0.18,
           dataDate: DateTime.now(),
           confidenceScore: 0.95,

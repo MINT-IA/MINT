@@ -41,7 +41,7 @@
 
 | # | Gate | Commande de vérification | PASS/FAIL |
 |---|------|--------------------------|-----------|
-| **A1** | Constantes backend = CLAUDE.md | Vérifier `services/backend/app/constants/social_insurance.py` : LPP seuil 22'680, coordination 26'460, min coordonné 3'780, conversion 6.8%, 3a salarié 7'258, 3a indep 36'288, AVS taux 10.60%, rente max 30'240 | ☐ |
+| **A1** | Constantes backend = CLAUDE.md | Vérifier `services/backend/app/constants/social_insurance.py` : LPP seuil 22'680, coordination 26'460, min coordonné 3'780, conversion min obligatoire 6.8% (part obligatoire uniquement — ne jamais appliquer implicitement sur tout le capital), 3a salarié 7'258, 3a indep 36'288, AVS taux 10.60%, rente max 30'240 | ☐ |
 | **A2** | Constantes Flutter = backend | Diff `apps/mobile/lib/constants/social_insurance.dart` vs `services/backend/app/constants/social_insurance.py` — toute divergence = P0 | ☐ |
 | **A3** | Zéro hardcoding dans services | `grep -rn "22680\|26460\|7258\|36288\|30240\|6\.8" apps/mobile/lib/services/ --include="*.dart"` — hors `constants/` et `financial_core/` = P1 | ☐ |
 | **A4** | Zéro hardcoding backend | `grep -rn "22680\|26460\|7258\|36288\|30240" services/backend/app/services/ --include="*.py"` — hors `constants/` = P1 | ☐ |
@@ -199,7 +199,7 @@
 | **E6** | Couverture des 8 archetypes | Les inserts mentionnent les spécificités: expat (totalisation), frontalier (impôt source), indépendant (3a max 36'288), etc. | ☐ |
 | **E7** | Wizard questions cohérentes | Chaque question du wizard a un insert explicatif. L'insert correspond à la question posée | ☐ |
 | **E8** | Pilier 1 (AVS) — contenu exact | Taux 10.60%, rente max 30'240/an, 44 années complètes, bonification éducative, splitting divorce | ☐ |
-| **E9** | Pilier 2 (LPP) — contenu exact | Seuil 22'680, coordination 26'460, conversion 6.8%, bonifications par âge, EPL 20'000 min, blocage 3 ans | ☐ |
+| **E9** | Pilier 2 (LPP) — contenu exact | Seuil 22'680, coordination 26'460, conversion min obligatoire 6.8% (part obligatoire uniquement — distinguer oblig/suroblig), bonifications par âge, EPL 20'000 min, blocage 3 ans | ☐ |
 | **E10** | Pilier 3a — contenu exact | Salarié LPP: 7'258/an, indep sans LPP: 20% revenu net max 36'288/an, déductible du revenu imposable | ☐ |
 | **E11** | Hypothèque — contenu exact | Taux théorique 5%, amortissement 1%/an, frais 1%/an, charges max 1/3 revenu, fonds propres 20% | ☐ |
 | **E12** | Impôt retrait capital — barème correct | 0-100k ×1.00, 100-200k ×1.15, 200-500k ×1.30, 500k-1M ×1.50, 1M+ ×1.70 | ☐ |
